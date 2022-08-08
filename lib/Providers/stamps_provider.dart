@@ -33,6 +33,10 @@ class StampNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  changeEarliest(DateTime time) {
+    stampRepo?.earliestDate = time;
+  }
+
   @override
   String toString() {
     return stamps.map((e) => e.type).join(' ');
