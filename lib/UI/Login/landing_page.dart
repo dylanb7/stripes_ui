@@ -13,7 +13,7 @@ class LandingPage extends StatelessWidget {
         const Spacer(
           flex: 2,
         ),
-        Image.asset('assets/images/StripesLogo.png'),
+        Image.asset('lib/assets/images/StripesLogo.png'),
         const Spacer(
           flex: 1,
         ),
