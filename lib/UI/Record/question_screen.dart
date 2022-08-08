@@ -290,18 +290,17 @@ class _BMSliderState extends ConsumerState<BMSlider> {
   @override
   void initState() {
     const List<String> paths = [
-      'assets/images/poop1.png',
-      'assets/images/poop2.png',
-      'assets/images/poop3.png',
-      'assets/images/poop4.png',
-      'assets/images/poop5.png',
-      'assets/images/poop6.png',
-      'assets/images/poop7.png'
+      'packages/stripes_ui/assets/images/poop1.png',
+      'packages/stripes_ui/assets/images/poop2.png',
+      'packages/stripes_ui/assets/images/poop3.png',
+      'packages/stripes_ui/assets/images/poop4.png',
+      'packages/stripes_ui/assets/images/poop5.png',
+      'packages/stripes_ui/assets/images/poop6.png',
+      'packages/stripes_ui/assets/images/poop7.png'
     ];
     images = paths
         .map((path) => Image.asset(
               path,
-              package: 'stripes_ui',
             ))
         .toList();
     final Response? res = widget.listener.fromQuestion(
