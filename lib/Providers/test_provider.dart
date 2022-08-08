@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/RepositoryBase/StampBase/base_stamp_repo.dart';
 import 'package:stripes_backend_helper/RepositoryBase/TestBase/BlueDye/blue_dye_impl.dart';
+import 'package:stripes_backend_helper/RepositoryBase/TestBase/BlueDye/bm_test_log.dart';
 import 'package:stripes_backend_helper/RepositoryBase/TestBase/base_test_repo.dart';
 
 import 'package:stripes_ui/Providers/repos_provider.dart';
@@ -27,7 +28,7 @@ class TestNotifier extends ChangeNotifier with EquatableMixin {
   TestNotifier(this.repo) {
     if (repo != null) {
       repo!.obj.listen((event) {
-        obj = event as BlueDyeTest;
+        obj = event;
         notifyListeners();
       });
     }
@@ -64,4 +65,29 @@ class TestNotifier extends ChangeNotifier with EquatableMixin {
 
   @override
   List<Object?> get props => [repo, obj];
+}
+
+enum TestState {
+  initial,
+  started,
+  logs,
+  logsSubmit;
+
+  bool get testInProgress => this != TestState.initial;
+}
+
+TestState stateFromTestOBJ(BlueDyeTest? obj) {
+  if (obj == null) return TestState.initial;
+  if (obj.finishedEating == null) return TestState.started;
+  bool startsBlue = false;
+  bool endsNormal = false;
+  for (BMTestLog log in obj.logs) {
+    if (log.isBlue) {
+      startsBlue = true;
+    } else if (startsBlue) {
+      endsNormal = true;
+    }
+  }
+  if (endsNormal) return TestState.logsSubmit;
+  return TestState.logs;
 }
