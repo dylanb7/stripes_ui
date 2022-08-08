@@ -314,6 +314,14 @@ class _BMSliderState extends ConsumerState<BMSlider> {
   }
 
   @override
+  void didChangeDependencies() {
+    for (Image image in images) {
+      precacheImage(image.image, context);
+    }
+    super.didChangeDependencies();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
