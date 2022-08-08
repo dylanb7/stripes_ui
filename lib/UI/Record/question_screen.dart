@@ -301,6 +301,7 @@ class _BMSliderState extends ConsumerState<BMSlider> {
     images = paths
         .map((path) => Image.asset(
               path,
+              package: 'stripes_ui',
             ))
         .toList();
     final Response? res = widget.listener.fromQuestion(
