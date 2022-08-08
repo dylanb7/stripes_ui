@@ -14,7 +14,7 @@ class LandingPage extends StatelessWidget {
           flex: 2,
         ),
         Image.asset(
-          'lib/assets/images/StripesLogo.png',
+          'assets/images/StripesLogo.png',
           package: 'stripes_ui',
         ),
         const Spacer(

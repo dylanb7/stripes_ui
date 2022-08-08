@@ -290,13 +290,13 @@ class _BMSliderState extends ConsumerState<BMSlider> {
   @override
   void initState() {
     const List<String> paths = [
-      'lib/assets/images/poop1.png',
-      'lib/assets/images/poop2.png',
-      'lib/assets/images/poop3.png',
-      'lib/assets/images/poop4.png',
-      'lib/assets/images/poop5.png',
-      'lib/assets/images/poop6.png',
-      'lib/assets/images/poop7.png'
+      'assets/images/poop1.png',
+      'assets/images/poop2.png',
+      'assets/images/poop3.png',
+      'assets/images/poop4.png',
+      'assets/images/poop5.png',
+      'assets/images/poop6.png',
+      'assets/images/poop7.png'
     ];
     images = paths
         .map((path) => Image.asset(
