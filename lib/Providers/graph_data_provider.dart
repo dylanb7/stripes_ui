@@ -240,6 +240,7 @@ Map<int, GraphLabel> _iterLabels(
   return labels;
 }
 
+// ignore: unused_element
 double _genVariance(GraphBarData packet) {
   List<BarData> points = packet.barData;
   double sum = 0;

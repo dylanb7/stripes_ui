@@ -91,7 +91,7 @@ class AnimatedCheck extends StatefulWidget {
   const AnimatedCheck({Key? key}) : super(key: key);
 
   @override
-  _AnimatedCheckState createState() => _AnimatedCheckState();
+  State createState() => _AnimatedCheckState();
 }
 
 class _AnimatedCheckState extends State<AnimatedCheck>

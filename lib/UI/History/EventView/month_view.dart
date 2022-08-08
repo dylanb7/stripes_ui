@@ -120,13 +120,6 @@ class MonthView extends ConsumerWidget {
             borderRadius: BorderRadius.circular(10.0),
             color: darkBackgroundText),
         child: DecoratedBox(
-          child: Center(
-            child: Text(
-              text,
-              style: lightBackgroundStyle.copyWith(
-                  color: textColor, fontSize: 14.0),
-            ),
-          ),
           decoration: BoxDecoration(
               color: background,
               shape: BoxShape.circle,
@@ -134,6 +127,13 @@ class MonthView extends ConsumerWidget {
                 color: selected ? textColor : Colors.transparent,
                 width: 3.0,
               )),
+          child: Center(
+            child: Text(
+              text,
+              style: lightBackgroundStyle.copyWith(
+                  color: textColor, fontSize: 14.0),
+            ),
+          ),
         ),
       ),
     );

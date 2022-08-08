@@ -290,7 +290,7 @@ class _BarGraphState extends ConsumerState<BarGraph> {
           getTitlesWidget: (double val, TitleMeta meta) {
             if (val != val.ceilToDouble()) return empty;
             return SideTitleWidget(
-                child: Text('$val'), axisSide: AxisSide.right);
+                axisSide: AxisSide.right, child: Text('$val'));
           },
         ),
       ),
@@ -310,7 +310,7 @@ class _BarGraphState extends ConsumerState<BarGraph> {
                     message: label.value,
                     showDuration: Duration.zero,
                     child: SideTitleWidget(
-                        child: Text(label.abr), axisSide: AxisSide.bottom),
+                        axisSide: AxisSide.bottom, child: Text(label.abr)),
                   );
           },
         ),
