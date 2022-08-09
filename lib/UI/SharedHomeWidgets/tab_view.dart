@@ -200,7 +200,7 @@ class LargeLayout extends StatelessWidget {
               ),
               _decorationWrap(
                 child: Image.asset(
-                  'assets/images/StripesLogo.png',
+                  'packages/stripes_ui/assets/images/StripesLogo.png',
                 ),
               ),
               const Spacer(),

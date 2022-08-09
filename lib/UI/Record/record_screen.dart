@@ -53,8 +53,8 @@ class Options extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final TestState state =
-        ref.watch(testHolderProvider.select((value) => value.state));
+    /*final TestState state =
+        ref.watch(testHolderProvider.select((value) => value.state));*/
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 40),
       sliver: SliverList(
@@ -69,7 +69,7 @@ class Options extends ConsumerWidget {
             ),
             ...Options.symToRoute.keys.map((key) {
               final String route = Options.symToRoute[key]!;
-              if (key != Symptoms.BM || !state.testInProgress) {
+              if (key != Symptoms.BM /* || !state.testInProgress*/) {
                 return RecordButton(key, (context) {
                   context.goNamed(route);
                 });

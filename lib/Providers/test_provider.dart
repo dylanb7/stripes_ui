@@ -2,19 +2,22 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/RepositoryBase/StampBase/base_stamp_repo.dart';
+import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
 import 'package:stripes_backend_helper/RepositoryBase/TestBase/BlueDye/blue_dye_impl.dart';
 import 'package:stripes_backend_helper/RepositoryBase/TestBase/BlueDye/bm_test_log.dart';
 import 'package:stripes_backend_helper/RepositoryBase/TestBase/base_test_repo.dart';
-
-import 'package:stripes_ui/Providers/repos_provider.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
+import 'package:stripes_ui/Providers/sub_provider.dart';
+import 'package:stripes_ui/entry.dart';
 
 final testProvider = Provider<TestRepo<BlueDyeTest>?>((ref) {
   final StampRepo? repo = ref.watch(stampProvider);
+  final SubUser sub =
+      ref.watch(subHolderProvider.select((value) => value.current));
   if (repo == null) return null;
   return ref
       .watch(reposProvider)
-      .test(user: repo.authUser, subUser: repo.currentUser, stampRepo: repo);
+      .test(user: repo.authUser, subUser: sub, stampRepo: repo);
 });
 
 final testHolderProvider = ChangeNotifierProvider<TestNotifier>(

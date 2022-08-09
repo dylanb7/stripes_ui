@@ -5,9 +5,9 @@ import 'package:stripes_backend_helper/RepositoryBase/AuthBase/auth_user.dart';
 import 'package:stripes_backend_helper/RepositoryBase/SubBase/base_sub_repo.dart';
 import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
 import 'package:stripes_ui/Providers/auth_provider.dart';
-import 'package:stripes_ui/Providers/repos_provider.dart';
 import 'package:stripes_ui/Providers/shared_service_provider.dart';
 import 'package:stripes_ui/Services/shared_service.dart';
+import 'package:stripes_ui/entry.dart';
 
 final subProvider = Provider<SubUserRepo?>(
   (ref) {

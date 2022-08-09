@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/repo_package.dart';
-import 'package:stripes_ui/Providers/repos_provider.dart';
 import 'package:stripes_ui/Providers/route_provider.dart';
 import 'package:stripes_ui/Util/palette.dart';
 
@@ -37,6 +36,8 @@ class Logger extends ProviderObserver {
     super.didDisposeProvider(provider, containers);
   }
 }
+
+final reposProvider = Provider<StripesRepoPackage>((ref) => LocalRepoPackage());
 
 class StripesApp extends StatelessWidget {
   final bool hasLogging;

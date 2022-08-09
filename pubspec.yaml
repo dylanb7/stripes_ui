@@ -40,5 +40,12 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/images/
+    - packages/stripes_ui/assets/images/StripesLogo.png
+    - packages/stripes_ui/assets/images/poop1.png
+    - packages/stripes_ui/assets/images/poop2.png
+    - packages/stripes_ui/assets/images/poop3.png
+    - packages/stripes_ui/assets/images/poop4.png
+    - packages/stripes_ui/assets/images/poop5.png
+    - packages/stripes_ui/assets/images/poop6.png
+    - packages/stripes_ui/assets/images/poop7.png
     
