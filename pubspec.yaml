@@ -5,16 +5,14 @@ homepage: https://github.com/dylanb7/stripes_ui
 publish_to: none
 
 environment:
-  sdk: '>=2.18.0-281.0.dev <3.0.0'
+  sdk: ">=2.17.0 <3.0.0"
   flutter: ">=1.17.0"
 
 dependencies:
   flutter:
     sdk: flutter
   stripes_backend_helper:
-    git: 
-      url: https://github.com/dylanb7/stripes_backend_helper
-      branch: master
+    path: ../stripes_backend_helper
   flutter_riverpod: ^1.0.4
   go_router: ^4.0.0
   equatable: ^2.0.3
@@ -48,4 +46,3 @@ flutter:
     - packages/stripes_ui/assets/images/poop5.png
     - packages/stripes_ui/assets/images/poop6.png
     - packages/stripes_ui/assets/images/poop7.png
-    

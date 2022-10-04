@@ -29,28 +29,22 @@ class Home extends ConsumerWidget {
     final SubUser currentSub = ref.watch(subHolderProvider).current;
     final FloatingActionButton? button = ref.watch(actionProvider);
     return _SmallUpdater(
-        child: Scaffold(
-      floatingActionButtonLocation:
-          FloatingActionButtonLocation.miniCenterFloat,
-      floatingActionButton: button,
-      /*AnimatedSlide(
-        duration: duration,
-        offset: present ? Offset.zero : const Offset(0, 2),
-        child: AnimatedOpacity(
-          duration: duration,
-          opacity: present ? 1 : 0,
-          child: button,
+      child: Scaffold(
+        floatingActionButtonLocation:
+            FloatingActionButtonLocation.miniCenterFloat,
+        floatingActionButton: button,
+        body: SafeArea(
+          child: SubUser.isEmpty((currentSub))
+              ? CreatePatient()
+              : Stack(
+                  children: [
+                    StripesTabView(selected: path.option),
+                    if (overlay.widget != null) overlay.widget!
+                  ],
+                ),
         ),
-      ),*/
-      body: SubUser.isEmpty((currentSub))
-          ? CreatePatient()
-          : Stack(
-              children: [
-                StripesTabView(selected: path.option),
-                if (overlay.widget != null) overlay.widget!
-              ],
-            ),
-    ));
+      ),
+    );
   }
 }
 

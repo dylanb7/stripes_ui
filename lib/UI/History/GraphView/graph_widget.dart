@@ -39,9 +39,13 @@ class GraphWidget extends ConsumerWidget {
         const SizedBox(
           height: 14.0,
         ),
-        Text(
-          'Behavior Frequency',
-          style: darkBackgroundScreenHeaderStyle.copyWith(fontSize: 34.0),
+        FittedBox(
+          fit: BoxFit.contain,
+          child: Text(
+            'Behavior Frequency',
+            maxLines: 1,
+            style: darkBackgroundScreenHeaderStyle.copyWith(fontSize: 34.0),
+          ),
         ),
         const SizedBox(
           height: 8,
@@ -98,7 +102,7 @@ class GraphWidget extends ConsumerWidget {
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
           elevation: 6.0,
           child: Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.all(10.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [

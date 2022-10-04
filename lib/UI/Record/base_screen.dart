@@ -47,123 +47,125 @@ class _BaseScreenState extends ConsumerState<BaseScreen> {
   Widget build(BuildContext context) {
     final OverlayQuery query = ref.watch(overlayProvider);
     final Size screenSize = MediaQuery.of(context).size;
-    return Material(
-      shadowColor: Colors.transparent,
-      color: Colors.transparent,
-      child: Container(
-        decoration: const BoxDecoration(
-            gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [backgroundStrong, backgroundLight])),
-        child: Stack(children: [
-          SingleChildScrollView(
-            child: Center(
-              child: SizedBox(
-                width: min(SMALL_LAYOUT, screenSize.width),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Flexible(
-                              child: Text(
-                                'Recording a ${widget.type}\nfor ${_name()}',
-                                style: darkBackgroundHeaderStyle,
-                              ),
-                            ),
-                            IconButton(
-                                onPressed: () {
-                                  _showErrorPrevention(context);
-                                },
-                                icon: const Icon(
-                                  Icons.close,
-                                  size: 35,
-                                  color: buttonDarkBackground,
-                                ))
-                          ],
+    return SafeArea(
+      child: Material(
+        shadowColor: Colors.transparent,
+        color: Colors.transparent,
+        child: Container(
+          decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [backgroundStrong, backgroundLight])),
+          child: Stack(children: [
+            SingleChildScrollView(
+              child: Center(
+                child: SizedBox(
+                  width: min(SMALL_LAYOUT, screenSize.width),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(
+                          height: 10,
                         ),
-                      ),
-                      const SizedBox(
-                        height: 8.0,
-                      ),
-                      Card(
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(10),
-                          ),
-                        ),
-                        elevation: 8.0,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 5.0, horizontal: 8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              ScreenManager(
-                                controller: widget.screen,
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 10),
-                                child: Row(
-                                  children: [
-                                    if (widget.screen.hasPrev())
-                                      IconButton(
-                                        padding: EdgeInsets.zero,
-                                        onPressed: _prev,
-                                        highlightColor: Colors.transparent,
-                                        hoverColor: Colors.transparent,
-                                        splashColor: Colors.transparent,
-                                        tooltip: 'Previous',
-                                        iconSize: 65,
-                                        icon: const Icon(
-                                          Icons.arrow_back_rounded,
-                                          color: buttonLightBackground,
-                                        ),
-                                      ),
-                                    const Spacer(),
-                                    if (widget.screen.hasNext())
-                                      IconButton(
-                                        padding: EdgeInsets.zero,
-                                        onPressed: _next,
-                                        highlightColor: Colors.transparent,
-                                        hoverColor: Colors.transparent,
-                                        splashColor: Colors.transparent,
-                                        tooltip: 'Next',
-                                        iconSize: 65,
-                                        icon: const Icon(
-                                          Icons.arrow_forward_rounded,
-                                          color: buttonLightBackground,
-                                        ),
-                                      ),
-                                  ],
+                              Flexible(
+                                child: Text(
+                                  'Recording a ${widget.type}\nfor ${_name()}',
+                                  style: darkBackgroundHeaderStyle,
                                 ),
                               ),
+                              IconButton(
+                                  onPressed: () {
+                                    _showErrorPrevention(context);
+                                  },
+                                  icon: const Icon(
+                                    Icons.close,
+                                    size: 35,
+                                    color: buttonDarkBackground,
+                                  ))
                             ],
                           ),
                         ),
-                      ),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                    ],
+                        const SizedBox(
+                          height: 8.0,
+                        ),
+                        Card(
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(10),
+                            ),
+                          ),
+                          elevation: 8.0,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 5.0, horizontal: 8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                ScreenManager(
+                                  controller: widget.screen,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20, vertical: 10),
+                                  child: Row(
+                                    children: [
+                                      if (widget.screen.hasPrev())
+                                        IconButton(
+                                          padding: EdgeInsets.zero,
+                                          onPressed: _prev,
+                                          highlightColor: Colors.transparent,
+                                          hoverColor: Colors.transparent,
+                                          splashColor: Colors.transparent,
+                                          tooltip: 'Previous',
+                                          iconSize: 65,
+                                          icon: const Icon(
+                                            Icons.arrow_back_rounded,
+                                            color: buttonLightBackground,
+                                          ),
+                                        ),
+                                      const Spacer(),
+                                      if (widget.screen.hasNext())
+                                        IconButton(
+                                          padding: EdgeInsets.zero,
+                                          onPressed: _next,
+                                          highlightColor: Colors.transparent,
+                                          hoverColor: Colors.transparent,
+                                          splashColor: Colors.transparent,
+                                          tooltip: 'Next',
+                                          iconSize: 65,
+                                          icon: const Icon(
+                                            Icons.arrow_forward_rounded,
+                                            color: buttonLightBackground,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 15,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          if (query.widget != null) query.widget!,
-        ]),
+            if (query.widget != null) query.widget!,
+          ]),
+        ),
       ),
     );
   }

@@ -29,7 +29,7 @@ class ExportOverlay extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Available available = ref.read(availibleStampsProvider);
+    Available available = ref.watch(availibleStampsProvider);
     return OverlayBackdrop(child: Container());
   }
 }

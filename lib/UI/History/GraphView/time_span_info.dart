@@ -22,86 +22,84 @@ class TimeSpanInfo extends ConsumerWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40),
+      padding: const EdgeInsets.symmetric(horizontal: 30),
       child: Center(
         child: SizedBox(
           height: 70,
           width: min(450, width),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Card(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.0)),
-              elevation: 8.0,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Expanded(
-                      child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Events',
-                        style: buttonText,
-                      ),
-                      Text(
-                        '${stamps.length}',
-                        style: lightBackgroundStyle.copyWith(
-                            fontWeight: FontWeight.bold),
-                      )
-                    ],
-                  )),
-                  const VerticalDivider(
-                    width: 5,
-                    thickness: 2,
-                    indent: 25,
-                    endIndent: 2,
-                    color: Colors.black54,
-                  ),
-                  Expanded(
-                      child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Oldest',
-                        style: buttonText,
-                      ),
-                      Text(
-                        '${_respToDateStr(stamps.last)}',
-                        style: lightBackgroundStyle.copyWith(
-                            fontWeight: FontWeight.bold),
-                      )
-                    ],
-                  )),
-                  const VerticalDivider(
-                    width: 5,
-                    thickness: 2,
-                    indent: 25,
-                    endIndent: 2,
-                    color: Colors.black54,
-                  ),
-                  Expanded(
-                      child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Newest',
-                        style: buttonText,
-                      ),
-                      Text(
-                        '${_respToDateStr(stamps.first)}',
-                        style: lightBackgroundStyle.copyWith(
-                            fontWeight: FontWeight.bold),
-                      )
-                    ],
-                  )),
-                ],
-              ),
+          child: Card(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.0)),
+            elevation: 8.0,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Expanded(
+                    child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Events',
+                      style: buttonText,
+                    ),
+                    Text(
+                      '${stamps.length}',
+                      style: lightBackgroundStyle.copyWith(
+                          fontWeight: FontWeight.bold),
+                    )
+                  ],
+                )),
+                const VerticalDivider(
+                  width: 5,
+                  thickness: 2,
+                  indent: 25,
+                  endIndent: 2,
+                  color: Colors.black54,
+                ),
+                Expanded(
+                    child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Oldest',
+                      style: buttonText,
+                    ),
+                    Text(
+                      '${_respToDateStr(stamps.last)}',
+                      style: lightBackgroundStyle.copyWith(
+                          fontWeight: FontWeight.bold),
+                    )
+                  ],
+                )),
+                const VerticalDivider(
+                  width: 5,
+                  thickness: 2,
+                  indent: 25,
+                  endIndent: 2,
+                  color: Colors.black54,
+                ),
+                Expanded(
+                    child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Newest',
+                      style: buttonText,
+                    ),
+                    Text(
+                      '${_respToDateStr(stamps.first)}',
+                      style: lightBackgroundStyle.copyWith(
+                          fontWeight: FontWeight.bold),
+                    )
+                  ],
+                )),
+              ],
             ),
-          ]),
+          ),
         ),
       ),
     );

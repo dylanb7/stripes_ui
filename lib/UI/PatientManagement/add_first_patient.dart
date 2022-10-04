@@ -47,13 +47,14 @@ class CreatePatient extends ConsumerWidget {
               ])),
           const Text(
             'Please fill in the information for your first patient',
+            textAlign: TextAlign.center,
             style: darkBackgroundStyle,
           ),
           const Spacer(),
         ],
       ),
       form: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 45.0),
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: FocusTraversalGroup(
           child: Form(
             key: _formKey,

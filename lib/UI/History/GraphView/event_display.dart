@@ -15,10 +15,9 @@ class EventDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double width = MediaQuery.of(context).size.width;
-
     if (width >= SIDE_BY_SIDE) {
       return Padding(
-        padding: const EdgeInsets.only(left: 30.0, right: 30.0, top: 10.0),
+        padding: const EdgeInsets.only(left: 15.0, right: 15.0, top: 10.0),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
@@ -42,7 +41,7 @@ class EventDisplay extends StatelessWidget {
         child: SizedBox(
           width: min(width, SMALL_LAYOUT),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Center(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,

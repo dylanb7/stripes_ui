@@ -22,7 +22,7 @@ import '../UI/Login/login.dart';
 final routeProvider = Provider<GoRouter>((ref) {
   final RouteNotifier router = RouteNotifier(ref);
   return GoRouter(
-      debugLogDiagnostics: true,
+      debugLogDiagnostics: false,
       urlPathStrategy: UrlPathStrategy.path,
       refreshListenable: router,
       redirect: router._redirect,
@@ -154,7 +154,9 @@ class Scaff extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: null,
-      body: child,
+      body: SafeArea(
+        child: child,
+      ),
     );
   }
 }
