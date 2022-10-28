@@ -38,7 +38,7 @@ class TestNotifier extends ChangeNotifier with EquatableMixin {
   }
 
   setStart(DateTime start) {
-    if (available) {
+    if (available && obj != null) {
       obj!.setStart = start;
     } else {
       obj = BlueDyeTest(startTime: start, logs: []);
