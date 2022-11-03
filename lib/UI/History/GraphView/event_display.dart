@@ -28,7 +28,7 @@ class EventDisplay extends StatelessWidget {
               color: darkBackgroundText,
             ),
             Expanded(
-              child: /*GraphWidget()*/ SizedBox(),
+              child: GraphWidget(),
             ),
           ],
         ),
@@ -46,9 +46,7 @@ class EventDisplay extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
-                children: const [
-                  EventFrequency(), /*GraphWidget()*/
-                ],
+                children: const [EventFrequency(), GraphWidget()],
               ),
             ),
           ),

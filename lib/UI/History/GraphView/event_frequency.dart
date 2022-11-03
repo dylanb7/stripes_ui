@@ -82,8 +82,21 @@ class EventFrequency extends ConsumerWidget {
                       i++)
                     promptKeys[i]: prompts[promptKeys[i]]!
                 };
+                if (displayed.isEmpty) {
+                  return Padding(
+                    padding: const EdgeInsets.only(left: 8.0, right: 20.0),
+                    child: FrequencyRow(
+                        percent: catVal.toDouble() / maxLengthCat,
+                        amount: catVal,
+                        fillColor: darkIconButton.withOpacity(0.9),
+                        hasTooltip: false,
+                        prompt: key),
+                  );
+                }
+
                 final double maxPromptLength =
-                    displayed.isEmpty ? 1.0 : displayed.values.first.toDouble();
+                    displayed.values.first.toDouble();
+
                 return FreqExpandible(
                   header: FrequencyRow(
                       percent: catVal.toDouble() / maxLengthCat,
