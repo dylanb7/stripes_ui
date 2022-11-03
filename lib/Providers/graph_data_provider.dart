@@ -76,6 +76,7 @@ CategoryBehaviorMaps _generateValueMaps(
     }
   }
 
+  print("got prompts");
   Map<String, List<Response>> prompts = {};
   Map<String, List<Response>> behaviorMap = {};
   for (Response parent in filt) {
@@ -95,6 +96,7 @@ CategoryBehaviorMaps _generateValueMaps(
     }
   }
   behaviorMap = _sortedMap<List<Response>>(behaviorMap, (list) => list.length);
+  print("got behaviors");
   final Map<String, int> categoryMap =
       _orderedResponses(filt, types, (res) => res.type);
   final Map<String, Map<String, int>> promptsMap = {
@@ -102,6 +104,7 @@ CategoryBehaviorMaps _generateValueMaps(
       key: _orderedResponses(
           prompts[key]!, promptKeys[key]!, (res) => res.question.prompt)
   };
+  print("got maps");
   return CategoryBehaviorMaps(categoryMap, behaviorMap, promptsMap);
 }
 
