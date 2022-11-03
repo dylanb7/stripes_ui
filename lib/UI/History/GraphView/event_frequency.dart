@@ -67,7 +67,7 @@ class EventFrequency extends ConsumerWidget {
               ...catMap.keys.map((key) {
                 final int catVal = catMap[key]!;
                 final Map<String, int> prompts =
-                    freqs.categoryBehaviorMap[key]!;
+                    freqs.categoryBehaviorMap[key] ?? {};
                 final List<String> promptKeys = prompts.keys.toList();
                 final Map<String, int> displayed = {
                   for (int i = 0;
