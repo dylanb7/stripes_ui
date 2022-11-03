@@ -83,7 +83,7 @@ class EventFrequency extends ConsumerWidget {
                     promptKeys[i]: prompts[promptKeys[i]]!
                 };
                 final double maxPromptLength =
-                    displayed.values.first.toDouble();
+                    displayed.isEmpty ? 1.0 : displayed.values.first.toDouble();
                 return FreqExpandible(
                   header: FrequencyRow(
                       percent: catVal.toDouble() / maxLengthCat,
