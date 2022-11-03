@@ -33,6 +33,13 @@ class EventFrequency extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
+    freqs.categoryBehaviorMap.forEach((key, value) {
+      print(key);
+      value.forEach((key, value) {
+        print("\t$key, $value");
+      });
+    });
+
     Map<String, int> catMap = freqs.categoryMap;
 
     final double maxLengthCat = catMap.values.first.toDouble();
