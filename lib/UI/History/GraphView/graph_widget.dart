@@ -148,17 +148,10 @@ class _BarGraphState extends ConsumerState<BarGraph> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             if (graphBarData.isSeverity) ...[
-              const VerticalDivider(
-                width: 8.0,
-                thickness: 2,
-                indent: 25,
-                endIndent: 2,
-                color: Colors.black54,
-              ),
               const SizedBox(
                 width: 8.0,
               ),
@@ -477,9 +470,10 @@ class ColorKey extends StatelessWidget {
                   (color) => Padding(
                       padding: const EdgeInsets.symmetric(vertical: 5.0),
                       child: Container(
-                        width: 25.0,
-                        height: 25.0,
-                        color: color,
+                        decoration:
+                            BoxDecoration(color: color, shape: BoxShape.circle),
+                        width: 15.0,
+                        height: 15.0,
                       )),
                 )
                 .toList()),

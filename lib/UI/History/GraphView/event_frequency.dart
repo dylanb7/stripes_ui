@@ -84,7 +84,7 @@ class EventFrequency extends ConsumerWidget {
                 };
                 if (displayed.isEmpty) {
                   return Padding(
-                    padding: const EdgeInsets.only(left: 8.0, right: 20.0),
+                    padding: const EdgeInsets.only(left: 8.0, right: 30.0),
                     child: FrequencyRow(
                         percent: catVal.toDouble() / maxLengthCat,
                         amount: catVal,
