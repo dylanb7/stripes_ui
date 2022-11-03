@@ -236,7 +236,9 @@ class _BarGraphState extends ConsumerState<BarGraph> {
           getTitlesWidget: (double val, TitleMeta meta) {
             if (val != val.ceilToDouble()) return empty;
             return SideTitleWidget(
-                axisSide: AxisSide.right, child: Text('$val'));
+                space: 12.0,
+                axisSide: AxisSide.right,
+                child: Text('${val.toInt()}'));
           },
         ),
       ),
@@ -464,20 +466,23 @@ class ColorKey extends StatelessWidget {
         const SizedBox(
           width: 4.0,
         ),
-        Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: values
-                .map(
-                  (color) => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 5.0),
-                      child: Container(
-                        decoration:
-                            BoxDecoration(color: color, shape: BoxShape.circle),
-                        width: 15.0,
-                        height: 15.0,
-                      )),
-                )
-                .toList()),
+        Padding(
+          padding: const EdgeInsets.only(top: 5.0),
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: values
+                  .map(
+                    (color) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 5.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                              color: color, shape: BoxShape.circle),
+                          width: 15.0,
+                          height: 15.0,
+                        )),
+                  )
+                  .toList()),
+        ),
       ],
     );
   }
