@@ -18,7 +18,12 @@ class TimeSpanInfo extends ConsumerWidget {
     final double width = MediaQuery.of(context).size.width;
 
     if (stamps.isEmpty) {
-      return Container();
+      return const Center(
+        child: Text(
+          "No Data Recorded",
+          style: darkBackgroundHeaderStyle,
+        ),
+      );
     }
 
     return Padding(
