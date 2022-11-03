@@ -21,6 +21,8 @@ class DateControl extends ConsumerWidget {
     final ShiftAmount shiftAmount = graphToShift[graphChoice]!;
     final DateTime start = end.subtract(shiftAmount.amount);
     final double width = MediaQuery.of(context).size.width;
+    final bool forwardDisabled =
+        end.add(shiftAmount.amount).isAfter(DateTime.now());
     return Padding(
         padding: const EdgeInsets.only(left: 30.0, right: 30.0, bottom: 8.0),
         child: Center(
@@ -73,11 +75,12 @@ class DateControl extends ConsumerWidget {
                     padding: EdgeInsets.zero,
                     tooltip: 'Forward',
                     onPressed: () {
+                      if (forwardDisabled) return;
                       _shift(ref, ShiftDirection.future, shiftAmount);
                     },
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.keyboard_arrow_right,
-                      color: darkIconButton,
+                      color: forwardDisabled ? Colors.grey : darkIconButton,
                     ),
                   ),
                 ),

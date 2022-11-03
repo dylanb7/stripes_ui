@@ -449,10 +449,11 @@ class ColorKey extends StatelessWidget {
       children: [
         Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: keys
                 .map(
                   (text) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 5.0),
+                    padding: const EdgeInsets.symmetric(vertical: 3.0),
                     child: Text(
                       text,
                       style: lightBackgroundStyle,

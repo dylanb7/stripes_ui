@@ -33,13 +33,6 @@ class EventFrequency extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    freqs.categoryBehaviorMap.forEach((key, value) {
-      print(key);
-      value.forEach((key, value) {
-        print("\t$key, $value");
-      });
-    });
-
     Map<String, int> catMap = freqs.categoryMap;
 
     final double maxLengthCat = catMap.values.first.toDouble();
@@ -84,7 +77,7 @@ class EventFrequency extends ConsumerWidget {
                 };
                 if (displayed.isEmpty) {
                   return Padding(
-                    padding: const EdgeInsets.only(left: 8.0, right: 30.0),
+                    padding: const EdgeInsets.only(left: 8.0, right: 32.0),
                     child: FrequencyRow(
                         percent: catVal.toDouble() / maxLengthCat,
                         amount: catVal,
