@@ -349,11 +349,14 @@ final resMapProvider =
 
 final orderedBehaviorProvider =
     FutureProvider.autoDispose<GraphData>((ref) async {
-  Map<String, List<Response>> behaviors = ref.watch(resMapProvider.select(
+  Map<String, List<Response>> behaviors = ref.watch(
+    resMapProvider.select(
       (value) => value.when(
           data: (data) => data.behaviorMap,
           error: (_, __) => {},
-          loading: () => {})));
+          loading: () => {}),
+    ),
+  );
   if (behaviors.isEmpty) return GraphData.empty();
 
   Available availible = ref.watch(availibleStampsProvider);

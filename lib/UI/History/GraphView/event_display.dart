@@ -24,7 +24,7 @@ class EventDisplay extends StatelessWidget {
             Expanded(child: EventFrequency()),
             VerticalDivider(
               width: 30,
-              thickness: 1.0,
+              thickness: 2.0,
               color: darkBackgroundText,
             ),
             Expanded(

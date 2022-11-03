@@ -21,6 +21,7 @@ class GraphWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     AsyncValue<GraphData> behaviorFetch = ref.watch(orderedBehaviorProvider);
     GraphData? graphData = behaviorFetch.whenOrNull(data: (data) => data);
+
     if (graphData == null) {
       return const Center(
         child: LoadingWidget(),
@@ -56,19 +57,7 @@ class GraphWidget extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buttonWrap(
-                  child: IconButton(
-                    padding: EdgeInsets.zero,
-                    tooltip: 'Back',
-                    onPressed: () {
-                      _shift(ref, ShiftDirection.past);
-                    },
-                    icon: const Icon(
-                      Icons.keyboard_arrow_left,
-                      color: darkIconButton,
-                    ),
-                  ),
-                ),
+                
                 ElevatedButton(
                   onPressed: () {
                     _openBehaviorOverlay(ref, behaviors, selectedValue);
@@ -79,19 +68,7 @@ class GraphWidget extends ConsumerWidget {
                     style: buttonText,
                   ),
                 ),
-                _buttonWrap(
-                  child: IconButton(
-                    padding: EdgeInsets.zero,
-                    tooltip: 'Forward',
-                    onPressed: () {
-                      _shift(ref, ShiftDirection.future);
-                    },
-                    icon: const Icon(
-                      Icons.keyboard_arrow_right,
-                      color: darkIconButton,
-                    ),
-                  ),
-                ),
+                
               ]),
         ),
         const SizedBox(
@@ -129,23 +106,6 @@ class GraphWidget extends ConsumerWidget {
         ),
       ],
     );
-  }
-
-  Widget _buttonWrap({required Widget child}) => Card(
-        margin: EdgeInsets.zero,
-        shape: const CircleBorder(),
-        elevation: 6.0,
-        child: child,
-      );
-
-  _shift(WidgetRef ref, ShiftDirection direction) {
-    final Filters currentFilters = ref.read(filtersProvider);
-    final GraphChoice graphChoice = ref.read(historyLocationProvider).graph;
-    final ShiftAmount shiftAmount = graphToShift[graphChoice]!;
-    final Filters newFilters = currentFilters.shift(shiftAmount, direction);
-    if ((newFilters.end?.isAfter(DateTime.now()) ?? false) &&
-        direction == ShiftDirection.future) return;
-    ref.read(filtersProvider.notifier).state = newFilters;
   }
 
   _openBehaviorOverlay(WidgetRef ref, List<String> options, String selected) {
@@ -192,16 +152,10 @@ class _BarGraphState extends ConsumerState<BarGraph> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Expanded(
-              child: Text(
-                '${dateToMDYAbr(widget.graphData.start!)} - ${dateToMDYAbr(widget.graphData.end!)}',
-                overflow: TextOverflow.fade,
-                style: lightBackgroundHeaderStyle,
-              ),
-            ),
+           
             if (graphBarData.isSeverity) ...[
               const VerticalDivider(
                 width: 8.0,

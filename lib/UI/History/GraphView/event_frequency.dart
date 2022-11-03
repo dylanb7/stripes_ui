@@ -38,8 +38,6 @@ class EventFrequency extends ConsumerWidget {
 
     final double maxLengthCat = catMap.values.first.toDouble();
 
-    final double width = MediaQuery.of(context).size.width;
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -55,18 +53,15 @@ class EventFrequency extends ConsumerWidget {
             style: darkBackgroundScreenHeaderStyle.copyWith(fontSize: 34.0),
           ),
         ),
-        width >= SIDE_BY_SIDE
-            ? const SizedBox(
-                height: 46.0,
-              )
-            : const SizedBox(
-                height: 8.0,
-              ),
+        const SizedBox(
+          height: 8.0,
+        ),
         Card(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0)),
-            elevation: 6.0,
-            child: Column(children: [
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+          elevation: 6.0,
+          child: Column(
+            children: [
               const SizedBox(
                 height: 6.0,
               ),
@@ -119,7 +114,9 @@ class EventFrequency extends ConsumerWidget {
               const SizedBox(
                 height: 8.0,
               ),
-            ])),
+            ],
+          ),
+        ),
       ],
     );
   }

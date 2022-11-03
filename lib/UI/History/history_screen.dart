@@ -6,6 +6,7 @@ import 'package:stripes_ui/UI/History/EventView/action_row.dart';
 import 'package:stripes_ui/UI/History/EventView/day_view.dart';
 import 'package:stripes_ui/UI/History/EventView/event_grid.dart';
 import 'package:stripes_ui/UI/History/EventView/month_view.dart';
+import 'package:stripes_ui/UI/History/GraphView/date_control.dart';
 import 'package:stripes_ui/UI/History/GraphView/event_display.dart';
 import 'package:stripes_ui/UI/History/GraphView/time_span_info.dart';
 import 'package:stripes_ui/UI/History/location_bar.dart';
@@ -64,8 +65,11 @@ class SliversConfig {
         break;
       case Loc.graph:
         slivers.add(SliverList(
-            delegate: SliverChildListDelegate(
-                [const TimeSpanInfo(), const EventDisplay()])));
+            delegate: SliverChildListDelegate([
+          const DateControl(),
+          const TimeSpanInfo(),
+          const EventDisplay()
+        ])));
 
         break;
     }
