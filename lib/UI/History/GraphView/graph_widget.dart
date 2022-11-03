@@ -3,9 +3,7 @@ import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/graph_data_provider.dart';
-import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/History/button_style.dart';
@@ -57,7 +55,6 @@ class GraphWidget extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                
                 ElevatedButton(
                   onPressed: () {
                     _openBehaviorOverlay(ref, behaviors, selectedValue);
@@ -68,7 +65,6 @@ class GraphWidget extends ConsumerWidget {
                     style: buttonText,
                   ),
                 ),
-                
               ]),
         ),
         const SizedBox(
@@ -155,7 +151,6 @@ class _BarGraphState extends ConsumerState<BarGraph> {
           mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-           
             if (graphBarData.isSeverity) ...[
               const VerticalDivider(
                 width: 8.0,

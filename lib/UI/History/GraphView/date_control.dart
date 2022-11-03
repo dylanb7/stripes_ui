@@ -21,7 +21,7 @@ class DateControl extends ConsumerWidget {
     final DateTime start = end.subtract(shiftAmount.amount);
     final double width = MediaQuery.of(context).size.width;
     return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 30),
+        padding: const EdgeInsets.only(left: 30.0, right: 30.0, bottom: 8.0),
         child: Center(
             child: SizedBox(
           height: 30,
@@ -50,13 +50,16 @@ class DateControl extends ConsumerWidget {
                   child: Card(
                     color: darkBackgroundText,
                     elevation: 8.0,
+                    margin: EdgeInsets.zero,
                     shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(15.0))),
-                    child: Text(
-                      '${dateToMDYAbr(start)} - ${dateToMDYAbr(end)}',
-                      overflow: TextOverflow.fade,
-                      textAlign: TextAlign.center,
-                      style: lightBackgroundHeaderStyle,
+                    child: Center(
+                      child: Text(
+                        '${dateToMDYAbr(start)} - ${dateToMDYAbr(end)}',
+                        overflow: TextOverflow.fade,
+                        textAlign: TextAlign.center,
+                        style: lightBackgroundHeaderStyle,
+                      ),
                     ),
                   ),
                 ),
