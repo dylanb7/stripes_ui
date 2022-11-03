@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/Util/palette.dart';
+import 'package:stripes_ui/Util/text_styles.dart';
 
 class DateControl extends ConsumerWidget {
   const DateControl({super.key});
@@ -58,7 +59,8 @@ class DateControl extends ConsumerWidget {
                         '${dateToMDYAbr(start)} - ${dateToMDYAbr(end)}',
                         overflow: TextOverflow.fade,
                         textAlign: TextAlign.center,
-                        style: lightBackgroundHeaderStyle,
+                        style: lightBackgroundStyle.copyWith(
+                            fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
