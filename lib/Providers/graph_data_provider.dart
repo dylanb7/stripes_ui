@@ -101,8 +101,9 @@ CategoryBehaviorMaps _generateValueMaps(
       _orderedResponses(filt, types, (res) => res.type);
   final Map<String, Map<String, int>> promptsMap = {
     for (String key in types)
-      key: _orderedResponses(
-          prompts[key]!, promptKeys[key]!, (res) => res.question.prompt)
+      if (promptKeys.containsKey(key) && prompts.containsKey(key))
+        key: _orderedResponses(
+            prompts[key]!, promptKeys[key]!, (res) => res.question.prompt)
   };
   print("got maps");
   return CategoryBehaviorMaps(categoryMap, behaviorMap, promptsMap);
