@@ -78,48 +78,48 @@ class RouteNotifier extends ChangeNotifier {
               child: Home(path: NavPath(option: TabOption.history))),
         ),
         GoRoute(
-            path: Routes.HOME,
-            pageBuilder: (context, state) => const NoTransitionPage(
-                    child: Home(
-                  path: NavPath(option: TabOption.record),
-                )),
-            routes: [
-              GoRoute(
-                path: Routes.BM,
-                name: Routes.BM,
-                pageBuilder: (context, state) => FadeIn(
-                    child: BowelMovementLog(data: _data(state)), state: state),
-              ),
-              GoRoute(
-                path: Routes.NB,
-                name: Routes.NB,
-                pageBuilder: (context, state) => FadeIn(
-                    child: NeurologicalBehaviorsLog(data: _data(state)),
-                    state: state),
-              ),
-              GoRoute(
-                path: Routes.PAIN,
-                name: Routes.PAIN,
-                pageBuilder: (context, state) =>
-                    FadeIn(child: PainLog(data: _data(state)), state: state),
-              ),
-              GoRoute(
-                path: Routes.REFLUX,
-                name: Routes.REFLUX,
-                pageBuilder: (context, state) =>
-                    FadeIn(child: RefluxLog(data: _data(state)), state: state),
-              ),
-              GoRoute(
-                path: Routes.TEST,
-                name: Routes.TEST,
-                pageBuilder: (context, state) => FadeIn(
-                  state: state,
-                  child: const Scaff(
-                    child: TestScreen(),
-                  ),
-                ),
-              )
-            ]),
+          path: Routes.HOME,
+          pageBuilder: (context, state) => const NoTransitionPage(
+            child: Home(
+              path: NavPath(option: TabOption.record),
+            ),
+          ),
+        ),
+        GoRoute(
+          name: Routes.BM,
+          path: '${Routes.HOME}/${Routes.BM}',
+          pageBuilder: (context, state) =>
+              FadeIn(child: BowelMovementLog(data: _data(state)), state: state),
+        ),
+        GoRoute(
+          name: Routes.NB,
+          path: '${Routes.HOME}/${Routes.NB}',
+          pageBuilder: (context, state) => FadeIn(
+              child: NeurologicalBehaviorsLog(data: _data(state)),
+              state: state),
+        ),
+        GoRoute(
+          name: Routes.PAIN,
+          path: '${Routes.HOME}/${Routes.PAIN}',
+          pageBuilder: (context, state) =>
+              FadeIn(child: PainLog(data: _data(state)), state: state),
+        ),
+        GoRoute(
+          name: Routes.REFLUX,
+          path: '${Routes.HOME}/${Routes.REFLUX}',
+          pageBuilder: (context, state) =>
+              FadeIn(child: RefluxLog(data: _data(state)), state: state),
+        ),
+        GoRoute(
+          name: Routes.TEST,
+          path: '${Routes.HOME}/${Routes.TEST}',
+          pageBuilder: (context, state) => FadeIn(
+            state: state,
+            child: const Scaff(
+              child: TestScreen(),
+            ),
+          ),
+        )
       ];
 
   SymptomRecordData _data(GoRouterState state) {
