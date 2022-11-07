@@ -55,6 +55,8 @@ class DayView extends ConsumerWidget {
                     position: BadgePosition.topEnd(top: 0, end: 0),
                     child: inner);
               },
+              todayButtonColor: Colors.transparent,
+              todayBorderColor: Colors.transparent,
               selectedDayBorderColor: Colors.transparent,
               selectedDayButtonColor: Colors.transparent,
               iconColor: darkIconButton,

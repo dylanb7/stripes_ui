@@ -73,7 +73,7 @@ class Options extends ConsumerWidget {
               final String route = Options.symToRoute[key]!;
               if (key != Symptoms.BM || !state.testInProgress) {
                 return RecordButton(key, (context) {
-                  context.goNamed(route);
+                  context.pushNamed(route);
                 });
               }
               return RecordButton(

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/QuestionModel/question.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
@@ -278,7 +279,7 @@ class ErrorPrevention extends ConsumerWidget {
 
   _dismiss(BuildContext context, WidgetRef ref) {
     _closeOverlay(context, ref);
-    Navigator.of(context).pop();
+    context.pop();
   }
 
   _closeOverlay(BuildContext context, WidgetRef ref) {

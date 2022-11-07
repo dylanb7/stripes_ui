@@ -20,6 +20,16 @@ class _EventGridState extends ConsumerState<EventGrid> {
   ScrollPosition? _scrollPosition;
 
   @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback(
+      (timeStamp) {
+        _scroll(context)?.addListener(_onScroll);
+      },
+    );
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final bool isSmall = ref.watch(isSmallProvider);
     final List<Response> available =
@@ -37,11 +47,6 @@ class _EventGridState extends ConsumerState<EventGrid> {
         ),
       );
     }
-    WidgetsBinding.instance.addPostFrameCallback(
-      (timeStamp) {
-        _scroll(context)?.addListener(_onScroll);
-      },
-    );
 
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 20),

@@ -103,11 +103,12 @@ class MonthView extends ConsumerWidget {
   }
 
   _scrollToEvents(BuildContext context, bool isSmall) {
-    context
-        .findAncestorWidgetOfExactType<CustomScrollView>()
-        ?.controller
-        ?.animateTo(isSmall ? 185 : 215,
-            duration: const Duration(milliseconds: 500), curve: Curves.easeIn);
+    final ScrollController? controller =
+        context.findAncestorWidgetOfExactType<CustomScrollView>()?.controller;
+    if (controller != null && controller.position.pixels > 1200) {
+      controller.animateTo(isSmall ? 185 : 215,
+          duration: const Duration(milliseconds: 500), curve: Curves.easeIn);
+    }
   }
 
   _inner(String text, bool selected, bool isToday) {

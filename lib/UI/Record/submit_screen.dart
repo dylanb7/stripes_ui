@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
@@ -115,7 +116,7 @@ class SubmitScreen extends ConsumerWidget {
     } else {
       ref.read(stampProvider)?.addStamp(detailResponse);
     }
-    Navigator.of(context).pop();
+    context.pop();
   }
 }
 
