@@ -143,9 +143,11 @@ class _BaseScreenState extends ConsumerState<BaseScreen> {
                                           splashColor: Colors.transparent,
                                           tooltip: 'Next',
                                           iconSize: 65,
-                                          icon: const Icon(
+                                          icon: Icon(
                                             Icons.arrow_forward_rounded,
-                                            color: buttonLightBackground,
+                                            color: _canContinue
+                                                ? buttonLightBackground
+                                                : Colors.grey,
                                           ),
                                         ),
                                     ],
@@ -176,8 +178,12 @@ class _BaseScreenState extends ConsumerState<BaseScreen> {
     return SubUser.isEmpty(current) ? 'N/A' : current.name;
   }
 
+  bool get _canContinue => widget.listener.pending.isEmpty;
+
   _next() {
-    widget.screen.next();
+    if (_canContinue) {
+      widget.screen.next();
+    }
   }
 
   _prev() {
@@ -186,7 +192,7 @@ class _BaseScreenState extends ConsumerState<BaseScreen> {
 
   _showErrorPrevention(BuildContext context) {
     if (mapEquals(original, widget.listener.questions)) {
-      Navigator.of(context).pop();
+      context.pop();
       return;
     }
     ref.read(overlayProvider.notifier).state =

@@ -62,7 +62,7 @@ class DayView extends ConsumerWidget {
               iconColor: darkIconButton,
               headerMargin: const EdgeInsets.symmetric(vertical: 5.0),
               weekFormat: true,
-              isScrollable: true,
+              isScrollable: false,
               scrollDirection: Axis.horizontal,
               showHeader: true,
               headerTextStyle: darkBackgroundHeaderStyle,
@@ -100,7 +100,7 @@ class DayView extends ConsumerWidget {
                   color: isToday ? darkBackgroundText : Colors.transparent,
                   width: 2.0)),
           child: FittedBox(
-            fit: BoxFit.fitWidth,
+            fit: BoxFit.scaleDown,
             child: Center(
               child: Text(
                 text,

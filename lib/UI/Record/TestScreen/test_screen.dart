@@ -5,6 +5,7 @@ import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/initial.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/started_eating.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_logs.dart';
+import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 
@@ -13,6 +14,7 @@ class TestScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
     final TestState state =
         ref.watch(testHolderProvider.select((value) => value.state));
     return Container(
@@ -26,8 +28,8 @@ class TestScreen extends ConsumerWidget {
           Expanded(
             child: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 40.0, vertical: 15.0),
+                padding: EdgeInsets.symmetric(
+                    horizontal: isSmall ? 15.0 : 40.0, vertical: 15.0),
                 child: Column(
                   children: [
                     Row(

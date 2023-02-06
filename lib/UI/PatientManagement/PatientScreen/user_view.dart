@@ -26,9 +26,12 @@ class UserView extends ConsumerWidget {
       canExpand: isSmall,
       selected: selected,
       highlightOnShrink: true,
-      header: Text(
-        subUser.name,
-        style: lightBackgroundHeaderStyle,
+      header: Padding(
+        padding: const EdgeInsets.only(top: 4.0),
+        child: Text(
+          subUser.name,
+          style: lightBackgroundHeaderStyle,
+        ),
       ),
       view: Column(
         children: [

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/QuestionModel/question.dart';
@@ -6,11 +8,14 @@ import 'package:stripes_backend_helper/TestingReposImpl/test_question_repo.dart'
 import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
+import 'package:stripes_ui/UI/Record/severity_slider.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 
 class QuestionsListener {
   final Map<Question, Response> questions = {};
+
+  final Set<Question> pending = {};
 
   addResponse(Response response) {
     questions[response.question] = response;
@@ -160,6 +165,8 @@ class SeverityWidget extends StatefulWidget {
 class _SeverityWidgetState extends State<SeverityWidget> {
   double value = 3;
 
+  final SliderListener _sliderListener = SliderListener();
+
   late final ExpandibleListener _listener;
   @override
   void initState() {
@@ -169,17 +176,23 @@ class _SeverityWidgetState extends State<SeverityWidget> {
       _listener.expanded.value = val != null;
       if (val != null) value = val.toDouble();
     });
+
     _listener.expanded.addListener(() {
       if (_listener.expanded.value) {
-        widget.questionsListener.addResponse(NumericResponse(
-            question: widget.numeric,
-            stamp: dateToStamp(DateTime.now()),
-            response: response() ?? value));
+        if (_sliderListener.interact) {
+          widget.questionsListener.addResponse(NumericResponse(
+              question: widget.numeric,
+              stamp: dateToStamp(DateTime.now()),
+              response: response() ?? value));
+        } else {
+          widget.questionsListener.pending.add(widget.numeric);
+        }
       } else {
         widget.questionsListener.removeResponse(widget.numeric);
       }
       setState(() {});
     });
+
     super.initState();
   }
 
@@ -216,11 +229,23 @@ class _SeverityWidgetState extends State<SeverityWidget> {
         ],
       ),
       view: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 3.0),
-        child: Column(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 3.0),
+          child: StripesSlider(
+            initial: response()?.toInt(),
+            onChange: (val) {
+              setState(() {
+                widget.questionsListener.addResponse(NumericResponse(
+                    question: widget.numeric,
+                    stamp: dateToStamp(DateTime.now()),
+                    response: value));
+              });
+            },
+            listener: _sliderListener,
+          ) /*Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            
             Slider(
               value: value,
               min: 1.0,
@@ -258,8 +283,8 @@ class _SeverityWidgetState extends State<SeverityWidget> {
               ),
             ),
           ],
-        ),
-      ),
+        ),*/
+          ),
       selected: res != null,
       hasIndicator: false,
       listener: _listener,
@@ -285,7 +310,7 @@ class BMSlider extends ConsumerStatefulWidget {
 class _BMSliderState extends ConsumerState<BMSlider> {
   late List<Image> images;
 
-  double value = 4;
+  double value = 0;
 
   @override
   void initState() {
@@ -327,7 +352,13 @@ class _BMSliderState extends ConsumerState<BMSlider> {
       children: [
         SizedBox(
           height: 250,
-          child: images[value.toInt() - 1],
+          child: value != 0
+              ? images[value.toInt() - 1]
+              : const Center(
+                  child: Text(
+                  'Select Consistency ->',
+                  style: lightBackgroundHeaderStyle,
+                )),
         ),
         Slider(
           value: value,
@@ -338,9 +369,9 @@ class _BMSliderState extends ConsumerState<BMSlider> {
               },
             );
           },
-          min: 1,
+          min: 0,
           max: 7,
-          divisions: 6,
+          divisions: 7,
           label: '${value.toInt()}',
           onChangeEnd: (val) {
             _saveValue();
