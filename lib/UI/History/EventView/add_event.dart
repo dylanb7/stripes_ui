@@ -97,7 +97,7 @@ class _QuestionTypeOverlay extends ConsumerWidget {
                         onClick: () {
                           ref.read(overlayProvider.notifier).state =
                               closedQuery;
-                          context.goNamed(Options.symToRoute[type]!,
+                          context.pushNamed(Options.symToRoute[type]!,
                               extra: SymptomRecordData(submitTime: date));
                         },
                       ),

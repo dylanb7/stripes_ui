@@ -98,10 +98,11 @@ class EntryDisplay extends ConsumerWidget {
             maxLines: null,
           )
         ],
-        const Text(
-          'Behaviors:',
-          style: lightBackgroundHeaderStyle,
-        ),
+        if (detail.responses.isNotEmpty)
+          const Text(
+            'Behaviors:',
+            style: lightBackgroundHeaderStyle,
+          ),
         ...detail.responses.map(
           (res) {
             if (res is NumericResponse) {
@@ -187,7 +188,7 @@ class EntryDisplay extends ConsumerWidget {
         questionsListener.addResponse(res);
       }
 
-      context.goNamed(routeName,
+      context.pushNamed(routeName,
           extra: SymptomRecordData(
               isEditing: true,
               listener: questionsListener,
