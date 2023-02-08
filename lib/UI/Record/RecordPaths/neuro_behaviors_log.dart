@@ -25,7 +25,7 @@ class NeurologicalBehaviorsLog extends ConsumerWidget {
       type: Symptoms.NB,
       screen: ScreenController([
         QuestionScreen(
-            header: 'Select all associated with neurological behaviors',
+            header: 'Select all behaviors that apply',
             questions: questions[Symptoms.NB] ?? [],
             questionsListener: questionsListener),
         SubmitScreen(

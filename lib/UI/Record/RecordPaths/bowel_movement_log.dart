@@ -32,7 +32,7 @@ class BowelMovementLog extends ConsumerWidget {
             questions: [specialCase],
             questionsListener: questionsListener),
         QuestionScreen(
-            header: 'Select all behaviors associated with bowel movement(BM)',
+            header: 'Select all behaviors that apply',
             questions: questions[Symptoms.BM] ?? []
               ..remove(specialCase),
             questionsListener: questionsListener),

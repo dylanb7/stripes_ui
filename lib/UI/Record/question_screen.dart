@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/QuestionModel/question.dart';
@@ -12,10 +10,20 @@ import 'package:stripes_ui/UI/Record/severity_slider.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 
-class QuestionsListener {
+class QuestionsListener extends ChangeNotifier {
   final Map<Question, Response> questions = {};
 
   final Set<Question> pending = {};
+
+  addPending(Question question) {
+    pending.add(question);
+    notifyListeners();
+  }
+
+  removePending(Question question) {
+    pending.remove(question);
+    notifyListeners();
+  }
 
   addResponse(Response response) {
     questions[response.question] = response;
@@ -103,7 +111,7 @@ class _CheckBoxWidgetState extends State<CheckBoxWidget> {
                   ? const BorderSide(color: buttonDarkBackground, width: 5.0)
                   : const BorderSide(width: 0, color: Colors.transparent)),
           color: darkBackgroundText,
-          elevation: 7.0,
+          elevation: 4.0,
           child: Padding(
             padding:
                 const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
@@ -173,27 +181,34 @@ class _SeverityWidgetState extends State<SeverityWidget> {
     _listener = ExpandibleListener();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       num? val = response();
-      _listener.expanded.value = val != null;
-      if (val != null) value = val.toDouble();
-    });
-
-    _listener.expanded.addListener(() {
-      if (_listener.expanded.value) {
-        if (_sliderListener.interact) {
-          widget.questionsListener.addResponse(NumericResponse(
-              question: widget.numeric,
-              stamp: dateToStamp(DateTime.now()),
-              response: response() ?? value));
-        } else {
-          widget.questionsListener.pending.add(widget.numeric);
-        }
-      } else {
-        widget.questionsListener.removeResponse(widget.numeric);
+      if (val != null) {
+        value = val.toDouble();
+        _listener.expanded.value = true;
+        _sliderListener.interacted();
       }
-      setState(() {});
     });
 
+    _listener.expanded.addListener(_expandListener);
+    _sliderListener.addListener(_interactListener);
     super.initState();
+  }
+
+  _interactListener() {
+    widget.questionsListener.removePending(widget.numeric);
+  }
+
+  _expandListener() {
+    if (_listener.expanded.value) {
+      if (_sliderListener.interact) {
+        _saveValue();
+      } else {
+        widget.questionsListener.addPending(widget.numeric);
+      }
+    } else {
+      widget.questionsListener.removeResponse(widget.numeric);
+      widget.questionsListener.removePending(widget.numeric);
+    }
+    setState(() {});
   }
 
   @override
@@ -229,62 +244,17 @@ class _SeverityWidgetState extends State<SeverityWidget> {
         ],
       ),
       view: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 3.0),
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
           child: StripesSlider(
-            initial: response()?.toInt(),
+            initial: value.toInt(),
             onChange: (val) {
               setState(() {
-                widget.questionsListener.addResponse(NumericResponse(
-                    question: widget.numeric,
-                    stamp: dateToStamp(DateTime.now()),
-                    response: value));
+                value = val;
+                _saveValue();
               });
             },
             listener: _sliderListener,
-          ) /*Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            
-            Slider(
-              value: value,
-              min: 1.0,
-              max: 5.0,
-              divisions: 4,
-              onChangeEnd: (value) {
-                setState(() {
-                  widget.questionsListener.addResponse(NumericResponse(
-                      question: widget.numeric,
-                      stamp: dateToStamp(DateTime.now()),
-                      response: value));
-                });
-              },
-              label: '${value.toInt()}',
-              onChanged: (double val) {
-                setState(() {
-                  value = val;
-                });
-              },
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text(
-                    '1 (Mild)',
-                    style: lightBackgroundStyle,
-                  ),
-                  Text(
-                    '(Severe) 5',
-                    style: lightBackgroundStyle,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),*/
-          ),
+          )),
       selected: res != null,
       hasIndicator: false,
       listener: _listener,
@@ -295,6 +265,20 @@ class _SeverityWidgetState extends State<SeverityWidget> {
     Response? res = widget.questionsListener.fromQuestion(widget.numeric);
     if (res == null) return null;
     return (res as NumericResponse).response;
+  }
+
+  _saveValue() {
+    widget.questionsListener.addResponse(NumericResponse(
+        question: widget.numeric,
+        stamp: dateToStamp(DateTime.now()),
+        response: value));
+  }
+
+  @override
+  void dispose() {
+    _listener.expanded.removeListener(_expandListener);
+    _sliderListener.removeListener(_interactListener);
+    super.dispose();
   }
 }
 
@@ -310,7 +294,9 @@ class BMSlider extends ConsumerStatefulWidget {
 class _BMSliderState extends ConsumerState<BMSlider> {
   late List<Image> images;
 
-  double value = 0;
+  late SliderListener listener;
+
+  double value = 4;
 
   @override
   void initState() {
@@ -328,14 +314,29 @@ class _BMSliderState extends ConsumerState<BMSlider> {
               path,
             ))
         .toList();
+    listener = SliderListener();
+
     final Response? res = widget.listener.fromQuestion(
         ref.read(questionHomeProvider).home?.fromID(q4) ?? Question.empty());
+    bool pending = false;
     if (res != null) {
+      listener.interact = true;
       value = (res as NumericResponse).response.toDouble();
     } else {
-      _saveValue();
+      pending = true;
     }
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      if (pending) {
+        widget.listener.addPending(QuestionHomeInst().fromID(q4));
+      }
+    });
+    listener.addListener(_interactListener);
+
     super.initState();
+  }
+
+  _interactListener() {
+    widget.listener.removePending(QuestionHomeInst().fromID(q4));
   }
 
   @override
@@ -350,52 +351,21 @@ class _BMSliderState extends ConsumerState<BMSlider> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SizedBox(
-          height: 250,
-          child: value != 0
-              ? images[value.toInt() - 1]
-              : const Center(
-                  child: Text(
-                  'Select Consistency ->',
-                  style: lightBackgroundHeaderStyle,
-                )),
-        ),
-        Slider(
-          value: value,
-          onChanged: (val) {
-            setState(
-              () {
-                value = val;
-              },
-            );
+        SizedBox(height: 250, child: images[value.toInt() - 1]),
+        StripesSlider(
+          onChange: (p0) {},
+          onSlide: (val) {
+            setState(() {
+              value = val;
+              _saveValue();
+            });
           },
-          min: 0,
+          listener: listener,
+          min: 1,
           max: 7,
-          divisions: 7,
-          label: '${value.toInt()}',
-          onChangeEnd: (val) {
-            _saveValue();
-          },
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text(
-                '1 (Hard)',
-                style: lightBackgroundHeaderStyle,
-              ),
-              Text(
-                'Slide to select',
-                style: lightBackgroundHeaderStyle,
-              ),
-              Text(
-                '(Soft) 7',
-                style: lightBackgroundHeaderStyle,
-              ),
-            ],
-          ),
+          minLabel: 'Hard',
+          maxLabel: 'Soft',
+          initial: value.toInt(),
         ),
       ],
     );
@@ -406,5 +376,11 @@ class _BMSliderState extends ConsumerState<BMSlider> {
         question: ref.read(questionHomeProvider).home?.fromID(q4) as Numeric,
         stamp: dateToStamp(DateTime.now()),
         response: value));
+  }
+
+  @override
+  void dispose() {
+    listener.removeListener(_interactListener);
+    super.dispose();
   }
 }

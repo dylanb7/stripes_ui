@@ -24,7 +24,7 @@ class RefluxLog extends ConsumerWidget {
       type: Symptoms.REFLUX,
       screen: ScreenController([
         QuestionScreen(
-            header: 'Select all associated with reflux',
+            header: 'Select all behaviors that apply',
             questions: questions[Symptoms.REFLUX] ?? [],
             questionsListener: questionsListener),
         SubmitScreen(

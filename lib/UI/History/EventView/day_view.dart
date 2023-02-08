@@ -22,57 +22,60 @@ class DayView extends ConsumerWidget {
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 500),
-            child: CalendarCarousel<CalendarEvent>(
-              onDayPressed: (date, events) {
-                if (selected != date) {
-                  final Filters current = ref.read(filtersProvider);
-                  ref.read(filtersProvider.notifier).state =
-                      current.copyWith(selectDate: date);
-                }
-              },
-              weekdayTextStyle: darkBackgroundStyle,
-              showWeekDays: true,
-              customDayBuilder: (isSelectable,
-                  index,
-                  isSelectedDay,
-                  isToday,
-                  isPrevMonthDay,
-                  textStyle,
-                  isNextMonthDay,
-                  isThisMonthDay,
-                  day) {
-                List<String> vals = dateToShortMDY(day).split(' ');
-                final Widget inner = _inner(vals[1], isToday,
-                    selected == null ? false : sameDay(day, selected));
-                final int events = eventMap.getEvents(day).length;
-                if (events == 0) return inner;
-                return Badge(
-                    badgeContent: Text(
-                      '$events',
-                      style: darkBackgroundStyle.copyWith(fontSize: 10.0),
-                    ),
-                    badgeColor: darkIconButton,
-                    position: BadgePosition.topEnd(top: 0, end: 0),
-                    child: inner);
-              },
-              todayButtonColor: Colors.transparent,
-              todayBorderColor: Colors.transparent,
-              selectedDayBorderColor: Colors.transparent,
-              selectedDayButtonColor: Colors.transparent,
-              iconColor: darkIconButton,
-              headerMargin: const EdgeInsets.symmetric(vertical: 5.0),
-              weekFormat: true,
-              isScrollable: false,
-              scrollDirection: Axis.horizontal,
-              showHeader: true,
-              headerTextStyle: darkBackgroundHeaderStyle,
-              pageSnapping: true,
-              inactiveDaysTextStyle: lightBackgroundStyle.copyWith(
-                  fontSize: 14, color: lightBackgroundText.withOpacity(0.5)),
-              maxSelectedDate: DateTime.now(),
-              minSelectedDate: getMinDate(),
-              height: 150,
-              width: 380,
+            child: IconTheme(
+              data: IconTheme.of(context).copyWith(size: 30.0),
+              child: CalendarCarousel<CalendarEvent>(
+                onDayPressed: (date, events) {
+                  if (selected != date) {
+                    final Filters current = ref.read(filtersProvider);
+                    ref.read(filtersProvider.notifier).state =
+                        current.copyWith(selectDate: date);
+                  }
+                },
+                weekdayTextStyle: darkBackgroundStyle,
+                showWeekDays: true,
+                customDayBuilder: (isSelectable,
+                    index,
+                    isSelectedDay,
+                    isToday,
+                    isPrevMonthDay,
+                    textStyle,
+                    isNextMonthDay,
+                    isThisMonthDay,
+                    day) {
+                  List<String> vals = dateToShortMDY(day).split(' ');
+                  final Widget inner = _inner(vals[1], isToday,
+                      selected == null ? false : sameDay(day, selected));
+                  final int events = eventMap.getEvents(day).length;
+                  if (events == 0) return inner;
+                  return Badge(
+                      badgeContent: Text(
+                        '$events',
+                        style: darkBackgroundStyle.copyWith(fontSize: 10.0),
+                      ),
+                      badgeColor: darkIconButton,
+                      position: BadgePosition.topEnd(top: 0, end: 0),
+                      child: inner);
+                },
+                todayButtonColor: Colors.transparent,
+                todayBorderColor: Colors.transparent,
+                selectedDayBorderColor: Colors.transparent,
+                selectedDayButtonColor: Colors.transparent,
+                iconColor: darkIconButton,
+                headerMargin: const EdgeInsets.symmetric(vertical: 5.0),
+                weekFormat: true,
+                isScrollable: false,
+                scrollDirection: Axis.horizontal,
+                showHeader: true,
+                headerTextStyle: darkBackgroundHeaderStyle,
+                pageSnapping: true,
+                inactiveDaysTextStyle: lightBackgroundStyle.copyWith(
+                    fontSize: 14, color: lightBackgroundText.withOpacity(0.5)),
+                maxSelectedDate: DateTime.now(),
+                minSelectedDate: getMinDate(),
+                height: 150,
+                width: 380,
+              ),
             ),
           ),
         ),

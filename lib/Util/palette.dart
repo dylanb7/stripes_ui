@@ -7,6 +7,7 @@ const Color buttonDarkBackground2 = Color(0xffff9b53);
 const Color buttonLightBackground = Color(0xff3368b7);
 const Color buttonLightBackground2 = Color(0xff0f3b9e);
 const Color trackerButtons = Color(0xff2d6eb7);
+const Color disabled = Color.fromARGB(255, 156, 163, 175);
 
 const Color backgroundStrong = Color(0xff1d47a6);
 const Color backgroundLight = Color(0xff75bce5);

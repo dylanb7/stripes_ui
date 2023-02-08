@@ -25,7 +25,7 @@ class PainLog extends ConsumerWidget {
       type: Symptoms.PAIN,
       screen: ScreenController([
         QuestionScreen(
-            header: 'Select all associated with pain',
+            header: 'Select all behaviors that apply',
             questions: questions[Symptoms.PAIN] ?? [],
             questionsListener: questionsListener),
         SubmitScreen(

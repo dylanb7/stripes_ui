@@ -15,91 +15,107 @@ class MonthView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final DateTime? selected =
-        ref.watch(filtersProvider.select((value) => value.selectedDate));
+    final Filters filters = ref.watch(filtersProvider);
     final EventList<CalendarEvent> eventMap = ref.watch(eventsMapProvider);
+    final DateTime? selected = filters.selectedDate;
+    final int rows = _numRows(filters.selectedMonth);
     final bool isSmall = ref.watch(isSmallProvider);
     return SliverPadding(
-        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 5),
-        sliver: SliverToBoxAdapter(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 380),
-              child: Container(
-                decoration: const BoxDecoration(
-                    color: darkBackgroundText,
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(15.0),
-                    )),
-                child: AspectRatio(
-                  aspectRatio: 0.95,
-                  child: CalendarCarousel<CalendarEvent>(
-                    onDayPressed: (date, events) {
-                      final Filters current = ref.read(filtersProvider);
-                      if (selected != date) {
-                        ref.read(filtersProvider.notifier).state =
-                            current.copyWith(selectDate: date);
-                        _scrollToEvents(context, isSmall);
-                      } else {
-                        ref.read(filtersProvider.notifier).state =
-                            current.copyWith(selectDate: null);
-                      }
-                    },
-                    customDayBuilder: (isSelectable,
-                        index,
-                        isSelectedDay,
-                        isToday,
-                        isPrevMonthDay,
-                        textStyle,
-                        isNextMonthDay,
-                        isThisMonthDay,
-                        day) {
-                      final int events = eventMap.getEvents(day).length;
-                      final Widget inner = _inner(
-                          '${day.day}',
-                          selected == null ? false : sameDay(day, selected),
-                          isToday);
-                      if (events == 0) return inner;
-                      return Badge(
-                        badgeContent: Text(
-                          '$events',
-                          style: darkBackgroundStyle.copyWith(fontSize: 8.0),
-                        ),
-                        badgeColor: darkIconButton,
-                        position: BadgePosition.topEnd(end: 0, top: 0),
-                        child: inner,
-                      );
-                    },
-                    onCalendarChanged: (dateTime) {
-                      final Filters current = ref.read(filtersProvider);
-                      ref.read(filtersProvider.notifier).state = current
-                          .copyWith(selectDate: null, selectMonth: dateTime);
-                    },
-                    headerMargin: const EdgeInsets.symmetric(vertical: 4.0),
-                    customGridViewPhysics: const NeverScrollableScrollPhysics(),
-                    iconColor: darkIconButton,
-                    dayPadding: 0,
-                    weekDayMargin: EdgeInsets.zero,
-                    selectedDateTime: selected,
-                    isScrollable: false,
-                    scrollDirection: Axis.horizontal,
-                    headerTextStyle: lightBackgroundHeaderStyle,
-                    weekendTextStyle:
-                        lightBackgroundStyle.copyWith(fontSize: 14),
-                    inactiveDaysTextStyle: lightBackgroundStyle.copyWith(
-                        fontSize: 14,
-                        color: lightBackgroundText.withOpacity(0.5)),
-                    maxSelectedDate: DateTime.now(),
-                    minSelectedDate: getMinDate(),
-                    showOnlyCurrentMonthDate: true,
-                    weekdayTextStyle: lightBackgroundStyle.copyWith(
-                        color: lightBackgroundText.withOpacity(0.5)),
-                  ),
-                ),
-              ),
+      padding: const EdgeInsets.symmetric(horizontal: 30),
+      sliver: SliverToBoxAdapter(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 380),
+            child: IconTheme(
+              data: IconTheme.of(context).copyWith(size: 30.0),
+              child: LayoutBuilder(builder: (context, constraints) {
+                (constraints.maxWidth - 80) / rows.toDouble();
+                final double height =
+                    ((constraints.maxWidth / 7.0) * rows) + 90;
+                return CalendarCarousel<CalendarEvent>(
+                  onDayPressed: (date, events) {
+                    final Filters current = ref.read(filtersProvider);
+                    if (selected != date) {
+                      ref.read(filtersProvider.notifier).state =
+                          current.copyWith(selectDate: date);
+                      _scrollToEvents(context, isSmall);
+                    } else {
+                      ref.read(filtersProvider.notifier).state =
+                          current.copyWith(selectDate: null);
+                    }
+                  },
+                  height: height,
+                  customDayBuilder: (isSelectable,
+                      index,
+                      isSelectedDay,
+                      isToday,
+                      isPrevMonthDay,
+                      textStyle,
+                      isNextMonthDay,
+                      isThisMonthDay,
+                      day) {
+                    final int events = eventMap.getEvents(day).length;
+                    final Widget inner = _inner(
+                        '${day.day}',
+                        selected == null ? false : sameDay(day, selected),
+                        isToday);
+                    if (events == 0) return inner;
+                    return Badge(
+                      badgeContent: Text(
+                        '$events',
+                        style: darkBackgroundStyle.copyWith(fontSize: 8.0),
+                      ),
+                      badgeColor: darkIconButton,
+                      position: BadgePosition.topEnd(end: 0, top: 0),
+                      child: inner,
+                    );
+                  },
+                  onCalendarChanged: (dateTime) {
+                    final Filters current = ref.read(filtersProvider);
+                    ref.read(filtersProvider.notifier).state = current.copyWith(
+                        selectDate: null, selectMonth: dateTime);
+                  },
+                  headerMargin: const EdgeInsets.symmetric(vertical: 5.0),
+                  customGridViewPhysics: const NeverScrollableScrollPhysics(),
+                  iconColor: darkIconButton,
+                  dayPadding: 2.0,
+                  weekDayMargin: EdgeInsets.zero,
+                  selectedDateTime: selected,
+                  isScrollable: false,
+                  todayButtonColor: Colors.transparent,
+                  todayBorderColor: Colors.transparent,
+                  selectedDayBorderColor: Colors.transparent,
+                  selectedDayButtonColor: Colors.transparent,
+                  daysTextStyle: darkBackgroundStyle,
+                  headerTextStyle: darkBackgroundHeaderStyle,
+                  weekendTextStyle: lightBackgroundStyle,
+                  inactiveDaysTextStyle: lightBackgroundStyle,
+                  maxSelectedDate: DateTime.now(),
+                  minSelectedDate: getMinDate(),
+                  showOnlyCurrentMonthDate: true,
+                  weekdayTextStyle: darkBackgroundStyle,
+                );
+              }),
             ),
           ),
-        ));
+        ),
+      ),
+    );
+  }
+
+  int _numRows(DateTime date) {
+    const shiftMap = {
+      DateTime.sunday: 0,
+      DateTime.monday: 1,
+      DateTime.tuesday: 2,
+      DateTime.wednesday: 3,
+      DateTime.thursday: 4,
+      DateTime.friday: 5,
+      DateTime.saturday: 6
+    };
+    final int shift = shiftMap[DateTime(date.year, date.month, 1).weekday]!;
+    final int monthLength = DateTime(date.year, date.month + 1, 0).day;
+    return ((monthLength + shift).toDouble() / 7.0).ceil();
   }
 
   _scrollToEvents(BuildContext context, bool isSmall) {
@@ -112,27 +128,32 @@ class MonthView extends ConsumerWidget {
   }
 
   _inner(String text, bool selected, bool isToday) {
-    final Color background = isToday ? backgroundLight : darkBackgroundText;
-    final Color textColor = isToday ? darkBackgroundText : lightBackgroundText;
+    final Color background =
+        selected ? darkBackgroundText : backgroundLight.withOpacity(0.8);
+    final Color textColor =
+        selected ? buttonDarkBackground : darkBackgroundText;
     return AspectRatio(
       aspectRatio: 1.0,
       child: Container(
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10.0),
-            color: darkBackgroundText),
-        child: DecoratedBox(
+          color: background,
+          borderRadius: const BorderRadius.all(Radius.circular(10.0)),
+        ),
+        padding: const EdgeInsets.all(2.0),
+        child: Container(
           decoration: BoxDecoration(
-              color: background,
               shape: BoxShape.circle,
               border: Border.all(
-                color: selected ? textColor : Colors.transparent,
-                width: 3.0,
-              )),
-          child: Center(
-            child: Text(
-              text,
-              style: lightBackgroundStyle.copyWith(
-                  color: textColor, fontSize: 14.0),
+                  color: isToday ? darkBackgroundText : Colors.transparent,
+                  width: 2.0)),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Center(
+              child: Text(
+                text,
+                style: darkBackgroundStyle.copyWith(
+                    color: textColor, fontSize: 20),
+              ),
             ),
           ),
         ),

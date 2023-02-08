@@ -113,7 +113,7 @@ class _ExpandibleState extends State<Expandible>
                       ? BorderSide(color: widget.highlightColor, width: 5.0)
                       : const BorderSide(width: 0, color: Colors.transparent)),
               color: darkBackgroundText,
-              elevation: 7.0,
+              elevation: 4.0,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Column(

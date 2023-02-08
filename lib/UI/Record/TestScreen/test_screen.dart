@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/initial.dart';
@@ -42,7 +43,7 @@ class TestScreen extends ConsumerWidget {
                         ),
                         IconButton(
                           onPressed: () {
-                            Navigator.of(context).pop();
+                            context.pop();
                           },
                           icon: const Icon(
                             Icons.close,

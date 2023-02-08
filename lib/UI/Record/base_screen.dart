@@ -12,6 +12,7 @@ import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/Record/question_screen.dart';
 import 'package:stripes_ui/UI/Record/screen_manager.dart';
 import 'package:stripes_ui/Util/constants.dart';
+import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 
@@ -41,6 +42,9 @@ class _BaseScreenState extends ConsumerState<BaseScreen> {
     widget.screen.addListener(() {
       setState(() {});
     });
+    widget.listener.addListener(() {
+      setState(() {});
+    });
     super.initState();
   }
 
@@ -49,9 +53,8 @@ class _BaseScreenState extends ConsumerState<BaseScreen> {
     final OverlayQuery query = ref.watch(overlayProvider);
     final Size screenSize = MediaQuery.of(context).size;
     return SafeArea(
-      child: Material(
-        shadowColor: Colors.transparent,
-        color: Colors.transparent,
+        child: Scaffold(
+      body: SizedBox.expand(
         child: Container(
           decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -74,12 +77,12 @@ class _BaseScreenState extends ConsumerState<BaseScreen> {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 10.0),
                           child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.end,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Flexible(
                                 child: Text(
-                                  'Recording a ${widget.type}\nfor ${_name()}',
+                                  'Recording ${widget.type}\nfor ${_name()}',
                                   style: darkBackgroundHeaderStyle,
                                 ),
                               ),
@@ -118,38 +121,51 @@ class _BaseScreenState extends ConsumerState<BaseScreen> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 20, vertical: 10),
                                   child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      if (widget.screen.hasPrev())
-                                        IconButton(
-                                          padding: EdgeInsets.zero,
-                                          onPressed: _prev,
-                                          highlightColor: Colors.transparent,
-                                          hoverColor: Colors.transparent,
-                                          splashColor: Colors.transparent,
-                                          tooltip: 'Previous',
-                                          iconSize: 65,
-                                          icon: const Icon(
-                                            Icons.arrow_back_rounded,
-                                            color: buttonLightBackground,
-                                          ),
-                                        ),
-                                      const Spacer(),
-                                      if (widget.screen.hasNext())
-                                        IconButton(
-                                          padding: EdgeInsets.zero,
-                                          onPressed: _next,
-                                          highlightColor: Colors.transparent,
-                                          hoverColor: Colors.transparent,
-                                          splashColor: Colors.transparent,
-                                          tooltip: 'Next',
-                                          iconSize: 65,
-                                          icon: Icon(
-                                            Icons.arrow_forward_rounded,
-                                            color: _canContinue
-                                                ? buttonLightBackground
-                                                : Colors.grey,
-                                          ),
-                                        ),
+                                      widget.screen.hasPrev()
+                                          ? IconButton(
+                                              padding: EdgeInsets.zero,
+                                              onPressed: _prev,
+                                              highlightColor:
+                                                  Colors.transparent,
+                                              hoverColor: Colors.transparent,
+                                              splashColor: Colors.transparent,
+                                              tooltip: 'Previous',
+                                              iconSize: 45,
+                                              icon: Icon(
+                                                Icons.arrow_back_rounded,
+                                                color: widget.listener.pending
+                                                        .isEmpty
+                                                    ? buttonLightBackground
+                                                    : disabled,
+                                              ),
+                                            )
+                                          : const SizedBox(
+                                              width: 45,
+                                            ),
+                                      widget.screen.hasNext()
+                                          ? IconButton(
+                                              padding: EdgeInsets.zero,
+                                              onPressed: _next,
+                                              highlightColor:
+                                                  Colors.transparent,
+                                              hoverColor: Colors.transparent,
+                                              splashColor: Colors.transparent,
+                                              tooltip: 'Next',
+                                              iconSize: 45,
+                                              icon: Icon(
+                                                Icons.arrow_forward_rounded,
+                                                color: widget.listener.pending
+                                                        .isEmpty
+                                                    ? buttonLightBackground
+                                                    : disabled,
+                                              ),
+                                            )
+                                          : const SizedBox(
+                                              width: 45,
+                                            ),
                                     ],
                                   ),
                                 ),
@@ -170,7 +186,7 @@ class _BaseScreenState extends ConsumerState<BaseScreen> {
           ]),
         ),
       ),
-    );
+    ));
   }
 
   _name() {
@@ -178,16 +194,20 @@ class _BaseScreenState extends ConsumerState<BaseScreen> {
     return SubUser.isEmpty(current) ? 'N/A' : current.name;
   }
 
-  bool get _canContinue => widget.listener.pending.isEmpty;
-
   _next() {
-    if (_canContinue) {
+    if (widget.listener.pending.isEmpty) {
       widget.screen.next();
+    } else {
+      showSnack("Must enter value on slider", context);
     }
   }
 
   _prev() {
-    widget.screen.previous();
+    if (widget.listener.pending.isEmpty) {
+      widget.screen.previous();
+    } else {
+      showSnack("Must enter value on slider", context);
+    }
   }
 
   _showErrorPrevention(BuildContext context) {
