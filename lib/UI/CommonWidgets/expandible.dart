@@ -64,7 +64,7 @@ class _ExpandibleState extends State<Expandible>
       }
     });
     _controller.addListener(() {
-      if (!_canExpand) return;
+      if (!_canExpand || !mounted) return;
       _expanded = _controller.expanded;
       if (_expanded) {
         _expandController.forward();
