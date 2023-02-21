@@ -74,7 +74,7 @@ class _SignInFormState extends ConsumerState<SignInForm> {
             close: () {
               context.go(Routes.LANDING);
             },
-            topPortion: const Column(children: [
+            topPortion: Column(children: [
               Spacer(
                 flex: 1,
               ),
@@ -261,15 +261,15 @@ class _VerificationState extends State<Verification> {
             close: () {
               context.go(Routes.LANDING);
             },
-            topPortion: const Column(children: [
-              Spacer(
+            topPortion: Column(children: [
+              const Spacer(
                 flex: 2,
               ),
               Padding(
-                  padding: EdgeInsets.only(left: 20.0, right: 15.0),
+                  padding: const EdgeInsets.only(left: 20.0, right: 15.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                    children: const [
                       Text(
                         'Access Code',
                         style: darkBackgroundScreenHeaderStyle,
@@ -285,7 +285,7 @@ class _VerificationState extends State<Verification> {
                       )
                     ],
                   )),
-              Spacer(
+              const Spacer(
                 flex: 1,
               )
             ]),
@@ -357,33 +357,34 @@ class Help extends StatelessWidget {
   Widget build(BuildContext context) {
     return FormContainer(
       hasClose: false,
-      topPortion: const Column(children: [
-        Spacer(
+      topPortion: Column(children: [
+        const Spacer(
           flex: 2,
         ),
         Padding(
-          padding: EdgeInsets.only(
+          padding: const EdgeInsets.only(
             left: 20.0,
             right: 15.0,
           ),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(
-              'Access Code Help',
-              style: darkBackgroundScreenHeaderStyle,
-              textAlign: TextAlign.justify,
-            ),
-            SizedBox(
-              height: 6.0,
-            ),
-            Text(
-              'You identified that you need help finding your access code.',
-              style: darkBackgroundStyle,
-              textAlign: TextAlign.justify,
-            )
-          ]),
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text(
+                  'Access Code Help',
+                  style: darkBackgroundScreenHeaderStyle,
+                  textAlign: TextAlign.justify,
+                ),
+                SizedBox(
+                  height: 6.0,
+                ),
+                Text(
+                  'You identified that you need help finding your access code.',
+                  style: darkBackgroundStyle,
+                  textAlign: TextAlign.justify,
+                )
+              ]),
         ),
-        Spacer(
+        const Spacer(
           flex: 1,
         )
       ]),
