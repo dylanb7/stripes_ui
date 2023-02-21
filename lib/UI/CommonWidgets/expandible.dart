@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stripes_ui/Util/mouse_hover.dart';
 import 'package:stripes_ui/Util/palette.dart';
 
 class Expandible extends StatefulWidget {
@@ -16,7 +17,7 @@ class Expandible extends StatefulWidget {
 
   final Color highlightColor;
 
-  final ExpandibleListener? listener;
+  final ExpandibleController? listener;
 
   const Expandible(
       {required this.header,
@@ -44,7 +45,7 @@ class _ExpandibleState extends State<Expandible>
 
   late bool _expanded, _canExpand;
 
-  late ExpandibleListener _listener;
+  late ExpandibleController _controller;
 
   @override
   void initState() {
@@ -55,16 +56,16 @@ class _ExpandibleState extends State<Expandible>
     _heightFactor = _expandController.drive(CurveTween(curve: Curves.easeIn));
     _canExpand = widget.canExpand;
     _expanded = !_canExpand;
-    _listener = widget.listener ?? ExpandibleListener();
+    _controller = widget.listener ?? ExpandibleController(_expanded);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      _listener.expanded.value = _expanded;
+      _controller.set(_expanded);
       if (_expanded) {
         _expandController.value = _expandController.upperBound;
       }
     });
-    _listener.expanded.addListener(() {
+    _controller.addListener(() {
       if (!_canExpand) return;
-      _expanded = _listener.expanded.value;
+      _expanded = _controller.expanded;
       if (_expanded) {
         _expandController.forward();
       } else {
@@ -102,7 +103,7 @@ class _ExpandibleState extends State<Expandible>
                     setState(() {});
                   });
                 }
-                _listener.expanded.value = _expanded;
+                _controller.set(_expanded);
               });
             },
             child: Card(
@@ -166,6 +167,124 @@ class _ExpandibleState extends State<Expandible>
   }
 }
 
-class ExpandibleListener {
-  ValueNotifier<bool> expanded = ValueNotifier(false);
+class ExpandibleRaw extends StatefulWidget {
+  final Widget view;
+
+  final Widget header;
+
+  final ExpandibleController? controller;
+
+  const ExpandibleRaw(
+      {required this.header, required this.view, this.controller, super.key});
+
+  @override
+  State<StatefulWidget> createState() => _ExpandRawState();
+}
+
+class _ExpandRawState extends State<ExpandibleRaw>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _expandController;
+
+  late Animation<double> _heightFactor;
+
+  late final ExpandibleController _listener;
+
+  @override
+  void initState() {
+    _listener = widget.controller ?? ExpandibleController(true);
+    _expandController = AnimationController(
+        duration: const Duration(milliseconds: 200),
+        vsync: this,
+        reverseDuration: const Duration(milliseconds: 200));
+    _heightFactor = _expandController.drive(CurveTween(curve: Curves.easeIn));
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      if (_listener.expanded) {
+        _expandController.value = _expandController.upperBound;
+      }
+    });
+    _listener.addListener(() {
+      if (!mounted) return;
+      if (_listener.expanded) {
+        _expandController.forward();
+      } else {
+        _expandController.reverse().then<void>((void value) {
+          if (!mounted) return;
+          setState(() {});
+        });
+      }
+    });
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+        animation: _expandController.view,
+        child: _listener.expanded
+            ? Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: widget.view,
+              )
+            : null,
+        builder: (context, poss) {
+          return GestureDetector(
+            onTap: () {
+              if (_expandController.isAnimating) return;
+              _listener.set(!_listener.expanded);
+            },
+            child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      const SizedBox(
+                        width: 4.0,
+                      ),
+                      widget.header,
+                      const SizedBox(
+                        width: 4.0,
+                      ),
+                      Tooltip(
+                        message: _listener.expanded ? 'Show Less' : 'Show More',
+                        showDuration: Duration.zero,
+                        child: Icon(
+                          _listener.expanded
+                              ? Icons.expand_less
+                              : Icons.expand_more,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const Spacer(),
+                    ],
+                  ).showCursorOnHover,
+                  ClipRect(
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      heightFactor: _heightFactor.value,
+                      child: poss,
+                    ),
+                  ),
+                ]),
+          );
+        });
+  }
+
+  @override
+  void dispose() {
+    _expandController.dispose();
+    super.dispose();
+  }
+}
+
+class ExpandibleController extends ChangeNotifier {
+  bool expanded = false;
+
+  ExpandibleController(this.expanded);
+
+  set(bool expand) {
+    expanded = expand;
+    notifyListeners();
+  }
 }

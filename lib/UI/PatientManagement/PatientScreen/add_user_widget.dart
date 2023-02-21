@@ -24,7 +24,7 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
 
   final GenderHolder _genderController = GenderHolder();
 
-  late final ExpandibleListener _expandibleListener;
+  late final ExpandibleController _expandibleListener;
 
   final GlobalKey<FormState> _formKey = GlobalKey();
 
@@ -36,9 +36,9 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
 
   @override
   void initState() {
-    _expandibleListener = ExpandibleListener();
+    _expandibleListener = ExpandibleController(true);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      _expandibleListener.expanded.addListener(() {
+      _expandibleListener.addListener(() {
         setState(() {});
       });
     });
@@ -61,7 +61,7 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
               ),
               AnimatedOpacity(
                 duration: const Duration(milliseconds: 200),
-                opacity: _expandibleListener.expanded.value ? 0 : 1,
+                opacity: _expandibleListener.expanded ? 0 : 1,
                 child: const Icon(
                   Icons.add,
                   color: darkIconButton,
@@ -141,7 +141,7 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
           height: 25,
         ),
       ]),
-      if (_expandibleListener.expanded.value)
+      if (_expandibleListener.expanded)
         Positioned(
           left: 0,
           right: 0,

@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:stripes_backend_helper/QuestionModel/response.dart';
-import 'package:stripes_backend_helper/date_format.dart';
+import 'package:stripes_backend_helper/TestingReposImpl/test_question_repo.dart';
+import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
+import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
 import 'package:stripes_ui/UI/CommonWidgets/date_time_entry.dart';
 import 'package:stripes_ui/UI/Record/question_screen.dart';
+import 'package:stripes_ui/Util/easy_snack.dart';
+import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
+
+final toggleProvider = StateProvider.autoDispose(
+  (ref) => [false, false],
+);
 
 class SubmitScreen extends ConsumerWidget {
   final String type;
@@ -22,7 +29,7 @@ class SubmitScreen extends ConsumerWidget {
 
   final DateTime? submitTime;
 
-  final bool isEdit, isTest;
+  final bool isEdit;
 
   final String? desc;
 
@@ -31,7 +38,6 @@ class SubmitScreen extends ConsumerWidget {
       required this.type,
       this.submitTime,
       this.isEdit = false,
-      this.isTest = false,
       this.desc,
       Key? key})
       : super(key: key) {
@@ -46,6 +52,13 @@ class SubmitScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final TestState state = ref.watch(testHolderProvider).state;
+    final List<bool> toggles = ref.watch(toggleProvider);
+    final isBlueRecord =
+        (state == TestState.logs || state == TestState.logsSubmit) &&
+            type == Symptoms.BM &&
+            !isEdit;
+
     return Column(
       children: [
         Text(
@@ -68,6 +81,35 @@ class SubmitScreen extends ConsumerWidget {
             ],
           ),
         ),
+        if (isBlueRecord) ...[
+          const SizedBox(
+            height: 18.0,
+          ),
+          const Text(
+            'Did this Bowel Movement contain any blue color?',
+            style: lightBackgroundStyle,
+          ),
+          const SizedBox(
+            height: 8.0,
+          ),
+          ToggleButtons(
+              onPressed: (index) => ref.read(toggleProvider.notifier).state = [
+                    index == 0,
+                    index == 1
+                  ],
+              borderRadius: const BorderRadius.all(Radius.circular(8)),
+              borderColor: lightIconButton.withOpacity(0.4),
+              selectedBorderColor: lightIconButton,
+              selectedColor: Colors.white,
+              fillColor: lightIconButton.withOpacity(0.5),
+              color: lightIconButton,
+              constraints: const BoxConstraints(
+                minHeight: 40.0,
+                minWidth: 80.0,
+              ),
+              isSelected: toggles,
+              children: ["Yes", "No"].map((e) => Text(e)).toList())
+        ],
         const SizedBox(
           height: 30,
         ),
@@ -80,7 +122,12 @@ class SubmitScreen extends ConsumerWidget {
             child: StripesRoundedButton(
               text: isEdit ? 'Save Changes' : 'Submit Entry',
               onClick: () {
-                _submitEntry(context, ref);
+                if (!isBlueRecord || toggles.contains(true)) {
+                  _submitEntry(context, ref, isBlueRecord, toggles);
+                } else {
+                  showSnack(
+                      'Must answer blue question before submitting', context);
+                }
               },
               light: false,
               rounding: 25.0,
@@ -92,7 +139,8 @@ class SubmitScreen extends ConsumerWidget {
     );
   }
 
-  _submitEntry(BuildContext context, WidgetRef ref) {
+  _submitEntry(BuildContext context, WidgetRef ref, bool blueRecord,
+      List<bool> toggles) {
     final DateTime dateOfEntry =
         isEdit ? submitTime ?? _dateListener.date : _dateListener.date;
     final TimeOfDay timeOfEntry = _timeListener.time;
@@ -115,6 +163,12 @@ class SubmitScreen extends ConsumerWidget {
       ref.read(stampProvider)?.updateStamp(detailResponse);
     } else {
       ref.read(stampProvider)?.addStamp(detailResponse);
+      if (blueRecord) {
+        ref
+            .read(testHolderProvider)
+            .obj!
+            .addLog(BMTestLog(response: detailResponse, isBlue: toggles.first));
+      }
     }
     context.pop();
   }

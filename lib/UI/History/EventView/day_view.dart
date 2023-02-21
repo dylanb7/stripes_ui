@@ -1,4 +1,3 @@
-import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,11 +7,14 @@ import 'package:stripes_ui/UI/History/EventView/sig_dates.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 
+import 'calendar_day.dart';
+
 class DayView extends ConsumerWidget {
   const DayView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final DateTime now = DateTime.now();
     final DateTime? selected =
         ref.watch(filtersProvider.select((value) => value.selectedDate));
     final EventList<CalendarEvent> eventMap = ref.watch(eventsMapProvider);
@@ -44,18 +46,15 @@ class DayView extends ConsumerWidget {
                     isThisMonthDay,
                     day) {
                   List<String> vals = dateToShortMDY(day).split(' ');
-                  final Widget inner = _inner(vals[1], isToday,
-                      selected == null ? false : sameDay(day, selected));
+
                   final int events = eventMap.getEvents(day).length;
-                  if (events == 0) return inner;
-                  return Badge(
-                      badgeContent: Text(
-                        '$events',
-                        style: darkBackgroundStyle.copyWith(fontSize: 10.0),
-                      ),
-                      badgeColor: darkIconButton,
-                      position: BadgePosition.topEnd(top: 0, end: 0),
-                      child: inner);
+                  return CalendarDay(
+                      text: vals[1],
+                      isToday: isToday,
+                      selected:
+                          selected == null ? false : sameDay(day, selected),
+                      after: day.isAfter(now),
+                      events: events);
                 },
                 todayButtonColor: Colors.transparent,
                 todayBorderColor: Colors.transparent,
@@ -75,40 +74,6 @@ class DayView extends ConsumerWidget {
                 minSelectedDate: getMinDate(),
                 height: 150,
                 width: 380,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _inner(String text, bool isToday, bool selected) {
-    final Color background =
-        selected ? darkBackgroundText : backgroundLight.withOpacity(0.8);
-    final Color textColor =
-        selected ? buttonDarkBackground : darkBackgroundText;
-    return AspectRatio(
-      aspectRatio: 1.0,
-      child: Container(
-        decoration: BoxDecoration(
-          color: background,
-          borderRadius: const BorderRadius.all(Radius.circular(10.0)),
-        ),
-        padding: const EdgeInsets.all(2.0),
-        child: Container(
-          decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                  color: isToday ? darkBackgroundText : Colors.transparent,
-                  width: 2.0)),
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Center(
-              child: Text(
-                text,
-                style: darkBackgroundStyle.copyWith(
-                    color: textColor, fontSize: 20),
               ),
             ),
           ),

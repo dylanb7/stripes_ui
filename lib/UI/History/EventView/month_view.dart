@@ -1,8 +1,8 @@
-import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
+import 'package:stripes_ui/UI/History/EventView/calendar_day.dart';
 import 'package:stripes_ui/UI/History/EventView/sig_dates.dart';
 import 'package:stripes_ui/UI/SharedHomeWidgets/home_screen.dart';
 import 'package:stripes_ui/Util/palette.dart';
@@ -15,6 +15,7 @@ class MonthView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final DateTime now = DateTime.now();
     final Filters filters = ref.watch(filtersProvider);
     final EventList<CalendarEvent> eventMap = ref.watch(eventsMapProvider);
     final DateTime? selected = filters.selectedDate;
@@ -34,14 +35,13 @@ class MonthView extends ConsumerWidget {
                     ((constraints.maxWidth / 7.0) * rows) + 90;
                 return CalendarCarousel<CalendarEvent>(
                   onDayPressed: (date, events) {
-                    final Filters current = ref.read(filtersProvider);
                     if (selected != date) {
                       ref.read(filtersProvider.notifier).state =
-                          current.copyWith(selectDate: date);
+                          filters.copyWith(selectDate: date);
                       _scrollToEvents(context, isSmall);
                     } else {
                       ref.read(filtersProvider.notifier).state =
-                          current.copyWith(selectDate: null);
+                          filters.copyWith(selectDate: null);
                     }
                   },
                   height: height,
@@ -55,24 +55,16 @@ class MonthView extends ConsumerWidget {
                       isThisMonthDay,
                       day) {
                     final int events = eventMap.getEvents(day).length;
-                    final Widget inner = _inner(
-                        '${day.day}',
-                        selected == null ? false : sameDay(day, selected),
-                        isToday);
-                    if (events == 0) return inner;
-                    return Badge(
-                      badgeContent: Text(
-                        '$events',
-                        style: darkBackgroundStyle.copyWith(fontSize: 8.0),
-                      ),
-                      badgeColor: darkIconButton,
-                      position: BadgePosition.topEnd(end: 0, top: 0),
-                      child: inner,
-                    );
+                    return CalendarDay(
+                        text: '${day.day}',
+                        isToday: isToday,
+                        selected:
+                            selected == null ? false : sameDay(day, selected),
+                        after: day.isAfter(now),
+                        events: events);
                   },
                   onCalendarChanged: (dateTime) {
-                    final Filters current = ref.read(filtersProvider);
-                    ref.read(filtersProvider.notifier).state = current.copyWith(
+                    ref.read(filtersProvider.notifier).state = filters.copyWith(
                         selectDate: null, selectMonth: dateTime);
                   },
                   headerMargin: const EdgeInsets.symmetric(vertical: 5.0),
@@ -125,39 +117,5 @@ class MonthView extends ConsumerWidget {
       controller.animateTo(isSmall ? 185 : 215,
           duration: const Duration(milliseconds: 500), curve: Curves.easeIn);
     }
-  }
-
-  _inner(String text, bool selected, bool isToday) {
-    final Color background =
-        selected ? darkBackgroundText : backgroundLight.withOpacity(0.8);
-    final Color textColor =
-        selected ? buttonDarkBackground : darkBackgroundText;
-    return AspectRatio(
-      aspectRatio: 1.0,
-      child: Container(
-        decoration: BoxDecoration(
-          color: background,
-          borderRadius: const BorderRadius.all(Radius.circular(10.0)),
-        ),
-        padding: const EdgeInsets.all(2.0),
-        child: Container(
-          decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                  color: isToday ? darkBackgroundText : Colors.transparent,
-                  width: 2.0)),
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Center(
-              child: Text(
-                text,
-                style: darkBackgroundStyle.copyWith(
-                    color: textColor, fontSize: 20),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }

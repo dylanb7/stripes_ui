@@ -42,7 +42,7 @@ class StripesSlider extends StatefulWidget {
   }
 }
 
-class _StripesSliderState extends State<StripesSlider> with ChangeNotifier {
+class _StripesSliderState extends State<StripesSlider> {
   late final SliderListener listener;
 
   late double value;
@@ -96,6 +96,7 @@ class _StripesSliderState extends State<StripesSlider> with ChangeNotifier {
                       listener.interacted();
                     }
                     value = widget.min.toDouble();
+                    widget.onChange(value);
                   });
                 },
               ).showCursorOnHover
@@ -159,6 +160,7 @@ class _StripesSliderState extends State<StripesSlider> with ChangeNotifier {
                       listener.interacted();
                     }
                     value = widget.max.toDouble();
+                    widget.onChange(value);
                   });
                 },
               ).showCursorOnHover,

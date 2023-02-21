@@ -81,7 +81,7 @@ class Options extends ConsumerWidget {
                 (context) {
                   context.pushNamed(route);
                 },
-                subText: 'Test in Progress',
+                subText: 'Blue Dye Test in Progress',
               );
             }).toList(growable: false),
             const StartTest(),
@@ -177,9 +177,8 @@ class StartTest extends ConsumerWidget {
     return RecordButton(
       'Blue Dye Test',
       (context) {
-        context.goNamed(Routes.TEST);
+        context.pushNamed(Routes.TEST);
       },
-      subText: message,
     );
   }
 }

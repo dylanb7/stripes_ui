@@ -36,8 +36,7 @@ class _TimerWidgetState extends State<TimerWidget> {
   Widget build(BuildContext context) {
     return Text(
       from(gap),
-      style: darkBackgroundScreenHeaderStyle.copyWith(
-          color: buttonLightBackground),
+      style: darkBackgroundScreenHeaderStyle.copyWith(color: lightIconButton),
     );
   }
 

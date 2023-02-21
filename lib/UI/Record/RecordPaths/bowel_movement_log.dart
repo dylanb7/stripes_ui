@@ -42,7 +42,6 @@ class BowelMovementLog extends ConsumerWidget {
           submitTime: data.submitTime,
           desc: data.initialDesc,
           isEdit: data.isEditing ?? false,
-          isTest: test,
         )
       ]),
       listener: questionsListener,

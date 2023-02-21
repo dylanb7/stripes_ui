@@ -12,9 +12,10 @@ import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/Record/question_screen.dart';
 import 'package:stripes_ui/UI/Record/screen_manager.dart';
 import 'package:stripes_ui/Util/constants.dart';
-import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
+
+final continueTried = StateProvider.autoDispose((_) => false);
 
 class BaseScreen extends ConsumerStatefulWidget {
   final String type;
@@ -38,7 +39,7 @@ class _BaseScreenState extends ConsumerState<BaseScreen> {
 
   @override
   void initState() {
-    original = widget.listener.questions;
+    original = Map.from(widget.listener.questions);
     widget.screen.addListener(() {
       setState(() {});
     });
@@ -51,6 +52,7 @@ class _BaseScreenState extends ConsumerState<BaseScreen> {
   @override
   Widget build(BuildContext context) {
     final OverlayQuery query = ref.watch(overlayProvider);
+    final bool tried = ref.watch(continueTried);
     final Size screenSize = MediaQuery.of(context).size;
     return SafeArea(
         child: Scaffold(
@@ -145,6 +147,11 @@ class _BaseScreenState extends ConsumerState<BaseScreen> {
                                           : const SizedBox(
                                               width: 45,
                                             ),
+                                      if (tried)
+                                        Text(
+                                          'Select slider ${widget.listener.pending.length > 1 ? 'values' : 'value'}',
+                                          style: errorStyleTitle,
+                                        ),
                                       widget.screen.hasNext()
                                           ? IconButton(
                                               padding: EdgeInsets.zero,
@@ -196,25 +203,29 @@ class _BaseScreenState extends ConsumerState<BaseScreen> {
 
   _next() {
     if (widget.listener.pending.isEmpty) {
+      ref.read(continueTried.notifier).state = false;
       widget.screen.next();
     } else {
-      showSnack("Must enter value on slider", context);
+      ref.read(continueTried.notifier).state = true;
     }
   }
 
   _prev() {
     if (widget.listener.pending.isEmpty) {
+      ref.read(continueTried.notifier).state = false;
       widget.screen.previous();
     } else {
-      showSnack("Must enter value on slider", context);
+      ref.read(continueTried.notifier).state = true;
     }
   }
 
   _showErrorPrevention(BuildContext context) {
     if (mapEquals(original, widget.listener.questions)) {
+      ref.read(continueTried.notifier).state = false;
       context.pop();
       return;
     }
+
     ref.read(overlayProvider.notifier).state =
         OverlayQuery(widget: ErrorPrevention(type: widget.type));
   }

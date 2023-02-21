@@ -6,6 +6,7 @@ import 'package:stripes_backend_helper/TestingReposImpl/test_question_repo.dart'
 import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
+import 'package:stripes_ui/UI/Record/base_screen.dart';
 import 'package:stripes_ui/UI/Record/severity_slider.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
@@ -157,7 +158,7 @@ class _CheckBoxWidgetState extends State<CheckBoxWidget> {
   }
 }
 
-class SeverityWidget extends StatefulWidget {
+class SeverityWidget extends ConsumerStatefulWidget {
   final QuestionsListener questionsListener;
 
   final Numeric numeric;
@@ -167,28 +168,28 @@ class SeverityWidget extends StatefulWidget {
       : super(key: key);
 
   @override
-  State<SeverityWidget> createState() => _SeverityWidgetState();
+  ConsumerState<SeverityWidget> createState() => _SeverityWidgetState();
 }
 
-class _SeverityWidgetState extends State<SeverityWidget> {
+class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
   double value = 3;
 
   final SliderListener _sliderListener = SliderListener();
 
-  late final ExpandibleListener _listener;
+  late final ExpandibleController _controller;
   @override
   void initState() {
-    _listener = ExpandibleListener();
+    _controller = ExpandibleController(false);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       num? val = response();
       if (val != null) {
         value = val.toDouble();
-        _listener.expanded.value = true;
+        _controller.set(true);
         _sliderListener.interacted();
       }
     });
 
-    _listener.expanded.addListener(_expandListener);
+    _controller.addListener(_expandListener);
     _sliderListener.addListener(_interactListener);
     super.initState();
   }
@@ -198,7 +199,7 @@ class _SeverityWidgetState extends State<SeverityWidget> {
   }
 
   _expandListener() {
-    if (_listener.expanded.value) {
+    if (_controller.expanded) {
       if (_sliderListener.interact) {
         _saveValue();
       } else {
@@ -214,7 +215,10 @@ class _SeverityWidgetState extends State<SeverityWidget> {
   @override
   Widget build(BuildContext context) {
     final num? res = response();
+    final bool tried = ref.watch(continueTried);
+    final bool errorHighlight = tried && !_sliderListener.interact;
     return Expandible(
+      highlightColor: errorHighlight ? error : buttonDarkBackground,
       header: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -255,9 +259,9 @@ class _SeverityWidgetState extends State<SeverityWidget> {
             },
             listener: _sliderListener,
           )),
-      selected: res != null,
+      selected: res != null || errorHighlight,
       hasIndicator: false,
-      listener: _listener,
+      listener: _controller,
     );
   }
 
@@ -276,7 +280,7 @@ class _SeverityWidgetState extends State<SeverityWidget> {
 
   @override
   void dispose() {
-    _listener.expanded.removeListener(_expandListener);
+    _controller.removeListener(_expandListener);
     _sliderListener.removeListener(_interactListener);
     super.dispose();
   }

@@ -5,8 +5,10 @@ import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_backend_helper/RepositoryBase/TestBase/BlueDye/blue_dye_response.dart';
 import 'package:stripes_backend_helper/TestingReposImpl/test_question_repo.dart';
 import 'package:stripes_backend_helper/date_format.dart';
+import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
+import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/delete_error_prevention.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
@@ -25,7 +27,7 @@ class EntryDisplay extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final DateTime date = dateFromStamp(event.stamp);
-    List<Text> vals = [];
+    List<Widget> vals = [];
     Widget? button;
     if (event is BlueDyeResp) {
       final BlueDyeResp resp = event as BlueDyeResp;
@@ -103,9 +105,14 @@ class EntryDisplay extends ConsumerWidget {
             'Behaviors:',
             style: lightBackgroundHeaderStyle,
           ),
-        ...detail.responses.map(
+        ...detail.responses.map<Widget>(
           (res) {
             if (res is NumericResponse) {
+              if (res.question.id == q4) {
+                return BMRow(
+                  response: res.response.toInt(),
+                );
+              }
               return Text('${res.question.prompt} - ${res.response}',
                   style: lightBackgroundStyle, maxLines: null);
             }
@@ -201,10 +208,48 @@ class EntryDisplay extends ConsumerWidget {
     ref.read(overlayProvider.notifier).state = OverlayQuery(
       widget: DeleteErrorPrevention(
         delete: () {
+          final BlueDyeTest? obj = ref.read(testHolderProvider).obj;
+          List<BMTestLog> blueLog = (obj?.logs ?? [])
+              .where((element) => element.response.stamp == event.stamp)
+              .toList();
           ref.read(stampProvider)?.removeStamp(event);
+          if (blueLog.isNotEmpty) {
+            ref.read(testHolderProvider).obj!.removeLog(blueLog.first);
+          }
         },
         type: event.type,
       ),
     );
+  }
+}
+
+class BMRow extends StatelessWidget {
+  final int response;
+
+  const BMRow({required this.response, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    const List<String> paths = [
+      'packages/stripes_ui/assets/images/poop1.png',
+      'packages/stripes_ui/assets/images/poop2.png',
+      'packages/stripes_ui/assets/images/poop3.png',
+      'packages/stripes_ui/assets/images/poop4.png',
+      'packages/stripes_ui/assets/images/poop5.png',
+      'packages/stripes_ui/assets/images/poop6.png',
+      'packages/stripes_ui/assets/images/poop7.png'
+    ];
+    return Row(children: [
+      Text('Bm consistency (1-7) - $response',
+          style: lightBackgroundStyle, maxLines: null),
+      const SizedBox(
+        width: 4,
+      ),
+      Image.asset(
+        paths[response - 1],
+        height: 25,
+        fit: BoxFit.fitHeight,
+      ),
+    ]);
   }
 }
