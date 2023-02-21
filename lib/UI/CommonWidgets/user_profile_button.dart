@@ -17,7 +17,7 @@ class UserProileButton extends ConsumerWidget {
       color: darkBackgroundText,
       itemBuilder: (context) => [
         PopupMenuItem(
-          child: Row(children: const [
+          child: const Row(children: [
             Text(
               'Manage Patients',
               style: lightBackgroundStyle,
@@ -33,7 +33,7 @@ class UserProileButton extends ConsumerWidget {
           },
         ),
         PopupMenuItem(
-          child: Row(children: const [
+          child: const Row(children: [
             Text(
               'Log Out',
               style: lightBackgroundStyle,

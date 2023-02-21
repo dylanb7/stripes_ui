@@ -60,7 +60,7 @@ class LoginScreen extends StatelessWidget {
       close: () {
         context.go(Routes.LANDING);
       },
-      topPortion: Column(children: const [
+      topPortion: const Column(children: [
         Spacer(
           flex: 2,
         ),
@@ -179,7 +179,7 @@ class ResetScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return FormContainer(
         hasClose: false,
-        topPortion: Column(children: const [
+        topPortion: const Column(children: [
           Spacer(
             flex: 2,
           ),
