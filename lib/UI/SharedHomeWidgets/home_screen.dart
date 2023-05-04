@@ -30,17 +30,16 @@ class Home extends ConsumerWidget {
     final SubUser currentSub = ref.watch(subHolderProvider).current;
     final FloatingActionButton? button = ref.watch(actionProvider);
     return _SmallUpdater(
-        child: Scaffold(
-      floatingActionButtonLocation:
-          FloatingActionButtonLocation.miniCenterFloat,
-      floatingActionButton: button,
-      body: Container(
-        decoration: const BoxDecoration(
-            gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [backgroundStrong, backgroundLight])),
-        child: SafeArea(
+      child: Scaffold(
+        floatingActionButtonLocation:
+            FloatingActionButtonLocation.miniCenterFloat,
+        floatingActionButton: button,
+        body: Container(
+          decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [backgroundStrong, backgroundLight])),
           child: SubUser.isEmpty((currentSub))
               ? CreatePatient()
               : Stack(
@@ -51,7 +50,7 @@ class Home extends ConsumerWidget {
                 ),
         ),
       ),
-    ));
+    );
   }
 }
 

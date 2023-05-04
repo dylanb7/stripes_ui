@@ -30,99 +30,101 @@ class CreatePatient extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return FormContainer(
-      hasClose: false,
-      topPortion: Column(
-        children: [
-          const Spacer(),
-          RichText(
-              text: TextSpan(
-                  text: 'Patient Profile ',
-                  style: darkBackgroundScreenHeaderStyle,
-                  children: [
-                TextSpan(
-                    text: '#1',
-                    style: darkBackgroundHeaderStyle.copyWith(
-                        color: buttonDarkBackground, fontSize: 40))
-              ])),
-          const Text(
-            'Please fill in the information for your first patient',
-            textAlign: TextAlign.center,
-            style: darkBackgroundStyle,
-          ),
-          const Spacer(),
-        ],
-      ),
-      form: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: FocusTraversalGroup(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(
-                  height: 12.0,
-                ),
-                TextFormField(
-                  validator: nameValidator,
-                  controller: _firstName,
-                  decoration: formFieldDecoration(
-                      hintText: 'First Name', controller: _firstName),
-                ),
-                const SizedBox(
-                  height: 8.0,
-                ),
-                TextFormField(
-                  validator: nameValidator,
-                  controller: _lastName,
-                  decoration: formFieldDecoration(
-                      hintText: 'Last Name', controller: _lastName),
-                ),
-                const SizedBox(
-                  height: 8.0,
-                ),
-                BirthYearSelector(
-                  controller: _yearController,
-                  context: context,
-                ),
-                const SizedBox(
-                  height: 8.0,
-                ),
-                IntrinsicHeight(
-                    child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(
-                        flex: 1,
-                        child: GenderDropdown(
-                          context: context,
-                          holder: _genderValue,
-                        )),
-                    const SizedBox(
-                      width: 8.0,
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: PatientControlSelector(
-                        listener: _isControlListener,
-                        context: context,
+    return SafeArea(
+      child: FormContainer(
+        hasClose: false,
+        topPortion: Column(
+          children: [
+            const Spacer(),
+            RichText(
+                text: TextSpan(
+                    text: 'Patient Profile ',
+                    style: darkBackgroundScreenHeaderStyle,
+                    children: [
+                  TextSpan(
+                      text: '#1',
+                      style: darkBackgroundHeaderStyle.copyWith(
+                          color: buttonDarkBackground, fontSize: 40))
+                ])),
+            const Text(
+              'Please fill in the information for your first patient',
+              textAlign: TextAlign.center,
+              style: darkBackgroundStyle,
+            ),
+            const Spacer(),
+          ],
+        ),
+        form: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: FocusTraversalGroup(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(
+                    height: 12.0,
+                  ),
+                  TextFormField(
+                    validator: nameValidator,
+                    controller: _firstName,
+                    decoration: formFieldDecoration(
+                        hintText: 'First Name', controller: _firstName),
+                  ),
+                  const SizedBox(
+                    height: 8.0,
+                  ),
+                  TextFormField(
+                    validator: nameValidator,
+                    controller: _lastName,
+                    decoration: formFieldDecoration(
+                        hintText: 'Last Name', controller: _lastName),
+                  ),
+                  const SizedBox(
+                    height: 8.0,
+                  ),
+                  BirthYearSelector(
+                    controller: _yearController,
+                    context: context,
+                  ),
+                  const SizedBox(
+                    height: 8.0,
+                  ),
+                  IntrinsicHeight(
+                      child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                          flex: 1,
+                          child: GenderDropdown(
+                            context: context,
+                            holder: _genderValue,
+                          )),
+                      const SizedBox(
+                        width: 8.0,
                       ),
-                    ),
-                  ],
-                )),
-                const SizedBox(
-                  height: 8.0,
-                ),
-                StripesRoundedButton(
-                    text: 'Add Patient',
-                    onClick: () {
-                      _submit(context, ref);
-                    }),
-                const SizedBox(
-                  height: 12.0,
-                ),
-              ],
+                      Expanded(
+                        flex: 1,
+                        child: PatientControlSelector(
+                          listener: _isControlListener,
+                          context: context,
+                        ),
+                      ),
+                    ],
+                  )),
+                  const SizedBox(
+                    height: 8.0,
+                  ),
+                  StripesRoundedButton(
+                      text: 'Add Patient',
+                      onClick: () {
+                        _submit(context, ref);
+                      }),
+                  const SizedBox(
+                    height: 12.0,
+                  ),
+                ],
+              ),
             ),
           ),
         ),

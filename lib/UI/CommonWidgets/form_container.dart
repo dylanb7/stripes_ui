@@ -67,6 +67,7 @@ class _FormContainerState extends State<FormContainer>
                     colors: [backgroundStrong, backgroundLight])),
           ),
         ),
+        const Positioned.fill(child: ColoredBox(color: Colors.white)),
         Positioned.fill(
           child: SingleChildScrollView(
             child: Column(
