@@ -33,10 +33,8 @@ class StripesTabView extends ConsumerWidget {
     final ScrollController scrollController = ScrollController();
     return LayoutBuilder(
       builder: (context, constraints) {
-        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-          ref.watch(isSmallProvider.notifier).state =
-              constraints.biggest.width < SMALL_LAYOUT;
-        });
+        ref.watch(isSmallProvider.notifier).state =
+            constraints.biggest.width < SMALL_LAYOUT;
         final bool isSmall = ref.read(isSmallProvider);
         Widget scroll = CustomScrollView(
           key: scrollkey,
