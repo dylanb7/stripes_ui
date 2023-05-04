@@ -17,7 +17,7 @@ class NavPath {
 
 final actionProvider = StateProvider<FloatingActionButton?>((_) => null);
 
-final isSmallProvider = StateProvider<bool>((_) => false);
+final isSmallProvider = StateProvider<bool>((_) => true);
 
 class Home extends ConsumerWidget {
   final NavPath path;
@@ -54,9 +54,9 @@ class _SmallUpdater extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final bool isSmall = ref.watch(isSmallProvider);
     return LayoutBuilder(
       builder: (context, constraints) {
-        final bool isSmall = ref.read(isSmallProvider);
         final bool newVal = constraints.maxWidth < SMALL_LAYOUT;
         if (isSmall != newVal) {
           ref.read(isSmallProvider.notifier).state = newVal;
