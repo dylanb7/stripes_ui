@@ -51,79 +51,84 @@ class _FormContainerState extends State<FormContainer>
     final double blueHeight = max(height * 0.3, 160);
     final double middlesTop = blueHeight - 35;
 
-    return Stack(
-      children: [
-        const Positioned.fill(child: ColoredBox(color: Colors.white)),
-        AnimatedPositioned(
-          duration: FormContainer.duration,
-          left: 0,
-          right: 0,
-          top: present ? 0 : -blueHeight,
-          height: blueHeight,
-          child: const DecoratedBox(
-            decoration: BoxDecoration(
-                gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [backgroundStrong, backgroundLight])),
-          ),
-        ),
-        Positioned.fill(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                SizedBox(
-                  height: middlesTop,
-                  child: Stack(
-                    children: [
-                      Center(
-                        child: widget.topPortion,
-                      ),
-                      if (widget.hasClose)
-                        Align(
-                          alignment: Alignment.topRight,
-                          child: IconButton(
-                            iconSize: 35,
-                            icon: const Icon(
-                              Icons.close,
-                              color: darkBackgroundText,
-                            ),
-                            onPressed: () {
-                              (widget.close ??
-                                  () {
-                                    Navigator.of(context).pop();
-                                  })();
-                            },
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      maxWidth: 600,
-                    ),
-                    child: Card(
-                      color: darkBackgroundText,
-                      shadowColor: backgroundLight,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(25.0)),
-                      ),
-                      elevation: 8.0,
-                      child: widget.form,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 30),
-                if (widget.bottomPortion != null) widget.bottomPortion!,
-                const SizedBox(height: 30),
-              ],
+    return ColoredBox(
+      color: Colors.white,
+      child: Stack(
+        children: [
+          AnimatedPositioned(
+            duration: FormContainer.duration,
+            left: 0,
+            right: 0,
+            top: present ? 0 : -blueHeight,
+            height: blueHeight,
+            child: const DecoratedBox(
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [backgroundStrong, backgroundLight])),
             ),
           ),
-        ),
-      ],
+          Positioned.fill(
+            child: SafeArea(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: middlesTop,
+                      child: Stack(
+                        children: [
+                          Center(
+                            child: widget.topPortion,
+                          ),
+                          if (widget.hasClose)
+                            Align(
+                              alignment: Alignment.topRight,
+                              child: IconButton(
+                                iconSize: 35,
+                                icon: const Icon(
+                                  Icons.close,
+                                  color: darkBackgroundText,
+                                ),
+                                onPressed: () {
+                                  (widget.close ??
+                                      () {
+                                        Navigator.of(context).pop();
+                                      })();
+                                },
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          maxWidth: 600,
+                        ),
+                        child: Card(
+                          color: darkBackgroundText,
+                          shadowColor: backgroundLight,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(25.0)),
+                          ),
+                          elevation: 8.0,
+                          child: widget.form,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                    if (widget.bottomPortion != null) widget.bottomPortion!,
+                    const SizedBox(height: 30),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

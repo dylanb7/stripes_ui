@@ -72,12 +72,18 @@ class StripesTabView extends ConsumerWidget {
             ]
           ],
         );
-        return isSmall
-            ? SmallLayout(
-                selected: selected,
-                child: scroll,
-              )
-            : scroll;
+        return Container(
+            decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [backgroundStrong, backgroundLight])),
+            child: isSmall
+                ? SmallLayout(
+                    selected: selected,
+                    child: scroll,
+                  )
+                : scroll);
       },
     );
   }
