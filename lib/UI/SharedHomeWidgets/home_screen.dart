@@ -56,13 +56,11 @@ class _SmallUpdater extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-          final bool isSmall = ref.read(isSmallProvider);
-          final bool newVal = constraints.maxWidth < SMALL_LAYOUT;
-          if (isSmall != newVal) {
-            ref.read(isSmallProvider.notifier).state = newVal;
-          }
-        });
+        final bool isSmall = ref.read(isSmallProvider);
+        final bool newVal = constraints.maxWidth < SMALL_LAYOUT;
+        if (isSmall != newVal) {
+          ref.read(isSmallProvider.notifier).state = newVal;
+        }
         return child;
       },
     );

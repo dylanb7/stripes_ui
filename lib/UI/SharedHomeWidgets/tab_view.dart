@@ -30,60 +30,55 @@ class StripesTabView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     HistoryLocation loc = ref.watch(historyLocationProvider);
+    final bool isSmall = ref.watch(isSmallProvider);
     final ScrollController scrollController = ScrollController();
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        ref.watch(isSmallProvider.notifier).state =
-            constraints.biggest.width < SMALL_LAYOUT;
-        final bool isSmall = ref.read(isSmallProvider);
-        Widget scroll = CustomScrollView(
-          key: scrollkey,
-          controller: scrollController,
-          slivers: [
-            if (!isSmall) LargeLayout(selected: selected),
-            if (selected == TabOption.record) ...const [
-              SliverPadding(padding: EdgeInsets.only(top: 20.0)),
-              Header(),
-              Options(),
-            ] else ...[
-              const SliverPadding(padding: EdgeInsets.only(top: 20)),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40),
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const PatientChanger(
-                          isRecords: false,
-                        ),
-                        isSmall
-                            ? const UserProileButton()
-                            : const SizedBox(
-                                width: 35,
-                              )
-                      ]),
-                ),
-              ),
-              const LocationBar(),
-              ...SliversConfig(loc).slivers,
-              const SliverPadding(padding: EdgeInsets.only(bottom: 30)),
-            ]
-          ],
-        );
-        return Container(
-            decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [backgroundStrong, backgroundLight])),
-            child: isSmall
-                ? SmallLayout(
-                    selected: selected,
-                    child: scroll,
-                  )
-                : scroll);
-      },
+
+    Widget scroll = CustomScrollView(
+      key: scrollkey,
+      controller: scrollController,
+      slivers: [
+        if (!isSmall) LargeLayout(selected: selected),
+        if (selected == TabOption.record) ...const [
+          SliverPadding(padding: EdgeInsets.only(top: 20.0)),
+          Header(),
+          Options(),
+        ] else ...[
+          const SliverPadding(padding: EdgeInsets.only(top: 20)),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40),
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const PatientChanger(
+                      isRecords: false,
+                    ),
+                    isSmall
+                        ? const UserProileButton()
+                        : const SizedBox(
+                            width: 35,
+                          )
+                  ]),
+            ),
+          ),
+          const LocationBar(),
+          ...SliversConfig(loc).slivers,
+          const SliverPadding(padding: EdgeInsets.only(bottom: 30)),
+        ]
+      ],
     );
+    return Container(
+        decoration: const BoxDecoration(
+            gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [backgroundStrong, backgroundLight])),
+        child: isSmall
+            ? SmallLayout(
+                selected: selected,
+                child: scroll,
+              )
+            : scroll);
   }
 
   handleTap(BuildContext context, TabOption tapped) {
