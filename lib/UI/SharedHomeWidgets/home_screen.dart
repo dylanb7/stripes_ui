@@ -33,16 +33,14 @@ class Home extends ConsumerWidget {
         floatingActionButtonLocation:
             FloatingActionButtonLocation.miniCenterFloat,
         floatingActionButton: button,
-        body: SafeArea(
-          child: SubUser.isEmpty((currentSub))
-              ? CreatePatient()
-              : Stack(
-                  children: [
-                    StripesTabView(selected: path.option),
-                    if (overlay.widget != null) overlay.widget!
-                  ],
-                ),
-        ),
+        body: SubUser.isEmpty((currentSub))
+            ? CreatePatient()
+            : Stack(
+                children: [
+                  StripesTabView(selected: path.option),
+                  if (overlay.widget != null) overlay.widget!
+                ],
+              ),
       ),
     );
   }

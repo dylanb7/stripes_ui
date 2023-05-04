@@ -82,7 +82,7 @@ class _SignInFormState extends ConsumerState<SignInForm> {
                 padding: EdgeInsets.only(left: 20.0, right: 15.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: const [
                     Text(
                       'Login Info',
                       style: darkBackgroundScreenHeaderStyle,
@@ -99,7 +99,7 @@ class _SignInFormState extends ConsumerState<SignInForm> {
                   ],
                 ),
               ),
-              Spacer(
+              const Spacer(
                 flex: 1,
               )
             ]),
