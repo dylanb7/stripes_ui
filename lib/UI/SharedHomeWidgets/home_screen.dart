@@ -34,21 +34,14 @@ class Home extends ConsumerWidget {
         floatingActionButtonLocation:
             FloatingActionButtonLocation.miniCenterFloat,
         floatingActionButton: button,
-        body: Container(
-          decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [backgroundStrong, backgroundLight])),
-          child: SubUser.isEmpty((currentSub))
-              ? CreatePatient()
-              : Stack(
-                  children: [
-                    StripesTabView(selected: path.option),
-                    if (overlay.widget != null) overlay.widget!
-                  ],
-                ),
-        ),
+        body: SubUser.isEmpty((currentSub))
+            ? CreatePatient()
+            : Stack(
+                children: [
+                  StripesTabView(selected: path.option),
+                  if (overlay.widget != null) overlay.widget!
+                ],
+              ),
       ),
     );
   }

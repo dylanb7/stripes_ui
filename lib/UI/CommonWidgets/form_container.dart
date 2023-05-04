@@ -53,6 +53,7 @@ class _FormContainerState extends State<FormContainer>
 
     return Stack(
       children: [
+        const Positioned.fill(child: ColoredBox(color: Colors.white)),
         AnimatedPositioned(
           duration: FormContainer.duration,
           left: 0,
@@ -67,7 +68,6 @@ class _FormContainerState extends State<FormContainer>
                     colors: [backgroundStrong, backgroundLight])),
           ),
         ),
-        const Positioned.fill(child: ColoredBox(color: Colors.white)),
         Positioned.fill(
           child: SingleChildScrollView(
             child: Column(
