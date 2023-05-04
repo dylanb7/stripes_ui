@@ -7,6 +7,7 @@ import 'package:stripes_ui/UI/SharedHomeWidgets/tab_view.dart';
 import 'package:stripes_ui/Util/constants.dart';
 
 import '../../Providers/overlay_provider.dart';
+import '../../Util/palette.dart';
 
 @immutable
 class NavPath {
@@ -29,20 +30,28 @@ class Home extends ConsumerWidget {
     final SubUser currentSub = ref.watch(subHolderProvider).current;
     final FloatingActionButton? button = ref.watch(actionProvider);
     return _SmallUpdater(
-      child: Scaffold(
-        floatingActionButtonLocation:
-            FloatingActionButtonLocation.miniCenterFloat,
-        floatingActionButton: button,
-        body: SubUser.isEmpty((currentSub))
-            ? CreatePatient()
-            : Stack(
-                children: [
-                  StripesTabView(selected: path.option),
-                  if (overlay.widget != null) overlay.widget!
-                ],
-              ),
+        child: Scaffold(
+      floatingActionButtonLocation:
+          FloatingActionButtonLocation.miniCenterFloat,
+      floatingActionButton: button,
+      body: Container(
+        decoration: const BoxDecoration(
+            gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [backgroundStrong, backgroundLight])),
+        child: SafeArea(
+          child: SubUser.isEmpty((currentSub))
+              ? CreatePatient()
+              : Stack(
+                  children: [
+                    StripesTabView(selected: path.option),
+                    if (overlay.widget != null) overlay.widget!
+                  ],
+                ),
+        ),
       ),
-    );
+    ));
   }
 }
 

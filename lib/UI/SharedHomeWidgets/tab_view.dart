@@ -31,61 +31,54 @@ class StripesTabView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     HistoryLocation loc = ref.watch(historyLocationProvider);
     final ScrollController scrollController = ScrollController();
-    return Container(
-      decoration: const BoxDecoration(
-          gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [backgroundStrong, backgroundLight])),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-            ref.watch(isSmallProvider.notifier).state =
-                constraints.biggest.width < SMALL_LAYOUT;
-          });
-          final bool isSmall = ref.read(isSmallProvider);
-          Widget scroll = CustomScrollView(
-            key: scrollkey,
-            controller: scrollController,
-            slivers: [
-              if (!isSmall) LargeLayout(selected: selected),
-              if (selected == TabOption.record) ...const [
-                SliverPadding(padding: EdgeInsets.only(top: 20.0)),
-                Header(),
-                Options(),
-              ] else ...[
-                const SliverPadding(padding: EdgeInsets.only(top: 20)),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 40),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const PatientChanger(
-                            isRecords: false,
-                          ),
-                          isSmall
-                              ? const UserProileButton()
-                              : const SizedBox(
-                                  width: 35,
-                                )
-                        ]),
-                  ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+          ref.watch(isSmallProvider.notifier).state =
+              constraints.biggest.width < SMALL_LAYOUT;
+        });
+        final bool isSmall = ref.read(isSmallProvider);
+        Widget scroll = CustomScrollView(
+          key: scrollkey,
+          controller: scrollController,
+          slivers: [
+            if (!isSmall) LargeLayout(selected: selected),
+            if (selected == TabOption.record) ...const [
+              SliverPadding(padding: EdgeInsets.only(top: 20.0)),
+              Header(),
+              Options(),
+            ] else ...[
+              const SliverPadding(padding: EdgeInsets.only(top: 20)),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 40),
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const PatientChanger(
+                          isRecords: false,
+                        ),
+                        isSmall
+                            ? const UserProileButton()
+                            : const SizedBox(
+                                width: 35,
+                              )
+                      ]),
                 ),
-                const LocationBar(),
-                ...SliversConfig(loc).slivers,
-                const SliverPadding(padding: EdgeInsets.only(bottom: 30)),
-              ]
-            ],
-          );
-          return isSmall
-              ? SmallLayout(
-                  selected: selected,
-                  child: scroll,
-                )
-              : scroll;
-        },
-      ),
+              ),
+              const LocationBar(),
+              ...SliversConfig(loc).slivers,
+              const SliverPadding(padding: EdgeInsets.only(bottom: 30)),
+            ]
+          ],
+        );
+        return isSmall
+            ? SmallLayout(
+                selected: selected,
+                child: scroll,
+              )
+            : scroll;
+      },
     );
   }
 
