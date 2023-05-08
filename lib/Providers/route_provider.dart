@@ -11,6 +11,7 @@ import 'package:stripes_ui/UI/Record/RecordPaths/bowel_movement_log.dart';
 import 'package:stripes_ui/UI/Record/RecordPaths/neuro_behaviors_log.dart';
 import 'package:stripes_ui/UI/Record/RecordPaths/pain_log.dart';
 import 'package:stripes_ui/UI/Record/RecordPaths/reflux_log.dart';
+import 'package:stripes_ui/UI/Record/RecordSplit/splitter.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
 import 'package:stripes_ui/UI/Record/symptom_record_data.dart';
 import 'package:stripes_ui/UI/SharedHomeWidgets/home_screen.dart';
@@ -86,6 +87,17 @@ class RouteNotifier extends ChangeNotifier {
           ),
         ),
         GoRoute(
+          path: '${Routes.HOME}/:type',
+          pageBuilder: (context, state) {
+            final String? type = state.params['type'];
+            if (type == null) return FadeIn(state: state, child: Container());
+            return FadeIn(
+                child: RecordSplitter(type: type, data: _data(state)),
+                state: state);
+          },
+        ),
+        /*
+        GoRoute(
           name: Routes.BM,
           path: '${Routes.HOME}/${Routes.BM}',
           pageBuilder: (context, state) =>
@@ -110,6 +122,7 @@ class RouteNotifier extends ChangeNotifier {
           pageBuilder: (context, state) =>
               FadeIn(child: RefluxLog(data: _data(state)), state: state),
         ),
+        */
         GoRoute(
           name: Routes.TEST,
           path: '${Routes.HOME}/${Routes.TEST}',

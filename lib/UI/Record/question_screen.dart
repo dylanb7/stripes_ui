@@ -10,6 +10,7 @@ import 'package:stripes_ui/UI/Record/base_screen.dart';
 import 'package:stripes_ui/UI/Record/severity_slider.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
+import 'package:stripes_ui/entry.dart';
 
 class QuestionsListener extends ChangeNotifier {
   final Map<Question, Response> questions = {};
@@ -37,7 +38,7 @@ class QuestionsListener extends ChangeNotifier {
   }
 }
 
-class QuestionScreen extends StatelessWidget {
+class QuestionScreen extends ConsumerWidget {
   final List<Question> questions;
 
   final String header;
@@ -52,7 +53,9 @@ class QuestionScreen extends StatelessWidget {
       : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final Map<String, QuestionEntry> questionEntries =
+        ref.watch(questionEntryOverides);
     return Column(
       children: [
         Text(
@@ -65,6 +68,8 @@ class QuestionScreen extends StatelessWidget {
         Column(
           mainAxisSize: MainAxisSize.min,
           children: questions.map((question) {
+            final Widget? override = questionEntries[question.id]?.display;
+            if (override != null) return override;
             if (question.id == q4) {
               return BMSlider(listener: questionsListener);
             }

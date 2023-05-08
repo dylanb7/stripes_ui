@@ -39,18 +39,45 @@ class Logger extends ProviderObserver {
 
 final reposProvider = Provider<StripesRepoPackage>((ref) => LocalRepoPackage());
 
+final questionDisplayOverides = Provider<Map<String, Widget>>((ref) => {});
+
+final questionEntryOverides = Provider<Map<String, QuestionEntry>>((ref) => {});
+
+class QuestionEntry {
+  final bool isSeparateScreen;
+
+  final Widget display;
+
+  const QuestionEntry(this.isSeparateScreen, this.display);
+}
+
 class StripesApp extends StatelessWidget {
   final bool hasLogging;
 
   final StripesRepoPackage? repos;
 
-  const StripesApp({this.repos, this.hasLogging = false, Key? key})
+  final Map<String, Widget>? displayOverrides;
+
+  final Map<String, QuestionEntry>? entryOverrides;
+
+  const StripesApp(
+      {this.repos,
+      this.hasLogging = false,
+      this.displayOverrides,
+      this.entryOverrides,
+      Key? key})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ProviderScope(
-      overrides: [if (repos != null) reposProvider.overrideWithValue(repos!)],
+      overrides: [
+        if (repos != null) reposProvider.overrideWithValue(repos!),
+        if (entryOverrides != null)
+          questionEntryOverides.overrideWithValue(entryOverrides!),
+        if (displayOverrides != null)
+          questionDisplayOverides.overrideWithValue(displayOverrides!)
+      ],
       observers: [if (hasLogging) const Logger()],
       child: const StripesHome(),
     );

@@ -7,7 +7,6 @@ import 'package:stripes_ui/UI/SharedHomeWidgets/tab_view.dart';
 import 'package:stripes_ui/Util/constants.dart';
 
 import '../../Providers/overlay_provider.dart';
-import '../../Util/palette.dart';
 
 @immutable
 class NavPath {
@@ -59,7 +58,13 @@ class _SmallUpdater extends ConsumerWidget {
       builder: (context, constraints) {
         final bool newVal = constraints.maxWidth < SMALL_LAYOUT;
         if (isSmall != newVal) {
-          ref.read(isSmallProvider.notifier).state = newVal;
+          if (context.mounted) {
+            ref.read(isSmallProvider.notifier).state = newVal;
+          } else {
+            WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+              ref.read(isSmallProvider.notifier).state = newVal;
+            });
+          }
         }
         return child;
       },

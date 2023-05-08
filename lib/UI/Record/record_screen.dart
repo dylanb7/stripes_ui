@@ -10,6 +10,7 @@ import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
 import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
 import 'package:stripes_ui/UI/PatientManagement/patient_changer.dart';
+import 'package:stripes_ui/UI/Record/RecordPaths/question_splitter.dart';
 import 'package:stripes_ui/UI/SharedHomeWidgets/home_screen.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
@@ -54,7 +55,8 @@ class Options extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(questionHomeProvider);
+    final List<String> questionTypes =
+        ref.watch(questionSplitProvider.select((value) => value.keys)).toList();
     final TestState state =
         ref.watch(testHolderProvider.select((value) => value.state));
     return SliverPadding(
@@ -69,17 +71,16 @@ class Options extends ConsumerWidget {
               'Select a category to record:',
               style: darkBackgroundHeaderStyle,
             ),
-            ...Options.symToRoute.keys.map((key) {
-              final String route = Options.symToRoute[key]!;
+            ...questionTypes.map((key) {
               if (key != Symptoms.BM || !state.testInProgress) {
                 return RecordButton(key, (context) {
-                  context.pushNamed(route);
+                  context.pushNamed(Routes.HOME, params: {'type': key});
                 });
               }
               return RecordButton(
                 key,
                 (context) {
-                  context.pushNamed(route);
+                  context.pushNamed(Routes.HOME, params: {'type': key});
                 },
                 subText: 'Blue Dye Test in Progress',
               );
