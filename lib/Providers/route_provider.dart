@@ -88,6 +88,7 @@ class RouteNotifier extends ChangeNotifier {
         ),
         GoRoute(
           path: '${Routes.HOME}/:type',
+          name: 'recordType',
           pageBuilder: (context, state) {
             final String? type = state.params['type'];
             if (type == null) return FadeIn(state: state, child: Container());

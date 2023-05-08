@@ -74,13 +74,13 @@ class Options extends ConsumerWidget {
             ...questionTypes.map((key) {
               if (key != Symptoms.BM || !state.testInProgress) {
                 return RecordButton(key, (context) {
-                  context.pushNamed(Routes.HOME, params: {'type': key});
+                  context.pushNamed('recordType', params: {'type': key});
                 });
               }
               return RecordButton(
                 key,
                 (context) {
-                  context.pushNamed(Routes.HOME, params: {'type': key});
+                  context.pushNamed('recordType', params: {'type': key});
                 },
                 subText: 'Blue Dye Test in Progress',
               );
