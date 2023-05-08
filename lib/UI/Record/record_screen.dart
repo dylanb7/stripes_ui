@@ -56,7 +56,8 @@ class Options extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final List<String> questionTypes =
-        ref.watch(questionSplitProvider.select((value) => value.keys)).toList();
+        ref.watch(questionSplitProvider).keys.toList();
+    print(questionTypes);
     final TestState state =
         ref.watch(testHolderProvider.select((value) => value.state));
     return SliverPadding(

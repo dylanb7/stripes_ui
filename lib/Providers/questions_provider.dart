@@ -19,7 +19,7 @@ class QuestionNotifier extends StateNotifier {
   }
 
   _loadQuestions(StateProviderRef ref) async {
-    home = await ref.watch(questionsProvider).questions;
+    home = ref.watch(questionsProvider).questions;
     state = home;
   }
 }
