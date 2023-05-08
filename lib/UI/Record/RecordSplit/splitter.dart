@@ -101,7 +101,8 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                       const SizedBox(
                         height: 8.0,
                       ),
-                      Card(
+                      Expanded(
+                          child: Card(
                         shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(
                             Radius.circular(10),
@@ -194,7 +195,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                 ),
                               ]),
                         ),
-                      ),
+                      )),
                       const SizedBox(
                         height: 15,
                       ),
