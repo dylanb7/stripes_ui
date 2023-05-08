@@ -7,6 +7,7 @@ import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
 import 'package:stripes_ui/UI/History/button_style.dart';
+import 'package:stripes_ui/UI/Record/RecordPaths/question_splitter.dart';
 import 'package:stripes_ui/UI/Record/record_screen.dart';
 import 'package:stripes_ui/UI/Record/symptom_record_data.dart';
 import 'package:stripes_ui/Util/palette.dart';
@@ -49,6 +50,8 @@ class _QuestionTypeOverlay extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final List<String> questionTypes =
+        ref.watch(questionSplitProvider).keys.toList();
     return OverlayBackdrop(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 350),
@@ -88,7 +91,7 @@ class _QuestionTypeOverlay extends ConsumerWidget {
                             color: darkIconButton,
                           )),
                     ]),
-                ...Symptoms.ordered().map((type) => Padding(
+                ...questionTypes.map((type) => Padding(
                       padding: const EdgeInsets.symmetric(vertical: 5.0),
                       child: StripesRoundedButton(
                         shadow: false,
@@ -97,7 +100,8 @@ class _QuestionTypeOverlay extends ConsumerWidget {
                         onClick: () {
                           ref.read(overlayProvider.notifier).state =
                               closedQuery;
-                          context.pushNamed(Options.symToRoute[type]!,
+                          context.pushNamed('recordType',
+                              params: {'type': type},
                               extra: SymptomRecordData(submitTime: date));
                         },
                       ),

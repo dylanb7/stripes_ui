@@ -40,18 +40,26 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
   late final Map<Question, Response<Question>> original;
 
   late final PageController pageController;
+
+  int currentIndex = 0;
+
   @override
   void initState() {
     original = Map.from(widget.questionListener.questions);
     pageController = PageController();
+    widget.questionListener.addListener(() {
+      setState(() {});
+    });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     final List<List<Question>> pages = ref.watch(pageProvider(widget.type));
+    final length = pages.length;
     final OverlayQuery query = ref.watch(overlayProvider);
     final bool tried = ref.watch(continueTried);
+    final hasPending = widget.questionListener.pending.isNotEmpty;
     final Size screenSize = MediaQuery.of(context).size;
     return SafeArea(
         child: Scaffold(
@@ -102,100 +110,161 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                         height: 8.0,
                       ),
                       Expanded(
-                          child: Card(
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(10),
+                        child: Card(
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(10),
+                            ),
+                          ),
+                          elevation: 8.0,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 5.0, horizontal: 8.0),
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Expanded(
+                                    child: PageView.builder(
+                                      onPageChanged: (value) {
+                                        setState(() {
+                                          currentIndex = value;
+                                        });
+                                      },
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      itemBuilder: (context, index) {
+                                        Widget content;
+                                        if (index == pages.length) {
+                                          content = SubmitScreen(
+                                            questionsListener:
+                                                widget.questionListener,
+                                            type: widget.type,
+                                            desc: widget.data.initialDesc,
+                                            isEdit:
+                                                widget.data.isEditing ?? false,
+                                            submitTime: widget.data.submitTime,
+                                          );
+                                        } else {
+                                          content = QuestionScreen(
+                                              header:
+                                                  'Select all behaviors that apply',
+                                              questions: pages[index],
+                                              questionsListener:
+                                                  widget.questionListener);
+                                        }
+                                        return Scrollbar(
+                                          trackVisibility: true,
+                                          thickness: 10,
+                                          radius: const Radius.circular(20),
+                                          scrollbarOrientation:
+                                              ScrollbarOrientation.right,
+                                          child: SingleChildScrollView(
+                                              controller: ScrollController(),
+                                              scrollDirection: Axis.vertical,
+                                              child: content),
+                                        );
+                                      },
+                                      itemCount: pages.length + 1,
+                                      controller: pageController,
+                                    ),
+                                  ),
+                                  const Padding(
+                                    padding: EdgeInsets.only(top: 1),
+                                    child: Divider(
+                                      height: 2,
+                                      indent: 15,
+                                      endIndent: 15,
+                                      color: lightBackgroundText,
+                                      thickness: 2,
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 20, vertical: 10),
+                                    child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          if (tried && hasPending)
+                                            Text(
+                                              'Select slider ${widget.questionListener.pending.length > 1 ? 'values' : 'value'}',
+                                              style: errorStyleTitle,
+                                            ),
+                                          Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                currentIndex > 0
+                                                    ? IconButton(
+                                                        padding:
+                                                            EdgeInsets.zero,
+                                                        onPressed: _prev,
+                                                        highlightColor:
+                                                            Colors.transparent,
+                                                        hoverColor:
+                                                            Colors.transparent,
+                                                        splashColor:
+                                                            Colors.transparent,
+                                                        tooltip: 'Previous',
+                                                        iconSize: 45,
+                                                        icon: Icon(
+                                                          Icons
+                                                              .arrow_back_rounded,
+                                                          color: widget
+                                                                  .questionListener
+                                                                  .pending
+                                                                  .isEmpty
+                                                              ? buttonLightBackground
+                                                              : disabled,
+                                                        ),
+                                                      )
+                                                    : const SizedBox(
+                                                        width: 45,
+                                                      ),
+                                                SmoothPageIndicator(
+                                                  controller: pageController,
+                                                  count: length + 1,
+                                                  onDotClicked: (index) {
+                                                    _goToPage(index);
+                                                  },
+                                                  effect:
+                                                      const ScrollingDotsEffect(),
+                                                ),
+                                                currentIndex < length
+                                                    ? IconButton(
+                                                        padding:
+                                                            EdgeInsets.zero,
+                                                        onPressed: _next,
+                                                        highlightColor:
+                                                            Colors.transparent,
+                                                        hoverColor:
+                                                            Colors.transparent,
+                                                        splashColor:
+                                                            Colors.transparent,
+                                                        tooltip: 'Next',
+                                                        iconSize: 45,
+                                                        icon: Icon(
+                                                          Icons
+                                                              .arrow_forward_rounded,
+                                                          color: widget
+                                                                  .questionListener
+                                                                  .pending
+                                                                  .isEmpty
+                                                              ? buttonLightBackground
+                                                              : disabled,
+                                                        ),
+                                                      )
+                                                    : const SizedBox(
+                                                        width: 45,
+                                                      )
+                                              ])
+                                        ]),
+                                  ),
+                                ]),
                           ),
                         ),
-                        elevation: 8.0,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 5.0, horizontal: 8.0),
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                PageView.builder(
-                                  itemBuilder: (context, index) {
-                                    if (index == pages.length) {
-                                      return SubmitScreen(
-                                        questionsListener:
-                                            widget.questionListener,
-                                        type: widget.type,
-                                        desc: widget.data.initialDesc,
-                                        isEdit: widget.data.isEditing ?? false,
-                                        submitTime: widget.data.submitTime,
-                                      );
-                                    }
-                                    return QuestionScreen(
-                                        header: "",
-                                        questions: pages[index],
-                                        questionsListener:
-                                            widget.questionListener);
-                                  },
-                                  itemCount: pages.length + 1,
-                                  controller: pageController,
-                                ),
-                                SmoothPageIndicator(
-                                    controller: pageController,
-                                    count: pages.length + 1),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 20, vertical: 10),
-                                  child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        /*widget.screen.hasPrev()
-                                        ? IconButton(
-                                            padding: EdgeInsets.zero,
-                                            onPressed: _prev,
-                                            highlightColor: Colors.transparent,
-                                            hoverColor: Colors.transparent,
-                                            splashColor: Colors.transparent,
-                                            tooltip: 'Previous',
-                                            iconSize: 45,
-                                            icon: Icon(
-                                              Icons.arrow_back_rounded,
-                                              color: widget
-                                                      .questionListener.pending.isEmpty
-                                                  ? buttonLightBackground
-                                                  : disabled,
-                                            ),
-                                          )
-                                        : const SizedBox(
-                                            width: 45,
-                                          ),*/
-                                        if (tried)
-                                          Text(
-                                            'Select slider ${widget.questionListener.pending.length > 1 ? 'values' : 'value'}',
-                                            style: errorStyleTitle,
-                                          ),
-                                        /*pageController.
-                                        ? IconButton(
-                                            padding: EdgeInsets.zero,
-                                            onPressed: _next,
-                                            highlightColor: Colors.transparent,
-                                            hoverColor: Colors.transparent,
-                                            splashColor: Colors.transparent,
-                                            tooltip: 'Next',
-                                            iconSize: 45,
-                                            icon: Icon(
-                                              Icons.arrow_forward_rounded,
-                                              color: widget
-                                                      .questionListener.pending.isEmpty
-                                                  ? buttonLightBackground
-                                                  : disabled,
-                                            ),
-                                          )
-                                        : const SizedBox(
-                                            width: 45,
-                                          ),*/
-                                      ]),
-                                ),
-                              ]),
-                        ),
-                      )),
+                      ),
                       const SizedBox(
                         height: 15,
                       ),
@@ -216,11 +285,20 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     return SubUser.isEmpty(current) ? 'N/A' : current.name;
   }
 
+  _goToPage(int index) {
+    if (widget.questionListener.pending.isEmpty) {
+      ref.read(continueTried.notifier).state = false;
+      pageController.jumpToPage(index);
+    } else {
+      ref.read(continueTried.notifier).state = true;
+    }
+  }
+
   _next() {
     if (widget.questionListener.pending.isEmpty) {
       ref.read(continueTried.notifier).state = false;
       pageController.nextPage(
-          duration: const Duration(milliseconds: 250), curve: Curves.bounceIn);
+          duration: const Duration(milliseconds: 250), curve: Curves.linear);
     } else {
       ref.read(continueTried.notifier).state = true;
     }
@@ -230,7 +308,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     if (widget.questionListener.pending.isEmpty) {
       ref.read(continueTried.notifier).state = false;
       pageController.previousPage(
-          duration: const Duration(milliseconds: 250), curve: Curves.bounceIn);
+          duration: const Duration(milliseconds: 250), curve: Curves.linear);
     } else {
       ref.read(continueTried.notifier).state = true;
     }

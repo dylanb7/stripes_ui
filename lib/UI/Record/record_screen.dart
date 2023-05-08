@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/RepositoryBase/StampBase/stamp.dart';
 import 'package:stripes_backend_helper/TestingReposImpl/test_question_repo.dart';
 import 'package:stripes_backend_helper/date_format.dart';
-import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
@@ -57,7 +56,6 @@ class Options extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final List<String> questionTypes =
         ref.watch(questionSplitProvider).keys.toList();
-    print(questionTypes);
     final TestState state =
         ref.watch(testHolderProvider.select((value) => value.state));
     return SliverPadding(

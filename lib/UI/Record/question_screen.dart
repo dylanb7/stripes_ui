@@ -68,8 +68,9 @@ class QuestionScreen extends ConsumerWidget {
         Column(
           mainAxisSize: MainAxisSize.min,
           children: questions.map((question) {
-            final Widget? override = questionEntries[question.id]?.display;
-            if (override != null) return override;
+            final EntryBuilder? override =
+                questionEntries[question.id]?.entryBuilder;
+            if (override != null) return override(questionsListener, question);
             if (question.id == q4) {
               return BMSlider(listener: questionsListener);
             }
@@ -78,7 +79,7 @@ class QuestionScreen extends ConsumerWidget {
                   check: question, listener: questionsListener);
             } else if (question is Numeric) {
               return SeverityWidget(
-                  numeric: question, questionsListener: questionsListener);
+                  question: question, questionsListener: questionsListener);
             }
             return Text(question.prompt);
           }).toList(),
@@ -166,10 +167,10 @@ class _CheckBoxWidgetState extends State<CheckBoxWidget> {
 class SeverityWidget extends ConsumerStatefulWidget {
   final QuestionsListener questionsListener;
 
-  final Numeric numeric;
+  final Numeric question;
 
   const SeverityWidget(
-      {required this.numeric, required this.questionsListener, Key? key})
+      {required this.questionsListener, required this.question, Key? key})
       : super(key: key);
 
   @override
@@ -200,7 +201,7 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
   }
 
   _interactListener() {
-    widget.questionsListener.removePending(widget.numeric);
+    widget.questionsListener.removePending(widget.question);
   }
 
   _expandListener() {
@@ -208,11 +209,11 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
       if (_sliderListener.interact) {
         _saveValue();
       } else {
-        widget.questionsListener.addPending(widget.numeric);
+        widget.questionsListener.addPending(widget.question);
       }
     } else {
-      widget.questionsListener.removeResponse(widget.numeric);
-      widget.questionsListener.removePending(widget.numeric);
+      widget.questionsListener.removeResponse(widget.question);
+      widget.questionsListener.removePending(widget.question);
     }
     setState(() {});
   }
@@ -232,7 +233,7 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
             children: [
               Flexible(
                 child: Text(
-                  widget.numeric.prompt,
+                  widget.question.prompt,
                   style: lightBackgroundStyle,
                 ),
               ),
@@ -271,14 +272,14 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
   }
 
   num? response() {
-    Response? res = widget.questionsListener.fromQuestion(widget.numeric);
+    Response? res = widget.questionsListener.fromQuestion(widget.question);
     if (res == null) return null;
     return (res as NumericResponse).response;
   }
 
   _saveValue() {
     widget.questionsListener.addResponse(NumericResponse(
-        question: widget.numeric,
+        question: widget.question,
         stamp: dateToStamp(DateTime.now()),
         response: value));
   }
@@ -392,4 +393,20 @@ class _BMSliderState extends ConsumerState<BMSlider> {
     listener.removeListener(_interactListener);
     super.dispose();
   }
+}
+
+final questionDisplayOverides = Provider<Map<String, Widget>>((ref) => {});
+
+final questionEntryOverides = Provider<Map<String, QuestionEntry>>((ref) => {});
+
+typedef EntryBuilder<T extends Question> = Widget Function(
+    QuestionsListener, T);
+
+class QuestionEntry {
+  final bool isSeparateScreen;
+
+  final EntryBuilder entryBuilder;
+
+  const QuestionEntry(
+      {required this.isSeparateScreen, required this.entryBuilder});
 }

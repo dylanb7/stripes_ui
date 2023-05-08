@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/repo_package.dart';
 import 'package:stripes_ui/Providers/route_provider.dart';
+import 'package:stripes_ui/UI/Record/question_screen.dart';
 import 'package:stripes_ui/Util/palette.dart';
 
 class Logger extends ProviderObserver {
@@ -38,18 +39,6 @@ class Logger extends ProviderObserver {
 }
 
 final reposProvider = Provider<StripesRepoPackage>((ref) => LocalRepoPackage());
-
-final questionDisplayOverides = Provider<Map<String, Widget>>((ref) => {});
-
-final questionEntryOverides = Provider<Map<String, QuestionEntry>>((ref) => {});
-
-class QuestionEntry {
-  final bool isSeparateScreen;
-
-  final Widget display;
-
-  const QuestionEntry(this.isSeparateScreen, this.display);
-}
 
 class StripesApp extends StatelessWidget {
   final bool hasLogging;
