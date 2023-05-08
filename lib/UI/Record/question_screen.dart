@@ -71,9 +71,7 @@ class QuestionScreen extends ConsumerWidget {
             final EntryBuilder? override =
                 questionEntries[question.id]?.entryBuilder;
             if (override != null) return override(questionsListener, question);
-            if (question.id == q4) {
-              return BMSlider(listener: questionsListener);
-            }
+
             if (question is Check) {
               return CheckBoxWidget(
                   check: question, listener: questionsListener);
