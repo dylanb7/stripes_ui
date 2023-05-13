@@ -10,7 +10,7 @@ import 'package:stripes_ui/UI/Record/base_screen.dart';
 import 'package:stripes_ui/UI/Record/severity_slider.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
-import 'package:stripes_ui/entry.dart';
+import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class QuestionsListener extends ChangeNotifier {
   final Map<Question, Response> questions = {};
@@ -176,14 +176,19 @@ class SeverityWidget extends ConsumerStatefulWidget {
 }
 
 class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
-  double value = 3;
+  late double value;
 
   final SliderListener _sliderListener = SliderListener();
 
   late final ExpandibleController _controller;
+
   @override
   void initState() {
     _controller = ExpandibleController(false);
+    final double max = (widget.question.max ?? 5).toDouble();
+    final double min = (widget.question.min ?? 0).toDouble();
+
+    value = (((max - min) / 2) + min).roundToDouble();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       num? val = response();
       if (val != null) {
@@ -255,6 +260,8 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
           padding: const EdgeInsets.symmetric(horizontal: 10.0),
           child: StripesSlider(
             initial: value.toInt(),
+            min: widget.question.min?.toInt() ?? 1,
+            max: widget.question.max?.toInt() ?? 5,
             onChange: (val) {
               setState(() {
                 value = val;
@@ -371,8 +378,8 @@ class _BMSliderState extends ConsumerState<BMSlider> {
           listener: listener,
           min: 1,
           max: 7,
-          minLabel: 'Hard',
-          maxLabel: 'Soft',
+          minLabel: AppLocalizations.of(context)!.hardTag,
+          maxLabel: AppLocalizations.of(context)!.softTag,
           initial: value.toInt(),
         ),
       ],
@@ -392,8 +399,6 @@ class _BMSliderState extends ConsumerState<BMSlider> {
     super.dispose();
   }
 }
-
-final questionDisplayOverides = Provider<Map<String, Widget>>((ref) => {});
 
 final questionEntryOverides = Provider<Map<String, QuestionEntry>>((ref) => {});
 

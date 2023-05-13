@@ -87,6 +87,14 @@ class RouteNotifier extends ChangeNotifier {
           ),
         ),
         GoRoute(
+          name: Routes.TEST,
+          path: '${Routes.HOME}/${Routes.TEST}',
+          pageBuilder: (context, state) => FadeIn(
+            state: state,
+            child: const TestScreen(),
+          ),
+        ),
+        GoRoute(
           path: '${Routes.HOME}/:type',
           name: 'recordType',
           pageBuilder: (context, state) {
@@ -124,16 +132,6 @@ class RouteNotifier extends ChangeNotifier {
               FadeIn(child: RefluxLog(data: _data(state)), state: state),
         ),
         */
-        GoRoute(
-          name: Routes.TEST,
-          path: '${Routes.HOME}/${Routes.TEST}',
-          pageBuilder: (context, state) => FadeIn(
-            state: state,
-            child: const Scaff(
-              child: TestScreen(),
-            ),
-          ),
-        )
       ];
 
   SymptomRecordData _data(GoRouterState state) {

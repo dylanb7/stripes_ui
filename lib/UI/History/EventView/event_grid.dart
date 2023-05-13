@@ -6,8 +6,10 @@ import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/UI/History/EventView/entry_display.dart';
 import 'package:stripes_ui/UI/SharedHomeWidgets/home_screen.dart';
+import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
+import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class EventGrid extends ConsumerStatefulWidget {
   const EventGrid({super.key});
@@ -31,15 +33,15 @@ class _EventGridState extends ConsumerState<EventGrid> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isSmall = ref.watch(isSmallProvider);
+    final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
     final List<Response> available =
         ref.watch(availibleStampsProvider.select((value) => value.filtered));
     if (available.isEmpty) {
-      return const SliverToBoxAdapter(
+      return SliverToBoxAdapter(
         child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 5.0),
+          padding: const EdgeInsets.symmetric(vertical: 5.0),
           child: Text(
-            'No events recorded',
+            AppLocalizations.of(context)!.noEventsText,
             style: darkBackgroundHeaderStyle,
             textAlign: TextAlign.center,
             maxLines: null,

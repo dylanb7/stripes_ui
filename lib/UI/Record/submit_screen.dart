@@ -11,6 +11,7 @@ import 'package:stripes_ui/UI/Record/question_screen.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
+import 'package:stripes_ui/l10n/app_localizations.dart';
 
 final toggleProvider = StateProvider.autoDispose(
   (ref) => [false, false],
@@ -59,83 +60,93 @@ class SubmitScreen extends ConsumerWidget {
             type == Symptoms.BM &&
             !isEdit;
 
-    return Column(
-      children: [
-        Text(
-          isEdit
-              ? 'Information Entered about $type'
-              : 'Enter Information about the $type entry below',
-          style: lightBackgroundHeaderStyle,
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(
-          height: 40,
-        ),
-        IgnorePointer(
-          ignoring: isEdit,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              DateWidget(dateListener: _dateListener),
-              TimeWidget(timeListener: _timeListener),
-            ],
-          ),
-        ),
-        if (isBlueRecord) ...[
-          const SizedBox(
-            height: 18.0,
-          ),
-          const Text(
-            'Did this Bowel Movement contain any blue color?',
-            style: lightBackgroundStyle,
-          ),
-          const SizedBox(
-            height: 8.0,
-          ),
-          ToggleButtons(
-              onPressed: (index) => ref.read(toggleProvider.notifier).state = [
-                    index == 0,
-                    index == 1
-                  ],
-              borderRadius: const BorderRadius.all(Radius.circular(8)),
-              borderColor: lightIconButton.withOpacity(0.4),
-              selectedBorderColor: lightIconButton,
-              selectedColor: Colors.white,
-              fillColor: lightIconButton.withOpacity(0.5),
-              color: lightIconButton,
-              constraints: const BoxConstraints(
-                minHeight: 40.0,
-                minWidth: 80.0,
-              ),
-              isSelected: toggles,
-              children: ["Yes", "No"].map((e) => Text(e)).toList())
-        ],
-        const SizedBox(
-          height: 30,
-        ),
-        LongTextEntry(type: type, textController: _descriptionController),
-        const SizedBox(
-          height: 30,
-        ),
-        ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 250),
-            child: StripesRoundedButton(
-              text: isEdit ? 'Save Changes' : 'Submit Entry',
-              onClick: () {
-                if (!isBlueRecord || toggles.contains(true)) {
-                  _submitEntry(context, ref, isBlueRecord, toggles);
-                } else {
-                  showSnack(
-                      'Must answer blue question before submitting', context);
-                }
-              },
-              light: false,
-              rounding: 25.0,
-            )),
-        const SizedBox(
-          height: 15,
-        ),
+    return ProviderScope(
+      overrides: [
+        dateProvider.overrideWithValue(_dateListener),
+        timeProvider.overrideWithValue(_timeListener),
       ],
+      child: Column(
+        children: [
+          Text(
+            isEdit
+                ? AppLocalizations.of(context)!.editSubmitHeader(type)
+                : AppLocalizations.of(context)!.submitHeader(type),
+            style: lightBackgroundHeaderStyle,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(
+            height: 40,
+          ),
+          IgnorePointer(
+            ignoring: isEdit,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: const [
+                DateWidget(),
+                TimeWidget(),
+              ],
+            ),
+          ),
+          if (isBlueRecord) ...[
+            const SizedBox(
+              height: 18.0,
+            ),
+            Text(
+              AppLocalizations.of(context)!.submitBlueQuestion,
+              style: lightBackgroundStyle,
+            ),
+            const SizedBox(
+              height: 8.0,
+            ),
+            ToggleButtons(
+                onPressed: (index) => ref.read(toggleProvider.notifier).state =
+                    [index == 0, index == 1],
+                borderRadius: const BorderRadius.all(Radius.circular(8)),
+                borderColor: lightIconButton.withOpacity(0.4),
+                selectedBorderColor: lightIconButton,
+                selectedColor: Colors.white,
+                fillColor: lightIconButton.withOpacity(0.5),
+                color: lightIconButton,
+                constraints: const BoxConstraints(
+                  minHeight: 40.0,
+                  minWidth: 80.0,
+                ),
+                isSelected: toggles,
+                children: [
+                  AppLocalizations.of(context)!.blueQuestionYes,
+                  AppLocalizations.of(context)!.blueQuestionNo
+                ].map((e) => Text(e)).toList())
+          ],
+          const SizedBox(
+            height: 30,
+          ),
+          LongTextEntry(type: type, textController: _descriptionController),
+          const SizedBox(
+            height: 30,
+          ),
+          ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 250),
+              child: StripesRoundedButton(
+                text: isEdit
+                    ? AppLocalizations.of(context)!.editSubmitButtonText
+                    : AppLocalizations.of(context)!.submitButtonText,
+                onClick: () {
+                  if (!isBlueRecord || toggles.contains(true)) {
+                    _submitEntry(context, ref, isBlueRecord, toggles);
+                  } else {
+                    showSnack(
+                        AppLocalizations.of(context)!.submitBlueQuestionError,
+                        context);
+                  }
+                },
+                light: false,
+                rounding: 25.0,
+              )),
+          const SizedBox(
+            height: 15,
+          ),
+        ],
+      ),
     );
   }
 
@@ -190,7 +201,7 @@ class LongTextEntry extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            'Description of $type',
+            AppLocalizations.of(context)!.submitDescriptionTag,
             style: lightBackgroundHeaderStyle,
             textAlign: TextAlign.center,
           ),
@@ -207,13 +218,14 @@ class LongTextEntry extends StatelessWidget {
               textInputAction: TextInputAction.newline,
               expands: true,
               textAlignVertical: TextAlignVertical.top,
-              decoration: const InputDecoration(
-                  border: OutlineInputBorder(
+              decoration: InputDecoration(
+                  border: const OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.grey, width: 1),
                       borderRadius: BorderRadius.all(Radius.circular(8.0))),
-                  hintText: 'Tap to type...',
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 8.0, vertical: 5.0)),
+                  hintText: AppLocalizations.of(context)!
+                      .submitDescriptionPlaceholder,
+                  contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 8.0, vertical: 5.0)),
             ),
           ),
         ],

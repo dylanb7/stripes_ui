@@ -9,6 +9,7 @@ import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
+import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class BlueRecordings extends ConsumerWidget {
   const BlueRecordings({super.key});
@@ -22,7 +23,7 @@ class BlueRecordings extends ConsumerWidget {
       children: [
         const SizedBox(height: 25.0),
         Text(
-          'Record bowel movements from the record screen. ${logs.isEmpty ? ' Recorded bowel movements will appear below' : ''}',
+          '${AppLocalizations.of(context)!.blueDyeLogsInstructionOne}${logs.isEmpty ? AppLocalizations.of(context)!.blueDyeLogsInstructionTwo : ''}',
           textAlign: TextAlign.center,
           style: lightBackgroundHeaderStyle,
         ),
@@ -35,13 +36,13 @@ class BlueRecordings extends ConsumerWidget {
           child: SizedBox(
             width: 250,
             child: StripesRoundedButton(
-              text: 'Submit Test',
+              text: AppLocalizations.of(context)!.blueDyeLogsSubmitTest,
               onClick: () {
                 ref.read(testHolderProvider).submit(DateTime.now());
               },
               disabledClick: () {
                 showSnack(
-                    'Record a normal colored bowel movement before submitting',
+                    AppLocalizations.of(context)!.blueDyeLogsSubmitTestError,
                     context);
               },
               disabled: notifier.state != TestState.logsSubmit,

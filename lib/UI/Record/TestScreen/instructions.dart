@@ -5,6 +5,7 @@ import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
+import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class Instructions extends ConsumerStatefulWidget {
   final ExpandibleController expandController;
@@ -37,14 +38,17 @@ class _InstructionsState extends ConsumerState<Instructions> {
         ExpandibleRaw(
           header: Text(
             widget.expandController.expanded
-                ? 'Instructions'
+                ? AppLocalizations.of(context)!.blueDyeInstructionsHeader
                 : state == TestState.started
-                    ? '1) Eat Muffins'
+                    ? AppLocalizations.of(context)!.blueDyeInstructionsStepOne
                     : state == TestState.logs
-                        ? '2) Record the Bowel Movements (BMs)'
+                        ? AppLocalizations.of(context)!
+                            .blueDyeInstructionsStepTwo
                         : state == TestState.logsSubmit
-                            ? '3) Submit the Test'
-                            : 'Instructions',
+                            ? AppLocalizations.of(context)!
+                                .blueDyeInstructionsStepThree
+                            : AppLocalizations.of(context)!
+                                .blueDyeInstructionsHeader,
             style: lightBackgroundHeaderStyle.copyWith(
                 fontSize: 20.0, decoration: TextDecoration.underline),
           ),
@@ -64,8 +68,9 @@ class _InstructionsState extends ConsumerState<Instructions> {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              const Text(
-                                '1) Eat Muffins',
+                              Text(
+                                AppLocalizations.of(context)!
+                                    .blueDyeInstructionsStepOne,
                                 textAlign: TextAlign.left,
                                 style: lightBackgroundHeaderStyle,
                               ),
@@ -88,9 +93,11 @@ class _InstructionsState extends ConsumerState<Instructions> {
                                 ),
                               ),
                             ]),
-                        strings: const [
-                          'When your participant starts eating muffins, select “Start Blue Meal',
-                          'When your participant is done eating select “Finished Blue Meal”'
+                        strings: [
+                          AppLocalizations.of(context)!
+                              .blueDyeInstructionsStepOneA,
+                          AppLocalizations.of(context)!
+                              .blueDyeInstructionsStepOneB
                         ],
                         mark: (index) => ['a.', 'b.'][index],
                         highlight: state == TestState.started),
@@ -98,13 +105,16 @@ class _InstructionsState extends ConsumerState<Instructions> {
                       height: 6.0,
                     ),
                     LabeledList(
-                        title: const Text(
-                          '2) Record the Bowel Movements (BMs)',
+                        title: Text(
+                          AppLocalizations.of(context)!
+                              .blueDyeInstructionsStepTwo,
                           style: lightBackgroundHeaderStyle,
                         ),
-                        strings: const [
-                          'Log BMs from the Record page and indicate whether or not the BM has any (even partial) blue or blue green color.',
-                          'It is common for the first couple of BMs after eating the muffin to not show blue yet.'
+                        strings: [
+                          AppLocalizations.of(context)!
+                              .blueDyeInstructionsStepTwoA,
+                          AppLocalizations.of(context)!
+                              .blueDyeInstructionsStepTwoB
                         ],
                         mark: (index) => ['a.', 'b.'][index],
                         highlight: state == TestState.logs),
@@ -112,12 +122,14 @@ class _InstructionsState extends ConsumerState<Instructions> {
                       height: 6.0,
                     ),
                     LabeledList(
-                        title: const Text(
-                          '3) Submit the Test',
+                        title: Text(
+                          AppLocalizations.of(context)!
+                              .blueDyeInstructionsStepThree,
                           style: lightBackgroundHeaderStyle,
                         ),
-                        strings: const [
-                          'Submit test after recording the first BM that lacks any blue or blue green color.'
+                        strings: [
+                          AppLocalizations.of(context)!
+                              .blueDyeInstructionsStepThreeA
                         ],
                         mark: (_) => 'a.',
                         highlight: state == TestState.logsSubmit),
@@ -141,22 +153,22 @@ class _InstructionsState extends ConsumerState<Instructions> {
   _dialog(BuildContext context) {
     showDialog(
         context: context,
-        builder: (context) => const SimpleDialog(
+        builder: (context) => SimpleDialog(
               title: Text(
-                'Blue Muffins Info',
+                AppLocalizations.of(context)!.blueMuffinsInfoHeader,
                 textAlign: TextAlign.center,
                 style: lightBackgroundHeaderStyle,
               ),
-              contentPadding: EdgeInsets.only(
+              contentPadding: const EdgeInsets.only(
                   left: 25.0, right: 25.0, bottom: 25.0, top: 10.0),
-              shape: RoundedRectangleBorder(
+              shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(16.0))),
               children: [
                 LabeledList(strings: [
-                  'Blue muffins will come in the mail.',
-                  'They can be stored in the refrigerator.',
-                  'To get ready for the test, remove the muffins from their packaging and heat them briefly, 20-30 seconds in the microwave or a few minutes in the oven.',
-                  'Muffins should be the first thing the participant eats in the morning after an overnight fast of at least 6 hours.',
+                  AppLocalizations.of(context)!.blueMuffinsInfoLineOne,
+                  AppLocalizations.of(context)!.blueMuffinsInfoLineTwo,
+                  AppLocalizations.of(context)!.blueMuffinsInfoLineThree,
+                  AppLocalizations.of(context)!.blueMuffinsInfoLineFour,
                 ], highlight: false),
               ],
             ));

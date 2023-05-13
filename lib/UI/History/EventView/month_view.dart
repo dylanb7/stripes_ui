@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/UI/History/EventView/calendar_day.dart';
 import 'package:stripes_ui/UI/History/EventView/sig_dates.dart';
-import 'package:stripes_ui/UI/SharedHomeWidgets/home_screen.dart';
+import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 
@@ -20,7 +20,7 @@ class MonthView extends ConsumerWidget {
     final EventList<CalendarEvent> eventMap = ref.watch(eventsMapProvider);
     final DateTime? selected = filters.selectedDate;
     final int rows = _numRows(filters.selectedMonth);
-    final bool isSmall = ref.watch(isSmallProvider);
+    final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 30),
       sliver: SliverToBoxAdapter(

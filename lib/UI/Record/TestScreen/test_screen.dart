@@ -12,6 +12,7 @@ import 'package:stripes_ui/UI/Record/base_screen.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
+import 'package:stripes_ui/l10n/app_localizations.dart';
 import '../../../Providers/sub_provider.dart';
 
 class TestScreen extends ConsumerStatefulWidget {
@@ -37,93 +38,93 @@ class _TestScreenState extends ConsumerState<TestScreen> {
         ref.watch(testHolderProvider.select((value) => value.state));
     final OverlayQuery query = ref.watch(overlayProvider);
     return SafeArea(
-      child: Scaffold(
-        body: SizedBox.expand(
-          child: Container(
-            decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [backgroundStrong, backgroundLight])),
-            child: Stack(children: [
-              Column(
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: isSmall ? 15.0 : 40.0, vertical: 15.0),
-                        child: Column(
+        child: Scaffold(
+      body: SizedBox.expand(
+        child: Container(
+          decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [backgroundStrong, backgroundLight])),
+          child: Stack(children: [
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            const Text(
-                                              'Blue Dye Test',
-                                              style:
-                                                  darkBackgroundScreenHeaderStyle,
-                                            ),
-                                            const SizedBox(
-                                              width: 4.0,
-                                            ),
-                                            SizedBox(
-                                              width: 30,
-                                              height: 30,
-                                              child: IconButton(
-                                                onPressed: () {
-                                                  _dialog(context);
-                                                },
-                                                icon: const Icon(
-                                                  Icons.info_outline,
-                                                  color: darkBackgroundText,
-                                                ),
-                                                iconSize: 30,
-                                              ),
-                                            )
-                                          ]),
-                                      Text(
-                                        _name(ref),
-                                        style: darkBackgroundStyle,
-                                      ),
-                                    ]),
-                                IconButton(
-                                  onPressed: () {
-                                    if (context.canPop()) {
-                                      context.pop();
-                                    } else {
-                                      context.go(Routes.HOME);
-                                    }
-                                  },
-                                  icon: const Icon(
-                                    Icons.close,
-                                    color: darkIconButton,
-                                    size: 35,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      AppLocalizations.of(context)!
+                                          .blueDyeHeader,
+                                      style: darkBackgroundHeaderStyle,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(
+                                    width: 4.0,
+                                  ),
+                                  IconButton(
+                                    onPressed: () {
+                                      _dialog(context);
+                                    },
+                                    icon: const Icon(
+                                      Icons.info_outline,
+                                      color: darkBackgroundText,
+                                    ),
+                                    iconSize: 30,
+                                  ),
+                                ]),
+                            IconButton(
+                              onPressed: () {
+                                if (context.canPop()) {
+                                  context.pop();
+                                } else {
+                                  context.go(Routes.HOME);
+                                }
+                              },
+                              icon: const Icon(
+                                Icons.close,
+                                color: darkIconButton,
+                                size: 35,
+                              ),
                             ),
-                            const SizedBox(
-                              height: 30.0,
+                          ],
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 8.0,
+                      ),
+                      Expanded(
+                        child: Card(
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(10),
                             ),
-                            ConstrainedBox(
-                              constraints: const BoxConstraints(maxWidth: 600),
-                              child: Card(
-                                elevation: 5.0,
-                                shape: const RoundedRectangleBorder(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(25))),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(12.0),
+                          ),
+                          elevation: 8.0,
+                          child: Scrollbar(
+                            thickness: 10,
+                            radius: const Radius.circular(20),
+                            thumbVisibility: true,
+                            child: Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: SingleChildScrollView(
                                   child: Column(
                                     children: [
                                       Instructions(
@@ -138,35 +139,36 @@ class _TestScreenState extends ConsumerState<TestScreen> {
                                       ),
                                     ],
                                   ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 12.0,
-                            ),
-                            if (state.testInProgress)
-                              StripesTextButton(
-                                  buttonText: 'Cancel Test',
-                                  mainTextColor: darkBackgroundText,
-                                  onClicked: () {
-                                    _cancelTest(context, ref);
-                                  }),
-                            const SizedBox(
-                              height: 12.0,
-                            ),
-                          ],
+                                )),
+                          ),
                         ),
                       ),
-                    ),
+                      const SizedBox(
+                        height: 12.0,
+                      ),
+                      if (state.testInProgress)
+                        Center(
+                          child: StripesTextButton(
+                              buttonText:
+                                  AppLocalizations.of(context)!.blueDyeCancel,
+                              mainTextColor: darkBackgroundText,
+                              onClicked: () {
+                                _cancelTest(context, ref);
+                              }),
+                        ),
+                      const SizedBox(
+                        height: 12.0,
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-              if (query.widget != null) query.widget!,
-            ]),
-          ),
+            ),
+            if (query.widget != null) query.widget!,
+          ]),
         ),
       ),
-    );
+    ));
   }
 
   _name(WidgetRef ref) {
@@ -177,22 +179,22 @@ class _TestScreenState extends ConsumerState<TestScreen> {
   _dialog(BuildContext context) {
     showDialog(
         context: context,
-        builder: (context) => const SimpleDialog(
+        builder: (context) => SimpleDialog(
               title: Text(
-                'Blue Dye Test Info',
+                AppLocalizations.of(context)!.blueDyeInfoHeader,
                 textAlign: TextAlign.center,
                 style: lightBackgroundHeaderStyle,
               ),
-              contentPadding: EdgeInsets.only(
+              contentPadding: const EdgeInsets.only(
                   left: 25.0, right: 25.0, bottom: 25.0, top: 10.0),
-              shape: RoundedRectangleBorder(
+              shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(16.0))),
               children: [
                 LabeledList(strings: [
-                  'The Blue Dye Test measures the time it takes for food to transit through the gut.',
-                  'To start the test, your participant(s) should eat two blue muffins in the morning after a minimum of a six hour fasting period.',
-                  'Record bowel movements, noting whether there is a blue blue-green color.',
-                  'Submit test after recording the first BM that lacks any blue or blue green color.'
+                  AppLocalizations.of(context)!.blueDyeInfoLineOne,
+                  AppLocalizations.of(context)!.blueDyeInfoLineTwo,
+                  AppLocalizations.of(context)!.blueDyeInfoLineThree,
+                  AppLocalizations.of(context)!.blueDyeInfoLineFour
                 ], highlight: false),
               ],
             ));
@@ -234,7 +236,7 @@ class TestErrorPrevention extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          'Wait!',
+                          AppLocalizations.of(context)!.errorPreventionTitle,
                           style: darkBackgroundHeaderStyle.copyWith(
                               color: buttonDarkBackground),
                           textAlign: TextAlign.center,
@@ -242,16 +244,18 @@ class TestErrorPrevention extends ConsumerWidget {
                         const SizedBox(
                           height: 8.0,
                         ),
-                        const Text(
-                          'Are you sure you want to cancel your blue dye test?',
+                        Text(
+                          AppLocalizations.of(context)!
+                              .blueMuffinErrorPreventionLineOne,
                           style: lightBackgroundStyle,
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(
                           height: 8.0,
                         ),
-                        const Text(
-                          'You will lose all progress',
+                        Text(
+                          AppLocalizations.of(context)!
+                              .blueMuffinErrorPreventionLineTwo,
                           style: lightBackgroundStyle,
                           textAlign: TextAlign.center,
                         ),
@@ -269,12 +273,14 @@ class TestErrorPrevention extends ConsumerWidget {
                         onClick: (context) {
                           _dismiss(context, ref);
                         },
-                        text: 'Leave'),
+                        text:
+                            AppLocalizations.of(context)!.errorPreventionLeave),
                     BasicButton(
                         onClick: (context) {
                           _closeOverlay(context, ref);
                         },
-                        text: 'Stay'),
+                        text:
+                            AppLocalizations.of(context)!.errorPreventionStay),
                   ],
                 ),
               ],

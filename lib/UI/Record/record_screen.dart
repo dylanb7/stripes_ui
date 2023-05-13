@@ -10,11 +10,11 @@ import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
 import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
 import 'package:stripes_ui/UI/PatientManagement/patient_changer.dart';
 import 'package:stripes_ui/UI/Record/RecordPaths/question_splitter.dart';
-import 'package:stripes_ui/UI/SharedHomeWidgets/home_screen.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
+import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class Footer extends StatelessWidget {
   const Footer({Key? key}) : super(key: key);
@@ -45,13 +45,6 @@ class Footer extends StatelessWidget {
 class Options extends ConsumerWidget {
   const Options({Key? key}) : super(key: key);
 
-  static const symToRoute = <String, String>{
-    Symptoms.BM: Routes.BM,
-    Symptoms.PAIN: Routes.PAIN,
-    Symptoms.REFLUX: Routes.REFLUX,
-    Symptoms.NB: Routes.NB,
-  };
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final List<String> questionTypes =
@@ -66,8 +59,8 @@ class Options extends ConsumerWidget {
             const SizedBox(
               height: 20.0,
             ),
-            const Text(
-              'Select a category to record:',
+            Text(
+              AppLocalizations.of(context)!.categorySelect,
               style: darkBackgroundHeaderStyle,
             ),
             ...questionTypes.map((key) {
@@ -81,7 +74,7 @@ class Options extends ConsumerWidget {
                 (context) {
                   context.pushNamed('recordType', params: {'type': key});
                 },
-                subText: 'Blue Dye Test in Progress',
+                subText: AppLocalizations.of(context)!.testInProgressNotif,
               );
             }).toList(growable: false),
             const StartTest(),
@@ -110,7 +103,7 @@ class Header extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    bool isSmall = ref.watch(isSmallProvider);
+    bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 40),
       sliver: SliverToBoxAdapter(
@@ -121,7 +114,7 @@ class Header extends ConsumerWidget {
               const PatientChanger(),
               const Spacer(),
               isSmall
-                  ? const UserProileButton()
+                  ? const UserProfileButton()
                   : const SizedBox(
                       width: 35,
                     ),
@@ -144,8 +137,9 @@ class LastEntryText extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final List<Stamp> vals = ref.watch(stampHolderProvider).stamps;
     final String lastEntry = vals.isEmpty
-        ? 'No Patient Entries'
-        : 'Last Entry: ${dateToMDY(dateFromStamp(vals.first.stamp))}';
+        ? AppLocalizations.of(context)!.noEntryText
+        : AppLocalizations.of(context)!
+            .lastEntry(dateFromStamp(vals.first.stamp));
     return Text(
       lastEntry,
       style: darkBackgroundStyle.copyWith(fontSize: 16.0),
@@ -175,7 +169,7 @@ class StartTest extends ConsumerWidget {
     }
 
     return RecordButton(
-      'Blue Dye Test',
+      AppLocalizations.of(context)!.blueDyeButton,
       (context) {
         context.pushNamed(Routes.TEST);
       },

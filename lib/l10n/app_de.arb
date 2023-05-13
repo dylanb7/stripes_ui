@@ -1,0 +1,229 @@
+{
+    "recordTitle": "Record for {username}",
+    "@recordTitle": {
+        "placeholders": {
+            "username" : {
+                "type": "String",
+                "example": "jane"
+            }
+        }
+    },
+    "recordTab": "Record",
+    "historyTitle": "{username}'s History",
+    "@historyTitle": {
+        "placeholders": {
+            "username" : {
+                "type": "String",
+                "example": "jane"
+            }
+        }
+    },
+    "historyTab": "History",
+    "noEntryText": "No Patient Entries",
+    "lastEntry": "Last Entry: {date}",
+    "@lastEntry": {
+        "placeholders": {
+            "date": {
+                "type": "DateTime",
+                "format": "yMd"
+            }
+        }
+    },
+    "categorySelect": "Wählen Sie eine Kategorie:",
+    "blueDyeButton": "Blauer Muffin Test",
+    "managePatientsButton": "Manage Patients",
+    "logOutButton": "Log Out",
+    "testInProgressNotif": "Blue Dye Test in Progress",
+
+    "recordHeader": "Recording {symptomType} \nfor {username}",
+    "@recordHeader": {
+        "placeholders": {
+            "symptomType": {
+                "type": "String",
+                "example": "pain"
+            },
+            "username": {
+                "type": "String",
+                "example": "jane"
+            }
+        }
+    },
+    "emptyRecordHeader": "{symptomType} Dokumentation",
+    "@emptyRecordHeader": {
+        "placeholders": {
+            "symptomType": {
+                "type": "String",
+                "example": "pain"
+            }
+        }
+    },
+    "selectInstruction": "Select all behaviors that apply",
+    "mildTag": "Mild",
+    "severeTag": "Severe",
+    "softTag": "Weich",
+    "hardTag": "Hart",
+    "levelReminder": "Wählen Sie eine passende Stufe",
+    "nLevelError": "{count, plural, =1{Bitte wählen Sie eine passende Konsistenz!} other{Select slider values}}",
+    "@nLevelError": {
+        "placeholders": {
+            "count": {
+                "type": "num",
+                "format": "compact"
+            }
+        }
+    },
+    "submitHeader": "Enter information about the {symptomType} entry below",
+    "@submitHeader": {
+        "placeholders": {
+            "symptomType": {
+                "type": "String",
+                "example": "pain"
+            }
+        }
+    },
+    "editSubmitHeader": "'Information Entered about {symptomType}",
+    "@editSubmitHeader": {
+        "placeholders": {
+            "symptomType": {
+                "type": "String",
+                "example": "pain"
+            }
+        }
+    },
+    "dateChangeTitle": "Datum",
+    "dateChangeEntry": "{date}",
+    "@dateChangeEntry": {
+        "placeholders": {
+            "date": { 
+                "type": "DateTime",
+                "format": "yMMMd"
+            }
+        }
+    },
+    "timeChangeTitle": "Uhrzeit",
+    "timePickerErrorBoth": "Time must be between {early} and {late}",
+    "@timePickerErrorBoth": {
+        "placeholders": {
+            "early": { 
+                "type": "String"
+            },
+            "late": {
+                "type": "String"
+            }
+        }
+    },
+    "timePickerErrorEarly": "Time must be after {early}",
+    "@timePickerErrorEarly": {
+        "placeholders": {
+            "early": { 
+                "type": "String"
+            }
+        }
+    },
+    "timePickerErrorLate": "Time must be before {late}",
+    "@timePickerErrorLate": {
+        "placeholders": {
+            "late": {
+                "type": "String"
+            }
+        }
+    },
+    "submitBlueQuestion": "Did this bowel movement contain any blue color?",
+    "submitBlueQuestionError": "Must answer blue question before submitting",
+    "blueQuestionYes": "Yes",
+    "blueQuestionNo": "No",
+    "submitDescriptionTag": "Weitere Anmerkungen",
+    "submitDescriptionPlaceholder": "Clicken, um zu chreiben...",
+    "submitButtonText": "Eintrag speichern",
+    "editSubmitButtonText": "Save Changes",
+
+    "errorPreventionTitle": "Wait!",
+    "errorPreventionLineOne": "Are you sure you want to leave this screen?",
+    "errorPreventionLineTwo": "You will lose all information you entered for this {symptomType} entry.",
+    "@errorPreventionLineTwo": {
+        "placeholders": {
+            "symptomType": {
+                "type": "String",
+                "example": "pain"
+            }
+        }
+    },
+    "errorPreventionLeave": "Leave",
+    "errorPreventionStay": "Stay",
+
+    "blueDyeHeader": "Blauer Muffin Test",
+    "blueDyeInfoHeader": "Blue Dye Test Info",
+    "blueDyeInfoLineOne": "The Blue Dye Test measures the time it takes for food to transit through the gut.",
+    "blueDyeInfoLineTwo": "To start the test, your participant(s) should eat two blue muffins in the morning after a minimum of a six hour fasting period.",
+    "blueDyeInfoLineThree": "Record bowel movements, noting whether there is a blue blue-green color.",
+    "blueDyeInfoLineFour": "Submit test after recording the first BM that lacks any blue or blue green color.",
+    "blueDyeInstructionsHeader": "Anweisungen",
+    "blueDyeInstructionsStepOne": "1) Muffin-Essen",
+    "blueDyeInstructionsStepOneA": "Sobald Sie beginnen den blauen Muffin zu essen, drücken Sie bitte auf „Blaue Mahlzeit Start“",
+    "blueDyeInstructionsStepOneB": "Sobald Sie den Muffin vollständig verzehrt haben, drücken Sie bitte auf „Blaue Mahlzeit Ende“",
+    "blueDyeInstructionsStepTwo": "2) Dokumentation zu Hause",
+    "blueDyeInstructionsStepTwoA": "Dokumentieren Sie bitte daheim nach Verzehr des Blauen Muffins jeden Stuhlgang unter „Poop Dokumentation“ und geben Sie an, ob dieser (teilweise) blau/blau-grün gefärbt war.",
+    "blueDyeInstructionsStepTwoB": "Es ist normal, dass einige Tage vergehen, bis die blaue Farbe erscheint.",
+    "blueDyeInstructionsStepThree": "3) Submit the Test",
+    "blueDyeInstructionsStepThreeA": "Sobald Ihr Stuhlgang keinerlei blaue/blau-grüne Farbe mehr zeigt, drücken Sie bitte auf „Test einreichen“. So können wir Ihre Daten anonymisiert erhalten.",
+    "blueMuffinsInfoHeader": "Blue Muffins Info",
+    "blueMuffinsInfoLineOne": "Blue muffins will come in the mail.",
+    "blueMuffinsInfoLineTwo": "They can be stored in the refrigerator.",
+    "blueMuffinsInfoLineThree": "To get ready for the test, remove the muffins from their packaging and heat them briefly, 20-30 seconds in the microwave or a few minutes in the oven.",
+    "blueMuffinsInfoLineFour": "Muffins should be the first thing the participant eats in the morning after an overnight fast of at least 6 hours.",
+    "blueDyeCancel": "Test abbrechen",
+    "blueMuffinErrorPreventionLineOne": "Are you sure you want to cancel your Blue Dye Test?",
+    "blueMuffinErrorPreventionLineTwo": "You will lose all progress",
+    "blueDyeStart": "Blaue Mahlzeit Start",
+    "blueMealStartTime": "Started: {date} {time}",
+    "@blueMealStartTime": {
+        "placeholders": {
+            "date": {
+                "type": "DateTime",
+                "format": "yMMMd"
+            },
+            "time": {
+                "type": "DateTime",
+                "format": "jm"
+            }
+        }
+    },
+    "blueDyeLogsInstructionOne": "Record bowel movements from the record screen.",
+    "blueDyeLogsInstructionTwo": " Recorded bowel movements will appear below",
+    "blueDyeLogsSubmitTest": "Submit Test",
+    "blueDyeLogsSubmitTestError": "Record a normal colored bowel movement before submitting",
+    "blueMealDurationTag": "Meal Duration:",
+    "blueMealFinishedButton": "Blaue Mahlzeit Ende",
+    "blueMealFinalDurationTag": "Blue Meal Duration:",
+
+    "eventViewButton": "Event View",
+    "eventViewDayCategoty": "Day View",
+    "eventViewMonthCategory": "Month View",
+    "eventViewAllCategory": "All Entries",
+    "addEventButton": "Add Event",
+    "addEventHeader": "Select a type to record",
+    "filterEventsButton": "Filter",
+    "eventFilterHeader": "Filters",
+    "eventFilterResults": "{count, plural, =0{No results} =1{1 result} other{{count} results}}",
+    "@eventFilterResults": {
+        "placeholders": {
+            "count": {
+                "type": "num",
+                "format": "compact"
+            }
+        }
+    },
+    "eventFilterReset": "Reset",
+    "eventFilterTypesTag": "Types:",
+    "eventFiltersFromTag": "From:",
+    "eventFiltersToTag": "To:",
+    "eventFiltersApply": "Apply Filters",
+    "noEventsText": "No events recorded",
+
+
+    "patientProfilesHeader": "Patient Profiles",
+    "patientProfilesInstruction": "Select a patient to view their profile.",
+    "patientBirthYear": "Birth Year",
+    "patientGender": "Gender",
+    "patientRole": "Role"
+}

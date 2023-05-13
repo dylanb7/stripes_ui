@@ -209,20 +209,23 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                       height: 6.0,
                     ),
                     Center(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          DateWidget(
-                            dateListener: startDateListener,
-                            latest: endDateListener.date,
-                          ),
-                          const SizedBox(
-                            width: 25.0,
-                          ),
-                          TimeWidget(
-                            timeListener: startTimeListener,
-                          ),
+                      child: ProviderScope(
+                        overrides: [
+                          dateProvider.overrideWithValue(startDateListener),
+                          timeProvider.overrideWithValue(startTimeListener)
                         ],
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            DateWidget(
+                              latest: endDateListener.date,
+                            ),
+                            const SizedBox(
+                              width: 25.0,
+                            ),
+                            const TimeWidget(),
+                          ],
+                        ),
                       ),
                     ),
                     const SizedBox(
@@ -237,20 +240,23 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                       height: 6.0,
                     ),
                     Center(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          DateWidget(
-                            dateListener: endDateListener,
-                            earliest: startDateListener.date,
-                          ),
-                          const SizedBox(
-                            width: 25.0,
-                          ),
-                          TimeWidget(
-                            timeListener: endTimeListener,
-                          ),
+                      child: ProviderScope(
+                        overrides: [
+                          dateProvider.overrideWithValue(endDateListener),
+                          timeProvider.overrideWithValue(endTimeListener)
                         ],
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            DateWidget(
+                              earliest: startDateListener.date,
+                            ),
+                            const SizedBox(
+                              width: 25.0,
+                            ),
+                            const TimeWidget(),
+                          ],
+                        ),
                       ),
                     ),
                     const SizedBox(

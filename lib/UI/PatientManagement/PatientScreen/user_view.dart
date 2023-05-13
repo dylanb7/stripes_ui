@@ -6,6 +6,7 @@ import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/UI/SharedHomeWidgets/home_screen.dart';
+import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 
@@ -21,7 +22,7 @@ class UserView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bool isSmall = ref.watch(isSmallProvider);
+    final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
     return Expandible(
       canExpand: isSmall,
       selected: selected,

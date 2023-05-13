@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:stripes_backend_helper/TestingReposImpl/test_question_repo.dart';
 import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
 import 'package:stripes_ui/UI/History/button_style.dart';
 import 'package:stripes_ui/UI/Record/RecordPaths/question_splitter.dart';
-import 'package:stripes_ui/UI/Record/record_screen.dart';
 import 'package:stripes_ui/UI/Record/symptom_record_data.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
+import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class AddEvent extends ConsumerWidget {
   const AddEvent({Key? key}) : super(key: key);
@@ -32,7 +31,7 @@ class AddEvent extends ConsumerWidget {
             child: ElevatedButton(
               style: historyButtonStyle,
               child: Text(
-                'Add Event',
+                AppLocalizations.of(context)!.addEventButton,
                 style: buttonText,
               ),
               onPressed: () {
@@ -76,8 +75,8 @@ class _QuestionTypeOverlay extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const SizedBox(width: 30),
-                      const Text(
-                        'Select a type to record',
+                      Text(
+                        AppLocalizations.of(context)!.addEventHeader,
                         style: lightBackgroundHeaderStyle,
                       ),
                       IconButton(

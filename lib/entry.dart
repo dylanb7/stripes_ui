@@ -3,10 +3,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:stripes_backend_helper/repo_package.dart';
+import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/route_provider.dart';
+import 'package:stripes_ui/UI/History/EventView/entry_display.dart';
 import 'package:stripes_ui/UI/Record/question_screen.dart';
 import 'package:stripes_ui/Util/palette.dart';
+
+import 'l10n/app_localizations.dart';
 
 class Logger extends ProviderObserver {
   const Logger();
@@ -45,7 +48,7 @@ class StripesApp extends StatelessWidget {
 
   final StripesRepoPackage? repos;
 
-  final Map<String, Widget>? displayOverrides;
+  final Map<String, Widget Function(Response<Question>)>? displayOverrides;
 
   final Map<String, QuestionEntry>? entryOverrides;
 
@@ -80,8 +83,11 @@ class StripesHome extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final GoRouter router = ref.watch(routeProvider);
     return MaterialApp.router(
+      locale: const Locale('de'),
       debugShowCheckedModeBanner: false,
       title: 'Stripes Tracker',
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: ThemeData(
         splashColor: null,
         splashFactory: NoSplash.splashFactory,

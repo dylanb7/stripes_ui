@@ -11,6 +11,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: any
   stripes_backend_helper:
     git:
       url: https://github.com/dylanb7/stripes_backend_helper

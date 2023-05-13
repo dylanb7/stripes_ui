@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,6 +15,7 @@ import 'package:stripes_ui/UI/Record/symptom_record_data.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
+import 'package:stripes_ui/l10n/app_localizations.dart';
 
 final continueTried = StateProvider.autoDispose((_) => false);
 
@@ -60,7 +59,8 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     final OverlayQuery query = ref.watch(overlayProvider);
     final bool tried = ref.watch(continueTried);
     final hasPending = widget.questionListener.pending.isNotEmpty;
-    final Size screenSize = MediaQuery.of(context).size;
+    final String? name = _name();
+    final bool emptyName = name == null || name.isEmpty;
     return SafeArea(
         child: Scaffold(
       body: SizedBox.expand(
@@ -72,8 +72,8 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                   colors: [backgroundStrong, backgroundLight])),
           child: Stack(children: [
             Center(
-              child: SizedBox(
-                width: min(SMALL_LAYOUT, screenSize.width),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12.0),
                   child: Column(
@@ -90,7 +90,11 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                           children: [
                             Flexible(
                               child: Text(
-                                'Recording ${widget.type}\nfor ${_name()}',
+                                emptyName
+                                    ? AppLocalizations.of(context)!
+                                        .emptyRecordHeader(widget.type)
+                                    : AppLocalizations.of(context)!
+                                        .recordHeader(widget.type, name),
                                 style: darkBackgroundHeaderStyle,
                               ),
                             ),
@@ -147,19 +151,24 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                         } else {
                                           content = QuestionScreen(
                                               header:
-                                                  'Select all behaviors that apply',
+                                                  AppLocalizations.of(context)!
+                                                      .selectInstruction,
                                               questions: pages[index],
                                               questionsListener:
                                                   widget.questionListener);
                                         }
+                                        final ScrollController
+                                            scrollController =
+                                            ScrollController();
                                         return Scrollbar(
-                                          trackVisibility: true,
+                                          thumbVisibility: true,
                                           thickness: 10,
+                                          controller: scrollController,
                                           radius: const Radius.circular(20),
                                           scrollbarOrientation:
                                               ScrollbarOrientation.right,
                                           child: SingleChildScrollView(
-                                              controller: ScrollController(),
+                                              controller: scrollController,
                                               scrollDirection: Axis.vertical,
                                               child: content),
                                         );
@@ -187,7 +196,11 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                         children: [
                                           if (tried && hasPending)
                                             Text(
-                                              'Select slider ${widget.questionListener.pending.length > 1 ? 'values' : 'value'}',
+                                              AppLocalizations.of(context)!
+                                                  .nLevelError(widget
+                                                      .questionListener
+                                                      .pending
+                                                      .length),
                                               style: errorStyleTitle,
                                             ),
                                           Row(
@@ -229,7 +242,10 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                                     _goToPage(index);
                                                   },
                                                   effect:
-                                                      const ScrollingDotsEffect(),
+                                                      const ScrollingDotsEffect(
+                                                          activeDotColor:
+                                                              lightIconButton,
+                                                          activeDotScale: 1),
                                                 ),
                                                 currentIndex < length
                                                     ? IconButton(
@@ -280,15 +296,16 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     ));
   }
 
-  _name() {
+  String? _name() {
     SubUser current = ref.read(subHolderProvider).current;
-    return SubUser.isEmpty(current) ? 'N/A' : current.name;
+    return SubUser.isEmpty(current) ? null : current.name;
   }
 
   _goToPage(int index) {
     if (widget.questionListener.pending.isEmpty) {
       ref.read(continueTried.notifier).state = false;
-      pageController.jumpToPage(index);
+      pageController.animateToPage(index,
+          duration: const Duration(milliseconds: 250), curve: Curves.linear);
     } else {
       ref.read(continueTried.notifier).state = true;
     }
@@ -358,7 +375,7 @@ class ErrorPrevention extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          'Wait!',
+                          AppLocalizations.of(context)!.errorPreventionTitle,
                           style: darkBackgroundHeaderStyle.copyWith(
                               color: buttonDarkBackground),
                           textAlign: TextAlign.center,
@@ -366,8 +383,8 @@ class ErrorPrevention extends ConsumerWidget {
                         const SizedBox(
                           height: 8.0,
                         ),
-                        const Text(
-                          'Are you sure you want to leave this screen?',
+                        Text(
+                          AppLocalizations.of(context)!.errorPreventionLineOne,
                           style: lightBackgroundStyle,
                           textAlign: TextAlign.center,
                         ),
@@ -375,7 +392,8 @@ class ErrorPrevention extends ConsumerWidget {
                           height: 8.0,
                         ),
                         Text(
-                          'You will lose all information you\nentered for this ${type.toLowerCase()} entry',
+                          AppLocalizations.of(context)!
+                              .errorPreventionLineTwo(type.toLowerCase()),
                           style: lightBackgroundStyle,
                           textAlign: TextAlign.center,
                         ),
@@ -393,12 +411,14 @@ class ErrorPrevention extends ConsumerWidget {
                         onClick: (context) {
                           _dismiss(context, ref);
                         },
-                        text: 'Leave'),
+                        text:
+                            AppLocalizations.of(context)!.errorPreventionLeave),
                     BasicButton(
                         onClick: (context) {
                           _closeOverlay(context, ref);
                         },
-                        text: 'Stay'),
+                        text:
+                            AppLocalizations.of(context)!.errorPreventionStay),
                   ],
                 ),
               ],

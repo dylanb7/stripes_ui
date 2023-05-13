@@ -7,6 +7,7 @@ import 'package:stripes_ui/UI/PatientManagement/birth_year_selector.dart';
 import 'package:stripes_ui/UI/PatientManagement/control_slider.dart';
 import 'package:stripes_ui/UI/PatientManagement/gender_dropdown.dart';
 import 'package:stripes_ui/UI/SharedHomeWidgets/home_screen.dart';
+import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/form_input.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
@@ -47,7 +48,7 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final isSmall = ref.watch(isSmallProvider);
+    final isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
     return Stack(children: [
       Column(children: [
         Expandible(

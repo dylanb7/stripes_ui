@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
-import 'package:stripes_ui/UI/SharedHomeWidgets/home_screen.dart';
+import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 
@@ -17,7 +17,7 @@ class PatientChanger extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final SubNotifier sub = ref.watch(subHolderProvider);
-    final bool isSmall = ref.watch(isSmallProvider);
+    final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
 
     return Row(
         mainAxisAlignment: MainAxisAlignment.start,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:stripes_backend_helper/TestingReposImpl/test_question_repo.dart';
+import 'package:intl/intl.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
@@ -10,9 +10,7 @@ import 'package:stripes_ui/UI/CommonWidgets/delete_error_prevention.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/UI/Record/question_screen.dart';
-import 'package:stripes_ui/UI/Record/record_screen.dart';
 import 'package:stripes_ui/UI/Record/symptom_record_data.dart';
-import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 
@@ -23,9 +21,14 @@ class EntryDisplay extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final Map<String, Widget Function(Response<Question>)> overrides =
+        ref.watch(questionDisplayOverides);
     final DateTime date = dateFromStamp(event.stamp);
     List<Widget> vals = [];
     Widget? button;
+    final Widget Function(Response<Question>)? mainOverride =
+        overrides[event.question.id];
+    if (mainOverride != null) return mainOverride(event);
     if (event is BlueDyeResp) {
       final BlueDyeResp resp = event as BlueDyeResp;
       vals = [
@@ -104,12 +107,10 @@ class EntryDisplay extends ConsumerWidget {
           ),
         ...detail.responses.map<Widget>(
           (res) {
+            final Widget Function(Response<Question>)? childOverride =
+                overrides[res.question.id];
+            if (childOverride != null) return childOverride(res);
             if (res is NumericResponse) {
-              if (res.question.id == q4) {
-                return BMRow(
-                  response: res.response.toInt(),
-                );
-              }
               return Text('${res.question.prompt} - ${res.response}',
                   style: lightBackgroundStyle, maxLines: null);
             }
@@ -184,21 +185,19 @@ class EntryDisplay extends ConsumerWidget {
   }
 
   _edit(DetailResponse event, BuildContext context, DateTime date) {
-    String? routeName = Options.symToRoute[event.type];
-    if (routeName == null) return showSnack('Invalid type', context);
-    if (Symptoms.ordered().contains(event.type)) {
-      final QuestionsListener questionsListener = QuestionsListener();
-      for (Response res in event.responses) {
-        questionsListener.addResponse(res);
-      }
+    String? routeName = event.type;
 
-      context.pushNamed(routeName,
-          extra: SymptomRecordData(
-              isEditing: true,
-              listener: questionsListener,
-              submitTime: date,
-              initialDesc: event.description));
+    final QuestionsListener questionsListener = QuestionsListener();
+    for (Response res in event.responses) {
+      questionsListener.addResponse(res);
     }
+
+    context.pushNamed(routeName,
+        extra: SymptomRecordData(
+            isEditing: true,
+            listener: questionsListener,
+            submitTime: date,
+            initialDesc: event.description));
   }
 
   _delete(WidgetRef ref) {
@@ -221,7 +220,7 @@ class EntryDisplay extends ConsumerWidget {
 }
 
 class BMRow extends StatelessWidget {
-  final int response;
+  final NumericResponse response;
 
   const BMRow({required this.response, super.key});
 
@@ -237,16 +236,21 @@ class BMRow extends StatelessWidget {
       'packages/stripes_ui/assets/images/poop7.png'
     ];
     return Row(children: [
-      Text('Bm consistency (1-7) - $response',
+      Text('Bm consistency (1-7) - ${response.response.toInt()}',
           style: lightBackgroundStyle, maxLines: null),
       const SizedBox(
         width: 4,
       ),
       Image.asset(
-        paths[response - 1],
+        paths[response.response.toInt() - 1],
         height: 25,
         fit: BoxFit.fitHeight,
       ),
     ]);
   }
 }
+
+typedef DisplayBuilder<T extends Response> = Widget Function(T);
+
+final questionDisplayOverides =
+    Provider<Map<String, DisplayBuilder>>((ref) => {});

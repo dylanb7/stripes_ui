@@ -7,10 +7,11 @@ import 'package:stripes_ui/UI/History/history_screen.dart';
 import 'package:stripes_ui/UI/History/location_bar.dart';
 import 'package:stripes_ui/UI/PatientManagement/patient_changer.dart';
 import 'package:stripes_ui/UI/Record/record_screen.dart';
-import 'package:stripes_ui/UI/SharedHomeWidgets/home_screen.dart';
+
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
+import 'package:stripes_ui/l10n/app_localizations.dart';
 
 enum TabOption {
   record('Record'),
@@ -30,7 +31,7 @@ class StripesTabView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     HistoryLocation loc = ref.watch(historyLocationProvider);
-    final bool isSmall = ref.watch(isSmallProvider);
+    final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
     final ScrollController scrollController = ScrollController();
 
     Widget scroll = CustomScrollView(
@@ -54,7 +55,7 @@ class StripesTabView extends ConsumerWidget {
                       isRecords: false,
                     ),
                     isSmall
-                        ? const UserProileButton()
+                        ? const UserProfileButton()
                         : const SizedBox(
                             width: 35,
                           )
@@ -63,22 +64,22 @@ class StripesTabView extends ConsumerWidget {
           ),
           const LocationBar(),
           ...SliversConfig(loc).slivers,
-          const SliverPadding(padding: EdgeInsets.only(bottom: 30)),
         ]
       ],
     );
     return Container(
-        decoration: const BoxDecoration(
-            gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [backgroundStrong, backgroundLight])),
-        child: isSmall
-            ? SmallLayout(
-                selected: selected,
-                child: scroll,
-              )
-            : scroll);
+      decoration: const BoxDecoration(
+          gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [backgroundStrong, backgroundLight])),
+      child: isSmall
+          ? SmallLayout(
+              selected: selected,
+              child: scroll,
+            )
+          : scroll,
+    );
   }
 
   handleTap(BuildContext context, TabOption tapped) {
@@ -116,19 +117,19 @@ class SmallLayout extends StatelessWidget {
               .findAncestorWidgetOfExactType<StripesTabView>()!
               .handleTap(context, TabOption.values[index]);
         },
-        items: const [
+        items: [
           BottomNavigationBarItem(
-              icon: Icon(
+              icon: const Icon(
                 Icons.add,
                 color: darkIconButton,
               ),
-              label: 'Record'),
+              label: AppLocalizations.of(context)!.recordTab),
           BottomNavigationBarItem(
-              icon: Icon(
+              icon: const Icon(
                 Icons.grading,
                 color: darkIconButton,
               ),
-              label: 'History'),
+              label: AppLocalizations.of(context)!.historyTab),
         ],
       )
     ]);
@@ -142,19 +143,20 @@ class LargeLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget getButton(TextStyle style, TabOption option) => TextButton(
-        onPressed: () {
-          context
-              .findAncestorWidgetOfExactType<StripesTabView>()!
-              .handleTap(context, option);
-        },
-        child: Text(
-          option.value,
-          style: selected == option
-              ? darkBackgroundHeaderStyle.copyWith(
-                  color: lightIconButton, fontWeight: FontWeight.bold)
-              : darkBackgroundHeaderStyle,
-        ));
+    Widget getButton(TextStyle style, TabOption option, String text) =>
+        TextButton(
+            onPressed: () {
+              context
+                  .findAncestorWidgetOfExactType<StripesTabView>()!
+                  .handleTap(context, option);
+            },
+            child: Text(
+              text,
+              style: selected == option
+                  ? darkBackgroundHeaderStyle.copyWith(
+                      color: lightIconButton, fontWeight: FontWeight.bold)
+                  : darkBackgroundHeaderStyle,
+            ));
 
     final bool isRecord = selected == TabOption.record;
     Widget recordButton = isRecord
@@ -162,19 +164,23 @@ class LargeLayout extends StatelessWidget {
             child: getButton(
                 darkBackgroundHeaderStyle.copyWith(
                     fontSize: 28, color: buttonLightBackground),
-                TabOption.record))
+                TabOption.record,
+                AppLocalizations.of(context)!.recordTab))
         : getButton(
             darkBackgroundHeaderStyle.copyWith(color: darkBackgroundText),
-            TabOption.record);
+            TabOption.record,
+            AppLocalizations.of(context)!.recordTab);
     Widget historyButton = !isRecord
         ? _decorationWrap(
             child: getButton(
                 darkBackgroundHeaderStyle.copyWith(
                     fontSize: 28, color: buttonLightBackground),
-                TabOption.history))
+                TabOption.history,
+                AppLocalizations.of(context)!.historyTab))
         : getButton(
             darkBackgroundHeaderStyle.copyWith(color: darkBackgroundText),
-            TabOption.history);
+            TabOption.history,
+            AppLocalizations.of(context)!.historyTab);
     return SliverAppBar(
       snap: true,
       floating: true,
@@ -206,7 +212,7 @@ class LargeLayout extends StatelessWidget {
               const SizedBox(
                 width: 25.0,
               ),
-              const UserProileButton(),
+              const UserProfileButton(),
               const SizedBox(
                 width: 12.0,
               ),

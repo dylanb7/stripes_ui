@@ -25,6 +25,7 @@ final pageProvider = Provider.family<List<List<Question>>, String>((ref, type) {
   final List<Question> typedQuestions = split[type] ?? [];
   final List<List<Question>> pages = [[]];
   for (Question question in typedQuestions) {
+    if (question.prompt == type || question.prompt.isEmpty) continue;
     if (overrides.containsKey(question.id) &&
         (overrides[question.id]?.isSeparateScreen ?? false)) {
       pages.insert(0, [question]);
@@ -32,5 +33,6 @@ final pageProvider = Provider.family<List<List<Question>>, String>((ref, type) {
       pages[pages.length - 1].add(question);
     }
   }
+  pages.removeWhere((element) => element.isEmpty);
   return pages;
 });

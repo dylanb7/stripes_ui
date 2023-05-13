@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
+import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class SliderListener extends ChangeNotifier {
   bool interact = false;
@@ -13,7 +14,7 @@ class SliderListener extends ChangeNotifier {
 }
 
 class StripesSlider extends StatefulWidget {
-  final String minLabel, maxLabel;
+  final String? minLabel, maxLabel;
 
   final int min, max;
 
@@ -31,8 +32,8 @@ class StripesSlider extends StatefulWidget {
       this.min = 1,
       this.max = 5,
       this.initial,
-      this.minLabel = 'Mild',
-      this.maxLabel = 'Severe',
+      this.minLabel,
+      this.maxLabel,
       this.listener,
       super.key});
 
@@ -66,7 +67,7 @@ class _StripesSliderState extends State<StripesSlider> {
         Visibility(
           visible: !listener.interact,
           child: Text(
-            'Select Level',
+            AppLocalizations.of(context)!.levelReminder,
             textAlign: TextAlign.center,
             style: lightBackgroundHeaderStyle.copyWith(
                 fontWeight: FontWeight.bold, color: darkIconButton),
@@ -180,11 +181,11 @@ class _StripesSliderState extends State<StripesSlider> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                widget.minLabel,
+                widget.minLabel ?? AppLocalizations.of(context)!.mildTag,
                 style: lightBackgroundStyle,
               ),
               Text(
-                widget.maxLabel,
+                widget.maxLabel ?? AppLocalizations.of(context)!.severeTag,
                 style: lightBackgroundStyle,
               ),
             ],

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
+import 'package:stripes_ui/l10n/app_localizations.dart';
 
 import 'blue_recordings.dart';
 
@@ -24,27 +24,17 @@ class TestContent extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         state.testInProgress
-            ? Row(children: [
-                const Text(
-                  'Started: ',
-                  textAlign: TextAlign.left,
-                  style: lightBackgroundHeaderStyle,
-                ),
-                const SizedBox(
-                  width: 4,
-                ),
-                Text(
-                  '${dateToShortMDY(test.obj!.startTime)} at ${timeString(TimeOfDay.fromDateTime(test.obj!.startTime))}',
-                  textAlign: TextAlign.left,
-                  style: lightBackgroundHeaderStyle.copyWith(
-                      color: lightIconButton),
-                )
-              ])
+            ? Text(
+                AppLocalizations.of(context)!.blueMealStartTime(
+                    test.obj!.startTime, test.obj!.startTime),
+                textAlign: TextAlign.left,
+                style: lightBackgroundHeaderStyle,
+              )
             : Center(
                 child: SizedBox(
                   width: 250,
                   child: StripesRoundedButton(
-                    text: 'Start Blue Meal',
+                    text: AppLocalizations.of(context)!.blueDyeStart,
                     onClick: () {
                       ref.read(testHolderProvider).setStart(DateTime.now());
                       expand.set(false);
@@ -78,8 +68,8 @@ class TimerDisplay extends ConsumerWidget {
           const SizedBox(
             height: 8.0,
           ),
-          const Text(
-            'Meal Duration:',
+          Text(
+            AppLocalizations.of(context)!.blueMealDurationTag,
             style: lightBackgroundHeaderStyle,
           ),
           TimerWidget(start: startTime),
@@ -87,7 +77,7 @@ class TimerDisplay extends ConsumerWidget {
             child: SizedBox(
               width: 250,
               child: StripesRoundedButton(
-                  text: 'Finished Blue Meal',
+                  text: AppLocalizations.of(context)!.blueMealFinishedButton,
                   light: true,
                   onClick: () {
                     ref
@@ -105,8 +95,8 @@ class TimerDisplay extends ConsumerWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Blue Meal Duration: ',
+          Text(
+            AppLocalizations.of(context)!.blueMealFinalDurationTag,
             style: lightBackgroundHeaderStyle,
           ),
           const SizedBox(

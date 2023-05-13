@@ -5,9 +5,10 @@ import 'package:stripes_ui/Providers/auth_provider.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
+import 'package:stripes_ui/l10n/app_localizations.dart';
 
-class UserProileButton extends ConsumerWidget {
-  const UserProileButton({super.key});
+class UserProfileButton extends ConsumerWidget {
+  const UserProfileButton({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -17,13 +18,13 @@ class UserProileButton extends ConsumerWidget {
       color: darkBackgroundText,
       itemBuilder: (context) => [
         PopupMenuItem(
-          child: Row(children: const [
+          child: Row(children: [
             Text(
-              'Manage Patients',
+              AppLocalizations.of(context)!.managePatientsButton,
               style: lightBackgroundStyle,
             ),
-            Spacer(),
-            Icon(
+            const Spacer(),
+            const Icon(
               Icons.edit_note,
               color: darkIconButton,
             ),
@@ -33,13 +34,13 @@ class UserProileButton extends ConsumerWidget {
           },
         ),
         PopupMenuItem(
-          child: Row(children: const [
+          child: Row(children: [
             Text(
-              'Log Out',
+              AppLocalizations.of(context)!.logOutButton,
               style: lightBackgroundStyle,
             ),
-            Spacer(),
-            Icon(
+            const Spacer(),
+            const Icon(
               Icons.logout,
               color: darkIconButton,
             ),
