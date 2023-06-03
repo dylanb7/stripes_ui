@@ -135,65 +135,59 @@ class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
                 const SizedBox(
                   height: 8.0,
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: answers.mapIndexed((index, choice) {
-                      final bool isSelected = index == selectedIndex;
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 2.0),
-                        child: GestureDetector(
-                          onTap: () {
-                            _onTap(isSelected, index);
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                                borderRadius: const BorderRadius.all(
-                                    Radius.circular(5.0)),
-                                border: Border.all(
-                                    color: isSelected
-                                        ? buttonDarkBackground
-                                        : Colors.transparent,
-                                    width: 2.0),
-                                color: darkBackgroundText),
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 0.5),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  const SizedBox(
-                                    width: 6.0,
-                                  ),
-                                  Flexible(
-                                    child: Text(
-                                      choice,
-                                      style: lightBackgroundStyle,
-                                    ),
-                                  ),
-                                  const Spacer(),
-                                  IgnorePointer(
-                                    ignoring: true,
-                                    child: Checkbox(
-                                      value: isSelected,
-                                      onChanged: null,
-                                      fillColor: MaterialStateProperty.all(
-                                          darkIconButton),
-                                      checkColor: darkBackgroundText,
-                                    ),
-                                  ),
-                                ],
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: answers.mapIndexed((index, choice) {
+                    final bool isSelected = index == selectedIndex;
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 2.0),
+                      child: GestureDetector(
+                        onTap: () {
+                          _onTap(isSelected, index);
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(5.0)),
+                              border: Border.all(
+                                  color: isSelected
+                                      ? buttonDarkBackground
+                                      : Colors.transparent,
+                                  width: 2.0),
+                              color: darkBackgroundText),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.max,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const SizedBox(
+                                width: 12.0,
                               ),
-                            ),
+                              Flexible(
+                                child: Text(
+                                  choice,
+                                  style: lightBackgroundStyle,
+                                ),
+                              ),
+                              const Spacer(),
+                              IgnorePointer(
+                                ignoring: true,
+                                child: Checkbox(
+                                  value: isSelected,
+                                  onChanged: null,
+                                  fillColor:
+                                      MaterialStateProperty.all(darkIconButton),
+                                  checkColor: darkBackgroundText,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      );
-                    }).toList(),
-                  ),
+                      ),
+                    );
+                  }).toList(),
                 ),
               ],
             ),
