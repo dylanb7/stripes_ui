@@ -11,6 +11,7 @@ import 'package:stripes_ui/UI/Record/severity_slider.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
+import 'package:collection/collection.dart';
 
 class QuestionsListener extends ChangeNotifier {
   final Map<Question, Response> questions = {};
@@ -75,6 +76,9 @@ class QuestionScreen extends ConsumerWidget {
             if (question is Check) {
               return CheckBoxWidget(
                   check: question, listener: questionsListener);
+            } else if (question is MultipleChoice) {
+              return MultiChoiceEntry(
+                  question: question, listener: questionsListener);
             } else if (question is Numeric) {
               return SeverityWidget(
                   question: question, questionsListener: questionsListener);
@@ -84,6 +88,130 @@ class QuestionScreen extends ConsumerWidget {
         ),
       ],
     );
+  }
+}
+
+class MultiChoiceEntry extends ConsumerStatefulWidget {
+  final MultipleChoice question;
+
+  final QuestionsListener listener;
+
+  const MultiChoiceEntry(
+      {required this.question, required this.listener, super.key});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _MultiChoiceEntryState();
+}
+
+class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
+  @override
+  Widget build(BuildContext context) {
+    final List<String> answers = widget.question.choices;
+    final int? selectedIndex = selected();
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: GestureDetector(
+        child: Card(
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(15.0)),
+          ),
+          color: darkBackgroundText,
+          elevation: 4.0,
+          child: Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Text(
+                    widget.question.prompt,
+                    style: lightBackgroundStyle,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: answers.mapIndexed((index, choice) {
+                      final bool isSelected = index == selectedIndex;
+                      return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 2.0),
+                          child: GestureDetector(
+                              onTap: () {
+                                _onTap(isSelected, index);
+                              },
+                              child: Container(
+                                  decoration: BoxDecoration(
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(5.0)),
+                                      border: Border.all(
+                                          color: isSelected
+                                              ? buttonDarkBackground
+                                              : Colors.transparent,
+                                          width: 2.0),
+                                      color: darkBackgroundText),
+                                  child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10.0, vertical: 5.0),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              choice,
+                                              style: lightBackgroundStyle,
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            width: 3.0,
+                                          ),
+                                          IgnorePointer(
+                                            ignoring: true,
+                                            child: Checkbox(
+                                              value: isSelected,
+                                              onChanged: null,
+                                              fillColor:
+                                                  MaterialStateProperty.all(
+                                                      darkIconButton),
+                                              checkColor: darkBackgroundText,
+                                            ),
+                                          ),
+                                        ],
+                                      )))));
+                    }).toList(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  int? selected() {
+    Response? logged = widget.listener.fromQuestion(widget.question);
+    if (logged == null) return null;
+    return (logged as MultiResponse).index;
+  }
+
+  _onTap(bool isSelected, int index) {
+    if (isSelected) {
+      widget.listener.removeResponse(widget.question);
+    } else {
+      widget.listener.addResponse(MultiResponse(
+          question: widget.question,
+          stamp: dateToStamp(DateTime.now()),
+          index: index));
+    }
+    setState(() {});
   }
 }
 
@@ -186,7 +314,7 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
   void initState() {
     _controller = ExpandibleController(false);
     final double max = (widget.question.max ?? 5).toDouble();
-    final double min = (widget.question.min ?? 0).toDouble();
+    final double min = (widget.question.min ?? 1).toDouble();
 
     value = (((max - min) / 2) + min).roundToDouble();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {

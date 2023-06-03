@@ -31,6 +31,7 @@ dependencies:
   fl_chart: ^0.55.0
   csv: ^5.0.1
   async: ^2.9.0
+  collection: ^1.17.2
 
 dev_dependencies:
   flutter_test:
