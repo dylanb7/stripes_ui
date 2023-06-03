@@ -123,6 +123,7 @@ class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
                 const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Flexible(
@@ -135,6 +136,7 @@ class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
                   padding: const EdgeInsets.only(left: 8.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: answers.mapIndexed((index, choice) {
                       final bool isSelected = index == selectedIndex;
@@ -156,7 +158,7 @@ class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
                                       color: darkBackgroundText),
                                   child: Padding(
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 10.0, vertical: 5.0),
+                                          vertical: 2.0),
                                       child: Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
