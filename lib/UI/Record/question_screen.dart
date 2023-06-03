@@ -132,6 +132,9 @@ class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
                     style: lightBackgroundStyle,
                   ),
                 ),
+                const SizedBox(
+                  height: 8.0,
+                ),
                 Padding(
                   padding: const EdgeInsets.only(left: 8.0),
                   child: Column(
@@ -165,6 +168,9 @@ class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.center,
                                         children: [
+                                          const SizedBox(
+                                            width: 6.0,
+                                          ),
                                           Flexible(
                                             child: Text(
                                               choice,
