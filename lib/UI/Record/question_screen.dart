@@ -137,7 +137,7 @@ class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
                 ),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisSize: MainAxisSize.min,
                   children: answers.mapIndexed((index, choice) {
                     final bool isSelected = index == selectedIndex;
