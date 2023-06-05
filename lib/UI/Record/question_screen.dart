@@ -158,17 +158,20 @@ class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
                                   width: 2.0),
                               color: darkBackgroundText),
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Padding(
-                                padding: const EdgeInsets.only(left: 10.0),
-                                child: Flexible(
-                                  child: Text(
-                                    choice,
-                                    style: lightBackgroundStyle,
-                                  ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              Expanded(
+                                child: Text(
+                                  choice,
+                                  style: lightBackgroundStyle,
                                 ),
+                              ),
+                              const SizedBox(
+                                width: 6.0,
                               ),
                               IgnorePointer(
                                 ignoring: true,
