@@ -100,7 +100,7 @@ class _QuestionTypeOverlay extends ConsumerWidget {
                           ref.read(overlayProvider.notifier).state =
                               closedQuery;
                           context.pushNamed('recordType',
-                              params: {'type': type},
+                              pathParameters: {'type': type},
                               extra: SymptomRecordData(submitTime: date));
                         },
                       ),

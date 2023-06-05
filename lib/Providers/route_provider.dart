@@ -7,10 +7,6 @@ import 'package:stripes_ui/UI/Login/landing_page.dart';
 import 'package:stripes_ui/UI/Login/sign_up.dart';
 import 'package:stripes_ui/Providers/auth_provider.dart';
 import 'package:stripes_ui/UI/PatientManagement/PatientScreen/patient_screen.dart';
-import 'package:stripes_ui/UI/Record/RecordPaths/bowel_movement_log.dart';
-import 'package:stripes_ui/UI/Record/RecordPaths/neuro_behaviors_log.dart';
-import 'package:stripes_ui/UI/Record/RecordPaths/pain_log.dart';
-import 'package:stripes_ui/UI/Record/RecordPaths/reflux_log.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/splitter.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
 import 'package:stripes_ui/UI/Record/symptom_record_data.dart';
@@ -24,7 +20,6 @@ final routeProvider = Provider<GoRouter>((ref) {
   final RouteNotifier router = RouteNotifier(ref);
   return GoRouter(
       debugLogDiagnostics: false,
-      urlPathStrategy: UrlPathStrategy.path,
       refreshListenable: router,
       redirect: router._redirect,
       initialLocation: Routes.LANDING,
@@ -40,7 +35,7 @@ class RouteNotifier extends ChangeNotifier {
     });
   }
 
-  String? _redirect(GoRouterState state) {
+  String? _redirect(BuildContext context, GoRouterState state) {
     final bool auth = !AuthUser.isEmpty(_ref.read(currentAuthProvider));
     final String loc = state.location;
     final bool noAuthRoute = Routes.noauth.contains(loc);
@@ -98,7 +93,7 @@ class RouteNotifier extends ChangeNotifier {
           path: '${Routes.HOME}/:type',
           name: 'recordType',
           pageBuilder: (context, state) {
-            final String? type = state.params['type'];
+            final String? type = state.pathParameters['type'];
             if (type == null) return FadeIn(state: state, child: Container());
             return FadeIn(
                 child: RecordSplitter(type: type, data: _data(state)),

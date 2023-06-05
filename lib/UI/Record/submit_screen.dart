@@ -62,8 +62,8 @@ class SubmitScreen extends ConsumerWidget {
 
     return ProviderScope(
       overrides: [
-        dateProvider.overrideWithValue(_dateListener),
-        timeProvider.overrideWithValue(_timeListener),
+        dateProvider.overrideWith((ref) => _dateListener),
+        timeProvider.overrideWith((ref) => _timeListener),
       ],
       child: Column(
         children: [

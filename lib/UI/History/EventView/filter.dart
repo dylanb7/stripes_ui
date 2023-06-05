@@ -211,8 +211,8 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                     Center(
                       child: ProviderScope(
                         overrides: [
-                          dateProvider.overrideWithValue(startDateListener),
-                          timeProvider.overrideWithValue(startTimeListener)
+                          dateProvider.overrideWith((_) => startDateListener),
+                          timeProvider.overrideWith((_) => startTimeListener)
                         ],
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -242,8 +242,8 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                     Center(
                       child: ProviderScope(
                         overrides: [
-                          dateProvider.overrideWithValue(endDateListener),
-                          timeProvider.overrideWithValue(endTimeListener)
+                          dateProvider.overrideWith((_) => endDateListener),
+                          timeProvider.overrideWith((_) => endTimeListener)
                         ],
                         child: Row(
                           mainAxisSize: MainAxisSize.min,

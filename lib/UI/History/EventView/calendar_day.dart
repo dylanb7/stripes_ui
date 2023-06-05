@@ -60,7 +60,7 @@ class CalendarDay extends StatelessWidget {
         '$events',
         style: darkBackgroundStyle.copyWith(fontSize: 8.0),
       ),
-      badgeColor: darkIconButton,
+      badgeStyle: const b.BadgeStyle(badgeColor: darkIconButton),
       position: b.BadgePosition.topEnd(end: 0, top: 0),
       child: day,
     );

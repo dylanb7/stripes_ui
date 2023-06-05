@@ -66,13 +66,15 @@ class Options extends ConsumerWidget {
             ...questionTypes.map((key) {
               if (key != Symptoms.BM || !state.testInProgress) {
                 return RecordButton(key, (context) {
-                  context.pushNamed('recordType', params: {'type': key});
+                  context
+                      .pushNamed('recordType', pathParameters: {'type': key});
                 });
               }
               return RecordButton(
                 key,
                 (context) {
-                  context.pushNamed('recordType', params: {'type': key});
+                  context
+                      .pushNamed('recordType', pathParameters: {'type': key});
                 },
                 subText: AppLocalizations.of(context)!.testInProgressNotif,
               );
