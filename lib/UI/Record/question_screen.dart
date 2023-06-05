@@ -123,7 +123,7 @@ class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
                 const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Flexible(
@@ -163,7 +163,7 @@ class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               const SizedBox(
-                                width: 12.0,
+                                width: 10.0,
                               ),
                               Flexible(
                                 child: Text(
