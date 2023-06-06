@@ -427,6 +427,136 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
   }
 }
 
+class SeverityPainWidget extends ConsumerStatefulWidget {
+  final QuestionsListener questionsListener;
+
+  final Numeric question;
+
+  const SeverityPainWidget(
+      {required this.questionsListener, required this.question, Key? key})
+      : super(key: key);
+
+  @override
+  ConsumerState<SeverityPainWidget> createState() => _SeverityPainWidgetState();
+}
+
+class _SeverityPainWidgetState extends ConsumerState<SeverityPainWidget> {
+  late double value;
+
+  final SliderListener _sliderListener = SliderListener();
+
+  late final ExpandibleController _controller;
+
+  @override
+  void initState() {
+    _controller = ExpandibleController(false);
+    value = 5;
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      num? val = response();
+      if (val != null) {
+        value = val.toDouble();
+        _controller.set(true);
+        _sliderListener.interacted();
+      }
+    });
+
+    _controller.addListener(_expandListener);
+    _sliderListener.addListener(_interactListener);
+    super.initState();
+  }
+
+  _interactListener() {
+    widget.questionsListener.removePending(widget.question);
+  }
+
+  _expandListener() {
+    if (_controller.expanded) {
+      if (_sliderListener.interact) {
+        _saveValue();
+      } else {
+        widget.questionsListener.addPending(widget.question);
+      }
+    } else {
+      widget.questionsListener.removeResponse(widget.question);
+      widget.questionsListener.removePending(widget.question);
+    }
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final num? res = response();
+    final bool tried = ref.watch(continueTried);
+    final bool errorHighlight = tried && !_sliderListener.interact;
+    return Expandible(
+      highlightColor: errorHighlight ? error : buttonDarkBackground,
+      header: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Text(
+                  widget.question.prompt,
+                  style: lightBackgroundStyle,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(
+            width: 3.0,
+          ),
+          IgnorePointer(
+            ignoring: true,
+            child: Checkbox(
+              value: res != null,
+              onChanged: null,
+              fillColor: MaterialStateProperty.all(darkIconButton),
+              checkColor: darkBackgroundText,
+            ),
+          ),
+        ],
+      ),
+      view: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          child: PainSlider(
+            initial: value.toInt(),
+            onChange: (val) {
+              setState(() {
+                value = val;
+                _saveValue();
+              });
+            },
+            listener: _sliderListener,
+          )),
+      selected: res != null || errorHighlight,
+      hasIndicator: false,
+      listener: _controller,
+    );
+  }
+
+  num? response() {
+    Response? res = widget.questionsListener.fromQuestion(widget.question);
+    if (res == null) return null;
+    return (res as NumericResponse).response;
+  }
+
+  _saveValue() {
+    widget.questionsListener.addResponse(NumericResponse(
+        question: widget.question,
+        stamp: dateToStamp(DateTime.now()),
+        response: value));
+  }
+
+  @override
+  void dispose() {
+    _controller.removeListener(_expandListener);
+    _sliderListener.removeListener(_interactListener);
+    super.dispose();
+  }
+}
+
 class BMSlider extends ConsumerStatefulWidget {
   final QuestionsListener listener;
 

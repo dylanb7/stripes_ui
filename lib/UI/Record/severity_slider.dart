@@ -300,14 +300,6 @@ class _PainSliderState extends State<PainSlider> {
 
   @override
   void initState() {
-    final painFaces = [
-      SvgPicture.asset('packages/stripes_ui/assets/svg/pain_face_0.svg'),
-      SvgPicture.asset('packages/stripes_ui/assets/svg/pain_face_1.svg'),
-      SvgPicture.asset('packages/stripes_ui/assets/svg/pain_face_2.svg'),
-      SvgPicture.asset('packages/stripes_ui/assets/svg/pain_face_3.svg'),
-      SvgPicture.asset('packages/stripes_ui/assets/svg/pain_face_4.svg'),
-      SvgPicture.asset('packages/stripes_ui/assets/svg/pain_face_5.svg'),
-    ];
     value = widget.initial?.toDouble() ?? 5.0;
     listener = widget.listener ?? SliderListener();
     listener.addListener(_state);
