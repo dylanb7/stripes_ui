@@ -4,6 +4,7 @@ import 'package:stripes_ui/UI/Record/base_screen.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
+import 'package:stripes_ui/l10n/app_localizations.dart';
 
 import '../../Providers/overlay_provider.dart';
 
@@ -36,7 +37,7 @@ class DeleteErrorPrevention extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      'Wait!',
+                      AppLocalizations.of(context)!.errorPreventionTitle,
                       style: darkBackgroundHeaderStyle.copyWith(
                           color: buttonDarkBackground),
                       textAlign: TextAlign.center,
