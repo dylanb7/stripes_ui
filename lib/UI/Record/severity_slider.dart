@@ -339,13 +339,14 @@ class _PainSliderState extends State<PainSlider> {
               borderRadius: const BorderRadius.all(Radius.circular(8.0)),
               color: listener.interact ? backgroundStrong : disabled),
           child: Column(children: [
+            if (listener.interact)
+              Text(
+                hurtLevels[selectedIndex],
+                style: darkBackgroundStyle,
+              ),
             Row(
                 children: List.generate(
-                    6,
-                    (index) => Column(children: [
-                          if (index == selectedIndex) Text(hurtLevels[index]),
-                          from(index, index == selectedIndex)
-                        ]))),
+                    6, (index) => from(index, index == selectedIndex))),
             Row(children: [
               const SizedBox(
                 width: 12.0,
@@ -463,14 +464,19 @@ class _PainSliderState extends State<PainSlider> {
     );
   }
 
-  SvgPicture from(int index, bool isSelected) {
-    return SvgPicture.asset(
-      'packages/stripes_ui/assets/svg/pain_face_$index.svg',
-      theme: SvgTheme(
-          currentColor: isSelected && listener.interact
-              ? darkBackgroundText
-              : darkBackgroundText.withOpacity(0.7)),
-    );
+  Widget from(int index, bool isSelected) {
+    return AspectRatio(
+        aspectRatio: 1,
+        child: SvgPicture.asset(
+          'packages/stripes_ui/assets/svg/pain_face_$index.svg',
+          colorFilter: ColorFilter.mode(
+              !listener.interact
+                  ? darkBackgroundText.withOpacity(0.5)
+                  : isSelected
+                      ? darkBackgroundText
+                      : darkBackgroundText.withOpacity(0.7),
+              BlendMode.srcIn),
+        ));
   }
 
   _state() {
