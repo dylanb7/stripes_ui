@@ -349,7 +349,7 @@ class _PainSliderState extends State<PainSlider> {
                 textAlign: TextAlign.center,
               ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 2.0),
+              padding: const EdgeInsets.symmetric(horizontal: 6.0),
               child: Row(
                 children: List.generate(
                   6,
