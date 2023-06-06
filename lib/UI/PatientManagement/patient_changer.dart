@@ -5,9 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
-import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
+import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class PatientChanger extends ConsumerWidget {
   final bool isRecords;
@@ -17,14 +17,28 @@ class PatientChanger extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final SubNotifier sub = ref.watch(subHolderProvider);
-    final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
+    final SubUser current = sub.current;
+    final bool isMarker = SubUser.isMarker(current);
+
+    String getTitle() {
+      if (isMarker) {
+        return isRecords
+            ? AppLocalizations.of(context)!.recordTab
+            : AppLocalizations.of(context)!.historyTab;
+      }
+      String firstName = (current.name.split(' ')[0]);
+      firstName = firstName.substring(0, min(firstName.length, 11));
+      return isRecords
+          ? AppLocalizations.of(context)!.recordTitle(firstName)
+          : AppLocalizations.of(context)!.historyTitle(firstName);
+    }
 
     return Row(
         mainAxisAlignment: MainAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            _currentUserName(sub.current, isSmall),
+            getTitle(),
             style: darkBackgroundScreenHeaderStyle.copyWith(
                 letterSpacing: 1.4, fontSize: 32),
           ),
@@ -41,15 +55,6 @@ class PatientChanger extends ConsumerWidget {
                   color: darkIconButton,
                 )),
         ]);
-  }
-
-  _currentUserName(SubUser user, bool isSmall) {
-    if (SubUser.isEmpty(user)) return 'No Patients';
-    String firstName = (user.name.split(' ')[0]);
-    firstName = firstName.substring(0, min(firstName.length, 11));
-    return isRecords
-        ? 'Record for${isSmall ? '\n' : ' '}$firstName'
-        : '$firstName\'s${isSmall ? '\n' : ' '}History';
   }
 
   _openUserSelect(WidgetRef ref) {

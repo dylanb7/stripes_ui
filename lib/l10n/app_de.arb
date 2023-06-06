@@ -143,9 +143,9 @@
     "submitButtonText": "Eintrag speichern",
     "editSubmitButtonText": "Save Changes",
 
-    "errorPreventionTitle": "Wait!",
-    "errorPreventionLineOne": "Are you sure you want to leave this screen?",
-    "errorPreventionLineTwo": "You will lose all information you entered for this {symptomType} entry.",
+    "errorPreventionTitle": "Moment!",
+    "errorPreventionLineOne": "Sind Sie sicher, dass Sie diese Anwendung verlassen wollen?",
+    "errorPreventionLineTwo": "So gehen alle eingetragenen Informationen verloren.",
     "@errorPreventionLineTwo": {
         "placeholders": {
             "symptomType": {
@@ -154,8 +154,8 @@
             }
         }
     },
-    "errorPreventionLeave": "Leave",
-    "errorPreventionStay": "Stay",
+    "errorPreventionLeave": "Nicht speichern",
+    "errorPreventionStay": "Abbrechen",
 
     "blueDyeHeader": "Blauer Muffin Test",
     "blueDyeInfoHeader": "Blue Dye Test Info",
@@ -198,7 +198,7 @@
     "blueDyeLogsInstructionTwo": " Recorded bowel movements will appear below",
     "blueDyeLogsSubmitTest": "Submit Test",
     "blueDyeLogsSubmitTestError": "Record a normal colored bowel movement before submitting",
-    "blueMealDurationTag": "Meal Duration:",
+    "blueMealDurationTag": "Mahlzeitdauer:",
     "blueMealFinishedButton": "Blaue Mahlzeit Ende",
     "blueMealFinalDurationTag": "Blue Meal Duration:",
 
