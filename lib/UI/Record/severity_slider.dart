@@ -405,7 +405,7 @@ class _PainSliderState extends State<PainSlider> {
                       max: 10.0,
                       thumbColor:
                           listener.interact ? lightIconButton : disabled,
-                      divisions: 10,
+                      divisions: 9,
                       onChangeStart: (val) {
                         if (!listener.interact) {
                           setState(() {
@@ -470,7 +470,7 @@ class _PainSliderState extends State<PainSlider> {
                   ? darkBackgroundText.withOpacity(0.5)
                   : isSelected
                       ? darkBackgroundText
-                      : darkBackgroundText.withOpacity(0.7),
+                      : darkBackgroundText.withOpacity(0.3),
               BlendMode.srcIn),
         ));
   }
