@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
@@ -263,5 +264,230 @@ class CustomThumb extends SliderComponentShape {
 
     canvas.drawCircle(center, thumbRadius * .9, paint);
     tp.paint(canvas, textCenter);
+  }
+}
+
+class PainSlider extends StatefulWidget {
+  final String? minLabel, maxLabel;
+
+  final int? initial;
+
+  final SliderListener? listener;
+
+  final Function(double) onChange;
+
+  final Function(double)? onSlide;
+
+  const PainSlider(
+      {required this.onChange,
+      this.onSlide,
+      this.initial,
+      this.minLabel,
+      this.maxLabel,
+      this.listener,
+      super.key});
+
+  @override
+  State<StatefulWidget> createState() {
+    return _PainSliderState();
+  }
+}
+
+class _PainSliderState extends State<PainSlider> {
+  late final SliderListener listener;
+
+  late double value;
+
+  @override
+  void initState() {
+    final painFaces = [
+      SvgPicture.asset('packages/stripes_ui/assets/svg/pain_face_0.svg'),
+      SvgPicture.asset('packages/stripes_ui/assets/svg/pain_face_1.svg'),
+      SvgPicture.asset('packages/stripes_ui/assets/svg/pain_face_2.svg'),
+      SvgPicture.asset('packages/stripes_ui/assets/svg/pain_face_3.svg'),
+      SvgPicture.asset('packages/stripes_ui/assets/svg/pain_face_4.svg'),
+      SvgPicture.asset('packages/stripes_ui/assets/svg/pain_face_5.svg'),
+    ];
+    value = widget.initial?.toDouble() ?? 5.0;
+    listener = widget.listener ?? SliderListener();
+    listener.addListener(_state);
+    super.initState();
+  }
+
+  final List<String> hurtLevels = [
+    'No Hurt',
+    'Hurts Little Bit',
+    'Hurts Little More',
+    'Hurts Even More',
+    'Hurts Whole Lot',
+    'Hurts Worst'
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    int selectedIndex = (value / 2).floor();
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Visibility(
+          visible: !listener.interact,
+          child: Text(
+            AppLocalizations.of(context)!.levelReminder,
+            textAlign: TextAlign.center,
+            style: lightBackgroundHeaderStyle.copyWith(
+                fontWeight: FontWeight.bold, color: darkIconButton),
+          ),
+        ),
+        const SizedBox(
+          height: 4.0,
+        ),
+        DecoratedBox(
+          decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+              color: listener.interact ? backgroundStrong : disabled),
+          child: Column(children: [
+            Row(
+                children: List.generate(
+                    6,
+                    (index) => Column(children: [
+                          if (index == selectedIndex) Text(hurtLevels[index]),
+                          from(index, index == selectedIndex)
+                        ]))),
+            Row(children: [
+              const SizedBox(
+                width: 12.0,
+              ),
+              if (value.toInt() != 0) ...[
+                GestureDetector(
+                  child: Text(
+                    '0',
+                    style: darkBackgroundStyle.copyWith(fontSize: 16.0),
+                    textAlign: TextAlign.center,
+                  ),
+                  onTap: () {
+                    setState(() {
+                      if (!listener.interact) {
+                        listener.interacted();
+                      }
+                      value = 0.0;
+                      widget.onChange(value);
+                    });
+                  },
+                ).showCursorOnHover
+              ],
+              Expanded(
+                child: Center(
+                  child: SliderTheme(
+                    data: SliderTheme.of(context).copyWith(
+                      activeTrackColor: Colors.white.withOpacity(1),
+                      inactiveTrackColor: Colors.white.withOpacity(.5),
+                      trackHeight: 4.0,
+                      thumbShape: const CustomThumb(
+                        thumbRadius: 20.0,
+                        min: 0,
+                        max: 10,
+                      ),
+                      overlayColor: Colors.white.withOpacity(.4),
+                      //valueIndicatorColor: Colors.white,
+                      activeTickMarkColor: Colors.transparent,
+                      inactiveTickMarkColor: Colors.transparent,
+                    ),
+                    child: Slider(
+                      value: value,
+                      min: 0.0,
+                      max: 10.0,
+                      thumbColor:
+                          listener.interact ? lightIconButton : disabled,
+                      divisions: 10,
+                      onChangeStart: (val) {
+                        if (!listener.interact) {
+                          setState(() {
+                            listener.interacted();
+                            value = val;
+                          });
+                        }
+                      },
+                      onChangeEnd: (value) {
+                        widget.onChange(value);
+                      },
+                      onChanged: (double val) {
+                        setState(() {
+                          value = val;
+                          if (widget.onSlide != null) {
+                            widget.onSlide!(val);
+                          }
+                        });
+                      },
+                    ),
+                  ),
+                ),
+              ),
+              if (value.toInt() != 10.0) ...[
+                GestureDetector(
+                  child: Text(
+                    '10',
+                    style: darkBackgroundStyle.copyWith(fontSize: 16.0),
+                    textAlign: TextAlign.center,
+                  ),
+                  onTap: () {
+                    setState(() {
+                      if (!listener.interact) {
+                        listener.interacted();
+                      }
+                      value = 10.0;
+                      widget.onChange(value);
+                    });
+                  },
+                ).showCursorOnHover,
+              ],
+              const SizedBox(
+                width: 12.0,
+              ),
+            ]),
+          ]),
+        ),
+        const SizedBox(
+          height: 6.0,
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                widget.minLabel ?? AppLocalizations.of(context)!.mildTag,
+                style: lightBackgroundStyle,
+              ),
+              Text(
+                widget.maxLabel ?? AppLocalizations.of(context)!.severeTag,
+                style: lightBackgroundStyle,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  SvgPicture from(int index, bool isSelected) {
+    return SvgPicture.asset(
+      'packages/stripes_ui/assets/svg/pain_face_$index.svg',
+      theme: SvgTheme(
+          currentColor: isSelected && listener.interact
+              ? darkBackgroundText
+              : darkBackgroundText.withOpacity(0.7)),
+    );
+  }
+
+  _state() {
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    listener.removeListener(_state);
+    super.dispose();
   }
 }

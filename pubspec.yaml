@@ -53,3 +53,9 @@ flutter:
     - packages/stripes_ui/assets/images/poop5.png
     - packages/stripes_ui/assets/images/poop6.png
     - packages/stripes_ui/assets/images/poop7.png
+    - packages/stripes_ui/assets/svg/pain_face_0.svg
+    - packages/stripes_ui/assets/svg/pain_face_1.svg
+    - packages/stripes_ui/assets/svg/pain_face_2.svg
+    - packages/stripes_ui/assets/svg/pain_face_3.svg
+    - packages/stripes_ui/assets/svg/pain_face_4.svg
+    - packages/stripes_ui/assets/svg/pain_face_5.svg
