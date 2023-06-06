@@ -338,15 +338,21 @@ class _PainSliderState extends State<PainSlider> {
           decoration: BoxDecoration(
               borderRadius: const BorderRadius.all(Radius.circular(8.0)),
               color: listener.interact ? backgroundStrong : disabled),
-          child: Column(children: [
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             if (listener.interact)
               Text(
                 hurtLevels[selectedIndex],
                 style: darkBackgroundStyle,
               ),
             Row(
-                children: List.generate(
-                    6, (index) => from(index, index == selectedIndex))),
+              children: List.generate(
+                6,
+                (index) => Expanded(
+                  child: from(index, index == selectedIndex),
+                ),
+              ),
+            ),
             Row(children: [
               const SizedBox(
                 width: 12.0,
