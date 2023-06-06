@@ -98,7 +98,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String nLevelError(num count) {
     final intl.NumberFormat countNumberFormat = intl.NumberFormat.compact(
       locale: localeName,
-      
     );
     final String countString = countNumberFormat.format(count);
 
@@ -151,10 +150,12 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get submitBlueQuestion => 'Did this bowel movement contain any blue color?';
+  String get submitBlueQuestion =>
+      'Did this bowel movement contain any blue color?';
 
   @override
-  String get submitBlueQuestionError => 'Must answer blue question before submitting';
+  String get submitBlueQuestionError =>
+      'Must answer blue question before submitting';
 
   @override
   String get blueQuestionYes => 'Yes';
@@ -166,7 +167,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get submitDescriptionTag => 'Weitere Anmerkungen';
 
   @override
-  String get submitDescriptionPlaceholder => 'Clicken, um zu chreiben...';
+  String get submitDescriptionPlaceholder => 'Clicken, um zu chreibens...';
 
   @override
   String get submitButtonText => 'Eintrag speichern';
@@ -175,21 +176,22 @@ class AppLocalizationsDe extends AppLocalizations {
   String get editSubmitButtonText => 'Save Changes';
 
   @override
-  String get errorPreventionTitle => 'Wait!';
+  String get errorPreventionTitle => 'Moment!';
 
   @override
-  String get errorPreventionLineOne => 'Are you sure you want to leave this screen?';
+  String get errorPreventionLineOne =>
+      'Sind Sie sicher, dass Sie diese Anwendung verlassen wollen?';
 
   @override
   String errorPreventionLineTwo(String symptomType) {
-    return 'You will lose all information you entered for this $symptomType entry.';
+    return 'So gehen alle eingetragenen Informationen verloren.';
   }
 
   @override
-  String get errorPreventionLeave => 'Leave';
+  String get errorPreventionLeave => 'Nicht speichern';
 
   @override
-  String get errorPreventionStay => 'Stay';
+  String get errorPreventionStay => 'Abbrechen';
 
   @override
   String get blueDyeHeader => 'Blauer Muffin Test';
@@ -198,16 +200,20 @@ class AppLocalizationsDe extends AppLocalizations {
   String get blueDyeInfoHeader => 'Blue Dye Test Info';
 
   @override
-  String get blueDyeInfoLineOne => 'The Blue Dye Test measures the time it takes for food to transit through the gut.';
+  String get blueDyeInfoLineOne =>
+      'The Blue Dye Test measures the time it takes for food to transit through the gut.';
 
   @override
-  String get blueDyeInfoLineTwo => 'To start the test, your participant(s) should eat two blue muffins in the morning after a minimum of a six hour fasting period.';
+  String get blueDyeInfoLineTwo =>
+      'To start the test, your participant(s) should eat two blue muffins in the morning after a minimum of a six hour fasting period.';
 
   @override
-  String get blueDyeInfoLineThree => 'Record bowel movements, noting whether there is a blue blue-green color.';
+  String get blueDyeInfoLineThree =>
+      'Record bowel movements, noting whether there is a blue blue-green color.';
 
   @override
-  String get blueDyeInfoLineFour => 'Submit test after recording the first BM that lacks any blue or blue green color.';
+  String get blueDyeInfoLineFour =>
+      'Submit test after recording the first BM that lacks any blue or blue green color.';
 
   @override
   String get blueDyeInstructionsHeader => 'Anweisungen';
@@ -216,25 +222,30 @@ class AppLocalizationsDe extends AppLocalizations {
   String get blueDyeInstructionsStepOne => '1) Muffin-Essen';
 
   @override
-  String get blueDyeInstructionsStepOneA => 'Sobald Sie beginnen den blauen Muffin zu essen, drücken Sie bitte auf „Blaue Mahlzeit Start“';
+  String get blueDyeInstructionsStepOneA =>
+      'Sobald Sie beginnen den blauen Muffin zu essen, drücken Sie bitte auf „Blaue Mahlzeit Start“';
 
   @override
-  String get blueDyeInstructionsStepOneB => 'Sobald Sie den Muffin vollständig verzehrt haben, drücken Sie bitte auf „Blaue Mahlzeit Ende“';
+  String get blueDyeInstructionsStepOneB =>
+      'Sobald Sie den Muffin vollständig verzehrt haben, drücken Sie bitte auf „Blaue Mahlzeit Ende“';
 
   @override
   String get blueDyeInstructionsStepTwo => '2) Dokumentation zu Hause';
 
   @override
-  String get blueDyeInstructionsStepTwoA => 'Dokumentieren Sie bitte daheim nach Verzehr des Blauen Muffins jeden Stuhlgang unter „Poop Dokumentation“ und geben Sie an, ob dieser (teilweise) blau/blau-grün gefärbt war.';
+  String get blueDyeInstructionsStepTwoA =>
+      'Dokumentieren Sie bitte daheim nach Verzehr des Blauen Muffins jeden Stuhlgang unter „Poop Dokumentation“ und geben Sie an, ob dieser (teilweise) blau/blau-grün gefärbt war.';
 
   @override
-  String get blueDyeInstructionsStepTwoB => 'Es ist normal, dass einige Tage vergehen, bis die blaue Farbe erscheint.';
+  String get blueDyeInstructionsStepTwoB =>
+      'Es ist normal, dass einige Tage vergehen, bis die blaue Farbe erscheint.';
 
   @override
   String get blueDyeInstructionsStepThree => '3) Submit the Test';
 
   @override
-  String get blueDyeInstructionsStepThreeA => 'Sobald Ihr Stuhlgang keinerlei blaue/blau-grüne Farbe mehr zeigt, drücken Sie bitte auf „Test einreichen“. So können wir Ihre Daten anonymisiert erhalten.';
+  String get blueDyeInstructionsStepThreeA =>
+      'Sobald Ihr Stuhlgang keinerlei blaue/blau-grüne Farbe mehr zeigt, drücken Sie bitte auf „Test einreichen“. So können wir Ihre Daten anonymisiert erhalten.';
 
   @override
   String get blueMuffinsInfoHeader => 'Blue Muffins Info';
@@ -243,19 +254,23 @@ class AppLocalizationsDe extends AppLocalizations {
   String get blueMuffinsInfoLineOne => 'Blue muffins will come in the mail.';
 
   @override
-  String get blueMuffinsInfoLineTwo => 'They can be stored in the refrigerator.';
+  String get blueMuffinsInfoLineTwo =>
+      'They can be stored in the refrigerator.';
 
   @override
-  String get blueMuffinsInfoLineThree => 'To get ready for the test, remove the muffins from their packaging and heat them briefly, 20-30 seconds in the microwave or a few minutes in the oven.';
+  String get blueMuffinsInfoLineThree =>
+      'To get ready for the test, remove the muffins from their packaging and heat them briefly, 20-30 seconds in the microwave or a few minutes in the oven.';
 
   @override
-  String get blueMuffinsInfoLineFour => 'Muffins should be the first thing the participant eats in the morning after an overnight fast of at least 6 hours.';
+  String get blueMuffinsInfoLineFour =>
+      'Muffins should be the first thing the participant eats in the morning after an overnight fast of at least 6 hours.';
 
   @override
   String get blueDyeCancel => 'Test abbrechen';
 
   @override
-  String get blueMuffinErrorPreventionLineOne => 'Are you sure you want to cancel your Blue Dye Test?';
+  String get blueMuffinErrorPreventionLineOne =>
+      'Are you sure you want to cancel your Blue Dye Test?';
 
   @override
   String get blueMuffinErrorPreventionLineTwo => 'You will lose all progress';
@@ -274,19 +289,22 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get blueDyeLogsInstructionOne => 'Record bowel movements from the record screen.';
+  String get blueDyeLogsInstructionOne =>
+      'Record bowel movements from the record screen.';
 
   @override
-  String get blueDyeLogsInstructionTwo => ' Recorded bowel movements will appear below';
+  String get blueDyeLogsInstructionTwo =>
+      ' Recorded bowel movements will appear below';
 
   @override
   String get blueDyeLogsSubmitTest => 'Submit Test';
 
   @override
-  String get blueDyeLogsSubmitTestError => 'Record a normal colored bowel movement before submitting';
+  String get blueDyeLogsSubmitTestError =>
+      'Record a normal colored bowel movement before submitting';
 
   @override
-  String get blueMealDurationTag => 'Meal Duration:';
+  String get blueMealDurationTag => 'Mahlzeitdauer:';
 
   @override
   String get blueMealFinishedButton => 'Blaue Mahlzeit Ende';
@@ -322,7 +340,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String eventFilterResults(num count) {
     final intl.NumberFormat countNumberFormat = intl.NumberFormat.compact(
       locale: localeName,
-      
     );
     final String countString = countNumberFormat.format(count);
 
@@ -358,7 +375,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get patientProfilesHeader => 'Patient Profiles';
 
   @override
-  String get patientProfilesInstruction => 'Select a patient to view their profile.';
+  String get patientProfilesInstruction =>
+      'Select a patient to view their profile.';
 
   @override
   String get patientBirthYear => 'Birth Year';
