@@ -62,6 +62,12 @@
     "severeTag": "Severe",
     "softTag": "Weich",
     "hardTag": "Hart",
+    "painLevelZero": "Tut nicht weh",
+    "painLevelOne": "Tut etwas weh",
+    "painLevelTwo": "Tut etwas mehr weh",
+    "painLevelThree": "Tut noch mehr weh",
+    "painLevelFour": "Tut sehr weh",
+    "painLevelFive": "Tut am meisten weh",
     "levelReminder": "Wählen Sie eine passende Stufe",
     "nLevelError": "{count, plural, =1{Bitte wählen Sie eine passende Konsistenz!} other{Select slider values}}",
     "@nLevelError": {

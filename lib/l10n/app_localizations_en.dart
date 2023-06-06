@@ -77,6 +77,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get levelReminder => 'Select Level';
 
   @override
+  String get painLevelZero => 'No Hurt';
+
+  @override
+  String get painLevelOne => 'Hurts Little Bit';
+
+  @override
+  String get painLevelTwo => 'Hurts Little More';
+
+  @override
+  String get painLevelThree => 'Hurts Even More';
+
+  @override
+  String get painLevelFour => 'Hurts Whole Lot';
+
+  @override
+  String get painLevelFive => 'Hurts Worst';
+
+  @override
   String nLevelError(num count) {
     final intl.NumberFormat countNumberFormat = intl.NumberFormat.compact(
       locale: localeName,

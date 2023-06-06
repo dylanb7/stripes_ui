@@ -306,18 +306,17 @@ class _PainSliderState extends State<PainSlider> {
     super.initState();
   }
 
-  final List<String> hurtLevels = [
-    'No Hurt',
-    'Hurts Little Bit',
-    'Hurts Little More',
-    'Hurts Even More',
-    'Hurts Whole Lot',
-    'Hurts Worst'
-  ];
-
   @override
   Widget build(BuildContext context) {
-    int selectedIndex = (value / 2).floor();
+    final List<String> hurtLevels = [
+      AppLocalizations.of(context)!.painLevelZero,
+      AppLocalizations.of(context)!.painLevelOne,
+      AppLocalizations.of(context)!.painLevelTwo,
+      AppLocalizations.of(context)!.painLevelThree,
+      AppLocalizations.of(context)!.painLevelFour,
+      AppLocalizations.of(context)!.painLevelFive,
+    ];
+    final int selectedIndex = (value / 2).floor();
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -405,7 +404,7 @@ class _PainSliderState extends State<PainSlider> {
                       max: 10.0,
                       thumbColor:
                           listener.interact ? lightIconButton : disabled,
-                      divisions: 9,
+                      divisions: 10,
                       onChangeStart: (val) {
                         if (!listener.interact) {
                           setState(() {

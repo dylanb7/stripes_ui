@@ -207,6 +207,42 @@ abstract class AppLocalizations {
   /// **'Select Level'**
   String get levelReminder;
 
+  /// No description provided for @painLevelZero.
+  ///
+  /// In en, this message translates to:
+  /// **'No Hurt'**
+  String get painLevelZero;
+
+  /// No description provided for @painLevelOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Hurts Little Bit'**
+  String get painLevelOne;
+
+  /// No description provided for @painLevelTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'Hurts Little More'**
+  String get painLevelTwo;
+
+  /// No description provided for @painLevelThree.
+  ///
+  /// In en, this message translates to:
+  /// **'Hurts Even More'**
+  String get painLevelThree;
+
+  /// No description provided for @painLevelFour.
+  ///
+  /// In en, this message translates to:
+  /// **'Hurts Whole Lot'**
+  String get painLevelFour;
+
+  /// No description provided for @painLevelFive.
+  ///
+  /// In en, this message translates to:
+  /// **'Hurts Worst'**
+  String get painLevelFive;
+
   /// No description provided for @nLevelError.
   ///
   /// In en, this message translates to:

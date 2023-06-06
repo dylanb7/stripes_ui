@@ -63,6 +63,12 @@
     "softTag": "Soft",
     "hardTag": "Hard",
     "levelReminder": "Select Level",
+    "painLevelZero": "No Hurt",
+    "painLevelOne": "Hurts Little Bit",
+    "painLevelTwo": "Hurts Little More",
+    "painLevelThree": "Hurts Even More",
+    "painLevelFour": "Hurts Whole Lot",
+    "painLevelFive": "Hurts Worst",
     "nLevelError": "{count, plural, =1{Select slider value} other{Select slider values}}",
     "@nLevelError": {
         "placeholders": {
