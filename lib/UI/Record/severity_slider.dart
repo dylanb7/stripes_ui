@@ -340,24 +340,31 @@ class _PainSliderState extends State<PainSlider> {
               color: listener.interact ? backgroundStrong : disabled),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            const SizedBox(
+              height: 2.0,
+            ),
             if (listener.interact)
               Text(
                 hurtLevels[selectedIndex],
                 style: darkBackgroundStyle,
+                textAlign: TextAlign.center,
               ),
-            Row(
-              children: List.generate(
-                6,
-                (index) => Expanded(
-                  child: from(index, index == selectedIndex),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2.0),
+              child: Row(
+                children: List.generate(
+                  6,
+                  (index) => Expanded(
+                    child: from(index, index == selectedIndex),
+                  ),
                 ),
               ),
             ),
             Row(children: [
-              const SizedBox(
-                width: 12.0,
-              ),
               if (value.toInt() != 0) ...[
+                const SizedBox(
+                  width: 12.0,
+                ),
                 GestureDetector(
                   child: Text(
                     '0',
@@ -439,32 +446,15 @@ class _PainSliderState extends State<PainSlider> {
                     });
                   },
                 ).showCursorOnHover,
+                const SizedBox(
+                  width: 12.0,
+                ),
               ],
-              const SizedBox(
-                width: 12.0,
-              ),
             ]),
           ]),
         ),
         const SizedBox(
           height: 6.0,
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                widget.minLabel ?? AppLocalizations.of(context)!.mildTag,
-                style: lightBackgroundStyle,
-              ),
-              Text(
-                widget.maxLabel ?? AppLocalizations.of(context)!.severeTag,
-                style: lightBackgroundStyle,
-              ),
-            ],
-          ),
         ),
       ],
     );
