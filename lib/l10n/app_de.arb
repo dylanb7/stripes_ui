@@ -78,7 +78,7 @@
             }
         }
     },
-    "submitHeader": "Enter information about the {symptomType} entry below",
+    "submitHeader": "Tragen Sie Informationen zur Ihrer heutigen {symptomType} hier ein:",
     "@submitHeader": {
         "placeholders": {
             "symptomType": {
