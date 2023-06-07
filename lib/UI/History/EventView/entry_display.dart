@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
@@ -13,6 +14,7 @@ import 'package:stripes_ui/UI/Record/question_screen.dart';
 import 'package:stripes_ui/UI/Record/symptom_record_data.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
+import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class EntryDisplay extends ConsumerWidget {
   final Response event;
@@ -251,6 +253,60 @@ class BMRow extends StatelessWidget {
         fit: BoxFit.fitHeight,
       ),
     ]);
+  }
+}
+
+class PainSliderDisplay extends StatelessWidget {
+  final NumericResponse response;
+
+  const PainSliderDisplay({required this.response, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final int res = response.response.toInt();
+    final List<String> hurtLevels = [
+      AppLocalizations.of(context)!.painLevelZero,
+      AppLocalizations.of(context)!.painLevelOne,
+      AppLocalizations.of(context)!.painLevelTwo,
+      AppLocalizations.of(context)!.painLevelThree,
+      AppLocalizations.of(context)!.painLevelFour,
+      AppLocalizations.of(context)!.painLevelFive,
+    ];
+    final int selectedIndex = (res / 2).floor();
+    return Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+      Text('${response.question.prompt} - ${response.response}',
+          style: lightBackgroundStyle, maxLines: null),
+      const SizedBox(
+        width: 4,
+      ),
+      Wrap(
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          from(selectedIndex),
+          const SizedBox(
+            width: 4,
+          ),
+          Text(
+            hurtLevels[res],
+            style: lightBackgroundStyle,
+            maxLines: 1,
+          ),
+        ],
+      )
+    ]);
+  }
+
+  Widget from(int index) {
+    return SizedBox(
+      height: 25,
+      child: AspectRatio(
+        aspectRatio: 1,
+        child: SvgPicture.asset(
+          'packages/stripes_ui/assets/svg/pain_face_$index.svg',
+        ),
+      ),
+    );
   }
 }
 
