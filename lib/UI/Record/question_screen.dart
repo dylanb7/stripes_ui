@@ -590,7 +590,7 @@ class SeverityScreenWidgetState extends State<SeverityScreenWidget> {
     }
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       if (pending) {
-        widget.listener.addPending(QuestionHomeInst().fromID(q4));
+        widget.listener.addPending(widget.question);
       }
     });
 
@@ -601,10 +601,14 @@ class SeverityScreenWidgetState extends State<SeverityScreenWidget> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        const SizedBox(
+          height: 35,
+        ),
         PainSlider(
           listener: listener,
           onChange: (_) {
             widget.listener.removePending(widget.question);
+            setState(() {});
           },
           onSlide: (val) {
             setState(() {
