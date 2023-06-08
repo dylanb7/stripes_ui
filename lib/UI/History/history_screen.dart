@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
-import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/UI/History/EventView/action_row.dart';
 import 'package:stripes_ui/UI/History/EventView/day_view.dart';
 import 'package:stripes_ui/UI/History/EventView/event_grid.dart';

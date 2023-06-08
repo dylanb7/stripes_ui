@@ -33,7 +33,6 @@ class _TestScreenState extends ConsumerState<TestScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
     final TestState state =
         ref.watch(testHolderProvider.select((value) => value.state));
     final OverlayQuery query = ref.watch(overlayProvider);

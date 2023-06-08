@@ -6,7 +6,6 @@ import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/UI/PatientManagement/birth_year_selector.dart';
 import 'package:stripes_ui/UI/PatientManagement/control_slider.dart';
 import 'package:stripes_ui/UI/PatientManagement/gender_dropdown.dart';
-import 'package:stripes_ui/UI/SharedHomeWidgets/home_screen.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/form_input.dart';
 import 'package:stripes_ui/Util/palette.dart';
