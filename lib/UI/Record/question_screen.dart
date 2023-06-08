@@ -593,12 +593,8 @@ class SeverityScreenWidgetState extends State<SeverityScreenWidget> {
         widget.listener.addPending(QuestionHomeInst().fromID(q4));
       }
     });
-    listener.addListener(_interactListener);
-    super.initState();
-  }
 
-  _interactListener() {
-    widget.listener.removePending(widget.question);
+    super.initState();
   }
 
   @override
@@ -607,7 +603,9 @@ class SeverityScreenWidgetState extends State<SeverityScreenWidget> {
       children: [
         PainSlider(
           listener: listener,
-          onChange: (_) {},
+          onChange: (_) {
+            widget.listener.removePending(widget.question);
+          },
           onSlide: (val) {
             setState(() {
               value = val;
