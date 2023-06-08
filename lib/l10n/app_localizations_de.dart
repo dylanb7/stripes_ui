@@ -151,16 +151,16 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get submitBlueQuestion => 'Did this bowel movement contain any blue color?';
+  String get submitBlueQuestion => 'War der Stuhl blau (blaugrün) gefärbt?';
 
   @override
   String get submitBlueQuestionError => 'Must answer blue question before submitting';
 
   @override
-  String get blueQuestionYes => 'Yes';
+  String get blueQuestionYes => 'Ja';
 
   @override
-  String get blueQuestionNo => 'No';
+  String get blueQuestionNo => 'Nein';
 
   @override
   String get submitDescriptionTag => 'Weitere Anmerkungen';
@@ -231,7 +231,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get blueDyeInstructionsStepTwoB => 'Es ist normal, dass einige Tage vergehen, bis die blaue Farbe erscheint.';
 
   @override
-  String get blueDyeInstructionsStepThree => '3) Submit the Test';
+  String get blueDyeInstructionsStepThree => '3) Einreichen des Tests';
 
   @override
   String get blueDyeInstructionsStepThreeA => 'Sobald Ihr Stuhlgang keinerlei blaue/blau-grüne Farbe mehr zeigt, drücken Sie bitte auf „Test einreichen“. So können wir Ihre Daten anonymisiert erhalten.';

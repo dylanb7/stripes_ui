@@ -5,7 +5,7 @@ import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/UI/Record/question_screen.dart';
 
 final questionSplitProvider = Provider<Map<String, List<Question>>>((ref) {
-  QuestionHome? home = ref.watch(questionHomeProvider).home;
+  QuestionHome? home = ref.watch(questionHomeProvider).home?.questions;
   if (home == null) return {};
   Map<String, List<Question>> questions = {};
   for (Question question in home.all.values) {
@@ -19,8 +19,11 @@ final questionSplitProvider = Provider<Map<String, List<Question>>>((ref) {
   return questions;
 });
 
-final pageProvider = Provider.family<List<List<Question>>, String>((ref, type) {
+final pageProvider = Provider.family<List<PageLayout>, String>((ref, type) {
+  Map<String, List<PageLayout>>? pageOverrides =
+      ref.watch(questionHomeProvider).home?.getLayouts();
   final Map<String, List<Question>> split = ref.watch(questionSplitProvider);
+  if (pageOverrides?.containsKey(type) ?? false) return pageOverrides![type]!;
   final Map<String, QuestionEntry> overrides = ref.watch(questionEntryOverides);
   final List<Question> typedQuestions = split[type] ?? [];
   final List<List<Question>> pages = [[]];
@@ -34,5 +37,5 @@ final pageProvider = Provider.family<List<List<Question>>, String>((ref, type) {
     }
   }
   pages.removeWhere((element) => element.isEmpty);
-  return pages;
+  return pages.map((e) => PageLayout(e, '')).toList();
 });

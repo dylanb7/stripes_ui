@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:stripes_backend_helper/QuestionModel/question.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
+import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo_base.dart';
 import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
@@ -54,7 +55,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
 
   @override
   Widget build(BuildContext context) {
-    final List<List<Question>> pages = ref.watch(pageProvider(widget.type));
+    final List<PageLayout> pages = ref.watch(pageProvider(widget.type));
     final length = pages.length;
     final OverlayQuery query = ref.watch(overlayProvider);
     final bool tried = ref.watch(continueTried);
@@ -150,10 +151,10 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                           );
                                         } else {
                                           content = QuestionScreen(
-                                              header:
+                                              header: pages[index].header ??
                                                   AppLocalizations.of(context)!
                                                       .selectInstruction,
-                                              questions: pages[index],
+                                              questions: pages[index].questions,
                                               questionsListener:
                                                   widget.questionListener);
                                         }

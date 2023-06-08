@@ -592,7 +592,8 @@ class _BMSliderState extends ConsumerState<BMSlider> {
     listener = SliderListener();
 
     final Response? res = widget.listener.fromQuestion(
-        ref.read(questionHomeProvider).home?.fromID(q4) ?? Question.empty());
+        ref.read(questionHomeProvider).home?.questions.fromID(q4) ??
+            Question.empty());
     bool pending = false;
     if (res != null) {
       listener.interact = true;
@@ -648,7 +649,8 @@ class _BMSliderState extends ConsumerState<BMSlider> {
 
   _saveValue() {
     widget.listener.addResponse(NumericResponse(
-        question: ref.read(questionHomeProvider).home?.fromID(q4) as Numeric,
+        question: ref.read(questionHomeProvider).home?.questions.fromID(q4)
+            as Numeric,
         stamp: dateToStamp(DateTime.now()),
         response: value));
   }

@@ -12,14 +12,14 @@ final questionsProvider = Provider<QuestionRepo>((ref) {
 final questionHomeProvider = StateProvider((ref) => QuestionNotifier(ref));
 
 class QuestionNotifier extends StateNotifier {
-  QuestionHome? home;
+  QuestionRepo? home;
 
   QuestionNotifier(StateProviderRef ref) : super(null) {
     _loadQuestions(ref);
   }
 
   _loadQuestions(StateProviderRef ref) async {
-    home = ref.watch(questionsProvider).questions;
+    home = ref.watch(questionsProvider);
     state = home;
   }
 }
