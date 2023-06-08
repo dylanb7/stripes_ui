@@ -37,5 +37,5 @@ final pageProvider = Provider.family<List<PageLayout>, String>((ref, type) {
     }
   }
   pages.removeWhere((element) => element.isEmpty);
-  return pages.map((e) => PageLayout(e, '')).toList();
+  return pages.map((e) => PageLayout(questions: e)).toList();
 });
