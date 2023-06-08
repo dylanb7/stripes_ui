@@ -57,8 +57,8 @@ class PinField extends StatelessWidget {
         const Spacer(),
       ]),
       if (errorText)
-        Column(
-          children: const [
+        const Column(
+          children: [
             Text(
               'We do not recognize that access code.',
               style: errorStyleTitle,

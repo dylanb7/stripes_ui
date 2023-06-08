@@ -74,7 +74,7 @@ class _SignInFormState extends ConsumerState<SignInForm> {
             close: () {
               context.go(Routes.LANDING);
             },
-            topPortion: Column(children: [
+            topPortion: const Column(children: [
               Spacer(
                 flex: 1,
               ),
@@ -82,7 +82,7 @@ class _SignInFormState extends ConsumerState<SignInForm> {
                 padding: EdgeInsets.only(left: 20.0, right: 15.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     Text(
                       'Login Info',
                       style: darkBackgroundScreenHeaderStyle,
@@ -99,7 +99,7 @@ class _SignInFormState extends ConsumerState<SignInForm> {
                   ],
                 ),
               ),
-              const Spacer(
+              Spacer(
                 flex: 1,
               )
             ]),
@@ -261,15 +261,15 @@ class _VerificationState extends State<Verification> {
             close: () {
               context.go(Routes.LANDING);
             },
-            topPortion: Column(children: [
-              const Spacer(
+            topPortion: const Column(children: [
+              Spacer(
                 flex: 2,
               ),
               Padding(
-                  padding: const EdgeInsets.only(left: 20.0, right: 15.0),
+                  padding: EdgeInsets.only(left: 20.0, right: 15.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       Text(
                         'Access Code',
                         style: darkBackgroundScreenHeaderStyle,
@@ -285,7 +285,7 @@ class _VerificationState extends State<Verification> {
                       )
                     ],
                   )),
-              const Spacer(
+              Spacer(
                 flex: 1,
               )
             ]),
@@ -357,18 +357,18 @@ class Help extends StatelessWidget {
   Widget build(BuildContext context) {
     return FormContainer(
       hasClose: false,
-      topPortion: Column(children: [
-        const Spacer(
+      topPortion: const Column(children: [
+        Spacer(
           flex: 2,
         ),
         Padding(
-          padding: const EdgeInsets.only(
+          padding: EdgeInsets.only(
             left: 20.0,
             right: 15.0,
           ),
           child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
                   'Access Code Help',
                   style: darkBackgroundScreenHeaderStyle,
@@ -384,7 +384,7 @@ class Help extends StatelessWidget {
                 )
               ]),
         ),
-        const Spacer(
+        Spacer(
           flex: 1,
         )
       ]),

@@ -102,13 +102,13 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     final String countString = countNumberFormat.format(count);
 
-    String _temp0 = intl.Intl.pluralLogic(
+    String temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
       other: 'Select slider values',
       one: 'Select slider value',
     );
-    return '$_temp0';
+    return temp0;
   }
 
   @override
@@ -129,7 +129,7 @@ class AppLocalizationsEn extends AppLocalizations {
     final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMd(localeName);
     final String dateString = dateDateFormat.format(date);
 
-    return '$dateString';
+    return dateString;
   }
 
   @override
@@ -326,14 +326,14 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     final String countString = countNumberFormat.format(count);
 
-    String _temp0 = intl.Intl.pluralLogic(
+    String temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
       other: '$countString results',
       one: '1 result',
       zero: 'No results',
     );
-    return '$_temp0';
+    return temp0;
   }
 
   @override

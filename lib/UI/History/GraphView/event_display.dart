@@ -16,11 +16,11 @@ class EventDisplay extends StatelessWidget {
   Widget build(BuildContext context) {
     final double width = MediaQuery.of(context).size.width;
     if (width >= SIDE_BY_SIDE) {
-      return Padding(
-        padding: const EdgeInsets.only(left: 15.0, right: 15.0, top: 10.0),
+      return const Padding(
+        padding: EdgeInsets.only(left: 15.0, right: 15.0, top: 10.0),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
+          children: [
             Expanded(child: EventFrequency()),
             VerticalDivider(
               width: 30,
@@ -40,13 +40,13 @@ class EventDisplay extends StatelessWidget {
       child: Center(
         child: SizedBox(
           width: min(width, SMALL_LAYOUT),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 10),
             child: Center(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
-                children: const [EventFrequency(), GraphWidget()],
+                children: [EventFrequency(), GraphWidget()],
               ),
             ),
           ),

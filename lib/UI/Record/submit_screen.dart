@@ -79,9 +79,9 @@ class SubmitScreen extends ConsumerWidget {
           ),
           IgnorePointer(
             ignoring: isEdit,
-            child: Row(
+            child: const Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: const [
+              children: [
                 DateWidget(),
                 TimeWidget(),
               ],
