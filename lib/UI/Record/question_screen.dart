@@ -557,6 +557,76 @@ class _SeverityPainWidgetState extends ConsumerState<SeverityPainWidget> {
   }
 }
 
+class SeverityScreenWidget extends StatefulWidget {
+  final QuestionsListener listener;
+
+  final Numeric question;
+
+  const SeverityScreenWidget(
+      {required this.listener, required this.question, super.key});
+  @override
+  State<StatefulWidget> createState() {
+    return SeverityScreenWidgetState();
+  }
+}
+
+class SeverityScreenWidgetState extends State<SeverityScreenWidget> {
+  late SliderListener listener;
+
+  late double value;
+
+  @override
+  void initState() {
+    value = 5;
+    listener = SliderListener();
+
+    final Response? res = widget.listener.fromQuestion(widget.question);
+    bool pending = false;
+    if (res != null) {
+      listener.interact = true;
+      value = (res as NumericResponse).response.toDouble();
+    } else {
+      pending = true;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      if (pending) {
+        widget.listener.addPending(QuestionHomeInst().fromID(q4));
+      }
+    });
+    listener.addListener(_interactListener);
+    super.initState();
+  }
+
+  _interactListener() {
+    widget.listener.removePending(widget.question);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        PainSlider(
+          listener: listener,
+          onChange: (_) {},
+          onSlide: (val) {
+            setState(() {
+              value = val;
+              _saveValue();
+            });
+          },
+        )
+      ],
+    );
+  }
+
+  _saveValue() {
+    widget.listener.addResponse(NumericResponse(
+        question: widget.question,
+        stamp: dateToStamp(DateTime.now()),
+        response: value));
+  }
+}
+
 class BMSlider extends ConsumerStatefulWidget {
   final QuestionsListener listener;
 
