@@ -632,7 +632,10 @@ class SeverityScreenWidgetState extends State<SeverityScreenWidget> {
 class BMSlider extends ConsumerStatefulWidget {
   final QuestionsListener listener;
 
-  const BMSlider({required this.listener, Key? key}) : super(key: key);
+  final Numeric question;
+
+  const BMSlider({required this.listener, required this.question, Key? key})
+      : super(key: key);
 
   @override
   ConsumerState createState() => _BMSliderState();
@@ -663,9 +666,7 @@ class _BMSliderState extends ConsumerState<BMSlider> {
         .toList();
     listener = SliderListener();
 
-    final Response? res = widget.listener.fromQuestion(
-        ref.read(questionHomeProvider).home?.questions.fromID(q4) ??
-            Question.empty());
+    final Response? res = widget.listener.fromQuestion(widget.question);
     bool pending = false;
     if (res != null) {
       listener.interact = true;
@@ -675,7 +676,7 @@ class _BMSliderState extends ConsumerState<BMSlider> {
     }
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       if (pending) {
-        widget.listener.addPending(QuestionHomeInst().fromID(q4));
+        widget.listener.addPending(widget.question);
       }
     });
     listener.addListener(_interactListener);
@@ -684,7 +685,7 @@ class _BMSliderState extends ConsumerState<BMSlider> {
   }
 
   _interactListener() {
-    widget.listener.removePending(QuestionHomeInst().fromID(q4));
+    widget.listener.removePending(widget.question);
   }
 
   @override
@@ -721,8 +722,7 @@ class _BMSliderState extends ConsumerState<BMSlider> {
 
   _saveValue() {
     widget.listener.addResponse(NumericResponse(
-        question: ref.read(questionHomeProvider).home?.questions.fromID(q4)
-            as Numeric,
+        question: widget.question,
         stamp: dateToStamp(DateTime.now()),
         response: value));
   }
