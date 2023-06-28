@@ -107,7 +107,12 @@ class MultiChoiceEntry extends ConsumerStatefulWidget {
 class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
   @override
   void initState() {
-    widget.listener.addPending(widget.question);
+    final bool pending = selected() == null;
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      if (pending) {
+        widget.listener.addPending(widget.question);
+      }
+    });
     super.initState();
   }
 
@@ -213,8 +218,10 @@ class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
 
   _onTap(bool isSelected, int index) {
     if (isSelected) {
+      widget.listener.addPending(widget.question);
       widget.listener.removeResponse(widget.question);
     } else {
+      widget.listener.removePending(widget.question);
       widget.listener.addResponse(MultiResponse(
           question: widget.question,
           stamp: dateToStamp(DateTime.now()),
