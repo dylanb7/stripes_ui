@@ -69,12 +69,10 @@ class _TestScreenState extends ConsumerState<TestScreen> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Expanded(
-                                    child: Flexible(
-                                      child: Text(
-                                        AppLocalizations.of(context)!
-                                            .blueDyeHeader,
-                                        style: darkBackgroundHeaderStyle,
-                                      ),
+                                    child: Text(
+                                      AppLocalizations.of(context)!
+                                          .blueDyeHeader,
+                                      style: darkBackgroundHeaderStyle,
                                     ),
                                   ),
                                   const SizedBox(
