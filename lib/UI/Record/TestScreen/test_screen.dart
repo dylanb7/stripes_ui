@@ -63,32 +63,34 @@ class _TestScreenState extends ConsumerState<TestScreen> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      AppLocalizations.of(context)!
-                                          .blueDyeHeader,
-                                      style: darkBackgroundHeaderStyle,
+                            Expanded(
+                              child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        AppLocalizations.of(context)!
+                                            .blueDyeHeader,
+                                        style: darkBackgroundHeaderStyle,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(
-                                    width: 4.0,
-                                  ),
-                                  IconButton(
-                                    onPressed: () {
-                                      _dialog(context);
-                                    },
-                                    icon: const Icon(
-                                      Icons.info_outline,
-                                      color: darkBackgroundText,
+                                    const SizedBox(
+                                      width: 4.0,
                                     ),
-                                    iconSize: 30,
-                                  ),
-                                ]),
+                                    IconButton(
+                                      onPressed: () {
+                                        _dialog(context);
+                                      },
+                                      icon: const Icon(
+                                        Icons.info_outline,
+                                        color: darkBackgroundText,
+                                      ),
+                                      iconSize: 30,
+                                    ),
+                                  ]),
+                            ),
                             IconButton(
                               onPressed: () {
                                 if (context.canPop()) {
