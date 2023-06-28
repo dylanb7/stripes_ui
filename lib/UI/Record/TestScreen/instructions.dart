@@ -52,7 +52,6 @@ class _InstructionsState extends ConsumerState<Instructions> {
                                 .blueDyeInstructionsHeader,
             style: lightBackgroundHeaderStyle.copyWith(
                 fontSize: 20.0, decoration: TextDecoration.underline),
-            maxLines: -1,
           )),
           view: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

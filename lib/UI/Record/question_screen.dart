@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/QuestionModel/question.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
-import 'package:stripes_backend_helper/TestingReposImpl/test_question_repo.dart';
+
 import 'package:stripes_backend_helper/date_format.dart';
-import 'package:stripes_ui/Providers/questions_provider.dart';
+
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/UI/Record/base_screen.dart';
 import 'package:stripes_ui/UI/Record/severity_slider.dart';
