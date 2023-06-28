@@ -106,6 +106,12 @@ class MultiChoiceEntry extends ConsumerStatefulWidget {
 
 class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
   @override
+  void initState() {
+    widget.listener.addPending(widget.question);
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final List<String> answers = widget.question.choices;
     final int? selectedIndex = selected();
@@ -177,6 +183,7 @@ class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
                                 ignoring: true,
                                 child: Checkbox(
                                   value: isSelected,
+                                  visualDensity: VisualDensity.compact,
                                   onChanged: null,
                                   fillColor:
                                       MaterialStateProperty.all(darkIconButton),
