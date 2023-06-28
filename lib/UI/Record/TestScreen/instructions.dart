@@ -36,7 +36,7 @@ class _InstructionsState extends ConsumerState<Instructions> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         ExpandibleRaw(
-          header: Flexible(
+          header: Expanded(
               child: Text(
             widget.expandController.expanded
                 ? AppLocalizations.of(context)!.blueDyeInstructionsHeader
@@ -52,6 +52,7 @@ class _InstructionsState extends ConsumerState<Instructions> {
                                 .blueDyeInstructionsHeader,
             style: lightBackgroundHeaderStyle.copyWith(
                 fontSize: 20.0, decoration: TextDecoration.underline),
+            maxLines: -1,
           )),
           view: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
