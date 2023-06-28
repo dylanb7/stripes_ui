@@ -256,7 +256,6 @@ class _ExpandRawState extends State<ExpandibleRaw>
                           color: Colors.black,
                         ),
                       ),
-                      const Spacer(),
                     ],
                   ).showCursorOnHover,
                   ClipRect(
