@@ -133,7 +133,7 @@ class _InstructionsState extends ConsumerState<Instructions> {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Expanded(child: header),
+            child: header,
           ),
           Padding(
             padding: const EdgeInsets.all(4.0),

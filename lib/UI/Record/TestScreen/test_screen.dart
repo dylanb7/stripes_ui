@@ -45,52 +45,30 @@ class _TestScreenState extends ConsumerState<TestScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10.0),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Flexible(
-                          child: Text(
-                            AppLocalizations.of(context)!.blueDyeHeader,
-                            style: darkBackgroundHeaderStyle,
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 4.0,
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            _dialog(context);
-                          },
-                          icon: const Icon(
-                            Icons.info_outline,
-                            color: darkBackgroundText,
-                          ),
-                          iconSize: 30,
-                        ),
-                      ]),
-                ),
-                IconButton(
-                  onPressed: () {
-                    if (context.canPop()) {
-                      context.pop();
-                    } else {
-                      context.go(Routes.HOME);
-                    }
-                  },
-                  icon: const Icon(
-                    Icons.close,
-                    color: darkIconButton,
-                    size: 35,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: Text(
+                      AppLocalizations.of(context)!.blueDyeHeader,
+                      style: darkBackgroundHeaderStyle,
+                    ),
                   ),
-                ),
-              ],
-            ),
+                  const SizedBox(
+                    width: 4.0,
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      _dialog(context);
+                    },
+                    icon: const Icon(
+                      Icons.info_outline,
+                      color: darkBackgroundText,
+                    ),
+                    iconSize: 30,
+                  ),
+                ]),
           ),
           const SizedBox(
             height: 8.0,
