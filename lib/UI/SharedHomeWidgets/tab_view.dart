@@ -131,6 +131,12 @@ class SmallLayout extends StatelessWidget {
               label: AppLocalizations.of(context)!.recordTab),
           BottomNavigationBarItem(
               icon: const Icon(
+                Icons.checklist_outlined,
+                color: darkIconButton,
+              ),
+              label: AppLocalizations.of(context)!.testTab),
+          BottomNavigationBarItem(
+              icon: const Icon(
                 Icons.grading,
                 color: darkIconButton,
               ),
@@ -180,11 +186,11 @@ class LargeLayout extends StatelessWidget {
                 darkBackgroundHeaderStyle.copyWith(
                     fontSize: 28, color: buttonLightBackground),
                 TabOption.history,
-                AppLocalizations.of(context)!.historyTab))
+                AppLocalizations.of(context)!.testTab))
         : getButton(
             darkBackgroundHeaderStyle.copyWith(color: darkBackgroundText),
             TabOption.history,
-            AppLocalizations.of(context)!.historyTab);
+            AppLocalizations.of(context)!.testTab);
     Widget historyButton = selected == TabOption.history
         ? _decorationWrap(
             child: getButton(
@@ -220,6 +226,10 @@ class LargeLayout extends StatelessWidget {
               ),
               const Spacer(),
               recordButton,
+              const SizedBox(
+                width: 12.0,
+              ),
+              testButton,
               const SizedBox(
                 width: 12.0,
               ),
