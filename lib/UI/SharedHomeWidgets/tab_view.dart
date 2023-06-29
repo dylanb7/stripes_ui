@@ -15,7 +15,8 @@ import 'package:stripes_ui/l10n/app_localizations.dart';
 
 enum TabOption {
   record('Record'),
-  history('History');
+  history('History'),
+  tests('Tests');
 
   const TabOption(this.value);
   final String value;
@@ -31,7 +32,7 @@ class StripesTabView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     HistoryLocation loc = ref.watch(historyLocationProvider);
-    final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
+    final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT * 1.5;
     final ScrollController scrollController = ScrollController();
 
     Widget scroll = CustomScrollView(
@@ -43,7 +44,8 @@ class StripesTabView extends ConsumerWidget {
           SliverPadding(padding: EdgeInsets.only(top: 20.0)),
           Header(),
           Options(),
-        ] else ...[
+        ],
+        if (selected == TabOption.history) ...[
           const SliverPadding(padding: EdgeInsets.only(top: 20)),
           SliverToBoxAdapter(
             child: Padding(
@@ -64,7 +66,8 @@ class StripesTabView extends ConsumerWidget {
           ),
           const LocationBar(),
           ...SliversConfig(loc).slivers,
-        ]
+        ],
+        if (selected == TabOption.tests) ...[]
       ],
     );
     return Container(
@@ -88,6 +91,8 @@ class StripesTabView extends ConsumerWidget {
       context.go(Routes.HOME);
     } else if (tapped == TabOption.history) {
       context.go(Routes.HISTORY);
+    } else if (tapped == TabOption.tests) {
+      context.goNamed(Routes.TEST);
     }
   }
 }
@@ -158,8 +163,7 @@ class LargeLayout extends StatelessWidget {
                   : darkBackgroundHeaderStyle,
             ));
 
-    final bool isRecord = selected == TabOption.record;
-    Widget recordButton = isRecord
+    Widget recordButton = selected == TabOption.record
         ? _decorationWrap(
             child: getButton(
                 darkBackgroundHeaderStyle.copyWith(
@@ -170,7 +174,18 @@ class LargeLayout extends StatelessWidget {
             darkBackgroundHeaderStyle.copyWith(color: darkBackgroundText),
             TabOption.record,
             AppLocalizations.of(context)!.recordTab);
-    Widget historyButton = !isRecord
+    Widget testButton = selected == TabOption.tests
+        ? _decorationWrap(
+            child: getButton(
+                darkBackgroundHeaderStyle.copyWith(
+                    fontSize: 28, color: buttonLightBackground),
+                TabOption.history,
+                AppLocalizations.of(context)!.historyTab))
+        : getButton(
+            darkBackgroundHeaderStyle.copyWith(color: darkBackgroundText),
+            TabOption.history,
+            AppLocalizations.of(context)!.historyTab);
+    Widget historyButton = selected == TabOption.history
         ? _decorationWrap(
             child: getButton(
                 darkBackgroundHeaderStyle.copyWith(

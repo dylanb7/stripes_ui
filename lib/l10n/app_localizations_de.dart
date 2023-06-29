@@ -20,6 +20,9 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get testTab => 'Prüfung';
+
+  @override
   String get historyTab => 'History';
 
   @override
@@ -102,13 +105,13 @@ class AppLocalizationsDe extends AppLocalizations {
     );
     final String countString = countNumberFormat.format(count);
 
-    String temp0 = intl.Intl.pluralLogic(
+    String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
       other: 'Select slider values',
       one: 'Bitte wählen Sie eine passende Konsistenz!',
     );
-    return temp0;
+    return '$_temp0';
   }
 
   @override
@@ -129,7 +132,7 @@ class AppLocalizationsDe extends AppLocalizations {
     final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMd(localeName);
     final String dateString = dateDateFormat.format(date);
 
-    return dateString;
+    return '$dateString';
   }
 
   @override
@@ -326,14 +329,14 @@ class AppLocalizationsDe extends AppLocalizations {
     );
     final String countString = countNumberFormat.format(count);
 
-    String temp0 = intl.Intl.pluralLogic(
+    String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
       other: '$countString results',
       one: '1 result',
       zero: 'No results',
     );
-    return temp0;
+    return '$_temp0';
   }
 
   @override

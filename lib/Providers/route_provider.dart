@@ -84,9 +84,8 @@ class RouteNotifier extends ChangeNotifier {
         GoRoute(
           name: Routes.TEST,
           path: '${Routes.HOME}/${Routes.TEST}',
-          pageBuilder: (context, state) => FadeIn(
-            state: state,
-            child: const TestScreen(),
+          pageBuilder: (context, state) => const NoTransitionPage(
+            child: Home(path: NavPath(option: TabOption.tests)),
           ),
         ),
         GoRoute(

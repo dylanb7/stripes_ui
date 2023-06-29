@@ -35,141 +35,108 @@ class _TestScreenState extends ConsumerState<TestScreen> {
   Widget build(BuildContext context) {
     final TestState state =
         ref.watch(testHolderProvider.select((value) => value.state));
-    final OverlayQuery query = ref.watch(overlayProvider);
-    return SafeArea(
-        child: Scaffold(
-      body: SizedBox.expand(
-        child: Container(
-          decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [backgroundStrong, backgroundLight])),
-          child: Stack(children: [
-            Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Flexible(
-                                      child: Text(
-                                        AppLocalizations.of(context)!
-                                            .blueDyeHeader,
-                                        style: darkBackgroundHeaderStyle,
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      width: 4.0,
-                                    ),
-                                    IconButton(
-                                      onPressed: () {
-                                        _dialog(context);
-                                      },
-                                      icon: const Icon(
-                                        Icons.info_outline,
-                                        color: darkBackgroundText,
-                                      ),
-                                      iconSize: 30,
-                                    ),
-                                  ]),
-                            ),
-                            IconButton(
-                              onPressed: () {
-                                if (context.canPop()) {
-                                  context.pop();
-                                } else {
-                                  context.go(Routes.HOME);
-                                }
-                              },
-                              icon: const Icon(
-                                Icons.close,
-                                color: darkIconButton,
-                                size: 35,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 8.0,
-                      ),
-                      Expanded(
-                        child: Card(
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(10),
-                            ),
-                          ),
-                          elevation: 8.0,
-                          child: Scrollbar(
-                            thickness: 10,
-                            radius: const Radius.circular(20),
-                            thumbVisibility: true,
-                            child: Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: SingleChildScrollView(
-                                  child: Column(
-                                    children: [
-                                      Instructions(
-                                        expandController: expandListener,
-                                      ),
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(left: 16.0),
-                                        child: TestContent(
-                                          expand: expandListener,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )),
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      sliver: SliverList(
+        delegate: SliverChildListDelegate([
+          const SizedBox(
+            height: 10,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            AppLocalizations.of(context)!.blueDyeHeader,
+                            style: darkBackgroundHeaderStyle,
                           ),
                         ),
-                      ),
-                      const SizedBox(
-                        height: 12.0,
-                      ),
-                      if (state.testInProgress)
-                        Center(
-                          child: StripesTextButton(
-                              buttonText:
-                                  AppLocalizations.of(context)!.blueDyeCancel,
-                              mainTextColor: darkBackgroundText,
-                              onClicked: () {
-                                _cancelTest(context, ref);
-                              }),
+                        const SizedBox(
+                          width: 4.0,
                         ),
-                      const SizedBox(
-                        height: 12.0,
-                      ),
-                    ],
+                        IconButton(
+                          onPressed: () {
+                            _dialog(context);
+                          },
+                          icon: const Icon(
+                            Icons.info_outline,
+                            color: darkBackgroundText,
+                          ),
+                          iconSize: 30,
+                        ),
+                      ]),
+                ),
+                IconButton(
+                  onPressed: () {
+                    if (context.canPop()) {
+                      context.pop();
+                    } else {
+                      context.go(Routes.HOME);
+                    }
+                  },
+                  icon: const Icon(
+                    Icons.close,
+                    color: darkIconButton,
+                    size: 35,
                   ),
                 ),
+              ],
+            ),
+          ),
+          const SizedBox(
+            height: 8.0,
+          ),
+          Card(
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(
+                Radius.circular(10),
               ),
             ),
-            if (query.widget != null) query.widget!,
-          ]),
-        ),
+            elevation: 8.0,
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                children: [
+                  Instructions(
+                    expandController: expandListener,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16.0),
+                    child: TestContent(
+                      expand: expandListener,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: 12.0,
+          ),
+          if (state.testInProgress)
+            Center(
+              child: StripesTextButton(
+                  buttonText: AppLocalizations.of(context)!.blueDyeCancel,
+                  mainTextColor: darkBackgroundText,
+                  onClicked: () {
+                    _cancelTest(context, ref);
+                  }),
+            ),
+          const SizedBox(
+            height: 12.0,
+          ),
+        ]),
       ),
-    ));
+    );
   }
 
   _name(WidgetRef ref) {

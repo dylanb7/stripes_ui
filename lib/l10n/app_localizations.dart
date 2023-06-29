@@ -111,6 +111,12 @@ abstract class AppLocalizations {
   /// **'{username}\'s History'**
   String historyTitle(String username);
 
+  /// No description provided for @testTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Tests'**
+  String get testTab;
+
   /// No description provided for @historyTab.
   ///
   /// In en, this message translates to:

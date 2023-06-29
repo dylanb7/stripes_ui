@@ -18,6 +18,7 @@
             }
         }
     },
+    "testTab": "Tests",
     "historyTab": "History",
     "noEntryText": "No Patient Entries",
     "lastEntry": "Last Entry: {date}",

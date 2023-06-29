@@ -31,117 +31,124 @@ class _InstructionsState extends ConsumerState<Instructions> {
   Widget build(BuildContext context) {
     final TestState state =
         ref.watch(testHolderProvider.select((value) => value.state));
+    final Widget header = Text(
+      widget.expandController.expanded
+          ? AppLocalizations.of(context)!.blueDyeInstructionsHeader
+          : state == TestState.started
+              ? AppLocalizations.of(context)!.blueDyeInstructionsStepOne
+              : state == TestState.logs
+                  ? AppLocalizations.of(context)!.blueDyeInstructionsStepTwo
+                  : state == TestState.logsSubmit
+                      ? AppLocalizations.of(context)!
+                          .blueDyeInstructionsStepThree
+                      : AppLocalizations.of(context)!.blueDyeInstructionsHeader,
+      style: lightBackgroundHeaderStyle.copyWith(
+          fontSize: 20.0, decoration: TextDecoration.underline),
+    );
+
+    final Widget body =
+        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      const SizedBox(
+        height: 2.0,
+      ),
+      Padding(
+        padding: const EdgeInsets.only(left: 12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            LabeledList(
+                title: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!
+                            .blueDyeInstructionsStepOne,
+                        textAlign: TextAlign.left,
+                        style: lightBackgroundHeaderStyle,
+                      ),
+                      const SizedBox(
+                        width: 4.0,
+                      ),
+                      SizedBox(
+                        width: 18.0,
+                        height: 18.0,
+                        child: IconButton(
+                          onPressed: () {
+                            _dialog(context);
+                          },
+                          padding: EdgeInsets.zero,
+                          icon: const Icon(
+                            Icons.info_outline,
+                            color: lightIconButton,
+                          ),
+                          iconSize: 18.0,
+                        ),
+                      ),
+                    ]),
+                strings: [
+                  AppLocalizations.of(context)!.blueDyeInstructionsStepOneA,
+                  AppLocalizations.of(context)!.blueDyeInstructionsStepOneB
+                ],
+                mark: (index) => ['a.', 'b.'][index],
+                highlight: state == TestState.started),
+            const SizedBox(
+              height: 6.0,
+            ),
+            LabeledList(
+                title: Text(
+                  AppLocalizations.of(context)!.blueDyeInstructionsStepTwo,
+                  style: lightBackgroundHeaderStyle,
+                ),
+                strings: [
+                  AppLocalizations.of(context)!.blueDyeInstructionsStepTwoA,
+                  AppLocalizations.of(context)!.blueDyeInstructionsStepTwoB
+                ],
+                mark: (index) => ['a.', 'b.'][index],
+                highlight: state == TestState.logs),
+            const SizedBox(
+              height: 6.0,
+            ),
+            LabeledList(
+                title: Text(
+                  AppLocalizations.of(context)!.blueDyeInstructionsStepThree,
+                  style: lightBackgroundHeaderStyle,
+                ),
+                strings: [
+                  AppLocalizations.of(context)!.blueDyeInstructionsStepThreeA
+                ],
+                mark: (_) => 'a.',
+                highlight: state == TestState.logsSubmit),
+            const SizedBox(
+              height: 20.0,
+            ),
+          ],
+        ),
+      )
+    ]);
+    if (state == TestState.initial) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Expanded(child: header),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: body,
+          )
+        ],
+      );
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         ExpandibleRaw(
-          header: Expanded(
-              child: Text(
-            widget.expandController.expanded
-                ? AppLocalizations.of(context)!.blueDyeInstructionsHeader
-                : state == TestState.started
-                    ? AppLocalizations.of(context)!.blueDyeInstructionsStepOne
-                    : state == TestState.logs
-                        ? AppLocalizations.of(context)!
-                            .blueDyeInstructionsStepTwo
-                        : state == TestState.logsSubmit
-                            ? AppLocalizations.of(context)!
-                                .blueDyeInstructionsStepThree
-                            : AppLocalizations.of(context)!
-                                .blueDyeInstructionsHeader,
-            style: lightBackgroundHeaderStyle.copyWith(
-                fontSize: 20.0, decoration: TextDecoration.underline),
-          )),
-          view: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(
-                height: 2.0,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 12.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    LabeledList(
-                        title: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                AppLocalizations.of(context)!
-                                    .blueDyeInstructionsStepOne,
-                                textAlign: TextAlign.left,
-                                style: lightBackgroundHeaderStyle,
-                              ),
-                              const SizedBox(
-                                width: 4.0,
-                              ),
-                              SizedBox(
-                                width: 18.0,
-                                height: 18.0,
-                                child: IconButton(
-                                  onPressed: () {
-                                    _dialog(context);
-                                  },
-                                  padding: EdgeInsets.zero,
-                                  icon: const Icon(
-                                    Icons.info_outline,
-                                    color: lightIconButton,
-                                  ),
-                                  iconSize: 18.0,
-                                ),
-                              ),
-                            ]),
-                        strings: [
-                          AppLocalizations.of(context)!
-                              .blueDyeInstructionsStepOneA,
-                          AppLocalizations.of(context)!
-                              .blueDyeInstructionsStepOneB
-                        ],
-                        mark: (index) => ['a.', 'b.'][index],
-                        highlight: state == TestState.started),
-                    const SizedBox(
-                      height: 6.0,
-                    ),
-                    LabeledList(
-                        title: Text(
-                          AppLocalizations.of(context)!
-                              .blueDyeInstructionsStepTwo,
-                          style: lightBackgroundHeaderStyle,
-                        ),
-                        strings: [
-                          AppLocalizations.of(context)!
-                              .blueDyeInstructionsStepTwoA,
-                          AppLocalizations.of(context)!
-                              .blueDyeInstructionsStepTwoB
-                        ],
-                        mark: (index) => ['a.', 'b.'][index],
-                        highlight: state == TestState.logs),
-                    const SizedBox(
-                      height: 6.0,
-                    ),
-                    LabeledList(
-                        title: Text(
-                          AppLocalizations.of(context)!
-                              .blueDyeInstructionsStepThree,
-                          style: lightBackgroundHeaderStyle,
-                        ),
-                        strings: [
-                          AppLocalizations.of(context)!
-                              .blueDyeInstructionsStepThreeA
-                        ],
-                        mark: (_) => 'a.',
-                        highlight: state == TestState.logsSubmit),
-                    const SizedBox(
-                      height: 20.0,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+          header: Expanded(child: header),
+          view: body,
           controller: widget.expandController,
         ),
         const SizedBox(
