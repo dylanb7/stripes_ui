@@ -6,6 +6,7 @@ import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
 import 'package:stripes_ui/UI/History/history_screen.dart';
 import 'package:stripes_ui/UI/History/location_bar.dart';
 import 'package:stripes_ui/UI/PatientManagement/patient_changer.dart';
+import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
 import 'package:stripes_ui/UI/Record/record_screen.dart';
 
 import 'package:stripes_ui/Util/constants.dart';
@@ -15,8 +16,8 @@ import 'package:stripes_ui/l10n/app_localizations.dart';
 
 enum TabOption {
   record('Record'),
-  history('History'),
-  tests('Tests');
+  tests('Tests'),
+  history('History');
 
   const TabOption(this.value);
   final String value;
@@ -67,7 +68,7 @@ class StripesTabView extends ConsumerWidget {
           const LocationBar(),
           ...SliversConfig(loc).slivers,
         ],
-        if (selected == TabOption.tests) ...[]
+        if (selected == TabOption.tests) const TestScreen()
       ],
     );
     return Container(
