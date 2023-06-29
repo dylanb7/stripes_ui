@@ -110,7 +110,10 @@ class SmallLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(children: [
       Expanded(
-        child: SafeArea(child: child),
+        child: SafeArea(
+          bottom: false,
+          child: child,
+        ),
       ),
       BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
