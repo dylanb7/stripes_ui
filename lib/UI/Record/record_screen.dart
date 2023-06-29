@@ -79,7 +79,6 @@ class Options extends ConsumerWidget {
                 subText: AppLocalizations.of(context)!.testInProgressNotif,
               );
             }).toList(growable: false),
-            const StartTest(),
             const SizedBox(
               height: 20.0,
             ),
@@ -145,36 +144,6 @@ class LastEntryText extends ConsumerWidget {
     return Text(
       lastEntry,
       style: darkBackgroundStyle.copyWith(fontSize: 16.0),
-    );
-  }
-}
-
-class StartTest extends ConsumerWidget {
-  const StartTest({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final TestNotifier testNotifier = ref.watch(testHolderProvider);
-    String message = '';
-    switch (testNotifier.state) {
-      case TestState.started:
-        message = 'Test Started';
-        break;
-      case TestState.logs:
-        message = 'Logging BMs - Logged: ${testNotifier.obj?.logs.length ?? 0}';
-        break;
-      case TestState.logsSubmit:
-        message = 'Logging BMs - Test Submittable';
-        break;
-      default:
-        break;
-    }
-
-    return RecordButton(
-      AppLocalizations.of(context)!.blueDyeButton,
-      (context) {
-        context.pushNamed(Routes.TEST);
-      },
     );
   }
 }

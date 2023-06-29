@@ -8,7 +8,7 @@ import 'package:stripes_ui/UI/Login/sign_up.dart';
 import 'package:stripes_ui/Providers/auth_provider.dart';
 import 'package:stripes_ui/UI/PatientManagement/PatientScreen/patient_screen.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/splitter.dart';
-import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
+
 import 'package:stripes_ui/UI/Record/symptom_record_data.dart';
 import 'package:stripes_ui/UI/SharedHomeWidgets/home_screen.dart';
 import 'package:stripes_ui/UI/SharedHomeWidgets/tab_view.dart';

@@ -43,8 +43,10 @@ class Logger extends ProviderObserver {
 
 final reposProvider = Provider<StripesRepoPackage>((ref) => LocalRepoPackage());
 
+final hasGraphingProvider = StateProvider((ref) => true);
+
 class StripesApp extends StatelessWidget {
-  final bool hasLogging;
+  final bool hasLogging, hasGraphing;
 
   final StripesRepoPackage? repos;
 
@@ -55,6 +57,7 @@ class StripesApp extends StatelessWidget {
   const StripesApp(
       {this.repos,
       this.hasLogging = false,
+      this.hasGraphing = true,
       this.displayOverrides,
       this.entryOverrides,
       Key? key})
@@ -64,6 +67,7 @@ class StripesApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ProviderScope(
       overrides: [
+        hasGraphingProvider.overrideWith((ref) => hasGraphing),
         if (repos != null) reposProvider.overrideWithValue(repos!),
         if (entryOverrides != null)
           questionEntryOverides.overrideWithValue(entryOverrides!),

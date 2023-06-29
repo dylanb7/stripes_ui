@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/UI/SharedHomeWidgets/home_screen.dart';
+import 'package:stripes_ui/entry.dart';
 
 import 'history_toggle.dart';
 
@@ -23,17 +24,18 @@ class LocationBar extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                LocationToggle(
-                    options: Loc.values.map((e) => e.value).toList(),
-                    toggled: location.loc.value,
-                    fontSize: 18.0,
-                    onChange: (value) {
-                      if (value == null) return;
-                      ref.read(historyLocationProvider.notifier).state =
-                          location.copyWith(
-                              location: Loc.values.firstWhere(
-                                  (element) => element.value == value));
-                    }),
+                if (ref.watch(hasGraphingProvider))
+                  LocationToggle(
+                      options: Loc.values.map((e) => e.value).toList(),
+                      toggled: location.loc.value,
+                      fontSize: 18.0,
+                      onChange: (value) {
+                        if (value == null) return;
+                        ref.read(historyLocationProvider.notifier).state =
+                            location.copyWith(
+                                location: Loc.values.firstWhere(
+                                    (element) => element.value == value));
+                      }),
                 const SizedBox(
                   height: 4.0,
                 ),
