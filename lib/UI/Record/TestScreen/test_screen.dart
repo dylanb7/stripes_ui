@@ -240,11 +240,6 @@ class TestErrorPrevention extends ConsumerWidget {
   _dismiss(BuildContext context, WidgetRef ref) {
     ref.read(testHolderProvider.notifier).cancel();
     _closeOverlay(context, ref);
-    if (context.canPop()) {
-      context.pop();
-    } else {
-      context.push(Routes.HOME);
-    }
   }
 
   _closeOverlay(BuildContext context, WidgetRef ref) {
