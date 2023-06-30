@@ -14,6 +14,8 @@ import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
+import 'home_screen.dart';
+
 enum TabOption {
   record('Record'),
   tests('Tests'),
@@ -86,8 +88,9 @@ class StripesTabView extends ConsumerWidget {
     );
   }
 
-  handleTap(BuildContext context, TabOption tapped) {
+  handleTap(BuildContext context, TabOption tapped, WidgetRef ref) {
     if (tapped == selected) return;
+    ref.read(actionProvider.notifier).state = null;
     if (tapped == TabOption.record) {
       context.go(Routes.HOME);
     } else if (tapped == TabOption.history) {
@@ -98,7 +101,7 @@ class StripesTabView extends ConsumerWidget {
   }
 }
 
-class SmallLayout extends StatelessWidget {
+class SmallLayout extends ConsumerWidget {
   final TabOption selected;
 
   final Widget child;
@@ -107,7 +110,7 @@ class SmallLayout extends StatelessWidget {
       : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Column(children: [
       Expanded(
         child: SafeArea(
@@ -124,7 +127,7 @@ class SmallLayout extends StatelessWidget {
         onTap: (index) {
           context
               .findAncestorWidgetOfExactType<StripesTabView>()!
-              .handleTap(context, TabOption.values[index]);
+              .handleTap(context, TabOption.values[index], ref);
         },
         items: [
           BottomNavigationBarItem(
@@ -151,19 +154,19 @@ class SmallLayout extends StatelessWidget {
   }
 }
 
-class LargeLayout extends StatelessWidget {
+class LargeLayout extends ConsumerWidget {
   final TabOption selected;
 
   const LargeLayout({required this.selected, Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     Widget getButton(TextStyle style, TabOption option, String text) =>
         TextButton(
             onPressed: () {
               context
                   .findAncestorWidgetOfExactType<StripesTabView>()!
-                  .handleTap(context, option);
+                  .handleTap(context, option, ref);
             },
             child: Text(
               text,

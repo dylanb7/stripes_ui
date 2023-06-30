@@ -72,7 +72,6 @@ class _EventGridState extends ConsumerState<EventGrid> {
 
   @override
   void dispose() {
-    ref.read(actionProvider.notifier).state = null;
     _scrollPosition?.removeListener(_onScroll);
     super.dispose();
   }
