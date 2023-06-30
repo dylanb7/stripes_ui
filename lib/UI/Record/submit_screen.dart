@@ -57,7 +57,7 @@ class SubmitScreen extends ConsumerWidget {
     final List<bool> toggles = ref.watch(toggleProvider);
     final isBlueRecord =
         (state == TestState.logs || state == TestState.logsSubmit) &&
-            type == Symptoms.BM &&
+            type == "Poo" &&
             !isEdit;
 
     return ProviderScope(
