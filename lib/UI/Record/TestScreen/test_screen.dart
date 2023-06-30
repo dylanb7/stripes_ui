@@ -26,7 +26,7 @@ class _TestScreenState extends ConsumerState<TestScreen> {
 
   @override
   void initState() {
-    expandListener = ExpandibleController(true);
+    expandListener = ExpandibleController(false);
     super.initState();
   }
 

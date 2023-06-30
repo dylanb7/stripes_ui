@@ -238,6 +238,7 @@ class _ExpandRawState extends State<ExpandibleRaw>
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(
                         width: 4.0,

@@ -51,7 +51,7 @@ class _EventGridState extends ConsumerState<EventGrid> {
     }
 
     return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.only(left: 20.0, right: 20.0, bottom: 20.0),
       sliver: isSmall
           ? SliverList(
               delegate: SliverChildBuilderDelegate(
@@ -72,6 +72,7 @@ class _EventGridState extends ConsumerState<EventGrid> {
 
   @override
   void dispose() {
+    ref.read(actionProvider.notifier).state = null;
     _scrollPosition?.removeListener(_onScroll);
     super.dispose();
   }
