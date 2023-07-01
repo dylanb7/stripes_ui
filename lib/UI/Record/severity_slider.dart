@@ -296,7 +296,7 @@ class _MoodSliderState extends State<MoodSlider> {
                 ),
                 GestureDetector(
                   child: Text(
-                    '0',
+                    '1',
                     style: darkBackgroundStyle.copyWith(fontSize: 16.0),
                     textAlign: TextAlign.center,
                   ),
@@ -331,11 +331,11 @@ class _MoodSliderState extends State<MoodSlider> {
                     ),
                     child: Slider(
                       value: value,
-                      min: 0.0,
+                      min: 1.0,
                       max: 10.0,
                       thumbColor:
                           listener.interact ? lightIconButton : disabled,
-                      divisions: 10,
+                      divisions: 9,
                       onChangeStart: (val) {
                         if (!listener.interact) {
                           widget.onChange(val);
