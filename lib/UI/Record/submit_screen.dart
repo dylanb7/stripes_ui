@@ -152,7 +152,7 @@ class SubmitScreen extends ConsumerWidget {
   }
 
   _submitEntry(BuildContext context, WidgetRef ref, bool blueRecord,
-      List<bool> toggles) {
+      List<bool> toggles) async {
     final DateTime dateOfEntry =
         isEdit ? submitTime ?? _dateListener.date : _dateListener.date;
     final TimeOfDay timeOfEntry = _timeListener.time;
@@ -171,17 +171,17 @@ class SubmitScreen extends ConsumerWidget {
       stamp: isEdit ? dateToStamp(submitTime!) : entryStamp,
       detailType: type,
     );
+    context.pop();
     if (isEdit) {
       ref.read(stampProvider)?.updateStamp(detailResponse);
     } else {
-      ref.read(stampProvider)?.addStamp(detailResponse);
+      await ref.read(stampProvider)?.addStamp(detailResponse);
       if (blueRecord) {
         ref
             .read(testHolderProvider)
             .addLog(BMTestLog(response: detailResponse, isBlue: toggles.first));
       }
     }
-    context.pop();
   }
 }
 
