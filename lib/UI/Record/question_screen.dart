@@ -454,7 +454,7 @@ class MoodScreenWidget extends StatefulWidget {
   }
 }
 
-class MoodScreenWidgetState extends State<SeverityScreenWidget> {
+class MoodScreenWidgetState extends State<MoodScreenWidget> {
   late SliderListener listener;
 
   late double value;
