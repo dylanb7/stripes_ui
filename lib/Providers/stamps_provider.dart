@@ -30,7 +30,7 @@ class StampNotifier extends ChangeNotifier {
 
   _listen(List<Stamp> event) {
     stamps = event;
-    notifyListeners();
+    if (hasListeners) notifyListeners();
   }
 
   changeEarliest(DateTime time) {

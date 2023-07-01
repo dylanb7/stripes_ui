@@ -171,7 +171,7 @@ class SubmitScreen extends ConsumerWidget {
       stamp: isEdit ? dateToStamp(submitTime!) : entryStamp,
       detailType: type,
     );
-    context.pop();
+
     if (isEdit) {
       ref.read(stampProvider)?.updateStamp(detailResponse);
     } else {
@@ -182,6 +182,7 @@ class SubmitScreen extends ConsumerWidget {
             .addLog(BMTestLog(response: detailResponse, isBlue: toggles.first));
       }
     }
+    context.pop();
   }
 }
 
