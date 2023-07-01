@@ -131,6 +131,10 @@ class _StripesSliderState extends State<StripesSlider> {
                         setState(() {
                           listener.interacted();
                           value = val;
+                          widget.onChange(val);
+                          if (widget.onSlide != null) {
+                            widget.onSlide!(val);
+                          }
                         });
                       }
                     },
