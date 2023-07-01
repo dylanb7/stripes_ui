@@ -32,8 +32,8 @@ class _TestScreenState extends ConsumerState<TestScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final TestState state =
-        ref.watch(testHolderProvider.select((value) => value.state));
+    final TestNotifier notifier = ref.watch(testHolderProvider);
+    final TestState state = notifier.state;
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
       sliver: SliverList(
