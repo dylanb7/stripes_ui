@@ -441,6 +441,80 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
   }
 }
 
+class MoodScreenWidget extends StatefulWidget {
+  final QuestionsListener listener;
+
+  final Numeric question;
+
+  const MoodScreenWidget(
+      {required this.listener, required this.question, super.key});
+  @override
+  State<StatefulWidget> createState() {
+    return MoodScreenWidgetState();
+  }
+}
+
+class MoodScreenWidgetState extends State<SeverityScreenWidget> {
+  late SliderListener listener;
+
+  late double value;
+
+  @override
+  void initState() {
+    value = 5;
+    listener = SliderListener();
+
+    final Response? res = widget.listener.fromQuestion(widget.question);
+    bool pending = false;
+    if (res != null) {
+      listener.interact = true;
+      value = (res as NumericResponse).response.toDouble();
+    } else {
+      pending = true;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      if (pending) {
+        widget.listener.addPending(widget.question);
+      }
+    });
+
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const SizedBox(
+          height: 35,
+        ),
+        MoodSlider(
+          listener: listener,
+          onChange: (_) {
+            widget.listener.removePending(widget.question);
+            setState(() {});
+          },
+          onSlide: (val) {
+            setState(() {
+              value = val;
+              _saveValue();
+            });
+          },
+          minLabel: AppLocalizations.of(context)!.moodLowLevel,
+          maxLabel: AppLocalizations.of(context)!.moodHighLevel,
+        )
+      ],
+    );
+  }
+
+  _saveValue() {
+    widget.listener.addResponse(NumericResponse(
+        question: widget.question,
+        stamp: dateToStamp(DateTime.now()),
+        response: value));
+  }
+}
+
 class SeverityPainWidget extends ConsumerStatefulWidget {
   final QuestionsListener questionsListener;
 

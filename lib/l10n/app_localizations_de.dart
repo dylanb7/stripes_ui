@@ -115,6 +115,12 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get moodLowLevel => 'Zu Tode betrübt';
+
+  @override
+  String get moodHighLevel => 'Himmelhochjauchzend';
+
+  @override
   String submitHeader(String symptomType) {
     return 'Tragen Sie Informationen zur Ihrer heutigen $symptomType hier ein:';
   }

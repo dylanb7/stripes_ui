@@ -211,63 +211,211 @@ class _StripesSliderState extends State<StripesSlider> {
   }
 }
 
-class CustomThumb extends SliderComponentShape {
-  final double thumbRadius;
-  final int min;
-  final int max;
+class MoodSlider extends StatefulWidget {
+  final String? minLabel, maxLabel;
 
-  const CustomThumb({
-    required this.thumbRadius,
-    this.min = 0,
-    this.max = 10,
-  });
+  final int? initial;
+
+  final SliderListener? listener;
+
+  final Function(double) onChange;
+
+  final Function(double)? onSlide;
+
+  const MoodSlider(
+      {required this.onChange,
+      this.onSlide,
+      this.initial,
+      this.minLabel,
+      this.maxLabel,
+      this.listener,
+      super.key});
 
   @override
-  Size getPreferredSize(bool isEnabled, bool isDiscrete) {
-    return Size.fromRadius(thumbRadius);
+  State<StatefulWidget> createState() {
+    return _MoodSliderState();
   }
+}
 
-  String getValue(double value) {
-    return (min + (max - min) * value).round().toString();
+class _MoodSliderState extends State<MoodSlider> {
+  late final SliderListener listener;
+
+  late double value;
+
+  @override
+  void initState() {
+    value = widget.initial?.toDouble() ?? 5.0;
+    listener = widget.listener ?? SliderListener();
+    listener.addListener(_state);
+    super.initState();
   }
 
   @override
-  void paint(PaintingContext context, Offset center,
-      {required Animation<double> activationAnimation,
-      required Animation<double> enableAnimation,
-      required bool isDiscrete,
-      required TextPainter labelPainter,
-      required RenderBox parentBox,
-      required SliderThemeData sliderTheme,
-      required TextDirection textDirection,
-      required double value,
-      required double textScaleFactor,
-      required Size sizeWithOverflow}) {
-    final Canvas canvas = context.canvas;
-
-    final paint = Paint()
-      ..color = Colors.white //Thumb Background Color
-      ..style = PaintingStyle.fill;
-
-    TextSpan span = TextSpan(
-      style: TextStyle(
-        fontSize: thumbRadius * .8,
-        fontWeight: FontWeight.w700,
-        color: sliderTheme.thumbColor, //Text Color of Value on Thumb
-      ),
-      text: getValue(value),
+  Widget build(BuildContext context) {
+    final int selectedIndex = (value / 2).floor();
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Visibility(
+          visible: !listener.interact,
+          child: Text(
+            AppLocalizations.of(context)!.levelReminder,
+            textAlign: TextAlign.center,
+            style: lightBackgroundHeaderStyle.copyWith(
+                fontWeight: FontWeight.bold, color: darkIconButton),
+          ),
+        ),
+        const SizedBox(
+          height: 4.0,
+        ),
+        DecoratedBox(
+          decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+              color: listener.interact ? backgroundStrong : disabled),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            const SizedBox(
+              height: 2.0,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6.0),
+              child: Row(
+                children: List.generate(
+                  6,
+                  (index) => Expanded(
+                    child: from(5 - index, index == selectedIndex),
+                  ),
+                ),
+              ),
+            ),
+            Row(children: [
+              if (value.toInt() != 0) ...[
+                const SizedBox(
+                  width: 12.0,
+                ),
+                GestureDetector(
+                  child: Text(
+                    '0',
+                    style: darkBackgroundStyle.copyWith(fontSize: 16.0),
+                    textAlign: TextAlign.center,
+                  ),
+                  onTap: () {
+                    setState(() {
+                      if (!listener.interact) {
+                        listener.interacted();
+                      }
+                      value = 0.0;
+                      widget.onChange(value);
+                      if (widget.onSlide != null) widget.onSlide!(value);
+                    });
+                  },
+                ).showCursorOnHover
+              ],
+              Expanded(
+                child: Center(
+                  child: SliderTheme(
+                    data: SliderTheme.of(context).copyWith(
+                      activeTrackColor: Colors.white.withOpacity(1),
+                      inactiveTrackColor: Colors.white.withOpacity(.5),
+                      trackHeight: 4.0,
+                      thumbShape: const CustomThumb(
+                        thumbRadius: 20.0,
+                        min: 0,
+                        max: 10,
+                      ),
+                      overlayColor: Colors.white.withOpacity(.4),
+                      //valueIndicatorColor: Colors.white,
+                      activeTickMarkColor: Colors.transparent,
+                      inactiveTickMarkColor: Colors.transparent,
+                    ),
+                    child: Slider(
+                      value: value,
+                      min: 0.0,
+                      max: 10.0,
+                      thumbColor:
+                          listener.interact ? lightIconButton : disabled,
+                      divisions: 10,
+                      onChangeStart: (val) {
+                        if (!listener.interact) {
+                          widget.onChange(val);
+                          if (widget.onSlide != null) widget.onSlide!(value);
+                          setState(() {
+                            listener.interacted();
+                            value = val;
+                          });
+                        }
+                      },
+                      onChangeEnd: (value) {
+                        widget.onChange(value);
+                      },
+                      onChanged: (double val) {
+                        setState(() {
+                          value = val;
+                          if (widget.onSlide != null) {
+                            widget.onSlide!(val);
+                          }
+                        });
+                      },
+                    ),
+                  ),
+                ),
+              ),
+              if (value.toInt() != 10.0) ...[
+                GestureDetector(
+                  child: Text(
+                    '10',
+                    style: darkBackgroundStyle.copyWith(fontSize: 16.0),
+                    textAlign: TextAlign.center,
+                  ),
+                  onTap: () {
+                    setState(() {
+                      if (!listener.interact) {
+                        listener.interacted();
+                      }
+                      value = 10.0;
+                      widget.onChange(value);
+                      if (widget.onSlide != null) widget.onSlide!(value);
+                    });
+                  },
+                ).showCursorOnHover,
+                const SizedBox(
+                  width: 12.0,
+                ),
+              ],
+            ]),
+          ]),
+        ),
+        const SizedBox(
+          height: 6.0,
+        ),
+      ],
     );
+  }
 
-    TextPainter tp = TextPainter(
-        text: span,
-        textAlign: TextAlign.center,
-        textDirection: TextDirection.ltr);
-    tp.layout();
-    Offset textCenter =
-        Offset(center.dx - (tp.width / 2), center.dy - (tp.height / 2));
+  Widget from(int index, bool isSelected) {
+    return AspectRatio(
+        aspectRatio: 1,
+        child: SvgPicture.asset(
+          'packages/stripes_ui/assets/svg/pain_face_$index.svg',
+          colorFilter: ColorFilter.mode(
+              !listener.interact
+                  ? darkBackgroundText.withOpacity(0.5)
+                  : isSelected
+                      ? darkBackgroundText
+                      : darkBackgroundText.withOpacity(0.3),
+              BlendMode.srcIn),
+        ));
+  }
 
-    canvas.drawCircle(center, thumbRadius * .9, paint);
-    tp.paint(canvas, textCenter);
+  _state() {
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    listener.removeListener(_state);
+    super.dispose();
   }
 }
 
@@ -381,6 +529,7 @@ class _PainSliderState extends State<PainSlider> {
                       }
                       value = 0.0;
                       widget.onChange(value);
+                      if (widget.onSlide != null) widget.onSlide!(value);
                     });
                   },
                 ).showCursorOnHover
@@ -411,6 +560,8 @@ class _PainSliderState extends State<PainSlider> {
                       divisions: 10,
                       onChangeStart: (val) {
                         if (!listener.interact) {
+                          widget.onChange(val);
+                          if (widget.onSlide != null) widget.onSlide!(value);
                           setState(() {
                             listener.interacted();
                             value = val;
@@ -446,6 +597,7 @@ class _PainSliderState extends State<PainSlider> {
                       }
                       value = 10.0;
                       widget.onChange(value);
+                      if (widget.onSlide != null) widget.onSlide!(value);
                     });
                   },
                 ).showCursorOnHover,
@@ -486,5 +638,65 @@ class _PainSliderState extends State<PainSlider> {
   void dispose() {
     listener.removeListener(_state);
     super.dispose();
+  }
+}
+
+class CustomThumb extends SliderComponentShape {
+  final double thumbRadius;
+  final int min;
+  final int max;
+
+  const CustomThumb({
+    required this.thumbRadius,
+    this.min = 0,
+    this.max = 10,
+  });
+
+  @override
+  Size getPreferredSize(bool isEnabled, bool isDiscrete) {
+    return Size.fromRadius(thumbRadius);
+  }
+
+  String getValue(double value) {
+    return (min + (max - min) * value).round().toString();
+  }
+
+  @override
+  void paint(PaintingContext context, Offset center,
+      {required Animation<double> activationAnimation,
+      required Animation<double> enableAnimation,
+      required bool isDiscrete,
+      required TextPainter labelPainter,
+      required RenderBox parentBox,
+      required SliderThemeData sliderTheme,
+      required TextDirection textDirection,
+      required double value,
+      required double textScaleFactor,
+      required Size sizeWithOverflow}) {
+    final Canvas canvas = context.canvas;
+
+    final paint = Paint()
+      ..color = Colors.white //Thumb Background Color
+      ..style = PaintingStyle.fill;
+
+    TextSpan span = TextSpan(
+      style: TextStyle(
+        fontSize: thumbRadius * .8,
+        fontWeight: FontWeight.w700,
+        color: sliderTheme.thumbColor, //Text Color of Value on Thumb
+      ),
+      text: getValue(value),
+    );
+
+    TextPainter tp = TextPainter(
+        text: span,
+        textAlign: TextAlign.center,
+        textDirection: TextDirection.ltr);
+    tp.layout();
+    Offset textCenter =
+        Offset(center.dx - (tp.width / 2), center.dy - (tp.height / 2));
+
+    canvas.drawCircle(center, thumbRadius * .9, paint);
+    tp.paint(canvas, textCenter);
   }
 }

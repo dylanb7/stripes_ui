@@ -255,6 +255,18 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{Select slider value} other{Select slider values}}'**
   String nLevelError(num count);
 
+  /// No description provided for @moodLowLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Worst Mood'**
+  String get moodLowLevel;
+
+  /// No description provided for @moodHighLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Best Mood'**
+  String get moodHighLevel;
+
   /// No description provided for @submitHeader.
   ///
   /// In en, this message translates to:

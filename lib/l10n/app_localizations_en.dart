@@ -115,6 +115,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get moodLowLevel => 'Worst Mood';
+
+  @override
+  String get moodHighLevel => 'Best Mood';
+
+  @override
   String submitHeader(String symptomType) {
     return 'Enter information about the $symptomType entry below';
   }
