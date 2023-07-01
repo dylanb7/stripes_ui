@@ -387,11 +387,11 @@ class _MoodSliderState extends State<MoodSlider> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      AppLocalizations.of(context)!.moodLowLevel,
+                      widget.minLabel ?? "",
                       style: lightBackgroundStyle,
                     ),
                     Text(
-                      AppLocalizations.of(context)!.moodHighLevel,
+                      widget.maxLabel ?? "",
                       style: lightBackgroundStyle,
                     ),
                   ],
