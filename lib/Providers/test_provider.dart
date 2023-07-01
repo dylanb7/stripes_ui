@@ -52,6 +52,12 @@ class TestNotifier extends ChangeNotifier with EquatableMixin {
     repo!.setValue(obj!);
   }
 
+  addLog(BMTestLog log) {
+    if (!available) return;
+    obj!.addLog(log);
+    repo!.setValue(obj!);
+  }
+
   submit(DateTime submitTime) {
     if (!available) return;
     repo!.submit(submitTime);

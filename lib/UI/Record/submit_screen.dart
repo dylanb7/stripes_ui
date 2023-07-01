@@ -178,7 +178,6 @@ class SubmitScreen extends ConsumerWidget {
       if (blueRecord) {
         ref
             .read(testHolderProvider)
-            .obj!
             .addLog(BMTestLog(response: detailResponse, isBlue: toggles.first));
       }
     }
