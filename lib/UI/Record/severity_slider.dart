@@ -382,6 +382,20 @@ class _MoodSliderState extends State<MoodSlider> {
                 const SizedBox(
                   width: 12.0,
                 ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      AppLocalizations.of(context)!.moodLowLevel,
+                      style: lightBackgroundStyle,
+                    ),
+                    Text(
+                      AppLocalizations.of(context)!.moodHighLevel,
+                      style: lightBackgroundStyle,
+                    ),
+                  ],
+                )
               ],
             ]),
           ]),

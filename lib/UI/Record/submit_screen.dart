@@ -77,7 +77,6 @@ class SubmitScreen extends ConsumerWidget {
           const SizedBox(
             height: 40,
           ),
-          Text('$state'),
           IgnorePointer(
             ignoring: isEdit,
             child: const Row(
