@@ -74,7 +74,7 @@ class UserProfileButton extends ConsumerWidget {
                           SizedBox(
                             height: 4.0,
                           ),
-                          Text(
+                          SelectableText(
                             "Bitte reichen Sie Ihre gesamten Daten nach einem Monat Dokumentation nach Studienvisite ein. Drücken Sie hierzu bitte auf „Datenexport“. So können wir Ihre Daten pseudonymisiert erhalten. Bei Fragen wenden Sie sich bitte an gpeschke@ukaachen.de",
                             style: lightBackgroundStyle,
                           ),
