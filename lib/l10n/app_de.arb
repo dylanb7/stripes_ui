@@ -70,7 +70,7 @@
     "painLevelFour": "Tut sehr weh",
     "painLevelFive": "Tut am meisten weh",
     "levelReminder": "Wählen Sie eine passende Stufe",
-    "nLevelError": "{count, plural, =1{Bitte wählen Sie eine passende Konsistenz!} other{Select slider values}}",
+    "nLevelError": "{count, plural, =1{Fehlender Eintrag} other{Fehlende Einträge}}",
     "@nLevelError": {
         "placeholders": {
             "count": {

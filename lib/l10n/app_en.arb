@@ -70,7 +70,7 @@
     "painLevelThree": "Hurts Even More",
     "painLevelFour": "Hurts Whole Lot",
     "painLevelFive": "Hurts Worst",
-    "nLevelError": "{count, plural, =1{Select slider value} other{Select slider values}}",
+    "nLevelError": "{count, plural, =1{Missing entry} other{Missing entries}}",
     "@nLevelError": {
         "placeholders": {
             "count": {
