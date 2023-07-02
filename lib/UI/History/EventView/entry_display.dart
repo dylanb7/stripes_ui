@@ -271,7 +271,7 @@ class PainSliderDisplay extends StatelessWidget {
       AppLocalizations.of(context)!.painLevelFour,
       AppLocalizations.of(context)!.painLevelFive,
     ];
-    final int selectedIndex = (res / 2).floor();
+    final int selectedIndex = (res.toDouble() / 2).floor();
     return Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
       Text('${response.question.prompt} - ${response.response}',
           style: lightBackgroundStyle, maxLines: null),
@@ -287,7 +287,7 @@ class PainSliderDisplay extends StatelessWidget {
             width: 4,
           ),
           Text(
-            hurtLevels[res],
+            hurtLevels[selectedIndex],
             style: lightBackgroundStyle,
             maxLines: 1,
           ),
@@ -317,7 +317,7 @@ class MoodSliderDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final int res = response.response.toInt();
-    final int selectedIndex = (res / 2).floor();
+    final int selectedIndex = (res.toDouble() / 2).floor();
     return Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
       Text('${response.question.prompt} - ${response.response}',
           style: lightBackgroundStyle, maxLines: null),

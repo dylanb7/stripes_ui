@@ -243,7 +243,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get blueDyeInstructionsStepThree => '3) Einreichen des Tests';
 
   @override
-  String get blueDyeInstructionsStepThreeA => 'Sobald Ihr Stuhlgang keinerlei blaue/blau-grüne Farbe mehr zeigt, drücken Sie bitte auf „Test einreichen“. So können wir Ihre Daten anonymisiert erhalten.';
+  String get blueDyeInstructionsStepThreeA => 'Sobald Ihr Stuhlgang keinerlei blaue/blau-grüne Farbe mehr zeigt, drücken Sie bitte auf „Test einreichen“. So können wir Ihre gastrointestinale Passagezeit genau nachverfolgen.';
 
   @override
   String get blueMuffinsInfoHeader => 'Blue Muffins Info';
