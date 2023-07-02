@@ -55,28 +55,31 @@ class UserProfileButton extends ConsumerWidget {
             ref.read(overlayProvider.notifier).state = const OverlayQuery(
               widget: OverlayBackdrop(
                 dismissOnBackdropTouch: true,
-                child: Card(
-                  color: darkBackgroundText,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(8.0))),
-                  child: Padding(
-                    padding: EdgeInsets.all(4.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "Hilfe",
-                          style: lightBackgroundHeaderStyle,
-                          textAlign: TextAlign.center,
-                        ),
-                        SizedBox(
-                          height: 4.0,
-                        ),
-                        Text(
-                          "Bitte reichen Sie Ihre gesamten Daten nach einem Monat Dokumentation nach Studienvisite ein. Drücken Sie hierzu bitte auf „Datenexport“. So können wir Ihre Daten pseudonymisiert erhalten. Bei Fragen wenden Sie sich bitte an gpeschke@ukaachen.de",
-                          style: lightBackgroundStyle,
-                        ),
-                      ],
+                child: Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Card(
+                    color: darkBackgroundText,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0))),
+                    child: Padding(
+                      padding: EdgeInsets.all(6.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "Hilfe",
+                            style: lightBackgroundHeaderStyle,
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(
+                            height: 4.0,
+                          ),
+                          Text(
+                            "Bitte reichen Sie Ihre gesamten Daten nach einem Monat Dokumentation nach Studienvisite ein. Drücken Sie hierzu bitte auf „Datenexport“. So können wir Ihre Daten pseudonymisiert erhalten. Bei Fragen wenden Sie sich bitte an gpeschke@ukaachen.de",
+                            style: lightBackgroundStyle,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
