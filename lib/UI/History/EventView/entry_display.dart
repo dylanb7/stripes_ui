@@ -309,6 +309,47 @@ class PainSliderDisplay extends StatelessWidget {
   }
 }
 
+class MoodSliderDisplay extends StatelessWidget {
+  final NumericResponse response;
+
+  const MoodSliderDisplay({required this.response, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final int res = response.response.toInt();
+    final int selectedIndex = (res / 2).floor();
+    return Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+      Text('${response.question.prompt} - ${response.response}',
+          style: lightBackgroundStyle, maxLines: null),
+      const SizedBox(
+        width: 4,
+      ),
+      Wrap(
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          from(5 - selectedIndex),
+          const SizedBox(
+            width: 4,
+          ),
+        ],
+      )
+    ]);
+  }
+
+  Widget from(int index) {
+    return SizedBox(
+      height: 25,
+      child: AspectRatio(
+        aspectRatio: 1,
+        child: SvgPicture.asset(
+          'packages/stripes_ui/assets/svg/pain_face_$index.svg',
+        ),
+      ),
+    );
+  }
+}
+
 typedef DisplayBuilder<T extends Response> = Widget Function(T);
 
 final questionDisplayOverides =
