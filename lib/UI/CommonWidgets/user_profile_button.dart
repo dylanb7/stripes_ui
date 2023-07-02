@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/auth_provider.dart';
+import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/palette.dart';
@@ -38,6 +39,57 @@ class UserProfileButton extends ConsumerWidget {
               context.push(Routes.USERS);
             },
           ),
+        PopupMenuItem(
+          child: Row(children: [
+            Text(
+              AppLocalizations.of(context)!.logOutButton,
+              style: lightBackgroundStyle,
+            ),
+            const Spacer(),
+            const Icon(
+              Icons.info,
+              color: darkIconButton,
+            ),
+          ]),
+          onTap: () {
+            ref.read(overlayProvider.notifier).state = const OverlayQuery(
+                widget: OverlayBackdrop(
+              dismissOnBackdropTouch: true,
+              child: Padding(
+                  padding: EdgeInsets.all(4.0),
+                  child: Column(
+                    children: [
+                      Text(
+                        "Hilfe",
+                        style: lightBackgroundHeaderStyle,
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(
+                        height: 4.0,
+                      ),
+                      Text(
+                        "Bitte reichen Sie Ihre gesamten Daten nach einem Monat Dokumentation nach Studienvisite ein. Drücken Sie hierzu bitte auf „Datenexport“. So können wir Ihre Daten pseudonymisiert erhalten. Bei Fragen wenden Sie sich bitte an gpeschke@ukaachen.de",
+                        style: lightBackgroundStyle,
+                      ),
+                    ],
+                  )),
+            ));
+          },
+        ),
+        PopupMenuItem(
+          child: const Row(children: [
+            Text(
+              "Datenexport",
+              style: lightBackgroundStyle,
+            ),
+            Spacer(),
+            Icon(
+              Icons.download,
+              color: darkIconButton,
+            ),
+          ]),
+          onTap: () {},
+        ),
         PopupMenuItem(
           child: Row(children: [
             Text(
