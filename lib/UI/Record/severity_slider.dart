@@ -321,7 +321,7 @@ class _MoodSliderState extends State<MoodSlider> {
                       trackHeight: 4.0,
                       thumbShape: const CustomThumb(
                         thumbRadius: 20.0,
-                        min: 0,
+                        min: 1,
                         max: 10,
                       ),
                       overlayColor: Colors.white.withOpacity(.4),
@@ -382,23 +382,23 @@ class _MoodSliderState extends State<MoodSlider> {
                 const SizedBox(
                   width: 12.0,
                 ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      widget.minLabel ?? "",
-                      style: lightBackgroundStyle,
-                    ),
-                    Text(
-                      widget.maxLabel ?? "",
-                      style: lightBackgroundStyle,
-                    ),
-                  ],
-                )
               ],
             ]),
           ]),
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              widget.minLabel ?? "",
+              style: lightBackgroundStyle,
+            ),
+            Text(
+              widget.maxLabel ?? "",
+              style: lightBackgroundStyle,
+            ),
+          ],
         ),
         const SizedBox(
           height: 6.0,
