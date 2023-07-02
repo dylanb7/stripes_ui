@@ -40,13 +40,13 @@ class UserProfileButton extends ConsumerWidget {
             },
           ),
         PopupMenuItem(
-          child: Row(children: [
+          child: const Row(children: [
             Text(
-              AppLocalizations.of(context)!.logOutButton,
+              "Hilfe",
               style: lightBackgroundStyle,
             ),
-            const Spacer(),
-            const Icon(
+            Spacer(),
+            Icon(
               Icons.info,
               color: darkIconButton,
             ),
@@ -54,26 +54,31 @@ class UserProfileButton extends ConsumerWidget {
           onTap: () {
             ref.read(overlayProvider.notifier).state = const OverlayQuery(
                 widget: OverlayBackdrop(
-              dismissOnBackdropTouch: true,
-              child: Padding(
-                  padding: EdgeInsets.all(4.0),
-                  child: Column(
-                    children: [
-                      Text(
-                        "Hilfe",
-                        style: lightBackgroundHeaderStyle,
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(
-                        height: 4.0,
-                      ),
-                      Text(
-                        "Bitte reichen Sie Ihre gesamten Daten nach einem Monat Dokumentation nach Studienvisite ein. Drücken Sie hierzu bitte auf „Datenexport“. So können wir Ihre Daten pseudonymisiert erhalten. Bei Fragen wenden Sie sich bitte an gpeschke@ukaachen.de",
-                        style: lightBackgroundStyle,
-                      ),
-                    ],
-                  )),
-            ));
+                    dismissOnBackdropTouch: true,
+                    child: Center(
+                        child: Card(
+                      color: darkBackgroundText,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(8.0))),
+                      child: Padding(
+                          padding: EdgeInsets.all(4.0),
+                          child: Column(
+                            children: [
+                              Text(
+                                "Hilfe",
+                                style: lightBackgroundHeaderStyle,
+                                textAlign: TextAlign.center,
+                              ),
+                              SizedBox(
+                                height: 4.0,
+                              ),
+                              Text(
+                                "Bitte reichen Sie Ihre gesamten Daten nach einem Monat Dokumentation nach Studienvisite ein. Drücken Sie hierzu bitte auf „Datenexport“. So können wir Ihre Daten pseudonymisiert erhalten. Bei Fragen wenden Sie sich bitte an gpeschke@ukaachen.de",
+                                style: lightBackgroundStyle,
+                              ),
+                            ],
+                          )),
+                    ))));
           },
         ),
         PopupMenuItem(
