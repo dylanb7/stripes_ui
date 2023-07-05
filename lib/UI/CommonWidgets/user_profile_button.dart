@@ -4,10 +4,12 @@ import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/auth_provider.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
+import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
+import 'package:stripes_ui/entry.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class UserProfileButton extends ConsumerWidget {
@@ -99,7 +101,16 @@ class UserProfileButton extends ConsumerWidget {
               color: darkIconButton,
             ),
           ]),
-          onTap: () {},
+          onTap: () {
+            final ExportAction? action = ref.watch(exportProvider);
+            if (action == null) return;
+            List<Response> stamps = ref
+                .watch(stampHolderProvider)
+                .stamps
+                .whereType<Response>()
+                .toList();
+            action(stamps);
+          },
         ),
         PopupMenuItem(
           child: Row(children: [

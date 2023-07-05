@@ -43,12 +43,18 @@ class Logger extends ProviderObserver {
 
 final reposProvider = Provider<StripesRepoPackage>((ref) => LocalRepoPackage());
 
+typedef ExportAction = Function(List<Response> responses);
+
+final exportProvider = Provider<ExportAction?>((ref) => null);
+
 final hasGraphingProvider = StateProvider((ref) => true);
 
 class StripesApp extends StatelessWidget {
   final bool hasLogging, hasGraphing;
 
   final StripesRepoPackage? repos;
+
+  final ExportAction? exportAction;
 
   final Map<String, Widget Function(Response<Question>)>? displayOverrides;
 
@@ -59,6 +65,7 @@ class StripesApp extends StatelessWidget {
       this.hasLogging = false,
       this.hasGraphing = true,
       this.displayOverrides,
+      this.exportAction,
       this.entryOverrides,
       Key? key})
       : super(key: key);
@@ -72,7 +79,8 @@ class StripesApp extends StatelessWidget {
         if (entryOverrides != null)
           questionEntryOverides.overrideWithValue(entryOverrides!),
         if (displayOverrides != null)
-          questionDisplayOverides.overrideWithValue(displayOverrides!)
+          questionDisplayOverides.overrideWithValue(displayOverrides!),
+        if (exportAction != null) exportProvider.overrideWithValue(exportAction)
       ],
       observers: [if (hasLogging) const Logger()],
       child: const StripesHome(),
