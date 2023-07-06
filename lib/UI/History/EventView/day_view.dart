@@ -34,6 +34,7 @@ class DayView extends ConsumerWidget {
                         current.copyWith(selectDate: date);
                   }
                 },
+                locale: Localizations.localeOf(context).countryCode ?? 'en',
                 weekdayTextStyle: darkBackgroundStyle,
                 showWeekDays: true,
                 customDayBuilder: (isSelectable,

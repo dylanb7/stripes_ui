@@ -7,6 +7,7 @@ import 'package:stripes_ui/UI/History/EventView/sig_dates.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
+import 'package:stripes_ui/l10n/app_localizations.dart';
 
 import 'day_view.dart';
 
@@ -34,6 +35,7 @@ class MonthView extends ConsumerWidget {
                 final double height =
                     ((constraints.maxWidth / 7.0) * rows) + 90;
                 return CalendarCarousel<CalendarEvent>(
+                  locale: Localizations.localeOf(context).countryCode ?? 'en',
                   onDayPressed: (date, events) {
                     if (selected != date) {
                       ref.read(filtersProvider.notifier).state =
