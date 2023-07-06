@@ -104,6 +104,7 @@ class AccessLoginState extends ConsumerState<AccessLogin> {
                 accessError!,
                 style: errorStyleTitle,
               ),
+            const SizedBox(height: 6.0),
             if (!loading)
               TextField(
                 controller: controller,
@@ -113,13 +114,14 @@ class AccessLoginState extends ConsumerState<AccessLogin> {
             if (loading)
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     controller.text,
                     style: lightBackgroundHeaderStyle,
                   ),
                   const SizedBox(
-                    width: 4.0,
+                    width: 12.0,
                   ),
                   const CircularProgressIndicator(
                     color: darkIconButton,
@@ -155,7 +157,9 @@ class AccessLoginState extends ConsumerState<AccessLogin> {
       await ref.read(authProvider).logIn({localAccessKey: controller.text});
       await ref.read(accessProvider).removeCode();
     }
-    controller.clear();
+    if (mounted) {
+      controller.clear();
+    }
     setState(() {
       loading = false;
       accessError = "Invalid code";
