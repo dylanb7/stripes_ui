@@ -49,6 +49,11 @@ final exportProvider = Provider<ExportAction?>((ref) => null);
 
 final hasGraphingProvider = StateProvider((ref) => true);
 
+enum AuthStrat {
+  accessCodeEmail,
+  accessCode;
+}
+
 class StripesApp extends StatelessWidget {
   final bool hasLogging, hasGraphing;
 
@@ -60,6 +65,8 @@ class StripesApp extends StatelessWidget {
 
   final Map<String, QuestionEntry>? entryOverrides;
 
+  final AuthStrat strat;
+
   const StripesApp(
       {this.repos,
       this.hasLogging = false,
@@ -67,6 +74,7 @@ class StripesApp extends StatelessWidget {
       this.displayOverrides,
       this.exportAction,
       this.entryOverrides,
+      this.strat = AuthStrat.accessCode,
       Key? key})
       : super(key: key);
 
