@@ -159,11 +159,11 @@ class AccessLoginState extends ConsumerState<AccessLogin> {
     }
     if (mounted) {
       controller.clear();
+      setState(() {
+        loading = false;
+        accessError = "Invalid code";
+      });
     }
-    setState(() {
-      loading = false;
-      accessError = "Invalid code";
-    });
   }
 
   @override
