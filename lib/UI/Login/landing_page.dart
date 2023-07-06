@@ -15,7 +15,8 @@ class LandingPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AuthStrat strat = ref.watch(authStrat);
-    return ColoredBox(
+    return Scaffold(
+        body: ColoredBox(
       color: darkBackgroundText,
       child: Column(
         children: [
@@ -35,7 +36,7 @@ class LandingPage extends ConsumerWidget {
           ),
         ],
       ),
-    );
+    ));
   }
 }
 
