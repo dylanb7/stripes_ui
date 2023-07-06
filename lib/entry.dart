@@ -49,6 +49,8 @@ final exportProvider = Provider<ExportAction?>((ref) => null);
 
 final hasGraphingProvider = StateProvider((ref) => true);
 
+final authStrat = Provider<AuthStrat>((ref) => AuthStrat.accessCode);
+
 enum AuthStrat {
   accessCodeEmail,
   accessCode;
@@ -88,7 +90,9 @@ class StripesApp extends StatelessWidget {
           questionEntryOverides.overrideWithValue(entryOverrides!),
         if (displayOverrides != null)
           questionDisplayOverides.overrideWithValue(displayOverrides!),
-        if (exportAction != null) exportProvider.overrideWithValue(exportAction)
+        if (exportAction != null)
+          exportProvider.overrideWithValue(exportAction),
+        authStrat.overrideWithValue(strat),
       ],
       observers: [if (hasLogging) const Logger()],
       child: const StripesHome(),
