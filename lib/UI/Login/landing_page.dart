@@ -106,6 +106,7 @@ class AccessLoginState extends ConsumerState<AccessLogin> {
               ),
             if (!loading)
               TextField(
+                controller: controller,
                 decoration: formFieldDecoration(
                     hintText: "Access Code", controller: controller),
               ),
@@ -125,7 +126,7 @@ class AccessLoginState extends ConsumerState<AccessLogin> {
                   ),
                 ],
               ),
-            const SizedBox(height: 4.0),
+            const SizedBox(height: 6.0),
             StripesRoundedButton(
               text: 'Submit',
               disabled: controller.text.isEmpty,

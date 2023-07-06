@@ -23,13 +23,14 @@ class Home extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final overlay = ref.watch(overlayProvider);
-    final SubUser currentSub = ref.watch(subHolderProvider).current;
+    final SubNotifier subNotif = ref.watch(subHolderProvider);
+    final empty = subNotif.users.isEmpty;
     final FloatingActionButton? button = ref.watch(actionProvider);
     return Scaffold(
       floatingActionButtonLocation:
           FloatingActionButtonLocation.miniCenterFloat,
       floatingActionButton: button,
-      body: SubUser.isEmpty((currentSub))
+      body: empty || SubUser.isEmpty((subNotif.current))
           ? CreatePatient()
           : Stack(
               children: [
