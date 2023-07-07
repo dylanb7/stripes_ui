@@ -101,10 +101,10 @@ class SubmitScreen extends ConsumerWidget {
                 onPressed: (index) => ref.read(toggleProvider.notifier).state =
                     [index == 0, index == 1],
                 borderRadius: const BorderRadius.all(Radius.circular(8)),
-                borderColor: lightIconButton.withOpacity(0.4),
+                borderColor: lightIconButton,
                 selectedBorderColor: lightIconButton,
                 selectedColor: Colors.white,
-                fillColor: lightIconButton.withOpacity(0.5),
+                fillColor: lightIconButton,
                 color: lightIconButton,
                 constraints: const BoxConstraints(
                   minHeight: 40.0,

@@ -412,12 +412,14 @@ class ErrorPrevention extends ConsumerWidget {
                         onClick: (context) {
                           _dismiss(context, ref);
                         },
+                        color: buttonDarkBackground,
                         text:
                             AppLocalizations.of(context)!.errorPreventionLeave),
                     BasicButton(
                         onClick: (context) {
                           _closeOverlay(context, ref);
                         },
+                        color: buttonLightBackground,
                         text:
                             AppLocalizations.of(context)!.errorPreventionStay),
                   ],
@@ -445,7 +447,13 @@ class BasicButton extends StatelessWidget {
 
   final String text;
 
-  const BasicButton({required this.onClick, required this.text, Key? key})
+  final Color color;
+
+  const BasicButton(
+      {required this.onClick,
+      required this.color,
+      required this.text,
+      Key? key})
       : super(key: key);
 
   @override
@@ -455,7 +463,7 @@ class BasicButton extends StatelessWidget {
         onClick(context);
       },
       style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all(buttonDarkBackground),
+        backgroundColor: MaterialStateProperty.all(color),
         shape: MaterialStateProperty.all(const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(15)))),
       ),

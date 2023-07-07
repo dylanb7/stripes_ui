@@ -707,19 +707,6 @@ class SeverityScreenWidgetState extends State<SeverityScreenWidget> {
           maxLabel: AppLocalizations.of(context)!.painLevelFive,
           initial: value.toInt(),
         ),
-        PainSlider(
-          listener: listener,
-          onChange: (_) {
-            widget.listener.removePending(widget.question);
-            setState(() {});
-          },
-          onSlide: (val) {
-            setState(() {
-              value = val;
-              _saveValue();
-            });
-          },
-        )
       ],
     );
   }

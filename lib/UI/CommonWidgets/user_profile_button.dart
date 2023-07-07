@@ -6,7 +6,9 @@ import 'package:stripes_ui/Providers/auth_provider.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
+import 'package:stripes_ui/UI/History/EventView/export.dart';
 import 'package:stripes_ui/Util/constants.dart';
+import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/entry.dart';
@@ -103,13 +105,17 @@ class UserProfileButton extends ConsumerWidget {
           ]),
           onTap: () {
             final ExportAction? action = ref.watch(exportProvider);
-            if (action == null) return;
+            if (action == null) {
+              showSnack('Cannot export without a code', context);
+              return;
+            }
             List<Response> stamps = ref
                 .watch(stampHolderProvider)
                 .stamps
                 .whereType<Response>()
                 .toList();
-            action(stamps);
+            ref.read(overlayProvider.notifier).state =
+                OverlayQuery(widget: ExportOverlay(responses: stamps));
           },
         ),
         PopupMenuItem(
