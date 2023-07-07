@@ -54,6 +54,7 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
               child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Row(
