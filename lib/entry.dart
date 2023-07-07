@@ -43,7 +43,7 @@ class Logger extends ProviderObserver {
 
 final reposProvider = Provider<StripesRepoPackage>((ref) => LocalRepoPackage());
 
-typedef ExportAction = Future Function(List<Response> responses);
+typedef ExportAction = Future<void> Function(List<Response> responses);
 
 final exportProvider = Provider<ExportAction?>((ref) => null);
 

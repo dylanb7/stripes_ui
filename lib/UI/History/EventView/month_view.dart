@@ -35,7 +35,7 @@ class MonthView extends ConsumerWidget {
                 final double height =
                     ((constraints.maxWidth / 7.0) * rows) + 90;
                 return CalendarCarousel<CalendarEvent>(
-                  locale: Localizations.localeOf(context).countryCode ?? 'en',
+                  locale: 'de',
                   onDayPressed: (date, events) {
                     if (selected != date) {
                       ref.read(filtersProvider.notifier).state =
