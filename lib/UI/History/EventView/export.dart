@@ -79,9 +79,12 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
                         height: 8,
                       ),
                       const Text(
-                        'Data will be sent to the study coordinators. None of your personal information is included. If there are any changes in the future you may export again.',
+                        'Data will be sent to the study coordinators. None of your personal information is included.\nIf there are any changes in the future you may export again.',
                         style: lightBackgroundStyle,
                         textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(
+                        height: 8,
                       ),
                       if (!loading && !done)
                         StripesRoundedButton(

@@ -8,7 +8,7 @@
             }
         }
     },
-    "recordTab": "Record",
+    "recordTab": "Dokumentation",
     "historyTitle": "{username}'s History",
     "@historyTitle": {
         "placeholders": {
@@ -19,8 +19,8 @@
         }
     },
     "testTab": "Prüfung",
-    "historyTab": "History",
-    "noEntryText": "No Patient Entries",
+    "historyTab": "Einträge",
+    "noEntryText": "Keine Patient*innen Einträge",
     "lastEntry": "Last Entry: {date}",
     "@lastEntry": {
         "placeholders": {
@@ -206,9 +206,9 @@
     "blueMealFinalDurationTag": "Blue Meal Duration:",
 
     "eventViewButton": "Event View",
-    "eventViewDayCategoty": "Day View",
-    "eventViewMonthCategory": "Month View",
-    "eventViewAllCategory": "All Entries",
+    "eventViewDayCategoty": "Tag",
+    "eventViewMonthCategory": "Monat",
+    "eventViewAllCategory": "Alle Einträge",
     "addEventButton": "Add Event",
     "addEventHeader": "Select a type to record",
     "filterEventsButton": "Filter",
@@ -227,7 +227,7 @@
     "eventFiltersFromTag": "From:",
     "eventFiltersToTag": "To:",
     "eventFiltersApply": "Apply Filters",
-    "noEventsText": "No events recorded",
+    "noEventsText": "Keine Einträge dokumentiert",
 
 
     "patientProfilesHeader": "Patient Profiles",

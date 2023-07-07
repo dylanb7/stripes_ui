@@ -12,7 +12,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get recordTab => 'Record';
+  String get recordTab => 'Dokumentation';
 
   @override
   String historyTitle(String username) {
@@ -23,10 +23,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get testTab => 'Prüfung';
 
   @override
-  String get historyTab => 'History';
+  String get historyTab => 'Einträge';
 
   @override
-  String get noEntryText => 'No Patient Entries';
+  String get noEntryText => 'Keine Patient*innen Einträge';
 
   @override
   String lastEntry(DateTime date) {
@@ -307,13 +307,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get eventViewButton => 'Event View';
 
   @override
-  String get eventViewDayCategoty => 'Day View';
+  String get eventViewDayCategoty => 'Tag';
 
   @override
-  String get eventViewMonthCategory => 'Month View';
+  String get eventViewMonthCategory => 'Monat';
 
   @override
-  String get eventViewAllCategory => 'All Entries';
+  String get eventViewAllCategory => 'Alle Einträge';
 
   @override
   String get addEventButton => 'Add Event';
@@ -361,7 +361,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get eventFiltersApply => 'Apply Filters';
 
   @override
-  String get noEventsText => 'No events recorded';
+  String get noEventsText => 'Keine Einträge dokumentiert';
 
   @override
   String get patientProfilesHeader => 'Patient Profiles';
