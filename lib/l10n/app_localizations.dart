@@ -252,7 +252,7 @@ abstract class AppLocalizations {
   /// No description provided for @nLevelError.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{Select slider value} other{Select slider values}}'**
+  /// **'{count, plural, =1{Missing entry} other{Missing entries}}'**
   String nLevelError(num count);
 
   /// No description provided for @moodLowLevel.

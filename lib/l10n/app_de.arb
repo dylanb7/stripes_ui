@@ -81,7 +81,7 @@
     },
     "moodLowLevel": "Zu Tode betrübt",
     "moodHighLevel": "Himmelhochjauchzend",
-    "submitHeader": "Tragen Sie Informationen zur Ihrer heutigen {symptomType} hier ein:",
+    "submitHeader": "Tragen Sie weitere Informationen hier ein:",
     "@submitHeader": {
         "placeholders": {
             "symptomType": {
@@ -142,7 +142,7 @@
     "blueQuestionYes": "Ja",
     "blueQuestionNo": "Nein",
     "submitDescriptionTag": "Weitere Anmerkungen",
-    "submitDescriptionPlaceholder": "Clicken, um zu chreiben...",
+    "submitDescriptionPlaceholder": "Clicken, um zuschreiben...",
     "submitButtonText": "Eintrag speichern",
     "editSubmitButtonText": "Save Changes",
 

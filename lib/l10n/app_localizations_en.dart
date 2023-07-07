@@ -108,8 +108,8 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Select slider values',
-      one: 'Select slider value',
+      other: 'Missing entries',
+      one: 'Missing entry',
     );
     return '$_temp0';
   }

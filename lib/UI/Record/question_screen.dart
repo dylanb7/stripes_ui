@@ -488,21 +488,21 @@ class MoodScreenWidgetState extends State<MoodScreenWidget> {
         const SizedBox(
           height: 35,
         ),
-        MoodSlider(
-          listener: listener,
-          onChange: (_) {
-            widget.listener.removePending(widget.question);
-            setState(() {});
-          },
+        StripesSlider(
+          onChange: (p0) {},
           onSlide: (val) {
             setState(() {
               value = val;
               _saveValue();
             });
           },
+          listener: listener,
+          min: 1,
+          max: 10,
           minLabel: AppLocalizations.of(context)!.moodLowLevel,
           maxLabel: AppLocalizations.of(context)!.moodHighLevel,
-        )
+          initial: value.toInt(),
+        ),
       ],
     );
   }
@@ -691,6 +691,21 @@ class SeverityScreenWidgetState extends State<SeverityScreenWidget> {
       children: [
         const SizedBox(
           height: 35,
+        ),
+        StripesSlider(
+          onChange: (p0) {},
+          onSlide: (val) {
+            setState(() {
+              value = val;
+              _saveValue();
+            });
+          },
+          listener: listener,
+          min: 0,
+          max: 10,
+          minLabel: AppLocalizations.of(context)!.painLevelZero,
+          maxLabel: AppLocalizations.of(context)!.painLevelFive,
+          initial: value.toInt(),
         ),
         PainSlider(
           listener: listener,

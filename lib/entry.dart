@@ -107,7 +107,7 @@ class StripesHome extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final GoRouter router = ref.watch(routeProvider);
     return MaterialApp.router(
-      //locale: const Locale('de'),
+      locale: const Locale('de'),
       debugShowCheckedModeBanner: false,
       title: 'Stripes Tracker',
       localizationsDelegates: AppLocalizations.localizationsDelegates,

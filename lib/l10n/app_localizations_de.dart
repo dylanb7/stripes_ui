@@ -108,8 +108,8 @@ class AppLocalizationsDe extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Select slider values',
-      one: 'Bitte wählen Sie eine passende Konsistenz!',
+      other: 'Fehlende Einträge',
+      one: 'Fehlender Eintrag',
     );
     return '$_temp0';
   }
@@ -122,7 +122,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String submitHeader(String symptomType) {
-    return 'Tragen Sie Informationen zur Ihrer heutigen $symptomType hier ein:';
+    return 'Tragen Sie weitere Informationen hier ein:';
   }
 
   @override
@@ -175,7 +175,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get submitDescriptionTag => 'Weitere Anmerkungen';
 
   @override
-  String get submitDescriptionPlaceholder => 'Clicken, um zu chreiben...';
+  String get submitDescriptionPlaceholder => 'Clicken, um zuschreiben...';
 
   @override
   String get submitButtonText => 'Eintrag speichern';
