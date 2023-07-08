@@ -40,6 +40,8 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
 
   bool done = false;
 
+  String? errorMessage;
+
   @override
   Widget build(BuildContext context) {
     final exportFunc = ref.watch(exportProvider);
@@ -86,26 +88,53 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
                       const SizedBox(
                         height: 8,
                       ),
+                      if (errorMessage != null) ...[
+                        Text(
+                          errorMessage!,
+                          style: errorStyle,
+                        ),
+                        const SizedBox(
+                          height: 8,
+                        )
+                      ],
                       if (!loading && !done)
                         StripesRoundedButton(
                             text: 'Send ${widget.responses.length} entries',
                             onClick: () async {
                               setState(() {
+                                errorMessage = null;
                                 loading = true;
                               });
-                              await exportFunc!(widget.responses);
-                              if (mounted) {
-                                setState(() {
-                                  loading = false;
-                                  done = true;
-                                });
+                              try {
+                                await exportFunc!(widget.responses);
+                              } catch (e) {
+                                if (mounted) {
+                                  setState(() {
+                                    errorMessage = 'Upload failed';
+                                    loading = false;
+                                  });
+                                }
+                              } finally {
+                                if (mounted) {
+                                  setState(() {
+                                    errorMessage = null;
+                                    loading = false;
+                                    done = true;
+                                  });
+                                }
                               }
                             }),
                       if (loading)
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text('Sending ${widget.responses.length} entries'),
+                            Text(
+                              'Sending ${widget.responses.length} entries',
+                              style: lightBackgroundStyle,
+                            ),
+                            const SizedBox(
+                              width: 8.0,
+                            ),
                             const CircularProgressIndicator(
                               color: darkIconButton,
                             )
