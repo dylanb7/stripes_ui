@@ -44,6 +44,7 @@ class PatientChanger extends ConsumerWidget {
                 getTitle(),
                 style: darkBackgroundScreenHeaderStyle.copyWith(
                     letterSpacing: 1.4, fontSize: 32),
+                textAlign: TextAlign.left,
               ),
             ),
           ),
