@@ -133,7 +133,7 @@ class _InstructionsState extends ConsumerState<Instructions> {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: header,
+            child: FittedBox(fit: BoxFit.scaleDown, child: header),
           ),
           Padding(
             padding: const EdgeInsets.all(4.0),
@@ -147,7 +147,11 @@ class _InstructionsState extends ConsumerState<Instructions> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         ExpandibleRaw(
-          header: Expanded(child: header),
+          header: Expanded(
+              child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: header,
+          )),
           view: body,
           controller: widget.expandController,
         ),

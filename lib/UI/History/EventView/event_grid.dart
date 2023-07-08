@@ -40,11 +40,14 @@ class _EventGridState extends ConsumerState<EventGrid> {
       return SliverToBoxAdapter(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 5.0),
-          child: Text(
-            AppLocalizations.of(context)!.noEventsText,
-            style: darkBackgroundHeaderStyle,
-            textAlign: TextAlign.center,
-            maxLines: null,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              AppLocalizations.of(context)!.noEventsText,
+              style: darkBackgroundHeaderStyle,
+              textAlign: TextAlign.center,
+              maxLines: null,
+            ),
           ),
         ),
       );
