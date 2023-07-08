@@ -33,34 +33,34 @@ class PatientChanger extends ConsumerWidget {
           : AppLocalizations.of(context)!.historyTitle(firstName);
     }
 
-    return Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Expanded(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                getTitle(),
-                style: darkBackgroundScreenHeaderStyle.copyWith(
-                    letterSpacing: 1.4, fontSize: 32),
-                textAlign: TextAlign.left,
-              ),
-            ),
+    return Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+      Expanded(
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            getTitle(),
+            style: darkBackgroundScreenHeaderStyle.copyWith(
+                letterSpacing: 1.4, fontSize: 32),
+            textAlign: TextAlign.left,
           ),
-          if (sub.users.length > 1)
-            IconButton(
-                padding: EdgeInsets.zero,
-                onPressed: () {
-                  _openUserSelect(ref);
-                },
-                tooltip: "Change Patient",
-                icon: const Icon(
-                  Icons.keyboard_arrow_down,
-                  size: 50.0,
-                  color: darkIconButton,
-                )),
-        ]);
+        ),
+      ),
+      const SizedBox(
+        width: 8.0,
+      ),
+      if (sub.users.length > 1)
+        IconButton(
+            padding: EdgeInsets.zero,
+            onPressed: () {
+              _openUserSelect(ref);
+            },
+            tooltip: "Change Patient",
+            icon: const Icon(
+              Icons.keyboard_arrow_down,
+              size: 50.0,
+              color: darkIconButton,
+            )),
+    ]);
   }
 
   _openUserSelect(WidgetRef ref) {
