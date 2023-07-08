@@ -223,7 +223,8 @@ class EntryDisplay extends ConsumerWidget {
       questionsListener.addResponse(res);
     }
 
-    context.pushNamed(routeName,
+    context.pushNamed('recordType',
+        pathParameters: {'type': routeName},
         extra: SymptomRecordData(
             isEditing: true,
             listener: questionsListener,
