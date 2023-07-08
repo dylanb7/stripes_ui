@@ -71,8 +71,8 @@ class LogRow extends ConsumerWidget {
         style: lightBackgroundHeaderStyle,
       ),
       if (event.description.isNotEmpty) ...[
-        const Text(
-          'Description:',
+        Text(
+          AppLocalizations.of(context)!.descriptionLabel,
           style: lightBackgroundHeaderStyle,
         ),
         Text(
@@ -81,8 +81,8 @@ class LogRow extends ConsumerWidget {
           maxLines: null,
         )
       ],
-      const Text(
-        'Behaviors:',
+      Text(
+        AppLocalizations.of(context)!.behaviorsLabel,
         style: lightBackgroundHeaderStyle,
       ),
       ...event.responses.map(

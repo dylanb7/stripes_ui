@@ -91,8 +91,8 @@ class EntryDisplay extends ConsumerWidget {
       );
       vals = [
         if (detail.description.isNotEmpty) ...[
-          const Text(
-            'Description:',
+          Text(
+            AppLocalizations.of(context)!.descriptionLabel,
             style: lightBackgroundHeaderStyle,
           ),
           Text(
@@ -102,8 +102,8 @@ class EntryDisplay extends ConsumerWidget {
           )
         ],
         if (detail.responses.isNotEmpty)
-          const Text(
-            'Behaviors:',
+          Text(
+            AppLocalizations.of(context)!.behaviorsLabel,
             style: lightBackgroundHeaderStyle,
           ),
         ...detail.responses.map<Widget>(
@@ -124,6 +124,7 @@ class EntryDisplay extends ConsumerWidget {
             if (res is OpenResponse) {
               return Column(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(res.question.prompt,
                       style: lightBackgroundStyle, maxLines: null),
@@ -202,7 +203,7 @@ class EntryDisplay extends ConsumerWidget {
                       _delete(ref);
                     },
                     child: Text(
-                      'Delete',
+                      AppLocalizations.of(context)!.deleteAction,
                       style: lightBackgroundHeaderStyle.copyWith(
                           color: darkIconButton),
                     )),
@@ -268,7 +269,7 @@ class BMRow extends StatelessWidget {
       'packages/stripes_ui/assets/images/poop7.png'
     ];
     return Row(children: [
-      Text('Bm consistency (1-7) - ${response.response.toInt()}',
+      Text('${response.question.prompt} - ${response.response.toInt()}',
           style: lightBackgroundStyle, maxLines: null),
       const SizedBox(
         width: 4,

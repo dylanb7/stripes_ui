@@ -58,7 +58,7 @@
             }
         }
     },
-    "selectInstruction": "Select all behaviors that apply",
+    "selectInstruction": "Wählen Sie alle Verhaltensweisen aus, die angewendet werden",
     "mildTag": "Mild",
     "severeTag": "Severe",
     "softTag": "Weich",
@@ -244,6 +244,9 @@
     "eventFiltersApply": "Filter anwenden",
     "noEventsText": "Keine Einträge dokumentiert",
 
+    "behaviorsLabel": "Verhaltensweisen:",
+    "descriptionLabel": "Beschreibung:",
+    "deleteAction": "Löschen",
 
     "patientProfilesHeader": "Patient Profiles",
     "patientProfilesInstruction": "Select a patient to view their profile.",

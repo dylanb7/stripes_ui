@@ -9,6 +9,7 @@ import 'package:stripes_ui/UI/CommonWidgets/date_time_entry.dart';
 import 'package:stripes_ui/UI/History/button_style.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
+import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class FilterButton extends ConsumerWidget {
   const FilterButton({super.key});
@@ -28,7 +29,7 @@ class FilterButton extends ConsumerWidget {
         child: Row(
           children: [
             Text(
-              'Filter',
+              AppLocalizations.of(context)!.filterEventsButton,
               style: buttonText,
             ),
             const SizedBox(
@@ -110,7 +111,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                           width: 35,
                         ),
                         Text(
-                          'Filters',
+                          AppLocalizations.of(context)!.eventFilterHeader,
                           style: darkBackgroundScreenHeaderStyle.copyWith(
                               color: darkIconButton),
                         ),
@@ -145,7 +146,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                                 });
                               },
                               child: Text(
-                                'Reset',
+                                AppLocalizations.of(context)!.eventFilterReset,
                                 style: lightBackgroundStyle.copyWith(
                                     color: darkIconButton),
                               ))
@@ -157,7 +158,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                     ),
                     Center(
                       child: Text(
-                        'Types:',
+                        AppLocalizations.of(context)!.eventFilterTypesTag,
                         style: lightBackgroundHeaderStyle.copyWith(
                             color: darkIconButton),
                       ),
@@ -201,7 +202,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                       height: 12.0,
                     ),
                     Text(
-                      'From:',
+                      AppLocalizations.of(context)!.eventFiltersFromTag,
                       style: lightBackgroundHeaderStyle.copyWith(
                           color: darkIconButton),
                     ),
@@ -232,7 +233,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                       height: 12.0,
                     ),
                     Text(
-                      'To:',
+                      AppLocalizations.of(context)!.eventFiltersToTag,
                       style: lightBackgroundHeaderStyle.copyWith(
                           color: darkIconButton),
                     ),
@@ -263,7 +264,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                       height: 12.0,
                     ),
                     StripesRoundedButton(
-                        text: 'Apply Filters',
+                        text: AppLocalizations.of(context)!.eventFiltersApply,
                         onClick: () {
                           final Filters filts = ref.read(filtersProvider);
                           ref.read(filtersProvider.notifier).state =

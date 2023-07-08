@@ -62,7 +62,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get selectInstruction => 'Select all behaviors that apply';
+  String get selectInstruction => 'Wählen Sie alle Verhaltensweisen aus, die angewendet werden';
 
   @override
   String get mildTag => 'Mild';
@@ -392,6 +392,15 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get noEventsText => 'Keine Einträge dokumentiert';
+
+  @override
+  String get behaviorsLabel => 'Verhaltensweisen:';
+
+  @override
+  String get descriptionLabel => 'Beschreibung:';
+
+  @override
+  String get deleteAction => 'Löschen';
 
   @override
   String get patientProfilesHeader => 'Patient Profiles';

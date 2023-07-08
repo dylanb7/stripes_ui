@@ -705,6 +705,24 @@ abstract class AppLocalizations {
   /// **'No events recorded'**
   String get noEventsText;
 
+  /// No description provided for @behaviorsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Behaviors:'**
+  String get behaviorsLabel;
+
+  /// No description provided for @descriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Description:'**
+  String get descriptionLabel;
+
+  /// No description provided for @deleteAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get deleteAction;
+
   /// No description provided for @patientProfilesHeader.
   ///
   /// In en, this message translates to:

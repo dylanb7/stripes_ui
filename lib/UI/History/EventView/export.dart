@@ -107,8 +107,10 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
                                 errorMessage = null;
                                 loading = true;
                               });
-                              await exportFunc!(widget.responses);
-                              try {} catch (e) {
+
+                              try {
+                                await exportFunc!(widget.responses);
+                              } catch (e) {
                                 if (mounted) {
                                   setState(() {
                                     errorMessage = AppLocalizations.of(context)!
