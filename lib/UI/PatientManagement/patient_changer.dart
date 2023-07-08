@@ -37,10 +37,15 @@ class PatientChanger extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            getTitle(),
-            style: darkBackgroundScreenHeaderStyle.copyWith(
-                letterSpacing: 1.4, fontSize: 32),
+          Expanded(
+            child: FittedBox(
+              fit: BoxFit.contain,
+              child: Text(
+                getTitle(),
+                style: darkBackgroundScreenHeaderStyle.copyWith(
+                    letterSpacing: 1.4, fontSize: 32),
+              ),
+            ),
           ),
           if (sub.users.length > 1)
             IconButton(

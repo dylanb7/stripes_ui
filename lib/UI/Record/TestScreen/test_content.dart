@@ -95,9 +95,14 @@ class TimerDisplay extends ConsumerWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            AppLocalizations.of(context)!.blueMealFinalDurationTag,
-            style: lightBackgroundHeaderStyle,
+          Expanded(
+            child: FittedBox(
+              fit: BoxFit.contain,
+              child: Text(
+                AppLocalizations.of(context)!.blueMealFinalDurationTag,
+                style: lightBackgroundHeaderStyle,
+              ),
+            ),
           ),
           const SizedBox(
             width: 8.0,

@@ -59,9 +59,12 @@ class Options extends ConsumerWidget {
             const SizedBox(
               height: 20.0,
             ),
-            Text(
-              AppLocalizations.of(context)!.categorySelect,
-              style: darkBackgroundHeaderStyle,
+            FittedBox(
+              fit: BoxFit.contain,
+              child: Text(
+                AppLocalizations.of(context)!.categorySelect,
+                style: darkBackgroundHeaderStyle,
+              ),
             ),
             ...questionTypes.map((key) {
               if (key != Symptoms.BM || !state.testInProgress) {
@@ -106,7 +109,7 @@ class Header extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
     return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 40),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       sliver: SliverToBoxAdapter(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(
