@@ -11,6 +11,8 @@ import 'package:stripes_ui/Util/form_input.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/entry.dart';
+import 'package:stripes_ui/l10n/app_localizations.dart';
+import 'package:stripes_ui/l10n/app_localizations_de.dart';
 
 class LandingPage extends ConsumerWidget {
   const LandingPage({Key? key}) : super(key: key);
@@ -109,7 +111,9 @@ class AccessLoginState extends ConsumerState<AccessLogin> {
               TextField(
                 controller: controller,
                 decoration: formFieldDecoration(
-                    hintText: "Access Code", controller: controller),
+                    hintText:
+                        AppLocalizations.of(context)!.accessCodePlaceholder,
+                    controller: controller),
               ),
             if (loading)
               Row(
@@ -130,15 +134,15 @@ class AccessLoginState extends ConsumerState<AccessLogin> {
               ),
             const SizedBox(height: 6.0),
             StripesRoundedButton(
-              text: 'Submit',
+              text: AppLocalizations.of(context)!.submitCode,
               disabled: controller.text.isEmpty,
               onClick: () {
-                _submitCode();
+                _submitCode(context);
               },
             ),
             const SizedBox(height: 8.0),
             StripesTextButton(
-              buttonText: 'Use without code',
+              buttonText: AppLocalizations.of(context)!.withoutCode,
               onClicked: () {
                 ref.read(authProvider).logIn({});
               },
@@ -147,7 +151,7 @@ class AccessLoginState extends ConsumerState<AccessLogin> {
         ));
   }
 
-  _submitCode() async {
+  _submitCode(BuildContext context) async {
     setState(() {
       loading = true;
     });
@@ -161,7 +165,7 @@ class AccessLoginState extends ConsumerState<AccessLogin> {
       controller.clear();
       setState(() {
         loading = false;
-        accessError = "Invalid code";
+        accessError = AppLocalizations.of(context)!.codeError;
       });
     }
   }

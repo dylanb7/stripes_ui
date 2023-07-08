@@ -7,6 +7,18 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get codeError => 'Invalid Code';
+
+  @override
+  String get submitCode => 'Submit';
+
+  @override
+  String get accessCodePlaceholder => 'Access Code';
+
+  @override
+  String get withoutCode => 'Use without code';
+
+  @override
   String recordTitle(String username) {
     return 'Record for $username';
   }

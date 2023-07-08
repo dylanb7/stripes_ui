@@ -1,4 +1,8 @@
 {
+    "codeError": "Ungültiger Code",
+    "submitCode": "Senden",
+    "accessCodePlaceholder": "Zugangscode",
+    "withoutCode": "Verwendung ohne Code",
     "recordTitle": "Record for {username}",
     "@recordTitle": {
         "placeholders": {

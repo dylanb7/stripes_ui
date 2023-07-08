@@ -7,6 +7,18 @@ class AppLocalizationsDe extends AppLocalizations {
   AppLocalizationsDe([String locale = 'de']) : super(locale);
 
   @override
+  String get codeError => 'Ungültiger Code';
+
+  @override
+  String get submitCode => 'Senden';
+
+  @override
+  String get accessCodePlaceholder => 'Zugangscode';
+
+  @override
+  String get withoutCode => 'Verwendung ohne Code';
+
+  @override
   String recordTitle(String username) {
     return 'Record for $username';
   }

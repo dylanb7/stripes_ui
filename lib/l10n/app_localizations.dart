@@ -93,6 +93,30 @@ abstract class AppLocalizations {
     Locale('en')
   ];
 
+  /// No description provided for @codeError.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid Code'**
+  String get codeError;
+
+  /// No description provided for @submitCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit'**
+  String get submitCode;
+
+  /// No description provided for @accessCodePlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Access Code'**
+  String get accessCodePlaceholder;
+
+  /// No description provided for @withoutCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Use without code'**
+  String get withoutCode;
+
   /// No description provided for @recordTitle.
   ///
   /// In en, this message translates to:
