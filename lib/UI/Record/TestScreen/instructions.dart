@@ -44,6 +44,7 @@ class _InstructionsState extends ConsumerState<Instructions> {
                       : AppLocalizations.of(context)!.blueDyeInstructionsHeader,
       style: lightBackgroundHeaderStyle.copyWith(
           fontSize: 20.0, decoration: TextDecoration.underline),
+      textAlign: TextAlign.left,
     );
 
     final Widget body =
@@ -233,11 +234,14 @@ class LabeledList extends StatelessWidget {
               width: 5,
             ),
             Expanded(
-              child: Text(
-                index.value,
-                softWrap: true,
-                textAlign: TextAlign.left,
-                style: lightBackgroundStyle,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  index.value,
+                  softWrap: true,
+                  textAlign: TextAlign.left,
+                  style: lightBackgroundStyle,
+                ),
               ),
             ),
           ]),

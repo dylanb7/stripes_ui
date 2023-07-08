@@ -12,7 +12,6 @@ import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/entry.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
-import 'package:stripes_ui/l10n/app_localizations_de.dart';
 
 class LandingPage extends ConsumerWidget {
   const LandingPage({Key? key}) : super(key: key);

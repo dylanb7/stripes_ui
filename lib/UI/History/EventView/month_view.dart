@@ -8,7 +8,6 @@ import 'package:stripes_ui/UI/History/EventView/sig_dates.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
 
 import 'day_view.dart';
 
