@@ -227,6 +227,7 @@
         }
     },
 
+    "exportError": "Exportieren ohne Code nicht möglich",
     "exportName": "Datenexport",
     "exportDialog": "Die Daten werden an die Studienkoordinatoren gesendet. Es sind keine Ihrer persönlichen Daten enthalten. Wenn sich in Zukunft Änderungen ergeben, können Sie erneut exportieren.",
     "recordCount": "{count, plural, =0{Keine Einträge} =1{1 Eintrag senden} other{Senden Sie {count} Einträge}}",

@@ -663,6 +663,12 @@ abstract class AppLocalizations {
   /// **'{count, plural, =0{No results} =1{1 result} other{{count} results}}'**
   String eventFilterResults(num count);
 
+  /// No description provided for @exportError.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot export without a code'**
+  String get exportError;
+
   /// No description provided for @exportName.
   ///
   /// In en, this message translates to:

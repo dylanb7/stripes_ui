@@ -106,7 +106,7 @@ class UserProfileButton extends ConsumerWidget {
           onTap: () {
             final ExportAction? action = ref.watch(exportProvider);
             if (action == null) {
-              showSnack('Cannot export without a code', context);
+              showSnack(AppLocalizations.of(context)!.exportError, context);
               return;
             }
             List<Response> stamps = ref

@@ -358,6 +358,9 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get exportError => 'Exportieren ohne Code nicht möglich';
+
+  @override
   String get exportName => 'Datenexport';
 
   @override

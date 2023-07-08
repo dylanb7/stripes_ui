@@ -358,6 +358,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get exportError => 'Cannot export without a code';
+
+  @override
   String get exportName => 'Export';
 
   @override
