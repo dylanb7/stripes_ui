@@ -117,7 +117,9 @@ class EntryDisplay extends ConsumerWidget {
             }
             if (res is MultiResponse) {
               return Text(
-                  '${res.question.prompt} - ${res.question.choices[res.index]}');
+                '${res.question.prompt} - ${res.question.choices[res.index]}',
+                style: lightBackgroundStyle,
+              );
             }
             if (res is OpenResponse) {
               return Column(
