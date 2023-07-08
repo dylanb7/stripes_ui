@@ -115,7 +115,7 @@ class Header extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              const PatientChanger(),
+              const Expanded(child: PatientChanger()),
               const Spacer(),
               isSmall
                   ? const UserProfileButton()

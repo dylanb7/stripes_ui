@@ -56,8 +56,10 @@ class StripesTabView extends ConsumerWidget {
               child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const PatientChanger(
-                      isRecords: false,
+                    const Expanded(
+                      child: PatientChanger(
+                        isRecords: false,
+                      ),
                     ),
                     isSmall
                         ? const UserProfileButton()
