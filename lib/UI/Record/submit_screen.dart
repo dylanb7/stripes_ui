@@ -119,7 +119,7 @@ class SubmitScreen extends ConsumerWidget {
           const SizedBox(
             height: 30,
           ),
-          LongTextEntry(type: type, textController: _descriptionController),
+          LongTextEntry(textController: _descriptionController),
           const SizedBox(
             height: 30,
           ),
@@ -187,10 +187,7 @@ class SubmitScreen extends ConsumerWidget {
 class LongTextEntry extends StatelessWidget {
   final TextEditingController textController;
 
-  final String type;
-
-  const LongTextEntry(
-      {required this.type, required this.textController, Key? key})
+  const LongTextEntry({required this.textController, Key? key})
       : super(key: key);
 
   @override

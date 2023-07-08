@@ -120,12 +120,16 @@ class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
   Widget build(BuildContext context) {
     final List<String> answers = widget.question.choices;
     final int? selectedIndex = selected();
+    final bool isSelected = selectedIndex != null;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: GestureDetector(
         child: Card(
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(15.0)),
+          shape: RoundedRectangleBorder(
+            borderRadius: const BorderRadius.all(Radius.circular(15.0)),
+            side: isSelected
+                ? const BorderSide(color: buttonDarkBackground, width: 5.0)
+                : const BorderSide(width: 0, color: Colors.transparent),
           ),
           color: darkBackgroundText,
           elevation: 4.0,
