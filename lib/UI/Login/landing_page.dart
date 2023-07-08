@@ -144,7 +144,7 @@ class AccessLoginState extends ConsumerState<AccessLogin> {
             StripesTextButton(
               buttonText: AppLocalizations.of(context)!.withoutCode,
               onClicked: () {
-                ref.read(authProvider).logIn({localAccessKey: ''});
+                ref.read(authProvider).logIn({localAccessKey: 'temp'});
               },
             ),
           ],
