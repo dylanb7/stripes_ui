@@ -97,7 +97,7 @@ class TimerDisplay extends ConsumerWidget {
         children: [
           Expanded(
             child: FittedBox(
-              fit: BoxFit.contain,
+              fit: BoxFit.scaleDown,
               child: Text(
                 AppLocalizations.of(context)!.blueMealFinalDurationTag,
                 style: lightBackgroundHeaderStyle,

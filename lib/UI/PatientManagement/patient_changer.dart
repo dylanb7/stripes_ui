@@ -39,7 +39,7 @@ class PatientChanger extends ConsumerWidget {
         children: [
           Expanded(
             child: FittedBox(
-              fit: BoxFit.contain,
+              fit: BoxFit.scaleDown,
               child: Text(
                 getTitle(),
                 style: darkBackgroundScreenHeaderStyle.copyWith(

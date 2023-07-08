@@ -45,7 +45,7 @@ class EventFrequency extends ConsumerWidget {
           height: 14.0,
         ),
         FittedBox(
-          fit: BoxFit.contain,
+          fit: BoxFit.scaleDown,
           child: Text(
             'Events by Category',
             maxLines: 1,
