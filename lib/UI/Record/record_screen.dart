@@ -60,7 +60,7 @@ class Options extends ConsumerWidget {
               height: 20.0,
             ),
             FittedBox(
-              fit: BoxFit.contain,
+              fit: BoxFit.scaleDown,
               child: Text(
                 AppLocalizations.of(context)!.categorySelect,
                 style: darkBackgroundHeaderStyle,
