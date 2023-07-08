@@ -30,12 +30,14 @@ class QuestionsListener extends ChangeNotifier {
 
   addResponse(Response response) {
     questions[response.question] = response;
+    notifyListeners();
   }
 
   Response? fromQuestion(Question question) => questions[question];
 
   removeResponse(Question question) {
     questions.remove(question);
+    notifyListeners();
   }
 }
 
@@ -128,7 +130,7 @@ class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
           shape: RoundedRectangleBorder(
             borderRadius: const BorderRadius.all(Radius.circular(15.0)),
             side: isSelected
-                ? const BorderSide(color: buttonDarkBackground, width: 5.0)
+                ? const BorderSide(color: buttonDarkBackground, width: 1.0)
                 : const BorderSide(width: 0, color: Colors.transparent),
           ),
           color: darkBackgroundText,
