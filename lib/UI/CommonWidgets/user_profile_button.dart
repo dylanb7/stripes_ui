@@ -92,13 +92,13 @@ class UserProfileButton extends ConsumerWidget {
           },
         ),
         PopupMenuItem(
-          child: const Row(children: [
+          child: Row(children: [
             Text(
-              "Datenexport",
+              AppLocalizations.of(context)!.exportName,
               style: lightBackgroundStyle,
             ),
-            Spacer(),
-            Icon(
+            const Spacer(),
+            const Icon(
               Icons.download,
               color: darkIconButton,
             ),

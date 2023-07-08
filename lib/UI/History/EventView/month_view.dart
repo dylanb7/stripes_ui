@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/UI/History/EventView/calendar_day.dart';
 import 'package:stripes_ui/UI/History/EventView/sig_dates.dart';
@@ -35,7 +36,7 @@ class MonthView extends ConsumerWidget {
                 final double height =
                     ((constraints.maxWidth / 7.0) * rows) + 90;
                 return CalendarCarousel<CalendarEvent>(
-                  locale: 'de',
+                  locale: Intl.getCurrentLocale(),
                   onDayPressed: (date, events) {
                     if (selected != date) {
                       ref.read(filtersProvider.notifier).state =

@@ -222,6 +222,21 @@
             }
         }
     },
+
+    "exportName": "Export",
+    "exportDialog": "Data will be sent to the study coordinators. None of your personal information is included.\nIf there are any changes in the future you may export again.",
+    "recordCount": "{count, plural, =0{Keine Einträge} =1{1 Eintrag senden} other{Senden Sie {count} Einträge}}",
+    "@recordCount": {
+        "placeholders": {
+            "count": {
+                "type": "num",
+                "format": "compact"
+            }
+        }
+    },
+    "uploadDone": "Upload Done",
+    "uploadFail": "Upload Failed",
+
     "eventFilterReset": "Reset",
     "eventFilterTypesTag": "Types:",
     "eventFiltersFromTag": "From:",

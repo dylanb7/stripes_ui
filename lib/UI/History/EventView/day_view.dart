@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/UI/History/EventView/sig_dates.dart';
@@ -34,7 +35,7 @@ class DayView extends ConsumerWidget {
                         current.copyWith(selectDate: date);
                   }
                 },
-                locale: Localizations.localeOf(context).countryCode ?? 'en',
+                locale: Intl.getCurrentLocale(),
                 weekdayTextStyle: darkBackgroundStyle,
                 showWeekDays: true,
                 customDayBuilder: (isSelectable,

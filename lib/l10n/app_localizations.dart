@@ -639,6 +639,36 @@ abstract class AppLocalizations {
   /// **'{count, plural, =0{No results} =1{1 result} other{{count} results}}'**
   String eventFilterResults(num count);
 
+  /// No description provided for @exportName.
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get exportName;
+
+  /// No description provided for @exportDialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Data will be sent to the study coordinators. None of your personal information is included.\nIf there are any changes in the future you may export again.'**
+  String get exportDialog;
+
+  /// No description provided for @recordCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Keine Einträge} =1{1 Eintrag senden} other{Senden Sie {count} Einträge}}'**
+  String recordCount(num count);
+
+  /// No description provided for @uploadDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload Done'**
+  String get uploadDone;
+
+  /// No description provided for @uploadFail.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload Failed'**
+  String get uploadFail;
+
   /// No description provided for @eventFilterReset.
   ///
   /// In en, this message translates to:

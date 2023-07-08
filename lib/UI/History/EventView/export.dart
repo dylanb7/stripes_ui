@@ -8,6 +8,7 @@ import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/entry.dart';
+import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class Export extends ConsumerWidget {
   const Export({super.key});
@@ -62,8 +63,8 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
                       Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
-                              'Export',
+                            Text(
+                              AppLocalizations.of(context)!.exportName,
                               style: lightBackgroundHeaderStyle,
                             ),
                             IconButton(
@@ -80,8 +81,8 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
                       const SizedBox(
                         height: 8,
                       ),
-                      const Text(
-                        'Data will be sent to the study coordinators. None of your personal information is included.\nIf there are any changes in the future you may export again.',
+                      Text(
+                        AppLocalizations.of(context)!.exportDialog,
                         style: lightBackgroundStyle,
                         textAlign: TextAlign.center,
                       ),
@@ -99,18 +100,19 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
                       ],
                       if (!loading && !done)
                         StripesRoundedButton(
-                            text: 'Send ${widget.responses.length} entries',
+                            text: AppLocalizations.of(context)!
+                                .recordCount(widget.responses.length),
                             onClick: () async {
                               setState(() {
                                 errorMessage = null;
                                 loading = true;
                               });
-                              try {
-                                await exportFunc!(widget.responses);
-                              } catch (e) {
+                              await exportFunc!(widget.responses);
+                              try {} catch (e) {
                                 if (mounted) {
                                   setState(() {
-                                    errorMessage = 'Upload failed';
+                                    errorMessage = AppLocalizations.of(context)!
+                                        .uploadFail;
                                     loading = false;
                                   });
                                 }
@@ -125,24 +127,12 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
                               }
                             }),
                       if (loading)
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'Sending ${widget.responses.length} entries',
-                              style: lightBackgroundStyle,
-                            ),
-                            const SizedBox(
-                              width: 8.0,
-                            ),
-                            const CircularProgressIndicator(
-                              color: darkIconButton,
-                            )
-                          ],
+                        const CircularProgressIndicator(
+                          color: darkIconButton,
                         ),
                       if (done)
                         StripesRoundedButton(
-                            text: 'Upload done',
+                            text: AppLocalizations.of(context)!.uploadDone,
                             onClick: () {
                               ref.read(overlayProvider.notifier).state =
                                   closedQuery;

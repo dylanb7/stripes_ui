@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/UI/SharedHomeWidgets/home_screen.dart';
 import 'package:stripes_ui/entry.dart';
+import 'package:stripes_ui/l10n/app_localizations.dart';
 
 import 'history_toggle.dart';
 
@@ -13,6 +14,12 @@ class LocationBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    Map<String, String> transMap = {
+      DayChoice.day.value: AppLocalizations.of(context)!.eventViewDayCategoty,
+      DayChoice.month.value:
+          AppLocalizations.of(context)!.eventViewMonthCategory,
+      DayChoice.all.value: AppLocalizations.of(context)!.eventViewAllCategory
+    };
     final HistoryLocation location = ref.watch(historyLocationProvider);
     final double width = MediaQuery.of(context).size.width;
     return SliverPadding(

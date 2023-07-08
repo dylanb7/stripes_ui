@@ -138,7 +138,7 @@
         }
     },
     "submitBlueQuestion": "War der Stuhl blau (blaugrün) gefärbt?",
-    "submitBlueQuestionError": "Must answer blue question before submitting",
+    "submitBlueQuestionError": "Muss vor dem Absenden die blaue Frage beantworten",
     "blueQuestionYes": "Ja",
     "blueQuestionNo": "Nein",
     "submitDescriptionTag": "Weitere Anmerkungen",
@@ -197,22 +197,22 @@
             }
         }
     },
-    "blueDyeLogsInstructionOne": "Record bowel movements from the record screen.",
-    "blueDyeLogsInstructionTwo": " Recorded bowel movements will appear below",
-    "blueDyeLogsSubmitTest": "Submit Test",
-    "blueDyeLogsSubmitTestError": "Record a normal colored bowel movement before submitting",
+    "blueDyeLogsInstructionOne": "Zeichnen Sie den Stuhlgang auf dem Aufnahmebildschirm auf.",
+    "blueDyeLogsInstructionTwo": " Aufgezeichneter Stuhlgang wird unten angezeigt",
+    "blueDyeLogsSubmitTest": "Test einreichen",
+    "blueDyeLogsSubmitTestError": "Zeichnen Sie vor dem Absenden einen normal gefärbten Stuhlgang auf",
     "blueMealDurationTag": "Mahlzeitdauer:",
     "blueMealFinishedButton": "Blaue Mahlzeit Ende",
-    "blueMealFinalDurationTag": "Blue Meal Duration:",
+    "blueMealFinalDurationTag": "Dauer der blauen Mahlzeit:",
 
     "eventViewButton": "Event View",
     "eventViewDayCategoty": "Tag",
     "eventViewMonthCategory": "Monat",
     "eventViewAllCategory": "Alle Einträge",
-    "addEventButton": "Add Event",
-    "addEventHeader": "Select a type to record",
+    "addEventButton": "Eintrag hinzufügen",
+    "addEventHeader": "Typ zum Aufzeichnen",
     "filterEventsButton": "Filter",
-    "eventFilterHeader": "Filters",
+    "eventFilterHeader": "Filter",
     "eventFilterResults": "{count, plural, =0{No results} =1{1 result} other{{count} results}}",
     "@eventFilterResults": {
         "placeholders": {
@@ -222,11 +222,26 @@
             }
         }
     },
-    "eventFilterReset": "Reset",
-    "eventFilterTypesTag": "Types:",
-    "eventFiltersFromTag": "From:",
-    "eventFiltersToTag": "To:",
-    "eventFiltersApply": "Apply Filters",
+
+    "exportName": "Datenexport",
+    "exportDialog": "Die Daten werden an die Studienkoordinatoren gesendet. Es sind keine Ihrer persönlichen Daten enthalten. Wenn sich in Zukunft Änderungen ergeben, können Sie erneut exportieren.",
+    "recordCount": "{count, plural, =0{Keine Einträge} =1{1 Eintrag senden} other{Senden Sie {count} Einträge}}",
+    "@recordCount": {
+        "placeholders": {
+            "count": {
+                "type": "num",
+                "format": "compact"
+            }
+        }
+    },
+    "uploadDone": "Hochladen erledigt",
+    "uploadFail": "Fehler beim Hochladen",
+
+    "eventFilterReset": "Zurücksetzen",
+    "eventFilterTypesTag": "Arten:",
+    "eventFiltersFromTag": "Von:",
+    "eventFiltersToTag": "An:",
+    "eventFiltersApply": "Filter anwenden",
     "noEventsText": "Keine Einträge dokumentiert",
 
 

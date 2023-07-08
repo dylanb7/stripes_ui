@@ -346,6 +346,36 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get exportName => 'Export';
+
+  @override
+  String get exportDialog => 'Data will be sent to the study coordinators. None of your personal information is included.\nIf there are any changes in the future you may export again.';
+
+  @override
+  String recordCount(num count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.compact(
+      locale: localeName,
+      
+    );
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Senden Sie $countString Einträge',
+      one: '1 Eintrag senden',
+      zero: 'Keine Einträge',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get uploadDone => 'Upload Done';
+
+  @override
+  String get uploadFail => 'Upload Failed';
+
+  @override
   String get eventFilterReset => 'Reset';
 
   @override

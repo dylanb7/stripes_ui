@@ -163,7 +163,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get submitBlueQuestion => 'War der Stuhl blau (blaugrün) gefärbt?';
 
   @override
-  String get submitBlueQuestionError => 'Must answer blue question before submitting';
+  String get submitBlueQuestionError => 'Muss vor dem Absenden die blaue Frage beantworten';
 
   @override
   String get blueQuestionYes => 'Ja';
@@ -283,16 +283,16 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get blueDyeLogsInstructionOne => 'Record bowel movements from the record screen.';
+  String get blueDyeLogsInstructionOne => 'Zeichnen Sie den Stuhlgang auf dem Aufnahmebildschirm auf.';
 
   @override
-  String get blueDyeLogsInstructionTwo => ' Recorded bowel movements will appear below';
+  String get blueDyeLogsInstructionTwo => ' Aufgezeichneter Stuhlgang wird unten angezeigt';
 
   @override
-  String get blueDyeLogsSubmitTest => 'Submit Test';
+  String get blueDyeLogsSubmitTest => 'Test einreichen';
 
   @override
-  String get blueDyeLogsSubmitTestError => 'Record a normal colored bowel movement before submitting';
+  String get blueDyeLogsSubmitTestError => 'Zeichnen Sie vor dem Absenden einen normal gefärbten Stuhlgang auf';
 
   @override
   String get blueMealDurationTag => 'Mahlzeitdauer:';
@@ -301,7 +301,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get blueMealFinishedButton => 'Blaue Mahlzeit Ende';
 
   @override
-  String get blueMealFinalDurationTag => 'Blue Meal Duration:';
+  String get blueMealFinalDurationTag => 'Dauer der blauen Mahlzeit:';
 
   @override
   String get eventViewButton => 'Event View';
@@ -316,16 +316,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String get eventViewAllCategory => 'Alle Einträge';
 
   @override
-  String get addEventButton => 'Add Event';
+  String get addEventButton => 'Eintrag hinzufügen';
 
   @override
-  String get addEventHeader => 'Select a type to record';
+  String get addEventHeader => 'Typ zum Aufzeichnen';
 
   @override
   String get filterEventsButton => 'Filter';
 
   @override
-  String get eventFilterHeader => 'Filters';
+  String get eventFilterHeader => 'Filter';
 
   @override
   String eventFilterResults(num count) {
@@ -346,19 +346,49 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get eventFilterReset => 'Reset';
+  String get exportName => 'Datenexport';
 
   @override
-  String get eventFilterTypesTag => 'Types:';
+  String get exportDialog => 'Die Daten werden an die Studienkoordinatoren gesendet. Es sind keine Ihrer persönlichen Daten enthalten. Wenn sich in Zukunft Änderungen ergeben, können Sie erneut exportieren.';
 
   @override
-  String get eventFiltersFromTag => 'From:';
+  String recordCount(num count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.compact(
+      locale: localeName,
+      
+    );
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Senden Sie $countString Einträge',
+      one: '1 Eintrag senden',
+      zero: 'Keine Einträge',
+    );
+    return '$_temp0';
+  }
 
   @override
-  String get eventFiltersToTag => 'To:';
+  String get uploadDone => 'Hochladen erledigt';
 
   @override
-  String get eventFiltersApply => 'Apply Filters';
+  String get uploadFail => 'Fehler beim Hochladen';
+
+  @override
+  String get eventFilterReset => 'Zurücksetzen';
+
+  @override
+  String get eventFilterTypesTag => 'Arten:';
+
+  @override
+  String get eventFiltersFromTag => 'Von:';
+
+  @override
+  String get eventFiltersToTag => 'An:';
+
+  @override
+  String get eventFiltersApply => 'Filter anwenden';
 
   @override
   String get noEventsText => 'Keine Einträge dokumentiert';
