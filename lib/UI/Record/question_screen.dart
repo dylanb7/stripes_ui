@@ -483,8 +483,13 @@ class MoodScreenWidgetState extends State<MoodScreenWidget> {
         widget.listener.addPending(widget.question);
       }
     });
+    listener.addListener(_interactListener);
 
     super.initState();
+  }
+
+  _interactListener() {
+    widget.listener.removePending(widget.question);
   }
 
   @override
@@ -518,6 +523,12 @@ class MoodScreenWidgetState extends State<MoodScreenWidget> {
         question: widget.question,
         stamp: dateToStamp(DateTime.now()),
         response: value));
+  }
+
+  @override
+  void dispose() {
+    listener.removeListener(_interactListener);
+    super.dispose();
   }
 }
 
@@ -687,8 +698,13 @@ class SeverityScreenWidgetState extends State<SeverityScreenWidget> {
         widget.listener.addPending(widget.question);
       }
     });
+    listener.addListener(_interactListener);
 
     super.initState();
+  }
+
+  _interactListener() {
+    widget.listener.removePending(widget.question);
   }
 
   @override
@@ -722,6 +738,12 @@ class SeverityScreenWidgetState extends State<SeverityScreenWidget> {
         question: widget.question,
         stamp: dateToStamp(DateTime.now()),
         response: value));
+  }
+
+  @override
+  void dispose() {
+    listener.removeListener(_interactListener);
+    super.dispose();
   }
 }
 
