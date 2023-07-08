@@ -119,6 +119,20 @@ class EntryDisplay extends ConsumerWidget {
               return Text(
                   '${res.question.prompt} - ${res.question.choices[res.index]}');
             }
+            if (res is OpenResponse) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(res.question.prompt,
+                      style: lightBackgroundStyle, maxLines: null),
+                  const SizedBox(
+                    height: 2,
+                  ),
+                  Text(res.response,
+                      style: lightBackgroundStyle, maxLines: null)
+                ],
+              );
+            }
             return Text(
               res.question.prompt,
               style: lightBackgroundStyle,
@@ -136,6 +150,16 @@ class EntryDisplay extends ConsumerWidget {
     } else if (event is Selected) {
       vals = [
         Text(event.question.prompt, style: lightBackgroundStyle, maxLines: null)
+      ];
+    } else if (event is OpenResponse) {
+      vals = [
+        Text(event.question.prompt,
+            style: lightBackgroundStyle, maxLines: null),
+        const SizedBox(
+          height: 2,
+        ),
+        Text((event as OpenResponse).response,
+            style: lightBackgroundStyle, maxLines: null)
       ];
     }
     return ConstrainedBox(
