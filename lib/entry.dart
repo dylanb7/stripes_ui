@@ -59,6 +59,8 @@ enum AuthStrat {
 class StripesApp extends StatelessWidget {
   final bool hasLogging, hasGraphing;
 
+  final Locale locale;
+
   final StripesRepoPackage? repos;
 
   final ExportAction? exportAction;
@@ -73,6 +75,7 @@ class StripesApp extends StatelessWidget {
       {this.repos,
       this.hasLogging = false,
       this.hasGraphing = true,
+      this.locale = const Locale('en'),
       this.displayOverrides,
       this.exportAction,
       this.entryOverrides,
@@ -95,19 +98,22 @@ class StripesApp extends StatelessWidget {
         authStrat.overrideWithValue(strat),
       ],
       observers: [if (hasLogging) const Logger()],
-      child: const StripesHome(),
+      child: StripesHome(
+        locale: locale,
+      ),
     );
   }
 }
 
 class StripesHome extends ConsumerWidget {
-  const StripesHome({Key? key}) : super(key: key);
+  final Locale locale;
+  const StripesHome({required this.locale, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final GoRouter router = ref.watch(routeProvider);
     return MaterialApp.router(
-      locale: const Locale('de'),
+      locale: locale,
       debugShowCheckedModeBanner: false,
       title: 'Stripes Tracker',
       localizationsDelegates: AppLocalizations.localizationsDelegates,
