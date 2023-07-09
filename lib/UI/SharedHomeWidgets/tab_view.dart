@@ -262,8 +262,6 @@ class LargeLayout extends ConsumerWidget {
           color: darkBackgroundText,
           borderRadius: BorderRadius.circular(10.0),
         ),
-        child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 3.0, horizontal: 5.0),
-            child: child),
+        child: child,
       );
 }

@@ -92,26 +92,21 @@ class TimerDisplay extends ConsumerWidget {
 
     return Padding(
       padding: const EdgeInsets.only(top: 8.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                AppLocalizations.of(context)!.blueMealFinalDurationTag,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: RichText(
+            textAlign: TextAlign.left,
+            text: TextSpan(children: [
+              TextSpan(
+                text: AppLocalizations.of(context)!.blueMealFinalDurationTag,
                 style: lightBackgroundHeaderStyle,
               ),
-            ),
-          ),
-          const SizedBox(
-            width: 8.0,
-          ),
-          Text(
-            from(test.obj!.finishedEating!),
-            style: lightBackgroundHeaderStyle.copyWith(color: lightIconButton),
-          ),
-        ],
+              TextSpan(
+                text: '\t${from(test.obj!.finishedEating!)}',
+                style:
+                    lightBackgroundHeaderStyle.copyWith(color: lightIconButton),
+              ),
+            ])),
       ),
     );
   }

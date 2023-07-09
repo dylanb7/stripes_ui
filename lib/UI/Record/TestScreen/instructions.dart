@@ -233,16 +233,11 @@ class LabeledList extends StatelessWidget {
             const SizedBox(
               width: 5,
             ),
-            Expanded(
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  index.value,
-                  softWrap: true,
-                  textAlign: TextAlign.left,
-                  style: lightBackgroundStyle,
-                ),
-              ),
+            Text(
+              index.value,
+              softWrap: true,
+              textAlign: TextAlign.left,
+              style: lightBackgroundStyle,
             ),
           ]),
         );
