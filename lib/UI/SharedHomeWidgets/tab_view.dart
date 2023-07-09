@@ -35,7 +35,7 @@ class StripesTabView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     HistoryLocation loc = ref.watch(historyLocationProvider);
-    final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT * 1.5;
+    final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
     final ScrollController scrollController = ScrollController();
 
     Widget scroll = CustomScrollView(
@@ -194,11 +194,11 @@ class LargeLayout extends ConsumerWidget {
             child: getButton(
                 darkBackgroundHeaderStyle.copyWith(
                     fontSize: 28, color: buttonLightBackground),
-                TabOption.history,
+                TabOption.tests,
                 AppLocalizations.of(context)!.testTab))
         : getButton(
             darkBackgroundHeaderStyle.copyWith(color: darkBackgroundText),
-            TabOption.history,
+            TabOption.tests,
             AppLocalizations.of(context)!.testTab);
     Widget historyButton = selected == TabOption.history
         ? _decorationWrap(
@@ -263,8 +263,7 @@ class LargeLayout extends ConsumerWidget {
           borderRadius: BorderRadius.circular(10.0),
         ),
         child: Padding(
-            padding:
-                const EdgeInsets.symmetric(vertical: 6.0, horizontal: 10.0),
+            padding: const EdgeInsets.symmetric(vertical: 3.0, horizontal: 5.0),
             child: child),
       );
 }

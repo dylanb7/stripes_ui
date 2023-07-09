@@ -2,7 +2,7 @@
 
 const String PASSWORD = 'pass';
 
-const double SMALL_LAYOUT = 600;
+const double SMALL_LAYOUT = 600 * 1.5;
 
 class Routes {
   static const String LANDING = '/';
