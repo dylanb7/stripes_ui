@@ -39,6 +39,7 @@ class PatientChanger extends ConsumerWidget {
         children: [
           Expanded(
             child: FittedBox(
+              alignment: Alignment.centerLeft,
               fit: BoxFit.scaleDown,
               child: Text(
                 getTitle(),
