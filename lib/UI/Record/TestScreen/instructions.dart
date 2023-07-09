@@ -233,11 +233,13 @@ class LabeledList extends StatelessWidget {
             const SizedBox(
               width: 5,
             ),
-            Text(
-              index.value,
-              softWrap: true,
-              textAlign: TextAlign.left,
-              style: lightBackgroundStyle,
+            Expanded(
+              child: Text(
+                index.value,
+                softWrap: true,
+                textAlign: TextAlign.left,
+                style: lightBackgroundStyle,
+              ),
             ),
           ]),
         );
