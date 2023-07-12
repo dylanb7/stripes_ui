@@ -58,7 +58,12 @@ class _InstructionsState extends ConsumerState<Instructions> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             LabeledList(
-                title: Row(
+                title: Text(
+                  AppLocalizations.of(context)!.blueDyeInstructionsStepOne,
+                  textAlign: TextAlign.left,
+                  style: lightBackgroundHeaderStyle,
+                ),
+                /*Row(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -86,7 +91,7 @@ class _InstructionsState extends ConsumerState<Instructions> {
                           iconSize: 18.0,
                         ),
                       ),
-                    ]),
+                    ]),*/
                 strings: [
                   AppLocalizations.of(context)!.blueDyeInstructionsStepOneA,
                   AppLocalizations.of(context)!.blueDyeInstructionsStepOneB
@@ -130,7 +135,6 @@ class _InstructionsState extends ConsumerState<Instructions> {
     if (state == TestState.initial) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -145,7 +149,6 @@ class _InstructionsState extends ConsumerState<Instructions> {
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         ExpandibleRaw(
           header: Expanded(

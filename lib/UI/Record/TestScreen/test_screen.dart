@@ -43,7 +43,13 @@ class _TestScreenState extends ConsumerState<TestScreen> {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10.0),
-            child: Row(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                AppLocalizations.of(context)!.blueDyeHeader,
+                style: darkBackgroundHeaderStyle,
+              ),
+            ), /*Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -67,7 +73,7 @@ class _TestScreenState extends ConsumerState<TestScreen> {
                     ),
                     iconSize: 30,
                   ),
-                ]),
+                ]),*/
           ),
           const SizedBox(
             height: 8.0,
