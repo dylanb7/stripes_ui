@@ -11,6 +11,7 @@ import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/UI/Record/question_screen.dart';
 import 'package:stripes_ui/UI/Record/symptom_record_data.dart';
+import 'package:stripes_ui/Util/date_helper.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
@@ -33,16 +34,16 @@ class EntryDisplay extends ConsumerWidget {
     if (event is BlueDyeResp) {
       final BlueDyeResp resp = event as BlueDyeResp;
       vals = [
-        const Text(
-          'Started Test:',
+        Text(
+          AppLocalizations.of(context)!.startTestEntry, //
           style: lightBackgroundHeaderStyle,
         ),
         Text(
-          '${dateToMDY(resp.startEating)} ${timeString(TimeOfDay.fromDateTime(resp.startEating))}',
+          '${dateToMDY(resp.startEating, context)} ${timeString(resp.startEating, context)}',
           style: lightBackgroundStyle,
         ),
-        const Text(
-          'Eating Duration:',
+        Text(
+          AppLocalizations.of(context)!.mealDurationEntry,
           style: lightBackgroundHeaderStyle,
         ),
         Text(
@@ -50,25 +51,25 @@ class EntryDisplay extends ConsumerWidget {
           style: lightBackgroundStyle,
         ),
         if (resp.firstBlue != resp.lastBlue) ...[
-          const Text(
-            'First Blue BM Recorded:',
+          Text(
+            AppLocalizations.of(context)!.firstBlueEntry,
             style: lightBackgroundHeaderStyle,
           ),
           Text(
-            '${dateToMDY(resp.firstBlue)} ${timeString(TimeOfDay.fromDateTime(resp.firstBlue))}',
+            '${dateToMDY(resp.firstBlue, context)} - ${timeString(resp.firstBlue, context)}',
             style: lightBackgroundStyle,
           ),
         ],
-        const Text(
-          'Test End - Last Blue BM Recorded:',
+        Text(
+          AppLocalizations.of(context)!.lastBlueEntry,
           style: lightBackgroundHeaderStyle,
         ),
         Text(
-          '${dateToMDY(resp.lastBlue)} ${timeString(TimeOfDay.fromDateTime(resp.lastBlue))}',
+          '${dateToMDY(resp.lastBlue, context)} ${timeString(resp.lastBlue, context)}',
           style: lightBackgroundStyle,
         ),
-        const Text(
-          'Transit Duration:',
+        Text(
+          AppLocalizations.of(context)!.transitDurationEntry,
           style: lightBackgroundHeaderStyle,
         ),
         Text(
@@ -165,6 +166,7 @@ class EntryDisplay extends ConsumerWidget {
             style: lightBackgroundStyle, maxLines: null)
       ];
     }
+
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 380),
       child: Expandible(
@@ -178,7 +180,7 @@ class EntryDisplay extends ConsumerWidget {
                     fontWeight: FontWeight.bold),
               ),
               Text(
-                '${dateToMDY(date)} at ${timeString(TimeOfDay.fromDateTime(date))}',
+                '${dateToMDY(date, context)} - ${timeString(date, context)}',
                 style: lightBackgroundStyle.copyWith(
                     decoration: TextDecoration.underline),
               ),

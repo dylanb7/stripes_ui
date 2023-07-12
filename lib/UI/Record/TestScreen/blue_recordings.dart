@@ -6,6 +6,7 @@ import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
+import 'package:stripes_ui/Util/date_helper.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
@@ -105,7 +106,7 @@ class LogRow extends ConsumerWidget {
       highlightColor: lightIconButton,
       header: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(
-          '${dateToMDY(date)} at ${timeString(TimeOfDay.fromDateTime(date))}',
+          '${dateToMDY(date, context)} - ${timeString(date, context)}',
           style: lightBackgroundHeaderStyle,
         ),
       ]),

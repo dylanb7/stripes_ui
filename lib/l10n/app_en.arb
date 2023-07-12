@@ -253,6 +253,11 @@
     "descriptionLabel": "Description:",
     "deleteAction": "Delete", 
 
+    "startTestEntry": "Started Test:",
+    "mealDurationEntry": "Eating Duration:",
+    "firstBlueEntry": "First Blue BM:",
+    "lastBlueEntry": "Last Blue BM:",
+    "transitDurationEntry": "Transit Duration:",
 
     "patientProfilesHeader": "Patient Profiles",
     "patientProfilesInstruction": "Select a patient to view their profile.",

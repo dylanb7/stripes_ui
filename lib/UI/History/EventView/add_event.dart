@@ -8,6 +8,7 @@ import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
 import 'package:stripes_ui/UI/History/button_style.dart';
 import 'package:stripes_ui/UI/Record/RecordPaths/question_splitter.dart';
 import 'package:stripes_ui/UI/Record/symptom_record_data.dart';
+import 'package:stripes_ui/Util/date_helper.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
@@ -27,7 +28,7 @@ class AddEvent extends ConsumerWidget {
     return selected == null
         ? Container()
         : Tooltip(
-            message: dateToMDY(selected),
+            message: dateToMDY(selected, context),
             child: ElevatedButton(
               style: historyButtonStyle,
               child: Text(

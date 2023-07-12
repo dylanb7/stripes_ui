@@ -187,13 +187,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get submitDescriptionTag => 'Weitere Anmerkungen';
 
   @override
-  String get submitDescriptionPlaceholder => 'Clicken, um zuschreiben...';
+  String get submitDescriptionPlaceholder => 'Clicken, um zu schreiben...';
 
   @override
   String get submitButtonText => 'Eintrag speichern';
 
   @override
-  String get editSubmitButtonText => 'Save Changes';
+  String get editSubmitButtonText => 'Änderungen speichern';
 
   @override
   String get errorPreventionTitle => 'Moment!';
@@ -394,7 +394,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get eventFilterReset => 'Zurücksetzen';
 
   @override
-  String get eventFilterTypesTag => 'Arten:';
+  String get eventFilterTypesTag => 'Kategorien:';
 
   @override
   String get eventFiltersFromTag => 'Von:';
@@ -416,6 +416,21 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deleteAction => 'Löschen';
+
+  @override
+  String get startTestEntry => 'Teststart:';
+
+  @override
+  String get mealDurationEntry => 'Verzehrdauer:';
+
+  @override
+  String get firstBlueEntry => 'Erster blauer Poo:';
+
+  @override
+  String get lastBlueEntry => 'Letzter blauer Poo:';
+
+  @override
+  String get transitDurationEntry => 'Transitzeit:';
 
   @override
   String get patientProfilesHeader => 'Patient Profiles';

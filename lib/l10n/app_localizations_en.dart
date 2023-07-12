@@ -418,6 +418,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteAction => 'Delete';
 
   @override
+  String get startTestEntry => 'Started Test:';
+
+  @override
+  String get mealDurationEntry => 'Eating Duration:';
+
+  @override
+  String get firstBlueEntry => 'First Blue BM:';
+
+  @override
+  String get lastBlueEntry => 'Last Blue BM:';
+
+  @override
+  String get transitDurationEntry => 'Transit Duration:';
+
+  @override
   String get patientProfilesHeader => 'Patient Profiles';
 
   @override

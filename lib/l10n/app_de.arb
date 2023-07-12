@@ -146,9 +146,9 @@
     "blueQuestionYes": "Ja",
     "blueQuestionNo": "Nein",
     "submitDescriptionTag": "Weitere Anmerkungen",
-    "submitDescriptionPlaceholder": "Clicken, um zuschreiben...",
+    "submitDescriptionPlaceholder": "Clicken, um zu schreiben...",
     "submitButtonText": "Eintrag speichern",
-    "editSubmitButtonText": "Save Changes",
+    "editSubmitButtonText": "Änderungen speichern",
 
     "errorPreventionTitle": "Moment!",
     "errorPreventionLineOne": "Sind Sie sicher, dass Sie diese Anwendung verlassen wollen?",
@@ -243,7 +243,7 @@
     "uploadFail": "Fehler beim Hochladen",
 
     "eventFilterReset": "Zurücksetzen",
-    "eventFilterTypesTag": "Arten:",
+    "eventFilterTypesTag": "Kategorien:",
     "eventFiltersFromTag": "Von:",
     "eventFiltersToTag": "An:",
     "eventFiltersApply": "Filter anwenden",
@@ -252,6 +252,12 @@
     "behaviorsLabel": "Verhaltensweisen:",
     "descriptionLabel": "Beschreibung:",
     "deleteAction": "Löschen",
+
+    "startTestEntry": "Teststart:",
+    "mealDurationEntry": "Verzehrdauer:",
+    "firstBlueEntry": "Erster blauer Poo:",
+    "lastBlueEntry": "Letzter blauer Poo:",
+    "transitDurationEntry": "Transitzeit:",
 
     "patientProfilesHeader": "Patient Profiles",
     "patientProfilesInstruction": "Select a patient to view their profile.",

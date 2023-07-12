@@ -35,7 +35,7 @@ class DayView extends ConsumerWidget {
                         current.copyWith(selectDate: date);
                   }
                 },
-                locale: Intl.getCurrentLocale(),
+                locale: Localizations.localeOf(context).languageCode,
                 weekdayTextStyle: darkBackgroundStyle,
                 showWeekDays: true,
                 customDayBuilder: (isSelectable,
@@ -47,11 +47,9 @@ class DayView extends ConsumerWidget {
                     isNextMonthDay,
                     isThisMonthDay,
                     day) {
-                  List<String> vals = dateToShortMDY(day).split(' ');
-
                   final int events = eventMap.getEvents(day).length;
                   return CalendarDay(
-                      text: vals[1],
+                      text: '${day.day}',
                       isToday: isToday,
                       selected:
                           selected == null ? false : sameDay(day, selected),

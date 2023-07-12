@@ -753,6 +753,36 @@ abstract class AppLocalizations {
   /// **'Delete'**
   String get deleteAction;
 
+  /// No description provided for @startTestEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Started Test:'**
+  String get startTestEntry;
+
+  /// No description provided for @mealDurationEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Eating Duration:'**
+  String get mealDurationEntry;
+
+  /// No description provided for @firstBlueEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'First Blue BM:'**
+  String get firstBlueEntry;
+
+  /// No description provided for @lastBlueEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Blue BM:'**
+  String get lastBlueEntry;
+
+  /// No description provided for @transitDurationEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Transit Duration:'**
+  String get transitDurationEntry;
+
   /// No description provided for @patientProfilesHeader.
   ///
   /// In en, this message translates to:

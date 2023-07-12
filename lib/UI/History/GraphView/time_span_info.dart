@@ -1,3 +1,4 @@
+import 'dart:js';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/UI/History/button_style.dart';
+import 'package:stripes_ui/Util/date_helper.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 
 class TimeSpanInfo extends ConsumerWidget {
@@ -73,7 +75,7 @@ class TimeSpanInfo extends ConsumerWidget {
                       style: buttonText,
                     ),
                     Text(
-                      '${_respToDateStr(stamps.last)}',
+                      '${_respToDateStr(stamps.last, context)}',
                       style: lightBackgroundStyle.copyWith(
                           fontWeight: FontWeight.bold),
                     )
@@ -96,7 +98,7 @@ class TimeSpanInfo extends ConsumerWidget {
                       style: buttonText,
                     ),
                     Text(
-                      '${_respToDateStr(stamps.first)}',
+                      '${_respToDateStr(stamps.first, context)}',
                       style: lightBackgroundStyle.copyWith(
                           fontWeight: FontWeight.bold),
                     )
@@ -110,8 +112,8 @@ class TimeSpanInfo extends ConsumerWidget {
     );
   }
 
-  _respToDateStr(Response res) {
+  _respToDateStr(Response res, BuildContext context) {
     final DateTime date = dateFromStamp(res.stamp);
-    return dateToMDYAbr(date);
+    return dateToMDY(date, context);
   }
 }
