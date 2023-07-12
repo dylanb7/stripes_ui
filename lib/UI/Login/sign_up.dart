@@ -58,7 +58,7 @@ class _SignInFormState extends ConsumerState<SignInForm> {
       'Be a minimum of 8 characters long': (val) {
         return val.length >= 8;
       },
-      'Include a lowercase letter (a-z)': (val) {
+      'Include a lowercase letter (a-z)': (val) { 
         return val.contains(RegExp(r'[a-z]'));
       },
       'Include an uppercase letter (A-Z)': (val) {

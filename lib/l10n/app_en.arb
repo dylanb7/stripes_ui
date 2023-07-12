@@ -1,4 +1,24 @@
 {
+
+    "signupWithAccessCode": "Sign up with access code",
+    "loginButtonPrefix": "Already have an account? ",
+    "loginButtonText": "Login",
+    "useWithoutAccount": "Use without account",
+    "passwordText": "Password",
+    "loginText": "Login",
+    "forgotPasswordText": "Forgot password?",
+    "resetPasswordText": "Reset Password",
+
+    "passwordRequirementHeader": "Password must:",
+    "passwordLength": "Be a minimum of 8 characters long",
+    "passwordLowercase": "Include a lowercase letter (a-z)",
+    "passwordUppercase": "Include an uppercase letter (A-Z)",
+    "passwordNumber": "Include a number (1-9)",
+
+    "passwordMatchError": "Passwords do not match",
+
+    "emptyFieldText": "Empty Field",
+
     "codeError": "Invalid Code",
     "submitCode": "Submit",
     "accessCodePlaceholder": "Access Code",

@@ -7,6 +7,51 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get signupWithAccessCode => 'Sign up with access code';
+
+  @override
+  String get loginButtonPrefix => 'Already have an account? ';
+
+  @override
+  String get loginButtonText => 'Login';
+
+  @override
+  String get useWithoutAccount => 'Use without account';
+
+  @override
+  String get passwordText => 'Password';
+
+  @override
+  String get loginText => 'Login';
+
+  @override
+  String get forgotPasswordText => 'Forgot password?';
+
+  @override
+  String get resetPasswordText => 'Reset Password';
+
+  @override
+  String get passwordRequirementHeader => 'Password must:';
+
+  @override
+  String get passwordLength => 'Be a minimum of 8 characters long';
+
+  @override
+  String get passwordLowercase => 'Include a lowercase letter (a-z)';
+
+  @override
+  String get passwordUppercase => 'Include an uppercase letter (A-Z)';
+
+  @override
+  String get passwordNumber => 'Include a number (1-9)';
+
+  @override
+  String get passwordMatchError => 'Passwords do not match';
+
+  @override
+  String get emptyFieldText => 'Empty Field';
+
+  @override
   String get codeError => 'Invalid Code';
 
   @override

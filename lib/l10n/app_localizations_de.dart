@@ -7,6 +7,51 @@ class AppLocalizationsDe extends AppLocalizations {
   AppLocalizationsDe([String locale = 'de']) : super(locale);
 
   @override
+  String get signupWithAccessCode => 'Mit Zugangscode anmelden';
+
+  @override
+  String get loginButtonPrefix => 'Sie haben schon ein Benutzerkonto? ';
+
+  @override
+  String get loginButtonText => 'Anmelden';
+
+  @override
+  String get useWithoutAccount => 'Ohne Benutzerkonto anmelden';
+
+  @override
+  String get passwordText => 'Passwort';
+
+  @override
+  String get loginText => 'Login';
+
+  @override
+  String get forgotPasswordText => 'Passwort vergessen?';
+
+  @override
+  String get resetPasswordText => 'Passwort zurücksetzen';
+
+  @override
+  String get passwordRequirementHeader => 'Passwort muss beinhalten:';
+
+  @override
+  String get passwordLength => 'Mindestens 8 Zeichen lang';
+
+  @override
+  String get passwordLowercase => 'Mindestens ein Großbuchstabe';
+
+  @override
+  String get passwordUppercase => 'Mindestens ein Kleinbuchstabe';
+
+  @override
+  String get passwordNumber => 'Mindestens eine Zahl';
+
+  @override
+  String get passwordMatchError => 'Passwörter stimmen nicht überein';
+
+  @override
+  String get emptyFieldText => 'Leeres Feld';
+
+  @override
   String get codeError => 'Ungültiger Code';
 
   @override

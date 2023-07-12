@@ -93,6 +93,96 @@ abstract class AppLocalizations {
     Locale('en')
   ];
 
+  /// No description provided for @signupWithAccessCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign up with access code'**
+  String get signupWithAccessCode;
+
+  /// No description provided for @loginButtonPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account? '**
+  String get loginButtonPrefix;
+
+  /// No description provided for @loginButtonText.
+  ///
+  /// In en, this message translates to:
+  /// **'Login'**
+  String get loginButtonText;
+
+  /// No description provided for @useWithoutAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Use without account'**
+  String get useWithoutAccount;
+
+  /// No description provided for @passwordText.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get passwordText;
+
+  /// No description provided for @loginText.
+  ///
+  /// In en, this message translates to:
+  /// **'Login'**
+  String get loginText;
+
+  /// No description provided for @forgotPasswordText.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get forgotPasswordText;
+
+  /// No description provided for @resetPasswordText.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Password'**
+  String get resetPasswordText;
+
+  /// No description provided for @passwordRequirementHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must:'**
+  String get passwordRequirementHeader;
+
+  /// No description provided for @passwordLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Be a minimum of 8 characters long'**
+  String get passwordLength;
+
+  /// No description provided for @passwordLowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'Include a lowercase letter (a-z)'**
+  String get passwordLowercase;
+
+  /// No description provided for @passwordUppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'Include an uppercase letter (A-Z)'**
+  String get passwordUppercase;
+
+  /// No description provided for @passwordNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Include a number (1-9)'**
+  String get passwordNumber;
+
+  /// No description provided for @passwordMatchError.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match'**
+  String get passwordMatchError;
+
+  /// No description provided for @emptyFieldText.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty Field'**
+  String get emptyFieldText;
+
   /// No description provided for @codeError.
   ///
   /// In en, this message translates to:

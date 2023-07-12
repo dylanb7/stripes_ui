@@ -1,4 +1,24 @@
 {
+
+    "signupWithAccessCode": "Mit Zugangscode anmelden",
+    "loginButtonPrefix": "Sie haben schon ein Benutzerkonto? ",
+    "loginButtonText": "Anmelden",
+    "useWithoutAccount": "Ohne Benutzerkonto anmelden",
+    "passwordText": "Passwort",
+    "loginText": "Login",
+    "forgotPasswordText": "Passwort vergessen?",
+    "resetPasswordText": "Passwort zurücksetzen",
+
+    "passwordRequirementHeader": "Passwort muss beinhalten:",
+    "passwordLength": "Mindestens 8 Zeichen lang",
+    "passwordLowercase": "Mindestens ein Großbuchstabe",
+    "passwordUppercase": "Mindestens ein Kleinbuchstabe",
+    "passwordNumber": "Mindestens eine Zahl",
+
+    "passwordMatchError": "Passwörter stimmen nicht überein",
+
+    "emptyFieldText": "Leeres Feld",
+
     "codeError": "Ungültiger Code",
     "submitCode": "Senden",
     "accessCodePlaceholder": "Zugangscode",
