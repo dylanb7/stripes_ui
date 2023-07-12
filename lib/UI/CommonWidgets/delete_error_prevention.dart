@@ -45,8 +45,8 @@ class DeleteErrorPrevention extends ConsumerWidget {
                     const SizedBox(
                       height: 8.0,
                     ),
-                    const Text(
-                      'Are you sure you want to delete?',
+                    Text(
+                      AppLocalizations.of(context)!.stampDeleteWarningOne,
                       style: lightBackgroundStyle,
                       textAlign: TextAlign.center,
                     ),
@@ -54,7 +54,7 @@ class DeleteErrorPrevention extends ConsumerWidget {
                       height: 8.0,
                     ),
                     Text(
-                      'You will lose all information you\nentered for this ${type.toLowerCase()} entry',
+                      AppLocalizations.of(context)!.stampDeleteWarningTwo,
                       style: lightBackgroundStyle,
                       textAlign: TextAlign.center,
                     ),
@@ -72,12 +72,12 @@ class DeleteErrorPrevention extends ConsumerWidget {
                     onClick: (_) {
                       _closeOverlay(ref);
                     },
-                    text: 'Cancel'),
+                    text: AppLocalizations.of(context)!.stampDeleteCancel),
                 BasicButton(
                     onClick: (_) {
                       _confirm(ref);
                     },
-                    text: 'Confirm'),
+                    text: AppLocalizations.of(context)!.stampDeleteConfirm),
               ],
             ),
           ],

@@ -283,5 +283,13 @@
     "patientProfilesInstruction": "Select a patient to view their profile.",
     "patientBirthYear": "Birth Year",
     "patientGender": "Gender",
-    "patientRole": "Role"
+    "patientRole": "Role",
+
+    "stampDeleteWarningOne": "Sind Sie sicher, dass Sie löschen möchten?",
+    "stampDeleteWarningTwo": "Sie verlieren alle Informationen für diesen Eintrag.",
+    "stampDeleteConfirm": "Bestätigen",
+    "stampDeleteCancel": "Abbrechen",
+
+    "exitStudy": "Exit-Studie",
+    "exitStudyWarning": "Wenn Sie die Studie verlassen, werden alle exportierten Daten gelöscht und Ihr Zugangscode wird ungültig."
 }

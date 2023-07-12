@@ -47,6 +47,8 @@ typedef ExportAction = Future<void> Function(List<Response> responses);
 
 final exportProvider = Provider<ExportAction?>((ref) => null);
 
+final exitStudyProvider = Provider<Function?>((ref) => null);
+
 final hasGraphingProvider = StateProvider((ref) => true);
 
 final authStrat = Provider<AuthStrat>((ref) => AuthStrat.accessCode);
@@ -69,6 +71,8 @@ class StripesApp extends StatelessWidget {
 
   final Map<String, QuestionEntry>? entryOverrides;
 
+  final Function? removeTrace;
+
   final AuthStrat strat;
 
   const StripesApp(
@@ -77,6 +81,7 @@ class StripesApp extends StatelessWidget {
       this.hasGraphing = true,
       this.locale = const Locale('en'),
       this.displayOverrides,
+      this.removeTrace,
       this.exportAction,
       this.entryOverrides,
       this.strat = AuthStrat.accessCode,
@@ -95,6 +100,8 @@ class StripesApp extends StatelessWidget {
           questionDisplayOverides.overrideWithValue(displayOverrides!),
         if (exportAction != null)
           exportProvider.overrideWithValue(exportAction),
+        if (removeTrace != null)
+          exitStudyProvider.overrideWithValue(removeTrace),
         authStrat.overrideWithValue(strat),
       ],
       observers: [if (hasLogging) const Logger()],

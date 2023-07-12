@@ -7,6 +7,7 @@ import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/History/EventView/export.dart';
+import 'package:stripes_ui/UI/Record/RecordSplit/splitter.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/palette.dart';
@@ -21,6 +22,8 @@ class UserProfileButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final bool isMarker =
         SubUser.isMarker(ref.watch(subHolderProvider).current);
+    final ExportAction? exportAction = ref.watch(exportProvider);
+    final Function? exitAction = ref.watch(exitStudyProvider);
     return PopupMenuButton(
       padding: EdgeInsets.zero,
       offset: const Offset(0, 1),
@@ -91,49 +94,52 @@ class UserProfileButton extends ConsumerWidget {
             );
           },
         ),
-        PopupMenuItem(
-          child: Row(children: [
-            Text(
-              AppLocalizations.of(context)!.exportName,
-              style: lightBackgroundStyle,
-            ),
-            const Spacer(),
-            const Icon(
-              Icons.download,
-              color: darkIconButton,
-            ),
-          ]),
-          onTap: () {
-            final ExportAction? action = ref.watch(exportProvider);
-            if (action == null) {
-              showSnack(AppLocalizations.of(context)!.exportError, context);
-              return;
-            }
-            List<Response> stamps = ref
-                .watch(stampHolderProvider)
-                .stamps
-                .whereType<Response>()
-                .toList();
-            ref.read(overlayProvider.notifier).state =
-                OverlayQuery(widget: ExportOverlay(responses: stamps));
-          },
-        ),
-        PopupMenuItem(
-          child: Row(children: [
-            Text(
-              AppLocalizations.of(context)!.logOutButton,
-              style: lightBackgroundStyle,
-            ),
-            const Spacer(),
-            const Icon(
-              Icons.logout,
-              color: darkIconButton,
-            ),
-          ]),
-          onTap: () {
-            ref.read(authProvider).logOut();
-          },
-        ),
+        if (exportAction != null)
+          PopupMenuItem(
+            child: Row(children: [
+              Text(
+                AppLocalizations.of(context)!.exportName,
+                style: lightBackgroundStyle,
+              ),
+              const Spacer(),
+              const Icon(
+                Icons.download,
+                color: darkIconButton,
+              ),
+            ]),
+            onTap: () {
+              final ExportAction? action = ref.watch(exportProvider);
+              if (action == null) {
+                showSnack(AppLocalizations.of(context)!.exportError, context);
+                return;
+              }
+              List<Response> stamps = ref
+                  .watch(stampHolderProvider)
+                  .stamps
+                  .whereType<Response>()
+                  .toList();
+              ref.read(overlayProvider.notifier).state =
+                  OverlayQuery(widget: ExportOverlay(responses: stamps));
+            },
+          ),
+        if (exitAction != null)
+          PopupMenuItem(
+            child: Row(children: [
+              Text(
+                AppLocalizations.of(context)!.exitStudy,
+                style: lightBackgroundStyle,
+              ),
+              const Spacer(),
+              const Icon(
+                Icons.logout,
+                color: darkIconButton,
+              ),
+            ]),
+            onTap: () {
+              ref.read(overlayProvider.notifier).state =
+                  const OverlayQuery(widget: ExitErrorPrevention());
+            },
+          ),
       ],
       icon: const Icon(
         Icons.person,
@@ -142,5 +148,85 @@ class UserProfileButton extends ConsumerWidget {
       ),
       tooltip: 'Account',
     );
+  }
+}
+
+class ExitErrorPrevention extends ConsumerWidget {
+  const ExitErrorPrevention({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return OverlayBackdrop(
+      child: SizedBox(
+        width: SMALL_LAYOUT / 1.7,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Card(
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10.0))),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 10.0, vertical: 12.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      AppLocalizations.of(context)!.errorPreventionTitle,
+                      style: darkBackgroundHeaderStyle.copyWith(
+                          color: buttonDarkBackground),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(
+                      height: 8.0,
+                    ),
+                    Text(
+                      AppLocalizations.of(context)!.exitStudyWarning,
+                      style: lightBackgroundStyle,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(
+                      height: 8.0,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 5,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                BasicButton(
+                    color: buttonDarkBackground,
+                    onClick: (_) {
+                      _closeOverlay(ref);
+                    },
+                    text: AppLocalizations.of(context)!.stampDeleteCancel),
+                BasicButton(
+                    color: buttonDarkBackground,
+                    onClick: (_) {
+                      _confirm(ref);
+                    },
+                    text: AppLocalizations.of(context)!.stampDeleteConfirm),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  _confirm(WidgetRef ref) {
+    _closeOverlay(ref);
+    final Function? exitAction = ref.watch(exitStudyProvider);
+    exitAction!();
+  }
+
+  _closeOverlay(WidgetRef ref) {
+    ref.read(overlayProvider.notifier).state = closedQuery;
   }
 }

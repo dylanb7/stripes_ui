@@ -902,6 +902,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Role'**
   String get patientRole;
+
+  /// No description provided for @stampDeleteWarningOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete?'**
+  String get stampDeleteWarningOne;
+
+  /// No description provided for @stampDeleteWarningTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'You will lose all information for this entry.'**
+  String get stampDeleteWarningTwo;
+
+  /// No description provided for @stampDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get stampDeleteConfirm;
+
+  /// No description provided for @stampDeleteCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get stampDeleteCancel;
+
+  /// No description provided for @exitStudy.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit Study'**
+  String get exitStudy;
+
+  /// No description provided for @exitStudyWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'When you exit the study all exported data will be deleted and your access code will be invalidated'**
+  String get exitStudyWarning;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

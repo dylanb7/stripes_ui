@@ -283,5 +283,13 @@
     "patientProfilesInstruction": "Select a patient to view their profile.",
     "patientBirthYear": "Birth Year",
     "patientGender": "Gender",
-    "patientRole": "Role"
+    "patientRole": "Role",
+
+    "stampDeleteWarningOne": "Are you sure you want to delete?",
+    "stampDeleteWarningTwo": "You will lose all information for this entry.",
+    "stampDeleteConfirm": "Confirm",
+    "stampDeleteCancel": "Cancel",
+
+    "exitStudy": "Exit Study",
+    "exitStudyWarning": "When you exit the study all exported data will be deleted and your access code will be invalidated"
 }

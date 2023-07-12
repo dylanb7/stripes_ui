@@ -491,4 +491,22 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get patientRole => 'Role';
+
+  @override
+  String get stampDeleteWarningOne => 'Sind Sie sicher, dass Sie löschen möchten?';
+
+  @override
+  String get stampDeleteWarningTwo => 'Sie verlieren alle Informationen für diesen Eintrag.';
+
+  @override
+  String get stampDeleteConfirm => 'Bestätigen';
+
+  @override
+  String get stampDeleteCancel => 'Abbrechen';
+
+  @override
+  String get exitStudy => 'Exit-Studie';
+
+  @override
+  String get exitStudyWarning => 'Wenn Sie die Studie verlassen, werden alle exportierten Daten gelöscht und Ihr Zugangscode wird ungültig.';
 }
