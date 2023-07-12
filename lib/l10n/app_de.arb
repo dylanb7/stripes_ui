@@ -103,8 +103,8 @@
             }
         }
     },
-    "moodLowLevel": "Zu Tode betrübt",
-    "moodHighLevel": "Himmelhochjauchzend",
+    "moodLowLevel": "Sehr gut",
+    "moodHighLevel": "Sehr schlecht",
     "submitHeader": "Tragen Sie weitere Informationen hier ein:",
     "@submitHeader": {
         "placeholders": {

@@ -55,16 +55,16 @@ class _SignInFormState extends ConsumerState<SignInForm> {
   @override
   Widget build(BuildContext context) {
     final Map<String, bool Function(String)> points = {
-      'Be a minimum of 8 characters long': (val) {
+      AppLocalizations.of(context)!.passwordLength: (val) {
         return val.length >= 8;
       },
-      'Include a lowercase letter (a-z)': (val) { 
+      AppLocalizations.of(context)!.passwordLowercase: (val) {
         return val.contains(RegExp(r'[a-z]'));
       },
-      'Include an uppercase letter (A-Z)': (val) {
+      AppLocalizations.of(context)!.passwordUppercase: (val) {
         return val.contains(RegExp(r'[A-Z]'));
       },
-      'Include a number (1-9)': (val) {
+      AppLocalizations.of(context)!.passwordNumber: (val) {
         return val.contains(RegExp(r'[0-9]'));
       }
     };
@@ -129,7 +129,7 @@ class _SignInFormState extends ConsumerState<SignInForm> {
                           height: 8.0,
                         ),
                         ObscureTextField(
-                          hintText: 'Password',
+                          hintText: AppLocalizations.of(context)!.passwordText,
                           controller: password,
                           validator: customPassDigest,
                           shouldValidate: true,
@@ -144,9 +144,10 @@ class _SignInFormState extends ConsumerState<SignInForm> {
                           shouldValidate: true,
                           validator: (value) {
                             return value?.isEmpty ?? true
-                                ? 'Empty Field'
+                                ? AppLocalizations.of(context)!.emptyFieldText
                                 : value != password.text
-                                    ? 'Passwords don\'t match'
+                                    ? AppLocalizations.of(context)!
+                                        .passwordMatchError
                                     : null;
                           },
                           autofillHints: const [AutofillHints.password],
@@ -155,7 +156,8 @@ class _SignInFormState extends ConsumerState<SignInForm> {
                           height: 8.0,
                         ),
                         Text(
-                          'Password must:',
+                          AppLocalizations.of(context)!
+                              .passwordRequirementHeader,
                           style: buttonTextStyle.copyWith(
                               color: buttonDarkBackground2),
                         ),
