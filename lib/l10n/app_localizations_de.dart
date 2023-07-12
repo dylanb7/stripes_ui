@@ -45,7 +45,7 @@ class AppLocalizationsDe extends AppLocalizations {
     final intl.DateFormat dateDateFormat = intl.DateFormat.yMd(localeName);
     final String dateString = dateDateFormat.format(date);
 
-    return 'Last Entry: $dateString';
+    return 'Letzter Eintrag: $dateString';
   }
 
   @override
@@ -58,7 +58,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get managePatientsButton => 'Manage Patients';
 
   @override
-  String get logOutButton => 'Log Out';
+  String get logOutButton => 'Abmelden';
 
   @override
   String get testInProgressNotif => 'Blue Dye Test in Progress';
@@ -139,7 +139,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String editSubmitHeader(String symptomType) {
-    return '\'Information Entered about $symptomType';
+    return '\'Eintrag dokumentiert über $symptomType';
   }
 
   @override
@@ -350,9 +350,9 @@ class AppLocalizationsDe extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$countString results',
-      one: '1 result',
-      zero: 'No results',
+      other: '$countString Einträge',
+      one: 'Ein Eintrag',
+      zero: 'Keine Einträge',
     );
     return '$_temp0';
   }
