@@ -12,30 +12,21 @@ import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 
 enum Loc {
-  day('Event View'),
-  graph('Graph View');
-
-  const Loc(this.value);
-  final String value;
+  day,
+  graph;
 }
 
 enum GraphChoice {
-  day('One Day'),
-  week('One week'),
-  month('One Month'),
-  year('One Year');
-
-  const GraphChoice(this.value);
-  final String value;
+  day,
+  week,
+  month,
+  year;
 }
 
 enum DayChoice {
-  day('Day View'),
-  month('Month View'),
-  all('All Entries');
-
-  const DayChoice(this.value);
-  final String value;
+  day,
+  month,
+  all;
 }
 
 const Duration dayDuration = Duration(days: 1);
@@ -78,11 +69,10 @@ class HistoryLocation {
         day: dayChoice ?? day,
       );
 
-  List<String> get selectedValues => loc == Loc.day
-      ? DayChoice.values.map((choice) => choice.value).toList()
-      : GraphChoice.values.map((choice) => choice.value).toList();
+  List<Enum> get selectedValues =>
+      loc == Loc.day ? DayChoice.values : GraphChoice.values;
 
-  String get selectedValue => loc == Loc.day ? day.value : graph.value;
+  Enum get selectedValue => loc == Loc.day ? day : graph;
 }
 
 const initialLoc =
