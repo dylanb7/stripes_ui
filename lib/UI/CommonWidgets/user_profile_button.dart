@@ -223,7 +223,11 @@ class ExitErrorPrevention extends ConsumerWidget {
   _confirm(WidgetRef ref) {
     _closeOverlay(ref);
     final Function? exitAction = ref.watch(exitStudyProvider);
-    exitAction!();
+    try {
+      exitAction!();
+    } finally {
+      ref.read(authProvider).logOut();
+    }
   }
 
   _closeOverlay(WidgetRef ref) {
