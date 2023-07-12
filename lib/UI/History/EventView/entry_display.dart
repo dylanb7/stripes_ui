@@ -39,7 +39,7 @@ class EntryDisplay extends ConsumerWidget {
           style: lightBackgroundHeaderStyle,
         ),
         Text(
-          '${dateToMDY(resp.startEating, context)} ${timeString(resp.startEating, context)}',
+          '${dateToMDY(resp.startEating, context)} - ${timeString(resp.startEating, context)}',
           style: lightBackgroundStyle,
         ),
         Text(
@@ -65,7 +65,7 @@ class EntryDisplay extends ConsumerWidget {
           style: lightBackgroundHeaderStyle,
         ),
         Text(
-          '${dateToMDY(resp.lastBlue, context)} ${timeString(resp.lastBlue, context)}',
+          '${dateToMDY(resp.lastBlue, context)} - ${timeString(resp.lastBlue, context)}',
           style: lightBackgroundStyle,
         ),
         Text(

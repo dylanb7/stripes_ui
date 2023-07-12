@@ -205,8 +205,8 @@
     "blueMuffinsInfoLineThree": "To get ready for the test, remove the muffins from their packaging and heat them briefly, 20-30 seconds in the microwave or a few minutes in the oven.",
     "blueMuffinsInfoLineFour": "Muffins should be the first thing the participant eats in the morning after an overnight fast of at least 6 hours.",
     "blueDyeCancel": "Test abbrechen",
-    "blueMuffinErrorPreventionLineOne": "Are you sure you want to cancel your Blue Dye Test?",
-    "blueMuffinErrorPreventionLineTwo": "You will lose all progress",
+    "blueMuffinErrorPreventionLineOne": "Sind Sie sicher, dass Sie diese Anwendung verlassen wollen?",
+    "blueMuffinErrorPreventionLineTwo": "So gehen alle eingetragenen Informationen verloren.",
     "blueDyeStart": "Blaue Mahlzeit Start",
     "blueMealStartTime": "Started: {date} {time}",
     "@blueMealStartTime": {

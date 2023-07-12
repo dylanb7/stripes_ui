@@ -7,12 +7,12 @@ import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/instructions.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_content.dart';
-import 'package:stripes_ui/UI/Record/base_screen.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 import '../../../Providers/sub_provider.dart';
+import '../RecordSplit/splitter.dart';
 
 class TestScreen extends ConsumerStatefulWidget {
   const TestScreen({Key? key}) : super(key: key);
@@ -221,12 +221,14 @@ class TestErrorPrevention extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     BasicButton(
+                        color: buttonDarkBackground,
                         onClick: (context) {
                           _dismiss(context, ref);
                         },
                         text:
                             AppLocalizations.of(context)!.errorPreventionLeave),
                     BasicButton(
+                        color: buttonLightBackground,
                         onClick: (context) {
                           _closeOverlay(context, ref);
                         },

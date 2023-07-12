@@ -172,10 +172,10 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get moodLowLevel => 'Zu Tode betrübt';
+  String get moodLowLevel => 'Sehr gut';
 
   @override
-  String get moodHighLevel => 'Himmelhochjauchzend';
+  String get moodHighLevel => 'Sehr schlecht';
 
   @override
   String submitHeader(String symptomType) {
@@ -321,10 +321,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get blueDyeCancel => 'Test abbrechen';
 
   @override
-  String get blueMuffinErrorPreventionLineOne => 'Are you sure you want to cancel your Blue Dye Test?';
+  String get blueMuffinErrorPreventionLineOne => 'Sind Sie sicher, dass Sie diese Anwendung verlassen wollen?';
 
   @override
-  String get blueMuffinErrorPreventionLineTwo => 'You will lose all progress';
+  String get blueMuffinErrorPreventionLineTwo => 'So gehen alle eingetragenen Informationen verloren.';
 
   @override
   String get blueDyeStart => 'Blaue Mahlzeit Start';
