@@ -83,11 +83,11 @@ class _FormContainerState extends State<FormContainer>
                           ),
                           if (widget.hasClose)
                             Align(
-                              alignment: Alignment.topRight,
+                              alignment: Alignment.topLeft,
                               child: IconButton(
                                 iconSize: 35,
                                 icon: const Icon(
-                                  Icons.close,
+                                  Icons.arrow_back_ios,
                                   color: darkBackgroundText,
                                 ),
                                 onPressed: () {

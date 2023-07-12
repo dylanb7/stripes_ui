@@ -49,42 +49,45 @@ class SignUpLogin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        SizedBox(
-            width: 325,
-            child: StripesRoundedButton(
-                text: 'Sign up with access code',
-                rounding: 25.0,
-                onClick: () {
-                  context.go(Routes.SIGN_UP);
-                })),
-        const SizedBox(height: 8.0),
-        StripesTextButton(
-          buttonText: 'Login',
-          onClicked: () {
-            context.go(Routes.LOGIN);
-          },
-          prefix: 'Already have an account? ',
-        ),
-        const SizedBox(
-          height: 4.0,
-        ),
-        const Divider(
-          height: 1,
-          color: Colors.grey,
-        ),
-        const SizedBox(
-          height: 4.0,
-        ),
-        StripesTextButton(
-          buttonText: 'Use without account',
-          onClicked: () {
-            context.go(Routes.LOGIN);
-          },
-        ),
-      ],
+    return SizedBox.expand(
+      child: Column(
+        children: [
+          SizedBox(
+              width: 325,
+              child: StripesRoundedButton(
+                  text: 'Sign up with access code',
+                  rounding: 25.0,
+                  onClick: () {
+                    context.go(Routes.SIGN_UP);
+                  })),
+          const SizedBox(height: 8.0),
+          StripesTextButton(
+            buttonText: 'Login',
+            onClicked: () {
+              context.go(Routes.LOGIN);
+            },
+            prefix: 'Already have an account? ',
+          ),
+          const SizedBox(
+            height: 4.0,
+          ),
+          const Divider(
+            height: 1,
+            color: Colors.grey,
+            endIndent: 8.0,
+            indent: 8.0,
+          ),
+          const SizedBox(
+            height: 4.0,
+          ),
+          StripesTextButton(
+            buttonText: 'Use without account',
+            onClicked: () {
+              context.go(Routes.LOGIN);
+            },
+          ),
+        ],
+      ),
     );
   }
 }
