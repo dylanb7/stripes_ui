@@ -55,6 +55,7 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ref.read(authProvider).logIn({});
     return FormContainer(
       close: () {
         context.go(Routes.LANDING);
