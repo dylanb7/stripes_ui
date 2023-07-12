@@ -55,7 +55,6 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ref.read(authProvider).logIn({});
     return FormContainer(
       close: () {
         context.go(Routes.LANDING);
@@ -134,9 +133,9 @@ class LoginScreen extends StatelessWidget {
                 const SizedBox(
                   height: 8.0,
                 ),
-                StripesRoundedButton(
-                    text: 'Forgot Password',
-                    onClick: () {
+                StripesTextButton(
+                    buttonText: 'Forgot Password?',
+                    onClicked: () {
                       _formKey.currentState?.save();
                       context
                           .findAncestorStateOfType<_LoginState>()!

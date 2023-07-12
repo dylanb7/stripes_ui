@@ -34,7 +34,7 @@ class LandingPage extends ConsumerWidget {
             flex: 1,
           ),
           if (strat == AuthStrat.accessCodeEmail) const SignUpLogin(),
-          if (strat == AuthStrat.accessCode) AccessLogin(),
+          if (strat == AuthStrat.accessCode) const AccessLogin(),
           const Spacer(
             flex: 3,
           ),
@@ -50,6 +50,7 @@ class SignUpLogin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SizedBox(
             width: 325,
@@ -66,6 +67,22 @@ class SignUpLogin extends StatelessWidget {
             context.go(Routes.LOGIN);
           },
           prefix: 'Already have an account? ',
+        ),
+        const SizedBox(
+          height: 4.0,
+        ),
+        const Divider(
+          height: 1,
+          color: Colors.grey,
+        ),
+        const SizedBox(
+          height: 4.0,
+        ),
+        StripesTextButton(
+          buttonText: 'Use without account',
+          onClicked: () {
+            context.go(Routes.LOGIN);
+          },
         ),
       ],
     );
