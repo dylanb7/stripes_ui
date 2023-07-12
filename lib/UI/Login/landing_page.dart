@@ -49,8 +49,10 @@ class SignUpLogin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox.expand(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 35),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(
               width: 325,

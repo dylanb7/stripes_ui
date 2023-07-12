@@ -7,7 +7,6 @@ import 'package:stripes_backend_helper/db_keys.dart';
 import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
 import 'package:stripes_ui/UI/CommonWidgets/form_container.dart';
 import 'package:stripes_ui/UI/CommonWidgets/obscure_text_field.dart';
-import 'package:stripes_ui/UI/Login/pin_field.dart';
 import 'package:stripes_ui/Providers/access_provider.dart';
 import 'package:stripes_ui/Providers/auth_provider.dart';
 import 'package:stripes_ui/Util/async_ui_callback.dart';
@@ -18,6 +17,7 @@ import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/Util/validators.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../CommonWidgets/loading.dart';
 
 class SignUpPage extends ConsumerWidget {
@@ -92,7 +92,7 @@ class _SignInFormState extends ConsumerState<SignInForm> {
                       height: 6.0,
                     ),
                     Text(
-                      'Set up your email and password for your STRIPES account. The email will be used to export data as well as password recovery.',
+                      'Set up your email and password for your STRIPES account.',
                       style: darkBackgroundStyle,
                       textAlign: TextAlign.justify,
                     )
@@ -249,9 +249,9 @@ class _VerificationState extends State<Verification> {
 
   bool loading = false;
 
-  bool accepted = false;
+  String? accessError;
 
-  bool error = false;
+  final TextEditingController controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -275,14 +275,6 @@ class _VerificationState extends State<Verification> {
                         style: darkBackgroundScreenHeaderStyle,
                         textAlign: TextAlign.justify,
                       ),
-                      SizedBox(
-                        height: 6.0,
-                      ),
-                      Text(
-                        'You can find your access code in your confirmation email.',
-                        style: darkBackgroundStyle,
-                        textAlign: TextAlign.justify,
-                      )
                     ],
                   )),
               Spacer(
@@ -298,40 +290,64 @@ class _VerificationState extends State<Verification> {
               },
             ),
             form: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const SizedBox(
-                        height: 32.0,
+              padding: const EdgeInsets.symmetric(horizontal: 15.0),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(
+                      height: 32.0,
+                    ),
+                    if (accessError != null && !loading)
+                      Text(
+                        accessError!,
+                        style: errorStyleTitle,
                       ),
-                      PinField(
-                        onFilled: (val) {
-                          setState(() {
-                            loading = true;
-                          });
-                          _checkCode(
-                              val,
-                              AsyncUiCallback(onSuccess: () {
-                                accepted = true;
-                                setState(() {
-                                  loading = false;
-                                });
-                              }, onError: ({err}) {
-                                showSnack('Invalid Code', context);
-                                setState(() {
-                                  loading = false;
-                                });
-                              }));
-                        },
-                        errorText: error,
-                        accepted: accepted,
-                        loading: loading,
+                    const SizedBox(height: 6.0),
+                    if (!loading)
+                      TextField(
+                        controller: controller,
+                        decoration: formFieldDecoration(
+                            hintText: AppLocalizations.of(context)!
+                                .accessCodePlaceholder,
+                            controller: controller),
                       ),
-                      const SizedBox(
-                        height: 30,
-                      )
-                    ])));
+                    if (loading)
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            controller.text,
+                            style: lightBackgroundHeaderStyle,
+                          ),
+                          const SizedBox(
+                            width: 12.0,
+                          ),
+                          const CircularProgressIndicator(
+                            color: darkIconButton,
+                          ),
+                        ],
+                      ),
+                    const SizedBox(height: 6.0),
+                    StripesRoundedButton(
+                      text: AppLocalizations.of(context)!.submitCode,
+                      disabled: controller.text.isEmpty,
+                      onClick: () {
+                        _checkCode(
+                            controller.text,
+                            AsyncUiCallback(
+                                onError: ({err}) {
+                                  accessError = 'Could not find code';
+                                },
+                                onSuccess: () {}));
+                      },
+                    ),
+                    const SizedBox(
+                      height: 30,
+                    )
+                  ]),
+            ),
+          );
   }
 
   _checkCode(String val, AsyncUiCallback callback) async {
@@ -366,23 +382,22 @@ class Help extends StatelessWidget {
             left: 20.0,
             right: 15.0,
           ),
-          child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Access Code Help',
-                  style: darkBackgroundScreenHeaderStyle,
-                  textAlign: TextAlign.justify,
-                ),
-                SizedBox(
-                  height: 6.0,
-                ),
-                Text(
-                  'You identified that you need help finding your access code.',
-                  style: darkBackgroundStyle,
-                  textAlign: TextAlign.justify,
-                )
-              ]),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(
+              'Access Code Help',
+              style: darkBackgroundScreenHeaderStyle,
+              textAlign: TextAlign.justify,
+            ),
+            SizedBox(
+              height: 6.0,
+            ),
+            Text(
+              'You identified that you need help finding your access code.',
+              style: darkBackgroundStyle,
+              textAlign: TextAlign.justify,
+            )
+          ]),
         ),
         Spacer(
           flex: 1,
