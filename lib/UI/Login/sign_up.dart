@@ -253,6 +253,14 @@ class _VerificationState extends State<Verification> {
 
   final TextEditingController controller = TextEditingController();
 
+  _VerificationState() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      controller.addListener(() {
+        setState(() {});
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return helpShown
