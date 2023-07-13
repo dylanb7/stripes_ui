@@ -20,13 +20,16 @@ import 'package:stripes_ui/Util/validators.dart';
 import '../../l10n/app_localizations.dart';
 import '../CommonWidgets/loading.dart';
 
+final isValid = StateProvider.autoDispose<bool>(
+    (ref) => ref.watch(accessProvider).validState());
+
 class SignUpPage extends ConsumerWidget {
   const SignUpPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AccessCodeRepo repo = ref.watch(accessProvider);
-    return repo.validState() ? const SignInForm() : const Verification();
+    final bool valid = ref.watch(isValid);
+    return valid ? const SignInForm() : const Verification();
   }
 }
 
@@ -355,6 +358,7 @@ class _VerificationState extends ConsumerState<Verification> {
         await ref.read(accessProvider).workingCode(controller.text);
     bool working = res != null;
     if (working) {
+      ref.read(isValid.notifier).state = true;
       callback.onSuccess();
     } else {
       callback.onError();
