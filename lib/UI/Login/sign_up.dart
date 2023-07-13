@@ -88,14 +88,6 @@ class _SignInFormState extends ConsumerState<SignInForm> {
                       style: darkBackgroundScreenHeaderStyle,
                       textAlign: TextAlign.justify,
                     ),
-                    SizedBox(
-                      height: 6.0,
-                    ),
-                    Text(
-                      'Set up your email and password for your STRIPES account.',
-                      style: darkBackgroundStyle,
-                      textAlign: TextAlign.justify,
-                    )
                   ],
                 ),
               ),
@@ -139,7 +131,8 @@ class _SignInFormState extends ConsumerState<SignInForm> {
                           height: 8.0,
                         ),
                         ObscureTextField(
-                          hintText: 'Confirm Password',
+                          hintText:
+                              AppLocalizations.of(context)!.passwordConfirm,
                           controller: confirm,
                           shouldValidate: true,
                           validator: (value) {

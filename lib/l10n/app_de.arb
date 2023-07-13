@@ -291,5 +291,6 @@
     "stampDeleteCancel": "Abbrechen",
 
     "exitStudy": "Exit-Studie",
-    "exitStudyWarning": "Wenn Sie die Studie verlassen, werden alle exportierten Daten gelöscht und Ihr Zugangscode wird ungültig."
+    "exitStudyWarning": "Wenn Sie die Studie verlassen, werden alle exportierten Daten gelöscht und Ihr Zugangscode wird ungültig.",
+    "passwordConfirm": "Passwort bestätigen"
 }

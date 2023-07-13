@@ -291,5 +291,6 @@
     "stampDeleteCancel": "Cancel",
 
     "exitStudy": "Exit Study",
-    "exitStudyWarning": "When you exit the study all exported data will be deleted and your access code will be invalidated"
+    "exitStudyWarning": "When you exit the study all exported data will be deleted and your access code will be invalidated",
+    "passwordConfirm": "Confirm Password"
 }

@@ -938,6 +938,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'When you exit the study all exported data will be deleted and your access code will be invalidated'**
   String get exitStudyWarning;
+
+  /// No description provided for @passwordConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Password'**
+  String get passwordConfirm;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

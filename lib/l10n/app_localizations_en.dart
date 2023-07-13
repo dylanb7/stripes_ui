@@ -509,4 +509,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get exitStudyWarning => 'When you exit the study all exported data will be deleted and your access code will be invalidated';
+
+  @override
+  String get passwordConfirm => 'Confirm Password';
 }
