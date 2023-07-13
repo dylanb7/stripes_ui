@@ -141,6 +141,30 @@ abstract class AppLocalizations {
   /// **'Reset Password'**
   String get resetPasswordText;
 
+  /// No description provided for @noAccountPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Do not have an account?'**
+  String get noAccountPrefix;
+
+  /// No description provided for @noAccountText.
+  ///
+  /// In en, this message translates to:
+  /// **'Create an account'**
+  String get noAccountText;
+
+  /// No description provided for @sendResetEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Send reset email'**
+  String get sendResetEmail;
+
+  /// No description provided for @createAccountText.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get createAccountText;
+
   /// No description provided for @passwordRequirementHeader.
   ///
   /// In en, this message translates to:

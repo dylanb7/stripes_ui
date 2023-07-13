@@ -31,6 +31,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resetPasswordText => 'Reset Password';
 
   @override
+  String get noAccountPrefix => 'Do not have an account?';
+
+  @override
+  String get noAccountText => 'Create an account';
+
+  @override
+  String get sendResetEmail => 'Send reset email';
+
+  @override
+  String get createAccountText => 'Create account';
+
+  @override
   String get passwordRequirementHeader => 'Password must:';
 
   @override

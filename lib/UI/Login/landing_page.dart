@@ -57,18 +57,18 @@ class SignUpLogin extends StatelessWidget {
           SizedBox(
               width: 325,
               child: StripesRoundedButton(
-                  text: 'Sign up with access code',
+                  text: AppLocalizations.of(context)!.signupWithAccessCode,
                   rounding: 25.0,
                   onClick: () {
                     context.go(Routes.SIGN_UP);
                   })),
           const SizedBox(height: 8.0),
           StripesTextButton(
-            buttonText: 'Login',
+            buttonText: AppLocalizations.of(context)!.loginButtonText,
             onClicked: () {
               context.go(Routes.LOGIN);
             },
-            prefix: 'Already have an account? ',
+            prefix: '${AppLocalizations.of(context)!.loginButtonPrefix} ',
           ),
           const SizedBox(
             height: 4.0,
@@ -83,7 +83,7 @@ class SignUpLogin extends StatelessWidget {
             height: 4.0,
           ),
           StripesTextButton(
-            buttonText: 'Use without account',
+            buttonText: AppLocalizations.of(context)!.useWithoutAccount,
             onClicked: () {
               context.go(Routes.LOGIN);
             },

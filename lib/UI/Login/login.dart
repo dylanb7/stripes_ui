@@ -12,6 +12,7 @@ import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/form_input.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/Util/validators.dart';
+import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class Login extends ConsumerStatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -76,8 +77,8 @@ class LoginScreen extends StatelessWidget {
         )
       ]),
       bottomPortion: StripesTextButton(
-        prefix: 'Don\'t have an account? ',
-        buttonText: 'Create One',
+        prefix: '${AppLocalizations.of(context)!.noAccountPrefix} ',
+        buttonText: AppLocalizations.of(context)!.noAccountText,
         onClicked: () {
           context.go(Routes.SIGN_UP);
         },
@@ -106,7 +107,7 @@ class LoginScreen extends StatelessWidget {
                   height: 8.0,
                 ),
                 ObscureTextField(
-                  hintText: 'Password',
+                  hintText: AppLocalizations.of(context)!.passwordText,
                   controller: password,
                   validator: (value) {
                     return customPassDigest(value) != null
@@ -134,7 +135,8 @@ class LoginScreen extends StatelessWidget {
                   height: 8.0,
                 ),
                 StripesTextButton(
-                    buttonText: 'Forgot Password?',
+                    buttonText:
+                        AppLocalizations.of(context)!.forgotPasswordText,
                     onClicked: () {
                       _formKey.currentState?.save();
                       context
@@ -178,19 +180,19 @@ class ResetScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return FormContainer(
         hasClose: false,
-        topPortion: const Column(children: [
-          Spacer(
+        topPortion: Column(children: [
+          const Spacer(
             flex: 2,
           ),
           Padding(
-            padding: EdgeInsets.only(left: 20.0, right: 15.0),
+            padding: const EdgeInsets.only(left: 20.0, right: 15.0),
             child: Text(
-              'Reset Password',
+              AppLocalizations.of(context)!.resetPasswordText,
               style: darkBackgroundScreenHeaderStyle,
               textAlign: TextAlign.justify,
             ),
           ),
-          Spacer(
+          const Spacer(
             flex: 1,
           ),
         ]),
@@ -218,12 +220,11 @@ class ResetScreen extends StatelessWidget {
                         height: 16.0,
                       ),
                       StripesRoundedButton(
-                          text: 'Send Reset Email',
+                          text: AppLocalizations.of(context)!.sendResetEmail,
                           onClick: () {
                             _resetPass(
                                 ref,
                                 AsyncUiCallback(onSuccess: () {
-                                  showSnack('Reset email sent', context);
                                   context
                                       .findAncestorStateOfType<_LoginState>()!
                                       .closeReset();
@@ -235,7 +236,7 @@ class ResetScreen extends StatelessWidget {
                         height: 8.0,
                       ),
                       StripesRoundedButton(
-                          text: 'Back',
+                          text: AppLocalizations.of(context)!.blueDyeCancel,
                           onClick: () {
                             _back(context);
                           }),

@@ -8,6 +8,10 @@
     "loginText": "Login",
     "forgotPasswordText": "Forgot password?",
     "resetPasswordText": "Reset Password",
+    "noAccountPrefix": "Do not have an account?",
+    "noAccountText": "Create an account",
+    "sendResetEmail": "Send reset email",
+    "createAccountText": "Create account",
 
     "passwordRequirementHeader": "Password must:",
     "passwordLength": "Be a minimum of 8 characters long",

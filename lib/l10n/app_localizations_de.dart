@@ -31,6 +31,18 @@ class AppLocalizationsDe extends AppLocalizations {
   String get resetPasswordText => 'Passwort zurücksetzen';
 
   @override
+  String get noAccountPrefix => 'Sie haben noch kein Benutzerkonto?';
+
+  @override
+  String get noAccountText => 'Benutzerkonto erstellen';
+
+  @override
+  String get sendResetEmail => 'E-Mail zum Zurücksetzen senden';
+
+  @override
+  String get createAccountText => 'Konto erstellen';
+
+  @override
   String get passwordRequirementHeader => 'Passwort muss beinhalten:';
 
   @override

@@ -179,7 +179,8 @@ class _SignInFormState extends ConsumerState<SignInForm> {
                           height: 16.0,
                         ),
                         StripesRoundedButton(
-                            text: 'Create Account',
+                            text:
+                                AppLocalizations.of(context)!.createAccountText,
                             onClick: () async {
                               _createAccount(AsyncUiCallback(onSuccess: () {
                                 context.go(Routes.HOME);
@@ -209,9 +210,11 @@ class _SignInFormState extends ConsumerState<SignInForm> {
         setState(() {
           loading = true;
         });
-        await ref
-            .read(authProvider)
-            .signUp({EMAIL_FIELD: email.text, PASSWORD: password.text});
+        await ref.read(authProvider).signUp({
+          EMAIL_FIELD: email.text,
+          PASSWORD: password.text,
+          'LocalAccessKey': ref.read(accessProvider).currentCode
+        });
         final AuthUser current = ref.read(currentAuthProvider);
         if (!AuthUser.isEmpty(current)) {
           await ref.read(accessProvider).removeCode();
@@ -240,8 +243,6 @@ class Verification extends StatefulWidget {
 }
 
 class _VerificationState extends State<Verification> {
-  bool helpShown = false;
-
   bool loading = false;
 
   String? accessError;
@@ -258,99 +259,87 @@ class _VerificationState extends State<Verification> {
 
   @override
   Widget build(BuildContext context) {
-    return helpShown
-        ? const Help()
-        : FormContainer(
-            close: () {
-              context.go(Routes.LANDING);
-            },
-            topPortion: const Column(children: [
-              Spacer(
-                flex: 2,
-              ),
-              Padding(
-                  padding: EdgeInsets.only(left: 20.0, right: 15.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Access Code',
-                        style: darkBackgroundScreenHeaderStyle,
-                        textAlign: TextAlign.justify,
-                      ),
-                    ],
-                  )),
-              Spacer(
-                flex: 1,
-              )
-            ]),
-            bottomPortion: StripesTextButton(
-              buttonText: 'Can\'t find your access code?',
-              onClicked: () {
-                setState(() {
-                  helpShown = true;
-                });
-              },
+    return FormContainer(
+      close: () {
+        context.go(Routes.LANDING);
+      },
+      topPortion: Column(children: [
+        const Spacer(
+          flex: 2,
+        ),
+        Padding(
+            padding: const EdgeInsets.only(left: 20.0, right: 15.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.accessCodePlaceholder,
+                  style: darkBackgroundScreenHeaderStyle,
+                  textAlign: TextAlign.justify,
+                ),
+              ],
+            )),
+        const Spacer(
+          flex: 1,
+        )
+      ]),
+      form: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 15.0),
+        child:
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          const SizedBox(
+            height: 32.0,
+          ),
+          if (accessError != null && !loading)
+            Text(
+              accessError!,
+              style: errorStyleTitle,
             ),
-            form: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15.0),
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const SizedBox(
-                      height: 32.0,
-                    ),
-                    if (accessError != null && !loading)
-                      Text(
-                        accessError!,
-                        style: errorStyleTitle,
-                      ),
-                    const SizedBox(height: 6.0),
-                    if (!loading)
-                      TextField(
-                        controller: controller,
-                        decoration: formFieldDecoration(
-                            hintText: AppLocalizations.of(context)!
-                                .accessCodePlaceholder,
-                            controller: controller),
-                      ),
-                    if (loading)
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            controller.text,
-                            style: lightBackgroundHeaderStyle,
-                          ),
-                          const SizedBox(
-                            width: 12.0,
-                          ),
-                          const CircularProgressIndicator(
-                            color: darkIconButton,
-                          ),
-                        ],
-                      ),
-                    const SizedBox(height: 6.0),
-                    StripesRoundedButton(
-                      text: AppLocalizations.of(context)!.submitCode,
-                      disabled: controller.text.isEmpty,
-                      onClick: () {
-                        _checkCode(
-                            controller.text,
-                            AsyncUiCallback(
-                                onError: ({err}) {
-                                  accessError = 'Could not find code';
-                                },
-                                onSuccess: () {}));
+          const SizedBox(height: 6.0),
+          if (!loading)
+            TextField(
+              controller: controller,
+              decoration: formFieldDecoration(
+                  hintText: AppLocalizations.of(context)!.accessCodePlaceholder,
+                  controller: controller),
+            ),
+          if (loading)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  controller.text,
+                  style: lightBackgroundHeaderStyle,
+                ),
+                const SizedBox(
+                  width: 12.0,
+                ),
+                const CircularProgressIndicator(
+                  color: darkIconButton,
+                ),
+              ],
+            ),
+          const SizedBox(height: 6.0),
+          StripesRoundedButton(
+            text: AppLocalizations.of(context)!.submitCode,
+            disabled: controller.text.isEmpty,
+            onClick: () {
+              _checkCode(
+                  controller.text,
+                  AsyncUiCallback(
+                      onError: ({err}) {
+                        accessError = 'Could not find code';
                       },
-                    ),
-                    const SizedBox(
-                      height: 30,
-                    )
-                  ]),
-            ),
-          );
+                      onSuccess: () {}));
+            },
+          ),
+          const SizedBox(
+            height: 30,
+          )
+        ]),
+      ),
+    );
   }
 
   _checkCode(String val, AsyncUiCallback callback) async {
@@ -360,12 +349,6 @@ class _VerificationState extends State<Verification> {
     } else {
       callback.onError();
     }
-  }
-
-  closeHelp() {
-    setState(() {
-      helpShown = false;
-    });
   }
 }
 
@@ -458,13 +441,6 @@ class Help extends StatelessWidget {
             const SizedBox(
               height: 8.0,
             ),
-            StripesRoundedButton(
-                text: 'Back',
-                onClick: () {
-                  context
-                      .findAncestorStateOfType<_VerificationState>()!
-                      .closeHelp();
-                }),
             const SizedBox(
               height: 16.0,
             ),

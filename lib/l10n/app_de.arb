@@ -8,6 +8,10 @@
     "loginText": "Login",
     "forgotPasswordText": "Passwort vergessen?",
     "resetPasswordText": "Passwort zurücksetzen",
+    "noAccountPrefix": "Sie haben noch kein Benutzerkonto?",
+    "noAccountText": "Benutzerkonto erstellen",
+    "sendResetEmail": "E-Mail zum Zurücksetzen senden",
+    "createAccountText": "Konto erstellen",
 
     "passwordRequirementHeader": "Passwort muss beinhalten:",
     "passwordLength": "Mindestens 8 Zeichen lang",
