@@ -20,6 +20,9 @@ class UserProfileButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final AuthUser user = ref.watch(currentAuthProvider);
+    final bool hasSession =
+        !AuthUser.isEmpty(user) && !AuthUser.isLocalCode(user);
     final bool isMarker =
         SubUser.isMarker(ref.watch(subHolderProvider).current);
     final ExportAction? exportAction = ref.watch(exportProvider);
@@ -94,7 +97,7 @@ class UserProfileButton extends ConsumerWidget {
             );
           },
         ),
-        if (exportAction != null)
+        if (exportAction != null && hasSession)
           PopupMenuItem(
             child: Row(children: [
               Text(
@@ -122,7 +125,7 @@ class UserProfileButton extends ConsumerWidget {
                   OverlayQuery(widget: ExportOverlay(responses: stamps));
             },
           ),
-        if (exitAction != null)
+        if (exitAction != null && hasSession)
           PopupMenuItem(
             child: Row(children: [
               Text(

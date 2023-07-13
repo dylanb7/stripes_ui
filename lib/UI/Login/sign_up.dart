@@ -2,7 +2,6 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:stripes_backend_helper/RepositoryBase/AccessBase/base_access_repo.dart';
 import 'package:stripes_backend_helper/RepositoryBase/AuthBase/auth_user.dart';
 import 'package:stripes_backend_helper/db_keys.dart';
 import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
