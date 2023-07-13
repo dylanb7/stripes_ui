@@ -331,7 +331,7 @@ class _VerificationState extends State<Verification> {
               _checkCode(
                   controller.text,
                   AsyncUiCallback(onError: ({err}) {
-                    accessError = 'Could not find code';
+                    accessError = AppLocalizations.of(context)!.codeError;
                     if (mounted) {
                       setState(() {
                         loading = false;
@@ -355,7 +355,7 @@ class _VerificationState extends State<Verification> {
   }
 
   _checkCode(String val, AsyncUiCallback callback) async {
-    bool working = !(await widget.accessRepo.workingCode(val) == null);
+    bool working = (await widget.accessRepo.workingCode(val)) != null;
     if (working) {
       callback.onSuccess();
     } else {
