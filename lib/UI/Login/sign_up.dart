@@ -325,13 +325,25 @@ class _VerificationState extends State<Verification> {
             text: AppLocalizations.of(context)!.submitCode,
             disabled: controller.text.isEmpty,
             onClick: () {
+              setState(() {
+                loading = true;
+              });
               _checkCode(
                   controller.text,
-                  AsyncUiCallback(
-                      onError: ({err}) {
-                        accessError = 'Could not find code';
-                      },
-                      onSuccess: () {}));
+                  AsyncUiCallback(onError: ({err}) {
+                    accessError = 'Could not find code';
+                    if (mounted) {
+                      setState(() {
+                        loading = false;
+                      });
+                    }
+                  }, onSuccess: () {
+                    if (mounted) {
+                      setState(() {
+                        loading = false;
+                      });
+                    }
+                  }));
             },
           ),
           const SizedBox(
