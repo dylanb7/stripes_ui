@@ -131,7 +131,7 @@ class UserProfileButton extends ConsumerWidget {
               ),
               const Spacer(),
               const Icon(
-                Icons.logout,
+                Icons.close,
                 color: darkIconButton,
               ),
             ]),
@@ -140,6 +140,22 @@ class UserProfileButton extends ConsumerWidget {
                   const OverlayQuery(widget: ExitErrorPrevention());
             },
           ),
+        PopupMenuItem(
+          child: Row(children: [
+            Text(
+              AppLocalizations.of(context)!.logOutButton,
+              style: lightBackgroundStyle,
+            ),
+            const Spacer(),
+            const Icon(
+              Icons.logout,
+              color: darkIconButton,
+            ),
+          ]),
+          onTap: () {
+            ref.read(authProvider).logOut();
+          },
+        ),
       ],
       icon: const Icon(
         Icons.person,
