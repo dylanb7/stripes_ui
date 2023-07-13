@@ -1,3 +1,4 @@
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -109,7 +110,13 @@ class _SignInFormState extends ConsumerState<SignInForm> {
                         TextFormField(
                           controller: email,
                           autofillHints: const [AutofillHints.email],
-                          validator: emailDigest,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return AppLocalizations.of(context)!
+                                  .emptyFieldText;
+                            }
+                            return EmailValidator.validate(value) ? null : 'X';
+                          },
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           decoration: formFieldDecoration(
                               prefix: Icons.email_outlined,
