@@ -26,11 +26,7 @@ class SignUpPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AccessCodeRepo repo = ref.watch(accessProvider);
-    return repo.validState()
-        ? const SignInForm()
-        : Verification(
-            accessRepo: repo,
-          );
+    return repo.validState() ? const SignInForm() : const Verification();
   }
 }
 
@@ -232,17 +228,16 @@ class _SignInFormState extends ConsumerState<SignInForm> {
   }
 }
 
-class Verification extends StatefulWidget {
-  final AccessCodeRepo accessRepo;
-  const Verification({required this.accessRepo, Key? key}) : super(key: key);
+class Verification extends ConsumerStatefulWidget {
+  const Verification({Key? key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() {
+  ConsumerState<Verification> createState() {
     return _VerificationState();
   }
 }
 
-class _VerificationState extends State<Verification> {
+class _VerificationState extends ConsumerState<Verification> {
   bool loading = false;
 
   String? accessError;
@@ -334,6 +329,7 @@ class _VerificationState extends State<Verification> {
                     accessError = AppLocalizations.of(context)!.codeError;
                     if (mounted) {
                       setState(() {
+                        controller.clear();
                         loading = false;
                       });
                     }
@@ -355,7 +351,9 @@ class _VerificationState extends State<Verification> {
   }
 
   _checkCode(String val, AsyncUiCallback callback) async {
-    bool working = (await widget.accessRepo.workingCode(val)) != null;
+    final String? res =
+        await ref.read(accessProvider).workingCode(controller.text);
+    bool working = res != null;
     if (working) {
       callback.onSuccess();
     } else {
