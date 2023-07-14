@@ -44,11 +44,11 @@ class LandingPage extends ConsumerWidget {
   }
 }
 
-class SignUpLogin extends StatelessWidget {
+class SignUpLogin extends ConsumerWidget {
   const SignUpLogin({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 35),
       child: Column(
@@ -85,7 +85,7 @@ class SignUpLogin extends StatelessWidget {
           StripesTextButton(
             buttonText: AppLocalizations.of(context)!.useWithoutAccount,
             onClicked: () {
-              context.go(Routes.LOGIN);
+              ref.read(authProvider).logIn({});
             },
           ),
         ],
