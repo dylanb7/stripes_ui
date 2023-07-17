@@ -107,8 +107,8 @@
             }
         }
     },
-    "moodLowLevel": "Sehr gut",
-    "moodHighLevel": "Sehr schlecht",
+    "moodLowLevel": "Sehr schlecht",
+    "moodHighLevel": "Sehr gut",
     "submitHeader": "Tragen Sie weitere Informationen hier ein:",
     "@submitHeader": {
         "placeholders": {

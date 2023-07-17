@@ -184,10 +184,10 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get moodLowLevel => 'Sehr gut';
+  String get moodLowLevel => 'Sehr schlecht';
 
   @override
-  String get moodHighLevel => 'Sehr schlecht';
+  String get moodHighLevel => 'Sehr gut';
 
   @override
   String submitHeader(String symptomType) {

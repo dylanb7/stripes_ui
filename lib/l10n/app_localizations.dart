@@ -396,13 +396,13 @@ abstract class AppLocalizations {
   /// No description provided for @moodLowLevel.
   ///
   /// In en, this message translates to:
-  /// **'Worst Mood'**
+  /// **'Best Mood'**
   String get moodLowLevel;
 
   /// No description provided for @moodHighLevel.
   ///
   /// In en, this message translates to:
-  /// **'Best Mood'**
+  /// **'Worst Mood'**
   String get moodHighLevel;
 
   /// No description provided for @submitHeader.

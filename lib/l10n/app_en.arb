@@ -107,8 +107,8 @@
             }
         }
     },
-    "moodLowLevel": "Worst Mood",
-    "moodHighLevel": "Best Mood",
+    "moodLowLevel": "Best Mood",
+    "moodHighLevel": "Worst Mood",
     "submitHeader": "Enter information about the {symptomType} entry below",
     "@submitHeader": {
         "placeholders": {

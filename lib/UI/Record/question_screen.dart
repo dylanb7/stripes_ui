@@ -508,7 +508,7 @@ class MoodScreenWidgetState extends State<MoodScreenWidget> {
             });
           },
           listener: listener,
-          min: 1,
+          min: 0,
           max: 10,
           minLabel: AppLocalizations.of(context)!.moodLowLevel,
           maxLabel: AppLocalizations.of(context)!.moodHighLevel,
