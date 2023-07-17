@@ -128,7 +128,10 @@ class _SignInFormState extends ConsumerState<SignInForm> {
                         ObscureTextField(
                           hintText: AppLocalizations.of(context)!.passwordText,
                           controller: password,
-                          validator: customPassDigest,
+                          validator: (val) {
+                            if (customPassDigest(val) != null) return 'X';
+                            return null;
+                          },
                           shouldValidate: true,
                           autofillHints: const [AutofillHints.newPassword],
                         ),
@@ -192,8 +195,6 @@ class _SignInFormState extends ConsumerState<SignInForm> {
                               }, onError: ({err}) {
                                 if (err != null) {
                                   showSnack(err.toString(), context);
-                                } else {
-                                  showSnack('Account creation failed', context);
                                 }
                               }));
                             }),
@@ -224,8 +225,6 @@ class _SignInFormState extends ConsumerState<SignInForm> {
         if (!AuthUser.isEmpty(current)) {
           await ref.read(accessProvider).removeCode();
           callback.onSuccess();
-        } else {
-          callback.onError();
         }
         setState(() {
           loading = false;
