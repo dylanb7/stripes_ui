@@ -223,14 +223,14 @@ class TestErrorPrevention extends ConsumerWidget {
                     BasicButton(
                         color: buttonLightBackground,
                         onClick: (context) {
-                          _closeOverlay(context, ref);
+                          _dismiss(context, ref);
                         },
                         text:
                             AppLocalizations.of(context)!.errorPreventionLeave),
                     BasicButton(
                         color: buttonDarkBackground,
                         onClick: (context) {
-                          _dismiss(context, ref);
+                          _closeOverlay(context, ref);
                         },
                         text:
                             AppLocalizations.of(context)!.errorPreventionStay),
