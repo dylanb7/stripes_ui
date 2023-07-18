@@ -221,11 +221,10 @@ class _SignInFormState extends ConsumerState<SignInForm> {
           PASSWORD: password.text,
           'LocalAccessKey': ref.read(accessProvider).currentCode
         });
-        final AuthUser current = ref.read(currentAuthProvider);
-        if (!AuthUser.isEmpty(current)) {
-          await ref.read(accessProvider).removeCode();
-          callback.onSuccess();
-        }
+
+        await ref.read(accessProvider).removeCode();
+        callback.onSuccess();
+
         setState(() {
           loading = false;
         });
