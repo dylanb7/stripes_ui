@@ -131,7 +131,7 @@ class _InstructionsState extends ConsumerState<Instructions> {
         ),
       )
     ]);
-    if (state == TestState.initial) {
+    /*if (state == TestState.initial) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -145,7 +145,7 @@ class _InstructionsState extends ConsumerState<Instructions> {
           )
         ],
       );
-    }
+    }*/
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
