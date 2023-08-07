@@ -43,10 +43,12 @@ class BlueRecordings extends ConsumerWidget {
                 showDialog(
                     context: context,
                     builder: (context) => SimpleDialog(
+                          contentPadding: const EdgeInsets.all(8.0),
                           children: [
                             Text(
                               AppLocalizations.of(context)!.testSubmitSuccess,
                               style: lightBackgroundHeaderStyle,
+                              textAlign: TextAlign.center,
                             ),
                           ],
                         ));
