@@ -723,6 +723,12 @@ abstract class AppLocalizations {
   /// **'Blue Meal Duration:'**
   String get blueMealFinalDurationTag;
 
+  /// No description provided for @testSubmitSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Test successfully submitted'**
+  String get testSubmitSuccess;
+
   /// No description provided for @eventViewButton.
   ///
   /// In en, this message translates to:

@@ -373,6 +373,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get blueMealFinalDurationTag => 'Dauer der blauen Mahlzeit:';
 
   @override
+  String get testSubmitSuccess => 'Test erfolgreich eingereicht';
+
+  @override
   String get eventViewButton => 'Event View';
 
   @override

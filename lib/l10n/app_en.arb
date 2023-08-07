@@ -233,6 +233,8 @@
     "blueMealFinishedButton": "Finished Blue Meal",
     "blueMealFinalDurationTag": "Blue Meal Duration:",
 
+    "testSubmitSuccess": "Test successfully submitted",
+
     "eventViewButton": "Event View",
     "eventViewDayCategoty": "Day View",
     "eventViewMonthCategory": "Month View",

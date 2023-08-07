@@ -26,7 +26,9 @@ class _TestScreenState extends ConsumerState<TestScreen> {
 
   @override
   void initState() {
-    expandListener = ExpandibleController(true);
+    final TestState state =
+        ref.watch(testHolderProvider.select((value) => value.state));
+    expandListener = ExpandibleController(state == TestState.initial);
     super.initState();
   }
 
@@ -221,14 +223,14 @@ class TestErrorPrevention extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     BasicButton(
-                        color: buttonLightBackground,
+                        color: buttonDarkBackground,
                         onClick: (context) {
                           _dismiss(context, ref);
                         },
                         text:
                             AppLocalizations.of(context)!.errorPreventionLeave),
                     BasicButton(
-                        color: buttonDarkBackground,
+                        color: buttonLightBackground,
                         onClick: (context) {
                           _closeOverlay(context, ref);
                         },

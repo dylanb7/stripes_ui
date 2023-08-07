@@ -40,6 +40,16 @@ class BlueRecordings extends ConsumerWidget {
               text: AppLocalizations.of(context)!.blueDyeLogsSubmitTest,
               onClick: () {
                 ref.read(testHolderProvider).submit(DateTime.now());
+                showDialog(
+                    context: context,
+                    builder: (context) => SimpleDialog(
+                          children: [
+                            Text(
+                              AppLocalizations.of(context)!.testSubmitSuccess,
+                              style: lightBackgroundHeaderStyle,
+                            ),
+                          ],
+                        ));
               },
               disabledClick: () {
                 showSnack(
