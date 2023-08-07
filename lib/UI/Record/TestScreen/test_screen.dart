@@ -26,9 +26,12 @@ class _TestScreenState extends ConsumerState<TestScreen> {
 
   @override
   void initState() {
-    final TestState state =
-        ref.watch(testHolderProvider.select((value) => value.state));
-    expandListener = ExpandibleController(state == TestState.initial);
+    expandListener = ExpandibleController(false);
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      expandListener.set(
+          ref.read(testHolderProvider.select((value) => value.state)) ==
+              TestState.initial);
+    });
     super.initState();
   }
 
