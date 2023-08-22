@@ -26,18 +26,20 @@ class Home extends ConsumerWidget {
     final SubNotifier subNotif = ref.watch(subHolderProvider);
     final empty = subNotif.users.isEmpty;
     final FloatingActionButton? button = ref.watch(actionProvider);
-    return Scaffold(
-      floatingActionButtonLocation:
-          FloatingActionButtonLocation.miniCenterFloat,
-      floatingActionButton: button,
-      body: empty || SubUser.isEmpty((subNotif.current))
-          ? CreatePatient()
-          : Stack(
-              children: [
-                StripesTabView(selected: path.option),
-                if (overlay.widget != null) overlay.widget!
-              ],
-            ),
-    );
+    return GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: Scaffold(
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.miniCenterFloat,
+          floatingActionButton: button,
+          body: empty || SubUser.isEmpty((subNotif.current))
+              ? CreatePatient()
+              : Stack(
+                  children: [
+                    StripesTabView(selected: path.option),
+                    if (overlay.widget != null) overlay.widget!
+                  ],
+                ),
+        ));
   }
 }

@@ -176,10 +176,16 @@ class ExpandibleRaw extends StatefulWidget {
 
   final Widget header;
 
+  final double? iconSize;
+
   final ExpandibleController? controller;
 
   const ExpandibleRaw(
-      {required this.header, required this.view, this.controller, super.key});
+      {required this.header,
+      required this.view,
+      this.controller,
+      this.iconSize,
+      super.key});
 
   @override
   State<StatefulWidget> createState() => _ExpandRawState();
@@ -259,6 +265,7 @@ class _ExpandRawState extends State<ExpandibleRaw>
                               ? Icons.expand_less
                               : Icons.expand_more,
                           color: Colors.black,
+                          size: widget.iconSize,
                         ),
                       ),
                     ],

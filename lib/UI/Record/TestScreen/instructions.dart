@@ -151,10 +151,12 @@ class _InstructionsState extends ConsumerState<Instructions> {
       children: [
         ExpandibleRaw(
           header: Expanded(
-              child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: header,
-          )),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: header,
+            ),
+          ),
+          iconSize: 35,
           view: body,
           controller: widget.expandController,
         ),
