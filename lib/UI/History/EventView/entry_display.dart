@@ -184,6 +184,7 @@ class EntryDisplay extends ConsumerWidget {
                 style: lightBackgroundStyle,
               ),
             ]),
+        iconSize: 35,
         view: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,

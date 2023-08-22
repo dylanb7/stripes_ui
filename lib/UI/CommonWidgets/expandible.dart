@@ -17,6 +17,8 @@ class Expandible extends StatefulWidget {
 
   final Color highlightColor;
 
+  final double? iconSize;
+
   final ExpandibleController? listener;
 
   const Expandible(
@@ -26,6 +28,7 @@ class Expandible extends StatefulWidget {
       this.selected = false,
       this.hasIndicator = true,
       this.highlightOnShrink = false,
+      this.iconSize,
       this.highlightColor = buttonDarkBackground,
       this.listener,
       Key? key})
@@ -136,6 +139,7 @@ class _ExpandibleState extends State<Expandible>
                             Icon(
                               _expanded ? Icons.expand_less : Icons.expand_more,
                               color: darkIconButton,
+                              size: widget.iconSize,
                             )
                           ],
                           const SizedBox(

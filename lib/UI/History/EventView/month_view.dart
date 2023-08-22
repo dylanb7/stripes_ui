@@ -28,7 +28,7 @@ class MonthView extends ConsumerWidget {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 380),
             child: IconTheme(
-              data: IconTheme.of(context).copyWith(size: 30.0),
+              data: IconTheme.of(context).copyWith(size: 35.0),
               child: LayoutBuilder(builder: (context, constraints) {
                 (constraints.maxWidth - 80) / rows.toDouble();
                 final double height =

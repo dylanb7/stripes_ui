@@ -24,7 +24,7 @@ class DayView extends ConsumerWidget {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 500),
             child: IconTheme(
-              data: IconTheme.of(context).copyWith(size: 30.0),
+              data: IconTheme.of(context).copyWith(size: 35.0),
               child: CalendarCarousel<CalendarEvent>(
                 onDayPressed: (date, events) {
                   if (selected != date) {
