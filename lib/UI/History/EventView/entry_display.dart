@@ -181,8 +181,7 @@ class EntryDisplay extends ConsumerWidget {
               ),
               Text(
                 '${dateToMDY(date, context)} - ${timeString(date, context)}',
-                style: lightBackgroundStyle.copyWith(
-                    decoration: TextDecoration.underline),
+                style: lightBackgroundStyle,
               ),
             ]),
         view: Column(
