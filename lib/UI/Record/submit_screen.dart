@@ -151,9 +151,10 @@ class SubmitScreen extends ConsumerWidget {
 
   _submitEntry(BuildContext context, WidgetRef ref, bool blueRecord,
       List<bool> toggles) async {
-    final DateTime dateOfEntry =
-        isEdit ? submitTime ?? _dateListener.date : _dateListener.date;
-    final TimeOfDay timeOfEntry = _timeListener.time;
+    final DateTime date = ref.read(dateProvider).date;
+    final TimeOfDay time = ref.read(timeProvider).time;
+    final DateTime dateOfEntry = isEdit ? submitTime ?? date : date;
+    final TimeOfDay timeOfEntry = time;
     final currentTime = DateTime.now();
     final int entryStamp = dateToStamp(DateTime(
         dateOfEntry.year,
