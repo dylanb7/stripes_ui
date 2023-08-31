@@ -37,55 +37,43 @@ class DateWidget extends ConsumerStatefulWidget {
 
 class _DateWidgetState extends ConsumerState<DateWidget> {
   @override
-  void initState() {
-    widget.dateListener.addListener(_state);
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    widget.dateListener.removeListener(_state);
-    super.dispose();
-  }
-
-  _state() {
-    setState(() {});
-    print("set");
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final DateTime date = widget.dateListener.date;
-    final text = Text(
-      AppLocalizations.of(context)!.dateChangeEntry(date),
-      style: lightBackgroundStyle.copyWith(
-        decoration: TextDecoration.underline,
-      ),
-    );
-    final Widget inner = GestureDetector(
-      onTap: () {
-        _showDatePicker(context, ref);
+    return AnimatedBuilder(
+      animation: widget.dateListener,
+      builder: (context, child) {
+        final DateTime date = widget.dateListener.date;
+        final text = Text(
+          AppLocalizations.of(context)!.dateChangeEntry(date),
+          style: lightBackgroundStyle.copyWith(
+            decoration: TextDecoration.underline,
+          ),
+        );
+        final Widget inner = GestureDetector(
+          onTap: () {
+            _showDatePicker(context, ref);
+          },
+          child: widget.hasIcon
+              ? Row(
+                  children: [
+                    const Icon(
+                      Icons.calendar_today,
+                      color: darkIconButton,
+                      size: 35,
+                    ),
+                    text
+                  ],
+                )
+              : text,
+        ).showCursorOnHover;
+        if (widget.hasHeader) {
+          return DateTimeHolder(
+            text: AppLocalizations.of(context)!.dateChangeTitle,
+            child: inner,
+          );
+        }
+        return inner;
       },
-      child: widget.hasIcon
-          ? Row(
-              children: [
-                const Icon(
-                  Icons.calendar_today,
-                  color: darkIconButton,
-                  size: 35,
-                ),
-                text
-              ],
-            )
-          : text,
-    ).showCursorOnHover;
-    if (widget.hasHeader) {
-      return DateTimeHolder(
-        text: AppLocalizations.of(context)!.dateChangeTitle,
-        child: inner,
-      );
-    }
-    return inner;
+    );
   }
 
   _showDatePicker(BuildContext context, WidgetRef ref) async {
