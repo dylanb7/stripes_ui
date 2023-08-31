@@ -9,30 +9,22 @@ import 'package:stripes_ui/l10n/app_localizations.dart';
 class DateListener extends ChangeNotifier {
   DateTime date = DateTime.now();
 
-  quietSet(DateTime dateTime) {
-    date = dateTime;
-  }
-
   setDate(DateTime dateTime) {
     date = dateTime;
     notifyListeners();
   }
 }
 
-final dateProvider = ChangeNotifierProvider.autoDispose(
-  (ref) => DateListener(),
-);
-
-final timeProvider =
-    ChangeNotifierProvider.autoDispose((ref) => TimeListener());
-
-class DateWidget extends ConsumerWidget {
+class DateWidget extends ConsumerStatefulWidget {
   final DateTime? earliest, latest;
 
   final bool hasHeader, hasIcon;
 
+  final DateListener dateListener;
+
   const DateWidget(
-      {this.earliest,
+      {required this.dateListener,
+      this.earliest,
       this.latest,
       this.hasHeader = true,
       this.hasIcon = true,
@@ -40,8 +32,23 @@ class DateWidget extends ConsumerWidget {
       : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final DateTime date = ref.watch(dateProvider).date;
+  ConsumerState<ConsumerStatefulWidget> createState() => _DateWidgetState();
+}
+
+class _DateWidgetState extends ConsumerState<DateWidget> {
+  @override
+  void initState() {
+    widget.dateListener.addListener(() {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final DateTime date = widget.dateListener.date;
     final text = Text(
       AppLocalizations.of(context)!.dateChangeEntry(date),
       style: lightBackgroundStyle.copyWith(
@@ -52,7 +59,7 @@ class DateWidget extends ConsumerWidget {
       onTap: () {
         _showDatePicker(context, ref);
       },
-      child: hasIcon
+      child: widget.hasIcon
           ? Row(
               children: [
                 const Icon(
@@ -65,7 +72,7 @@ class DateWidget extends ConsumerWidget {
             )
           : text,
     ).showCursorOnHover;
-    if (hasHeader) {
+    if (widget.hasHeader) {
       return DateTimeHolder(
         text: AppLocalizations.of(context)!.dateChangeTitle,
         child: inner,
@@ -78,20 +85,16 @@ class DateWidget extends ConsumerWidget {
     final DateTime now = DateTime.now();
     DateTime? res = await showDatePicker(
         context: context,
-        initialDate: ref.watch(dateProvider).date,
-        firstDate: earliest ?? now.subtract(const Duration(days: 365)),
-        lastDate: latest ?? now);
+        initialDate: widget.dateListener.date,
+        firstDate: widget.earliest ?? now.subtract(const Duration(days: 365)),
+        lastDate: widget.latest ?? now);
     if (res == null) return;
-    ref.read(dateProvider.notifier).setDate(res);
+    widget.dateListener.setDate(res);
   }
 }
 
 class TimeListener extends ChangeNotifier {
   TimeOfDay time = TimeOfDay.now();
-
-  quietSet(TimeOfDay dateTime) {
-    time = dateTime;
-  }
 
   setTime(TimeOfDay timeOfDay) {
     time = timeOfDay;
@@ -101,13 +104,16 @@ class TimeListener extends ChangeNotifier {
 
 final timeErrorProvider = StateProvider<String?>((ref) => null);
 
-class TimeWidget extends ConsumerWidget {
+class TimeWidget extends ConsumerStatefulWidget {
   final TimeOfDay? earliest, latest;
+
+  final TimeListener timeListener;
 
   final bool hasHeader, hasIcon;
 
   const TimeWidget(
-      {this.earliest,
+      {required this.timeListener,
+      this.earliest,
       this.latest,
       this.hasHeader = true,
       this.hasIcon = true,
@@ -115,8 +121,13 @@ class TimeWidget extends ConsumerWidget {
       : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final TimeOfDay time = ref.watch(timeProvider).time;
+  ConsumerState<ConsumerStatefulWidget> createState() => _TimeWidgetState();
+}
+
+class _TimeWidgetState extends ConsumerState<TimeWidget> {
+  @override
+  Widget build(BuildContext context) {
+    final TimeOfDay time = widget.timeListener.time;
     final Widget text = Text(
       time.format(context),
       style: lightBackgroundStyle.copyWith(
@@ -127,7 +138,7 @@ class TimeWidget extends ConsumerWidget {
       onTap: () {
         _showTimePicker(context, ref);
       },
-      child: hasIcon
+      child: widget.hasIcon
           ? Row(
               children: [
                 const Icon(
@@ -140,7 +151,7 @@ class TimeWidget extends ConsumerWidget {
             )
           : text,
     ).showCursorOnHover;
-    if (hasHeader) {
+    if (widget.hasHeader) {
       return DateTimeHolder(
         text: AppLocalizations.of(context)!.timeChangeTitle,
         errorText: ref.read(timeErrorProvider),
@@ -154,20 +165,22 @@ class TimeWidget extends ConsumerWidget {
     if (time == null) return true;
     bool lateEnough = true;
     bool earlyEnough = true;
-    if (earliest != null) {
-      lateEnough = time.hour > earliest!.hour ||
-          time.hour == earliest!.hour && time.minute >= earliest!.minute;
+    if (widget.earliest != null) {
+      lateEnough = time.hour > widget.earliest!.hour ||
+          time.hour == widget.earliest!.hour &&
+              time.minute >= widget.earliest!.minute;
     }
-    if (latest != null) {
-      earlyEnough = time.hour < latest!.hour ||
-          time.hour == latest!.hour && time.minute <= latest!.minute;
+    if (widget.latest != null) {
+      earlyEnough = time.hour < widget.latest!.hour ||
+          time.hour == widget.latest!.hour &&
+              time.minute <= widget.latest!.minute;
     }
     return lateEnough && earlyEnough;
   }
 
   _showTimePicker(BuildContext context, WidgetRef ref) async {
-    final String? early = earliest?.format(context);
-    final String? latestErr = latest?.format(context);
+    final String? early = widget.earliest?.format(context);
+    final String? latestErr = widget.latest?.format(context);
     String selectionError = "";
     if (early != null && latestErr != null) {
       selectionError =
@@ -181,13 +194,13 @@ class TimeWidget extends ConsumerWidget {
     }
     TimeOfDay? res = await showTimePicker(
       context: context,
-      initialTime: ref.read(timeProvider).time,
+      initialTime: widget.timeListener.time,
       initialEntryMode: TimePickerEntryMode.input,
     );
     if (res == null) return;
     if (_selectionPredicate(res)) {
       ref.read(timeErrorProvider.notifier).state = null;
-      ref.read(timeProvider).setTime(res);
+      widget.timeListener.setTime(res);
       return;
     }
     ref.read(timeErrorProvider.notifier).state = selectionError;

@@ -8,7 +8,7 @@ import 'package:stripes_ui/UI/Record/screen_manager.dart';
 import 'package:stripes_ui/UI/Record/submit_screen.dart';
 import 'package:stripes_ui/UI/Record/symptom_record_data.dart';
 
-import 'question_splitter.dart';
+import '../RecordSplit/question_splitter.dart';
 
 class PainLog extends ConsumerWidget {
   final QuestionsListener listener = QuestionsListener();

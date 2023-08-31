@@ -4,6 +4,7 @@ import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
+import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/instructions.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_content.dart';
@@ -167,7 +168,38 @@ class TestErrorPrevention extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Stack(
+    return ConfirmationPopup(
+        title: Text(
+          AppLocalizations.of(context)!.errorPreventionTitle,
+          style:
+              darkBackgroundHeaderStyle.copyWith(color: buttonDarkBackground),
+          textAlign: TextAlign.center,
+        ),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              AppLocalizations.of(context)!.blueMuffinErrorPreventionLineOne,
+              style: lightBackgroundStyle,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(
+              height: 8.0,
+            ),
+            Text(
+              AppLocalizations.of(context)!.blueMuffinErrorPreventionLineTwo,
+              style: lightBackgroundStyle,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        onConfirm: () {
+          ref.read(testHolderProvider.notifier).cancel();
+        },
+        cancel: AppLocalizations.of(context)!.errorPreventionStay,
+        confirm: AppLocalizations.of(context)!.errorPreventionLeave);
+    /*return Stack(
       children: [
         Positioned.fill(
           child: Container(
@@ -246,15 +278,6 @@ class TestErrorPrevention extends ConsumerWidget {
           ),
         ),
       ],
-    );
-  }
-
-  _dismiss(BuildContext context, WidgetRef ref) {
-    ref.read(testHolderProvider.notifier).cancel();
-    _closeOverlay(context, ref);
-  }
-
-  _closeOverlay(BuildContext context, WidgetRef ref) {
-    ref.read(overlayProvider.notifier).state = closedQuery;
+    );*/
   }
 }

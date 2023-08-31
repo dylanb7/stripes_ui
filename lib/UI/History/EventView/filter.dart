@@ -16,14 +16,10 @@ class FilterButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    open() {
-      ref.read(overlayProvider.notifier).state =
-          OverlayQuery(widget: _FilterPopUp());
-    }
-
     return ElevatedButton(
         onPressed: () {
-          open();
+          ref.read(overlayProvider.notifier).state =
+              OverlayQuery(widget: _FilterPopUp());
         },
         style: historyButtonStyle,
         child: Row(
@@ -50,41 +46,41 @@ class _FilterPopUp extends ConsumerStatefulWidget {
 }
 
 class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
-  late Set<String> types;
-
   Set<String> selectedTypes = {};
-
-  late DateTime startDate, endDate;
 
   late DateListener startDateListener, endDateListener;
 
   late TimeListener startTimeListener, endTimeListener;
 
-  late List<Response> availible;
-
   @override
   void initState() {
-    reset();
+    initDateRange();
+    startDateListener.addListener(_set);
+    startTimeListener.addListener(_set);
+    endDateListener.addListener(_set);
+    endTimeListener.addListener(_set);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    final List<Response> availible = ref.watch(availibleStampsProvider).stamps;
+    final int start =
+        dateToStamp(_combine(startDateListener.date, startTimeListener.time));
+    final int end =
+        dateToStamp(_combine(endDateListener.date, endTimeListener.time));
+
     filt(val) {
       bool validType =
           selectedTypes.isEmpty || selectedTypes.contains(val.type);
-      final int start =
-          dateToStamp(_combine(startDateListener.date, startTimeListener.time));
-      final int end =
-          dateToStamp(_combine(endDateListener.date, endTimeListener.time));
       return validType && val.stamp >= start && val.stamp <= end;
     }
 
-    startDateListener.addListener(_set);
-    startTimeListener.addListener(_set);
-    endDateListener.addListener(_set);
-    endTimeListener.addListener(_set);
     final int amount = availible.where(filt).length;
+
+    Set<String> types = {};
+    types.addAll(availible.map((ent) => ent.type));
+
     final String message = amount == 1 ? '$amount Result' : '$amount Results';
     return OverlayBackdrop(
       child: SingleChildScrollView(
@@ -142,7 +138,8 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                           TextButton(
                               onPressed: () {
                                 setState(() {
-                                  reset();
+                                  selectedTypes = {};
+                                  initDateRange();
                                 });
                               },
                               child: Text(
@@ -210,23 +207,20 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                       height: 6.0,
                     ),
                     Center(
-                      child: ProviderScope(
-                        overrides: [
-                          dateProvider.overrideWith((_) => startDateListener),
-                          timeProvider.overrideWith((_) => startTimeListener)
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          DateWidget(
+                            dateListener: startDateListener,
+                            latest: endDateListener.date,
+                          ),
+                          const SizedBox(
+                            width: 25.0,
+                          ),
+                          TimeWidget(
+                            timeListener: startTimeListener,
+                          ),
                         ],
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            DateWidget(
-                              latest: endDateListener.date,
-                            ),
-                            const SizedBox(
-                              width: 25.0,
-                            ),
-                            const TimeWidget(),
-                          ],
-                        ),
                       ),
                     ),
                     const SizedBox(
@@ -241,23 +235,20 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                       height: 6.0,
                     ),
                     Center(
-                      child: ProviderScope(
-                        overrides: [
-                          dateProvider.overrideWith((_) => endDateListener),
-                          timeProvider.overrideWith((_) => endTimeListener)
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          DateWidget(
+                            dateListener: endDateListener,
+                            earliest: startDateListener.date,
+                          ),
+                          const SizedBox(
+                            width: 25.0,
+                          ),
+                          TimeWidget(
+                            timeListener: endTimeListener,
+                          ),
                         ],
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            DateWidget(
-                              earliest: startDateListener.date,
-                            ),
-                            const SizedBox(
-                              width: 25.0,
-                            ),
-                            const TimeWidget(),
-                          ],
-                        ),
                       ),
                     ),
                     const SizedBox(
@@ -289,22 +280,18 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
     setState(() {});
   }
 
-  reset() {
-    availible = ref.read(availibleStampsProvider).stamps;
-    types = {};
-    types.addAll(availible.map((ent) => ent.type));
-    selectedTypes = {};
+  initDateRange() {
+    final List<Response> availible = ref.read(availibleStampsProvider).stamps;
+    DateTime startDate = DateTime.now();
+    DateTime endDate = startDate;
     if (availible.isNotEmpty) {
       startDate = dateFromStamp(availible.last.stamp);
       endDate = dateFromStamp(availible.first.stamp);
-    } else {
-      startDate = endDate = DateTime.now();
     }
-    startDateListener = DateListener()..quietSet(startDate);
-    startTimeListener = TimeListener()
-      ..quietSet(TimeOfDay.fromDateTime(startDate));
-    endDateListener = DateListener()..quietSet(endDate);
-    endTimeListener = TimeListener()..quietSet(TimeOfDay.fromDateTime(endDate));
+    startDateListener.date = startDate;
+    startTimeListener.time = TimeOfDay.fromDateTime(startDate);
+    endDateListener.date = endDate;
+    endTimeListener.time = TimeOfDay.fromDateTime(endDate);
   }
 
   DateTime _combine(DateTime date, TimeOfDay time) {

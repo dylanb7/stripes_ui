@@ -12,10 +12,13 @@ class ConfirmationPopup extends ConsumerWidget {
 
   final Function? onConfirm;
 
-  final Widget children;
+  final Widget title;
+
+  final Widget body;
 
   const ConfirmationPopup(
-      {required this.children,
+      {required this.title,
+      required this.body,
       required this.cancel,
       required this.confirm,
       this.onConfirm,
@@ -44,7 +47,28 @@ class ConfirmationPopup extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    children,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const SizedBox(
+                          width: 35,
+                        ),
+                        title,
+                        IconButton(
+                          onPressed: () {
+                            _dismiss(context, ref);
+                          },
+                          icon: const Icon(Icons.close),
+                          color: lightIconButton,
+                          iconSize: 35,
+                        )
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    body,
                     const SizedBox(
                       height: 8.0,
                     ),
