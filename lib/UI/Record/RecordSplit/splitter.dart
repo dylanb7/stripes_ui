@@ -379,7 +379,13 @@ class ErrorPrevention extends ConsumerWidget {
             ),
           ],
         ),
-        onConfirm: () => context.pop(),
+        onConfirm: () {
+          if (context.canPop()) {
+            context.pop();
+          } else {
+            context.go(Routes.HOME);
+          }
+        },
         cancel: AppLocalizations.of(context)!.errorPreventionStay,
         confirm: AppLocalizations.of(context)!.errorPreventionLeave);
     /*return Stack(

@@ -7,6 +7,7 @@ import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
 import 'package:stripes_ui/UI/CommonWidgets/date_time_entry.dart';
 import 'package:stripes_ui/UI/Record/question_screen.dart';
+import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
@@ -181,7 +182,13 @@ class SubmitScreen extends ConsumerWidget {
             .addLog(BMTestLog(response: detailResponse, isBlue: toggles.first));
       }
     }
-    if (context.mounted) context.pop();
+    if (context.mounted) {
+      if (context.canPop()) {
+        context.pop();
+      } else {
+        context.go(Routes.HOME);
+      }
+    }
   }
 }
 
