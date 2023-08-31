@@ -50,6 +50,7 @@ class _DateWidgetState extends ConsumerState<DateWidget> {
 
   _state() {
     setState(() {});
+    print("set");
   }
 
   @override
