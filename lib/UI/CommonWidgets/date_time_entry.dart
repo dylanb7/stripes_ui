@@ -126,6 +126,14 @@ class TimeWidget extends ConsumerStatefulWidget {
 
 class _TimeWidgetState extends ConsumerState<TimeWidget> {
   @override
+  void initState() {
+    widget.timeListener.addListener(() {
+      if (mounted) setState(() {});
+    });
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final TimeOfDay time = widget.timeListener.time;
     final Widget text = Text(
