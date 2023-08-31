@@ -41,6 +41,7 @@ class _DateWidgetState extends ConsumerState<DateWidget> {
     widget.dateListener.addListener(() {
       if (mounted) {
         setState(() {});
+        print(widget.dateListener.date);
       }
     });
     super.initState();

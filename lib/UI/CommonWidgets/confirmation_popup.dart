@@ -34,11 +34,11 @@ class ConfirmationPopup extends ConsumerWidget {
             color: lightBackgroundText.withOpacity(0.9),
           ),
         ),
-        Center(
-          child: SizedBox(
-            width: SMALL_LAYOUT / 1.7,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Center(
+            child: SizedBox(
+              width: SMALL_LAYOUT / 1.7,
               child: Card(
                 shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(10.0))),
