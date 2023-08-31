@@ -15,7 +15,7 @@ class DateListener extends ChangeNotifier {
   }
 }
 
-class DateWidget extends ConsumerStatefulWidget {
+class DateWidget extends ConsumerWidget {
   final DateTime? earliest, latest;
 
   final bool hasHeader, hasIcon;
@@ -32,16 +32,11 @@ class DateWidget extends ConsumerStatefulWidget {
       : super(key: key);
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _DateWidgetState();
-}
-
-class _DateWidgetState extends ConsumerState<DateWidget> {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return AnimatedBuilder(
-      animation: widget.dateListener,
+      animation: dateListener,
       builder: (context, child) {
-        final DateTime date = widget.dateListener.date;
+        final DateTime date = dateListener.date;
         final text = Text(
           AppLocalizations.of(context)!.dateChangeEntry(date),
           style: lightBackgroundStyle.copyWith(
@@ -52,7 +47,7 @@ class _DateWidgetState extends ConsumerState<DateWidget> {
           onTap: () {
             _showDatePicker(context, ref);
           },
-          child: widget.hasIcon
+          child: hasIcon
               ? Row(
                   children: [
                     const Icon(
@@ -65,7 +60,7 @@ class _DateWidgetState extends ConsumerState<DateWidget> {
                 )
               : text,
         ).showCursorOnHover;
-        if (widget.hasHeader) {
+        if (hasHeader) {
           return DateTimeHolder(
             text: AppLocalizations.of(context)!.dateChangeTitle,
             child: inner,
@@ -80,11 +75,11 @@ class _DateWidgetState extends ConsumerState<DateWidget> {
     final DateTime now = DateTime.now();
     DateTime? res = await showDatePicker(
         context: context,
-        initialDate: widget.dateListener.date,
-        firstDate: widget.earliest ?? now.subtract(const Duration(days: 365)),
-        lastDate: widget.latest ?? now);
+        initialDate: dateListener.date,
+        firstDate: earliest ?? now.subtract(const Duration(days: 365)),
+        lastDate: latest ?? now);
     if (res == null) return;
-    widget.dateListener.setDate(res);
+    dateListener.setDate(res);
   }
 }
 
@@ -99,7 +94,7 @@ class TimeListener extends ChangeNotifier {
 
 final timeErrorProvider = StateProvider<String?>((ref) => null);
 
-class TimeWidget extends ConsumerStatefulWidget {
+class TimeWidget extends ConsumerWidget {
   final TimeOfDay? earliest, latest;
 
   final TimeListener timeListener;
@@ -114,84 +109,64 @@ class TimeWidget extends ConsumerStatefulWidget {
       this.hasIcon = true,
       Key? key})
       : super(key: key);
-
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _TimeWidgetState();
-}
-
-class _TimeWidgetState extends ConsumerState<TimeWidget> {
-  @override
-  void initState() {
-    widget.timeListener.addListener(_state);
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    widget.timeListener.removeListener(_state);
-    super.dispose();
-  }
-
-  _state() {
-    setState(() {});
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final TimeOfDay time = widget.timeListener.time;
-    final Widget text = Text(
-      time.format(context),
-      style: lightBackgroundStyle.copyWith(
-        decoration: TextDecoration.underline,
-      ),
-    );
-    final Widget inner = GestureDetector(
-      onTap: () {
-        _showTimePicker(context, ref);
-      },
-      child: widget.hasIcon
-          ? Row(
-              children: [
-                const Icon(
-                  Icons.access_time,
-                  color: darkIconButton,
-                  size: 35,
-                ),
-                text
-              ],
-            )
-          : text,
-    ).showCursorOnHover;
-    if (widget.hasHeader) {
-      return DateTimeHolder(
-        text: AppLocalizations.of(context)!.timeChangeTitle,
-        errorText: ref.read(timeErrorProvider),
-        child: inner,
-      );
-    }
-    return inner;
+  Widget build(BuildContext context, WidgetRef ref) {
+    return AnimatedBuilder(
+        animation: timeListener,
+        builder: (context, child) {
+          final TimeOfDay time = timeListener.time;
+          final Widget text = Text(
+            time.format(context),
+            style: lightBackgroundStyle.copyWith(
+              decoration: TextDecoration.underline,
+            ),
+          );
+          final Widget inner = GestureDetector(
+            onTap: () {
+              _showTimePicker(context, ref);
+            },
+            child: hasIcon
+                ? Row(
+                    children: [
+                      const Icon(
+                        Icons.access_time,
+                        color: darkIconButton,
+                        size: 35,
+                      ),
+                      text
+                    ],
+                  )
+                : text,
+          ).showCursorOnHover;
+          if (hasHeader) {
+            return DateTimeHolder(
+              text: AppLocalizations.of(context)!.timeChangeTitle,
+              errorText: ref.read(timeErrorProvider),
+              child: inner,
+            );
+          }
+          return inner;
+        });
   }
 
   _selectionPredicate(TimeOfDay? time) {
     if (time == null) return true;
     bool lateEnough = true;
     bool earlyEnough = true;
-    if (widget.earliest != null) {
-      lateEnough = time.hour > widget.earliest!.hour ||
-          time.hour == widget.earliest!.hour &&
-              time.minute >= widget.earliest!.minute;
+    if (earliest != null) {
+      lateEnough = time.hour > earliest!.hour ||
+          time.hour == earliest!.hour && time.minute >= earliest!.minute;
     }
-    if (widget.latest != null) {
-      earlyEnough = time.hour < widget.latest!.hour ||
-          time.hour == widget.latest!.hour &&
-              time.minute <= widget.latest!.minute;
+    if (latest != null) {
+      earlyEnough = time.hour < latest!.hour ||
+          time.hour == latest!.hour && time.minute <= latest!.minute;
     }
     return lateEnough && earlyEnough;
   }
 
   _showTimePicker(BuildContext context, WidgetRef ref) async {
-    final String? early = widget.earliest?.format(context);
-    final String? latestErr = widget.latest?.format(context);
+    final String? early = earliest?.format(context);
+    final String? latestErr = latest?.format(context);
     String selectionError = "";
     if (early != null && latestErr != null) {
       selectionError =
@@ -205,13 +180,13 @@ class _TimeWidgetState extends ConsumerState<TimeWidget> {
     }
     TimeOfDay? res = await showTimePicker(
       context: context,
-      initialTime: widget.timeListener.time,
+      initialTime: timeListener.time,
       initialEntryMode: TimePickerEntryMode.input,
     );
     if (res == null) return;
     if (_selectionPredicate(res)) {
       ref.read(timeErrorProvider.notifier).state = null;
-      widget.timeListener.setTime(res);
+      timeListener.setTime(res);
       return;
     }
     ref.read(timeErrorProvider.notifier).state = selectionError;
