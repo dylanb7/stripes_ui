@@ -11,7 +11,6 @@ class DateListener extends ChangeNotifier {
 
   setDate(DateTime dateTime) {
     date = dateTime;
-    print(date);
     notifyListeners();
   }
 }
@@ -39,13 +38,18 @@ class DateWidget extends ConsumerStatefulWidget {
 class _DateWidgetState extends ConsumerState<DateWidget> {
   @override
   void initState() {
-    widget.dateListener.addListener(() {
-      if (mounted) {
-        setState(() {});
-        print(widget.dateListener.date);
-      }
-    });
+    widget.dateListener.addListener(_state);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    widget.dateListener.removeListener(_state);
+    super.dispose();
+  }
+
+  _state() {
+    setState(() {});
   }
 
   @override
@@ -129,10 +133,18 @@ class TimeWidget extends ConsumerStatefulWidget {
 class _TimeWidgetState extends ConsumerState<TimeWidget> {
   @override
   void initState() {
-    widget.timeListener.addListener(() {
-      if (mounted) setState(() {});
-    });
+    widget.timeListener.addListener(_state);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    widget.timeListener.removeListener(_state);
+    super.dispose();
+  }
+
+  _state() {
+    setState(() {});
   }
 
   @override
