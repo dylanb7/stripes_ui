@@ -44,8 +44,9 @@ class ConfirmationPopup extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(
                     horizontal: 10.0, vertical: 12.0),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -79,7 +80,7 @@ class ConfirmationPopup extends ConsumerWidget {
                             onClick: (context) {
                               _dismiss(context, ref);
                             },
-                            color: buttonDarkBackground,
+                            color: lightBackgroundText,
                             text: cancel),
                         BasicButton(
                             onClick: (context) {
