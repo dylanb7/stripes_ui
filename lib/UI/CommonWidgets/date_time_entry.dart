@@ -38,6 +38,7 @@ class DateWidget extends ConsumerStatefulWidget {
 class _DateWidgetState extends ConsumerState<DateWidget> {
   @override
   void initState() {
+    print("init");
     widget.dateListener.addListener(() {
       if (mounted) {
         setState(() {});
