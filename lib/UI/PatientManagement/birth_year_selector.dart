@@ -57,10 +57,10 @@ class BirthYearSelector extends FormField<String> {
                                       splashFactory: NoSplash.splashFactory,
                                       datePickerTheme:
                                           const DatePickerThemeData(
-                                              yearBackgroundColor:
+                                              todayBackgroundColor:
                                                   MaterialStatePropertyAll(
                                                       lightIconButton),
-                                              yearForegroundColor:
+                                              todayForegroundColor:
                                                   MaterialStatePropertyAll(
                                                       darkBackgroundText))),
                               child: SizedBox(
