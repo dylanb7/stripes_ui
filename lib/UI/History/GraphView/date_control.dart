@@ -10,8 +10,6 @@ import 'package:stripes_ui/Util/text_styles.dart';
 class DateControl extends ConsumerWidget {
   const DateControl({super.key});
 
-  get lightBackgroundHeaderStyle => null;
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final DateTime end =

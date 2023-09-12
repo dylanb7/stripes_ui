@@ -181,7 +181,7 @@ class SubmitScreen extends ConsumerWidget {
             .addLog(BMTestLog(response: detailResponse, isBlue: toggles.first));
       }
     }
-    context.pop();
+    if (context.mounted) context.pop();
   }
 }
 

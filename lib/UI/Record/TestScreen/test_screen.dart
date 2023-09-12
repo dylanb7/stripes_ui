@@ -92,11 +92,25 @@ class _TestScreenState extends ConsumerState<TestScreen> {
             elevation: 8.0,
             child: Padding(
               padding: const EdgeInsets.all(12.0),
+              child: Instructions(
+                expandController: expandListener,
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: 8.0,
+          ),
+          Card(
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(
+                Radius.circular(10),
+              ),
+            ),
+            elevation: 8.0,
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
               child: Column(
                 children: [
-                  Instructions(
-                    expandController: expandListener,
-                  ),
                   Padding(
                     padding: const EdgeInsets.only(left: 16.0),
                     child: TestContent(
