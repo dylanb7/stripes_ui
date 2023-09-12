@@ -134,6 +134,8 @@ class BasicButton extends StatelessWidget {
         onClick(context);
       },
       style: ButtonStyle(
+        padding: const MaterialStatePropertyAll(
+            EdgeInsets.symmetric(vertical: 3.0, horizontal: 5.0)),
         backgroundColor: MaterialStateProperty.all(color),
         shape: MaterialStateProperty.all(const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(15)))),
