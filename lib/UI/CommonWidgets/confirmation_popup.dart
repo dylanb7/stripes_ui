@@ -73,7 +73,7 @@ class ConfirmationPopup extends ConsumerWidget {
                       ),
                       body,
                       const SizedBox(
-                        height: 8.0,
+                        height: 16.0,
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
