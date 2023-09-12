@@ -52,13 +52,10 @@ class BirthYearSelector extends FormField<String> {
                             ),
                             content: Theme(
                               data: ThemeData.from(
-                                      colorScheme: const ColorScheme.dark()
-                                          .copyWith(
-                                              primary: buttonDarkBackground,
-                                              secondary: buttonDarkBackground2,
-                                              onSurface: Colors.black))
+                                      colorScheme: const ColorScheme.light())
                                   .copyWith(
-                                      splashFactory: NoSplash.splashFactory),
+                                      splashFactory: NoSplash.splashFactory,
+                                      datePickerTheme: DatePickerThemeData()),
                               child: SizedBox(
                                 width: 300,
                                 height: 300,
