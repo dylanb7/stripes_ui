@@ -12,10 +12,13 @@ class ConfirmationPopup extends ConsumerWidget {
 
   final Function? onConfirm;
 
-  final Widget children;
+  final Widget title;
+
+  final Widget body;
 
   const ConfirmationPopup(
-      {required this.children,
+      {required this.title,
+      required this.body,
       required this.cancel,
       required this.confirm,
       this.onConfirm,
@@ -31,41 +34,66 @@ class ConfirmationPopup extends ConsumerWidget {
             color: lightBackgroundText.withOpacity(0.9),
           ),
         ),
-        Center(
-          child: SizedBox(
-            width: SMALL_LAYOUT / 1.7,
-            child: Card(
-              shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10.0))),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 10.0, vertical: 12.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    children,
-                    const SizedBox(
-                      height: 8.0,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        BasicButton(
-                            onClick: (context) {
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Center(
+            child: SizedBox(
+              width: SMALL_LAYOUT / 1.7,
+              child: Card(
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10.0, vertical: 12.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const SizedBox(
+                            width: 35,
+                          ),
+                          title,
+                          IconButton(
+                            onPressed: () {
                               _dismiss(context, ref);
                             },
-                            color: buttonDarkBackground,
-                            text: cancel),
-                        BasicButton(
-                            onClick: (context) {
-                              _confirm(context, ref);
-                            },
-                            color: buttonDarkBackground,
-                            text: confirm),
-                      ],
-                    ),
-                  ],
+                            icon: const Icon(Icons.close),
+                            color: lightIconButton,
+                            iconSize: 35,
+                          )
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 8,
+                      ),
+                      body,
+                      const SizedBox(
+                        height: 8.0,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          BasicButton(
+                              onClick: (context) {
+                                _dismiss(context, ref);
+                              },
+                              color: buttonLightBackground,
+                              text: cancel),
+                          BasicButton(
+                              onClick: (context) {
+                                _confirm(context, ref);
+                              },
+                              color: buttonDarkBackground,
+                              text: confirm),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

@@ -9,7 +9,8 @@ import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo
 import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
-import 'package:stripes_ui/UI/Record/RecordPaths/question_splitter.dart';
+import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
+import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
 import 'package:stripes_ui/UI/Record/question_screen.dart';
 import 'package:stripes_ui/UI/Record/submit_screen.dart';
 import 'package:stripes_ui/UI/Record/symptom_record_data.dart';
@@ -351,7 +352,43 @@ class ErrorPrevention extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Stack(
+    return ConfirmationPopup(
+        title: Text(
+          AppLocalizations.of(context)!.errorPreventionTitle,
+          style:
+              darkBackgroundHeaderStyle.copyWith(color: buttonDarkBackground),
+          textAlign: TextAlign.center,
+        ),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              AppLocalizations.of(context)!.errorPreventionLineOne,
+              style: lightBackgroundStyle,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(
+              height: 8.0,
+            ),
+            Text(
+              AppLocalizations.of(context)!
+                  .errorPreventionLineTwo(type.toLowerCase()),
+              style: lightBackgroundStyle,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        onConfirm: () {
+          if (context.canPop()) {
+            context.pop();
+          } else {
+            context.go(Routes.HOME);
+          }
+        },
+        cancel: AppLocalizations.of(context)!.errorPreventionStay,
+        confirm: AppLocalizations.of(context)!.errorPreventionLeave);
+    /*return Stack(
       children: [
         Positioned.fill(
           child: Container(
@@ -429,7 +466,7 @@ class ErrorPrevention extends ConsumerWidget {
           ),
         ),
       ],
-    );
+    );*/
   }
 
   _dismiss(BuildContext context, WidgetRef ref) {

@@ -6,7 +6,7 @@ import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
-import 'package:stripes_ui/UI/CommonWidgets/delete_error_prevention.dart';
+import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/UI/Record/question_screen.dart';
@@ -251,6 +251,123 @@ class EntryDisplay extends ConsumerWidget {
         type: event.type,
       ),
     );
+  }
+}
+
+class DeleteErrorPrevention extends ConsumerWidget {
+  final String type;
+
+  final Function delete;
+
+  const DeleteErrorPrevention(
+      {required this.delete, required this.type, Key? key})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ConfirmationPopup(
+      title: Text(
+        AppLocalizations.of(context)!.errorPreventionTitle,
+        style: darkBackgroundHeaderStyle.copyWith(color: buttonDarkBackground),
+        textAlign: TextAlign.center,
+      ),
+      cancel: AppLocalizations.of(context)!.stampDeleteCancel,
+      confirm: AppLocalizations.of(context)!.stampDeleteConfirm,
+      onConfirm: () => _confirm(ref),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            AppLocalizations.of(context)!.stampDeleteWarningOne,
+            style: lightBackgroundStyle,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(
+            height: 8.0,
+          ),
+          Text(
+            AppLocalizations.of(context)!.stampDeleteWarningTwo,
+            style: lightBackgroundStyle,
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+    /*return OverlayBackdrop(
+      child: SizedBox(
+        width: SMALL_LAYOUT / 1.7,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Card(
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10.0))),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 10.0, vertical: 12.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      AppLocalizations.of(context)!.errorPreventionTitle,
+                      style: darkBackgroundHeaderStyle.copyWith(
+                          color: buttonDarkBackground),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(
+                      height: 8.0,
+                    ),
+                    Text(
+                      AppLocalizations.of(context)!.stampDeleteWarningOne,
+                      style: lightBackgroundStyle,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(
+                      height: 8.0,
+                    ),
+                    Text(
+                      AppLocalizations.of(context)!.stampDeleteWarningTwo,
+                      style: lightBackgroundStyle,
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 5,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                BasicButton(
+                    onClick: (_) {
+                      _closeOverlay(ref);
+                    },
+                    text: AppLocalizations.of(context)!.stampDeleteCancel),
+                BasicButton(
+                    onClick: (_) {
+                      _confirm(ref);
+                    },
+                    text: AppLocalizations.of(context)!.stampDeleteConfirm),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );*/
+  }
+
+  _confirm(WidgetRef ref) {
+    delete();
+    _closeOverlay(ref);
+  }
+
+  _closeOverlay(WidgetRef ref) {
+    ref.read(overlayProvider.notifier).state = closedQuery;
   }
 }
 

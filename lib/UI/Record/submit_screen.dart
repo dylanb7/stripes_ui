@@ -7,6 +7,7 @@ import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
 import 'package:stripes_ui/UI/CommonWidgets/date_time_entry.dart';
 import 'package:stripes_ui/UI/Record/question_screen.dart';
+import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
@@ -59,100 +60,100 @@ class SubmitScreen extends ConsumerWidget {
             type == "Poo" &&
             !isEdit;
 
-    return ProviderScope(
-      overrides: [
-        dateProvider.overrideWith((ref) => _dateListener),
-        timeProvider.overrideWith((ref) => _timeListener),
-      ],
-      child: Column(
-        children: [
+    return Column(
+      children: [
+        Text(
+          isEdit
+              ? AppLocalizations.of(context)!.editSubmitHeader(type)
+              : AppLocalizations.of(context)!.submitHeader(type),
+          style: lightBackgroundHeaderStyle,
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(
+          height: 40,
+        ),
+        IgnorePointer(
+          ignoring: isEdit,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              DateWidget(
+                dateListener: _dateListener,
+              ),
+              TimeWidget(
+                timeListener: _timeListener,
+              ),
+            ],
+          ),
+        ),
+        if (isBlueRecord) ...[
+          const SizedBox(
+            height: 18.0,
+          ),
           Text(
-            isEdit
-                ? AppLocalizations.of(context)!.editSubmitHeader(type)
-                : AppLocalizations.of(context)!.submitHeader(type),
-            style: lightBackgroundHeaderStyle,
-            textAlign: TextAlign.center,
+            AppLocalizations.of(context)!.submitBlueQuestion,
+            style: lightBackgroundStyle,
           ),
           const SizedBox(
-            height: 40,
+            height: 8.0,
           ),
-          IgnorePointer(
-            ignoring: isEdit,
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+          ToggleButtons(
+              onPressed: (index) => ref.read(toggleProvider.notifier).state = [
+                    index == 0,
+                    index == 1
+                  ],
+              borderRadius: const BorderRadius.all(Radius.circular(8)),
+              borderColor: lightIconButton,
+              selectedBorderColor: lightIconButton,
+              selectedColor: Colors.white,
+              fillColor: lightIconButton,
+              color: lightIconButton,
+              constraints: const BoxConstraints(
+                minHeight: 40.0,
+                minWidth: 80.0,
+              ),
+              isSelected: toggles,
               children: [
-                DateWidget(),
-                TimeWidget(),
-              ],
-            ),
-          ),
-          if (isBlueRecord) ...[
-            const SizedBox(
-              height: 18.0,
-            ),
-            Text(
-              AppLocalizations.of(context)!.submitBlueQuestion,
-              style: lightBackgroundStyle,
-            ),
-            const SizedBox(
-              height: 8.0,
-            ),
-            ToggleButtons(
-                onPressed: (index) => ref.read(toggleProvider.notifier).state =
-                    [index == 0, index == 1],
-                borderRadius: const BorderRadius.all(Radius.circular(8)),
-                borderColor: lightIconButton,
-                selectedBorderColor: lightIconButton,
-                selectedColor: Colors.white,
-                fillColor: lightIconButton,
-                color: lightIconButton,
-                constraints: const BoxConstraints(
-                  minHeight: 40.0,
-                  minWidth: 80.0,
-                ),
-                isSelected: toggles,
-                children: [
-                  AppLocalizations.of(context)!.blueQuestionYes,
-                  AppLocalizations.of(context)!.blueQuestionNo
-                ].map((e) => Text(e)).toList())
-          ],
-          const SizedBox(
-            height: 30,
-          ),
-          LongTextEntry(textController: _descriptionController),
-          const SizedBox(
-            height: 30,
-          ),
-          ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 250),
-              child: StripesRoundedButton(
-                text: isEdit
-                    ? AppLocalizations.of(context)!.editSubmitButtonText
-                    : AppLocalizations.of(context)!.submitButtonText,
-                onClick: () {
-                  if (!isBlueRecord || toggles.contains(true)) {
-                    _submitEntry(context, ref, isBlueRecord, toggles);
-                  } else {
-                    showSnack(
-                        AppLocalizations.of(context)!.submitBlueQuestionError,
-                        context);
-                  }
-                },
-                light: false,
-                rounding: 25.0,
-              )),
-          const SizedBox(
-            height: 15,
-          ),
+                AppLocalizations.of(context)!.blueQuestionYes,
+                AppLocalizations.of(context)!.blueQuestionNo
+              ].map((e) => Text(e)).toList())
         ],
-      ),
+        const SizedBox(
+          height: 30,
+        ),
+        LongTextEntry(textController: _descriptionController),
+        const SizedBox(
+          height: 30,
+        ),
+        ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 250),
+            child: StripesRoundedButton(
+              text: isEdit
+                  ? AppLocalizations.of(context)!.editSubmitButtonText
+                  : AppLocalizations.of(context)!.submitButtonText,
+              onClick: () {
+                if (!isBlueRecord || toggles.contains(true)) {
+                  _submitEntry(context, ref, isBlueRecord, toggles);
+                } else {
+                  showSnack(
+                      AppLocalizations.of(context)!.submitBlueQuestionError,
+                      context);
+                }
+              },
+              light: false,
+              rounding: 25.0,
+            )),
+        const SizedBox(
+          height: 15,
+        ),
+      ],
     );
   }
 
   _submitEntry(BuildContext context, WidgetRef ref, bool blueRecord,
       List<bool> toggles) async {
-    final DateTime date = ref.read(dateProvider).date;
-    final TimeOfDay time = ref.read(timeProvider).time;
+    final DateTime date = _dateListener.date;
+    final TimeOfDay time = _timeListener.time;
     final DateTime dateOfEntry = isEdit ? submitTime ?? date : date;
     final TimeOfDay timeOfEntry = time;
     final currentTime = DateTime.now();
@@ -181,7 +182,13 @@ class SubmitScreen extends ConsumerWidget {
             .addLog(BMTestLog(response: detailResponse, isBlue: toggles.first));
       }
     }
-    if (context.mounted) context.pop();
+    if (context.mounted) {
+      if (context.canPop()) {
+        context.pop();
+      } else {
+        context.go(Routes.HOME);
+      }
+    }
   }
 }
 
