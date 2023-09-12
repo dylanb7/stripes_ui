@@ -152,6 +152,7 @@ class _InstructionsState extends ConsumerState<Instructions> {
         ExpandibleRaw(
           header: Expanded(
             child: FittedBox(
+              alignment: Alignment.centerLeft,
               fit: BoxFit.scaleDown,
               child: header,
             ),
