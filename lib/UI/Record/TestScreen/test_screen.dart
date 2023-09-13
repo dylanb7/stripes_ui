@@ -47,25 +47,22 @@ class _TestScreenState extends ConsumerState<TestScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
       sliver: SliverList(
         delegate: SliverChildListDelegate([
-          const SliverPadding(padding: EdgeInsets.only(top: 20)),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Expanded(
-                      child: PatientChanger(
-                        isRecords: false,
-                      ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8, right: 8, top: 20),
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Expanded(
+                    child: PatientChanger(
+                      isRecords: false,
                     ),
-                    isSmall
-                        ? const UserProfileButton()
-                        : const SizedBox(
-                            width: 35,
-                          )
-                  ]),
-            ),
+                  ),
+                  isSmall
+                      ? const UserProfileButton()
+                      : const SizedBox(
+                          width: 35,
+                        )
+                ]),
           ),
           const SizedBox(
             height: 10,
