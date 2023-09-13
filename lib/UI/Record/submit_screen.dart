@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:stripes_backend_helper/TestingReposImpl/test_question_repo.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
@@ -57,7 +58,7 @@ class SubmitScreen extends ConsumerWidget {
     final List<bool> toggles = ref.watch(toggleProvider);
     final isBlueRecord =
         (state == TestState.logs || state == TestState.logsSubmit) &&
-            type == "Poo" &&
+            (type == "Poo" || type == Symptoms.BM) &&
             !isEdit;
 
     return Column(

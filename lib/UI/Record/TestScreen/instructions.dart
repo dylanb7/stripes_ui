@@ -30,21 +30,31 @@ class _InstructionsState extends ConsumerState<Instructions> {
   Widget build(BuildContext context) {
     final TestState state =
         ref.watch(testHolderProvider.select((value) => value.state));
-    final Widget header = Text(
-      widget.expandController.expanded
-          ? AppLocalizations.of(context)!.blueDyeInstructionsHeader
-          : state == TestState.started
-              ? AppLocalizations.of(context)!.blueDyeInstructionsStepOne
-              : state == TestState.logs
-                  ? AppLocalizations.of(context)!.blueDyeInstructionsStepTwo
-                  : state == TestState.logsSubmit
-                      ? AppLocalizations.of(context)!
-                          .blueDyeInstructionsStepThree
-                      : AppLocalizations.of(context)!.blueDyeInstructionsHeader,
-      style: lightBackgroundHeaderStyle.copyWith(
-          fontSize: 20.0, decoration: TextDecoration.underline),
-      textAlign: TextAlign.left,
-    );
+    final String stage = state == TestState.started
+        ? AppLocalizations.of(context)!.blueDyeInstructionsStepOne
+        : state == TestState.logs
+            ? AppLocalizations.of(context)!.blueDyeInstructionsStepTwo
+            : AppLocalizations.of(context)!.blueDyeInstructionsStepThree;
+    final Widget header = Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            AppLocalizations.of(context)!.blueDyeInstructionsHeader,
+            style: lightBackgroundHeaderStyle.copyWith(fontSize: 20.0),
+            textAlign: TextAlign.left,
+          ),
+          if (state != TestState.initial) ...[
+            const SizedBox(
+              height: 4.0,
+            ),
+            Text(
+              stage,
+              style: lightBackgroundStyle,
+            )
+          ]
+        ]);
 
     final Widget body =
         Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
