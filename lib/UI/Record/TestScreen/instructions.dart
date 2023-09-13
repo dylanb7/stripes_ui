@@ -172,9 +172,6 @@ class _InstructionsState extends ConsumerState<Instructions> {
           view: body,
           controller: widget.expandController,
         ),
-        const SizedBox(
-          height: 8,
-        ),
       ],
     );
   }
