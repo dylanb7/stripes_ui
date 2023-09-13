@@ -67,15 +67,15 @@ class _TestScreenState extends ConsumerState<TestScreen> {
           const SizedBox(
             height: 10,
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                AppLocalizations.of(context)!.blueDyeHeader,
-                style: darkBackgroundHeaderStyle,
-              ),
-            ), /*Row(
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              AppLocalizations.of(context)!.blueDyeHeader,
+              style: darkBackgroundHeaderStyle,
+              textAlign: TextAlign.left,
+            ),
+            /*Row
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
