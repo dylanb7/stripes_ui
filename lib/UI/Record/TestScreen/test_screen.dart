@@ -6,6 +6,8 @@ import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
 import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
+import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
+import 'package:stripes_ui/UI/PatientManagement/patient_changer.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/instructions.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_content.dart';
 import 'package:stripes_ui/Util/constants.dart';
@@ -38,12 +40,33 @@ class _TestScreenState extends ConsumerState<TestScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
     final TestNotifier notifier = ref.watch(testHolderProvider);
     final TestState state = notifier.state;
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
       sliver: SliverList(
         delegate: SliverChildListDelegate([
+          const SliverPadding(padding: EdgeInsets.only(top: 20)),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Expanded(
+                      child: PatientChanger(
+                        isRecords: false,
+                      ),
+                    ),
+                    isSmall
+                        ? const UserProfileButton()
+                        : const SizedBox(
+                            width: 35,
+                          )
+                  ]),
+            ),
+          ),
           const SizedBox(
             height: 10,
           ),
@@ -92,14 +115,14 @@ class _TestScreenState extends ConsumerState<TestScreen> {
             ),
             elevation: 8.0,
             child: Padding(
-              padding: const EdgeInsets.all(12.0),
+              padding: const EdgeInsets.all(8.0),
               child: Instructions(
                 expandController: expandListener,
               ),
             ),
           ),
           const SizedBox(
-            height: 8.0,
+            height: 4.0,
           ),
           Card(
             shape: const RoundedRectangleBorder(

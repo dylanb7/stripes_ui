@@ -45,7 +45,8 @@ class _InstructionsState extends ConsumerState<Instructions> {
             style: lightBackgroundHeaderStyle.copyWith(fontSize: 20.0),
             textAlign: TextAlign.left,
           ),
-          if (state != TestState.initial) ...[
+          if (state != TestState.initial &&
+              !widget.expandController.expanded) ...[
             const SizedBox(
               height: 4.0,
             ),
