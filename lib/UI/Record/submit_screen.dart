@@ -141,8 +141,8 @@ class SubmitScreen extends ConsumerWidget {
                       context);
                 }
               },
-              light: false,
-              rounding: 25.0,
+              light: true,
+              rounding: 8.0,
             )),
         const SizedBox(
           height: 15,

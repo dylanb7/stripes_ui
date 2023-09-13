@@ -52,7 +52,7 @@ class DateWidget extends ConsumerWidget {
                   children: [
                     const Icon(
                       Icons.calendar_today,
-                      color: darkIconButton,
+                      color: lightBackgroundText,
                       size: 35,
                     ),
                     text
@@ -130,7 +130,7 @@ class TimeWidget extends ConsumerWidget {
                     children: [
                       const Icon(
                         Icons.access_time,
-                        color: darkIconButton,
+                        color: lightBackgroundText,
                         size: 35,
                       ),
                       text
