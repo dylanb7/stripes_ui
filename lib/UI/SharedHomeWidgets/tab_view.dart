@@ -138,19 +138,16 @@ class SmallLayout extends ConsumerWidget {
           BottomNavigationBarItem(
               icon: const Icon(
                 Icons.add,
-                color: darkIconButton,
               ),
               label: AppLocalizations.of(context)!.recordTab),
           BottomNavigationBarItem(
               icon: const Icon(
                 Icons.checklist_outlined,
-                color: darkIconButton,
               ),
               label: AppLocalizations.of(context)!.testTab),
           BottomNavigationBarItem(
               icon: const Icon(
                 Icons.grading,
-                color: darkIconButton,
               ),
               label: AppLocalizations.of(context)!.historyTab),
         ],
