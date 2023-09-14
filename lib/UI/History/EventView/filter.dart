@@ -54,6 +54,10 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
 
   @override
   void initState() {
+    startDateListener = DateListener();
+    endDateListener = DateListener();
+    startTimeListener = TimeListener();
+    endTimeListener = TimeListener();
     initDateRange();
     startDateListener.addListener(_set);
     startTimeListener.addListener(_set);
