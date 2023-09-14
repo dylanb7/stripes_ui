@@ -112,7 +112,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                         ),
                         Text(
                           AppLocalizations.of(context)!.eventFilterHeader,
-                          style: darkBackgroundScreenHeaderStyle,
+                          style: lightBackgroundHeaderStyle,
                         ),
                         IconButton(
                             onPressed: () {
