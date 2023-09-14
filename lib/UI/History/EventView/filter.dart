@@ -112,8 +112,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                         ),
                         Text(
                           AppLocalizations.of(context)!.eventFilterHeader,
-                          style: darkBackgroundScreenHeaderStyle.copyWith(
-                              color: darkIconButton),
+                          style: darkBackgroundScreenHeaderStyle,
                         ),
                         IconButton(
                             onPressed: () {
@@ -149,7 +148,8 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                               child: Text(
                                 AppLocalizations.of(context)!.eventFilterReset,
                                 style: lightBackgroundStyle.copyWith(
-                                    color: darkIconButton),
+                                    color: darkIconButton,
+                                    decoration: TextDecoration.underline),
                               ))
                         ],
                       ),
@@ -157,13 +157,13 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                     const SizedBox(
                       height: 12.0,
                     ),
-                    Center(
-                      child: Text(
-                        AppLocalizations.of(context)!.eventFilterTypesTag,
-                        style: lightBackgroundHeaderStyle.copyWith(
-                            color: darkIconButton),
+                    if (types.isNotEmpty)
+                      Center(
+                        child: Text(
+                          AppLocalizations.of(context)!.eventFilterTypesTag,
+                          style: lightBackgroundHeaderStyle,
+                        ),
                       ),
-                    ),
                     const SizedBox(
                       height: 6.0,
                     ),
@@ -204,8 +204,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                     ),
                     Text(
                       AppLocalizations.of(context)!.eventFiltersFromTag,
-                      style: lightBackgroundHeaderStyle.copyWith(
-                          color: darkIconButton),
+                      style: lightBackgroundHeaderStyle,
                     ),
                     const SizedBox(
                       height: 6.0,
@@ -232,8 +231,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                     ),
                     Text(
                       AppLocalizations.of(context)!.eventFiltersToTag,
-                      style: lightBackgroundHeaderStyle.copyWith(
-                          color: darkIconButton),
+                      style: lightBackgroundHeaderStyle,
                     ),
                     const SizedBox(
                       height: 6.0,

@@ -138,7 +138,7 @@ class _ExpandibleState extends State<Expandible>
                             ),
                             Icon(
                               _expanded ? Icons.expand_less : Icons.expand_more,
-                              color: darkIconButton,
+                              color: lightBackgroundText,
                               size: widget.iconSize,
                             )
                           ],

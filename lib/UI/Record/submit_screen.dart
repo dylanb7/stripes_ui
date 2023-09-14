@@ -60,7 +60,7 @@ class SubmitScreen extends ConsumerWidget {
         (state == TestState.logs || state == TestState.logsSubmit) &&
             (type == "Poo" || type == Symptoms.BM) &&
             !isEdit;
-
+    final bool canSubmit = !isBlueRecord || toggles.contains(true);
     return Column(
       children: [
         Text(
@@ -132,13 +132,14 @@ class SubmitScreen extends ConsumerWidget {
               text: isEdit
                   ? AppLocalizations.of(context)!.editSubmitButtonText
                   : AppLocalizations.of(context)!.submitButtonText,
+              disabled: !canSubmit,
+              disabledClick: () {
+                showSnack(AppLocalizations.of(context)!.submitBlueQuestionError,
+                    context);
+              },
               onClick: () {
-                if (!isBlueRecord || toggles.contains(true)) {
+                if (canSubmit) {
                   _submitEntry(context, ref, isBlueRecord, toggles);
-                } else {
-                  showSnack(
-                      AppLocalizations.of(context)!.submitBlueQuestionError,
-                      context);
                 }
               },
               light: true,

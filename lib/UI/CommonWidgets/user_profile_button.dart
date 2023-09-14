@@ -49,54 +49,55 @@ class UserProfileButton extends ConsumerWidget {
               context.push(Routes.USERS);
             },
           ),
-        PopupMenuItem(
-          child: const Row(children: [
-            Text(
-              "Hilfe",
-              style: lightBackgroundStyle,
-            ),
-            Spacer(),
-            Icon(
-              Icons.info,
-              color: darkIconButton,
-            ),
-          ]),
-          onTap: () {
-            ref.read(overlayProvider.notifier).state = const OverlayQuery(
-              widget: OverlayBackdrop(
-                dismissOnBackdropTouch: true,
-                child: Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Card(
-                    color: darkBackgroundText,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(8.0))),
-                    child: Padding(
-                      padding: EdgeInsets.all(6.0),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            "Hilfe",
-                            style: lightBackgroundHeaderStyle,
-                            textAlign: TextAlign.center,
-                          ),
-                          SizedBox(
-                            height: 4.0,
-                          ),
-                          SelectableText(
-                            "Bitte reichen Sie Ihre gesamten Daten nach einem Monat Dokumentation nach Studienvisite ein. Drücken Sie hierzu bitte auf „Datenexport“. So können wir Ihre Daten pseudonymisiert erhalten. Bei Fragen wenden Sie sich bitte an gpeschke@ukaachen.de",
-                            style: lightBackgroundStyle,
-                          ),
-                        ],
+        if (exportAction != null)
+          PopupMenuItem(
+            child: const Row(children: [
+              Text(
+                "Hilfe",
+                style: lightBackgroundStyle,
+              ),
+              Spacer(),
+              Icon(
+                Icons.info,
+                color: darkIconButton,
+              ),
+            ]),
+            onTap: () {
+              ref.read(overlayProvider.notifier).state = const OverlayQuery(
+                widget: OverlayBackdrop(
+                  dismissOnBackdropTouch: true,
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Card(
+                      color: darkBackgroundText,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(8.0))),
+                      child: Padding(
+                        padding: EdgeInsets.all(6.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              "Hilfe",
+                              style: lightBackgroundHeaderStyle,
+                              textAlign: TextAlign.center,
+                            ),
+                            SizedBox(
+                              height: 4.0,
+                            ),
+                            SelectableText(
+                              "Bitte reichen Sie Ihre gesamten Daten nach einem Monat Dokumentation nach Studienvisite ein. Drücken Sie hierzu bitte auf „Datenexport“. So können wir Ihre Daten pseudonymisiert erhalten. Bei Fragen wenden Sie sich bitte an gpeschke@ukaachen.de",
+                              style: lightBackgroundStyle,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            );
-          },
-        ),
+              );
+            },
+          ),
         if (exportAction != null && hasSession)
           PopupMenuItem(
             child: Row(children: [

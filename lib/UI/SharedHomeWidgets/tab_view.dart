@@ -126,8 +126,8 @@ class SmallLayout extends ConsumerWidget {
         selectedLabelStyle:
             lightBackgroundStyle.copyWith(color: lightIconButton),
         selectedIconTheme: const IconThemeData(color: lightIconButton),
-        selectedItemColor: lightIconButton,
         unselectedIconTheme: const IconThemeData(color: disabled),
+        unselectedLabelStyle: lightBackgroundStyle.copyWith(fontSize: 14),
         currentIndex: TabOption.values.indexOf(selected),
         onTap: (index) {
           context

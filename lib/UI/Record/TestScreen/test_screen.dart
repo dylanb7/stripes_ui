@@ -15,7 +15,6 @@ import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 import '../../../Providers/sub_provider.dart';
-import '../RecordSplit/splitter.dart';
 
 class TestScreen extends ConsumerStatefulWidget {
   const TestScreen({Key? key}) : super(key: key);

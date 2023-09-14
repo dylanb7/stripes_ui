@@ -115,14 +115,27 @@ class LogRow extends ConsumerWidget {
 
     return Expandible(
       highlightOnShrink: true,
-      highlightColor: lightIconButton,
-      header: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(
-          '${dateToMDY(date, context)} - ${timeString(date, context)}',
-          style: lightBackgroundHeaderStyle,
-        ),
-      ]),
-      selected: log.isBlue,
+      header: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+                width: 35.0,
+                height: 35.0,
+                child: log.isBlue
+                    ? Image.asset(
+                        'packages/stripes_ui/assets/images/Blue_Poop.png')
+                    : Image.asset(
+                        'packages/stripes_ui/assets/images/Brown_Poop.png')),
+            const SizedBox(
+              width: 6.0,
+            ),
+            Text(
+              '${dateToMDY(date, context)} - ${timeString(date, context)}',
+              style: lightBackgroundHeaderStyle,
+            ),
+          ]),
       view: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
