@@ -277,7 +277,7 @@ class LabeledList extends StatelessWidget {
     return Container(
         alignment: Alignment.centerLeft,
         decoration: BoxDecoration(
-            color: lightBackgroundText.withOpacity(0.15),
+            color: highlight ? lightBackgroundText.withOpacity(0.15) : null,
             borderRadius: const BorderRadius.all(Radius.circular(6.0)),
             border: highlight ? Border.all(width: 2.0) : null),
         padding: const EdgeInsets.all(4.0),
