@@ -207,7 +207,7 @@ class RecordButton extends StatelessWidget {
                   const Icon(
                     Icons.add,
                     size: 35,
-                    color: lightIconButton,
+                    color: darkIconButton,
                   )
                 ],
               ),

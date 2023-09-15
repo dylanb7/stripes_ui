@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
+import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -276,6 +277,7 @@ class LabeledList extends StatelessWidget {
     return Container(
         alignment: Alignment.centerLeft,
         decoration: BoxDecoration(
+            color: lightBackgroundText.withOpacity(0.15),
             borderRadius: const BorderRadius.all(Radius.circular(6.0)),
             border: highlight ? Border.all(width: 2.0) : null),
         padding: const EdgeInsets.all(4.0),
