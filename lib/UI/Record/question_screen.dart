@@ -286,7 +286,7 @@ class _CheckBoxWidgetState extends State<CheckBoxWidget> {
                   child: Checkbox(
                     value: isSelected,
                     onChanged: null,
-                    fillColor: MaterialStateProperty.all(darkIconButton),
+                    activeColor: darkIconButton,
                     checkColor: darkBackgroundText,
                   ),
                 ),
@@ -400,7 +400,7 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
             child: Checkbox(
               value: res != null,
               onChanged: null,
-              fillColor: MaterialStateProperty.all(darkIconButton),
+              activeColor: darkIconButton,
               checkColor: darkBackgroundText,
             ),
           ),
