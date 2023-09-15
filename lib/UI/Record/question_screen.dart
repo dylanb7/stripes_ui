@@ -196,8 +196,9 @@ class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
                                   value: isSelected,
                                   visualDensity: VisualDensity.compact,
                                   onChanged: null,
-                                  fillColor:
-                                      MaterialStateProperty.all(darkIconButton),
+                                  fillColor: const MaterialStatePropertyAll(
+                                      darkBackgroundText),
+                                  activeColor: darkIconButton,
                                   checkColor: darkBackgroundText,
                                 ),
                               ),
@@ -286,6 +287,8 @@ class _CheckBoxWidgetState extends State<CheckBoxWidget> {
                   child: Checkbox(
                     value: isSelected,
                     onChanged: null,
+                    fillColor:
+                        const MaterialStatePropertyAll(darkBackgroundText),
                     activeColor: darkIconButton,
                     checkColor: darkBackgroundText,
                   ),
@@ -400,6 +403,7 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
             child: Checkbox(
               value: res != null,
               onChanged: null,
+              fillColor: const MaterialStatePropertyAll(darkBackgroundText),
               activeColor: darkIconButton,
               checkColor: darkBackgroundText,
             ),
