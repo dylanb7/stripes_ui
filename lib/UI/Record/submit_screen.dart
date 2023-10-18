@@ -7,6 +7,7 @@ import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
 import 'package:stripes_ui/UI/CommonWidgets/date_time_entry.dart';
+import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
 import 'package:stripes_ui/UI/Record/question_screen.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
@@ -56,6 +57,7 @@ class SubmitScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final TestState state = ref.watch(testHolderProvider).state;
     final List<bool> toggles = ref.watch(toggleProvider);
+    Period? period = ref.watch(pageProvider)[type]?.period;
     final isBlueRecord =
         (state == TestState.logs || state == TestState.logsSubmit) &&
             (type == "Poo" || type == Symptoms.BM) &&
@@ -139,7 +141,7 @@ class SubmitScreen extends ConsumerWidget {
               },
               onClick: () {
                 if (canSubmit) {
-                  _submitEntry(context, ref, isBlueRecord, toggles);
+                  _submitEntry(context, period, ref, isBlueRecord, toggles);
                 }
               },
               light: true,
@@ -152,21 +154,24 @@ class SubmitScreen extends ConsumerWidget {
     );
   }
 
-  _submitEntry(BuildContext context, WidgetRef ref, bool blueRecord,
-      List<bool> toggles) async {
+  _submitEntry(BuildContext context, Period? period, WidgetRef ref,
+      bool blueRecord, List<bool> toggles) async {
     final DateTime date = _dateListener.date;
     final TimeOfDay time = _timeListener.time;
     final DateTime dateOfEntry = isEdit ? submitTime ?? date : date;
     final TimeOfDay timeOfEntry = time;
     final currentTime = DateTime.now();
-    final int entryStamp = dateToStamp(DateTime(
+    final DateTime combinedEntry = DateTime(
         dateOfEntry.year,
         dateOfEntry.month,
         dateOfEntry.day,
         timeOfEntry.hour,
         timeOfEntry.minute,
         currentTime.second,
-        currentTime.millisecond));
+        currentTime.millisecond);
+    final DateTime submissionEntry =
+        period?.getValue(combinedEntry) ?? combinedEntry;
+    final int entryStamp = dateToStamp(submissionEntry);
     final DetailResponse detailResponse = DetailResponse(
       description: _descriptionController.text,
       responses: questionsListener.questions.values.toList(growable: false),

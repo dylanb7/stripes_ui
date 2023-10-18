@@ -19,23 +19,34 @@ final questionSplitProvider = Provider<Map<String, List<Question>>>((ref) {
   return questions;
 });
 
-final pageProvider = Provider.family<List<PageLayout>, String>((ref, type) {
-  Map<String, List<PageLayout>>? pageOverrides =
+final pageProvider = Provider<Map<String, RecordPath>>((ref) {
+  Map<String, RecordPath>? pageOverrides =
       ref.watch(questionHomeProvider).home?.getLayouts();
   final Map<String, List<Question>> split = ref.watch(questionSplitProvider);
-  if (pageOverrides?.containsKey(type) ?? false) return pageOverrides![type]!;
-  final Map<String, QuestionEntry> overrides = ref.watch(questionEntryOverides);
-  final List<Question> typedQuestions = split[type] ?? [];
-  final List<List<Question>> pages = [[]];
-  for (Question question in typedQuestions) {
-    if (question.prompt == type || question.prompt.isEmpty) continue;
-    if (overrides.containsKey(question.id) &&
-        (overrides[question.id]?.isSeparateScreen ?? false)) {
-      pages.insert(0, [question]);
-    } else {
-      pages[pages.length - 1].add(question);
+  final Map<String, RecordPath> recordPaths = {};
+  for (String type in split.keys) {
+    if (pageOverrides?.containsKey(type) ?? false) {
+      recordPaths[type] = pageOverrides![type]!;
+      continue;
     }
+    final Map<String, QuestionEntry> overrides =
+        ref.watch(questionEntryOverides);
+    final List<Question> typedQuestions = split[type] ?? [];
+    final List<List<Question>> pages = [[]];
+    for (Question question in typedQuestions) {
+      if (question.prompt == type || question.prompt.isEmpty) continue;
+      if (overrides.containsKey(question.id) &&
+          (overrides[question.id]?.isSeparateScreen ?? false)) {
+        pages.insert(0, [question]);
+      } else {
+        pages[pages.length - 1].add(question);
+      }
+    }
+    pages.removeWhere((element) => element.isEmpty);
+    recordPaths[type] = RecordPath(
+        pages: pages
+            .map((pageQuestions) => PageLayout(questions: pageQuestions))
+            .toList());
   }
-  pages.removeWhere((element) => element.isEmpty);
-  return pages.map((e) => PageLayout(questions: e)).toList();
+  return recordPaths;
 });
