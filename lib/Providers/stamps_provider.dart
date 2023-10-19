@@ -4,6 +4,7 @@ import 'package:stripes_backend_helper/RepositoryBase/AuthBase/auth_user.dart';
 import 'package:stripes_backend_helper/RepositoryBase/StampBase/base_stamp_repo.dart';
 import 'package:stripes_backend_helper/RepositoryBase/StampBase/stamp.dart';
 import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
+import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/entry.dart';
 
@@ -12,8 +13,15 @@ import 'auth_provider.dart';
 final stampProvider = Provider<StampRepo?>((ref) {
   final auth = ref.watch(currentAuthProvider);
   final sub = ref.watch(subHolderProvider.select((value) => value.current));
-  if (AuthUser.isEmpty(auth) || SubUser.isEmpty(sub)) return null;
-  return ref.watch(reposProvider).stamp(user: auth, subUser: sub);
+  final questions = ref.watch(questionHomeProvider);
+  if (AuthUser.isEmpty(auth) ||
+      SubUser.isEmpty(sub) ||
+      questions.home == null) {
+    return null;
+  }
+  return ref
+      .watch(reposProvider)
+      .stamp(user: auth, subUser: sub, questionRepo: questions.home!);
 });
 
 final stampHolderProvider = ChangeNotifierProvider<StampNotifier>(
