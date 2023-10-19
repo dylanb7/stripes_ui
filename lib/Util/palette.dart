@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:radix_colors/radix_colors.dart';
 
 const Color darkIconButton = Color(0xffff651f);
 const Color lightIconButton = Color(0xff1744a3);
@@ -16,3 +17,28 @@ const Color lightBackgroundText = Colors.black;
 const Color darkBackgroundText = Colors.white;
 
 const Color error = Color(0xffff321b);
+
+ThemeData getThemeData(BuildContext context, Brightness brightness) {
+  RadixColorsDynamic(context, brightness: brightness).blue.step5;
+  final ColorScheme stripesScheme = ColorScheme(
+      brightness: brightness,
+      primary: RadixColorsDynamic(context, brightness: brightness).blue.step9,
+      onPrimary: RadixColorsDynamic(context, brightness: brightness).blue.step3,
+      secondary:
+          RadixColorsDynamic(context, brightness: brightness).orange.step2,
+      onSecondary:
+          RadixColorsDynamic(context, brightness: brightness).orange.step11,
+      error: RadixColorsDynamic(context, brightness: brightness).tomato.step1,
+      onError:
+          RadixColorsDynamic(context, brightness: brightness).tomato.step12,
+      background:
+          RadixColorsDynamic(context, brightness: brightness).blue.step1,
+      onBackground:
+          RadixColorsDynamic(context, brightness: brightness).blue.step12,
+      surface: RadixColorsDynamic(context, brightness: brightness).slate.step3,
+      onSurface:
+          RadixColorsDynamic(context, brightness: brightness).slate.step9);
+
+  return ThemeData.from(colorScheme: stripesScheme, useMaterial3: true)
+    ..copyWith(splashFactory: NoSplash.splashFactory);
+}
