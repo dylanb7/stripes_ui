@@ -28,9 +28,8 @@ ThemeData getThemeData(BuildContext context, Brightness brightness) {
           RadixColorsDynamic(context, brightness: brightness).orange.step2,
       onSecondary:
           RadixColorsDynamic(context, brightness: brightness).orange.step11,
-      error: RadixColorsDynamic(context, brightness: brightness).tomato.step1,
-      onError:
-          RadixColorsDynamic(context, brightness: brightness).tomato.step12,
+      error: RadixColorsDynamic(context, brightness: brightness).tomato.step9,
+      onError: RadixColorsDynamic(context, brightness: brightness).tomato.step3,
       background:
           RadixColorsDynamic(context, brightness: brightness).blue.step1,
       onBackground:
