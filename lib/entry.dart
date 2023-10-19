@@ -75,6 +75,8 @@ class StripesApp extends StatelessWidget {
 
   final AuthStrat strat;
 
+  final Widget Function(BuildContext, Widget?)? builder;
+
   const StripesApp(
       {this.repos,
       this.hasLogging = false,
@@ -84,6 +86,7 @@ class StripesApp extends StatelessWidget {
       this.removeTrace,
       this.exportAction,
       this.entryOverrides,
+      this.builder,
       this.strat = AuthStrat.accessCode,
       Key? key})
       : super(key: key);
@@ -107,6 +110,7 @@ class StripesApp extends StatelessWidget {
       observers: [if (hasLogging) const Logger()],
       child: StripesHome(
         locale: locale,
+        builder: builder,
       ),
     );
   }
@@ -114,7 +118,10 @@ class StripesApp extends StatelessWidget {
 
 class StripesHome extends ConsumerWidget {
   final Locale locale;
-  const StripesHome({required this.locale, Key? key}) : super(key: key);
+
+  final Widget Function(BuildContext, Widget?)? builder;
+  const StripesHome({required this.locale, this.builder, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -123,6 +130,7 @@ class StripesHome extends ConsumerWidget {
       locale: locale,
       debugShowCheckedModeBanner: false,
       title: 'Stripes Tracker',
+      builder: builder,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       theme: ThemeData(
