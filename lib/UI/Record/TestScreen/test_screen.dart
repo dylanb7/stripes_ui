@@ -10,6 +10,7 @@ import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
 import 'package:stripes_ui/UI/PatientManagement/patient_changer.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/instructions.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_content.dart';
+import 'package:stripes_ui/UI/SharedHomeWidgets/tab_view.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
@@ -53,7 +54,7 @@ class _TestScreenState extends ConsumerState<TestScreen> {
                 children: [
                   const Expanded(
                     child: PatientChanger(
-                      isRecords: false,
+                      tab: TabOption.tests,
                     ),
                   ),
                   isSmall

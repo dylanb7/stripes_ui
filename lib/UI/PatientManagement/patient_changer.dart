@@ -5,14 +5,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
+import 'package:stripes_ui/UI/SharedHomeWidgets/tab_view.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class PatientChanger extends ConsumerWidget {
-  final bool isRecords;
+  final TabOption tab;
 
-  const PatientChanger({this.isRecords = true, Key? key}) : super(key: key);
+  const PatientChanger({this.tab = TabOption.record, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -22,15 +24,19 @@ class PatientChanger extends ConsumerWidget {
 
     String getTitle() {
       if (isMarker) {
-        return isRecords
+        return tab == TabOption.record
             ? AppLocalizations.of(context)!.recordTab
-            : AppLocalizations.of(context)!.historyTab;
+            : tab == TabOption.tests
+                ? AppLocalizations.of(context)!.testTab
+                : AppLocalizations.of(context)!.historyTab;
       }
       String firstName = (current.name.split(' ')[0]);
       firstName = firstName.substring(0, min(firstName.length, 11));
-      return isRecords
+      return tab == TabOption.record
           ? AppLocalizations.of(context)!.recordTitle(firstName)
-          : AppLocalizations.of(context)!.historyTitle(firstName);
+          : tab == TabOption.tests
+              ? AppLocalizations.of(context)!.testTab
+              : AppLocalizations.of(context)!.historyTitle(firstName);
     }
 
     return Row(

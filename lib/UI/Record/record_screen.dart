@@ -61,9 +61,11 @@ class Options extends ConsumerWidget {
             ),
             FittedBox(
               fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
               child: Text(
                 AppLocalizations.of(context)!.categorySelect,
                 style: darkBackgroundHeaderStyle,
+                textAlign: TextAlign.left,
               ),
             ),
             ...questionTypes.map((key) {

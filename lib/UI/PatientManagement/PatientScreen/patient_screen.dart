@@ -17,7 +17,6 @@ class PatientScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     const double itemWidth = SMALL_LAYOUT / 1.5;
-    final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
     final OverlayQuery overlay = ref.watch(overlayProvider);
     final SubNotifier subNotifier = ref.watch(subHolderProvider);
     return Container(
@@ -38,14 +37,12 @@ class PatientScreen extends ConsumerWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        isSmall
-                            ? const Flexible(
-                                child: Text(
-                                'Select a patient to view their profile.',
-                                maxLines: 2,
-                                style: darkBackgroundHeaderStyle,
-                              ))
-                            : Container(),
+                        const Flexible(
+                            child: Text(
+                          'Patient Profiles',
+                          maxLines: 2,
+                          style: darkBackgroundScreenHeaderStyle,
+                        )),
                         IconButton(
                             onPressed: () {
                               context.pop();
@@ -57,13 +54,6 @@ class PatientScreen extends ConsumerWidget {
                             ))
                       ],
                     )),
-                const SizedBox(
-                  height: 12.0,
-                ),
-                const Text(
-                  'Patient Profiles',
-                  style: darkBackgroundScreenHeaderStyle,
-                ),
                 const SizedBox(
                   height: 12.0,
                 ),

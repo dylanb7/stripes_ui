@@ -58,7 +58,7 @@ class StripesTabView extends ConsumerWidget {
                   children: [
                     const Expanded(
                       child: PatientChanger(
-                        isRecords: false,
+                        tab: TabOption.history,
                       ),
                     ),
                     isSmall

@@ -83,7 +83,7 @@ class RouteNotifier extends ChangeNotifier {
         ),
         GoRoute(
           name: Routes.TEST,
-          path: '${Routes.HOME}/${Routes.TEST}',
+          path: Routes.TEST,
           pageBuilder: (context, state) => const NoTransitionPage(
             child: Home(path: NavPath(option: TabOption.tests)),
           ),

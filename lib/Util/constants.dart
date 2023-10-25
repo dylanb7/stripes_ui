@@ -15,7 +15,7 @@ class Routes {
   static const String PAIN = 'pain';
   static const String REFLUX = 'reflux';
   static const String NB = 'neurobehavior';
-  static const String TEST = 'test';
+  static const String TEST = '/tests';
 
   static const String PAGE_ID_PARAM = 'pid';
 

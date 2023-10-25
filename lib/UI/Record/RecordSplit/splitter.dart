@@ -105,6 +105,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                 onPressed: () {
                                   _showErrorPrevention(context);
                                 },
+                                alignment: Alignment.topRight,
                                 icon: const Icon(
                                   Icons.close,
                                   size: 35,
