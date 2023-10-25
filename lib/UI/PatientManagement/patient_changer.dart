@@ -94,7 +94,7 @@ class UserSelect extends ConsumerWidget {
         Positioned.fill(
           child: SingleChildScrollView(
               child: Padding(
-            padding: const EdgeInsets.only(left: 30.0, top: 30),
+            padding: const EdgeInsets.only(left: 30.0, right: 30.0, top: 30),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
