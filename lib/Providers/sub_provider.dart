@@ -28,6 +28,7 @@ class SubNotifier extends ChangeNotifier with EquatableMixin {
   final SubUserRepo? ref;
   final SharedService service;
   List<SubUser> _values = [];
+  bool _isLoading = false;
   SubUser _current = SubUser.empty();
 
   SubNotifier(this.ref, this.service) {
@@ -57,16 +58,19 @@ class SubNotifier extends ChangeNotifier with EquatableMixin {
       _current = SubUser.empty();
       return;
     }
+    _isLoading = true;
     String? user = await service.getCurrentUser();
     List<SubUser> selected =
         _values.where((element) => user == element.uid).toList(growable: false);
     if (user != null && selected.isNotEmpty) {
       _current = selected.first;
+      _isLoading = false;
       return;
     }
     final SubUser toSet = _values.first;
     bool set = await service.setCurrentUser(id: toSet.uid);
     if (set) _current = toSet;
+    _isLoading = false;
   }
 
   SubUser get current => _current;
@@ -74,6 +78,8 @@ class SubNotifier extends ChangeNotifier with EquatableMixin {
   List<SubUser> get users => _values;
 
   bool get isAvailable => ref != null;
+
+  bool get isLoading => _isLoading;
 
   @override
   List<Object?> get props => [_current, _values];

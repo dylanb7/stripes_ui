@@ -26,6 +26,11 @@ class Home extends ConsumerWidget {
     final SubNotifier subNotif = ref.watch(subHolderProvider);
     final empty = subNotif.users.isEmpty;
     final FloatingActionButton? button = ref.watch(actionProvider);
+    if (subNotif.isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
     return GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Scaffold(

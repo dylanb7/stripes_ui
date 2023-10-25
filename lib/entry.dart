@@ -133,7 +133,16 @@ class StripesHome extends ConsumerWidget {
       builder: builder,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      theme: getThemeData(context, Brightness.light),
+      theme: ThemeData(
+        splashColor: null,
+        splashFactory: NoSplash.splashFactory,
+        primarySwatch: Colors.blue,
+        timePickerTheme: TimePickerThemeData(
+            dialHandColor: buttonDarkBackground,
+            hourMinuteColor: buttonDarkBackground.withOpacity(0.12),
+            dayPeriodTextColor: lightBackgroundText,
+            hourMinuteTextColor: buttonDarkBackground),
+      ),
       routeInformationProvider: router.routeInformationProvider,
       routeInformationParser: router.routeInformationParser,
       routerDelegate: router.routerDelegate,

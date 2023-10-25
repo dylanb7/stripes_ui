@@ -32,14 +32,14 @@ const TextStyle lightBackgroundHeaderStyle = TextStyle(
 
 const TextStyle darkBackgroundScreenHeaderStyle = TextStyle(
     color: darkBackgroundText,
-    fontSize: 36,
+    fontSize: 30,
     fontWeight: FontWeight.bold,
     decoration: TextDecoration.none,
     fontFamily: 'Futura');
 
 const TextStyle darkBackgroundHeaderStyle = TextStyle(
     color: darkBackgroundText,
-    fontSize: 25,
+    fontSize: 22,
     fontWeight: FontWeight.normal,
     decoration: TextDecoration.none,
     fontFamily: 'Futura');
