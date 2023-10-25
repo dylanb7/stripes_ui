@@ -26,18 +26,19 @@ ThemeData getThemeData(BuildContext context, Brightness brightness) {
       onPrimary:
           RadixColorsDynamic(context, brightness: brightness).blue.step11,
       secondary:
-          RadixColorsDynamic(context, brightness: brightness).orange.step3,
+          RadixColorsDynamic(context, brightness: brightness).tomato.step9,
       onSecondary:
-          RadixColorsDynamic(context, brightness: brightness).orange.step9,
-      error: RadixColorsDynamic(context, brightness: brightness).gray.step3,
-      onError: RadixColorsDynamic(context, brightness: brightness).tomato.step9,
+          RadixColorsDynamic(context, brightness: brightness).whiteA.step11,
+      error: RadixColorsDynamic(context, brightness: brightness).red.step9,
+      onError:
+          RadixColorsDynamic(context, brightness: brightness).whiteA.step12,
       background:
           RadixColorsDynamic(context, brightness: brightness).gray.step1,
       onBackground:
           RadixColorsDynamic(context, brightness: brightness).whiteA.step12,
-      surface: RadixColorsDynamic(context, brightness: brightness).gray.step4,
+      surface: RadixColorsDynamic(context, brightness: brightness).gray.step9,
       onSurface:
-          RadixColorsDynamic(context, brightness: brightness).whiteA.step11);
+          RadixColorsDynamic(context, brightness: brightness).gray.step1);
 
   return ThemeData.from(colorScheme: stripesScheme, useMaterial3: true)
     ..copyWith(splashFactory: NoSplash.splashFactory);
