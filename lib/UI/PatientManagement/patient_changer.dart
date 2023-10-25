@@ -118,7 +118,10 @@ class UserSelect extends ConsumerWidget {
                         _close(ref);
                       },
                       iconSize: 35,
-                      icon: const Icon(Icons.close))
+                      icon: const Icon(
+                        Icons.close,
+                        color: darkIconButton,
+                      ))
                 ]),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
