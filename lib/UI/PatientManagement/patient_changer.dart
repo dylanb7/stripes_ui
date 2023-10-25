@@ -55,7 +55,7 @@ class PatientChanger extends ConsumerWidget {
             ),
           ),
           const SizedBox(
-            width: 8.0,
+            width: 2.0,
           ),
           if (sub.users.length > 1)
             IconButton(
@@ -107,11 +107,18 @@ class UserSelect extends ConsumerWidget {
                       onPressed: () {
                         _close(ref);
                       },
-                      iconSize: 50,
+                      iconSize: 35,
                       icon: const Icon(
                         Icons.keyboard_arrow_up,
                         color: darkIconButton,
-                      ))
+                      )),
+                  const Spacer(),
+                  IconButton(
+                      onPressed: () {
+                        _close(ref);
+                      },
+                      iconSize: 35,
+                      icon: const Icon(Icons.close))
                 ]),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
