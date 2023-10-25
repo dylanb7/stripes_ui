@@ -42,17 +42,16 @@ class PatientChanger extends ConsumerWidget {
     return Row(
         mainAxisAlignment: MainAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Expanded(
-            child: FittedBox(
-              alignment: Alignment.centerLeft,
-              fit: BoxFit.scaleDown,
-              child: Text(
-                getTitle(),
-                style: darkBackgroundScreenHeaderStyle.copyWith(
-                    letterSpacing: 1.4, fontSize: 32),
-                textAlign: TextAlign.left,
-              ),
+          FittedBox(
+            alignment: Alignment.centerLeft,
+            fit: BoxFit.scaleDown,
+            child: Text(
+              getTitle(),
+              style: darkBackgroundScreenHeaderStyle.copyWith(
+                  letterSpacing: 1.4, fontSize: 32),
+              textAlign: TextAlign.left,
             ),
           ),
           const SizedBox(
@@ -67,7 +66,7 @@ class PatientChanger extends ConsumerWidget {
                 tooltip: "Change Patient",
                 icon: const Icon(
                   Icons.keyboard_arrow_down,
-                  size: 50.0,
+                  size: 35.0,
                   color: darkIconButton,
                 )),
         ]);
