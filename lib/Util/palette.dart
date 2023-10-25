@@ -21,27 +21,21 @@ const Color error = Color(0xffff321b);
 ThemeData getThemeData(BuildContext context, Brightness brightness) {
   RadixColorsDynamic(context, brightness: brightness).blue.step5;
   final ColorScheme stripesScheme = ColorScheme(
-      brightness: brightness,
-      primary: RadixColorsDynamic(context, brightness: brightness).blue.step3,
-      onPrimary:
-          RadixColorsDynamic(context, brightness: brightness).blue.step11,
-      secondary:
-          RadixColorsDynamic(context, brightness: brightness).tomato.step9,
+      brightness: Brightness.light,
+      primary: backgroundStrong,
+      onPrimary: darkIconButton,
+      secondary: darkBackgroundText,
       onSecondary:
           RadixColorsDynamic(context, brightness: brightness).whiteA.step11,
-      error: RadixColorsDynamic(context, brightness: brightness).red.step9,
-      onError:
-          RadixColorsDynamic(context, brightness: brightness).whiteA.step12,
-      background:
-          RadixColorsDynamic(context, brightness: brightness).gray.step1,
-      onBackground:
-          RadixColorsDynamic(context, brightness: brightness).whiteA.step12,
-      surface: RadixColorsDynamic(context, brightness: brightness).gray.step9,
-      onSurface:
-          RadixColorsDynamic(context, brightness: brightness).gray.step1);
+      error: error,
+      onError: darkBackgroundText,
+      background: backgroundStrong,
+      onBackground: darkBackgroundText,
+      surface: darkBackgroundText,
+      onSurface: lightBackgroundText);
 
   return ThemeData.from(colorScheme: stripesScheme, useMaterial3: true)
-    ..copyWith(splashFactory: NoSplash.splashFactory);
+    ..copyWith(splashColor: null, splashFactory: NoSplash.splashFactory);
 }
 
 /*
