@@ -31,7 +31,6 @@ InputDecoration formFieldDecoration(
       floatingLabelBehavior: FloatingLabelBehavior.auto,
       labelText: hintText,
       errorText: errorText,
-      errorStyle: errorStyleTitle,
       errorMaxLines: 1,
       errorBorder: const OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(5.0))),

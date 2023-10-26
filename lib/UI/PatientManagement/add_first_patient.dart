@@ -114,11 +114,12 @@ class CreatePatient extends ConsumerWidget {
                 const SizedBox(
                   height: 8.0,
                 ),
-                StripesRoundedButton(
-                    text: 'Add Patient',
-                    onClick: () {
-                      _submit(context, ref);
-                    }),
+                FilledButton(
+                  child: const Text('Add Patient'),
+                  onPressed: () {
+                    _submit(context, ref);
+                  },
+                ),
                 const SizedBox(
                   height: 12.0,
                 ),
