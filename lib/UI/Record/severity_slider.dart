@@ -68,6 +68,9 @@ class _StripesSliderState extends State<StripesSlider> {
       children: [
         Visibility(
           visible: !listener.interact,
+          maintainSize: true,
+          maintainAnimation: true,
+          maintainState: true,
           child: Text(
             AppLocalizations.of(context)!.levelReminder,
             textAlign: TextAlign.center,
@@ -89,6 +92,8 @@ class _StripesSliderState extends State<StripesSlider> {
             Visibility(
               visible: value.toInt() != widget.min,
               maintainSize: true,
+              maintainAnimation: true,
+              maintainState: true,
               child: GestureDetector(
                 child: Text(
                   '${widget.min}',
@@ -162,6 +167,8 @@ class _StripesSliderState extends State<StripesSlider> {
             Visibility(
                 visible: value.toInt() != widget.max,
                 maintainSize: true,
+                maintainAnimation: true,
+                maintainState: true,
                 child: GestureDetector(
                   child: Text(
                     '${widget.max}',
@@ -270,6 +277,9 @@ class _MoodSliderState extends State<MoodSlider> {
       children: [
         Visibility(
           visible: !listener.interact,
+          maintainSize: true,
+          maintainState: true,
+          maintainAnimation: true,
           child: Text(
             AppLocalizations.of(context)!.levelReminder,
             textAlign: TextAlign.center,
@@ -303,28 +313,31 @@ class _MoodSliderState extends State<MoodSlider> {
               ),
             ),
             Row(children: [
-              if (value.toInt() != 0) ...[
-                const SizedBox(
-                  width: 12.0,
-                ),
-                GestureDetector(
-                  child: Text(
-                    '1',
-                    style: darkBackgroundStyle.copyWith(fontSize: 16.0),
-                    textAlign: TextAlign.center,
-                  ),
-                  onTap: () {
-                    setState(() {
-                      if (!listener.interact) {
-                        listener.interacted();
-                      }
-                      value = 0.0;
-                      widget.onChange(value);
-                      if (widget.onSlide != null) widget.onSlide!(value);
-                    });
-                  },
-                ).showCursorOnHover
-              ],
+              const SizedBox(
+                width: 12.0,
+              ),
+              Visibility(
+                  visible: value.toInt() != 0,
+                  maintainState: true,
+                  maintainSize: true,
+                  maintainAnimation: true,
+                  child: GestureDetector(
+                    child: Text(
+                      '1',
+                      style: darkBackgroundStyle.copyWith(fontSize: 16.0),
+                      textAlign: TextAlign.center,
+                    ),
+                    onTap: () {
+                      setState(() {
+                        if (!listener.interact) {
+                          listener.interacted();
+                        }
+                        value = 0.0;
+                        widget.onChange(value);
+                        if (widget.onSlide != null) widget.onSlide!(value);
+                      });
+                    },
+                  ).showCursorOnHover),
               Expanded(
                 child: Center(
                   child: SliderTheme(
@@ -375,28 +388,31 @@ class _MoodSliderState extends State<MoodSlider> {
                   ),
                 ),
               ),
-              if (value.toInt() != 10.0) ...[
-                GestureDetector(
-                  child: Text(
-                    '10',
-                    style: darkBackgroundStyle.copyWith(fontSize: 16.0),
-                    textAlign: TextAlign.center,
-                  ),
-                  onTap: () {
-                    setState(() {
-                      if (!listener.interact) {
-                        listener.interacted();
-                      }
-                      value = 10.0;
-                      widget.onChange(value);
-                      if (widget.onSlide != null) widget.onSlide!(value);
-                    });
-                  },
-                ).showCursorOnHover,
-                const SizedBox(
-                  width: 12.0,
-                ),
-              ],
+              Visibility(
+                  visible: value.toInt() != 10.0,
+                  maintainAnimation: true,
+                  maintainSize: true,
+                  maintainState: true,
+                  child: GestureDetector(
+                    child: Text(
+                      '10',
+                      style: darkBackgroundStyle.copyWith(fontSize: 16.0),
+                      textAlign: TextAlign.center,
+                    ),
+                    onTap: () {
+                      setState(() {
+                        if (!listener.interact) {
+                          listener.interacted();
+                        }
+                        value = 10.0;
+                        widget.onChange(value);
+                        if (widget.onSlide != null) widget.onSlide!(value);
+                      });
+                    },
+                  ).showCursorOnHover),
+              const SizedBox(
+                width: 12.0,
+              ),
             ]),
           ]),
         ),
@@ -508,6 +524,9 @@ class _PainSliderState extends State<PainSlider> {
       children: [
         Visibility(
           visible: !listener.interact,
+          maintainSize: true,
+          maintainAnimation: true,
+          maintainState: true,
           child: Text(
             AppLocalizations.of(context)!.levelReminder,
             textAlign: TextAlign.center,
@@ -549,23 +568,28 @@ class _PainSliderState extends State<PainSlider> {
                 const SizedBox(
                   width: 12.0,
                 ),
-                GestureDetector(
-                  child: Text(
-                    '0',
-                    style: darkBackgroundStyle.copyWith(fontSize: 16.0),
-                    textAlign: TextAlign.center,
-                  ),
-                  onTap: () {
-                    setState(() {
-                      if (!listener.interact) {
-                        listener.interacted();
-                      }
-                      value = 0.0;
-                      widget.onChange(value);
-                      if (widget.onSlide != null) widget.onSlide!(value);
-                    });
-                  },
-                ).showCursorOnHover
+                Visibility(
+                    visible: value.toInt() != 0,
+                    maintainSize: true,
+                    maintainAnimation: true,
+                    maintainState: true,
+                    child: GestureDetector(
+                      child: Text(
+                        '0',
+                        style: darkBackgroundStyle.copyWith(fontSize: 16.0),
+                        textAlign: TextAlign.center,
+                      ),
+                      onTap: () {
+                        setState(() {
+                          if (!listener.interact) {
+                            listener.interacted();
+                          }
+                          value = 0.0;
+                          widget.onChange(value);
+                          if (widget.onSlide != null) widget.onSlide!(value);
+                        });
+                      },
+                    ).showCursorOnHover)
               ],
               Expanded(
                 child: Center(
@@ -617,28 +641,31 @@ class _PainSliderState extends State<PainSlider> {
                   ),
                 ),
               ),
-              if (value.toInt() != 10.0) ...[
-                GestureDetector(
-                  child: Text(
-                    '10',
-                    style: darkBackgroundStyle.copyWith(fontSize: 16.0),
-                    textAlign: TextAlign.center,
-                  ),
-                  onTap: () {
-                    setState(() {
-                      if (!listener.interact) {
-                        listener.interacted();
-                      }
-                      value = 10.0;
-                      widget.onChange(value);
-                      if (widget.onSlide != null) widget.onSlide!(value);
-                    });
-                  },
-                ).showCursorOnHover,
-                const SizedBox(
-                  width: 12.0,
-                ),
-              ],
+              Visibility(
+                  visible: value.toInt() != 10.0,
+                  maintainSize: true,
+                  maintainAnimation: true,
+                  maintainState: true,
+                  child: GestureDetector(
+                    child: Text(
+                      '10',
+                      style: darkBackgroundStyle.copyWith(fontSize: 16.0),
+                      textAlign: TextAlign.center,
+                    ),
+                    onTap: () {
+                      setState(() {
+                        if (!listener.interact) {
+                          listener.interacted();
+                        }
+                        value = 10.0;
+                        widget.onChange(value);
+                        if (widget.onSlide != null) widget.onSlide!(value);
+                      });
+                    },
+                  ).showCursorOnHover),
+              const SizedBox(
+                width: 12.0,
+              ),
             ]),
           ]),
         ),
