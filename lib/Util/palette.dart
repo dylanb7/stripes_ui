@@ -1,15 +1,32 @@
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 
+const Color darkIconButton = Color(0xffff651f);
+const Color lightIconButton = Color(0xff1744a3);
+const Color buttonDarkBackground = Color(0xffff823d);
+const Color buttonDarkBackground2 = Color(0xffff9b53);
+const Color buttonLightBackground = Color(0xff3368b7);
+const Color buttonLightBackground2 = Color(0xff0f3b9e);
+const Color trackerButtons = Color(0xff2d6eb7);
+const Color disabled = Color.fromARGB(255, 156, 163, 175);
+
+const Color backgroundStrong = Color(0xff1d47a6);
+const Color backgroundLight = Color(0xff75bce5);
+
+const Color lightBackgroundText = Colors.black;
+const Color darkBackgroundText = Colors.white;
+
+const Color error = Color(0xffff321b);
+
 final ThemeData light = FlexThemeData.light(
   colors: const FlexSchemeColor(
-    primary: Color(0xff00296b),
-    primaryContainer: Color(0xffa0c2ed),
-    secondary: Color(0xffd26900),
-    secondaryContainer: Color(0xffffb866),
-    tertiary: Color(0xff5c5c95),
-    tertiaryContainer: Color(0xffc8dbf8),
-    appBarColor: Color(0xffffb866),
+    primary: Color(0xff1460a5),
+    primaryContainer: Color(0xffd3e4ff),
+    secondary: Color(0xffd6783f),
+    secondaryContainer: Color(0xffebb790),
+    tertiary: Color(0xff6d6f34),
+    tertiaryContainer: Color(0xff95f0ff),
+    appBarColor: Color(0xffebb790),
     error: Color(0xffb00020),
   ),
   surfaceMode: FlexSurfaceMode.highBackgroundLowScaffold,
