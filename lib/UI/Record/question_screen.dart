@@ -193,7 +193,7 @@ class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
                                 child: Checkbox(
                                   value: isSelected,
                                   visualDensity: VisualDensity.compact,
-                                  onChanged: null,
+                                  onChanged: (val) {},
                                 ),
                               ),
                             ],
@@ -281,7 +281,7 @@ class _CheckBoxWidgetState extends State<CheckBoxWidget> {
                   ignoring: true,
                   child: Checkbox(
                     value: isSelected,
-                    onChanged: null,
+                    onChanged: (val) {},
                   ),
                 ),
               ],
@@ -395,7 +395,7 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
             ignoring: true,
             child: Checkbox(
               value: res != null,
-              onChanged: null,
+              onChanged: (val) {},
             ),
           ),
         ],
@@ -612,7 +612,7 @@ class _SeverityPainWidgetState extends ConsumerState<SeverityPainWidget> {
             ignoring: true,
             child: Checkbox(
               value: res != null,
-              onChanged: null,
+              onChanged: (val) {},
             ),
           ),
         ],
