@@ -162,45 +162,47 @@ class RecordButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT / 1.5),
-        child: OutlinedButton(
-          onPressed: () {
-            onClick(context);
-          },
-          child: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 10.0, vertical: 15.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                if (subText != null && subText!.isNotEmpty)
-                  Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          text,
-                          style: lightBackgroundHeaderStyle,
-                        ),
-                        Text(
-                          subText!,
-                          style: lightBackgroundStyle,
-                        ),
-                      ]),
-                if (subText == null || subText!.isEmpty)
-                  Text(
-                    text,
-                    style: lightBackgroundHeaderStyle,
-                  ),
-                const Icon(
-                  Icons.add,
-                  size: 35,
-                )
-              ],
-            ),
-          ),
-        ).showCursorOnHover);
+    return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5.0),
+        child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT / 1.5),
+            child: OutlinedButton(
+              onPressed: () {
+                onClick(context);
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 10.0, vertical: 15.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    if (subText != null && subText!.isNotEmpty)
+                      Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              text,
+                              style: lightBackgroundHeaderStyle,
+                            ),
+                            Text(
+                              subText!,
+                              style: lightBackgroundStyle,
+                            ),
+                          ]),
+                    if (subText == null || subText!.isEmpty)
+                      Text(
+                        text,
+                        style: lightBackgroundHeaderStyle,
+                      ),
+                    const Icon(
+                      Icons.add,
+                      size: 35,
+                    )
+                  ],
+                ),
+              ),
+            ).showCursorOnHover));
   }
 }
