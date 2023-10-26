@@ -165,7 +165,9 @@ class RecordButton extends StatelessWidget {
     return ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT / 1.5),
         child: OutlinedButton(
-          onPressed: onClick(context),
+          onPressed: () {
+            onClick(context);
+          },
           child: Padding(
             padding:
                 const EdgeInsets.symmetric(horizontal: 10.0, vertical: 15.0),

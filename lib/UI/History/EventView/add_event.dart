@@ -78,11 +78,9 @@ class _QuestionTypeOverlay extends ConsumerWidget {
                     ]),
                 ...questionTypes.map((type) => Padding(
                       padding: const EdgeInsets.symmetric(vertical: 5.0),
-                      child: StripesRoundedButton(
-                        shadow: false,
-                        light: true,
-                        text: type,
-                        onClick: () {
+                      child: FilledButton(
+                        child: Text(type),
+                        onPressed: () {
                           ref.read(overlayProvider.notifier).state =
                               closedQuery;
                           context.pushNamed('recordType',
