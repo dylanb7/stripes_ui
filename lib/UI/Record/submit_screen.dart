@@ -123,24 +123,24 @@ class SubmitScreen extends ConsumerWidget {
           height: 30,
         ),
         ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 250),
-            child: StripesRoundedButton(
-              text: isEdit
+          constraints: const BoxConstraints(maxWidth: 250),
+          child: GestureDetector(
+            onTap: () {
+              showSnack(AppLocalizations.of(context)!.submitBlueQuestionError,
+                  context);
+            },
+            child: FilledButton(
+              onPressed: canSubmit
+                  ? () {
+                      _submitEntry(context, period, ref, isBlueRecord, toggles);
+                    }
+                  : null,
+              child: Text(isEdit
                   ? AppLocalizations.of(context)!.editSubmitButtonText
-                  : AppLocalizations.of(context)!.submitButtonText,
-              disabled: !canSubmit,
-              disabledClick: () {
-                showSnack(AppLocalizations.of(context)!.submitBlueQuestionError,
-                    context);
-              },
-              onClick: () {
-                if (canSubmit) {
-                  _submitEntry(context, period, ref, isBlueRecord, toggles);
-                }
-              },
-              light: true,
-              rounding: 8.0,
-            )),
+                  : AppLocalizations.of(context)!.submitButtonText),
+            ),
+          ),
+        ),
         const SizedBox(
           height: 15,
         ),

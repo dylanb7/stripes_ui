@@ -83,14 +83,17 @@ class _StripesSliderState extends State<StripesSlider> {
               borderRadius: const BorderRadius.all(Radius.circular(8.0)),
               color: listener.interact ? primary : disabled),
           child: Row(children: [
-            if (value.toInt() != widget.min) ...[
-              const SizedBox(
-                width: 12.0,
-              ),
-              GestureDetector(
+            const SizedBox(
+              width: 12.0,
+            ),
+            Visibility(
+              visible: value.toInt() != widget.min,
+              child: GestureDetector(
                 child: Text(
                   '${widget.min}',
-                  style: darkBackgroundStyle.copyWith(fontSize: 16.0),
+                  style: darkBackgroundStyle.copyWith(
+                      fontSize: 16.0,
+                      color: Theme.of(context).colorScheme.onPrimary),
                   textAlign: TextAlign.center,
                 ),
                 onTap: () {
@@ -102,23 +105,18 @@ class _StripesSliderState extends State<StripesSlider> {
                     widget.onChange(value);
                   });
                 },
-              ).showCursorOnHover
-            ],
+              ).showCursorOnHover,
+            ),
             Expanded(
               child: Center(
                 child: SliderTheme(
                   data: SliderTheme.of(context).copyWith(
-                    activeTrackColor: Colors.white.withOpacity(1),
-                    inactiveTrackColor: Colors.white.withOpacity(.5),
                     trackHeight: 4.0,
                     thumbShape: CustomThumb(
                       thumbRadius: 20.0,
                       min: widget.min,
                       max: widget.max,
                     ),
-                    overlayColor: Colors.white.withOpacity(.4),
-                    //valueIndicatorColor: Colors.white,
-
                     activeTickMarkColor:
                         Theme.of(context).colorScheme.background,
                     inactiveTickMarkColor: disabled,
@@ -156,27 +154,29 @@ class _StripesSliderState extends State<StripesSlider> {
                 ),
               ),
             ),
-            if (value.toInt() != widget.max) ...[
-              GestureDetector(
-                child: Text(
-                  '${widget.max}',
-                  style: darkBackgroundStyle.copyWith(fontSize: 16.0),
-                  textAlign: TextAlign.center,
-                ),
-                onTap: () {
-                  setState(() {
-                    if (!listener.interact) {
-                      listener.interacted();
-                    }
-                    value = widget.max.toDouble();
-                    widget.onChange(value);
-                  });
-                },
-              ).showCursorOnHover,
-              const SizedBox(
-                width: 12.0,
-              ),
-            ],
+            Visibility(
+                visible: value.toInt() != widget.max,
+                child: GestureDetector(
+                  child: Text(
+                    '${widget.max}',
+                    style: darkBackgroundStyle.copyWith(
+                        fontSize: 16.0,
+                        color: Theme.of(context).colorScheme.onPrimary),
+                    textAlign: TextAlign.center,
+                  ),
+                  onTap: () {
+                    setState(() {
+                      if (!listener.interact) {
+                        listener.interacted();
+                      }
+                      value = widget.max.toDouble();
+                      widget.onChange(value);
+                    });
+                  },
+                ).showCursorOnHover),
+            const SizedBox(
+              width: 12.0,
+            ),
           ]),
         ),
         const SizedBox(
@@ -563,15 +563,12 @@ class _PainSliderState extends State<PainSlider> {
                 child: Center(
                   child: SliderTheme(
                     data: SliderTheme.of(context).copyWith(
-                      activeTrackColor: Colors.white.withOpacity(1),
-                      inactiveTrackColor: Colors.white.withOpacity(.5),
                       trackHeight: 4.0,
                       thumbShape: const CustomThumb(
                         thumbRadius: 20.0,
                         min: 0,
                         max: 10,
                       ),
-                      overlayColor: Colors.white.withOpacity(.4),
                       activeTickMarkColor:
                           Theme.of(context).colorScheme.background,
                       inactiveTickMarkColor: disabled,
