@@ -24,7 +24,7 @@ ThemeData getThemeData(BuildContext context, Brightness brightness) {
       brightness: Brightness.light,
       primary: backgroundStrong,
       onPrimary: darkBackgroundText,
-      secondary: darkIconButton,
+      secondary: buttonDarkBackground,
       onSecondary: darkBackgroundText,
       error: error,
       onError: darkBackgroundText,
