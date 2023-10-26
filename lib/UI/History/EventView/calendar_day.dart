@@ -1,6 +1,6 @@
 import 'package:badges/badges.dart' as b;
 import 'package:flutter/material.dart';
-import 'package:stripes_ui/Util/palette.dart';
+
 import 'package:stripes_ui/Util/text_styles.dart';
 
 class CalendarDay extends StatelessWidget {
@@ -20,13 +20,15 @@ class CalendarDay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color primary = Theme.of(context).primaryColor;
+    final Color onPrimary = Theme.of(context).colorScheme.onPrimary;
     final Color background = selected
-        ? darkBackgroundText
+        ? Theme.of(context).colorScheme.secondary
         : after
-            ? backgroundLight.withOpacity(0.4)
-            : backgroundLight.withOpacity(0.8);
+            ? primary.withOpacity(0.4)
+            : primary.withOpacity(0.8);
     final Color textColor =
-        selected ? buttonDarkBackground : darkBackgroundText;
+        selected ? Theme.of(context).colorScheme.onSecondary : onPrimary;
     final Widget day = AspectRatio(
       aspectRatio: 1.0,
       child: Container(
@@ -39,8 +41,7 @@ class CalendarDay extends StatelessWidget {
           decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                  color: isToday ? darkBackgroundText : Colors.transparent,
-                  width: 2.0)),
+                  color: isToday ? onPrimary : Colors.transparent, width: 2.0)),
           child: FittedBox(
             fit: BoxFit.scaleDown,
             child: Center(
@@ -60,7 +61,8 @@ class CalendarDay extends StatelessWidget {
         '$events',
         style: darkBackgroundStyle.copyWith(fontSize: 8.0),
       ),
-      badgeStyle: const b.BadgeStyle(badgeColor: darkIconButton),
+      badgeStyle:
+          b.BadgeStyle(badgeColor: Theme.of(context).colorScheme.tertiary),
       position: b.BadgePosition.topEnd(end: 0, top: 0),
       child: day,
     );

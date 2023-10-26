@@ -8,7 +8,7 @@ import 'package:stripes_ui/UI/PatientManagement/control_slider.dart';
 import 'package:stripes_ui/UI/PatientManagement/gender_dropdown.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/form_input.dart';
-import 'package:stripes_ui/Util/palette.dart';
+
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/Util/validators.dart';
 
@@ -64,7 +64,6 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
                 opacity: _expandibleListener.expanded ? 0 : 1,
                 child: const Icon(
                   Icons.add,
-                  color: darkIconButton,
                 ),
               ),
             ],
@@ -152,15 +151,6 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
               onPressed: () {
                 _addUser();
               },
-              style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.resolveWith(
-                    (states) => states.contains(MaterialState.hovered) ||
-                            states.contains(MaterialState.pressed)
-                        ? darkIconButton.withOpacity(0.9)
-                        : darkIconButton,
-                  ),
-                  padding: MaterialStateProperty.all(const EdgeInsets.all(5.0)),
-                  shape: MaterialStateProperty.all(const CircleBorder())),
               child: const Text(
                 'Add',
                 style: darkBackgroundStyle,

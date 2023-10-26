@@ -6,8 +6,6 @@ import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
 import 'package:stripes_ui/UI/CommonWidgets/date_time_entry.dart';
-import 'package:stripes_ui/UI/History/button_style.dart';
-import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -21,19 +19,16 @@ class FilterButton extends ConsumerWidget {
           ref.read(overlayProvider.notifier).state =
               OverlayQuery(widget: _FilterPopUp());
         },
-        style: historyButtonStyle,
         child: Row(
           children: [
             Text(
               AppLocalizations.of(context)!.filterEventsButton,
-              style: buttonText,
             ),
             const SizedBox(
               width: 4.0,
             ),
             const Icon(
               Icons.filter_list,
-              color: darkIconButton,
             ),
           ],
         ));
@@ -94,7 +89,6 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: DecoratedBox(
               decoration: const BoxDecoration(
-                  color: darkBackgroundText,
                   borderRadius: BorderRadius.all(Radius.circular(15.0))),
               child: Padding(
                 padding:
@@ -121,7 +115,6 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                             },
                             icon: const Icon(
                               Icons.close,
-                              color: darkIconButton,
                               size: 35,
                             ))
                       ],
@@ -148,7 +141,6 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                               child: Text(
                                 AppLocalizations.of(context)!.eventFilterReset,
                                 style: lightBackgroundStyle.copyWith(
-                                    color: darkIconButton,
                                     decoration: TextDecoration.underline),
                               ))
                         ],
@@ -178,13 +170,8 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                           padding: const EdgeInsets.all(5.0),
                           label: Text(
                             type,
-                            style: darkBackgroundStyle.copyWith(
-                                color: selected
-                                    ? darkIconButton
-                                    : lightBackgroundText.withOpacity(0.7)),
                           ),
                           selected: selected,
-                          elevation: selected ? 2.0 : 1.0,
                           onSelected: (value) {
                             setState(() {
                               if (value) {
@@ -194,8 +181,6 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                               }
                             });
                           },
-                          selectedColor: darkIconButton.withOpacity(0.45),
-                          backgroundColor: Colors.grey.withOpacity(0.8),
                         );
                       }).toList(),
                     ),

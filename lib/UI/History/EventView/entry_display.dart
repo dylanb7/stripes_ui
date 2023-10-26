@@ -12,7 +12,6 @@ import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/UI/Record/question_screen.dart';
 import 'package:stripes_ui/UI/Record/symptom_record_data.dart';
 import 'package:stripes_ui/Util/date_helper.dart';
-import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -87,7 +86,6 @@ class EntryDisplay extends ConsumerWidget {
         icon: const Icon(
           Icons.edit,
           size: 30,
-          color: darkIconButton,
         ),
       );
       vals = [
@@ -206,8 +204,6 @@ class EntryDisplay extends ConsumerWidget {
                     },
                     child: Text(
                       AppLocalizations.of(context)!.deleteAction,
-                      style: lightBackgroundHeaderStyle.copyWith(
-                          color: darkIconButton),
                     )),
                 if (button != null) button,
               ],
@@ -268,7 +264,7 @@ class DeleteErrorPrevention extends ConsumerWidget {
     return ConfirmationPopup(
       title: Text(
         AppLocalizations.of(context)!.errorPreventionTitle,
-        style: darkBackgroundHeaderStyle.copyWith(color: buttonDarkBackground),
+        style: darkBackgroundHeaderStyle,
         textAlign: TextAlign.center,
       ),
       cancel: AppLocalizations.of(context)!.stampDeleteCancel,

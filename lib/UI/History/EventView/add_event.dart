@@ -4,11 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
-import 'package:stripes_ui/UI/History/button_style.dart';
+
 import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
 import 'package:stripes_ui/UI/Record/symptom_record_data.dart';
 import 'package:stripes_ui/Util/date_helper.dart';
-import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -29,10 +28,8 @@ class AddEvent extends ConsumerWidget {
         : Tooltip(
             message: dateToMDY(selected, context),
             child: ElevatedButton(
-              style: historyButtonStyle,
               child: Text(
                 AppLocalizations.of(context)!.addEventButton,
-                style: buttonText,
               ),
               onPressed: () {
                 openEventOverlay(ref, selected);
@@ -55,15 +52,11 @@ class _QuestionTypeOverlay extends ConsumerWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 350),
         child: Container(
-          decoration: BoxDecoration(
-              color: darkBackgroundText,
-              borderRadius: const BorderRadius.all(Radius.circular(15.0)),
+          decoration: const BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(15.0)),
               boxShadow: [
                 BoxShadow(
-                    color: lightBackgroundText.withOpacity(0.4),
-                    offset: Offset.zero,
-                    blurRadius: 3.0,
-                    spreadRadius: 3.0)
+                    offset: Offset.zero, blurRadius: 3.0, spreadRadius: 3.0)
               ]),
           child: Padding(
             padding: const EdgeInsets.all(10.0),
@@ -87,7 +80,6 @@ class _QuestionTypeOverlay extends ConsumerWidget {
                           icon: const Icon(
                             Icons.close,
                             size: 30,
-                            color: darkIconButton,
                           )),
                     ]),
                 ...questionTypes.map((type) => Padding(

@@ -6,7 +6,6 @@ import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/SharedHomeWidgets/tab_view.dart';
-import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -64,10 +63,10 @@ class PatientChanger extends ConsumerWidget {
                   _openUserSelect(ref);
                 },
                 tooltip: "Change Patient",
-                icon: const Icon(
+                icon: Icon(
                   Icons.keyboard_arrow_down,
                   size: 35.0,
-                  color: darkIconButton,
+                  color: Theme.of(context).colorScheme.secondary,
                 )),
         ]);
   }
@@ -85,11 +84,12 @@ class UserSelect extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final SubNotifier subNotif = ref.read(subHolderProvider);
     final SubUser current = subNotif.current;
+    final Color action = Theme.of(context).colorScheme.secondary;
     return Stack(
       children: [
         Positioned.fill(
             child: Container(
-          color: lightBackgroundText.withOpacity(0.9),
+          color: Colors.black.withOpacity(0.9),
         )),
         Positioned.fill(
           child: SingleChildScrollView(
@@ -108,9 +108,9 @@ class UserSelect extends ConsumerWidget {
                         _close(ref);
                       },
                       iconSize: 35,
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.keyboard_arrow_up,
-                        color: darkIconButton,
+                        color: action,
                       )),
                   const Spacer(),
                   IconButton(
@@ -118,9 +118,9 @@ class UserSelect extends ConsumerWidget {
                         _close(ref);
                       },
                       iconSize: 35,
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.close,
-                        color: darkIconButton,
+                        color: action,
                       ))
                 ]),
                 Column(
@@ -129,7 +129,7 @@ class UserSelect extends ConsumerWidget {
                       .map((user) => Padding(
                           padding: const EdgeInsets.symmetric(vertical: 5.0),
                           child: user.uid == current.uid
-                              ? _getSelected(ref, user)
+                              ? _getSelected(ref, user, action)
                               : _getSelectible(ref, user)))
                       .toList(),
                 ),
@@ -141,7 +141,7 @@ class UserSelect extends ConsumerWidget {
     );
   }
 
-  Widget _getSelected(WidgetRef ref, SubUser current) {
+  Widget _getSelected(WidgetRef ref, SubUser current, Color selected) {
     final String firstName = current.name.split(' ')[0];
     return InkWell(
         onTap: () {
@@ -154,12 +154,11 @@ class UserSelect extends ConsumerWidget {
           children: [
             Text(
               firstName,
-              style: darkBackgroundScreenHeaderStyle.copyWith(
-                  color: buttonDarkBackground),
+              style: darkBackgroundScreenHeaderStyle.copyWith(color: selected),
             ),
-            const Icon(
+            Icon(
               Icons.check,
-              color: darkIconButton,
+              color: selected,
               size: 35,
             ),
           ],

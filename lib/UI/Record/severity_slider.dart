@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
-import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -61,6 +60,8 @@ class _StripesSliderState extends State<StripesSlider> {
 
   @override
   Widget build(BuildContext context) {
+    final Color primary = Theme.of(context).primaryColor;
+    final Color disabled = Theme.of(context).disabledColor;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -71,7 +72,7 @@ class _StripesSliderState extends State<StripesSlider> {
             AppLocalizations.of(context)!.levelReminder,
             textAlign: TextAlign.center,
             style: lightBackgroundHeaderStyle.copyWith(
-                fontWeight: FontWeight.bold, color: darkIconButton),
+                fontWeight: FontWeight.bold),
           ),
         ),
         const SizedBox(
@@ -80,7 +81,7 @@ class _StripesSliderState extends State<StripesSlider> {
         DecoratedBox(
           decoration: BoxDecoration(
               borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-              color: listener.interact ? backgroundStrong : disabled),
+              color: listener.interact ? primary : disabled),
           child: Row(children: [
             if (value.toInt() != widget.min) ...[
               const SizedBox(
@@ -117,14 +118,16 @@ class _StripesSliderState extends State<StripesSlider> {
                     ),
                     overlayColor: Colors.white.withOpacity(.4),
                     //valueIndicatorColor: Colors.white,
-                    activeTickMarkColor: Colors.transparent,
-                    inactiveTickMarkColor: Colors.transparent,
+
+                    activeTickMarkColor:
+                        Theme.of(context).colorScheme.background,
+                    inactiveTickMarkColor: disabled,
                   ),
                   child: Slider(
                     value: value,
                     min: widget.min.toDouble(),
                     max: widget.max.toDouble(),
-                    thumbColor: listener.interact ? lightIconButton : disabled,
+                    thumbColor: listener.interact ? primary : disabled,
                     divisions: widget.max - widget.min,
                     onChangeStart: (val) {
                       if (!listener.interact) {
@@ -253,6 +256,8 @@ class _MoodSliderState extends State<MoodSlider> {
   @override
   Widget build(BuildContext context) {
     final int selectedIndex = (value / 2).floor();
+    final Color primary = Theme.of(context).primaryColor;
+    final Color disabled = Theme.of(context).disabledColor;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -263,7 +268,7 @@ class _MoodSliderState extends State<MoodSlider> {
             AppLocalizations.of(context)!.levelReminder,
             textAlign: TextAlign.center,
             style: lightBackgroundHeaderStyle.copyWith(
-                fontWeight: FontWeight.bold, color: darkIconButton),
+                fontWeight: FontWeight.bold),
           ),
         ),
         const SizedBox(
@@ -272,7 +277,9 @@ class _MoodSliderState extends State<MoodSlider> {
         DecoratedBox(
           decoration: BoxDecoration(
               borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-              color: listener.interact ? backgroundStrong : disabled),
+              color: listener.interact
+                  ? Theme.of(context).primaryColor
+                  : Theme.of(context).disabledColor),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             const SizedBox(
@@ -325,16 +332,15 @@ class _MoodSliderState extends State<MoodSlider> {
                         max: 10,
                       ),
                       overlayColor: Colors.white.withOpacity(.4),
-                      //valueIndicatorColor: Colors.white,
-                      activeTickMarkColor: Colors.transparent,
-                      inactiveTickMarkColor: Colors.transparent,
+                      activeTickMarkColor:
+                          Theme.of(context).colorScheme.background,
+                      inactiveTickMarkColor: disabled,
                     ),
                     child: Slider(
                       value: value,
                       min: 1.0,
                       max: 10.0,
-                      thumbColor:
-                          listener.interact ? lightIconButton : disabled,
+                      thumbColor: listener.interact ? primary : disabled,
                       divisions: 9,
                       onChangeStart: (val) {
                         if (!listener.interact) {
@@ -414,10 +420,13 @@ class _MoodSliderState extends State<MoodSlider> {
           'packages/stripes_ui/assets/svg/pain_face_$index.svg',
           colorFilter: ColorFilter.mode(
               !listener.interact
-                  ? darkBackgroundText.withOpacity(0.5)
+                  ? Theme.of(context).colorScheme.onBackground.withOpacity(0.5)
                   : isSelected
-                      ? darkBackgroundText
-                      : darkBackgroundText.withOpacity(0.3),
+                      ? Theme.of(context).colorScheme.onBackground
+                      : Theme.of(context)
+                          .colorScheme
+                          .onBackground
+                          .withOpacity(0.3),
               BlendMode.srcIn),
         ));
   }
@@ -474,6 +483,8 @@ class _PainSliderState extends State<PainSlider> {
 
   @override
   Widget build(BuildContext context) {
+    final Color primary = Theme.of(context).primaryColor;
+    final Color disabled = Theme.of(context).disabledColor;
     final List<String> hurtLevels = [
       AppLocalizations.of(context)!.painLevelZero,
       AppLocalizations.of(context)!.painLevelOne,
@@ -493,7 +504,7 @@ class _PainSliderState extends State<PainSlider> {
             AppLocalizations.of(context)!.levelReminder,
             textAlign: TextAlign.center,
             style: lightBackgroundHeaderStyle.copyWith(
-                fontWeight: FontWeight.bold, color: darkIconButton),
+                fontWeight: FontWeight.bold),
           ),
         ),
         const SizedBox(
@@ -502,7 +513,7 @@ class _PainSliderState extends State<PainSlider> {
         DecoratedBox(
           decoration: BoxDecoration(
               borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-              color: listener.interact ? backgroundStrong : disabled),
+              color: listener.interact ? primary : disabled),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             const SizedBox(
@@ -561,16 +572,15 @@ class _PainSliderState extends State<PainSlider> {
                         max: 10,
                       ),
                       overlayColor: Colors.white.withOpacity(.4),
-                      //valueIndicatorColor: Colors.white,
-                      activeTickMarkColor: Colors.transparent,
-                      inactiveTickMarkColor: Colors.transparent,
+                      activeTickMarkColor:
+                          Theme.of(context).colorScheme.background,
+                      inactiveTickMarkColor: disabled,
                     ),
                     child: Slider(
                       value: value,
                       min: 0.0,
                       max: 10.0,
-                      thumbColor:
-                          listener.interact ? lightIconButton : disabled,
+                      thumbColor: listener.interact ? primary : disabled,
                       divisions: 10,
                       onChangeStart: (val) {
                         if (!listener.interact) {
@@ -636,10 +646,13 @@ class _PainSliderState extends State<PainSlider> {
           'packages/stripes_ui/assets/svg/pain_face_$index.svg',
           colorFilter: ColorFilter.mode(
               !listener.interact
-                  ? darkBackgroundText.withOpacity(0.5)
+                  ? Theme.of(context).colorScheme.onBackground.withOpacity(0.5)
                   : isSelected
-                      ? darkBackgroundText
-                      : darkBackgroundText.withOpacity(0.3),
+                      ? Theme.of(context).colorScheme.onBackground
+                      : Theme.of(context)
+                          .colorScheme
+                          .onBackground
+                          .withOpacity(0.3),
               BlendMode.srcIn),
         ));
   }

@@ -8,7 +8,7 @@ import 'package:stripes_ui/Providers/auth_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/form_input.dart';
-import 'package:stripes_ui/Util/palette.dart';
+
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/entry.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
@@ -20,9 +20,7 @@ class LandingPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final AuthStrat strat = ref.watch(authStrat);
     return Scaffold(
-        body: ColoredBox(
-      color: darkBackgroundText,
-      child: Column(
+      body: Column(
         children: [
           const Spacer(
             flex: 2,
@@ -40,7 +38,7 @@ class LandingPage extends ConsumerWidget {
           ),
         ],
       ),
-    ));
+    );
   }
 }
 
@@ -148,9 +146,7 @@ class AccessLoginState extends ConsumerState<AccessLogin> {
                   const SizedBox(
                     width: 12.0,
                   ),
-                  const CircularProgressIndicator(
-                    color: darkIconButton,
-                  ),
+                  const CircularProgressIndicator(),
                 ],
               ),
             const SizedBox(height: 6.0),

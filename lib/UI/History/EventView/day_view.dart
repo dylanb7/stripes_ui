@@ -3,7 +3,6 @@ import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/UI/History/EventView/sig_dates.dart';
-import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 
 import 'calendar_day.dart';
@@ -58,7 +57,7 @@ class DayView extends ConsumerWidget {
                 todayBorderColor: Colors.transparent,
                 selectedDayBorderColor: Colors.transparent,
                 selectedDayButtonColor: Colors.transparent,
-                iconColor: darkIconButton,
+                iconColor: Theme.of(context).colorScheme.secondary,
                 headerMargin: const EdgeInsets.symmetric(vertical: 5.0),
                 weekFormat: true,
                 isScrollable: false,
@@ -66,8 +65,8 @@ class DayView extends ConsumerWidget {
                 showHeader: true,
                 headerTextStyle: darkBackgroundHeaderStyle,
                 pageSnapping: true,
-                inactiveDaysTextStyle: lightBackgroundStyle.copyWith(
-                    fontSize: 14, color: lightBackgroundText.withOpacity(0.5)),
+                inactiveDaysTextStyle:
+                    lightBackgroundStyle.copyWith(fontSize: 14),
                 maxSelectedDate: DateTime.now(),
                 minSelectedDate: getMinDate(),
                 height: 150,

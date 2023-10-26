@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 
 class StripesRoundedButton extends StatelessWidget {
@@ -32,6 +31,8 @@ class StripesRoundedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color light = Theme.of(context).primaryColor;
+    final Color dark = Theme.of(context).colorScheme.secondary;
     return Container(
       height: isTall ? 50 : null,
       decoration: BoxDecoration(
@@ -39,9 +40,8 @@ class StripesRoundedButton extends StatelessWidget {
           boxShadow: [
             if (hasShadow)
               BoxShadow(
-                  color: isLight
-                      ? buttonLightBackground2.withOpacity(0.2)
-                      : buttonDarkBackground2.withOpacity(0.2),
+                  color:
+                      isLight ? light.withOpacity(0.2) : dark.withOpacity(0.2),
                   blurRadius: 1,
                   spreadRadius: 1,
                   offset: const Offset(0, 5))
@@ -54,27 +54,16 @@ class StripesRoundedButton extends StatelessWidget {
               },
         style: ButtonStyle(
             padding: MaterialStateProperty.all(EdgeInsets.zero),
-            backgroundColor: MaterialStateProperty.all(Colors.transparent),
+            backgroundColor: MaterialStateProperty.all(isLight ? light : dark),
             elevation: MaterialStateProperty.all(0),
             shape: MaterialStateProperty.all(RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(roundAmount))))),
-        child: Ink(
-          decoration: BoxDecoration(
-              shape: BoxShape.rectangle,
-              borderRadius: BorderRadius.all(Radius.circular(roundAmount)),
-              gradient: LinearGradient(
-                  colors: isDisabled
-                      ? [Colors.grey.shade500, Colors.grey.shade800]
-                      : isLight
-                          ? [buttonLightBackground, buttonLightBackground2]
-                          : [buttonDarkBackground, buttonDarkBackground2])),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Text(
-                text,
-                style: buttonTextStyle,
-              ),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Text(
+              text,
+              style: buttonTextStyle,
             ),
           ),
         ),
@@ -88,14 +77,14 @@ class StripesTextButton extends StatelessWidget {
 
   final bool isDisabled;
 
-  final Color mainTextColor;
+  final Color? mainTextColor;
 
   final Function onClicked;
 
   const StripesTextButton(
       {required this.buttonText,
       required this.onClicked,
-      this.mainTextColor = buttonLightBackground,
+      this.mainTextColor,
       bool disabled = false,
       String prefix = '',
       String suffix = '',
@@ -112,7 +101,10 @@ class StripesTextButton extends StatelessWidget {
         text:
             TextSpan(text: prefixText, style: lightBackgroundStyle, children: [
           TextSpan(
-              text: buttonText, style: link.copyWith(color: mainTextColor)),
+              text: buttonText,
+              style: link.copyWith(
+                  color:
+                      mainTextColor ?? Theme.of(context).colorScheme.tertiary)),
           TextSpan(text: suffixText, style: lightBackgroundStyle)
         ]),
       ),

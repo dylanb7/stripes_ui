@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 
 class FrequencyRow extends StatelessWidget {
@@ -39,7 +38,6 @@ class FrequencyRow extends StatelessWidget {
           ),
         ),
         elevation: 6.0,
-        color: darkBackgroundText,
         child: Stack(
           children: [
             if (amount != 0)

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
-import 'package:stripes_ui/Util/palette.dart';
 
 class FreqExpandible extends StatefulWidget {
   final Widget header, view;
@@ -73,7 +72,6 @@ class _FreqExpandState extends State<FreqExpandible>
                         message: 'Common Behaviors',
                         child: Icon(
                           _expanded ? Icons.expand_less : Icons.expand_more,
-                          color: darkIconButton,
                         ),
                       ),
                       const SizedBox(

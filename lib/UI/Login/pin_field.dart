@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:stripes_ui/Util/animated_painter.dart';
-import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 
 class PinField extends StatelessWidget {
@@ -40,12 +39,6 @@ class PinField extends StatelessWidget {
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 showCursor: false,
-                pinTheme: PinTheme(
-                    fieldWidth: 65,
-                    selectedColor: buttonLightBackground,
-                    shape: PinCodeFieldShape.underline,
-                    errorBorderColor: error,
-                    activeColor: buttonDarkBackground),
                 onCompleted: (val) {
                   onFilled(val);
                 },
@@ -76,9 +69,7 @@ class PinField extends StatelessWidget {
         const SizedBox(
           width: 100,
           height: 100,
-          child: CircularProgressIndicator(
-            color: buttonDarkBackground,
-          ),
+          child: CircularProgressIndicator(),
         ),
       if (accepted) const AnimatedCheck(),
     ]);
@@ -196,7 +187,7 @@ class _AnimatedCheckState extends State<AnimatedCheck>
                   size.height, size.width * 0.38, size.height);
               return path;
             },
-            paintColor: buttonDarkBackground2),
+            paintColor: Theme.of(context).primaryColor),
       ),
     );
   }

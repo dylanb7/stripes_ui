@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/Providers/graph_data_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
-import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 
 import 'freq_expand.dart';
@@ -81,7 +80,10 @@ class EventFrequency extends ConsumerWidget {
                     child: FrequencyRow(
                         percent: catVal.toDouble() / maxLengthCat,
                         amount: catVal,
-                        fillColor: darkIconButton.withOpacity(0.9),
+                        fillColor: Theme.of(context)
+                            .colorScheme
+                            .secondary
+                            .withOpacity(0.9),
                         hasTooltip: false,
                         prompt: key),
                   );
@@ -94,7 +96,10 @@ class EventFrequency extends ConsumerWidget {
                   header: FrequencyRow(
                       percent: catVal.toDouble() / maxLengthCat,
                       amount: catVal,
-                      fillColor: darkIconButton.withOpacity(0.9),
+                      fillColor: Theme.of(context)
+                          .colorScheme
+                          .secondary
+                          .withOpacity(0.9),
                       hasTooltip: false,
                       prompt: key),
                   view: Padding(
@@ -115,7 +120,10 @@ class EventFrequency extends ConsumerWidget {
                                 amount: promptVal,
                                 percent: promptVal.toDouble() / maxPromptLength,
                                 prompt: key,
-                                fillColor: darkIconButton.withOpacity(0.6),
+                                fillColor: Theme.of(context)
+                                    .colorScheme
+                                    .secondary
+                                    .withOpacity(0.6),
                               ),
                             );
                           }),

@@ -10,7 +10,6 @@ import 'package:stripes_ui/UI/History/EventView/export.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/splitter.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
-import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/entry.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
@@ -30,7 +29,6 @@ class UserProfileButton extends ConsumerWidget {
     return PopupMenuButton(
       padding: EdgeInsets.zero,
       offset: const Offset(0, 1),
-      color: darkBackgroundText,
       itemBuilder: (context) => [
         if (!isMarker)
           PopupMenuItem(
@@ -42,7 +40,6 @@ class UserProfileButton extends ConsumerWidget {
               const Spacer(),
               const Icon(
                 Icons.edit_note,
-                color: darkIconButton,
               ),
             ]),
             onTap: () {
@@ -59,7 +56,6 @@ class UserProfileButton extends ConsumerWidget {
               Spacer(),
               Icon(
                 Icons.info,
-                color: darkIconButton,
               ),
             ]),
             onTap: () {
@@ -69,7 +65,6 @@ class UserProfileButton extends ConsumerWidget {
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Card(
-                      color: darkBackgroundText,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(8.0))),
                       child: Padding(
@@ -108,7 +103,6 @@ class UserProfileButton extends ConsumerWidget {
               const Spacer(),
               const Icon(
                 Icons.download,
-                color: darkIconButton,
               ),
             ]),
             onTap: () {
@@ -136,7 +130,6 @@ class UserProfileButton extends ConsumerWidget {
               const Spacer(),
               const Icon(
                 Icons.close,
-                color: darkIconButton,
               ),
             ]),
             onTap: () {
@@ -153,7 +146,6 @@ class UserProfileButton extends ConsumerWidget {
             const Spacer(),
             const Icon(
               Icons.logout,
-              color: darkIconButton,
             ),
           ]),
           onTap: () {
@@ -164,7 +156,6 @@ class UserProfileButton extends ConsumerWidget {
       icon: const Icon(
         Icons.person,
         size: 35.0,
-        color: darkBackgroundText,
       ),
       tooltip: 'Account',
     );
@@ -195,8 +186,7 @@ class ExitErrorPrevention extends ConsumerWidget {
                   children: [
                     Text(
                       AppLocalizations.of(context)!.errorPreventionTitle,
-                      style: darkBackgroundHeaderStyle.copyWith(
-                          color: buttonDarkBackground),
+                      style: darkBackgroundHeaderStyle.copyWith(),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(
@@ -221,13 +211,13 @@ class ExitErrorPrevention extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 BasicButton(
-                    color: buttonDarkBackground,
+                    color: Theme.of(context).primaryColor,
                     onClick: (_) {
                       _closeOverlay(ref);
                     },
                     text: AppLocalizations.of(context)!.stampDeleteCancel),
                 BasicButton(
-                    color: buttonDarkBackground,
+                    color: Theme.of(context).colorScheme.secondary,
                     onClick: (_) {
                       _confirm(ref);
                     },

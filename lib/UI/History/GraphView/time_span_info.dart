@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
-import 'package:stripes_ui/UI/History/button_style.dart';
+
 import 'package:stripes_ui/Util/date_helper.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 
@@ -46,9 +46,9 @@ class TimeSpanInfo extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text(
+                    const Text(
                       'Events',
-                      style: buttonText,
+                      style: lightBackgroundHeaderStyle,
                     ),
                     Text(
                       '${stamps.length}',
@@ -69,9 +69,9 @@ class TimeSpanInfo extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text(
+                    const Text(
                       'Oldest',
-                      style: buttonText,
+                      style: lightBackgroundStyle,
                     ),
                     Text(
                       '${_respToDateStr(stamps.last, context)}',
@@ -92,9 +92,9 @@ class TimeSpanInfo extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text(
+                    const Text(
                       'Newest',
-                      style: buttonText,
+                      style: lightBackgroundStyle,
                     ),
                     Text(
                       '${_respToDateStr(stamps.first, context)}',

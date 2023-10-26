@@ -12,7 +12,6 @@ import 'package:stripes_ui/Util/async_ui_callback.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/form_input.dart';
-import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/Util/validators.dart';
 
@@ -156,11 +155,9 @@ class _SignInFormState extends ConsumerState<SignInForm> {
                           height: 8.0,
                         ),
                         Text(
-                          AppLocalizations.of(context)!
-                              .passwordRequirementHeader,
-                          style: buttonTextStyle.copyWith(
-                              color: buttonDarkBackground2),
-                        ),
+                            AppLocalizations.of(context)!
+                                .passwordRequirementHeader,
+                            style: buttonTextStyle),
                         ...points.keys.map((point) => Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
@@ -171,7 +168,7 @@ class _SignInFormState extends ConsumerState<SignInForm> {
                                   return BulletPoint(
                                       color: points[point]!(password.text)
                                           ? Colors.green
-                                          : buttonDarkBackground2);
+                                          : Theme.of(context).disabledColor);
                                 }),
                                 const SizedBox(
                                   width: 5.0,
@@ -316,9 +313,7 @@ class _VerificationState extends ConsumerState<Verification> {
                 const SizedBox(
                   width: 12.0,
                 ),
-                const CircularProgressIndicator(
-                  color: darkIconButton,
-                ),
+                const CircularProgressIndicator(),
               ],
             ),
           const SizedBox(height: 6.0),

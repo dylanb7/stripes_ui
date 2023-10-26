@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stripes_ui/Util/form_input.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
-import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 
 class BirthYearController {
@@ -50,33 +49,19 @@ class BirthYearSelector extends FormField<String> {
                               'Select Birth Year',
                               style: lightBackgroundHeaderStyle,
                             ),
-                            content: Theme(
-                              data: ThemeData.from(
-                                      colorScheme: const ColorScheme.light())
-                                  .copyWith(
-                                      splashFactory: NoSplash.splashFactory,
-                                      datePickerTheme:
-                                          const DatePickerThemeData(
-                                              todayBackgroundColor:
-                                                  MaterialStatePropertyAll(
-                                                      lightIconButton),
-                                              todayForegroundColor:
-                                                  MaterialStatePropertyAll(
-                                                      darkBackgroundText))),
-                              child: SizedBox(
-                                width: 300,
-                                height: 300,
-                                child: YearPicker(
-                                  currentDate: controller.birthYear,
-                                  firstDate: DateTime(1940),
-                                  lastDate: DateTime.now(),
-                                  selectedDate: controller.birthYear,
-                                  onChanged: (val) {
-                                    controller.changeYear(val);
-                                    state.didChange('${controller.year}');
-                                    Navigator.pop(context);
-                                  },
-                                ),
+                            content: SizedBox(
+                              width: 300,
+                              height: 300,
+                              child: YearPicker(
+                                currentDate: controller.birthYear,
+                                firstDate: DateTime(1940),
+                                lastDate: DateTime.now(),
+                                selectedDate: controller.birthYear,
+                                onChanged: (val) {
+                                  controller.changeYear(val);
+                                  state.didChange('${controller.year}');
+                                  Navigator.pop(context);
+                                },
                               ),
                             ),
                           ),

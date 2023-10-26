@@ -8,7 +8,6 @@ import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/UI/Record/base_screen.dart';
 import 'package:stripes_ui/UI/Record/severity_slider.dart';
-import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 import 'package:collection/collection.dart';
@@ -130,10 +129,9 @@ class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
           shape: RoundedRectangleBorder(
             borderRadius: const BorderRadius.all(Radius.circular(15.0)),
             side: isSelected
-                ? const BorderSide(color: buttonDarkBackground, width: 1.0)
+                ? const BorderSide(width: 1.0)
                 : const BorderSide(width: 0, color: Colors.transparent),
           ),
-          color: darkBackgroundText,
           elevation: 4.0,
           child: Padding(
             padding:
@@ -166,14 +164,14 @@ class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
                         },
                         child: Container(
                           decoration: BoxDecoration(
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(5.0)),
-                              border: Border.all(
-                                  color: isSelected
-                                      ? buttonDarkBackground
-                                      : Colors.transparent,
-                                  width: 2.0),
-                              color: darkBackgroundText),
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(5.0)),
+                            border: Border.all(
+                                color: isSelected
+                                    ? Theme.of(context).colorScheme.secondary
+                                    : Colors.transparent,
+                                width: 2.0),
+                          ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -196,12 +194,6 @@ class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
                                   value: isSelected,
                                   visualDensity: VisualDensity.compact,
                                   onChanged: null,
-                                  fillColor: MaterialStateProperty.resolveWith(
-                                      (states) => states
-                                              .contains(MaterialState.selected)
-                                          ? darkIconButton
-                                          : darkBackgroundText),
-                                  checkColor: darkBackgroundText,
                                 ),
                               ),
                             ],
@@ -266,9 +258,10 @@ class _CheckBoxWidgetState extends State<CheckBoxWidget> {
           shape: RoundedRectangleBorder(
               borderRadius: const BorderRadius.all(Radius.circular(15.0)),
               side: isSelected
-                  ? const BorderSide(color: buttonDarkBackground, width: 5.0)
+                  ? BorderSide(
+                      color: Theme.of(context).colorScheme.secondary,
+                      width: 5.0)
                   : const BorderSide(width: 0, color: Colors.transparent)),
-          color: darkBackgroundText,
           elevation: 4.0,
           child: Padding(
             padding:
@@ -289,11 +282,6 @@ class _CheckBoxWidgetState extends State<CheckBoxWidget> {
                   child: Checkbox(
                     value: isSelected,
                     onChanged: null,
-                    fillColor: MaterialStateProperty.resolveWith((states) =>
-                        states.contains(MaterialState.selected)
-                            ? darkIconButton
-                            : darkBackgroundText),
-                    checkColor: darkBackgroundText,
                   ),
                 ),
               ],
@@ -383,7 +371,9 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
     final bool tried = ref.watch(continueTried);
     final bool errorHighlight = tried && !_sliderListener.interact;
     return Expandible(
-      highlightColor: errorHighlight ? error : buttonDarkBackground,
+      highlightColor: errorHighlight
+          ? Theme.of(context).colorScheme.error
+          : Theme.of(context).colorScheme.secondary,
       header: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -406,11 +396,6 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
             child: Checkbox(
               value: res != null,
               onChanged: null,
-              fillColor: MaterialStateProperty.resolveWith((states) =>
-                  states.contains(MaterialState.selected)
-                      ? darkIconButton
-                      : darkBackgroundText),
-              checkColor: darkBackgroundText,
             ),
           ),
         ],
@@ -603,7 +588,9 @@ class _SeverityPainWidgetState extends ConsumerState<SeverityPainWidget> {
     final bool tried = ref.watch(continueTried);
     final bool errorHighlight = tried && !_sliderListener.interact;
     return Expandible(
-      highlightColor: errorHighlight ? error : buttonDarkBackground,
+      highlightColor: errorHighlight
+          ? Theme.of(context).colorScheme.error
+          : Theme.of(context).colorScheme.secondary,
       header: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -626,11 +613,6 @@ class _SeverityPainWidgetState extends ConsumerState<SeverityPainWidget> {
             child: Checkbox(
               value: res != null,
               onChanged: null,
-              fillColor: MaterialStateProperty.resolveWith((states) =>
-                  states.contains(MaterialState.selected)
-                      ? darkIconButton
-                      : darkBackgroundText),
-              checkColor: darkBackgroundText,
             ),
           ),
         ],

@@ -1,6 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:stripes_ui/Util/palette.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
 
 class LocationToggle extends StatelessWidget {
   final List<String> options;
@@ -21,9 +19,6 @@ class LocationToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle baseStyle = fontSize != null
-        ? darkBackgroundHeaderStyle.copyWith(fontSize: fontSize)
-        : darkBackgroundHeaderStyle;
     return ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 450),
         child: CupertinoSlidingSegmentedControl<String>(
@@ -33,17 +28,11 @@ class LocationToggle extends StatelessWidget {
                   e,
                   Text(
                     e,
-                    style: e == toggled
-                        ? baseStyle.copyWith(
-                            color: lightIconButton, fontWeight: FontWeight.bold)
-                        : baseStyle,
                   ),
                 ),
               ),
             ),
             groupValue: toggled,
-            thumbColor: darkBackgroundText,
-            backgroundColor: lightIconButton,
             onValueChanged: onChange));
   }
 }

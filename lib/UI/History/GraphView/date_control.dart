@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/Util/date_helper.dart';
-import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 
 class DateControl extends ConsumerWidget {
@@ -40,7 +39,6 @@ class DateControl extends ConsumerWidget {
                     },
                     icon: const Icon(
                       Icons.keyboard_arrow_left,
-                      color: darkIconButton,
                     ),
                   ),
                 ),
@@ -49,7 +47,6 @@ class DateControl extends ConsumerWidget {
                 ),
                 Expanded(
                   child: Card(
-                    color: darkBackgroundText,
                     elevation: 8.0,
                     margin: EdgeInsets.zero,
                     shape: const RoundedRectangleBorder(
@@ -78,7 +75,9 @@ class DateControl extends ConsumerWidget {
                     },
                     icon: Icon(
                       Icons.keyboard_arrow_right,
-                      color: forwardDisabled ? Colors.grey : darkIconButton,
+                      color: forwardDisabled
+                          ? Theme.of(context).disabledColor
+                          : Theme.of(context).colorScheme.secondary,
                     ),
                   ),
                 ),

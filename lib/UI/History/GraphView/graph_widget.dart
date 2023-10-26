@@ -6,8 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/Providers/graph_data_provider.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
-import 'package:stripes_ui/UI/History/button_style.dart';
-import 'package:stripes_ui/Util/palette.dart';
+
 import 'package:stripes_ui/Util/text_styles.dart';
 
 final selectedGraphProvider = StateProvider<String?>((_) => null);
@@ -59,10 +58,8 @@ class GraphWidget extends ConsumerWidget {
                   onPressed: () {
                     _openBehaviorOverlay(ref, behaviors, selectedValue);
                   },
-                  style: historyButtonStyle,
-                  child: Text(
+                  child: const Text(
                     'Change Behavior',
-                    style: buttonText,
                   ),
                 ),
               ]),
@@ -142,8 +139,8 @@ class _BarGraphState extends ConsumerState<BarGraph> {
     graphBarData = selected == null
         ? defaultData
         : widget.graphData.behaviorBarData[selected] ?? defaultData;
-    const Color severe = lightIconButton;
-    Color mild = lightIconButton.withOpacity(0.4);
+    Color severe = Theme.of(context).colorScheme.error;
+    Color mild = Theme.of(context).colorScheme.tertiary.withOpacity(0.5);
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -183,16 +180,14 @@ class _BarGraphState extends ConsumerState<BarGraph> {
               maxY: graphBarData.maxHeight + 1.0,
               gridData: FlGridData(
                 show: true,
-                getDrawingVerticalLine: (value) => FlLine(
-                    color: backgroundLight.withOpacity(0.6), dashArray: [4, 8]),
-                getDrawingHorizontalLine: (value) => FlLine(
-                    color: backgroundLight.withOpacity(0.6), dashArray: [4, 8]),
+                getDrawingVerticalLine: (value) => FlLine(dashArray: [4, 8]),
+                getDrawingHorizontalLine: (value) => FlLine(dashArray: [4, 8]),
               ),
               borderData: FlBorderData(
                   show: true,
                   border: const Border(
-                      bottom: BorderSide(color: backgroundLight, width: 1.0),
-                      right: BorderSide(color: backgroundLight, width: 1.0))),
+                      bottom: BorderSide(width: 1.0),
+                      right: BorderSide(width: 1.0))),
               barTouchData: BarTouchData(
                 touchTooltipData: BarTouchTooltipData(
                   getTooltipItem: _getTooltipItem,
@@ -282,14 +277,9 @@ class _BarGraphState extends ConsumerState<BarGraph> {
                 5.0 - (graphBarData.minSeverity ?? 1.0));
       }
       data.add(
-        _makeGroupData(
-            i,
-            curr.height.toDouble(),
-            severity
-                ? Color.lerp(low, high, sev) ?? lightIconButton
-                : lightIconButton,
-            width: width,
-            isTouched: touchedIndex == i),
+        _makeGroupData(i, curr.height.toDouble(),
+            severity ? Color.lerp(low, high, sev) ?? low : low,
+            width: width, isTouched: touchedIndex == i),
       );
     }
     return data;
@@ -357,7 +347,6 @@ class SelectBehaviorOverlay extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: DecoratedBox(
               decoration: const BoxDecoration(
-                  color: darkBackgroundText,
                   borderRadius: BorderRadius.all(Radius.circular(15.0))),
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -381,7 +370,6 @@ class SelectBehaviorOverlay extends ConsumerWidget {
                         },
                         icon: const Icon(
                           Icons.close,
-                          color: darkIconButton,
                         ),
                       ),
                     ],
@@ -395,13 +383,10 @@ class SelectBehaviorOverlay extends ConsumerWidget {
                             option,
                             style: lightBackgroundStyle,
                           ),
-                          tileColor: darkBackgroundText,
-                          selectedTileColor: darkIconButton.withOpacity(0.6),
                           style: ListTileStyle.drawer,
                           trailing: selected == option
                               ? const Icon(
                                   Icons.check,
-                                  color: darkIconButton,
                                 )
                               : null,
                           onTap: () {

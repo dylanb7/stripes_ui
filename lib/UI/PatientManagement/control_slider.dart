@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 
 String? empty(String? val) {
@@ -42,7 +41,8 @@ class PatientControlSelector extends FormField<String> {
                           color: Colors.white,
                           border: state.errorText == null
                               ? Border.all(color: Colors.grey)
-                              : Border.all(color: error),
+                              : Border.all(
+                                  color: Theme.of(context).colorScheme.error),
                           borderRadius: BorderRadius.circular(5)),
                       child: DropdownButton<String>(
                         onChanged: (value) {
@@ -62,7 +62,6 @@ class PatientControlSelector extends FormField<String> {
                         ),
                         icon: const Icon(
                           Icons.arrow_downward,
-                          color: buttonLightBackground,
                         ),
                         isExpanded: true,
                         items: values

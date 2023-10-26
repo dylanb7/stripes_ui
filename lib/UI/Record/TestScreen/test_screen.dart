@@ -12,7 +12,6 @@ import 'package:stripes_ui/UI/Record/TestScreen/instructions.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_content.dart';
 import 'package:stripes_ui/UI/SharedHomeWidgets/tab_view.dart';
 import 'package:stripes_ui/Util/constants.dart';
-import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 import '../../../Providers/sub_provider.dart';
@@ -152,7 +151,6 @@ class _TestScreenState extends ConsumerState<TestScreen> {
             Center(
               child: StripesTextButton(
                   buttonText: AppLocalizations.of(context)!.blueDyeCancel,
-                  mainTextColor: darkBackgroundText,
                   onClicked: () {
                     _cancelTest(context, ref);
                   }),
@@ -208,8 +206,7 @@ class TestErrorPrevention extends ConsumerWidget {
     return ConfirmationPopup(
         title: Text(
           AppLocalizations.of(context)!.errorPreventionTitle,
-          style:
-              darkBackgroundHeaderStyle.copyWith(color: buttonDarkBackground),
+          style: darkBackgroundHeaderStyle,
           textAlign: TextAlign.center,
         ),
         body: Column(

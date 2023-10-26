@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:stripes_ui/Util/form_input.dart';
-import 'package:stripes_ui/Util/palette.dart';
 
 class ObscureTextField extends StatefulWidget {
   final String hintText;
@@ -57,11 +56,9 @@ class _ObscureTextFieldState extends State<ObscureTextField> {
             icon: _obscure
                 ? const Icon(
                     Icons.visibility,
-                    color: buttonLightBackground,
                   )
                 : const Icon(
                     Icons.visibility_off,
-                    color: buttonLightBackground,
                   )),
         IconButton(
           padding: EdgeInsets.zero,
@@ -70,7 +67,6 @@ class _ObscureTextFieldState extends State<ObscureTextField> {
           },
           icon: const Icon(
             Icons.clear,
-            color: buttonLightBackground,
           ),
         ),
       ],

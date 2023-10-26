@@ -15,7 +15,6 @@ import 'package:stripes_ui/UI/Record/question_screen.dart';
 import 'package:stripes_ui/UI/Record/submit_screen.dart';
 import 'package:stripes_ui/UI/Record/symptom_record_data.dart';
 import 'package:stripes_ui/Util/constants.dart';
-import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -64,240 +63,228 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     final hasPending = widget.questionListener.pending.isNotEmpty;
     final String? name = _name();
     final bool emptyName = name == null || name.isEmpty;
+    final Color primary = Theme.of(context).primaryColor;
+    final Color disabled = Theme.of(context).disabledColor;
     return SafeArea(
-        child: Scaffold(
-      body: SizedBox.expand(
-        child: Container(
-          decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [backgroundStrong, backgroundLight])),
-          child: Stack(children: [
-            Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Flexible(
-                              child: Text(
-                                emptyName
-                                    ? AppLocalizations.of(context)!
-                                        .emptyRecordHeader(widget.type)
-                                    : AppLocalizations.of(context)!
-                                        .recordHeader(widget.type, name),
-                                style: darkBackgroundHeaderStyle,
-                              ),
-                            ),
-                            IconButton(
-                                onPressed: () {
-                                  _showErrorPrevention(context);
-                                },
-                                alignment: Alignment.topRight,
-                                icon: const Icon(
-                                  Icons.close,
-                                  size: 35,
-                                  color: buttonDarkBackground,
-                                ))
-                          ],
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 8.0,
-                      ),
-                      Expanded(
-                        child: Card(
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(10),
+      child: Scaffold(
+        body: Stack(children: [
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              emptyName
+                                  ? AppLocalizations.of(context)!
+                                      .emptyRecordHeader(widget.type)
+                                  : AppLocalizations.of(context)!
+                                      .recordHeader(widget.type, name),
+                              style: darkBackgroundHeaderStyle,
                             ),
                           ),
-                          elevation: 8.0,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 5.0, horizontal: 8.0),
-                            child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  Expanded(
-                                    child: PageView.builder(
-                                      onPageChanged: (value) {
-                                        setState(() {
-                                          currentIndex = value;
-                                        });
-                                      },
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      itemBuilder: (context, index) {
-                                        Widget content;
-                                        if (index == pages.length) {
-                                          content = SubmitScreen(
-                                            questionsListener:
-                                                widget.questionListener,
-                                            type: widget.type,
-                                            desc: widget.data.initialDesc,
-                                            isEdit:
-                                                widget.data.isEditing ?? false,
-                                            submitTime: widget.data.submitTime,
-                                          );
-                                        } else {
-                                          content = QuestionScreen(
-                                              header: pages[index].header ??
-                                                  AppLocalizations.of(context)!
-                                                      .selectInstruction,
-                                              questions: pages[index].questions,
-                                              questionsListener:
-                                                  widget.questionListener);
-                                        }
-                                        final ScrollController
-                                            scrollController =
-                                            ScrollController();
-                                        return Scrollbar(
-                                          thumbVisibility: true,
-                                          thickness: 10,
-                                          controller: scrollController,
-                                          radius: const Radius.circular(20),
-                                          scrollbarOrientation:
-                                              ScrollbarOrientation.right,
-                                          child: SingleChildScrollView(
-                                              controller: scrollController,
-                                              scrollDirection: Axis.vertical,
-                                              child: content),
+                          IconButton(
+                              onPressed: () {
+                                _showErrorPrevention(context);
+                              },
+                              alignment: Alignment.topRight,
+                              icon: const Icon(
+                                Icons.close,
+                                size: 35,
+                              ))
+                        ],
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 8.0,
+                    ),
+                    Expanded(
+                      child: Card(
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(10),
+                          ),
+                        ),
+                        elevation: 8.0,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 5.0, horizontal: 8.0),
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Expanded(
+                                  child: PageView.builder(
+                                    onPageChanged: (value) {
+                                      setState(() {
+                                        currentIndex = value;
+                                      });
+                                    },
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemBuilder: (context, index) {
+                                      Widget content;
+                                      if (index == pages.length) {
+                                        content = SubmitScreen(
+                                          questionsListener:
+                                              widget.questionListener,
+                                          type: widget.type,
+                                          desc: widget.data.initialDesc,
+                                          isEdit:
+                                              widget.data.isEditing ?? false,
+                                          submitTime: widget.data.submitTime,
                                         );
-                                      },
-                                      itemCount: pages.length + 1,
-                                      controller: pageController,
-                                    ),
+                                      } else {
+                                        content = QuestionScreen(
+                                            header: pages[index].header ??
+                                                AppLocalizations.of(context)!
+                                                    .selectInstruction,
+                                            questions: pages[index].questions,
+                                            questionsListener:
+                                                widget.questionListener);
+                                      }
+                                      final ScrollController scrollController =
+                                          ScrollController();
+                                      return Scrollbar(
+                                        thumbVisibility: true,
+                                        thickness: 10,
+                                        controller: scrollController,
+                                        radius: const Radius.circular(20),
+                                        scrollbarOrientation:
+                                            ScrollbarOrientation.right,
+                                        child: SingleChildScrollView(
+                                            controller: scrollController,
+                                            scrollDirection: Axis.vertical,
+                                            child: content),
+                                      );
+                                    },
+                                    itemCount: pages.length + 1,
+                                    controller: pageController,
                                   ),
-                                  const Padding(
-                                    padding: EdgeInsets.only(top: 1),
-                                    child: Divider(
-                                      height: 2,
-                                      indent: 15,
-                                      endIndent: 15,
-                                      color: lightBackgroundText,
-                                      thickness: 2,
-                                    ),
+                                ),
+                                const Padding(
+                                  padding: EdgeInsets.only(top: 1),
+                                  child: Divider(
+                                    height: 2,
+                                    indent: 15,
+                                    endIndent: 15,
+                                    thickness: 2,
                                   ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 20, vertical: 10),
-                                    child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          if (tried && hasPending)
-                                            Text(
-                                              AppLocalizations.of(context)!
-                                                  .nLevelError(widget
-                                                      .questionListener
-                                                      .pending
-                                                      .length),
-                                              style: errorStyleTitle,
-                                            ),
-                                          Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                currentIndex > 0
-                                                    ? IconButton(
-                                                        padding:
-                                                            EdgeInsets.zero,
-                                                        onPressed: _prev,
-                                                        highlightColor:
-                                                            Colors.transparent,
-                                                        hoverColor:
-                                                            Colors.transparent,
-                                                        splashColor:
-                                                            Colors.transparent,
-                                                        tooltip: 'Previous',
-                                                        iconSize: 45,
-                                                        icon: Icon(
-                                                          Icons
-                                                              .arrow_back_rounded,
-                                                          color: widget
-                                                                  .questionListener
-                                                                  .pending
-                                                                  .isEmpty
-                                                              ? buttonLightBackground
-                                                              : disabled,
-                                                        ),
-                                                      )
-                                                    : const SizedBox(
-                                                        width: 45,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20, vertical: 10),
+                                  child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        if (tried && hasPending)
+                                          Text(
+                                            AppLocalizations.of(context)!
+                                                .nLevelError(widget
+                                                    .questionListener
+                                                    .pending
+                                                    .length),
+                                            style: errorStyleTitle,
+                                          ),
+                                        Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              currentIndex > 0
+                                                  ? IconButton(
+                                                      padding: EdgeInsets.zero,
+                                                      onPressed: _prev,
+                                                      highlightColor:
+                                                          Colors.transparent,
+                                                      hoverColor:
+                                                          Colors.transparent,
+                                                      splashColor:
+                                                          Colors.transparent,
+                                                      tooltip: 'Previous',
+                                                      iconSize: 45,
+                                                      icon: Icon(
+                                                        Icons
+                                                            .arrow_back_rounded,
+                                                        color: widget
+                                                                .questionListener
+                                                                .pending
+                                                                .isEmpty
+                                                            ? primary
+                                                            : disabled,
                                                       ),
-                                                SmoothPageIndicator(
-                                                  controller: pageController,
-                                                  count: length + 1,
-                                                  onDotClicked: (index) {
-                                                    _goToPage(index);
-                                                  },
-                                                  effect:
-                                                      const ScrollingDotsEffect(
-                                                          activeDotColor:
-                                                              lightIconButton,
-                                                          activeDotScale: 1),
-                                                ),
-                                                currentIndex < length
-                                                    ? IconButton(
-                                                        padding:
-                                                            EdgeInsets.zero,
-                                                        onPressed: _next,
-                                                        highlightColor:
-                                                            Colors.transparent,
-                                                        hoverColor:
-                                                            Colors.transparent,
-                                                        splashColor:
-                                                            Colors.transparent,
-                                                        tooltip: 'Next',
-                                                        iconSize: 45,
-                                                        icon: Icon(
-                                                          Icons
-                                                              .arrow_forward_rounded,
-                                                          color: widget
-                                                                  .questionListener
-                                                                  .pending
-                                                                  .isEmpty
-                                                              ? buttonLightBackground
-                                                              : disabled,
-                                                        ),
-                                                      )
-                                                    : const SizedBox(
-                                                        width: 45,
-                                                      )
-                                              ])
-                                        ]),
-                                  ),
-                                ]),
-                          ),
+                                                    )
+                                                  : const SizedBox(
+                                                      width: 45,
+                                                    ),
+                                              SmoothPageIndicator(
+                                                controller: pageController,
+                                                count: length + 1,
+                                                onDotClicked: (index) {
+                                                  _goToPage(index);
+                                                },
+                                                effect: ScrollingDotsEffect(
+                                                    activeDotColor:
+                                                        Theme.of(context)
+                                                            .primaryColor,
+                                                    activeDotScale: 1),
+                                              ),
+                                              currentIndex < length
+                                                  ? IconButton(
+                                                      padding: EdgeInsets.zero,
+                                                      onPressed: _next,
+                                                      highlightColor:
+                                                          Colors.transparent,
+                                                      hoverColor:
+                                                          Colors.transparent,
+                                                      splashColor:
+                                                          Colors.transparent,
+                                                      tooltip: 'Next',
+                                                      iconSize: 45,
+                                                      icon: Icon(
+                                                        Icons
+                                                            .arrow_forward_rounded,
+                                                        color: widget
+                                                                .questionListener
+                                                                .pending
+                                                                .isEmpty
+                                                            ? primary
+                                                            : disabled,
+                                                      ),
+                                                    )
+                                                  : const SizedBox(
+                                                      width: 45,
+                                                    )
+                                            ])
+                                      ]),
+                                ),
+                              ]),
                         ),
                       ),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                  ],
                 ),
               ),
             ),
-            if (query.widget != null) query.widget!,
-          ]),
-        ),
+          ),
+          if (query.widget != null) query.widget!,
+        ]),
       ),
-    ));
+    );
   }
 
   String? _name() {
@@ -357,8 +344,7 @@ class ErrorPrevention extends ConsumerWidget {
     return ConfirmationPopup(
         title: Text(
           AppLocalizations.of(context)!.errorPreventionTitle,
-          style:
-              darkBackgroundHeaderStyle.copyWith(color: buttonDarkBackground),
+          style: darkBackgroundHeaderStyle,
           textAlign: TextAlign.center,
         ),
         body: Column(

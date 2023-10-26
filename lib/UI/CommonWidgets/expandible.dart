@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
-import 'package:stripes_ui/Util/palette.dart';
 
 class Expandible extends StatefulWidget {
   final Widget header;
@@ -15,7 +14,7 @@ class Expandible extends StatefulWidget {
 
   final bool highlightOnShrink;
 
-  final Color highlightColor;
+  final Color? highlightColor;
 
   final double? iconSize;
 
@@ -29,7 +28,7 @@ class Expandible extends StatefulWidget {
       this.hasIndicator = true,
       this.highlightOnShrink = false,
       this.iconSize,
-      this.highlightColor = buttonDarkBackground,
+      this.highlightColor,
       this.listener,
       Key? key})
       : super(key: key);
@@ -114,9 +113,11 @@ class _ExpandibleState extends State<Expandible>
                   borderRadius: const BorderRadius.all(Radius.circular(15.0)),
                   side: (_expanded || widget.highlightOnShrink) &&
                           widget.selected
-                      ? BorderSide(color: widget.highlightColor, width: 5.0)
+                      ? BorderSide(
+                          color: widget.highlightColor ??
+                              Theme.of(context).colorScheme.secondary,
+                          width: 5.0)
                       : const BorderSide(width: 0, color: Colors.transparent)),
-              color: darkBackgroundText,
               elevation: 4.0,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -138,7 +139,6 @@ class _ExpandibleState extends State<Expandible>
                             ),
                             Icon(
                               _expanded ? Icons.expand_less : Icons.expand_more,
-                              color: lightBackgroundText,
                               size: widget.iconSize,
                             )
                           ],

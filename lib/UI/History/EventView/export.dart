@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
-import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/entry.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
@@ -18,7 +17,6 @@ class Export extends ConsumerWidget {
       onPressed: () {},
       icon: const Icon(
         Icons.ios_share,
-        color: darkBackgroundText,
       ),
       tooltip: 'Export',
     );
@@ -50,7 +48,6 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
             padding: const EdgeInsets.symmetric(horizontal: 25.0),
             child: Container(
               decoration: const BoxDecoration(
-                  color: darkBackgroundText,
                   borderRadius: BorderRadius.all(Radius.circular(8.0))),
               child: Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -72,7 +69,6 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
                                 },
                                 icon: const Icon(
                                   Icons.close,
-                                  color: darkIconButton,
                                   size: 35,
                                 ))
                           ]),
@@ -126,10 +122,7 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
                                 }
                               }
                             }),
-                      if (loading)
-                        const CircularProgressIndicator(
-                          color: darkIconButton,
-                        ),
+                      if (loading) const CircularProgressIndicator(),
                       if (done)
                         StripesRoundedButton(
                             text: AppLocalizations.of(context)!.uploadDone,

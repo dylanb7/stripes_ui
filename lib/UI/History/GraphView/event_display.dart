@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:stripes_ui/UI/History/GraphView/event_frequency.dart';
 import 'package:stripes_ui/UI/History/GraphView/graph_widget.dart';
 import 'package:stripes_ui/Util/constants.dart';
-import 'package:stripes_ui/Util/palette.dart';
 
 // ignore: constant_identifier_names
 const double SIDE_BY_SIDE = SMALL_LAYOUT * 1.5;
@@ -25,7 +24,6 @@ class EventDisplay extends StatelessWidget {
             VerticalDivider(
               width: 30,
               thickness: 2.0,
-              color: darkBackgroundText,
             ),
             Expanded(
               child: GraphWidget(),

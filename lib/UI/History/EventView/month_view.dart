@@ -5,7 +5,6 @@ import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/UI/History/EventView/calendar_day.dart';
 import 'package:stripes_ui/UI/History/EventView/sig_dates.dart';
 import 'package:stripes_ui/Util/constants.dart';
-import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 
 import 'day_view.dart';
@@ -70,7 +69,7 @@ class MonthView extends ConsumerWidget {
                   },
                   headerMargin: const EdgeInsets.symmetric(vertical: 5.0),
                   customGridViewPhysics: const NeverScrollableScrollPhysics(),
-                  iconColor: darkIconButton,
+                  iconColor: Theme.of(context).colorScheme.secondary,
                   dayPadding: 2.0,
                   weekDayMargin: EdgeInsets.zero,
                   selectedDateTime: selected,

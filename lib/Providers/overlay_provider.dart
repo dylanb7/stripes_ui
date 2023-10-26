@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../Util/palette.dart';
-
 @immutable
 class OverlayQuery {
   final Widget? widget;
@@ -30,7 +28,7 @@ class OverlayBackdrop extends ConsumerWidget {
             }
           },
           child: ColoredBox(
-            color: lightBackgroundText.withOpacity(0.9),
+            color: Colors.black.withOpacity(0.9),
           ),
         ),
       ),

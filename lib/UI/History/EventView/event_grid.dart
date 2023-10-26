@@ -7,7 +7,6 @@ import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/UI/History/EventView/entry_display.dart';
 import 'package:stripes_ui/UI/SharedHomeWidgets/home_screen.dart';
 import 'package:stripes_ui/Util/constants.dart';
-import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -114,7 +113,6 @@ class _EventGridState extends ConsumerState<EventGrid> {
         backgroundColor: Colors.white,
         child: const Icon(
           Icons.arrow_upward,
-          color: lightIconButton,
         ),
       );
     } else if (scrollDir == ScrollDirection.forward || !offset) {

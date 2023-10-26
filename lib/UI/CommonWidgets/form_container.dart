@@ -61,13 +61,7 @@ class _FormContainerState extends State<FormContainer>
             right: 0,
             top: present ? 0 : -blueHeight,
             height: blueHeight,
-            child: const DecoratedBox(
-              decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [backgroundStrong, backgroundLight])),
-            ),
+            child: const DecoratedBox(decoration: BoxDecoration()),
           ),
           Positioned.fill(
             child: SafeArea(
@@ -91,7 +85,6 @@ class _FormContainerState extends State<FormContainer>
                                   iconSize: 35,
                                   icon: const Icon(
                                     Icons.arrow_back_ios,
-                                    color: darkBackgroundText,
                                   ),
                                   onPressed: () {
                                     (widget.close ??
@@ -112,8 +105,6 @@ class _FormContainerState extends State<FormContainer>
                           maxWidth: 600,
                         ),
                         child: Card(
-                          color: darkBackgroundText,
-                          shadowColor: backgroundLight,
                           shape: const RoundedRectangleBorder(
                             borderRadius:
                                 BorderRadius.all(Radius.circular(25.0)),

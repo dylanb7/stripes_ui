@@ -10,7 +10,7 @@ import 'package:stripes_ui/UI/PatientManagement/gender_dropdown.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/form_input.dart';
-import 'package:stripes_ui/Util/palette.dart';
+
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/Util/validators.dart';
 
@@ -55,7 +55,7 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
             elevation: 12,
             shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                side: BorderSide(color: buttonDarkBackground2, width: 5)),
+                side: BorderSide(width: 5)),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: FocusTraversalGroup(
@@ -89,7 +89,6 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
                                 icon: const Icon(
                                   Icons.close,
                                   size: 35,
-                                  color: darkIconButton,
                                 ))
                           ],
                         ),
@@ -99,10 +98,9 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
                         Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
+                              const Text(
                                 'First Name',
-                                style: lightBackgroundStyle.copyWith(
-                                    color: buttonDarkBackground),
+                                style: lightBackgroundStyle,
                               ),
                               SizedBox(
                                 width: 200,
@@ -122,10 +120,9 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
                         Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
+                              const Text(
                                 'Last Name',
-                                style: lightBackgroundStyle.copyWith(
-                                    color: buttonDarkBackground),
+                                style: lightBackgroundStyle,
                               ),
                               SizedBox(
                                 width: 200,
@@ -145,10 +142,9 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
+                            const Text(
                               "Birth Year",
-                              style: lightBackgroundStyle.copyWith(
-                                  color: buttonDarkBackground),
+                              style: lightBackgroundStyle,
                             ),
                             SizedBox(
                               width: 200,
@@ -165,10 +161,9 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
+                            const Text(
                               "Gender",
-                              style: lightBackgroundStyle.copyWith(
-                                  color: buttonDarkBackground),
+                              style: lightBackgroundStyle,
                             ),
                             SizedBox(
                               width: 200,
@@ -186,10 +181,9 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
+                            const Text(
                               "Role",
-                              style: lightBackgroundStyle.copyWith(
-                                  color: buttonDarkBackground),
+                              style: lightBackgroundStyle,
                             ),
                             SizedBox(
                               width: 200,
@@ -213,8 +207,6 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
                                     onClicked: () {
                                       _deleteUser(ref);
                                     },
-                                    mainTextColor:
-                                        lightBackgroundText.withOpacity(0.6),
                                   )
                                 : const SizedBox(
                                     width: 8.0,

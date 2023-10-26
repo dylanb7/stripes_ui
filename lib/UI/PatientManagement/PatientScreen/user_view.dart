@@ -6,7 +6,6 @@ import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/Util/constants.dart';
-import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 
 import 'edit_patient.dart';
@@ -40,23 +39,20 @@ class UserView extends ConsumerWidget {
           ),
           Row(
             children: [
-              Column(
+              const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     "Birth Year:",
-                    style: lightBackgroundStyle.copyWith(
-                        color: buttonDarkBackground),
+                    style: lightBackgroundStyle,
                   ),
                   Text(
                     "Gender:",
-                    style: lightBackgroundStyle.copyWith(
-                        color: buttonDarkBackground),
+                    style: lightBackgroundStyle,
                   ),
                   Text(
                     "Role:",
-                    style: lightBackgroundStyle.copyWith(
-                        color: buttonDarkBackground),
+                    style: lightBackgroundStyle,
                   ),
                 ],
               ),
@@ -90,14 +86,12 @@ class UserView extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               selected
-                  ? Text(
+                  ? const Text(
                       'Current Patient',
-                      style: lightBackgroundStyle.copyWith(
-                          color: buttonDarkBackground),
+                      style: lightBackgroundStyle,
                     )
                   : StripesTextButton(
                       buttonText: 'Select',
-                      mainTextColor: lightBackgroundText.withOpacity(0.6),
                       onClicked: () {
                         _changeToCurrent(ref);
                       }),
@@ -108,7 +102,7 @@ class UserView extends ConsumerWidget {
                 onPressed: () {
                   _editPatient(ref);
                 },
-                icon: const Icon(Icons.edit, color: darkIconButton),
+                icon: const Icon(Icons.edit),
               )
             ],
           ),

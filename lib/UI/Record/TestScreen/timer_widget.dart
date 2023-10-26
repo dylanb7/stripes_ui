@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 
 class TimerWidget extends StatefulWidget {
@@ -36,7 +35,7 @@ class _TimerWidgetState extends State<TimerWidget> {
   Widget build(BuildContext context) {
     return Text(
       from(gap),
-      style: darkBackgroundScreenHeaderStyle.copyWith(color: lightIconButton),
+      style: darkBackgroundScreenHeaderStyle,
     );
   }
 

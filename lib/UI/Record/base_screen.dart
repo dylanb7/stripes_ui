@@ -12,7 +12,6 @@ import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/Record/question_screen.dart';
 import 'package:stripes_ui/UI/Record/screen_manager.dart';
 import 'package:stripes_ui/Util/constants.dart';
-import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 
 final continueTried = StateProvider.autoDispose((_) => false);
@@ -54,140 +53,134 @@ class _BaseScreenState extends ConsumerState<BaseScreen> {
     final OverlayQuery query = ref.watch(overlayProvider);
     final bool tried = ref.watch(continueTried);
     final Size screenSize = MediaQuery.of(context).size;
+    final Color primary = Theme.of(context).primaryColor;
+    final Color disabled = Theme.of(context).disabledColor;
     return SafeArea(
         child: Scaffold(
       body: SizedBox.expand(
-        child: Container(
-          decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [backgroundStrong, backgroundLight])),
-          child: Stack(children: [
-            Center(
-              child: SizedBox(
-                width: min(SMALL_LAYOUT, screenSize.width),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(
-                        height: 10,
+        child: Stack(children: [
+          Center(
+            child: SizedBox(
+              width: min(SMALL_LAYOUT, screenSize.width),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              'Recording ${widget.type}\nfor ${_name()}',
+                              style: darkBackgroundHeaderStyle,
+                            ),
+                          ),
+                          IconButton(
+                              onPressed: () {
+                                _showErrorPrevention(context);
+                              },
+                              icon: const Icon(
+                                Icons.close,
+                                size: 35,
+                              ))
+                        ],
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    ),
+                    const SizedBox(
+                      height: 8.0,
+                    ),
+                    Card(
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(10),
+                        ),
+                      ),
+                      elevation: 8.0,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 5.0, horizontal: 8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Flexible(
-                              child: Text(
-                                'Recording ${widget.type}\nfor ${_name()}',
-                                style: darkBackgroundHeaderStyle,
+                            ScreenManager(
+                              controller: widget.screen,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  widget.screen.hasPrev()
+                                      ? IconButton(
+                                          padding: EdgeInsets.zero,
+                                          onPressed: _prev,
+                                          highlightColor: Colors.transparent,
+                                          hoverColor: Colors.transparent,
+                                          splashColor: Colors.transparent,
+                                          tooltip: 'Previous',
+                                          iconSize: 45,
+                                          icon: Icon(
+                                            Icons.arrow_back_rounded,
+                                            color:
+                                                widget.listener.pending.isEmpty
+                                                    ? primary
+                                                    : disabled,
+                                          ),
+                                        )
+                                      : const SizedBox(
+                                          width: 45,
+                                        ),
+                                  if (tried)
+                                    Text(
+                                      'Select slider ${widget.listener.pending.length > 1 ? 'values' : 'value'}',
+                                      style: errorStyleTitle,
+                                    ),
+                                  widget.screen.hasNext()
+                                      ? IconButton(
+                                          padding: EdgeInsets.zero,
+                                          onPressed: _next,
+                                          highlightColor: Colors.transparent,
+                                          hoverColor: Colors.transparent,
+                                          splashColor: Colors.transparent,
+                                          tooltip: 'Next',
+                                          iconSize: 45,
+                                          icon: Icon(
+                                            Icons.arrow_forward_rounded,
+                                            color:
+                                                widget.listener.pending.isEmpty
+                                                    ? primary
+                                                    : disabled,
+                                          ),
+                                        )
+                                      : const SizedBox(
+                                          width: 45,
+                                        ),
+                                ],
                               ),
                             ),
-                            IconButton(
-                                onPressed: () {
-                                  _showErrorPrevention(context);
-                                },
-                                icon: const Icon(
-                                  Icons.close,
-                                  size: 35,
-                                  color: buttonDarkBackground,
-                                ))
                           ],
                         ),
                       ),
-                      const SizedBox(
-                        height: 8.0,
-                      ),
-                      Card(
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(10),
-                          ),
-                        ),
-                        elevation: 8.0,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 5.0, horizontal: 8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              ScreenManager(
-                                controller: widget.screen,
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 10),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    widget.screen.hasPrev()
-                                        ? IconButton(
-                                            padding: EdgeInsets.zero,
-                                            onPressed: _prev,
-                                            highlightColor: Colors.transparent,
-                                            hoverColor: Colors.transparent,
-                                            splashColor: Colors.transparent,
-                                            tooltip: 'Previous',
-                                            iconSize: 45,
-                                            icon: Icon(
-                                              Icons.arrow_back_rounded,
-                                              color: widget
-                                                      .listener.pending.isEmpty
-                                                  ? buttonLightBackground
-                                                  : disabled,
-                                            ),
-                                          )
-                                        : const SizedBox(
-                                            width: 45,
-                                          ),
-                                    if (tried)
-                                      Text(
-                                        'Select slider ${widget.listener.pending.length > 1 ? 'values' : 'value'}',
-                                        style: errorStyleTitle,
-                                      ),
-                                    widget.screen.hasNext()
-                                        ? IconButton(
-                                            padding: EdgeInsets.zero,
-                                            onPressed: _next,
-                                            highlightColor: Colors.transparent,
-                                            hoverColor: Colors.transparent,
-                                            splashColor: Colors.transparent,
-                                            tooltip: 'Next',
-                                            iconSize: 45,
-                                            icon: Icon(
-                                              Icons.arrow_forward_rounded,
-                                              color: widget
-                                                      .listener.pending.isEmpty
-                                                  ? buttonLightBackground
-                                                  : disabled,
-                                            ),
-                                          )
-                                        : const SizedBox(
-                                            width: 45,
-                                          ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                  ],
                 ),
               ),
             ),
-            if (query.widget != null) query.widget!,
-          ]),
-        ),
+          ),
+          if (query.widget != null) query.widget!,
+        ]),
       ),
     ));
   }
@@ -238,7 +231,7 @@ class ErrorPrevention extends ConsumerWidget {
       children: [
         Positioned.fill(
           child: Container(
-            color: lightBackgroundText.withOpacity(0.9),
+            color: Colors.black.withOpacity(0.9),
           ),
         ),
         Center(
@@ -261,7 +254,7 @@ class ErrorPrevention extends ConsumerWidget {
                         Text(
                           'Wait!',
                           style: darkBackgroundHeaderStyle.copyWith(
-                              color: buttonDarkBackground),
+                              color: Theme.of(context).colorScheme.secondary),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(
@@ -334,11 +327,6 @@ class BasicButton extends StatelessWidget {
       onPressed: () {
         onClick(context);
       },
-      style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all(buttonDarkBackground),
-        shape: MaterialStateProperty.all(const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(15)))),
-      ),
       child: Text(
         text,
         style: darkBackgroundStyle,

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Util/constants.dart';
-import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 
 class ConfirmationPopup extends ConsumerWidget {
@@ -31,7 +30,7 @@ class ConfirmationPopup extends ConsumerWidget {
       children: [
         Positioned.fill(
           child: Container(
-            color: lightBackgroundText.withOpacity(0.9),
+            color: Colors.black.withOpacity(0.9),
           ),
         ),
         Padding(
@@ -63,7 +62,6 @@ class ConfirmationPopup extends ConsumerWidget {
                               _dismiss(context, ref);
                             },
                             icon: const Icon(Icons.close),
-                            color: lightIconButton,
                             iconSize: 35,
                           )
                         ],
@@ -82,13 +80,13 @@ class ConfirmationPopup extends ConsumerWidget {
                               onClick: (context) {
                                 _dismiss(context, ref);
                               },
-                              color: buttonLightBackground,
+                              color: Theme.of(context).primaryColor,
                               text: cancel),
                           BasicButton(
                               onClick: (context) {
                                 _confirm(context, ref);
                               },
-                              color: buttonDarkBackground,
+                              color: Theme.of(context).colorScheme.secondary,
                               text: confirm),
                         ],
                       ),

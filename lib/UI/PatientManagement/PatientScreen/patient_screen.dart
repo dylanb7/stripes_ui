@@ -5,7 +5,6 @@ import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 
 import 'package:stripes_ui/Util/constants.dart';
-import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 
 import 'add_user_widget.dart';
@@ -19,71 +18,63 @@ class PatientScreen extends ConsumerWidget {
     const double itemWidth = SMALL_LAYOUT / 1.5;
     final OverlayQuery overlay = ref.watch(overlayProvider);
     final SubNotifier subNotifier = ref.watch(subHolderProvider);
-    return Container(
-        decoration: const BoxDecoration(
-            gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [backgroundStrong, backgroundLight])),
-        child: Stack(children: [
-          Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 12.0, vertical: 15.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SizedBox(
-                    height: 70,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Flexible(
-                            child: Text(
-                          'Patient Profiles',
-                          maxLines: 2,
-                          style: darkBackgroundScreenHeaderStyle,
-                        )),
-                        IconButton(
-                            onPressed: () {
-                              context.pop();
-                            },
-                            iconSize: 40,
-                            icon: const Icon(
-                              Icons.close,
-                              color: darkIconButton,
-                            ))
-                      ],
+    return Stack(children: [
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 15.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(
+                height: 70,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Flexible(
+                        child: Text(
+                      'Patient Profiles',
+                      maxLines: 2,
+                      style: darkBackgroundScreenHeaderStyle,
                     )),
-                const SizedBox(
-                  height: 12.0,
-                ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Wrap(
-                      children: subNotifier.users
-                          .map<Widget>(
-                            (user) => SizedBox(
-                              width: itemWidth,
-                              child: UserView(
-                                subUser: user,
-                                selected: user.uid == subNotifier.current.uid,
-                              ),
-                            ),
-                          )
-                          .toList()
-                        ..add(
-                          const SizedBox(
-                            width: itemWidth,
-                            child: AddUserWidget(),
+                    IconButton(
+                        onPressed: () {
+                          context.pop();
+                        },
+                        iconSize: 40,
+                        icon: const Icon(
+                          Icons.close,
+                        ))
+                  ],
+                )),
+            const SizedBox(
+              height: 12.0,
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Wrap(
+                  children: subNotifier.users
+                      .map<Widget>(
+                        (user) => SizedBox(
+                          width: itemWidth,
+                          child: UserView(
+                            subUser: user,
+                            selected: user.uid == subNotifier.current.uid,
                           ),
                         ),
+                      )
+                      .toList()
+                    ..add(
+                      const SizedBox(
+                        width: itemWidth,
+                        child: AddUserWidget(),
+                      ),
                     ),
-                  ),
                 ),
-              ],
+              ),
             ),
-          ),
-          if (overlay.widget != null) overlay.widget!
-        ]));
+          ],
+        ),
+      ),
+      if (overlay.widget != null) overlay.widget!
+    ]);
   }
 }

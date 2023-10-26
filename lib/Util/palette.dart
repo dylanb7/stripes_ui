@@ -1,23 +1,6 @@
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 
-const Color darkIconButton = Color(0xffff651f);
-const Color lightIconButton = Color(0xff1744a3);
-const Color buttonDarkBackground = Color(0xffff823d);
-const Color buttonDarkBackground2 = Color(0xffff9b53);
-const Color buttonLightBackground = Color(0xff3368b7);
-const Color buttonLightBackground2 = Color(0xff0f3b9e);
-const Color trackerButtons = Color(0xff2d6eb7);
-const Color disabled = Color.fromARGB(255, 156, 163, 175);
-
-const Color backgroundStrong = Color(0xff1d47a6);
-const Color backgroundLight = Color(0xff75bce5);
-
-const Color lightBackgroundText = Colors.black;
-const Color darkBackgroundText = Colors.white;
-
-const Color error = Color(0xffff321b);
-
 final ThemeData light = FlexThemeData.light(
   colors: const FlexSchemeColor(
     primary: Color(0xff00296b),
@@ -71,8 +54,8 @@ final ThemeData light = FlexThemeData.light(
     bottomSheetRadius: 18.0,
     bottomSheetElevation: 2.0,
     bottomSheetModalElevation: 4.0,
-    bottomNavigationBarMutedUnselectedLabel: false,
-    bottomNavigationBarMutedUnselectedIcon: false,
+    bottomNavigationBarMutedUnselectedLabel: true,
+    bottomNavigationBarMutedUnselectedIcon: true,
     menuRadius: 6.0,
     menuElevation: 3.0,
     menuBarRadius: 0.0,

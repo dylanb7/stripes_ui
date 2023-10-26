@@ -9,7 +9,6 @@ import 'package:stripes_ui/UI/PatientManagement/control_slider.dart';
 import 'package:stripes_ui/UI/PatientManagement/gender_dropdown.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/form_input.dart';
-import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/Util/validators.dart';
 
@@ -43,7 +42,8 @@ class CreatePatient extends ConsumerWidget {
                 TextSpan(
                     text: '#1',
                     style: darkBackgroundHeaderStyle.copyWith(
-                        color: buttonDarkBackground, fontSize: 40))
+                        color: Theme.of(context).colorScheme.secondary,
+                        fontSize: 40))
               ])),
           const Text(
             'Please fill in the information for your first patient',

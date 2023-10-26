@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:stripes_ui/Util/mouse_hover.dart';
-import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -52,7 +51,6 @@ class DateWidget extends ConsumerWidget {
                   children: [
                     const Icon(
                       Icons.calendar_today,
-                      color: lightBackgroundText,
                       size: 35,
                     ),
                     text
@@ -130,7 +128,6 @@ class TimeWidget extends ConsumerWidget {
                     children: [
                       const Icon(
                         Icons.access_time,
-                        color: lightBackgroundText,
                         size: 35,
                       ),
                       text
@@ -215,8 +212,7 @@ class DateTimeHolder extends StatelessWidget {
             Center(
               child: Text(
                 text,
-                style: lightBackgroundStyle.copyWith(
-                    color: lightBackgroundText.withOpacity(0.8)),
+                style: lightBackgroundStyle,
               ),
             ),
             child,
