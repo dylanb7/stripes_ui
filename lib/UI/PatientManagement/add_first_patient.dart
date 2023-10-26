@@ -46,10 +46,11 @@ class CreatePatient extends ConsumerWidget {
                         color: Theme.of(context).colorScheme.secondary,
                         fontSize: 40))
               ])),
-          const Text(
+          Text(
             'Please fill in the information for your first patient',
             textAlign: TextAlign.center,
-            style: darkBackgroundStyle,
+            style: darkBackgroundStyle.copyWith(
+                color: Theme.of(context).colorScheme.onPrimary),
           ),
           const Spacer(),
         ],
