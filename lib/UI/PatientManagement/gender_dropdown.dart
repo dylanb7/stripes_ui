@@ -22,7 +22,7 @@ class GenderDropdown extends FormField<String> {
             autovalidateMode: autovalidate,
             initialValue: initialValue,
             builder: (FormFieldState<String> state) {
-              final List<String> values = ["Male", "Female", "Non-binary"];
+              final List<String> values = ["Male", "Female", "Other"];
               return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
