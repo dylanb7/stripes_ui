@@ -164,51 +164,41 @@ class RecordButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT / 1.5),
-        child: InkWell(
-          splashFactory: NoSplash.splashFactory,
-          onTap: () {
-            onClick(context);
-          },
-          child: Card(
-            elevation: 12,
-            shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                side: BorderSide(color: Colors.transparent, width: 0)),
-            margin: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10.0, vertical: 15.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  if (subText != null && subText!.isNotEmpty)
-                    Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            text,
-                            style: lightBackgroundHeaderStyle,
-                          ),
-                          Text(
-                            subText!,
-                            style: lightBackgroundStyle,
-                          ),
-                        ]),
-                  if (subText == null || subText!.isEmpty)
-                    Text(
-                      text,
-                      style: lightBackgroundHeaderStyle,
-                    ),
-                  const Icon(
-                    Icons.add,
-                    size: 35,
-                  )
-                ],
-              ),
+        child: OutlinedButton(
+          onPressed: onClick(context),
+          child: Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 10.0, vertical: 15.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (subText != null && subText!.isNotEmpty)
+                  Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          text,
+                          style: lightBackgroundHeaderStyle,
+                        ),
+                        Text(
+                          subText!,
+                          style: lightBackgroundStyle,
+                        ),
+                      ]),
+                if (subText == null || subText!.isEmpty)
+                  Text(
+                    text,
+                    style: lightBackgroundHeaderStyle,
+                  ),
+                const Icon(
+                  Icons.add,
+                  size: 35,
+                )
+              ],
             ),
           ),
-        )).showCursorOnHover;
+        ).showCursorOnHover);
   }
 }

@@ -27,7 +27,7 @@ class AddEvent extends ConsumerWidget {
         ? Container()
         : Tooltip(
             message: dateToMDY(selected, context),
-            child: ElevatedButton(
+            child: FilledButton(
               child: Text(
                 AppLocalizations.of(context)!.addEventButton,
               ),
@@ -51,13 +51,7 @@ class _QuestionTypeOverlay extends ConsumerWidget {
     return OverlayBackdrop(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 350),
-        child: Container(
-          decoration: const BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(15.0)),
-              boxShadow: [
-                BoxShadow(
-                    offset: Offset.zero, blurRadius: 3.0, spreadRadius: 3.0)
-              ]),
+        child: Card(
           child: Padding(
             padding: const EdgeInsets.all(10.0),
             child: Column(

@@ -47,6 +47,7 @@ final ThemeData light = FlexThemeData.light(
     elevatedButtonSecondarySchemeColor: SchemeColor.primaryContainer,
     elevatedButtonRadius: 8.0,
     filledButtonRadius: 8.0,
+    outlinedButtonRadius: 8.0,
     filledButtonSchemeColor: SchemeColor.secondary,
     outlinedButtonOutlineSchemeColor: SchemeColor.primary,
     toggleButtonsBorderSchemeColor: SchemeColor.primary,

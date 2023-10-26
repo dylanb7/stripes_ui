@@ -37,7 +37,8 @@ class CreatePatient extends ConsumerWidget {
           RichText(
               text: TextSpan(
                   text: 'Patient Profile ',
-                  style: darkBackgroundScreenHeaderStyle,
+                  style: darkBackgroundScreenHeaderStyle.copyWith(
+                      color: Theme.of(context).colorScheme.onPrimary),
                   children: [
                 TextSpan(
                     text: '#1',

@@ -14,7 +14,7 @@ class FilterButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ElevatedButton(
+    return FilledButton(
         onPressed: () {
           ref.read(overlayProvider.notifier).state =
               OverlayQuery(widget: _FilterPopUp());
@@ -85,175 +85,178 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
       child: SingleChildScrollView(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 450),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: DecoratedBox(
-              decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(15.0))),
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 8.0, horizontal: 15.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const SizedBox(
-                          width: 35,
-                        ),
-                        Text(
-                          AppLocalizations.of(context)!.eventFilterHeader,
-                          style: lightBackgroundHeaderStyle,
-                        ),
-                        IconButton(
-                            onPressed: () {
-                              ref.read(overlayProvider.notifier).state =
-                                  closedQuery;
-                            },
-                            icon: const Icon(
-                              Icons.close,
-                              size: 35,
-                            ))
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 6.0,
-                    ),
-                    Center(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: DecoratedBox(
+                decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(15.0))),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 8.0, horizontal: 15.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            message,
-                            style: lightBackgroundStyle,
+                          const SizedBox(
+                            width: 35,
                           ),
-                          const SizedBox(width: 4.0),
-                          TextButton(
+                          Text(
+                            AppLocalizations.of(context)!.eventFilterHeader,
+                            style: lightBackgroundHeaderStyle,
+                          ),
+                          IconButton(
                               onPressed: () {
-                                setState(() {
-                                  selectedTypes = {};
-                                  initDateRange();
-                                });
+                                ref.read(overlayProvider.notifier).state =
+                                    closedQuery;
                               },
-                              child: Text(
-                                AppLocalizations.of(context)!.eventFilterReset,
-                                style: lightBackgroundStyle.copyWith(
-                                    decoration: TextDecoration.underline),
+                              icon: const Icon(
+                                Icons.close,
+                                size: 35,
                               ))
                         ],
                       ),
-                    ),
-                    const SizedBox(
-                      height: 12.0,
-                    ),
-                    if (types.isNotEmpty)
+                      const SizedBox(
+                        height: 6.0,
+                      ),
                       Center(
-                        child: Text(
-                          AppLocalizations.of(context)!.eventFilterTypesTag,
-                          style: lightBackgroundHeaderStyle,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              message,
+                              style: lightBackgroundStyle,
+                            ),
+                            const SizedBox(width: 4.0),
+                            TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    selectedTypes = {};
+                                    initDateRange();
+                                  });
+                                },
+                                child: Text(
+                                  AppLocalizations.of(context)!
+                                      .eventFilterReset,
+                                  style: lightBackgroundStyle.copyWith(
+                                      decoration: TextDecoration.underline),
+                                ))
+                          ],
                         ),
                       ),
-                    const SizedBox(
-                      height: 6.0,
-                    ),
-                    Wrap(
-                      direction: Axis.horizontal,
-                      alignment: WrapAlignment.center,
-                      spacing: 5.0,
-                      runSpacing: 5.0,
-                      children: types.map((type) {
-                        final bool selected = selectedTypes.contains(type);
-                        return ChoiceChip(
-                          padding: const EdgeInsets.all(5.0),
-                          label: Text(
-                            type,
-                          ),
-                          selected: selected,
-                          onSelected: (value) {
-                            setState(() {
-                              if (value) {
-                                selectedTypes.add(type);
-                              } else {
-                                selectedTypes.remove(type);
-                              }
-                            });
-                          },
-                        );
-                      }).toList(),
-                    ),
-                    const SizedBox(
-                      height: 12.0,
-                    ),
-                    Text(
-                      AppLocalizations.of(context)!.eventFiltersFromTag,
-                      style: lightBackgroundHeaderStyle,
-                    ),
-                    const SizedBox(
-                      height: 6.0,
-                    ),
-                    Center(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          DateWidget(
-                            dateListener: startDateListener,
-                            latest: endDateListener.date,
-                          ),
-                          const SizedBox(
-                            width: 25.0,
-                          ),
-                          TimeWidget(
-                            timeListener: startTimeListener,
-                          ),
-                        ],
+                      const SizedBox(
+                        height: 12.0,
                       ),
-                    ),
-                    const SizedBox(
-                      height: 12.0,
-                    ),
-                    Text(
-                      AppLocalizations.of(context)!.eventFiltersToTag,
-                      style: lightBackgroundHeaderStyle,
-                    ),
-                    const SizedBox(
-                      height: 6.0,
-                    ),
-                    Center(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          DateWidget(
-                            dateListener: endDateListener,
-                            earliest: startDateListener.date,
+                      if (types.isNotEmpty)
+                        Center(
+                          child: Text(
+                            AppLocalizations.of(context)!.eventFilterTypesTag,
+                            style: lightBackgroundHeaderStyle,
                           ),
-                          const SizedBox(
-                            width: 25.0,
-                          ),
-                          TimeWidget(
-                            timeListener: endTimeListener,
-                          ),
-                        ],
+                        ),
+                      const SizedBox(
+                        height: 6.0,
                       ),
-                    ),
-                    const SizedBox(
-                      height: 12.0,
-                    ),
-                    StripesRoundedButton(
-                        text: AppLocalizations.of(context)!.eventFiltersApply,
-                        onClick: () {
-                          final Filters filts = ref.read(filtersProvider);
-                          ref.read(filtersProvider.notifier).state =
-                              filts.copyWith(filt: filt);
-                          ref.read(overlayProvider.notifier).state =
-                              closedQuery;
-                        }),
-                    const SizedBox(
-                      height: 6.0,
-                    ),
-                  ],
+                      Wrap(
+                        direction: Axis.horizontal,
+                        alignment: WrapAlignment.center,
+                        spacing: 5.0,
+                        runSpacing: 5.0,
+                        children: types.map((type) {
+                          final bool selected = selectedTypes.contains(type);
+                          return ChoiceChip(
+                            padding: const EdgeInsets.all(5.0),
+                            label: Text(
+                              type,
+                            ),
+                            selected: selected,
+                            onSelected: (value) {
+                              setState(() {
+                                if (value) {
+                                  selectedTypes.add(type);
+                                } else {
+                                  selectedTypes.remove(type);
+                                }
+                              });
+                            },
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(
+                        height: 12.0,
+                      ),
+                      Text(
+                        AppLocalizations.of(context)!.eventFiltersFromTag,
+                        style: lightBackgroundHeaderStyle,
+                      ),
+                      const SizedBox(
+                        height: 6.0,
+                      ),
+                      Center(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            DateWidget(
+                              dateListener: startDateListener,
+                              latest: endDateListener.date,
+                            ),
+                            const SizedBox(
+                              width: 25.0,
+                            ),
+                            TimeWidget(
+                              timeListener: startTimeListener,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 12.0,
+                      ),
+                      Text(
+                        AppLocalizations.of(context)!.eventFiltersToTag,
+                        style: lightBackgroundHeaderStyle,
+                      ),
+                      const SizedBox(
+                        height: 6.0,
+                      ),
+                      Center(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            DateWidget(
+                              dateListener: endDateListener,
+                              earliest: startDateListener.date,
+                            ),
+                            const SizedBox(
+                              width: 25.0,
+                            ),
+                            TimeWidget(
+                              timeListener: endTimeListener,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 12.0,
+                      ),
+                      StripesRoundedButton(
+                          text: AppLocalizations.of(context)!.eventFiltersApply,
+                          onClick: () {
+                            final Filters filts = ref.read(filtersProvider);
+                            ref.read(filtersProvider.notifier).state =
+                                filts.copyWith(filt: filt);
+                            ref.read(overlayProvider.notifier).state =
+                                closedQuery;
+                          }),
+                      const SizedBox(
+                        height: 6.0,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

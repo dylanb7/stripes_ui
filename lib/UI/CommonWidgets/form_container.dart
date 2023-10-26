@@ -61,7 +61,9 @@ class _FormContainerState extends State<FormContainer>
             right: 0,
             top: present ? 0 : -blueHeight,
             height: blueHeight,
-            child: const DecoratedBox(decoration: BoxDecoration()),
+            child: DecoratedBox(
+                decoration:
+                    BoxDecoration(color: Theme.of(context).primaryColor)),
           ),
           Positioned.fill(
             child: SafeArea(
