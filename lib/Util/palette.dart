@@ -20,13 +20,12 @@ const Color error = Color(0xffff321b);
 
 ThemeData getThemeData(BuildContext context, Brightness brightness) {
   RadixColorsDynamic(context, brightness: brightness).blue.step5;
-  final ColorScheme stripesScheme = ColorScheme(
+  const ColorScheme stripesScheme = ColorScheme(
       brightness: Brightness.light,
       primary: backgroundStrong,
-      onPrimary: darkIconButton,
-      secondary: darkBackgroundText,
-      onSecondary:
-          RadixColorsDynamic(context, brightness: brightness).whiteA.step11,
+      onPrimary: darkBackgroundText,
+      secondary: darkIconButton,
+      onSecondary: darkBackgroundText,
       error: error,
       onError: darkBackgroundText,
       background: backgroundStrong,
