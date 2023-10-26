@@ -112,13 +112,16 @@ class _StripesSliderState extends State<StripesSlider> {
                 child: SliderTheme(
                   data: SliderTheme.of(context).copyWith(
                     trackHeight: 4.0,
+                    activeTrackColor: Theme.of(context).colorScheme.onPrimary,
+                    inactiveTrackColor:
+                        Theme.of(context).disabledColor.withOpacity(0.8),
                     thumbShape: CustomThumb(
                       thumbRadius: 20.0,
+                      color: Theme.of(context).colorScheme.onPrimary,
                       min: widget.min,
                       max: widget.max,
                     ),
-                    activeTickMarkColor:
-                        Theme.of(context).colorScheme.background,
+                    activeTickMarkColor: Theme.of(context).colorScheme.primary,
                     inactiveTickMarkColor: disabled,
                   ),
                   child: Slider(
@@ -323,17 +326,18 @@ class _MoodSliderState extends State<MoodSlider> {
                 child: Center(
                   child: SliderTheme(
                     data: SliderTheme.of(context).copyWith(
-                      activeTrackColor: Colors.white.withOpacity(1),
-                      inactiveTrackColor: Colors.white.withOpacity(.5),
                       trackHeight: 4.0,
-                      thumbShape: const CustomThumb(
+                      activeTrackColor: Theme.of(context).colorScheme.onPrimary,
+                      inactiveTrackColor:
+                          Theme.of(context).disabledColor.withOpacity(0.8),
+                      thumbShape: CustomThumb(
                         thumbRadius: 20.0,
+                        color: Theme.of(context).colorScheme.onPrimary,
                         min: 1,
                         max: 10,
                       ),
-                      overlayColor: Colors.white.withOpacity(.4),
                       activeTickMarkColor:
-                          Theme.of(context).colorScheme.background,
+                          Theme.of(context).colorScheme.primary,
                       inactiveTickMarkColor: disabled,
                     ),
                     child: Slider(
@@ -564,13 +568,17 @@ class _PainSliderState extends State<PainSlider> {
                   child: SliderTheme(
                     data: SliderTheme.of(context).copyWith(
                       trackHeight: 4.0,
-                      thumbShape: const CustomThumb(
+                      activeTrackColor: Theme.of(context).colorScheme.onPrimary,
+                      inactiveTrackColor:
+                          Theme.of(context).disabledColor.withOpacity(0.8),
+                      thumbShape: CustomThumb(
                         thumbRadius: 20.0,
+                        color: Theme.of(context).colorScheme.onPrimary,
                         min: 0,
                         max: 10,
                       ),
                       activeTickMarkColor:
-                          Theme.of(context).colorScheme.background,
+                          Theme.of(context).colorScheme.primary,
                       inactiveTickMarkColor: disabled,
                     ),
                     child: Slider(
@@ -669,9 +677,11 @@ class CustomThumb extends SliderComponentShape {
   final double thumbRadius;
   final int min;
   final int max;
+  final Color color;
 
   const CustomThumb({
     required this.thumbRadius,
+    required this.color,
     this.min = 0,
     this.max = 10,
   });
@@ -700,7 +710,7 @@ class CustomThumb extends SliderComponentShape {
     final Canvas canvas = context.canvas;
 
     final paint = Paint()
-      ..color = Colors.white //Thumb Background Color
+      ..color = color //Thumb Background Color
       ..style = PaintingStyle.fill;
 
     TextSpan span = TextSpan(
