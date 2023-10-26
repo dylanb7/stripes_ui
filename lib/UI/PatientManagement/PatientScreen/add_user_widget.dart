@@ -145,7 +145,9 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
           left: 0,
           right: 0,
           bottom: 0,
-          child: SizedBox.shrink(
+          child: SizedBox(
+            width: 70,
+            height: 50,
             child: FilledButton.tonalIcon(
               onPressed: () {
                 _addUser();
