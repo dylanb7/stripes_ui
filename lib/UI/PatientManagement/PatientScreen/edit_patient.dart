@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
-import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
 import 'package:stripes_ui/UI/PatientManagement/birth_year_selector.dart';
 import 'package:stripes_ui/UI/PatientManagement/control_slider.dart';
 import 'package:stripes_ui/UI/PatientManagement/gender_dropdown.dart';
@@ -144,9 +143,9 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             widget.subUser != subNotif.current
-                                ? StripesTextButton(
-                                    buttonText: 'Delete Patient',
-                                    onClicked: () {
+                                ? TextButton(
+                                    child: const Text('Delete Patient'),
+                                    onPressed: () {
                                       _deleteUser(ref);
                                     },
                                   )
@@ -154,19 +153,24 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
                                     width: 8.0,
                                   ),
                             SizedBox(
-                                width: 150,
-                                child: StripesRoundedButton(
-                                  disabled: !canSave,
-                                  disabledClick: () {
+                              width: 150,
+                              child: GestureDetector(
+                                onTap: () {
+                                  if (!canSave) {
                                     showSnack('Must make changes before saving',
                                         context);
-                                  },
-                                  text: 'Save Changes',
-                                  onClick: () {
-                                    _editUser(ref);
-                                  },
-                                  light: false,
-                                )),
+                                  }
+                                },
+                                child: FilledButton.tonal(
+                                  onPressed: !canSave
+                                      ? null
+                                      : () {
+                                          _editUser(ref);
+                                        },
+                                  child: const Text('Save Changes'),
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                         const SizedBox(

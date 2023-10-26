@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
-import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
 import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
@@ -149,11 +148,12 @@ class _TestScreenState extends ConsumerState<TestScreen> {
           ),
           if (state.testInProgress)
             Center(
-              child: StripesTextButton(
-                  buttonText: AppLocalizations.of(context)!.blueDyeCancel,
-                  onClicked: () {
-                    _cancelTest(context, ref);
-                  }),
+              child: TextButton(
+                onPressed: () {
+                  _cancelTest(context, ref);
+                },
+                child: Text(AppLocalizations.of(context)!.blueDyeCancel),
+              ),
             ),
           const SizedBox(
             height: 12.0,

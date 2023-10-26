@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
-import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/entry.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
@@ -93,10 +92,10 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
                         )
                       ],
                       if (!loading && !done)
-                        StripesRoundedButton(
-                            text: AppLocalizations.of(context)!
-                                .recordCount(widget.responses.length),
-                            onClick: () async {
+                        FilledButton(
+                            child: Text(AppLocalizations.of(context)!
+                                .recordCount(widget.responses.length)),
+                            onPressed: () async {
                               setState(() {
                                 errorMessage = null;
                                 loading = true;
@@ -124,9 +123,10 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
                             }),
                       if (loading) const CircularProgressIndicator(),
                       if (done)
-                        StripesRoundedButton(
-                            text: AppLocalizations.of(context)!.uploadDone,
-                            onClick: () {
+                        FilledButton(
+                            child:
+                                Text(AppLocalizations.of(context)!.uploadDone),
+                            onPressed: () {
                               ref.read(overlayProvider.notifier).state =
                                   closedQuery;
                             })

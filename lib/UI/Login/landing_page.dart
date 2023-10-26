@@ -5,7 +5,6 @@ import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/access_provider.dart';
 import 'package:stripes_ui/Providers/auth_provider.dart';
 
-import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/form_input.dart';
 
@@ -54,19 +53,24 @@ class SignUpLogin extends ConsumerWidget {
         children: [
           SizedBox(
               width: 325,
-              child: StripesRoundedButton(
-                  text: AppLocalizations.of(context)!.signupWithAccessCode,
-                  rounding: 25.0,
-                  onClick: () {
+              child: FilledButton(
+                  onPressed: () {
                     context.go(Routes.SIGN_UP);
-                  })),
+                  },
+                  child: Text(
+                      AppLocalizations.of(context)!.signupWithAccessCode))),
           const SizedBox(height: 8.0),
-          StripesTextButton(
-            buttonText: AppLocalizations.of(context)!.loginButtonText,
-            onClicked: () {
+          TextButton(
+            child: RichText(
+                text: TextSpan(children: [
+              TextSpan(text: AppLocalizations.of(context)!.loginButtonPrefix),
+              TextSpan(
+                  text: AppLocalizations.of(context)!.loginButtonText,
+                  style: const TextStyle(decoration: TextDecoration.underline))
+            ])),
+            onPressed: () {
               context.go(Routes.LOGIN);
             },
-            prefix: '${AppLocalizations.of(context)!.loginButtonPrefix} ',
           ),
           const SizedBox(
             height: 4.0,
@@ -80,9 +84,9 @@ class SignUpLogin extends ConsumerWidget {
           const SizedBox(
             height: 4.0,
           ),
-          StripesTextButton(
-            buttonText: AppLocalizations.of(context)!.useWithoutAccount,
-            onClicked: () {
+          TextButton(
+            child: Text(AppLocalizations.of(context)!.useWithoutAccount),
+            onPressed: () {
               ref.read(authProvider).logIn({});
             },
           ),
@@ -150,17 +154,16 @@ class AccessLoginState extends ConsumerState<AccessLogin> {
                 ],
               ),
             const SizedBox(height: 6.0),
-            StripesRoundedButton(
-              text: AppLocalizations.of(context)!.submitCode,
-              disabled: controller.text.isEmpty,
-              onClick: () {
-                _submitCode(context);
+            FilledButton(
+              child: Text(AppLocalizations.of(context)!.submitCode),
+              onPressed: () {
+                if (!controller.text.isNotEmpty) _submitCode(context);
               },
             ),
             const SizedBox(height: 8.0),
-            StripesTextButton(
-              buttonText: AppLocalizations.of(context)!.withoutCode,
-              onClicked: () {
+            TextButton(
+              child: Text(AppLocalizations.of(context)!.withoutCode),
+              onPressed: () {
                 ref.read(authProvider).logIn({localAccessKey: 'temp'});
               },
             ),

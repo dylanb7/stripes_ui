@@ -4,7 +4,6 @@ import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
-import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
 import 'package:stripes_ui/UI/CommonWidgets/date_time_entry.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
@@ -243,9 +242,10 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                       const SizedBox(
                         height: 12.0,
                       ),
-                      StripesRoundedButton(
-                          text: AppLocalizations.of(context)!.eventFiltersApply,
-                          onClick: () {
+                      FilledButton(
+                          child: Text(
+                              AppLocalizations.of(context)!.eventFiltersApply),
+                          onPressed: () {
                             final Filters filts = ref.read(filtersProvider);
                             ref.read(filtersProvider.notifier).state =
                                 filts.copyWith(filt: filt);

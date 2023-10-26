@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
-import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
@@ -90,11 +89,12 @@ class UserView extends ConsumerWidget {
                       'Current Patient',
                       style: lightBackgroundStyle,
                     )
-                  : StripesTextButton(
-                      buttonText: 'Select',
-                      onClicked: () {
+                  : TextButton(
+                      child: Text('Select'),
+                      onPressed: () {
                         _changeToCurrent(ref);
-                      }),
+                      },
+                    ),
               IconButton(
                 highlightColor: Colors.transparent,
                 hoverColor: Colors.transparent,

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
-import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
@@ -32,13 +31,12 @@ class TestContent extends ConsumerWidget {
             : Center(
                 child: SizedBox(
                   width: 250,
-                  child: StripesRoundedButton(
-                    text: AppLocalizations.of(context)!.blueDyeStart,
-                    onClick: () {
+                  child: FilledButton(
+                    child: Text(AppLocalizations.of(context)!.blueDyeStart),
+                    onPressed: () {
                       ref.read(testHolderProvider).setStart(DateTime.now());
                       expand.set(false);
                     },
-                    light: true,
                   ),
                 ),
               ),
@@ -75,14 +73,15 @@ class TimerDisplay extends ConsumerWidget {
           Center(
             child: SizedBox(
               width: 250,
-              child: StripesRoundedButton(
-                  text: AppLocalizations.of(context)!.blueMealFinishedButton,
-                  light: true,
-                  onClick: () {
-                    ref
-                        .read(testHolderProvider.notifier)
-                        .setDuration(DateTime.now().difference(startTime));
-                  }),
+              child: FilledButton(
+                child:
+                    Text(AppLocalizations.of(context)!.blueMealFinishedButton),
+                onPressed: () {
+                  ref
+                      .read(testHolderProvider.notifier)
+                      .setDuration(DateTime.now().difference(startTime));
+                },
+              ),
             ),
           ),
         ],

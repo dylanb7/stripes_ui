@@ -4,7 +4,6 @@ import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_backend_helper/RepositoryBase/TestBase/BlueDye/bm_test_log.dart';
 import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
-import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/Util/date_helper.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
@@ -35,31 +34,27 @@ class BlueRecordings extends ConsumerWidget {
         Center(
           child: SizedBox(
             width: 250,
-            child: StripesRoundedButton(
-              text: AppLocalizations.of(context)!.blueDyeLogsSubmitTest,
-              onClick: () {
-                ref.read(testHolderProvider).submit(DateTime.now());
-                showDialog(
-                    context: context,
-                    builder: (context) => SimpleDialog(
-                          contentPadding: const EdgeInsets.all(8.0),
-                          children: [
-                            Text(
+            child: GestureDetector(
+                onTap: () {
+                  if (notifier.state != TestState.logsSubmit) {
+                    showSnack(
+                        AppLocalizations.of(context)!
+                            .blueDyeLogsSubmitTestError,
+                        context);
+                  }
+                },
+                child: FilledButton(
+                  onPressed: notifier.state != TestState.logsSubmit
+                      ? null
+                      : () {
+                          ref.read(testHolderProvider).submit(DateTime.now());
+                          showSnack(
                               AppLocalizations.of(context)!.testSubmitSuccess,
-                              style: lightBackgroundHeaderStyle,
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ));
-              },
-              disabledClick: () {
-                showSnack(
-                    AppLocalizations.of(context)!.blueDyeLogsSubmitTestError,
-                    context);
-              },
-              disabled: notifier.state != TestState.logsSubmit,
-              light: true,
-            ),
+                              context);
+                        },
+                  child:
+                      Text(AppLocalizations.of(context)!.blueDyeLogsSubmitTest),
+                )),
           ),
         ),
       ],

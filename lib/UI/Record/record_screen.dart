@@ -6,7 +6,6 @@ import 'package:stripes_backend_helper/TestingReposImpl/test_question_repo.dart'
 import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
-import 'package:stripes_ui/UI/CommonWidgets/buttons.dart';
 import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
 import 'package:stripes_ui/UI/PatientManagement/patient_changer.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
@@ -26,9 +25,9 @@ class Footer extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            StripesTextButton(
-              buttonText: 'About',
-              onClicked: () {},
+            TextButton(
+              onPressed: () {},
+              child: const Text('About'),
             ),
           ],
         ),
