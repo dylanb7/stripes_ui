@@ -59,10 +59,12 @@ class CalendarDay extends StatelessWidget {
     return b.Badge(
       badgeContent: Text(
         '$events',
-        style: darkBackgroundStyle.copyWith(fontSize: 8.0),
+        style: darkBackgroundStyle.copyWith(
+            fontSize: 8.0, color: Theme.of(context).colorScheme.onPrimary),
       ),
-      badgeStyle:
-          b.BadgeStyle(badgeColor: Theme.of(context).colorScheme.tertiary),
+      badgeStyle: b.BadgeStyle(
+        badgeColor: Theme.of(context).colorScheme.onPrimaryContainer,
+      ),
       position: b.BadgePosition.topEnd(end: 0, top: 0),
       child: day,
     );
