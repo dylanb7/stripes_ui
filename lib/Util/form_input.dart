@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:stripes_ui/Util/palette.dart';
+
 import 'package:stripes_ui/Util/text_styles.dart';
 
 InputDecoration formFieldDecoration(
@@ -10,8 +10,7 @@ InputDecoration formFieldDecoration(
     Widget? suffix,
     required TextEditingController controller}) {
   return InputDecoration(
-      prefixIcon:
-          prefix == null ? null : Icon(prefix, color: buttonLightBackground),
+      prefixIcon: prefix == null ? null : Icon(prefix),
       suffixIcon: suffix ??
           (clearable
               ? _BuildWhen(
@@ -23,7 +22,6 @@ InputDecoration formFieldDecoration(
                           },
                           icon: const Icon(
                             Icons.clear,
-                            color: buttonLightBackground,
                           ))
                       : SizedBox.fromSize(
                           size: Size.zero,
@@ -36,10 +34,8 @@ InputDecoration formFieldDecoration(
       errorStyle: errorStyleTitle,
       errorMaxLines: 1,
       errorBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: error),
           borderRadius: BorderRadius.all(Radius.circular(5.0))),
       border: const OutlineInputBorder(
-          borderSide: BorderSide(color: lightIconButton),
           borderRadius: BorderRadius.all(Radius.circular(5.0))));
 }
 

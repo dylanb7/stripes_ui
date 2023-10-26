@@ -1,6 +1,5 @@
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
-import 'package:radix_colors/radix_colors.dart';
 
 const Color darkIconButton = Color(0xffff651f);
 const Color lightIconButton = Color(0xff1744a3);

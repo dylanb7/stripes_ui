@@ -34,7 +34,6 @@ dependencies:
   collection: ^1.17.0
   flutter_svg: ^2.0.6
   email_validator: ^2.1.17
-  radix_colors: ^1.0.4
 
 dev_dependencies:
   flutter_test:

@@ -12,7 +12,6 @@ import 'package:stripes_ui/UI/PatientManagement/patient_changer.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
-import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -30,7 +29,6 @@ class Footer extends StatelessWidget {
             StripesTextButton(
               buttonText: 'About',
               onClicked: () {},
-              mainTextColor: lightBackgroundText,
             ),
           ],
         ),
@@ -91,7 +89,6 @@ class Options extends ConsumerWidget {
               height: 2,
               indent: 15,
               endIndent: 15,
-              color: darkBackgroundText,
               thickness: 2,
             ),
             const SizedBox(
@@ -173,7 +170,6 @@ class RecordButton extends StatelessWidget {
             onClick(context);
           },
           child: Card(
-            color: darkBackgroundText,
             elevation: 12,
             shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(10.0)),
@@ -197,8 +193,7 @@ class RecordButton extends StatelessWidget {
                           ),
                           Text(
                             subText!,
-                            style: lightBackgroundStyle.copyWith(
-                                fontSize: 16.0, color: darkIconButton),
+                            style: lightBackgroundStyle,
                           ),
                         ]),
                   if (subText == null || subText!.isEmpty)
@@ -209,7 +204,6 @@ class RecordButton extends StatelessWidget {
                   const Icon(
                     Icons.add,
                     size: 35,
-                    color: darkIconButton,
                   )
                 ],
               ),

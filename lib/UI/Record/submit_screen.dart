@@ -11,7 +11,6 @@ import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
 import 'package:stripes_ui/UI/Record/question_screen.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
-import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -106,11 +105,6 @@ class SubmitScreen extends ConsumerWidget {
                     index == 1
                   ],
               borderRadius: const BorderRadius.all(Radius.circular(8)),
-              borderColor: lightIconButton,
-              selectedBorderColor: lightIconButton,
-              selectedColor: Colors.white,
-              fillColor: lightIconButton,
-              color: lightIconButton,
               constraints: const BoxConstraints(
                 minHeight: 40.0,
                 minWidth: 80.0,

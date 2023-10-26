@@ -75,19 +75,12 @@ class StripesTabView extends ConsumerWidget {
         if (selected == TabOption.tests) const TestScreen()
       ],
     );
-    return Container(
-      decoration: const BoxDecoration(
-          gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [backgroundStrong, backgroundLight])),
-      child: isSmall
-          ? SmallLayout(
-              selected: selected,
-              child: scroll,
-            )
-          : scroll,
-    );
+    return isSmall
+        ? SmallLayout(
+            selected: selected,
+            child: scroll,
+          )
+        : scroll;
   }
 
   handleTap(BuildContext context, TabOption tapped, WidgetRef ref) {
@@ -122,12 +115,6 @@ class SmallLayout extends ConsumerWidget {
       ),
       BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        backgroundColor: darkBackgroundText,
-        selectedItemColor: lightIconButton,
-        selectedLabelStyle: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: lightBackgroundText.withOpacity(0.8)),
-        unselectedItemColor: disabled,
         currentIndex: TabOption.values.indexOf(selected),
         onTap: (index) {
           context
@@ -172,52 +159,31 @@ class LargeLayout extends ConsumerWidget {
             },
             child: Text(
               text,
-              style: selected == option
-                  ? darkBackgroundHeaderStyle.copyWith(
-                      color: lightIconButton, fontWeight: FontWeight.bold)
-                  : darkBackgroundHeaderStyle,
             ));
 
     Widget recordButton = selected == TabOption.record
         ? _decorationWrap(
-            child: getButton(
-                darkBackgroundHeaderStyle.copyWith(
-                    fontSize: 28, color: buttonLightBackground),
-                TabOption.record,
+            child: getButton(darkBackgroundHeaderStyle, TabOption.record,
                 AppLocalizations.of(context)!.recordTab))
-        : getButton(
-            darkBackgroundHeaderStyle.copyWith(color: darkBackgroundText),
-            TabOption.record,
+        : getButton(darkBackgroundHeaderStyle, TabOption.record,
             AppLocalizations.of(context)!.recordTab);
     Widget testButton = selected == TabOption.tests
         ? _decorationWrap(
-            child: getButton(
-                darkBackgroundHeaderStyle.copyWith(
-                    fontSize: 28, color: buttonLightBackground),
-                TabOption.tests,
+            child: getButton(darkBackgroundHeaderStyle, TabOption.tests,
                 AppLocalizations.of(context)!.testTab))
-        : getButton(
-            darkBackgroundHeaderStyle.copyWith(color: darkBackgroundText),
-            TabOption.tests,
+        : getButton(darkBackgroundHeaderStyle, TabOption.tests,
             AppLocalizations.of(context)!.testTab);
     Widget historyButton = selected == TabOption.history
         ? _decorationWrap(
-            child: getButton(
-                darkBackgroundHeaderStyle.copyWith(
-                    fontSize: 28, color: buttonLightBackground),
-                TabOption.history,
+            child: getButton(darkBackgroundHeaderStyle, TabOption.history,
                 AppLocalizations.of(context)!.historyTab))
-        : getButton(
-            darkBackgroundHeaderStyle.copyWith(color: darkBackgroundText),
-            TabOption.history,
+        : getButton(darkBackgroundHeaderStyle, TabOption.history,
             AppLocalizations.of(context)!.historyTab);
     return SliverAppBar(
       snap: true,
       floating: true,
       expandedHeight: 70,
       collapsedHeight: 70,
-      backgroundColor: buttonLightBackground2.withOpacity(0.7),
-      shadowColor: Colors.black,
       centerTitle: true,
       flexibleSpace: Center(
         child: SizedBox(
@@ -259,7 +225,6 @@ class LargeLayout extends ConsumerWidget {
 
   Widget _decorationWrap({required Widget child}) => DecoratedBox(
         decoration: BoxDecoration(
-          color: darkBackgroundText,
           borderRadius: BorderRadius.circular(10.0),
         ),
         child: child,
