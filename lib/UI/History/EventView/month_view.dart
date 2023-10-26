@@ -33,60 +33,60 @@ class MonthView extends ConsumerWidget {
                 final double height =
                     ((constraints.maxWidth / 7.0) * rows) + 90;
                 return CalendarCarousel<CalendarEvent>(
-                  locale: Localizations.localeOf(context).languageCode,
-                  onDayPressed: (date, events) {
-                    if (selected != date) {
-                      ref.read(filtersProvider.notifier).state =
-                          filters.copyWith(selectDate: date);
-                      _scrollToEvents(context, isSmall);
-                    } else {
-                      ref.read(filtersProvider.notifier).state =
-                          filters.copyWith(selectDate: null);
-                    }
-                  },
-                  height: height,
-                  customDayBuilder: (isSelectable,
-                      index,
-                      isSelectedDay,
-                      isToday,
-                      isPrevMonthDay,
-                      textStyle,
-                      isNextMonthDay,
-                      isThisMonthDay,
-                      day) {
-                    final int events = eventMap.getEvents(day).length;
-                    return CalendarDay(
-                        text: '${day.day}',
-                        isToday: isToday,
-                        selected:
-                            selected == null ? false : sameDay(day, selected),
-                        after: day.isAfter(now),
-                        events: events);
-                  },
-                  onCalendarChanged: (dateTime) {
-                    ref.read(filtersProvider.notifier).state = filters.copyWith(
-                        selectDate: null, selectMonth: dateTime);
-                  },
-                  headerMargin: const EdgeInsets.symmetric(vertical: 5.0),
-                  customGridViewPhysics: const NeverScrollableScrollPhysics(),
-                  iconColor: Theme.of(context).colorScheme.secondary,
-                  dayPadding: 2.0,
-                  weekDayMargin: EdgeInsets.zero,
-                  selectedDateTime: selected,
-                  isScrollable: false,
-                  todayButtonColor: Colors.transparent,
-                  todayBorderColor: Colors.transparent,
-                  selectedDayBorderColor: Colors.transparent,
-                  selectedDayButtonColor: Colors.transparent,
-                  daysTextStyle: darkBackgroundStyle,
-                  headerTextStyle: darkBackgroundHeaderStyle,
-                  weekendTextStyle: lightBackgroundStyle,
-                  inactiveDaysTextStyle: lightBackgroundStyle,
-                  maxSelectedDate: DateTime.now(),
-                  minSelectedDate: getMinDate(),
-                  showOnlyCurrentMonthDate: true,
-                  weekdayTextStyle: darkBackgroundStyle,
-                );
+                    locale: Localizations.localeOf(context).languageCode,
+                    onDayPressed: (date, events) {
+                      if (selected != date) {
+                        ref.read(filtersProvider.notifier).state =
+                            filters.copyWith(selectDate: date);
+                        _scrollToEvents(context, isSmall);
+                      } else {
+                        ref.read(filtersProvider.notifier).state =
+                            filters.copyWith(selectDate: null);
+                      }
+                    },
+                    height: height,
+                    customDayBuilder: (isSelectable,
+                        index,
+                        isSelectedDay,
+                        isToday,
+                        isPrevMonthDay,
+                        textStyle,
+                        isNextMonthDay,
+                        isThisMonthDay,
+                        day) {
+                      final int events = eventMap.getEvents(day).length;
+                      return CalendarDay(
+                          text: '${day.day}',
+                          isToday: isToday,
+                          selected:
+                              selected == null ? false : sameDay(day, selected),
+                          after: day.isAfter(now),
+                          events: events);
+                    },
+                    onCalendarChanged: (dateTime) {
+                      ref.read(filtersProvider.notifier).state = filters
+                          .copyWith(selectDate: null, selectMonth: dateTime);
+                    },
+                    headerMargin: const EdgeInsets.symmetric(vertical: 5.0),
+                    customGridViewPhysics: const NeverScrollableScrollPhysics(),
+                    iconColor: Theme.of(context).colorScheme.secondary,
+                    dayPadding: 2.0,
+                    weekDayMargin: EdgeInsets.zero,
+                    selectedDateTime: selected,
+                    isScrollable: false,
+                    todayButtonColor: Colors.transparent,
+                    todayBorderColor: Colors.transparent,
+                    selectedDayBorderColor: Colors.transparent,
+                    selectedDayButtonColor: Colors.transparent,
+                    daysTextStyle: darkBackgroundStyle,
+                    headerTextStyle: darkBackgroundHeaderStyle,
+                    weekendTextStyle: lightBackgroundStyle,
+                    inactiveDaysTextStyle: lightBackgroundStyle,
+                    maxSelectedDate: DateTime.now(),
+                    minSelectedDate: getMinDate(),
+                    showOnlyCurrentMonthDate: true,
+                    weekdayTextStyle: darkBackgroundStyle.copyWith(
+                        color: Theme.of(context).colorScheme.onBackground));
               }),
             ),
           ),

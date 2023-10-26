@@ -33,7 +33,8 @@ class DayView extends ConsumerWidget {
                   }
                 },
                 locale: Localizations.localeOf(context).languageCode,
-                weekdayTextStyle: darkBackgroundStyle,
+                weekdayTextStyle: darkBackgroundStyle.copyWith(
+                    color: Theme.of(context).colorScheme.onBackground),
                 showWeekDays: true,
                 customDayBuilder: (isSelectable,
                     index,

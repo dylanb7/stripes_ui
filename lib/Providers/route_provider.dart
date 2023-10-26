@@ -52,12 +52,12 @@ class RouteNotifier extends ChangeNotifier {
         GoRoute(
           path: Routes.SIGN_UP,
           pageBuilder: (context, state) =>
-              FadeIn(child: const Scaff(child: SignUpPage()), state: state),
+              FadeIn(child: const Scaff(child: SizedBox()), state: state),
         ),
         GoRoute(
           path: Routes.LOGIN,
           pageBuilder: (context, state) =>
-              FadeIn(child: const Scaff(child: Login()), state: state),
+              FadeIn(child: const Scaff(child: SizedBox()), state: state),
         ),
         GoRoute(
             path: Routes.LANDING,
