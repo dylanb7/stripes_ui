@@ -76,18 +76,16 @@ class ConfirmationPopup extends ConsumerWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          BasicButton(
-                              onClick: (context) {
+                          FilledButton(
+                              onPressed: () {
                                 _dismiss(context, ref);
                               },
-                              color: Theme.of(context).primaryColor,
-                              text: cancel),
-                          BasicButton(
-                              onClick: (context) {
+                              child: Text(cancel)),
+                          FilledButton.tonal(
+                              onPressed: () {
                                 _confirm(context, ref);
                               },
-                              color: Theme.of(context).colorScheme.secondary,
-                              text: confirm),
+                              child: Text(confirm))
                         ],
                       ),
                     ],

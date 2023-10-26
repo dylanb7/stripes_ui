@@ -95,105 +95,47 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
                         const SizedBox(
                           height: 6.0,
                         ),
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                'First Name',
-                                style: lightBackgroundStyle,
-                              ),
-                              SizedBox(
-                                width: 200,
-                                child: TextFormField(
-                                  controller: _firstName,
-                                  validator: nameValidator,
-                                  decoration: formFieldDecoration(
-                                      hintText: 'First Name',
-                                      controller: _firstName,
-                                      clearable: false),
-                                ),
-                              ),
-                            ]),
-                        const SizedBox(
-                          height: 6.0,
-                        ),
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                'Last Name',
-                                style: lightBackgroundStyle,
-                              ),
-                              SizedBox(
-                                width: 200,
-                                child: TextFormField(
-                                  controller: _lastName,
-                                  validator: nameValidator,
-                                  decoration: formFieldDecoration(
-                                      hintText: 'First Name',
-                                      controller: _lastName,
-                                      clearable: false),
-                                ),
-                              ),
-                            ]),
-                        const SizedBox(
-                          height: 6.0,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              "Birth Year",
-                              style: lightBackgroundStyle,
-                            ),
-                            SizedBox(
-                              width: 200,
-                              child: BirthYearSelector(
-                                context: context,
-                                controller: _birthYearController,
-                              ),
-                            ),
-                          ],
+                        TextFormField(
+                          controller: _firstName,
+                          validator: nameValidator,
+                          decoration: formFieldDecoration(
+                              hintText: 'First Name',
+                              controller: _firstName,
+                              clearable: false),
                         ),
                         const SizedBox(
                           height: 6.0,
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              "Gender",
-                              style: lightBackgroundStyle,
-                            ),
-                            SizedBox(
-                              width: 200,
-                              child: GenderDropdown(
-                                context: context,
-                                initialValue: widget.subUser.gender,
-                                holder: _genderHolder,
-                              ),
-                            ),
-                          ],
+                        TextFormField(
+                          controller: _lastName,
+                          validator: nameValidator,
+                          decoration: formFieldDecoration(
+                              hintText: 'Last Name',
+                              controller: _lastName,
+                              clearable: false),
+                        ),
+                        const SizedBox(
+                          height: 6.0,
+                        ),
+                        BirthYearSelector(
+                          context: context,
+                          controller: _birthYearController,
+                        ),
+                        const SizedBox(
+                          height: 6.0,
+                        ),
+                        GenderDropdown(
+                          context: context,
+                          initialValue: widget.subUser.gender,
+                          holder: _genderHolder,
                         ),
                         const SizedBox(
                           height: 10,
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              "Role",
-                              style: lightBackgroundStyle,
-                            ),
-                            SizedBox(
-                              width: 200,
-                              child: PatientControlSelector(
-                                listener: _sliderListener,
-                                initialValue: _sliderListener.isControl,
-                                context: context,
-                              ),
-                            ),
-                          ],
+                        PatientControlSelector(
+                          listener: _sliderListener,
+                          initialValue: _sliderListener.isControl,
+                          context: context,
                         ),
                         const SizedBox(
                           height: 6.0,

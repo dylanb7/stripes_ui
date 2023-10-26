@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:stripes_ui/Util/text_styles.dart';
-
 InputDecoration formFieldDecoration(
     {IconData? prefix,
     bool clearable = true,

@@ -24,27 +24,25 @@ class PatientScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            SizedBox(
-                height: 70,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Flexible(
-                        child: Text(
-                      'Patient Profiles',
-                      maxLines: 2,
-                      style: darkBackgroundScreenHeaderStyle,
-                    )),
-                    IconButton(
-                        onPressed: () {
-                          context.pop();
-                        },
-                        iconSize: 40,
-                        icon: const Icon(
-                          Icons.close,
-                        ))
-                  ],
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Flexible(
+                    child: Text(
+                  'Patient Profiles',
+                  maxLines: 2,
+                  style: darkBackgroundScreenHeaderStyle,
                 )),
+                IconButton(
+                    onPressed: () {
+                      context.pop();
+                    },
+                    iconSize: 40,
+                    icon: const Icon(
+                      Icons.close,
+                    ))
+              ],
+            ),
             const SizedBox(
               height: 12.0,
             ),

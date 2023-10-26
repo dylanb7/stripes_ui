@@ -146,14 +146,14 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
           right: 0,
           bottom: 0,
           child: ConstrainedBox(
-            constraints: const BoxConstraints.tightFor(width: 50, height: 50),
-            child: ElevatedButton(
+            constraints: BoxConstraints.tight(const Size(50, 50)),
+            child: FilledButton.tonalIcon(
               onPressed: () {
                 _addUser();
               },
-              child: const Text(
+              icon: const Icon(Icons.add),
+              label: const Text(
                 'Add',
-                style: darkBackgroundStyle,
               ),
             ),
           ),
