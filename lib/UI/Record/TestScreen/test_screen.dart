@@ -83,9 +83,12 @@ class _TestScreenState extends ConsumerState<TestScreen> {
               ),
             ),
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Instructions(
-                expandController: expandListener,
+              padding: const EdgeInsets.all(12.0),
+              child: Padding(
+                padding: const EdgeInsets.only(left: 16.0),
+                child: TestContent(
+                  expand: expandListener,
+                ),
               ),
             ),
           ),
@@ -99,17 +102,11 @@ class _TestScreenState extends ConsumerState<TestScreen> {
               ),
             ),
             child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Padding(
-                padding: const EdgeInsets.only(left: 16.0),
-                child: TestContent(
-                  expand: expandListener,
-                ),
+              padding: const EdgeInsets.all(8.0),
+              child: Instructions(
+                expandController: expandListener,
               ),
             ),
-          ),
-          const SizedBox(
-            height: 4.0,
           ),
           const SizedBox(
             height: 4.0,

@@ -36,6 +36,9 @@ class TestContent extends ConsumerWidget {
                   AppLocalizations.of(context)!.blueDyeInfoLineThree,
                   AppLocalizations.of(context)!.blueDyeInfoLineFour
                 ], highlight: false),
+                const SizedBox(
+                  height: 8.0,
+                ),
                 Center(
                   child: SizedBox(
                     width: 250,

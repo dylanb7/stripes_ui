@@ -24,7 +24,7 @@ class BlueRecordings extends ConsumerWidget {
         SizedBox(
           width: double.infinity,
           child: Text(
-            '${AppLocalizations.of(context)!.blueDyeLogsInstructionOne}\n${logs.isEmpty ? AppLocalizations.of(context)!.blueDyeLogsInstructionTwo : ''}',
+            '${AppLocalizations.of(context)!.blueDyeLogsInstructionOne}${logs.isEmpty ? AppLocalizations.of(context)!.blueDyeLogsInstructionTwo : ''}',
             textAlign: TextAlign.left,
             style: lightBackgroundStyle,
           ),
