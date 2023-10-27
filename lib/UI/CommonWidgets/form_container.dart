@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 
 class FormContainer extends StatefulWidget {
@@ -62,7 +63,7 @@ class _FormContainerState extends State<FormContainer>
             height: blueHeight,
             child: DecoratedBox(
                 decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface)),
+                    color: Theme.of(context).colorScheme.primary.darken())),
           ),
           Positioned.fill(
             child: SafeArea(
@@ -110,7 +111,7 @@ class _FormContainerState extends State<FormContainer>
                             borderRadius:
                                 BorderRadius.all(Radius.circular(25.0)),
                           ),
-                          elevation: 8.0,
+                          elevation: 1.0,
                           child: widget.form,
                         ),
                       ),

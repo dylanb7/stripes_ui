@@ -196,6 +196,8 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                       ),
                       Center(
                         child: Wrap(
+                          spacing: 5.0,
+                          runSpacing: 5.0,
                           children: [
                             DateWidget(
                               dateListener: startDateListener,
@@ -222,6 +224,8 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                       ),
                       Center(
                         child: Wrap(
+                          spacing: 5.0,
+                          runSpacing: 5.0,
                           children: [
                             DateWidget(
                               dateListener: endDateListener,

@@ -4,7 +4,6 @@ import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/form_container.dart';
 import 'package:stripes_ui/UI/PatientManagement/birth_year_selector.dart';
-import 'package:stripes_ui/UI/PatientManagement/control_slider.dart';
 import 'package:stripes_ui/UI/PatientManagement/gender_dropdown.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/form_input.dart';
@@ -20,9 +19,6 @@ class CreatePatient extends ConsumerWidget {
   final BirthYearController _yearController = BirthYearController();
 
   final GenderHolder _genderValue = GenderHolder();
-
-  final PatientControlSliderListener _isControlListener =
-      PatientControlSliderListener();
 
   CreatePatient({Key? key}) : super(key: key);
 
@@ -95,21 +91,21 @@ class CreatePatient extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Expanded(
+                      flex: 1,
+                      child: BirthYearSelector(
+                        controller: _yearController,
+                        context: context,
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 8.0,
+                    ),
+                    Expanded(
                         flex: 1,
                         child: GenderDropdown(
                           context: context,
                           holder: _genderValue,
                         )),
-                    const SizedBox(
-                      width: 8.0,
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: PatientControlSelector(
-                        listener: _isControlListener,
-                        context: context,
-                      ),
-                    ),
                   ],
                 )),
                 const SizedBox(
@@ -139,7 +135,7 @@ class CreatePatient extends ConsumerWidget {
           name: '${_firstName.text} ${_lastName.text}',
           gender: _genderValue.gender!,
           birthYear: _yearController.year,
-          isControl: _isControlListener.isControl);
+          isControl: false);
       final subRepo = ref.read(subProvider);
       if (subRepo == null) {
         showSnack('Unable to add patient', context);

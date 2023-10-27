@@ -46,6 +46,7 @@ class DateWidget extends ConsumerWidget {
         );
         final Widget inner = hasIcon
             ? Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   const Icon(
                     Icons.calendar_today,
@@ -123,6 +124,7 @@ class TimeWidget extends ConsumerWidget {
           );
           final Widget inner = hasIcon
               ? Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     const Icon(
                       Icons.access_time,

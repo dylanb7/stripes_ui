@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
-import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
@@ -36,7 +35,6 @@ class _TestScreenState extends ConsumerState<TestScreen> {
   Widget build(BuildContext context) {
     final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
     final TestNotifier notifier = ref.watch(testHolderProvider);
-    final TestState state = notifier.state;
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
       sliver: SliverList(

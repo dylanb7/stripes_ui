@@ -5,7 +5,6 @@ import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/UI/CommonWidgets/tonal_button.dart';
 import 'package:stripes_ui/UI/PatientManagement/birth_year_selector.dart';
-import 'package:stripes_ui/UI/PatientManagement/control_slider.dart';
 import 'package:stripes_ui/UI/PatientManagement/gender_dropdown.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/form_input.dart';
@@ -31,9 +30,6 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
 
   final TextEditingController _firstName = TextEditingController(),
       _lastName = TextEditingController();
-
-  final PatientControlSliderListener _sliderListener =
-      PatientControlSliderListener();
 
   @override
   void initState() {
@@ -96,22 +92,15 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
                   const SizedBox(
                     height: 8.0,
                   ),
-                  BirthYearSelector(
-                    context: context,
-                    controller: _yearController,
-                  ),
-                  const SizedBox(
-                    height: 8.0,
-                  ),
                   IntrinsicHeight(
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Expanded(
                           flex: 1,
-                          child: GenderDropdown(
+                          child: BirthYearSelector(
                             context: context,
-                            holder: _genderController,
+                            controller: _yearController,
                           ),
                         ),
                         const SizedBox(
@@ -119,9 +108,9 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
                         ),
                         Expanded(
                           flex: 1,
-                          child: PatientControlSelector(
-                            listener: _sliderListener,
+                          child: GenderDropdown(
                             context: context,
+                            holder: _genderController,
                           ),
                         ),
                       ],
@@ -172,7 +161,7 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
           name: '${_firstName.text} ${_lastName.text}',
           gender: _genderController.gender!,
           birthYear: _yearController.year,
-          isControl: _sliderListener.isControl);
+          isControl: false);
       ref.read(subProvider)?.addSubUser(toAdd);
       _formKey.currentState?.reset();
     }

@@ -129,14 +129,6 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
                           holder: _genderHolder,
                         ),
                         const SizedBox(
-                          height: 10,
-                        ),
-                        PatientControlSelector(
-                          listener: _sliderListener,
-                          initialValue: _sliderListener.isControl,
-                          context: context,
-                        ),
-                        const SizedBox(
                           height: 6.0,
                         ),
                         Row(
@@ -196,7 +188,7 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
         name: '${_firstName.text} ${_lastName.text}',
         gender: _genderHolder.gender!,
         birthYear: _birthYearController.year,
-        isControl: _sliderListener.isControl,
+        isControl: false,
         id: widget.subUser.uid);
     return !subEquals(newUser, widget.subUser);
   }
@@ -208,7 +200,7 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
           name: '${_firstName.text} ${_lastName.text}',
           gender: _genderHolder.gender!,
           birthYear: _birthYearController.year,
-          isControl: _sliderListener.isControl,
+          isControl: false,
           id: widget.subUser.uid);
       if (!subEquals(newUser, widget.subUser)) {
         ref.read(subProvider)?.updateSubUser(newUser);
