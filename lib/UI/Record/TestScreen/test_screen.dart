@@ -68,7 +68,8 @@ class _TestScreenState extends ConsumerState<TestScreen> {
               alignment: Alignment.centerLeft,
               child: Text(
                 AppLocalizations.of(context)!.blueDyeHeader,
-                style: darkBackgroundHeaderStyle,
+                style: darkBackgroundHeaderStyle.copyWith(
+                    fontWeight: FontWeight.bold),
                 textAlign: TextAlign.left,
               ),
             ),
