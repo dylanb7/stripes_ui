@@ -20,14 +20,14 @@ class BlueRecordings extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const SizedBox(height: 25.0),
-        Text(
-          '${AppLocalizations.of(context)!.blueDyeLogsInstructionOne}\n${logs.isEmpty ? AppLocalizations.of(context)!.blueDyeLogsInstructionTwo : ''}',
-          textAlign: TextAlign.left,
-          style: lightBackgroundStyle,
-        ),
-        const SizedBox(
-          height: 8.0,
+        const SizedBox(height: 12.0),
+        SizedBox(
+          width: double.infinity,
+          child: Text(
+            '${AppLocalizations.of(context)!.blueDyeLogsInstructionOne}\n${logs.isEmpty ? AppLocalizations.of(context)!.blueDyeLogsInstructionTwo : ''}',
+            textAlign: TextAlign.left,
+            style: lightBackgroundStyle,
+          ),
         ),
         ...logs.map((e) => LogRow(log: e, ref: ref)),
         const SizedBox(height: 12.0),

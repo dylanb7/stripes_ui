@@ -92,6 +92,12 @@ class _TestScreenState extends ConsumerState<TestScreen> {
           const SizedBox(
             height: 4.0,
           ),
+          if (state == TestState.initial) ...[
+            const Info(),
+            const SizedBox(
+              height: 4.0,
+            ),
+          ],
           Card(
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(
@@ -111,7 +117,6 @@ class _TestScreenState extends ConsumerState<TestScreen> {
           const SizedBox(
             height: 4.0,
           ),
-          const Info(),
           const SizedBox(
             height: 4.0,
           ),
@@ -148,26 +153,27 @@ class Info extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ExpandibleRaw(
-      header: Expanded(
-        child: FittedBox(
-          alignment: Alignment.centerLeft,
-          fit: BoxFit.scaleDown,
-          child: Text(
-            AppLocalizations.of(context)!.blueDyeInfoHeader,
-            textAlign: TextAlign.center,
-            style: lightBackgroundHeaderStyle,
+    return Card(
+      child: ExpandibleRaw(
+        header: Expanded(
+          child: FittedBox(
+            alignment: Alignment.centerLeft,
+            fit: BoxFit.scaleDown,
+            child: Text(
+              AppLocalizations.of(context)!.blueDyeInfoHeader,
+              textAlign: TextAlign.center,
+              style: lightBackgroundHeaderStyle,
+            ),
           ),
         ),
+        iconSize: 35,
+        view: LabeledList(strings: [
+          AppLocalizations.of(context)!.blueDyeInfoLineOne,
+          AppLocalizations.of(context)!.blueDyeInfoLineTwo,
+          AppLocalizations.of(context)!.blueDyeInfoLineThree,
+          AppLocalizations.of(context)!.blueDyeInfoLineFour
+        ], highlight: false),
       ),
-      iconSize: 35,
-      view: LabeledList(strings: [
-        AppLocalizations.of(context)!.blueDyeInfoLineOne,
-        AppLocalizations.of(context)!.blueDyeInfoLineTwo,
-        AppLocalizations.of(context)!.blueDyeInfoLineThree,
-        AppLocalizations.of(context)!.blueDyeInfoLineFour
-      ], highlight: false),
-      controller: ExpandibleController(false),
     );
   }
 }
