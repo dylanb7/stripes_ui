@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
+import 'package:stripes_ui/UI/CommonWidgets/tonal_button.dart';
 import 'package:stripes_ui/UI/PatientManagement/birth_year_selector.dart';
 import 'package:stripes_ui/UI/PatientManagement/control_slider.dart';
 import 'package:stripes_ui/UI/PatientManagement/gender_dropdown.dart';
@@ -149,7 +150,8 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
               child: SizedBox(
             width: 120,
             height: 50,
-            child: FilledButton.tonalIcon(
+            child: TonalButtonTheme(
+                child: FilledButton.tonalIcon(
               onPressed: () {
                 _addUser();
               },
@@ -157,7 +159,7 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
               label: const Text(
                 'Add',
               ),
-            ),
+            )),
           )),
         ),
     ]);
