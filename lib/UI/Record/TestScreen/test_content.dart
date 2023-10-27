@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/instructions.dart';
+import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
@@ -54,8 +56,25 @@ class TestContent extends ConsumerWidget {
         if (state.testInProgress) const TimerDisplay(),
         if (state == TestState.logs || state == TestState.logsSubmit)
           const BlueRecordings(),
+        if (state.testInProgress)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: Center(
+              child: TextButton(
+                onPressed: () {
+                  _cancelTest(context, ref);
+                },
+                child: Text(AppLocalizations.of(context)!.blueDyeCancel),
+              ),
+            ),
+          ),
       ],
     );
+  }
+
+  _cancelTest(BuildContext context, WidgetRef ref) {
+    ref.read(overlayProvider.notifier).state =
+        const OverlayQuery(widget: TestErrorPrevention());
   }
 }
 

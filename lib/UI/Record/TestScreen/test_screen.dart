@@ -109,18 +109,6 @@ class _TestScreenState extends ConsumerState<TestScreen> {
             ),
           ),
           const SizedBox(
-            height: 4.0,
-          ),
-          if (state.testInProgress)
-            Center(
-              child: TextButton(
-                onPressed: () {
-                  _cancelTest(context, ref);
-                },
-                child: Text(AppLocalizations.of(context)!.blueDyeCancel),
-              ),
-            ),
-          const SizedBox(
             height: 12.0,
           ),
         ]),
@@ -131,11 +119,6 @@ class _TestScreenState extends ConsumerState<TestScreen> {
   _name(WidgetRef ref) {
     SubUser current = ref.read(subHolderProvider).current;
     return SubUser.isEmpty(current) ? 'N/A' : current.name;
-  }
-
-  _cancelTest(BuildContext context, WidgetRef ref) {
-    ref.read(overlayProvider.notifier).state =
-        const OverlayQuery(widget: TestErrorPrevention());
   }
 }
 
