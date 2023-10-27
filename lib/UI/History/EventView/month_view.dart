@@ -67,7 +67,7 @@ class MonthView extends ConsumerWidget {
                       ref.read(filtersProvider.notifier).state = filters
                           .copyWith(selectDate: null, selectMonth: dateTime);
                     },
-                    headerMargin: const EdgeInsets.symmetric(vertical: 5.0),
+                    headerMargin: const EdgeInsets.only(bottom: 5.0),
                     customGridViewPhysics: const NeverScrollableScrollPhysics(),
                     iconColor: Theme.of(context).colorScheme.secondary,
                     dayPadding: 2.0,

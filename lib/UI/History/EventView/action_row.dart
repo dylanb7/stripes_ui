@@ -20,17 +20,20 @@ class ActionRow extends ConsumerWidget {
       child: Center(
         child: SizedBox(
           width: min(450, size - 80.0),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              location.day == DayChoice.day ||
-                      (location.day == DayChoice.month &&
-                          filters.selectedDate != null)
-                  ? const AddEvent()
-                  : const FilterButton(),
-              const Spacer(),
-              const Export(),
-            ],
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 10.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                location.day == DayChoice.day ||
+                        (location.day == DayChoice.month &&
+                            filters.selectedDate != null)
+                    ? const AddEvent()
+                    : const FilterButton(),
+                const Spacer(),
+                const Export(),
+              ],
+            ),
           ),
         ),
       ),

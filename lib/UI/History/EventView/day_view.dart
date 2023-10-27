@@ -59,7 +59,7 @@ class DayView extends ConsumerWidget {
                 selectedDayBorderColor: Colors.transparent,
                 selectedDayButtonColor: Colors.transparent,
                 iconColor: Theme.of(context).colorScheme.secondary,
-                headerMargin: const EdgeInsets.symmetric(vertical: 5.0),
+                headerMargin: const EdgeInsets.only(bottom: 5.0),
                 weekFormat: true,
                 isScrollable: false,
                 scrollDirection: Axis.horizontal,

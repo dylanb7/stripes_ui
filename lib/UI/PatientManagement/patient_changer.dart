@@ -99,9 +99,10 @@ class UserSelect extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-                  const Text(
+                  Text(
                     'Select Patient',
-                    style: darkBackgroundScreenHeaderStyle,
+                    style: darkBackgroundScreenHeaderStyle.copyWith(
+                        color: Colors.white),
                   ),
                   IconButton(
                       onPressed: () {
@@ -175,7 +176,7 @@ class UserSelect extends ConsumerWidget {
       splashFactory: NoSplash.splashFactory,
       child: Text(
         firstName,
-        style: darkBackgroundScreenHeaderStyle,
+        style: darkBackgroundScreenHeaderStyle.copyWith(color: Colors.white),
       ),
     );
   }
