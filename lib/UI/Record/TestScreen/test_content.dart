@@ -26,7 +26,7 @@ class TestContent extends ConsumerWidget {
                 AppLocalizations.of(context)!.blueMealStartTime(
                     test.obj!.startTime, test.obj!.startTime),
                 textAlign: TextAlign.left,
-                style: lightBackgroundHeaderStyle,
+                style: lightBackgroundStyle,
               )
             : Center(
                 child: SizedBox(
@@ -35,7 +35,6 @@ class TestContent extends ConsumerWidget {
                     child: Text(AppLocalizations.of(context)!.blueDyeStart),
                     onPressed: () {
                       ref.read(testHolderProvider).setStart(DateTime.now());
-                      expand.set(false);
                     },
                   ),
                 ),
@@ -89,7 +88,7 @@ class TimerDisplay extends ConsumerWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.only(top: 8.0),
+      padding: const EdgeInsets.only(top: 4.0),
       child: FittedBox(
         fit: BoxFit.scaleDown,
         child: RichText(
@@ -97,11 +96,12 @@ class TimerDisplay extends ConsumerWidget {
             text: TextSpan(children: [
               TextSpan(
                 text: AppLocalizations.of(context)!.blueMealFinalDurationTag,
-                style: lightBackgroundHeaderStyle,
+                style: lightBackgroundStyle,
               ),
               TextSpan(
                 text: '\t${from(test.obj!.finishedEating!)}',
-                style: lightBackgroundHeaderStyle,
+                style: lightBackgroundStyle.copyWith(
+                    color: Theme.of(context).colorScheme.primary),
               ),
             ])),
       ),

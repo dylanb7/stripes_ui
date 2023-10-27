@@ -214,11 +214,14 @@ class LabeledList extends StatelessWidget {
 
   final Widget? title;
 
+  final List<Widget>? additions;
+
   final bool highlight;
 
   const LabeledList({
     required this.strings,
     required this.highlight,
+    this.additions,
     this.title,
     this.mark,
     super.key,
@@ -269,6 +272,7 @@ class LabeledList extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 16.0, top: 4.0),
                 child: list,
               ),
+              if (additions != null) ...additions!
             ],
           )
         : list;

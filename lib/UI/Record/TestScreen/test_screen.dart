@@ -27,12 +27,8 @@ class _TestScreenState extends ConsumerState<TestScreen> {
 
   @override
   void initState() {
-    expandListener = ExpandibleController(false);
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      expandListener.set(
-          ref.read(testHolderProvider.select((value) => value.state)) ==
-              TestState.initial);
-    });
+    expandListener = ExpandibleController(true);
+
     super.initState();
   }
 
@@ -76,31 +72,6 @@ class _TestScreenState extends ConsumerState<TestScreen> {
                 textAlign: TextAlign.left,
               ),
             ),
-            /*Row
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: Text(
-                      AppLocalizations.of(context)!.blueDyeHeader,
-                      style: darkBackgroundHeaderStyle,
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 4.0,
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      _dialog(context);
-                    },
-                    icon: const Icon(
-                      Icons.info_outline,
-                      color: darkBackgroundText,
-                    ),
-                    iconSize: 30,
-                  ),
-                ]),*/
           ),
           const SizedBox(
             height: 8.0,
@@ -129,20 +100,20 @@ class _TestScreenState extends ConsumerState<TestScreen> {
             ),
             child: Padding(
               padding: const EdgeInsets.all(12.0),
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 16.0),
-                    child: TestContent(
-                      expand: expandListener,
-                    ),
-                  ),
-                ],
+              child: Padding(
+                padding: const EdgeInsets.only(left: 16.0),
+                child: TestContent(
+                  expand: expandListener,
+                ),
               ),
             ),
           ),
           const SizedBox(
-            height: 12.0,
+            height: 4.0,
+          ),
+          const Info(),
+          const SizedBox(
+            height: 4.0,
           ),
           if (state.testInProgress)
             Center(
@@ -166,33 +137,38 @@ class _TestScreenState extends ConsumerState<TestScreen> {
     return SubUser.isEmpty(current) ? 'N/A' : current.name;
   }
 
-  _dialog(BuildContext context) {
-    showDialog(
-        context: context,
-        builder: (context) => SimpleDialog(
-              title: Text(
-                AppLocalizations.of(context)!.blueDyeInfoHeader,
-                textAlign: TextAlign.center,
-                style: lightBackgroundHeaderStyle,
-              ),
-              contentPadding: const EdgeInsets.only(
-                  left: 25.0, right: 25.0, bottom: 25.0, top: 10.0),
-              shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(16.0))),
-              children: [
-                LabeledList(strings: [
-                  AppLocalizations.of(context)!.blueDyeInfoLineOne,
-                  AppLocalizations.of(context)!.blueDyeInfoLineTwo,
-                  AppLocalizations.of(context)!.blueDyeInfoLineThree,
-                  AppLocalizations.of(context)!.blueDyeInfoLineFour
-                ], highlight: false),
-              ],
-            ));
-  }
-
   _cancelTest(BuildContext context, WidgetRef ref) {
     ref.read(overlayProvider.notifier).state =
         const OverlayQuery(widget: TestErrorPrevention());
+  }
+}
+
+class Info extends StatelessWidget {
+  const Info({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ExpandibleRaw(
+      header: Expanded(
+        child: FittedBox(
+          alignment: Alignment.centerLeft,
+          fit: BoxFit.scaleDown,
+          child: Text(
+            AppLocalizations.of(context)!.blueDyeInfoHeader,
+            textAlign: TextAlign.center,
+            style: lightBackgroundHeaderStyle,
+          ),
+        ),
+      ),
+      iconSize: 35,
+      view: LabeledList(strings: [
+        AppLocalizations.of(context)!.blueDyeInfoLineOne,
+        AppLocalizations.of(context)!.blueDyeInfoLineTwo,
+        AppLocalizations.of(context)!.blueDyeInfoLineThree,
+        AppLocalizations.of(context)!.blueDyeInfoLineFour
+      ], highlight: false),
+      controller: ExpandibleController(false),
+    );
   }
 }
 

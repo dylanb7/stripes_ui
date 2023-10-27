@@ -107,7 +107,10 @@ class SubmitScreen extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               ChoiceChip(
-                label: Text(AppLocalizations.of(context)!.blueQuestionYes),
+                label: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12.0, vertical: 4.0),
+                    child: Text(AppLocalizations.of(context)!.blueQuestionYes)),
                 selected: toggles[0],
                 selectedColor: primary,
                 backgroundColor: surface,
@@ -115,15 +118,16 @@ class SubmitScreen extends ConsumerWidget {
                     color: toggles[0] ? onPrimary : onSurface,
                     fontWeight: FontWeight.bold),
                 checkmarkColor: toggles[0] ? onPrimary : onSurface,
-                labelPadding:
-                    const EdgeInsets.symmetric(horizontal: 6.0, vertical: 1.5),
                 onSelected: (value) {
                   if (toggles[0]) return;
                   ref.read(toggleProvider.notifier).state = [true, false];
                 },
               ),
               ChoiceChip(
-                label: Text(AppLocalizations.of(context)!.blueQuestionNo),
+                label: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12.0, vertical: 4.0),
+                    child: Text(AppLocalizations.of(context)!.blueQuestionNo)),
                 selected: toggles[1],
                 selectedColor: primary,
                 backgroundColor: surface,
@@ -131,8 +135,6 @@ class SubmitScreen extends ConsumerWidget {
                     color: toggles[1] ? onPrimary : onSurface,
                     fontWeight: FontWeight.bold),
                 checkmarkColor: toggles[1] ? onPrimary : onSurface,
-                labelPadding:
-                    const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
                 onSelected: (value) {
                   if (toggles[1]) return;
                   ref.read(toggleProvider.notifier).state = [false, true];

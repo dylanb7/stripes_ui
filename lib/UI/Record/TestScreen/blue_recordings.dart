@@ -22,15 +22,23 @@ class BlueRecordings extends ConsumerWidget {
       children: [
         const SizedBox(height: 25.0),
         Text(
-          '${AppLocalizations.of(context)!.blueDyeLogsInstructionOne}${logs.isEmpty ? AppLocalizations.of(context)!.blueDyeLogsInstructionTwo : ''}',
-          textAlign: TextAlign.center,
-          style: lightBackgroundHeaderStyle,
+          '${AppLocalizations.of(context)!.blueDyeLogsInstructionOne}\n${logs.isEmpty ? AppLocalizations.of(context)!.blueDyeLogsInstructionTwo : ''}',
+          textAlign: TextAlign.left,
+          style: lightBackgroundStyle,
         ),
         const SizedBox(
           height: 8.0,
         ),
         ...logs.map((e) => LogRow(log: e, ref: ref)),
         const SizedBox(height: 12.0),
+        Text(
+          AppLocalizations.of(context)!.blueDyeInstructionsStepThreeA,
+          textAlign: TextAlign.left,
+          style: lightBackgroundStyle,
+        ),
+        const SizedBox(
+          height: 8.0,
+        ),
         Center(
           child: SizedBox(
             width: 250,
