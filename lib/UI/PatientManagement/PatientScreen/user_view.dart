@@ -49,10 +49,6 @@ class UserView extends ConsumerWidget {
                     "Gender:",
                     style: lightBackgroundStyle,
                   ),
-                  Text(
-                    "Role:",
-                    style: lightBackgroundStyle,
-                  ),
                 ],
               ),
               const SizedBox(
@@ -67,10 +63,6 @@ class UserView extends ConsumerWidget {
                   ),
                   Text(
                     subUser.gender,
-                    style: lightBackgroundStyle,
-                  ),
-                  Text(
-                    subUser.isControl ? 'Control' : 'Patient',
                     style: lightBackgroundStyle,
                   ),
                 ],
