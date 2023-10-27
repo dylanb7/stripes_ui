@@ -118,7 +118,7 @@ class _ExpandibleState extends State<Expandible>
                               Theme.of(context).colorScheme.secondary,
                           width: 5.0)
                       : const BorderSide(width: 0, color: Colors.transparent)),
-              elevation: 4.0,
+              elevation: 1.0,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Column(

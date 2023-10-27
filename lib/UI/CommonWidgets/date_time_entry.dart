@@ -57,7 +57,11 @@ class DateWidget extends ConsumerWidget {
         if (hasHeader) {
           return DateTimeHolder(
             text: AppLocalizations.of(context)!.dateChangeTitle,
-            onClick: enabled ? _showDatePicker(context, ref) : null,
+            onClick: enabled
+                ? () {
+                    _showDatePicker(context, ref);
+                  }
+                : null,
             child: inner,
           );
         }
@@ -131,7 +135,11 @@ class TimeWidget extends ConsumerWidget {
           if (hasHeader) {
             return DateTimeHolder(
               text: AppLocalizations.of(context)!.timeChangeTitle,
-              onClick: enabled ? _showTimePicker(context, ref) : null,
+              onClick: enabled
+                  ? () {
+                      _showTimePicker(context, ref);
+                    }
+                  : null,
               errorText: ref.read(timeErrorProvider),
               child: inner,
             );
@@ -191,7 +199,7 @@ class DateTimeHolder extends StatelessWidget {
 
   final Widget child;
 
-  final Function(BuildContext context)? onClick;
+  final Function? onClick;
 
   const DateTimeHolder(
       {required this.child,
