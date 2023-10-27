@@ -111,7 +111,6 @@ class _TestScreenState extends ConsumerState<TestScreen> {
                 Radius.circular(10),
               ),
             ),
-            elevation: 8.0,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Instructions(
@@ -128,7 +127,6 @@ class _TestScreenState extends ConsumerState<TestScreen> {
                 Radius.circular(10),
               ),
             ),
-            elevation: 8.0,
             child: Padding(
               padding: const EdgeInsets.all(12.0),
               child: Column(

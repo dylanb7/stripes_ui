@@ -40,6 +40,7 @@ class DateWidget extends ConsumerWidget {
         final text = Text(
           AppLocalizations.of(context)!.dateChangeEntry(date),
           style: lightBackgroundStyle.copyWith(
+            fontWeight: FontWeight.bold,
             decoration: enabled ? TextDecoration.underline : null,
           ),
         );
@@ -58,8 +59,8 @@ class DateWidget extends ConsumerWidget {
           return DateTimeHolder(
             text: AppLocalizations.of(context)!.dateChangeTitle,
             onClick: enabled
-                ? () {
-                    _showDatePicker(context, ref);
+                ? () async {
+                    await _showDatePicker(context, ref);
                   }
                 : null,
             child: inner,
@@ -118,6 +119,7 @@ class TimeWidget extends ConsumerWidget {
           final Widget text = Text(
             time.format(context),
             style: lightBackgroundStyle.copyWith(
+              fontWeight: FontWeight.bold,
               decoration: enabled ? TextDecoration.underline : null,
             ),
           );
@@ -136,8 +138,8 @@ class TimeWidget extends ConsumerWidget {
             return DateTimeHolder(
               text: AppLocalizations.of(context)!.timeChangeTitle,
               onClick: enabled
-                  ? () {
-                      _showTimePicker(context, ref);
+                  ? () async {
+                      await _showTimePicker(context, ref);
                     }
                   : null,
               errorText: ref.read(timeErrorProvider),
@@ -211,24 +213,24 @@ class DateTimeHolder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final inner = SizedBox(
-      width: 150,
-      child: IntrinsicHeight(
-        child: Column(
-          children: [
+    final inner = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            text,
+            textAlign: TextAlign.left,
+            style: lightBackgroundStyle,
+          ),
+          child,
+          if (errorText != null)
             Text(
-              text,
-              textAlign: TextAlign.left,
-              style: lightBackgroundStyle,
-            ),
-            child,
-            if (errorText != null)
-              Text(
-                errorText!,
-                style: errorStyle,
-              )
-          ],
-        ),
+              errorText!,
+              style: errorStyle,
+            )
+        ],
       ),
     );
     if (onClick != null) {

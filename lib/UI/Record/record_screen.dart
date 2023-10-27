@@ -193,7 +193,8 @@ class RecordButton extends StatelessWidget {
                     if (subText == null || subText!.isEmpty)
                       Text(
                         text,
-                        style: lightBackgroundHeaderStyle,
+                        style: lightBackgroundHeaderStyle.copyWith(
+                            color: Theme.of(context).colorScheme.secondary),
                       ),
                     const Icon(
                       Icons.add,

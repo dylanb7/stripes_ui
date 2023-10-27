@@ -63,7 +63,7 @@ class _FormContainerState extends State<FormContainer>
             height: blueHeight,
             child: DecoratedBox(
                 decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.onPrimaryContainer)),
+                    color: Theme.of(context).colorScheme.surface)),
           ),
           Positioned.fill(
             child: SafeArea(
