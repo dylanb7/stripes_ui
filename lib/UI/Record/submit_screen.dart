@@ -106,36 +106,41 @@ class SubmitScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              ChoiceChip(
-                label: Text(AppLocalizations.of(context)!.blueQuestionYes),
-                selected: toggles[0],
-                selectedColor: primary,
-                backgroundColor: surface,
-                labelStyle:
-                    TextStyle(color: toggles[0] ? onPrimary : onSurface),
-                checkmarkColor: toggles[0] ? onPrimary : onSurface,
-                labelPadding:
-                    const EdgeInsets.symmetric(horizontal: 6.0, vertical: 1.5),
-                onSelected: (value) {
-                  if (toggles[0]) return;
-                  ref.read(toggleProvider.notifier).state = [true, false];
-                },
-              ),
-              ChoiceChip(
-                label: Text(AppLocalizations.of(context)!.blueQuestionNo),
-                selected: toggles[1],
-                selectedColor: primary,
-                backgroundColor: surface,
-                labelStyle:
-                    TextStyle(color: toggles[1] ? onPrimary : onSurface),
-                checkmarkColor: toggles[1] ? onPrimary : onSurface,
-                labelPadding:
-                    const EdgeInsets.symmetric(horizontal: 6.0, vertical: 1.5),
-                onSelected: (value) {
-                  if (toggles[1]) return;
-                  ref.read(toggleProvider.notifier).state = [false, true];
-                },
-              )
+              SizedBox(
+                  width: 100.0,
+                  child: ChoiceChip(
+                    label: Text(AppLocalizations.of(context)!.blueQuestionYes),
+                    selected: toggles[0],
+                    selectedColor: primary,
+                    backgroundColor: surface,
+                    labelStyle:
+                        TextStyle(color: toggles[0] ? onPrimary : onSurface),
+                    checkmarkColor: toggles[0] ? onPrimary : onSurface,
+                    labelPadding: const EdgeInsets.symmetric(
+                        horizontal: 6.0, vertical: 1.5),
+                    onSelected: (value) {
+                      if (toggles[0]) return;
+                      ref.read(toggleProvider.notifier).state = [true, false];
+                    },
+                  )),
+              SizedBox(
+                  width: 100.0,
+                  child: ChoiceChip(
+                    label: Text(AppLocalizations.of(context)!.blueQuestionNo),
+                    selected: toggles[1],
+                    selectedColor: primary,
+                    backgroundColor: surface,
+                    labelStyle: TextStyle(
+                        color: toggles[1] ? onPrimary : onSurface,
+                        fontWeight: FontWeight.bold),
+                    checkmarkColor: toggles[1] ? onPrimary : onSurface,
+                    labelPadding: const EdgeInsets.symmetric(
+                        horizontal: 6.0, vertical: 1.5),
+                    onSelected: (value) {
+                      if (toggles[1]) return;
+                      ref.read(toggleProvider.notifier).state = [false, true];
+                    },
+                  ))
             ],
           ),
         ],
