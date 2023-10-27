@@ -86,6 +86,7 @@ class GenderDropdown extends FormField<String> {
                             state.errorText!,
                             textAlign: TextAlign.left,
                             style: lightBackgroundStyle.copyWith(
+                                fontSize: 14.0,
                                 color: Theme.of(context).colorScheme.error),
                           )),
                   ]);
