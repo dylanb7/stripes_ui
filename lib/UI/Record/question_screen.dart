@@ -62,7 +62,8 @@ class QuestionScreen extends ConsumerWidget {
       children: [
         Text(
           header,
-          style: lightBackgroundHeaderStyle,
+          style: lightBackgroundHeaderStyle.copyWith(
+              color: Theme.of(context).colorScheme.onPrimaryContainer),
         ),
         const SizedBox(
           height: 12.0,
@@ -132,7 +133,7 @@ class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
                 ? const BorderSide(width: 1.0)
                 : const BorderSide(width: 0, color: Colors.transparent),
           ),
-          elevation: 4.0,
+          elevation: 1.0,
           child: Padding(
             padding:
                 const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
@@ -262,7 +263,7 @@ class _CheckBoxWidgetState extends State<CheckBoxWidget> {
                       color: Theme.of(context).colorScheme.secondary,
                       width: 5.0)
                   : const BorderSide(width: 0, color: Colors.transparent)),
-          elevation: 4.0,
+          elevation: 1.0,
           child: Padding(
             padding:
                 const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),

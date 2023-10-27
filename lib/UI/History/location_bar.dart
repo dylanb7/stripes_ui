@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
-import 'package:stripes_ui/UI/SharedHomeWidgets/home_screen.dart';
 import 'package:stripes_ui/entry.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -77,7 +76,6 @@ class LocationBar extends ConsumerWidget {
                               graphChoice: GraphChoice.values.firstWhere(
                                   (element) => graphMap[element] == value),
                             );
-                      ref.read(actionProvider.notifier).state = null;
                       ref.read(filtersProvider.notifier).state =
                           Filters.reset(location: newLoc);
                       ref.read(historyLocationProvider.notifier).state = newLoc;

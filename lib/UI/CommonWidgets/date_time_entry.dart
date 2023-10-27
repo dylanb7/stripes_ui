@@ -17,7 +17,7 @@ class DateListener extends ChangeNotifier {
 class DateWidget extends ConsumerWidget {
   final DateTime? earliest, latest;
 
-  final bool hasHeader, hasIcon;
+  final bool hasHeader, hasIcon, enabled;
 
   final DateListener dateListener;
 
@@ -26,6 +26,7 @@ class DateWidget extends ConsumerWidget {
       this.earliest,
       this.latest,
       this.hasHeader = true,
+      this.enabled = true,
       this.hasIcon = true,
       Key? key})
       : super(key: key);
@@ -39,28 +40,24 @@ class DateWidget extends ConsumerWidget {
         final text = Text(
           AppLocalizations.of(context)!.dateChangeEntry(date),
           style: lightBackgroundStyle.copyWith(
-            decoration: TextDecoration.underline,
+            decoration: enabled ? TextDecoration.underline : null,
           ),
         );
-        final Widget inner = GestureDetector(
-          onTap: () {
-            _showDatePicker(context, ref);
-          },
-          child: hasIcon
-              ? Row(
-                  children: [
-                    const Icon(
-                      Icons.calendar_today,
-                      size: 35,
-                    ),
-                    text
-                  ],
-                )
-              : text,
-        ).showCursorOnHover;
+        final Widget inner = hasIcon
+            ? Row(
+                children: [
+                  const Icon(
+                    Icons.calendar_today,
+                    size: 35,
+                  ),
+                  text,
+                ],
+              )
+            : text;
         if (hasHeader) {
           return DateTimeHolder(
             text: AppLocalizations.of(context)!.dateChangeTitle,
+            onClick: enabled ? _showDatePicker(context, ref) : null,
             child: inner,
           );
         }
@@ -97,12 +94,13 @@ class TimeWidget extends ConsumerWidget {
 
   final TimeListener timeListener;
 
-  final bool hasHeader, hasIcon;
+  final bool hasHeader, hasIcon, enabled;
 
   const TimeWidget(
       {required this.timeListener,
       this.earliest,
       this.latest,
+      this.enabled = true,
       this.hasHeader = true,
       this.hasIcon = true,
       Key? key})
@@ -116,28 +114,24 @@ class TimeWidget extends ConsumerWidget {
           final Widget text = Text(
             time.format(context),
             style: lightBackgroundStyle.copyWith(
-              decoration: TextDecoration.underline,
+              decoration: enabled ? TextDecoration.underline : null,
             ),
           );
-          final Widget inner = GestureDetector(
-            onTap: () {
-              _showTimePicker(context, ref);
-            },
-            child: hasIcon
-                ? Row(
-                    children: [
-                      const Icon(
-                        Icons.access_time,
-                        size: 35,
-                      ),
-                      text
-                    ],
-                  )
-                : text,
-          ).showCursorOnHover;
+          final Widget inner = hasIcon
+              ? Row(
+                  children: [
+                    const Icon(
+                      Icons.access_time,
+                      size: 35,
+                    ),
+                    text
+                  ],
+                )
+              : text;
           if (hasHeader) {
             return DateTimeHolder(
               text: AppLocalizations.of(context)!.timeChangeTitle,
+              onClick: enabled ? _showTimePicker(context, ref) : null,
               errorText: ref.read(timeErrorProvider),
               child: inner,
             );
@@ -197,23 +191,27 @@ class DateTimeHolder extends StatelessWidget {
 
   final Widget child;
 
+  final Function(BuildContext context)? onClick;
+
   const DateTimeHolder(
-      {required this.child, required this.text, this.errorText, Key? key})
+      {required this.child,
+      required this.text,
+      this.onClick,
+      this.errorText,
+      Key? key})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    final inner = SizedBox(
       width: 150,
       child: IntrinsicHeight(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Center(
-              child: Text(
-                text,
-                style: lightBackgroundStyle,
-              ),
+            Text(
+              text,
+              textAlign: TextAlign.left,
+              style: lightBackgroundStyle,
             ),
             child,
             if (errorText != null)
@@ -225,5 +223,14 @@ class DateTimeHolder extends StatelessWidget {
         ),
       ),
     );
+    if (onClick != null) {
+      return OutlinedButton(
+              onPressed: () {
+                onClick!(context);
+              },
+              child: inner)
+          .showCursorOnHover;
+    }
+    return inner;
   }
 }

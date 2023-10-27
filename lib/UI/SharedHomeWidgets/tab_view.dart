@@ -13,8 +13,6 @@ import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
-import 'home_screen.dart';
-
 enum TabOption {
   record('Record'),
   tests('Tests'),
@@ -84,7 +82,7 @@ class StripesTabView extends ConsumerWidget {
 
   handleTap(BuildContext context, TabOption tapped, WidgetRef ref) {
     if (tapped == selected) return;
-    ref.read(actionProvider.notifier).state = null;
+
     if (tapped == TabOption.record) {
       context.go(Routes.HOME);
     } else if (tapped == TabOption.history) {

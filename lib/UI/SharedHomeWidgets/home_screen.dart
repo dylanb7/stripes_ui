@@ -13,8 +13,6 @@ class NavPath {
   const NavPath({required this.option});
 }
 
-final actionProvider = StateProvider<FloatingActionButton?>((_) => null);
-
 class Home extends ConsumerWidget {
   final NavPath path;
 
@@ -25,7 +23,6 @@ class Home extends ConsumerWidget {
     final overlay = ref.watch(overlayProvider);
     final SubNotifier subNotif = ref.watch(subHolderProvider);
     final empty = subNotif.users.isEmpty;
-    final FloatingActionButton? button = ref.watch(actionProvider);
     if (subNotif.isLoading) {
       return const Center(
         child: CircularProgressIndicator(),
@@ -34,9 +31,6 @@ class Home extends ConsumerWidget {
     return GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Scaffold(
-          floatingActionButtonLocation:
-              FloatingActionButtonLocation.miniCenterFloat,
-          floatingActionButton: button,
           body: empty || SubUser.isEmpty((subNotif.current))
               ? CreatePatient()
               : Stack(

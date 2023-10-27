@@ -199,6 +199,9 @@ class EntryDisplay extends ConsumerWidget {
               children: [
                 const Spacer(),
                 TextButton(
+                    style: TextButton.styleFrom(
+                        foregroundColor:
+                            Theme.of(context).colorScheme.secondary),
                     onPressed: () {
                       _delete(ref);
                     },

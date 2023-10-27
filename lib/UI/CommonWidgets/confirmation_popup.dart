@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
+import 'package:stripes_ui/UI/CommonWidgets/tonal_button.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 
@@ -81,11 +82,14 @@ class ConfirmationPopup extends ConsumerWidget {
                                 _dismiss(context, ref);
                               },
                               child: Text(cancel)),
-                          FilledButton.tonal(
+                          TonalButtonTheme(
+                            child: FilledButton.tonal(
                               onPressed: () {
                                 _confirm(context, ref);
                               },
-                              child: Text(confirm))
+                              child: Text(confirm),
+                            ),
+                          )
                         ],
                       ),
                     ],

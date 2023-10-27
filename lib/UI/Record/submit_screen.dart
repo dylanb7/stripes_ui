@@ -73,19 +73,18 @@ class SubmitScreen extends ConsumerWidget {
         const SizedBox(
           height: 40,
         ),
-        IgnorePointer(
-          ignoring: isEdit,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              DateWidget(
-                dateListener: _dateListener,
-              ),
-              TimeWidget(
-                timeListener: _timeListener,
-              ),
-            ],
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            DateWidget(
+              dateListener: _dateListener,
+              enabled: !isEdit,
+            ),
+            TimeWidget(
+              timeListener: _timeListener,
+              enabled: !isEdit,
+            ),
+          ],
         ),
         if (isBlueRecord) ...[
           const SizedBox(
