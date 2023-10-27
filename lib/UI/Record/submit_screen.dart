@@ -55,6 +55,11 @@ class SubmitScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final TestState state = ref.watch(testHolderProvider).state;
     final List<bool> toggles = ref.watch(toggleProvider);
+    final Color primary = Theme.of(context).colorScheme.primary;
+    final Color surface = Theme.of(context).colorScheme.surface;
+    final Color onPrimary = Theme.of(context).colorScheme.onPrimary;
+    final Color onSurface =
+        Theme.of(context).colorScheme.onSurface.withOpacity(0.12);
     Period? period = ref.watch(pageProvider)[type]?.period;
     final isBlueRecord =
         (state == TestState.logs || state == TestState.logsSubmit) &&
@@ -101,17 +106,31 @@ class SubmitScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              ChoiceChip.elevated(
+              ChoiceChip(
                 label: Text(AppLocalizations.of(context)!.blueQuestionYes),
                 selected: toggles[0],
+                selectedColor: primary,
+                backgroundColor: surface,
+                labelStyle:
+                    TextStyle(color: toggles[0] ? onPrimary : onSurface),
+                checkmarkColor: toggles[0] ? onPrimary : onSurface,
+                labelPadding:
+                    const EdgeInsets.symmetric(horizontal: 3.0, vertical: 1.5),
                 onSelected: (value) {
                   if (toggles[0]) return;
                   ref.read(toggleProvider.notifier).state = [true, false];
                 },
               ),
-              ChoiceChip.elevated(
+              ChoiceChip(
                 label: Text(AppLocalizations.of(context)!.blueQuestionNo),
                 selected: toggles[1],
+                selectedColor: primary,
+                backgroundColor: surface,
+                labelStyle:
+                    TextStyle(color: toggles[1] ? onPrimary : onSurface),
+                checkmarkColor: toggles[1] ? onPrimary : onSurface,
+                labelPadding:
+                    const EdgeInsets.symmetric(horizontal: 3.0, vertical: 1.5),
                 onSelected: (value) {
                   if (toggles[1]) return;
                   ref.read(toggleProvider.notifier).state = [false, true];
