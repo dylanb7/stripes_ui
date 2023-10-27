@@ -213,7 +213,7 @@ class DateTimeHolder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final inner = Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 3.0, vertical: 4.0),
+      padding: const EdgeInsets.symmetric(horizontal: 1.0, vertical: 4.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,

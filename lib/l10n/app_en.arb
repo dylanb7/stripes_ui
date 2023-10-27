@@ -118,7 +118,7 @@
             }
         }
     },
-    "editSubmitHeader": "'Information Entered about {symptomType}",
+    "editSubmitHeader": "Information entered about {symptomType}",
     "@editSubmitHeader": {
         "placeholders": {
             "symptomType": {

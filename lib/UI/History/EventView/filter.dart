@@ -151,11 +151,10 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                         height: 12.0,
                       ),
                       if (types.isNotEmpty)
-                        Center(
-                          child: Text(
-                            AppLocalizations.of(context)!.eventFilterTypesTag,
-                            style: lightBackgroundHeaderStyle,
-                          ),
+                        Text(
+                          AppLocalizations.of(context)!.eventFilterTypesTag,
+                          style: lightBackgroundHeaderStyle,
+                          textAlign: TextAlign.left,
                         ),
                       const SizedBox(
                         height: 6.0,
@@ -196,8 +195,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                         height: 6.0,
                       ),
                       Center(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
+                        child: Wrap(
                           children: [
                             DateWidget(
                               dateListener: startDateListener,
@@ -223,8 +221,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                         height: 6.0,
                       ),
                       Center(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
+                        child: Wrap(
                           children: [
                             DateWidget(
                               dateListener: endDateListener,

@@ -92,33 +92,40 @@ class SubmitScreen extends ConsumerWidget {
           ),
           Text(
             AppLocalizations.of(context)!.submitBlueQuestion,
-            style: lightBackgroundStyle,
+            style: lightBackgroundHeaderStyle,
           ),
           const SizedBox(
             height: 8.0,
           ),
-          ToggleButtons(
-              onPressed: (index) => ref.read(toggleProvider.notifier).state = [
-                    index == 0,
-                    index == 1
-                  ],
-              borderRadius: const BorderRadius.all(Radius.circular(8)),
-              constraints: const BoxConstraints(
-                minHeight: 40.0,
-                minWidth: 80.0,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              ChoiceChip.elevated(
+                label: Text(AppLocalizations.of(context)!.blueQuestionYes),
+                selected: toggles[0],
+                onSelected: (value) {
+                  if (toggles[0]) return;
+                  ref.read(toggleProvider.notifier).state = [true, false];
+                },
               ),
-              isSelected: toggles,
-              children: [
-                AppLocalizations.of(context)!.blueQuestionYes,
-                AppLocalizations.of(context)!.blueQuestionNo
-              ].map((e) => Text(e)).toList())
+              ChoiceChip.elevated(
+                label: Text(AppLocalizations.of(context)!.blueQuestionNo),
+                selected: toggles[1],
+                onSelected: (value) {
+                  if (toggles[1]) return;
+                  ref.read(toggleProvider.notifier).state = [false, true];
+                },
+              )
+            ],
+          ),
         ],
         const SizedBox(
-          height: 30,
+          height: 18.0,
         ),
         LongTextEntry(textController: _descriptionController),
         const SizedBox(
-          height: 30,
+          height: 30.0,
         ),
         ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 250),

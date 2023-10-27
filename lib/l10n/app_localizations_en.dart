@@ -196,7 +196,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String editSubmitHeader(String symptomType) {
-    return '\'Information Entered about $symptomType';
+    return 'Information entered about $symptomType';
   }
 
   @override

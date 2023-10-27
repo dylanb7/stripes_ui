@@ -414,7 +414,7 @@ abstract class AppLocalizations {
   /// No description provided for @editSubmitHeader.
   ///
   /// In en, this message translates to:
-  /// **'\'Information Entered about {symptomType}'**
+  /// **'Information entered about {symptomType}'**
   String editSubmitHeader(String symptomType);
 
   /// No description provided for @dateChangeTitle.
