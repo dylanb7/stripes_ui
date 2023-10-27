@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
+import 'package:stripes_ui/UI/Record/TestScreen/instructions.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
@@ -28,17 +29,25 @@ class TestContent extends ConsumerWidget {
                 textAlign: TextAlign.left,
                 style: lightBackgroundStyle,
               )
-            : Center(
-                child: SizedBox(
-                  width: 250,
-                  child: FilledButton(
-                    child: Text(AppLocalizations.of(context)!.blueDyeStart),
-                    onPressed: () {
-                      ref.read(testHolderProvider).setStart(DateTime.now());
-                    },
+            : Column(children: [
+                LabeledList(strings: [
+                  AppLocalizations.of(context)!.blueDyeInfoLineOne,
+                  AppLocalizations.of(context)!.blueDyeInfoLineTwo,
+                  AppLocalizations.of(context)!.blueDyeInfoLineThree,
+                  AppLocalizations.of(context)!.blueDyeInfoLineFour
+                ], highlight: false),
+                Center(
+                  child: SizedBox(
+                    width: 250,
+                    child: FilledButton(
+                      child: Text(AppLocalizations.of(context)!.blueDyeStart),
+                      onPressed: () {
+                        ref.read(testHolderProvider).setStart(DateTime.now());
+                      },
+                    ),
                   ),
-                ),
-              ),
+                )
+              ]),
         if (state.testInProgress) const TimerDisplay(),
         if (state == TestState.logs || state == TestState.logsSubmit)
           const BlueRecordings(),

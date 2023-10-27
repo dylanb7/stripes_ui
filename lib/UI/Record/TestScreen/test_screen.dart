@@ -92,12 +92,6 @@ class _TestScreenState extends ConsumerState<TestScreen> {
           const SizedBox(
             height: 4.0,
           ),
-          if (state == TestState.initial) ...[
-            const Info(),
-            const SizedBox(
-              height: 4.0,
-            ),
-          ],
           Card(
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(
