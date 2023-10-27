@@ -27,12 +27,12 @@ class GenderDropdown extends FormField<String> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      height: 51,
                       padding: const EdgeInsets.symmetric(
-                          vertical: 5, horizontal: 15),
+                          vertical: 5, horizontal: 5),
                       decoration: BoxDecoration(
                           border: state.errorText == null
-                              ? Border.all(color: Colors.grey)
+                              ? Border.all(
+                                  color: Theme.of(context).colorScheme.primary)
                               : Border.all(
                                   color: Theme.of(context).colorScheme.error),
                           borderRadius: BorderRadius.circular(5)),
@@ -43,13 +43,11 @@ class GenderDropdown extends FormField<String> {
                         },
                         value: state.value,
                         underline: Container(),
-                        hint: Align(
+                        hint: const Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
                             'Gender',
                             textAlign: TextAlign.left,
-                            style: lightBackgroundStyle.copyWith(
-                                color: Colors.black.withOpacity(0.6)),
                           ),
                         ),
                         icon: const Icon(
@@ -87,7 +85,8 @@ class GenderDropdown extends FormField<String> {
                           child: Text(
                             state.errorText!,
                             textAlign: TextAlign.left,
-                            style: errorStyleTitle,
+                            style: lightBackgroundStyle.copyWith(
+                                color: Theme.of(context).colorScheme.error),
                           )),
                   ]);
             });

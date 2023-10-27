@@ -79,13 +79,6 @@ class CreatePatient extends ConsumerWidget {
                 const SizedBox(
                   height: 8.0,
                 ),
-                BirthYearSelector(
-                  controller: _yearController,
-                  context: context,
-                ),
-                const SizedBox(
-                  height: 8.0,
-                ),
                 IntrinsicHeight(
                     child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
