@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:stripes_ui/Util/palette.dart';
 
 class FormContainer extends StatefulWidget {
   static const duration = Duration(milliseconds: 200);

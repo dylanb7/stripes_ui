@@ -117,7 +117,6 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                             Radius.circular(10),
                           ),
                         ),
-                        elevation: 8.0,
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
                               vertical: 5.0, horizontal: 8.0),

@@ -49,24 +49,22 @@ class DateWidget extends ConsumerWidget {
                 children: [
                   const Icon(
                     Icons.calendar_today,
-                    size: 35,
                   ),
                   text,
                 ],
               )
             : text;
-        if (hasHeader) {
-          return DateTimeHolder(
-            text: AppLocalizations.of(context)!.dateChangeTitle,
-            onClick: enabled
-                ? () async {
-                    await _showDatePicker(context, ref);
-                  }
-                : null,
-            child: inner,
-          );
-        }
-        return inner;
+
+        return DateTimeHolder(
+          text: AppLocalizations.of(context)!.dateChangeTitle,
+          hasHeader: hasHeader,
+          onClick: enabled
+              ? () {
+                  _showDatePicker(context, ref);
+                }
+              : null,
+          child: inner,
+        );
       },
     );
   }
@@ -128,25 +126,23 @@ class TimeWidget extends ConsumerWidget {
                   children: [
                     const Icon(
                       Icons.access_time,
-                      size: 35,
                     ),
                     text
                   ],
                 )
               : text;
-          if (hasHeader) {
-            return DateTimeHolder(
-              text: AppLocalizations.of(context)!.timeChangeTitle,
-              onClick: enabled
-                  ? () async {
-                      await _showTimePicker(context, ref);
-                    }
-                  : null,
-              errorText: ref.read(timeErrorProvider),
-              child: inner,
-            );
-          }
-          return inner;
+
+          return DateTimeHolder(
+            text: AppLocalizations.of(context)!.timeChangeTitle,
+            hasHeader: hasHeader,
+            onClick: enabled
+                ? () {
+                    _showTimePicker(context, ref);
+                  }
+                : null,
+            errorText: ref.read(timeErrorProvider),
+            child: inner,
+          );
         });
   }
 
@@ -203,9 +199,12 @@ class DateTimeHolder extends StatelessWidget {
 
   final Function? onClick;
 
+  final bool hasHeader;
+
   const DateTimeHolder(
       {required this.child,
       required this.text,
+      required this.hasHeader,
       this.onClick,
       this.errorText,
       Key? key})
@@ -214,16 +213,17 @@ class DateTimeHolder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final inner = Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
+      padding: const EdgeInsets.symmetric(horizontal: 3.0, vertical: 4.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            text,
-            textAlign: TextAlign.left,
-            style: lightBackgroundStyle,
-          ),
+          if (hasHeader)
+            Text(
+              text,
+              textAlign: TextAlign.left,
+              style: lightBackgroundStyle,
+            ),
           child,
           if (errorText != null)
             Text(
@@ -236,7 +236,7 @@ class DateTimeHolder extends StatelessWidget {
     if (onClick != null) {
       return OutlinedButton(
               onPressed: () {
-                onClick!(context);
+                onClick!.call();
               },
               child: inner)
           .showCursorOnHover;

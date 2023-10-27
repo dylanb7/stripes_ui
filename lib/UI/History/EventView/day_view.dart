@@ -64,7 +64,8 @@ class DayView extends ConsumerWidget {
                 isScrollable: false,
                 scrollDirection: Axis.horizontal,
                 showHeader: true,
-                headerTextStyle: darkBackgroundHeaderStyle,
+                headerTextStyle: darkBackgroundHeaderStyle.copyWith(
+                    color: Theme.of(context).colorScheme.onBackground),
                 pageSnapping: true,
                 inactiveDaysTextStyle:
                     lightBackgroundStyle.copyWith(fontSize: 14),

@@ -79,7 +79,8 @@ class MonthView extends ConsumerWidget {
                     selectedDayBorderColor: Colors.transparent,
                     selectedDayButtonColor: Colors.transparent,
                     daysTextStyle: darkBackgroundStyle,
-                    headerTextStyle: darkBackgroundHeaderStyle,
+                    headerTextStyle: darkBackgroundHeaderStyle.copyWith(
+                        color: Theme.of(context).colorScheme.onBackground),
                     weekendTextStyle: lightBackgroundStyle,
                     inactiveDaysTextStyle: lightBackgroundStyle,
                     maxSelectedDate: DateTime.now(),
