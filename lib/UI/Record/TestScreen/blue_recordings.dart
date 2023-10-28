@@ -4,6 +4,7 @@ import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_backend_helper/RepositoryBase/TestBase/BlueDye/bm_test_log.dart';
 import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
+import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_content.dart';
 import 'package:stripes_ui/Util/date_helper.dart';
@@ -69,7 +70,7 @@ class BlueRecordings extends ConsumerWidget {
                           }
                         },
                   child: isLoading
-                      ? const CircularProgressIndicator()
+                      ? const ButtonLoadingIndicator()
                       : Text(
                           AppLocalizations.of(context)!.blueDyeLogsSubmitTest),
                 )),

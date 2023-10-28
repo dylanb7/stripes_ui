@@ -48,8 +48,7 @@ class PatientChanger extends ConsumerWidget {
             fit: BoxFit.scaleDown,
             child: Text(
               getTitle(),
-              style: darkBackgroundScreenHeaderStyle.copyWith(
-                  letterSpacing: 1.4, fontSize: 32),
+              style: darkBackgroundScreenHeaderStyle,
               textAlign: TextAlign.left,
             ),
           ),

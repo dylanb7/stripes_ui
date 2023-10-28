@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
+import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/instructions.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
@@ -55,15 +56,15 @@ class TestContentState extends ConsumerState<TestContent> {
                     child: FilledButton(
                       onPressed: isLoading
                           ? null
-                          : () {
+                          : () async {
                               ref.read(testLoading.notifier).state = true;
-                              ref
+                              await ref
                                   .read(testHolderProvider)
                                   .setStart(DateTime.now());
                               ref.read(testLoading.notifier).state = false;
                             },
                       child: isLoading
-                          ? const CircularProgressIndicator()
+                          ? const ButtonLoadingIndicator()
                           : Text(AppLocalizations.of(context)!.blueDyeStart),
                     ),
                   ),
@@ -139,7 +140,7 @@ class TimerDisplay extends ConsumerWidget {
                         ref.read(testLoading.notifier).state = false;
                       },
                 child: isLoading
-                    ? const CircularProgressIndicator()
+                    ? const ButtonLoadingIndicator()
                     : Text(
                         AppLocalizations.of(context)!.blueMealFinishedButton),
               ),

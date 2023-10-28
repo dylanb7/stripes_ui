@@ -5,6 +5,7 @@ import 'package:stripes_backend_helper/TestingReposImpl/test_question_repo.dart'
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
+import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
 import 'package:stripes_ui/UI/CommonWidgets/date_time_entry.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
 import 'package:stripes_ui/UI/Record/question_screen.dart';
@@ -179,7 +180,7 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
                     }
                   : null,
               child: isLoading
-                  ? const CircularProgressIndicator()
+                  ? const ButtonLoadingIndicator()
                   : Text(widget.isEdit
                       ? AppLocalizations.of(context)!.editSubmitButtonText
                       : AppLocalizations.of(context)!.submitButtonText),

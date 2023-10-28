@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -15,154 +16,47 @@ import 'package:stripes_ui/Util/date_helper.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
-class EntryDisplay extends ConsumerWidget {
+class EntryDisplay extends ConsumerStatefulWidget {
   final Response event;
 
   const EntryDisplay({Key? key, required this.event}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConsumerStatefulWidget> createState() => EntryDisplayState();
+}
+
+class EntryDisplayState extends ConsumerState<EntryDisplay> {
+  bool isLoading = false;
+
+  @override
+  Widget build(BuildContext context) {
     final Map<String, Widget Function(Response<Question>)> overrides =
         ref.watch(questionDisplayOverides);
-    final DateTime date = dateFromStamp(event.stamp);
-    List<Widget> vals = [];
+    final DateTime date = dateFromStamp(widget.event.stamp);
     Widget? button;
+    Widget? content;
     final Widget Function(Response<Question>)? mainOverride =
-        overrides[event.question.id];
-    if (mainOverride != null) return mainOverride(event);
-    if (event is BlueDyeResp) {
-      final BlueDyeResp resp = event as BlueDyeResp;
-      vals = [
-        Text(
-          AppLocalizations.of(context)!.startTestEntry, //
-          style: lightBackgroundHeaderStyle,
-        ),
-        Text(
-          '${dateToMDY(resp.startEating, context)} - ${timeString(resp.startEating, context)}',
-          style: lightBackgroundStyle,
-        ),
-        Text(
-          AppLocalizations.of(context)!.mealDurationEntry,
-          style: lightBackgroundHeaderStyle,
-        ),
-        Text(
-          from(resp.eatingDuration),
-          style: lightBackgroundStyle,
-        ),
-        if (resp.firstBlue != resp.lastBlue) ...[
-          Text(
-            AppLocalizations.of(context)!.firstBlueEntry,
-            style: lightBackgroundHeaderStyle,
-          ),
-          Text(
-            '${dateToMDY(resp.firstBlue, context)} - ${timeString(resp.firstBlue, context)}',
-            style: lightBackgroundStyle,
-          ),
-        ],
-        Text(
-          AppLocalizations.of(context)!.lastBlueEntry,
-          style: lightBackgroundHeaderStyle,
-        ),
-        Text(
-          '${dateToMDY(resp.lastBlue, context)} - ${timeString(resp.lastBlue, context)}',
-          style: lightBackgroundStyle,
-        ),
-        Text(
-          AppLocalizations.of(context)!.transitDurationEntry,
-          style: lightBackgroundHeaderStyle,
-        ),
-        Text(
-          from(resp.lastBlue
-              .difference(resp.startEating.add(resp.eatingDuration))),
-          style: lightBackgroundStyle,
-        ),
-      ];
-    } else if (event is DetailResponse) {
-      final DetailResponse detail = event as DetailResponse;
+        overrides[widget.event.question.id];
+    if (mainOverride != null) return mainOverride(widget.event);
+    if (widget.event is BlueDyeResp) {
+      final BlueDyeResp resp = widget.event as BlueDyeResp;
+      content = BlueDyeDisplay(resp: resp);
+    } else if (widget.event is DetailResponse) {
+      final DetailResponse detail = widget.event as DetailResponse;
       button = IconButton(
-        onPressed: () {
-          _edit(detail, context, date);
-        },
+        onPressed: isLoading
+            ? null
+            : () {
+                _edit(detail, context, date);
+              },
         icon: const Icon(
           Icons.edit,
           size: 30,
         ),
       );
-      vals = [
-        if (detail.description.isNotEmpty) ...[
-          Text(
-            AppLocalizations.of(context)!.descriptionLabel,
-            style: lightBackgroundHeaderStyle,
-          ),
-          Text(
-            detail.description,
-            style: lightBackgroundStyle,
-            maxLines: null,
-          )
-        ],
-        if (detail.responses.isNotEmpty)
-          Text(
-            AppLocalizations.of(context)!.behaviorsLabel,
-            style: lightBackgroundHeaderStyle,
-          ),
-        ...detail.responses.map<Widget>(
-          (res) {
-            final Widget Function(Response<Question>)? childOverride =
-                overrides[res.question.id];
-            if (childOverride != null) return childOverride(res);
-            if (res is NumericResponse) {
-              return Text('${res.question.prompt} - ${res.response}',
-                  style: lightBackgroundStyle, maxLines: null);
-            }
-            if (res is MultiResponse) {
-              return Text(
-                '${res.question.prompt} - ${res.question.choices[res.index]}',
-                style: lightBackgroundStyle,
-              );
-            }
-            if (res is OpenResponse) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(res.question.prompt,
-                      style: lightBackgroundStyle, maxLines: null),
-                  const SizedBox(
-                    height: 2,
-                  ),
-                  Text(res.response,
-                      style: lightBackgroundStyle, maxLines: null)
-                ],
-              );
-            }
-            return Text(
-              res.question.prompt,
-              style: lightBackgroundStyle,
-              maxLines: null,
-            );
-          },
-        ),
-      ];
-    } else if (event is NumericResponse) {
-      final NumericResponse numeric = event as NumericResponse;
-      vals = [
-        Text('${event.question.prompt} - ${numeric.response}',
-            style: lightBackgroundStyle, maxLines: null)
-      ];
-    } else if (event is Selected) {
-      vals = [
-        Text(event.question.prompt, style: lightBackgroundStyle, maxLines: null)
-      ];
-    } else if (event is OpenResponse) {
-      vals = [
-        Text(event.question.prompt,
-            style: lightBackgroundStyle, maxLines: null),
-        const SizedBox(
-          height: 2,
-        ),
-        Text((event as OpenResponse).response,
-            style: lightBackgroundStyle, maxLines: null)
-      ];
+      content = DetailDisplay(detail: detail);
+    } else {
+      content = ResponseDisplay(res: widget.event);
     }
 
     return ConstrainedBox(
@@ -173,7 +67,7 @@ class EntryDisplay extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                event.type,
+                widget.event.type,
                 style: lightBackgroundHeaderStyle.copyWith(
                     fontWeight: FontWeight.bold),
               ),
@@ -187,23 +81,21 @@ class EntryDisplay extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            ...vals
-                .map(
-                  (text) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 3.0),
-                    child: text,
-                  ),
-                )
-                .toList(),
+            content,
+            const SizedBox(
+              height: 3,
+            ),
             Row(
               children: [
                 TextButton(
                     style: TextButton.styleFrom(
                         foregroundColor:
                             Theme.of(context).colorScheme.secondary),
-                    onPressed: () {
-                      _delete(ref);
-                    },
+                    onPressed: isLoading
+                        ? null
+                        : () {
+                            _delete(ref);
+                          },
                     child: Text(
                       AppLocalizations.of(context)!.deleteAction,
                     )),
@@ -237,18 +129,200 @@ class EntryDisplay extends ConsumerWidget {
   _delete(WidgetRef ref) {
     ref.read(overlayProvider.notifier).state = OverlayQuery(
       widget: DeleteErrorPrevention(
-        delete: () {
-          final BlueDyeTest? obj = ref.read(testHolderProvider).obj;
-          List<BMTestLog> blueLog = (obj?.logs ?? [])
-              .where((element) => element.response.stamp == event.stamp)
-              .toList();
-          ref.read(stampProvider)?.removeStamp(event);
-          if (blueLog.isNotEmpty) {
-            ref.read(testHolderProvider).obj!.removeLog(blueLog.first);
+        delete: () async {
+          if (mounted) {
+            setState(() {
+              isLoading = true;
+            });
+          }
+          await ref.read(stampProvider)?.removeStamp(widget.event);
+          if (mounted) {
+            setState(() {
+              isLoading = false;
+            });
           }
         },
-        type: event.type,
+        type: widget.event.type,
       ),
+    );
+  }
+}
+
+class DetailDisplay extends StatelessWidget {
+  final DetailResponse detail;
+
+  const DetailDisplay({required this.detail, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        if (detail.description.isNotEmpty) ...[
+          Text(
+            AppLocalizations.of(context)!.descriptionLabel,
+            style: lightBackgroundHeaderStyle,
+          ),
+          const SizedBox(
+            height: 3.0,
+          ),
+          Text(
+            detail.description,
+            style: lightBackgroundStyle,
+            maxLines: null,
+          ),
+          const SizedBox(
+            height: 3.0,
+          ),
+        ],
+        if (detail.responses.isNotEmpty) ...[
+          Text(
+            AppLocalizations.of(context)!.behaviorsLabel,
+            style: lightBackgroundHeaderStyle,
+          ),
+          const SizedBox(
+            height: 3.0,
+          ),
+        ],
+        ...detail.responses.mapIndexed<Widget>((index, res) {
+          if (index == detail.responses.length - 1) {
+            return ResponseDisplay(res: res);
+          }
+          return Padding(
+              padding: const EdgeInsets.only(bottom: 3.0),
+              child: ResponseDisplay(res: res));
+        }),
+      ],
+    );
+  }
+}
+
+class ResponseDisplay extends ConsumerWidget {
+  final Response<Question> res;
+
+  const ResponseDisplay({required this.res, super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final Map<String, Widget Function(Response<Question>)> overrides =
+        ref.watch(questionDisplayOverides);
+    final Widget Function(Response<Question>)? childOverride =
+        overrides[res.question.id];
+    if (childOverride != null) return childOverride(res);
+    if (res is NumericResponse) {
+      final NumericResponse numeric = res as NumericResponse;
+      return Text('${numeric.question.prompt} - ${numeric.response}',
+          style: lightBackgroundStyle, maxLines: null);
+    }
+    if (res is MultiResponse) {
+      final MultiResponse multi = res as MultiResponse;
+      return Text(
+        '${multi.question.prompt} - ${multi.question.choices[multi.index]}',
+        style: lightBackgroundStyle,
+      );
+    }
+    if (res is OpenResponse) {
+      final OpenResponse open = res as OpenResponse;
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(open.question.prompt,
+              style: lightBackgroundStyle, maxLines: null),
+          const SizedBox(
+            height: 2,
+          ),
+          Text(open.response, style: lightBackgroundStyle, maxLines: null)
+        ],
+      );
+    }
+    return Text(
+      res.question.prompt,
+      style: lightBackgroundStyle,
+      maxLines: null,
+    );
+  }
+}
+
+class BlueDyeDisplay extends StatelessWidget {
+  final BlueDyeResp resp;
+
+  const BlueDyeDisplay({required this.resp, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          AppLocalizations.of(context)!.startTestEntry, //
+          style: lightBackgroundHeaderStyle,
+        ),
+        const SizedBox(
+          height: 3.0,
+        ),
+        Text(
+          '${dateToMDY(resp.startEating, context)} - ${timeString(resp.startEating, context)}',
+          style: lightBackgroundStyle,
+        ),
+        const SizedBox(
+          height: 3.0,
+        ),
+        Text(
+          AppLocalizations.of(context)!.mealDurationEntry,
+          style: lightBackgroundHeaderStyle,
+        ),
+        const SizedBox(
+          height: 3.0,
+        ),
+        Text(
+          from(resp.eatingDuration),
+          style: lightBackgroundStyle,
+        ),
+        const SizedBox(
+          height: 3.0,
+        ),
+        if (resp.firstBlue != resp.lastBlue) ...[
+          Text(
+            AppLocalizations.of(context)!.firstBlueEntry,
+            style: lightBackgroundHeaderStyle,
+          ),
+          const SizedBox(
+            height: 3.0,
+          ),
+          Text(
+            '${dateToMDY(resp.firstBlue, context)} - ${timeString(resp.firstBlue, context)}',
+            style: lightBackgroundStyle,
+          ),
+          const SizedBox(
+            height: 3.0,
+          ),
+        ],
+        Text(
+          AppLocalizations.of(context)!.lastBlueEntry,
+          style: lightBackgroundHeaderStyle,
+        ),
+        const SizedBox(
+          height: 3.0,
+        ),
+        Text(
+          '${dateToMDY(resp.lastBlue, context)} - ${timeString(resp.lastBlue, context)}',
+          style: lightBackgroundStyle,
+        ),
+        const SizedBox(
+          height: 3.0,
+        ),
+        Text(
+          AppLocalizations.of(context)!.transitDurationEntry,
+          style: lightBackgroundHeaderStyle,
+        ),
+        const SizedBox(
+          height: 3.0,
+        ),
+        Text(
+          from(resp.lastBlue
+              .difference(resp.startEating.add(resp.eatingDuration))),
+          style: lightBackgroundStyle,
+        ),
+      ],
     );
   }
 }
