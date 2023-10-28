@@ -195,7 +195,10 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                                     .questionListener
                                                     .pending
                                                     .length),
-                                            style: errorStyleTitle,
+                                            style: errorStyleTitle.copyWith(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .error),
                                           ),
                                         Row(
                                             mainAxisAlignment:

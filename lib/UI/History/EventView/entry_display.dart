@@ -164,6 +164,7 @@ class DetailDisplay extends StatelessWidget {
           Text(
             AppLocalizations.of(context)!.descriptionLabel,
             style: lightBackgroundHeaderStyle,
+            textAlign: TextAlign.left,
           ),
           const SizedBox(
             height: 3.0,
@@ -171,6 +172,7 @@ class DetailDisplay extends StatelessWidget {
           Text(
             detail.description,
             style: lightBackgroundStyle,
+            textAlign: TextAlign.left,
             maxLines: null,
           ),
           const SizedBox(
@@ -181,6 +183,7 @@ class DetailDisplay extends StatelessWidget {
           Text(
             AppLocalizations.of(context)!.behaviorsLabel,
             style: lightBackgroundHeaderStyle,
+            textAlign: TextAlign.left,
           ),
           const SizedBox(
             height: 3.0,
@@ -214,22 +217,28 @@ class ResponseDisplay extends ConsumerWidget {
     if (res is NumericResponse) {
       final NumericResponse numeric = res as NumericResponse;
       return Text('${numeric.question.prompt} - ${numeric.response}',
-          style: lightBackgroundStyle, maxLines: null);
+          textAlign: TextAlign.left,
+          style: lightBackgroundStyle,
+          maxLines: null);
     }
     if (res is MultiResponse) {
       final MultiResponse multi = res as MultiResponse;
       return Text(
         '${multi.question.prompt} - ${multi.question.choices[multi.index]}',
+        textAlign: TextAlign.left,
         style: lightBackgroundStyle,
       );
     }
     if (res is OpenResponse) {
       final OpenResponse open = res as OpenResponse;
       return Text('${open.question.prompt} - ${open.response}',
-          style: lightBackgroundStyle, maxLines: null);
+          textAlign: TextAlign.left,
+          style: lightBackgroundStyle,
+          maxLines: null);
     }
     return Text(
       res.question.prompt,
+      textAlign: TextAlign.left,
       style: lightBackgroundStyle,
       maxLines: null,
     );
@@ -246,7 +255,8 @@ class BlueDyeDisplay extends StatelessWidget {
     return Column(
       children: [
         Text(
-          AppLocalizations.of(context)!.startTestEntry, //
+          AppLocalizations.of(context)!.startTestEntry,
+          textAlign: TextAlign.left, //
           style: lightBackgroundHeaderStyle,
         ),
         const SizedBox(
@@ -254,6 +264,7 @@ class BlueDyeDisplay extends StatelessWidget {
         ),
         Text(
           '${dateToMDY(resp.startEating, context)} - ${timeString(resp.startEating, context)}',
+          textAlign: TextAlign.left,
           style: lightBackgroundStyle,
         ),
         const SizedBox(
@@ -261,6 +272,7 @@ class BlueDyeDisplay extends StatelessWidget {
         ),
         Text(
           AppLocalizations.of(context)!.mealDurationEntry,
+          textAlign: TextAlign.left,
           style: lightBackgroundHeaderStyle,
         ),
         const SizedBox(
@@ -268,6 +280,7 @@ class BlueDyeDisplay extends StatelessWidget {
         ),
         Text(
           from(resp.eatingDuration),
+          textAlign: TextAlign.left,
           style: lightBackgroundStyle,
         ),
         const SizedBox(
@@ -276,6 +289,7 @@ class BlueDyeDisplay extends StatelessWidget {
         if (resp.firstBlue != resp.lastBlue) ...[
           Text(
             AppLocalizations.of(context)!.firstBlueEntry,
+            textAlign: TextAlign.left,
             style: lightBackgroundHeaderStyle,
           ),
           const SizedBox(
@@ -283,6 +297,7 @@ class BlueDyeDisplay extends StatelessWidget {
           ),
           Text(
             '${dateToMDY(resp.firstBlue, context)} - ${timeString(resp.firstBlue, context)}',
+            textAlign: TextAlign.left,
             style: lightBackgroundStyle,
           ),
           const SizedBox(
@@ -291,6 +306,7 @@ class BlueDyeDisplay extends StatelessWidget {
         ],
         Text(
           AppLocalizations.of(context)!.lastBlueEntry,
+          textAlign: TextAlign.left,
           style: lightBackgroundHeaderStyle,
         ),
         const SizedBox(
@@ -298,6 +314,7 @@ class BlueDyeDisplay extends StatelessWidget {
         ),
         Text(
           '${dateToMDY(resp.lastBlue, context)} - ${timeString(resp.lastBlue, context)}',
+          textAlign: TextAlign.left,
           style: lightBackgroundStyle,
         ),
         const SizedBox(
@@ -305,6 +322,7 @@ class BlueDyeDisplay extends StatelessWidget {
         ),
         Text(
           AppLocalizations.of(context)!.transitDurationEntry,
+          textAlign: TextAlign.left,
           style: lightBackgroundHeaderStyle,
         ),
         const SizedBox(
@@ -313,6 +331,7 @@ class BlueDyeDisplay extends StatelessWidget {
         Text(
           from(resp.lastBlue
               .difference(resp.startEating.add(resp.eatingDuration))),
+          textAlign: TextAlign.left,
           style: lightBackgroundStyle,
         ),
       ],

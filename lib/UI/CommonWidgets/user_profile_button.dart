@@ -6,6 +6,7 @@ import 'package:stripes_ui/Providers/auth_provider.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
+import 'package:stripes_ui/UI/CommonWidgets/tonal_button.dart';
 import 'package:stripes_ui/UI/History/EventView/export.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/splitter.dart';
 import 'package:stripes_ui/Util/constants.dart';
@@ -210,18 +211,21 @@ class ExitErrorPrevention extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                BasicButton(
-                    color: Theme.of(context).primaryColor,
-                    onClick: (_) {
+                FilledButton(
+                    onPressed: () {
                       _closeOverlay(ref);
                     },
-                    text: AppLocalizations.of(context)!.stampDeleteCancel),
-                BasicButton(
-                    color: Theme.of(context).colorScheme.secondary,
-                    onClick: (_) {
+                    child:
+                        Text(AppLocalizations.of(context)!.stampDeleteCancel)),
+                TonalButtonTheme(
+                  child: FilledButton.tonal(
+                    onPressed: () {
                       _confirm(ref);
                     },
-                    text: AppLocalizations.of(context)!.stampDeleteConfirm),
+                    child:
+                        Text(AppLocalizations.of(context)!.stampDeleteConfirm),
+                  ),
+                ),
               ],
             ),
           ],

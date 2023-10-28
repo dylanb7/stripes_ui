@@ -10,8 +10,6 @@ class Expandible extends StatefulWidget {
 
   final bool hasIndicator;
 
-  final bool selected;
-
   final bool highlightOnShrink;
 
   final Color? highlightColor;
@@ -24,7 +22,6 @@ class Expandible extends StatefulWidget {
       {required this.header,
       required this.view,
       this.canExpand = true,
-      this.selected = false,
       this.hasIndicator = true,
       this.highlightOnShrink = false,
       this.iconSize,
@@ -112,11 +109,8 @@ class _ExpandibleState extends State<Expandible>
               shape: RoundedRectangleBorder(
                   borderRadius: const BorderRadius.all(Radius.circular(15.0)),
                   side: (_expanded || widget.highlightOnShrink) &&
-                          widget.selected
-                      ? BorderSide(
-                          color: widget.highlightColor ??
-                              Theme.of(context).colorScheme.secondary,
-                          width: 5.0)
+                          widget.highlightColor != null
+                      ? BorderSide(color: widget.highlightColor!, width: 5.0)
                       : const BorderSide(width: 0, color: Colors.transparent)),
               elevation: 1.0,
               child: Padding(

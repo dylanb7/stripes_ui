@@ -375,7 +375,9 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
     return Expandible(
       highlightColor: errorHighlight
           ? Theme.of(context).colorScheme.error
-          : Theme.of(context).colorScheme.secondary,
+          : res != null
+              ? Theme.of(context).colorScheme.secondary
+              : null,
       header: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -416,7 +418,6 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
             },
             listener: _sliderListener,
           )),
-      selected: res != null || errorHighlight,
       hasIndicator: false,
       listener: _controller,
     );
@@ -593,7 +594,9 @@ class _SeverityPainWidgetState extends ConsumerState<SeverityPainWidget> {
     return Expandible(
       highlightColor: errorHighlight
           ? Theme.of(context).colorScheme.error
-          : Theme.of(context).colorScheme.secondary,
+          : res != null
+              ? Theme.of(context).colorScheme.secondary
+              : null,
       header: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -632,7 +635,6 @@ class _SeverityPainWidgetState extends ConsumerState<SeverityPainWidget> {
             },
             listener: _sliderListener,
           )),
-      selected: res != null || errorHighlight,
       hasIndicator: false,
       listener: _controller,
     );
