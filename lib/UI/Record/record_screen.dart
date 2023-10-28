@@ -46,8 +46,7 @@ class Options extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final List<String> questionTypes =
         ref.watch(questionSplitProvider).keys.toList();
-    final TestState state =
-        ref.watch(testHolderProvider.select((value) => value.state));
+    final TestState state = ref.watch(testHolderProvider).state;
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       sliver: SliverList(
@@ -67,7 +66,7 @@ class Options extends ConsumerWidget {
             ),
             ...questionTypes.map((key) {
               if (key != Symptoms.BM ||
-                  (state != TestState.logs || state != TestState.logsSubmit)) {
+                  (state != TestState.logs && state != TestState.logsSubmit)) {
                 return RecordButton(key, (context) {
                   context
                       .pushNamed('recordType', pathParameters: {'type': key});

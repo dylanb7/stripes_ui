@@ -77,6 +77,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
     final int amount = availible.where(filt).length;
 
     final Set<String> types = Set.from(availible.map((ent) => ent.type));
+    selectedTypes.difference(types);
 
     final String message = amount == 1 ? '$amount Result' : '$amount Results';
     return OverlayBackdrop(

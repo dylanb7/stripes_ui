@@ -28,8 +28,7 @@ class _InstructionsState extends ConsumerState<Instructions> {
 
   @override
   Widget build(BuildContext context) {
-    final TestState state =
-        ref.watch(testHolderProvider.select((value) => value.state));
+    final TestState state = ref.watch(testHolderProvider).state;
     final String stage = state == TestState.started
         ? AppLocalizations.of(context)!.blueDyeInstructionsStepOne
         : state == TestState.logs
@@ -281,7 +280,7 @@ class LabeledList extends StatelessWidget {
         alignment: Alignment.centerLeft,
         decoration: BoxDecoration(
             color: highlight
-                ? Theme.of(context).colorScheme.surface.withOpacity(0.15)
+                ? Theme.of(context).colorScheme.onPrimaryContainer
                 : null,
             borderRadius: const BorderRadius.all(Radius.circular(6.0)),
             border: highlight ? Border.all(width: 2.0) : null),

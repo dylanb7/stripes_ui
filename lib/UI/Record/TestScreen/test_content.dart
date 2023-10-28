@@ -159,7 +159,8 @@ class TimerDisplay extends ConsumerWidget {
             text: TextSpan(children: [
               TextSpan(
                 text: AppLocalizations.of(context)!.blueMealFinalDurationTag,
-                style: lightBackgroundStyle,
+                style: lightBackgroundStyle.copyWith(
+                    color: Theme.of(context).colorScheme.onPrimaryContainer),
               ),
               TextSpan(
                 text: '\t${from(test.obj!.finishedEating!)}',
