@@ -156,6 +156,9 @@ class DetailDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
         if (detail.description.isNotEmpty) ...[
           Text(
@@ -222,18 +225,8 @@ class ResponseDisplay extends ConsumerWidget {
     }
     if (res is OpenResponse) {
       final OpenResponse open = res as OpenResponse;
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(open.question.prompt,
-              style: lightBackgroundStyle, maxLines: null),
-          const SizedBox(
-            height: 2,
-          ),
-          Text(open.response, style: lightBackgroundStyle, maxLines: null)
-        ],
-      );
+      return Text('${open.question.prompt} - ${open.response}',
+          style: lightBackgroundStyle, maxLines: null);
     }
     return Text(
       res.question.prompt,
