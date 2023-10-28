@@ -370,7 +370,8 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
   Widget build(BuildContext context) {
     final num? res = response();
     final bool tried = ref.watch(continueTried);
-    final bool errorHighlight = tried && !_sliderListener.interact;
+    final bool errorHighlight =
+        tried && widget.questionsListener.pending.contains(widget.question);
     return Expandible(
       highlightColor: errorHighlight
           ? Theme.of(context).colorScheme.error
@@ -587,7 +588,8 @@ class _SeverityPainWidgetState extends ConsumerState<SeverityPainWidget> {
   Widget build(BuildContext context) {
     final num? res = response();
     final bool tried = ref.watch(continueTried);
-    final bool errorHighlight = tried && !_sliderListener.interact;
+    final bool errorHighlight =
+        tried && !widget.questionsListener.pending.contains(widget.question);
     return Expandible(
       highlightColor: errorHighlight
           ? Theme.of(context).colorScheme.error

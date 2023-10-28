@@ -86,7 +86,7 @@ class _ExpandibleState extends State<Expandible>
         animation: _expandController.view,
         child: _expanded
             ? Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(6.0),
                 child: widget.view,
               )
             : null,
@@ -120,17 +120,17 @@ class _ExpandibleState extends State<Expandible>
                       : const BorderSide(width: 0, color: Colors.transparent)),
               elevation: 1.0,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                padding: const EdgeInsets.symmetric(horizontal: 6.0),
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       const SizedBox(
-                        height: 8.0,
+                        height: 4.0,
                       ),
                       Row(
                         children: [
                           const SizedBox(
-                            width: 8,
+                            width: 8.0,
                           ),
                           Expanded(child: widget.header),
                           if (_canExpand && widget.hasIndicator) ...[
@@ -148,7 +148,7 @@ class _ExpandibleState extends State<Expandible>
                         ],
                       ),
                       const SizedBox(
-                        height: 8.0,
+                        height: 4.0,
                       ),
                       ClipRect(
                         child: Align(

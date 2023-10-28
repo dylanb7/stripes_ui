@@ -142,7 +142,10 @@ class _BaseScreenState extends ConsumerState<BaseScreen> {
                                   if (tried)
                                     Text(
                                       'Select slider ${widget.listener.pending.length > 1 ? 'values' : 'value'}',
-                                      style: errorStyleTitle,
+                                      style: errorStyleTitle.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .error),
                                     ),
                                   widget.screen.hasNext()
                                       ? IconButton(
