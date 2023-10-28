@@ -197,7 +197,6 @@ class EntryDisplay extends ConsumerWidget {
                 .toList(),
             Row(
               children: [
-                const Spacer(),
                 TextButton(
                     style: TextButton.styleFrom(
                         foregroundColor:
@@ -208,6 +207,7 @@ class EntryDisplay extends ConsumerWidget {
                     child: Text(
                       AppLocalizations.of(context)!.deleteAction,
                     )),
+                const Spacer(),
                 if (button != null) button,
               ],
             ),

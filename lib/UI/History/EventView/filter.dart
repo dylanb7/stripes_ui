@@ -76,14 +76,14 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
 
     final int amount = availible.where(filt).length;
 
-    Set<String> types = {};
+    final Set<String> types = {};
     types.addAll(availible.map((ent) => ent.type));
 
     final String message = amount == 1 ? '$amount Result' : '$amount Results';
     return OverlayBackdrop(
-      child: SingleChildScrollView(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 450),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 450),
+        child: SingleChildScrollView(
           child: Card(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),

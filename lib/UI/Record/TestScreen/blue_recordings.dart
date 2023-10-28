@@ -5,6 +5,7 @@ import 'package:stripes_backend_helper/RepositoryBase/TestBase/BlueDye/bm_test_l
 import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
+import 'package:stripes_ui/UI/Record/TestScreen/test_content.dart';
 import 'package:stripes_ui/Util/date_helper.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
@@ -15,8 +16,9 @@ class BlueRecordings extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    TestNotifier notifier = ref.watch(testHolderProvider);
-    List<BMTestLog> logs = notifier.obj!.logs;
+    final TestNotifier notifier = ref.watch(testHolderProvider);
+    final List<BMTestLog> logs = notifier.obj!.logs;
+    final bool isLoading = ref.watch(testLoading);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -44,7 +46,7 @@ class BlueRecordings extends ConsumerWidget {
             width: 250,
             child: GestureDetector(
                 onTap: () {
-                  if (notifier.state != TestState.logsSubmit) {
+                  if (notifier.state != TestState.logsSubmit && !isLoading) {
                     showSnack(
                         AppLocalizations.of(context)!
                             .blueDyeLogsSubmitTestError,
@@ -52,16 +54,24 @@ class BlueRecordings extends ConsumerWidget {
                   }
                 },
                 child: FilledButton(
-                  onPressed: notifier.state != TestState.logsSubmit
+                  onPressed: notifier.state != TestState.logsSubmit || isLoading
                       ? null
-                      : () {
-                          ref.read(testHolderProvider).submit(DateTime.now());
-                          showSnack(
-                              AppLocalizations.of(context)!.testSubmitSuccess,
-                              context);
+                      : () async {
+                          ref.read(testLoading.notifier).state = true;
+                          await ref
+                              .read(testHolderProvider)
+                              .submit(DateTime.now());
+                          ref.read(testLoading.notifier).state = false;
+                          if (context.mounted) {
+                            showSnack(
+                                AppLocalizations.of(context)!.testSubmitSuccess,
+                                context);
+                          }
                         },
-                  child:
-                      Text(AppLocalizations.of(context)!.blueDyeLogsSubmitTest),
+                  child: isLoading
+                      ? const CircularProgressIndicator()
+                      : Text(
+                          AppLocalizations.of(context)!.blueDyeLogsSubmitTest),
                 )),
           ),
         ),

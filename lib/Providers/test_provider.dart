@@ -42,35 +42,35 @@ class TestNotifier extends ChangeNotifier with EquatableMixin {
     }
   }
 
-  setStart(DateTime start) {
+  Future<void> setStart(DateTime start) async {
     if (available && obj != null) {
       obj!.setStart = start;
     } else {
       obj = BlueDyeTest(startTime: start, logs: []);
     }
-    repo!.setValue(obj!);
+    await repo!.setValue(obj!);
   }
 
-  setDuration(Duration dur) {
+  Future<void> setDuration(Duration dur) async {
     if (!available) return;
     obj!.finished = dur;
-    repo!.setValue(obj!);
+    await repo!.setValue(obj!);
   }
 
-  addLog(BMTestLog log) {
+  Future<void> addLog(BMTestLog log) async {
     if (!available) return;
     obj!.addLog(log);
-    repo!.setValue(obj!);
+    await repo!.setValue(obj!);
   }
 
-  submit(DateTime submitTime) {
+  Future<void> submit(DateTime submitTime) async {
     if (!available) return;
-    repo!.submit(submitTime);
+    await repo!.submit(submitTime);
   }
 
-  cancel() {
+  Future<void> cancel() async {
     if (!available) return;
-    repo!.cancel();
+    await repo!.cancel();
   }
 
   TestState get state => stateFromTestOBJ(obj);

@@ -11,15 +11,23 @@ import 'package:stripes_ui/l10n/app_localizations.dart';
 
 import 'blue_recordings.dart';
 
-class TestContent extends ConsumerWidget {
+final testLoading = StateProvider<bool>((ref) => false);
+
+class TestContent extends ConsumerStatefulWidget {
   final ExpandibleController expand;
 
   const TestContent({required this.expand, super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConsumerStatefulWidget> createState() => TestContentState();
+}
+
+class TestContentState extends ConsumerState<TestContent> {
+  @override
+  Widget build(BuildContext context) {
     final TestNotifier test = ref.watch(testHolderProvider);
     final TestState state = test.state;
+    final bool isLoading = ref.watch(testLoading);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,25 +53,36 @@ class TestContent extends ConsumerWidget {
                   child: SizedBox(
                     width: 250,
                     child: FilledButton(
-                      child: Text(AppLocalizations.of(context)!.blueDyeStart),
-                      onPressed: () {
-                        ref.read(testHolderProvider).setStart(DateTime.now());
-                      },
+                      onPressed: isLoading
+                          ? null
+                          : () {
+                              ref.read(testLoading.notifier).state = true;
+                              ref
+                                  .read(testHolderProvider)
+                                  .setStart(DateTime.now());
+                              ref.read(testLoading.notifier).state = false;
+                            },
+                      child: isLoading
+                          ? const CircularProgressIndicator()
+                          : Text(AppLocalizations.of(context)!.blueDyeStart),
                     ),
                   ),
                 )
               ]),
         if (state.testInProgress) const TimerDisplay(),
-        if (state == TestState.logs || state == TestState.logsSubmit)
+        if (state == TestState.logs || state == TestState.logsSubmit) ...[
           const BlueRecordings(),
+        ],
         if (state.testInProgress)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 4.0),
             child: Center(
               child: TextButton(
-                onPressed: () {
-                  _cancelTest(context, ref);
-                },
+                onPressed: isLoading
+                    ? null
+                    : () {
+                        _cancelTest(context, ref);
+                      },
                 child: Text(AppLocalizations.of(context)!.blueDyeCancel),
               ),
             ),
@@ -86,6 +105,7 @@ class TimerDisplay extends ConsumerWidget {
     final TestNotifier test = ref.watch(testHolderProvider);
     final bool isStarted = test.state == TestState.started;
     final DateTime startTime = test.obj!.startTime;
+    final bool isLoading = ref.watch(testLoading);
 
     if (isStarted) {
       return Column(
@@ -99,18 +119,29 @@ class TimerDisplay extends ConsumerWidget {
             AppLocalizations.of(context)!.blueMealDurationTag,
             style: lightBackgroundHeaderStyle,
           ),
-          TimerWidget(start: startTime),
+          Visibility(
+              visible: !isLoading,
+              maintainSize: true,
+              maintainAnimation: true,
+              maintainState: true,
+              child: TimerWidget(start: startTime)),
           Center(
             child: SizedBox(
               width: 250,
               child: FilledButton(
-                child:
-                    Text(AppLocalizations.of(context)!.blueMealFinishedButton),
-                onPressed: () {
-                  ref
-                      .read(testHolderProvider.notifier)
-                      .setDuration(DateTime.now().difference(startTime));
-                },
+                onPressed: isLoading
+                    ? null
+                    : () async {
+                        ref.read(testLoading.notifier).state = true;
+                        await ref
+                            .read(testHolderProvider.notifier)
+                            .setDuration(DateTime.now().difference(startTime));
+                        ref.read(testLoading.notifier).state = false;
+                      },
+                child: isLoading
+                    ? const CircularProgressIndicator()
+                    : Text(
+                        AppLocalizations.of(context)!.blueMealFinishedButton),
               ),
             ),
           ),

@@ -34,7 +34,6 @@ class _TestScreenState extends ConsumerState<TestScreen> {
   @override
   Widget build(BuildContext context) {
     final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
-    final TestNotifier notifier = ref.watch(testHolderProvider);
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
       sliver: SliverList(
