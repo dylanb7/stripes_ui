@@ -253,6 +253,9 @@ class BlueDyeDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           AppLocalizations.of(context)!.startTestEntry,

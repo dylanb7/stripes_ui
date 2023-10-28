@@ -590,7 +590,7 @@ class _SeverityPainWidgetState extends ConsumerState<SeverityPainWidget> {
     final num? res = response();
     final bool tried = ref.watch(continueTried);
     final bool errorHighlight =
-        tried && !widget.questionsListener.pending.contains(widget.question);
+        tried && widget.questionsListener.pending.contains(widget.question);
     return Expandible(
       highlightColor: errorHighlight
           ? Theme.of(context).colorScheme.error

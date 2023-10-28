@@ -66,7 +66,8 @@ class Options extends ConsumerWidget {
               ),
             ),
             ...questionTypes.map((key) {
-              if (key != Symptoms.BM || !state.testInProgress) {
+              if (key != Symptoms.BM ||
+                  (state != TestState.logs || state != TestState.logsSubmit)) {
                 return RecordButton(key, (context) {
                   context
                       .pushNamed('recordType', pathParameters: {'type': key});
