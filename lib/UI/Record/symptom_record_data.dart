@@ -3,7 +3,7 @@ import 'package:stripes_ui/UI/Record/question_screen.dart';
 class SymptomRecordData {
   final QuestionsListener? listener;
 
-  final bool? isEditing;
+  final String? editId;
 
   final DateTime? submitTime;
 
@@ -12,5 +12,5 @@ class SymptomRecordData {
   static const empty = SymptomRecordData();
 
   const SymptomRecordData(
-      {this.listener, this.isEditing, this.submitTime, this.initialDesc});
+      {this.listener, this.editId, this.submitTime, this.initialDesc});
 }

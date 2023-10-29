@@ -140,8 +140,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                               widget.questionListener,
                                           type: widget.type,
                                           desc: widget.data.initialDesc,
-                                          isEdit:
-                                              widget.data.isEditing ?? false,
+                                          isEdit: widget.data.editId != null,
                                           submitTime: widget.data.submitTime,
                                         );
                                       } else {

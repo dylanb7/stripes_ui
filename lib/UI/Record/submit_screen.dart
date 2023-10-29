@@ -23,13 +23,14 @@ class SubmitScreen extends ConsumerStatefulWidget {
 
   final bool isEdit;
 
-  final String? desc;
+  final String? desc, editedId;
 
   const SubmitScreen(
       {required this.questionsListener,
       required this.type,
       this.submitTime,
       this.isEdit = false,
+      this.editedId,
       this.desc,
       Key? key})
       : super(key: key);
@@ -218,6 +219,7 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
         period?.getValue(combinedEntry) ?? combinedEntry;
     final int entryStamp = dateToStamp(submissionEntry);
     final DetailResponse detailResponse = DetailResponse(
+      id: widget.editedId,
       description: _descriptionController.text,
       responses:
           widget.questionsListener.questions.values.toList(growable: false),

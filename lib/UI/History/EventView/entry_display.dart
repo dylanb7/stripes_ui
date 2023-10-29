@@ -120,7 +120,7 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
     context.pushNamed('recordType',
         pathParameters: {'type': routeName},
         extra: SymptomRecordData(
-            isEditing: true,
+            editId: event.id,
             listener: questionsListener,
             submitTime: date,
             initialDesc: event.description));
