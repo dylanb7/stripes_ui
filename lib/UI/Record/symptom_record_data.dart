@@ -5,6 +5,8 @@ class SymptomRecordData {
 
   final String? editId;
 
+  final bool? isEdit;
+
   final DateTime? submitTime;
 
   final String? initialDesc;
@@ -12,5 +14,9 @@ class SymptomRecordData {
   static const empty = SymptomRecordData();
 
   const SymptomRecordData(
-      {this.listener, this.editId, this.submitTime, this.initialDesc});
+      {this.listener,
+      this.isEdit,
+      this.editId,
+      this.submitTime,
+      this.initialDesc});
 }
