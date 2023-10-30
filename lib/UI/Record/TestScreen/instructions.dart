@@ -279,11 +279,12 @@ class LabeledList extends StatelessWidget {
     return Container(
         alignment: Alignment.centerLeft,
         decoration: BoxDecoration(
-            color: highlight
-                ? Theme.of(context).colorScheme.onPrimaryContainer
-                : null,
             borderRadius: const BorderRadius.all(Radius.circular(6.0)),
-            border: highlight ? Border.all(width: 2.0) : null),
+            border: highlight
+                ? Border.all(
+                    width: 2.0,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer)
+                : null),
         padding: const EdgeInsets.all(4.0),
         child: titleWidget);
   }
