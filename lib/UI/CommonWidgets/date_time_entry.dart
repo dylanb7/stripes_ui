@@ -224,13 +224,12 @@ class DateTimeHolder extends StatelessWidget {
             Text(
               text,
               textAlign: TextAlign.left,
-              style: lightBackgroundStyle,
             ),
           child,
           if (errorText != null)
             Text(
               errorText!,
-              style: errorStyle,
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
             )
         ],
       ),

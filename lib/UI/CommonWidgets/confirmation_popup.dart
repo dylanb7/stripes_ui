@@ -142,7 +142,8 @@ class BasicButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 6.0),
         child: Text(
           text,
-          style: darkBackgroundHeaderStyle.copyWith(fontSize: 20),
+          style:
+              Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 20),
         ),
       ),
     );
