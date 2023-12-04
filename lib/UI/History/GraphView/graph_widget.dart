@@ -70,7 +70,6 @@ class GraphWidget extends ConsumerWidget {
         Card(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
-          elevation: 6.0,
           child: Padding(
             padding: const EdgeInsets.all(10.0),
             child: Column(

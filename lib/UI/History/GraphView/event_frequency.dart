@@ -57,7 +57,6 @@ class EventFrequency extends ConsumerWidget {
         Card(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
-          elevation: 6.0,
           child: Column(
             children: [
               const SizedBox(
