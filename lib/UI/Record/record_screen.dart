@@ -4,11 +4,14 @@ import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/RepositoryBase/StampBase/stamp.dart';
 import 'package:stripes_backend_helper/TestingReposImpl/test_question_repo.dart';
 import 'package:stripes_backend_helper/date_format.dart';
+import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
 import 'package:stripes_ui/UI/PatientManagement/patient_changer.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
+import 'package:stripes_ui/UI/Record/question_screen.dart';
+import 'package:stripes_ui/UI/Record/symptom_record_data.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
@@ -44,8 +47,8 @@ class Options extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final List<String> questionTypes =
-        ref.watch(questionSplitProvider).keys.toList();
+    final Map<String, RecordPath> recordPaths = ref.watch(pageProvider);
+    final List<String> questionTypes = recordPaths.keys.toList();
     final TestState state = ref.watch(testHolderProvider).state;
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -65,6 +68,9 @@ class Options extends ConsumerWidget {
               ),
             ),
             ...questionTypes.map((key) {
+              if (recordPaths[key]?.period != null) {
+                return CheckInButton(type: key, path: recordPaths[key]!);
+              }
               if (key != Symptoms.BM ||
                   (state != TestState.logs && state != TestState.logsSubmit)) {
                 return RecordButton(key, (context) {
@@ -148,6 +154,79 @@ class LastEntryText extends ConsumerWidget {
       lastEntry,
       style: darkBackgroundStyle.copyWith(fontSize: 16.0),
     );
+  }
+}
+
+class CheckInButton extends ConsumerWidget {
+  final String type;
+
+  final RecordPath path;
+
+  final String? text;
+
+  const CheckInButton(
+      {required this.type, required this.path, this.text, super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final StampNotifier notifier = ref.watch(stampHolderProvider);
+    final DateTime? searchTime = path.period?.getValue(DateTime.now());
+    DetailResponse? submission;
+    if (searchTime != null) {
+      notifier.changeEarliest(searchTime);
+      List<Stamp> stamps = notifier.stamps
+          .where((element) =>
+              element.stamp == dateToStamp(searchTime) && element.type == type)
+          .toList();
+      submission = stamps.isNotEmpty ? stamps[0] as DetailResponse : null;
+    }
+
+    return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5.0),
+        child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT / 1.5),
+            child: OutlinedButton(
+              onPressed: () {
+                if (submission != null) {
+                  String? routeName = submission.type;
+
+                  final QuestionsListener questionsListener =
+                      QuestionsListener();
+                  for (Response res in submission.responses) {
+                    questionsListener.addResponse(res);
+                  }
+
+                  context.pushNamed('recordType',
+                      pathParameters: {'type': routeName},
+                      extra: SymptomRecordData(
+                          isEdit: true,
+                          editId: submission.id,
+                          listener: questionsListener,
+                          submitTime: searchTime,
+                          initialDesc: submission.description));
+                } else {
+                  context.pushNamed(
+                    'recordType',
+                    pathParameters: {'type': type},
+                  );
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 10.0, vertical: 15.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(text ?? type, style: lightBackgroundHeaderStyle),
+                    const Icon(
+                      Icons.add,
+                      size: 35,
+                    )
+                  ],
+                ),
+              ),
+            ).showCursorOnHover));
   }
 }
 

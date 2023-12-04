@@ -42,7 +42,9 @@ class StampNotifier extends ChangeNotifier {
   }
 
   changeEarliest(DateTime time) {
-    stampRepo?.earliestDate = time;
+    if (stampRepo?.earliest != null && time.isBefore(stampRepo!.earliest!)) {
+      stampRepo?.earliestDate = time;
+    }
   }
 
   @override
