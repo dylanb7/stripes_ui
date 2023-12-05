@@ -38,10 +38,8 @@ class DateControl extends ConsumerWidget {
                       _shift(ref, ShiftDirection.past, shiftAmount);
                     },
                     icon: Icon(
-                      Icons.keyboard_arrow_right,
-                      color: forwardDisabled
-                          ? Theme.of(context).disabledColor
-                          : Theme.of(context).colorScheme.secondary,
+                      Icons.keyboard_arrow_left,
+                      color: Theme.of(context).colorScheme.secondary,
                     ),
                   ),
                 ),

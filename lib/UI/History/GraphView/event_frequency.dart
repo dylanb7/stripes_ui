@@ -43,12 +43,12 @@ class EventFrequency extends ConsumerWidget {
         const SizedBox(
           height: 14.0,
         ),
-        FittedBox(
+        const FittedBox(
           fit: BoxFit.scaleDown,
           child: Text(
             'Events by Category',
             maxLines: 1,
-            style: darkBackgroundScreenHeaderStyle.copyWith(fontSize: 34.0),
+            style: darkBackgroundScreenHeaderStyle,
           ),
         ),
         const SizedBox(

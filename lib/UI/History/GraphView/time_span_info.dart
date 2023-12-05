@@ -47,14 +47,16 @@ class TimeSpanInfo extends ConsumerWidget {
                   children: [
                     const Text(
                       'Events',
-                      style: lightBackgroundHeaderStyle,
+                      style: lightBackgroundStyle,
                     ),
-                    Text('${stamps.length}', style: lightBackgroundStyle)
+                    Text('${stamps.length}',
+                        style: lightBackgroundStyle.copyWith(
+                            fontWeight: FontWeight.bold))
                   ],
                 )),
                 const VerticalDivider(
                   width: 5,
-                  thickness: 2,
+                  thickness: 1,
                   indent: 25,
                   endIndent: 2,
                   color: Colors.black54,
@@ -77,7 +79,7 @@ class TimeSpanInfo extends ConsumerWidget {
                 )),
                 const VerticalDivider(
                   width: 5,
-                  thickness: 2,
+                  thickness: 1,
                   indent: 25,
                   endIndent: 2,
                   color: Colors.black54,

@@ -37,12 +37,12 @@ class GraphWidget extends ConsumerWidget {
         const SizedBox(
           height: 14.0,
         ),
-        FittedBox(
+        const FittedBox(
           fit: BoxFit.contain,
           child: Text(
             'Behavior Frequency',
             maxLines: 1,
-            style: darkBackgroundScreenHeaderStyle.copyWith(fontSize: 34.0),
+            style: darkBackgroundScreenHeaderStyle,
           ),
         ),
         const SizedBox(
