@@ -36,7 +36,6 @@ class TimeSpanInfo extends ConsumerWidget {
           child: Card(
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15.0)),
-            elevation: 8.0,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisAlignment: MainAxisAlignment.start,
@@ -50,11 +49,7 @@ class TimeSpanInfo extends ConsumerWidget {
                       'Events',
                       style: lightBackgroundHeaderStyle,
                     ),
-                    Text(
-                      '${stamps.length}',
-                      style: lightBackgroundStyle.copyWith(
-                          fontWeight: FontWeight.bold),
-                    )
+                    Text('${stamps.length}', style: lightBackgroundStyle)
                   ],
                 )),
                 const VerticalDivider(

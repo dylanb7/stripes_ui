@@ -37,8 +37,11 @@ class DateControl extends ConsumerWidget {
                     onPressed: () {
                       _shift(ref, ShiftDirection.past, shiftAmount);
                     },
-                    icon: const Icon(
-                      Icons.keyboard_arrow_left,
+                    icon: Icon(
+                      Icons.keyboard_arrow_right,
+                      color: forwardDisabled
+                          ? Theme.of(context).disabledColor
+                          : Theme.of(context).colorScheme.secondary,
                     ),
                   ),
                 ),
@@ -47,7 +50,6 @@ class DateControl extends ConsumerWidget {
                 ),
                 Expanded(
                   child: Card(
-                    elevation: 8.0,
                     margin: EdgeInsets.zero,
                     shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(15.0))),
@@ -97,7 +99,6 @@ class DateControl extends ConsumerWidget {
   Widget _buttonWrap({required Widget child}) => Card(
         margin: EdgeInsets.zero,
         shape: const CircleBorder(),
-        elevation: 6.0,
         child: child,
       );
 }

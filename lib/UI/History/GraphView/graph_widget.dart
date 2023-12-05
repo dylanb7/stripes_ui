@@ -96,6 +96,9 @@ class GraphWidget extends ConsumerWidget {
             ),
           ),
         ),
+        const SizedBox(
+          height: 35.0,
+        )
       ],
     );
   }
@@ -344,9 +347,7 @@ class SelectBehaviorOverlay extends ConsumerWidget {
           constraints: const BoxConstraints(maxWidth: 450),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: DecoratedBox(
-              decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(15.0))),
+            child: Card(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(children: [
