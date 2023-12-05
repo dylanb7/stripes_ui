@@ -28,7 +28,7 @@ class GenderDropdown extends FormField<String> {
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          vertical: 5, horizontal: 5),
+                          vertical: 0, horizontal: 0),
                       decoration: BoxDecoration(
                           border: state.errorText == null
                               ? Border.all(

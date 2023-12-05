@@ -38,8 +38,8 @@ class CreatePatient extends ConsumerWidget {
                 TextSpan(
                     text: '#1',
                     style: darkBackgroundHeaderStyle.copyWith(
-                      color: Theme.of(context).colorScheme.secondary,
-                    ))
+                        color: Theme.of(context).colorScheme.secondary,
+                        fontSize: 28))
               ])),
           Text(
             'Please fill in the information for your first patient',
