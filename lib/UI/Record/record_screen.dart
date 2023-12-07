@@ -220,9 +220,10 @@ class CheckInButton extends ConsumerWidget {
                   children: [
                     Text(text ?? type, style: lightBackgroundHeaderStyle),
                     if (searchTime != null)
-                      CheckIndicator(
+                      Expanded(
+                          child: CheckIndicator(
                         checked: submission != null,
-                      )
+                      ))
                     else
                       const Icon(
                         Icons.add,
