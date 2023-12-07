@@ -290,6 +290,7 @@ class _BarGraphState extends ConsumerState<BarGraph> {
       rightTitles: AxisTitles(
         sideTitles: SideTitles(
           showTitles: true,
+          reservedSize: 24.0,
           getTitlesWidget: (double val, TitleMeta meta) {
             if (val != val.ceilToDouble()) return empty;
             return SideTitleWidget(
@@ -298,12 +299,12 @@ class _BarGraphState extends ConsumerState<BarGraph> {
         ),
       ),
       bottomTitles: AxisTitles(
-        axisNameSize: 25.0,
         axisNameWidget: Text(
           getLabel() ?? "",
           style: lightBackgroundStyle,
         ),
         sideTitles: SideTitles(
+          reservedSize: 24.0,
           showTitles: true,
           getTitlesWidget: (double val, TitleMeta meta) {
             final DateTime? time = widget.graphData.labels[val.toInt()];
