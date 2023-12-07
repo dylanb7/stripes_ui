@@ -301,7 +301,7 @@ class _BarGraphState extends ConsumerState<BarGraph> {
         axisNameSize: 25.0,
         axisNameWidget: Text(
           getLabel() ?? "",
-          style: lightBackgroundHeaderStyle,
+          style: lightBackgroundStyle,
         ),
         sideTitles: SideTitles(
           showTitles: true,

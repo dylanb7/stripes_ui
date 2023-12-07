@@ -349,6 +349,7 @@ final orderedBehaviorProvider =
 
   GraphChoice graph =
       ref.watch(historyLocationProvider.select((value) => value.graph));
+
   DateTime end =
       ref.watch(filtersProvider.select((value) => value.end)) ?? DateTime.now();
 
