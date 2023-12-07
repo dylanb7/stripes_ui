@@ -246,15 +246,18 @@ class CheckIndicator extends StatelessWidget {
     return SizedBox(
       width: 35,
       height: 35,
-      child: Container(
-        decoration: BoxDecoration(
-            border: Border.all(
-                width: 2.0, color: Theme.of(context).colorScheme.primary)),
-        child: checked
-            ? const SizedBox.expand(
-                child: FittedBox(fit: BoxFit.fill, child: Icon(Icons.check)))
-            : null,
-      ),
+      child: AspectRatio(
+          aspectRatio: 1.0,
+          child: Container(
+            decoration: BoxDecoration(
+                border: Border.all(
+                    width: 2.0, color: Theme.of(context).colorScheme.primary)),
+            child: checked
+                ? const SizedBox.expand(
+                    child:
+                        FittedBox(fit: BoxFit.fill, child: Icon(Icons.check)))
+                : null,
+          )),
     );
   }
 }
