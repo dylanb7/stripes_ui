@@ -109,29 +109,28 @@ CategoryBehaviorMaps _generateValueMaps(
 @immutable
 class GraphData extends Equatable {
   final DateTime? start, end;
-  final Map<int, GraphLabel> labels;
+  final Map<int, DateTime> labels;
   final Map<String, GraphBarData> behaviorBarData;
-  final String axisLabel;
+  final GraphChoice period;
+
   const GraphData(
       {required this.start,
       required this.end,
       required this.behaviorBarData,
       required this.labels,
-      required this.axisLabel});
+      required this.period});
 
   factory GraphData.empty() => const GraphData(
-      start: null, end: null, behaviorBarData: {}, labels: {}, axisLabel: '');
+      start: null,
+      end: null,
+      behaviorBarData: {},
+      labels: {},
+      period: GraphChoice.day);
 
   bool get isEmpty => this == GraphData.empty();
 
   @override
-  List<Object?> get props => [start, end, labels, behaviorBarData, axisLabel];
-}
-
-@immutable
-class GraphLabel {
-  final String value, abr;
-  const GraphLabel(this.value, this.abr);
+  List<Object?> get props => [start, end, labels, behaviorBarData, period];
 }
 
 @immutable
@@ -147,8 +146,11 @@ class GraphBarData extends Equatable {
       this.minSeverity,
       this.maxSeverity});
 
-  factory GraphBarData.empty() =>
-      const GraphBarData(barData: [], maxHeight: 0, isSeverity: false);
+  factory GraphBarData.empty() => const GraphBarData(
+        barData: [],
+        maxHeight: 0,
+        isSeverity: false,
+      );
 
   bool get isEmpty => this == GraphBarData.empty();
 
@@ -223,19 +225,19 @@ GraphBarData _bucketEvents(
       minSeverity: numeric.min);
 }
 
-Map<int, GraphLabel> _iterLabels(
-    int bucketDivisor,
-    int detail,
-    Duration shiftAmount,
-    DateTime startDate,
-    GraphLabel Function(DateTime) convert) {
-  Map<int, GraphLabel> labels = {};
+Map<int, DateTime> _iterLabels(
+  int bucketDivisor,
+  int detail,
+  Duration shiftAmount,
+  DateTime startDate,
+) {
+  Map<int, DateTime> labels = {};
   final double inc = shiftAmount.inMilliseconds / bucketDivisor.toDouble();
   final double start = dateToStamp(startDate).toDouble();
   for (int i = 0; i < bucketDivisor; i++) {
     if (bucketDivisor % detail == 0) {
       DateTime dateTime = dateFromStamp((start + (inc * i)).toInt());
-      labels[i] = convert(dateTime);
+      labels[i] = dateTime;
     }
   }
   return labels;
@@ -268,49 +270,21 @@ GraphData _generateData(Available availible, GraphChoice graph, DateTime end,
   final int bucketDivisor = buckets[graph]!;
   final Duration shiftAmount = graphToDuration[graph]!;
   final DateTime startDate = end.subtract(shiftAmount);
-  Map<int, GraphLabel> labels = {};
-  String axisLabel = '';
+  Map<int, DateTime> labels = {};
   switch (graph) {
     case GraphChoice.day:
-      labels = _iterLabels(bucketDivisor, 4, shiftAmount, startDate, (date) {
-        final TimeOfDay time = TimeOfDay.fromDateTime(date);
-        /*
-        final String timeVal = timeString(time, hasPeriod: false);
-        final String timePeriod = timeString(time);
-        return GraphLabel(timePeriod, timeVal);
-        */
-        return GraphLabel('', '');
-      });
-      axisLabel = 'Time';
+      labels = _iterLabels(bucketDivisor, 4, shiftAmount, startDate);
+
       break;
     case GraphChoice.week:
-      labels = _iterLabels(bucketDivisor, 1, shiftAmount, startDate, (date) {
-        /*
-        final String dayVal = date.getDayString();
-        return GraphLabel(dayVal, dayVal.substring(0, 1));*/
-        return GraphLabel('', '');
-      });
-      axisLabel = 'Day';
+      labels = _iterLabels(bucketDivisor, 1, shiftAmount, startDate);
+
       break;
     case GraphChoice.month:
-      labels = _iterLabels(bucketDivisor, 3, shiftAmount, startDate, (date) {
-        /*
-        final String dayVal = date.getDayString();
-        return GraphLabel(dayVal, dayVal.substring(0, 1));
-        */
-        return GraphLabel('', '');
-      });
-      axisLabel = 'Day';
+      labels = _iterLabels(bucketDivisor, 3, shiftAmount, startDate);
       break;
     case GraphChoice.year:
-      labels = _iterLabels(bucketDivisor, 1, shiftAmount, startDate, (date) {
-        /*
-        final String monthVal = date.getMonthString();
-        return GraphLabel(monthVal, monthVal.substring(0, 1));
-        */
-        return GraphLabel('', '');
-      });
-      axisLabel = 'Month';
+      labels = _iterLabels(bucketDivisor, 1, shiftAmount, startDate);
       break;
   }
 
@@ -342,7 +316,7 @@ GraphData _generateData(Available availible, GraphChoice graph, DateTime end,
       end: end,
       behaviorBarData: sorted,
       labels: labels,
-      axisLabel: axisLabel);
+      period: graph);
 }
 
 final resMapProvider =

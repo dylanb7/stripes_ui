@@ -5,15 +5,21 @@ import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/UI/Record/question_screen.dart';
 
 final questionSplitProvider = Provider<Map<String, List<Question>>>((ref) {
-  QuestionHome? home = ref.watch(questionHomeProvider).home?.questions;
+  final QuestionNotifier repo = ref.watch(questionHomeProvider);
+  QuestionRepo? home = repo.home;
   if (home == null) return {};
   Map<String, List<Question>> questions = {};
-  for (Question question in home.all.values) {
+  for (Question question in home.questions.all.values) {
     final String type = question.type;
     if (questions.containsKey(type)) {
       questions[type]!.add(question);
     } else {
       questions[type] = [question];
+    }
+  }
+  for (final layout in home.getLayouts().entries) {
+    if (!questions.containsKey(layout.key)) {
+      questions[layout.key] = [];
     }
   }
   return questions;

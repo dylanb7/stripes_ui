@@ -3,7 +3,9 @@ import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:stripes_ui/Providers/graph_data_provider.dart';
+import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 
@@ -181,9 +183,11 @@ class _BarGraphState extends ConsumerState<BarGraph> {
               ),
               maxY: graphBarData.maxHeight + 1.0,
               gridData: FlGridData(
-                show: true,
-                getDrawingVerticalLine: (value) => FlLine(dashArray: [4, 8]),
-                getDrawingHorizontalLine: (value) => FlLine(dashArray: [4, 8]),
+                show: false,
+                getDrawingVerticalLine: (value) =>
+                    const FlLine(dashArray: [4, 8]),
+                getDrawingHorizontalLine: (value) =>
+                    const FlLine(dashArray: [4, 8]),
               ),
               borderData: FlBorderData(
                   show: true,
@@ -207,7 +211,7 @@ class _BarGraphState extends ConsumerState<BarGraph> {
                   });
                 },
               ),
-              titlesData: _getTitles(),
+              titlesData: _getTitles(context),
             ),
           ),
         ),
@@ -215,16 +219,72 @@ class _BarGraphState extends ConsumerState<BarGraph> {
     );
   }
 
-  FlTitlesData? _getTitles() {
+  FlTitlesData? _getTitles(BuildContext context) {
+    String locale = Localizations.localeOf(context).languageCode;
+    GraphChoice choice = widget.graphData.period;
+    Widget getDateString(DateTime time) {
+      switch (choice) {
+        case GraphChoice.day:
+          return SideTitleWidget(
+              axisSide: AxisSide.bottom,
+              child: Text(DateFormat.Hm(locale).format(time)));
+        case GraphChoice.week:
+          return SideTitleWidget(
+              axisSide: AxisSide.bottom,
+              child: Text(DateFormat.E(locale).format(time)));
+        case GraphChoice.month:
+          final String day = DateFormat.EEEE(locale).format(time);
+          return Tooltip(
+            message: day,
+            showDuration: Duration.zero,
+            child: SideTitleWidget(
+                axisSide: AxisSide.bottom, child: Text(day.substring(0, 1))),
+          );
+        case GraphChoice.year:
+          return SideTitleWidget(
+              axisSide: AxisSide.bottom,
+              child: Text(DateFormat.MMM(locale).format(time)));
+      }
+    }
+
+    String? getLabel() {
+      final DateTime? refDate = widget.graphData.end;
+      if (refDate == null) return null;
+      final DateFormat yearFormat = DateFormat.yMMMd(locale);
+
+      switch (choice) {
+        case GraphChoice.day:
+          return yearFormat.format(refDate);
+        case GraphChoice.week:
+          final DateTime? startDate = widget.graphData.start;
+          if (startDate == null) {
+            return yearFormat.format(refDate);
+          }
+          final bool sameYear = refDate.year == startDate.year;
+          final bool sameMonth = sameYear && refDate.month == startDate.month;
+          final String firstPortion = sameYear
+              ? DateFormat.MMMd(locale).format(startDate)
+              : yearFormat.format(startDate);
+          final String lastPortion = sameMonth
+              ? '${DateFormat.d(locale).format(refDate)}, ${DateFormat.y(locale).format(refDate)}'
+              : yearFormat.format(refDate);
+          return '$firstPortion - $lastPortion';
+        case GraphChoice.month:
+          return DateFormat.yMMM(locale).format(refDate);
+        case GraphChoice.year:
+          return DateFormat.y(locale).format(refDate);
+      }
+    }
+
     const SideTitleWidget empty = SideTitleWidget(
       axisSide: AxisSide.bottom,
       child: SizedBox(),
     );
     return FlTitlesData(
-      leftTitles: AxisTitles(
+      leftTitles: const AxisTitles(
         sideTitles: SideTitles(showTitles: false),
       ),
-      topTitles: AxisTitles(
+      topTitles: const AxisTitles(
         sideTitles: SideTitles(showTitles: false),
       ),
       rightTitles: AxisTitles(
@@ -233,30 +293,22 @@ class _BarGraphState extends ConsumerState<BarGraph> {
           getTitlesWidget: (double val, TitleMeta meta) {
             if (val != val.ceilToDouble()) return empty;
             return SideTitleWidget(
-                space: 12.0,
-                axisSide: AxisSide.right,
-                child: Text('${val.toInt()}'));
+                axisSide: AxisSide.right, child: Text('${val.toInt()}'));
           },
         ),
       ),
       bottomTitles: AxisTitles(
         axisNameSize: 25.0,
         axisNameWidget: Text(
-          widget.graphData.axisLabel,
+          getLabel() ?? "",
           style: lightBackgroundHeaderStyle,
         ),
         sideTitles: SideTitles(
           showTitles: true,
           getTitlesWidget: (double val, TitleMeta meta) {
-            final GraphLabel? label = widget.graphData.labels[val.toInt()];
-            return label == null
-                ? empty
-                : Tooltip(
-                    message: label.value,
-                    showDuration: Duration.zero,
-                    child: SideTitleWidget(
-                        axisSide: AxisSide.bottom, child: Text(label.abr)),
-                  );
+            final DateTime? time = widget.graphData.labels[val.toInt()];
+            if (time == null) return empty;
+            return getDateString(time);
           },
         ),
       ),

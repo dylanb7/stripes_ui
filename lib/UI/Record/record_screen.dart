@@ -219,14 +219,39 @@ class CheckInButton extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(text ?? type, style: lightBackgroundHeaderStyle),
-                    const Icon(
-                      Icons.add,
-                      size: 35,
-                    )
+                    if (searchTime != null)
+                      CheckIndicator(
+                        checked: submission != null,
+                      )
+                    else
+                      const Icon(
+                        Icons.add,
+                        size: 35,
+                      )
                   ],
                 ),
               ),
             ).showCursorOnHover));
+  }
+}
+
+class CheckIndicator extends StatelessWidget {
+  final bool checked;
+
+  const CheckIndicator({required this.checked, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return AspectRatio(
+      aspectRatio: 1.0,
+      child: Container(
+        decoration: BoxDecoration(border: Border.all(width: 2.0)),
+        child: checked
+            ? const SizedBox.expand(
+                child: FittedBox(fit: BoxFit.fill, child: Icon(Icons.check)))
+            : null,
+      ),
+    );
   }
 }
 
