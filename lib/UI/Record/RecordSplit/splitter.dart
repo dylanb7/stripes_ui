@@ -327,7 +327,11 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
   _showErrorPrevention(BuildContext context) {
     if (mapEquals(original, widget.questionListener.questions)) {
       ref.read(continueTried.notifier).state = false;
-      context.pop();
+      if (context.canPop()) {
+        context.pop();
+      } else {
+        context.go(Routes.HOME);
+      }
       return;
     }
 
@@ -461,6 +465,7 @@ class ErrorPrevention extends ConsumerWidget {
 
   _dismiss(BuildContext context, WidgetRef ref) {
     _closeOverlay(context, ref);
+
     context.pop();
   }
 
