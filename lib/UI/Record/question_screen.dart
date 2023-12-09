@@ -84,6 +84,9 @@ class QuestionScreen extends ConsumerWidget {
             } else if (question is Numeric) {
               return SeverityWidget(
                   question: question, questionsListener: questionsListener);
+            } else if (question is FreeResponse) {
+              FreeResponseEntry(
+                  question: question, listener: questionsListener);
             }
             return Text(question.prompt);
           }).toList(),
@@ -745,6 +748,198 @@ class SeverityScreenWidgetState extends State<SeverityScreenWidget> {
     super.dispose();
   }
 }
+
+class FreeResponseEntry extends StatefulWidget {
+  final FreeResponse question;
+
+  final QuestionsListener listener;
+
+  const FreeResponseEntry(
+      {required this.question, required this.listener, super.key});
+
+  @override
+  State<StatefulWidget> createState() => _FreeResponseEntryState();
+}
+
+class _FreeResponseEntryState extends State<FreeResponseEntry> {
+  final TextEditingController controller = TextEditingController();
+
+  @override
+  void initState() {
+    final Response? res = widget.listener.fromQuestion(widget.question);
+    if (res != null) {
+      controller.text = (res as OpenResponse).response;
+    }
+    controller.addListener(_onEdit);
+
+    super.initState();
+  }
+
+  _onEdit() {
+    widget.listener.addResponse(OpenResponse(
+        question: widget.question,
+        stamp: dateToStamp(DateTime.now()),
+        response: controller.text));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final InputBorder borderStyle = OutlineInputBorder(
+        borderSide: controller.text.isEmpty
+            ? const BorderSide(color: Colors.grey, width: 1)
+            : BorderSide(
+                color: Theme.of(context).colorScheme.secondary, width: 1),
+        borderRadius: const BorderRadius.all(Radius.circular(8.0)));
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Card(
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(
+            Radius.circular(15.0),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Text(
+                  widget.question.prompt,
+                  textAlign: TextAlign.center,
+                  style: lightBackgroundStyle,
+                ),
+              ),
+              const SizedBox(
+                width: 8.0,
+              ),
+              SizedBox(
+                height: 120,
+                child: TextField(
+                  controller: controller,
+                  maxLines: null,
+                  keyboardType: TextInputType.multiline,
+                  textCapitalization: TextCapitalization.sentences,
+                  textInputAction: TextInputAction.newline,
+                  expands: true,
+                  textAlignVertical: TextAlignVertical.top,
+                  decoration: InputDecoration(
+                      focusedBorder: borderStyle,
+                      border: borderStyle,
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 8.0, vertical: 5.0)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    widget.listener.removeListener(_onEdit);
+    super.dispose();
+  }
+}
+
+/*class DependentEntry extends StatefulWidget {
+  final bool Function(QuestionsListener) showing;
+
+  final QuestionsListener listener;
+
+  const DependentEntry(
+      {super.key, required this.listener, required this.showing});
+
+  @override
+  State<StatefulWidget> createState() => DependentEntryState();
+}
+
+class DependentEntryState extends State<DependentEntry> {
+  final TextEditingController controller = TextEditingController();
+
+  bool showing = false;
+
+  @override
+  void initState() {
+    final Response? res = widget.listener.fromQuestion(widget.question);
+    if (res != null) {
+      controller.text = (res as OpenResponse).response;
+    }
+    showing = _showing();
+    controller.addListener(_onEdit);
+    widget.listener.addListener(_updateShowing);
+
+    super.initState();
+  }
+
+  bool _showing() {
+    final List<Question> prev = widget.listener.questions.keys
+        .where((element) => element.id == s1)
+        .toList();
+
+    if (prev.isEmpty) {
+      return false;
+    }
+    final MultiResponse val =
+        widget.listener.fromQuestion(prev[0]) as MultiResponse;
+    if (val.index == 0) {
+      return false;
+    }
+
+    return true;
+  }
+
+  _updateShowing() {
+    final List<Question> prev = widget.listener.questions.keys
+        .where((element) => element.id == s1)
+        .toList();
+
+    if (prev.isEmpty) {
+      showing = false;
+      widget.listener.questions.remove(widget.question);
+      setState(() {});
+      return;
+    }
+    final MultiResponse res =
+        widget.listener.fromQuestion(prev[0]) as MultiResponse;
+    if (res.index == 0) {
+      showing = false;
+      widget.listener.questions.remove(widget.question);
+      setState(() {});
+
+      return;
+    }
+
+    showing = true;
+    widget.listener.questions[widget.question] = OpenResponse(
+        question: widget.question,
+        stamp: dateToStamp(DateTime.now()),
+        response: controller.text);
+    setState(() {});
+  }
+
+  _onEdit() {
+    widget.listener.addResponse(OpenResponse(
+        question: widget.question,
+        stamp: dateToStamp(DateTime.now()),
+        response: controller.text));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!showing) return Container();
+  }
+
+  @override
+  void dispose() {
+    widget.listener.removeListener(_updateShowing);
+    super.dispose();
+  }
+}*/
 
 class BMSlider extends ConsumerStatefulWidget {
   final QuestionsListener listener;

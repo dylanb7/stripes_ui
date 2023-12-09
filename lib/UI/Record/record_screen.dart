@@ -250,7 +250,7 @@ class CheckIndicator extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
                 border: Border.all(
-                    width: 2.0, color: Theme.of(context).colorScheme.primary)),
+                    width: 3.0, color: Theme.of(context).colorScheme.primary)),
             child: checked
                 ? const SizedBox.expand(
                     child:
