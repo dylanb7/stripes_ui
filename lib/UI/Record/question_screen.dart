@@ -85,7 +85,7 @@ class QuestionScreen extends ConsumerWidget {
               return SeverityWidget(
                   question: question, questionsListener: questionsListener);
             } else if (question is FreeResponse) {
-              FreeResponseEntry(
+              return FreeResponseEntry(
                   question: question, listener: questionsListener);
             }
             return Text(question.prompt);
