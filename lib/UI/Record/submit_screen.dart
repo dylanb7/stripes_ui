@@ -88,19 +88,25 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
         const SizedBox(
           height: 40,
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            DateWidget(
-              dateListener: _dateListener,
-              enabled: !widget.isEdit,
-            ),
-            TimeWidget(
-              timeListener: _timeListener,
-              enabled: !widget.isEdit,
-            ),
-          ],
-        ),
+        if (period != null)
+          Text(
+            period.getRangeString(DateTime.now(), context),
+            style: lightBackgroundStyle,
+          )
+        else
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              DateWidget(
+                dateListener: _dateListener,
+                enabled: !widget.isEdit,
+              ),
+              TimeWidget(
+                timeListener: _timeListener,
+                enabled: !widget.isEdit,
+              ),
+            ],
+          ),
         if (isBlueRecord) ...[
           const SizedBox(
             height: 18.0,
