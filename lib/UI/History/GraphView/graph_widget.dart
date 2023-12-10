@@ -488,20 +488,9 @@ class ColorKey extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: keys
-                .map(
-                  (text) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 3.0),
-                    child: Text(
-                      text,
-                      style: lightBackgroundStyle,
-                    ),
-                  ),
-                )
-                .toList()),
+        DecoratedBox(
+          decoration: BoxDecoration(gradient: LinearGradient(colors: values)),
+        ),
         const SizedBox(
           width: 4.0,
         ),

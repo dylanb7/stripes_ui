@@ -114,6 +114,7 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
           Text(
             AppLocalizations.of(context)!.submitBlueQuestion,
             style: lightBackgroundHeaderStyle,
+            textAlign: TextAlign.center,
           ),
           const SizedBox(
             height: 8.0,
