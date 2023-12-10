@@ -485,33 +485,26 @@ class ColorKey extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        DecoratedBox(
-          decoration: BoxDecoration(gradient: LinearGradient(colors: values)),
-        ),
-        const SizedBox(
-          width: 4.0,
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 5.0),
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: values
-                  .map(
-                    (color) => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 5.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                              color: color, shape: BoxShape.circle),
-                          width: 15.0,
-                          height: 15.0,
-                        )),
-                  )
-                  .toList()),
-        ),
-      ],
-    );
+    return Row(mainAxisSize: MainAxisSize.min, children: [
+      Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: keys
+              .map(
+                (text) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 3.0),
+                  child: Text(
+                    text,
+                    style: lightBackgroundStyle,
+                  ),
+                ),
+              )
+              .toList()),
+      const SizedBox(
+        width: 4.0,
+      ),
+      DecoratedBox(
+          decoration: BoxDecoration(gradient: LinearGradient(colors: values)))
+    ]);
   }
 }
