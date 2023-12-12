@@ -99,13 +99,18 @@ class Options extends ConsumerWidget {
             const SizedBox(
               height: 10.0,
             ),
+            if (checkin.isNotEmpty)
+              Text(
+                AppLocalizations.of(context)!.checkInLabel,
+                style: lightBackgroundHeaderStyle,
+              ),
             ...checkin.keys.map((period) {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     period.getRangeString(DateTime.now(), context),
-                    style: darkBackgroundHeaderStyle,
+                    style: darkBackgroundStyle,
                   ),
                   ...checkin[period]!.map((checkin) => CheckInButton(
                         item: checkin,

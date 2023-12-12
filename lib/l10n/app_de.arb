@@ -1,5 +1,5 @@
 {
-
+    "checkInLabel": "Ankunft",
     "signupWithAccessCode": "Mit Zugangscode anmelden",
     "loginButtonPrefix": "Sie haben schon ein Benutzerkonto? ",
     "loginButtonText": "Anmelden",

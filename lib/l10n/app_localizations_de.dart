@@ -7,6 +7,9 @@ class AppLocalizationsDe extends AppLocalizations {
   AppLocalizationsDe([String locale = 'de']) : super(locale);
 
   @override
+  String get checkInLabel => 'Ankunft';
+
+  @override
   String get signupWithAccessCode => 'Mit Zugangscode anmelden';
 
   @override
