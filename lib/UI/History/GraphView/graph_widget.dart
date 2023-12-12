@@ -481,8 +481,8 @@ class ColorKey extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(mainAxisSize: MainAxisSize.min, children: [
       SizedBox(
-          width: 20.0,
-          height: 60.0,
+          width: 15.0,
+          height: 45.0,
           child: DecoratedBox(
               decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -493,7 +493,7 @@ class ColorKey extends StatelessWidget {
         width: 4.0,
       ),
       Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: keys
               .map(
@@ -502,6 +502,7 @@ class ColorKey extends StatelessWidget {
                   child: Text(
                     text,
                     style: lightBackgroundStyle,
+                    textAlign: TextAlign.left,
                   ),
                 ),
               )
