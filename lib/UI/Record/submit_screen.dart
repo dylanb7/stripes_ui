@@ -70,7 +70,7 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
         Theme.of(context).colorScheme.surface.withOpacity(0.12);
     final Color onPrimary = Theme.of(context).colorScheme.onPrimary;
     final Color onSurface = Theme.of(context).colorScheme.onSurface;
-    Period? period = ref.watch(pageProvider)[widget.type]?.period;
+    Period? period = ref.watch(pagePaths)[widget.type]?.period;
     final isBlueRecord =
         (state == TestState.logs || state == TestState.logsSubmit) &&
             (widget.type == "Poo" || widget.type == Symptoms.BM) &&

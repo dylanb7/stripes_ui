@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:stripes_backend_helper/RepositoryBase/StampBase/stamp.dart';
 import 'package:stripes_backend_helper/TestingReposImpl/test_question_repo.dart';
-import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
@@ -47,7 +45,9 @@ class Options extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final Map<String, RecordPath> recordPaths = ref.watch(pageProvider);
+    final Map<String, RecordPath> recordPaths = ref.watch(recordProvider);
+    final Map<Period, List<CheckinItem>> checkin =
+        ref.watch(checkinProvider(null));
     final List<String> questionTypes = recordPaths.keys.toList();
     final TestState state = ref.watch(testHolderProvider).state;
     return SliverPadding(
@@ -68,9 +68,6 @@ class Options extends ConsumerWidget {
               ),
             ),
             ...questionTypes.map((key) {
-              if (recordPaths[key]?.period != null) {
-                return CheckInButton(type: key, path: recordPaths[key]!);
-              }
               if (key != Symptoms.BM ||
                   (state != TestState.logs && state != TestState.logsSubmit)) {
                 return RecordButton(key, (context) {
@@ -99,6 +96,19 @@ class Options extends ConsumerWidget {
             const SizedBox(
               height: 20.0,
             ),
+            ...checkin.keys.map((period) {
+              return Column(
+                children: [
+                  Text(
+                    period.getRangeString(DateTime.now(), context),
+                    style: darkBackgroundHeaderStyle,
+                  ),
+                  ...checkin[period]!.map((checkin) => CheckInButton(
+                        item: checkin,
+                      ))
+                ],
+              );
+            })
           ],
         ),
       ),
@@ -158,28 +168,14 @@ class LastEntryText extends ConsumerWidget {
 }
 
 class CheckInButton extends ConsumerWidget {
-  final String type;
+  final CheckinItem item;
 
-  final RecordPath path;
-
-  final String? text;
-
-  const CheckInButton(
-      {required this.type, required this.path, this.text, super.key});
+  const CheckInButton({required this.item, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final StampNotifier notifier = ref.watch(stampHolderProvider);
-    final DateTime? searchTime = path.period?.getValue(DateTime.now());
-    DetailResponse? submission;
-    if (searchTime != null) {
-      notifier.changeEarliest(searchTime);
-      List<Stamp> stamps = notifier.stamps
-          .where((element) =>
-              element.stamp == dateToStamp(searchTime) && element.type == type)
-          .toList();
-      submission = stamps.isNotEmpty ? stamps[0] as DetailResponse : null;
-    }
+    final DetailResponse? sub =
+        item.response != null ? item.response as DetailResponse : null;
 
     return Padding(
         padding: const EdgeInsets.symmetric(vertical: 5.0),
@@ -187,12 +183,13 @@ class CheckInButton extends ConsumerWidget {
             constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT / 1.5),
             child: OutlinedButton(
               onPressed: () {
-                if (submission != null) {
-                  String? routeName = submission.type;
+                if (sub != null) {
+                  String? routeName = sub.type;
 
                   final QuestionsListener questionsListener =
                       QuestionsListener();
-                  for (Response res in submission.responses) {
+                  for (Response res
+                      in (item.response as DetailResponse).responses) {
                     questionsListener.addResponse(res);
                   }
 
@@ -200,14 +197,14 @@ class CheckInButton extends ConsumerWidget {
                       pathParameters: {'type': routeName},
                       extra: SymptomRecordData(
                           isEdit: true,
-                          editId: submission.id,
+                          editId: sub.id,
                           listener: questionsListener,
-                          submitTime: searchTime,
-                          initialDesc: submission.description));
+                          submitTime: dateFromStamp(sub.stamp),
+                          initialDesc: sub.description));
                 } else {
                   context.pushNamed(
                     'recordType',
-                    pathParameters: {'type': type},
+                    pathParameters: {'type': item.type},
                   );
                 }
               },
@@ -218,16 +215,10 @@ class CheckInButton extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text(text ?? type, style: lightBackgroundHeaderStyle),
-                    if (searchTime != null)
-                      CheckIndicator(
-                        checked: submission != null,
-                      )
-                    else
-                      const Icon(
-                        Icons.add,
-                        size: 35,
-                      )
+                    Text(item.type, style: lightBackgroundHeaderStyle),
+                    CheckIndicator(
+                      checked: sub != null,
+                    )
                   ],
                 ),
               ),

@@ -56,7 +56,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
   @override
   Widget build(BuildContext context) {
     final List<PageLayout> pages =
-        ref.watch(pageProvider)[widget.type]?.pages ?? [];
+        ref.watch(pagePaths)[widget.type]?.pages ?? [];
     final int length = pages.length;
     final OverlayQuery query = ref.watch(overlayProvider);
     final bool tried = ref.watch(continueTried);
