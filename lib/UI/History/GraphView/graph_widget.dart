@@ -156,13 +156,7 @@ class _BarGraphState extends ConsumerState<BarGraph> {
               const SizedBox(
                 width: 8.0,
               ),
-              ColorKey(keys: [
-                'Severe(${(graphBarData.maxSeverity ?? 5.0)}):',
-                'Mild(${graphBarData.minSeverity ?? 1.0}):'
-              ], values: [
-                severe,
-                mild
-              ]),
+              ColorKey(keys: const ['High', 'Low'], values: [severe, mild]),
               const SizedBox(
                 width: 8.0,
               ),
@@ -486,6 +480,18 @@ class ColorKey extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(mainAxisSize: MainAxisSize.min, children: [
+      SizedBox(
+          width: 20.0,
+          height: 60.0,
+          child: DecoratedBox(
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      colors: values,
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter)))),
+      const SizedBox(
+        width: 4.0,
+      ),
       Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -500,15 +506,6 @@ class ColorKey extends StatelessWidget {
                 ),
               )
               .toList()),
-      const SizedBox(
-        width: 4.0,
-      ),
-      SizedBox(
-          width: 20.0,
-          height: 60.0,
-          child: DecoratedBox(
-              decoration:
-                  BoxDecoration(gradient: LinearGradient(colors: values))))
     ]);
   }
 }
