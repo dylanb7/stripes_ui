@@ -84,32 +84,31 @@ class Options extends ConsumerWidget {
                 endIndent: 15,
                 thickness: 2,
               ),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: Text(
+            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(
                 AppLocalizations.of(context)!.categorySelect,
                 style: darkBackgroundHeaderStyle,
                 textAlign: TextAlign.left,
               ),
-            ),
-            ...questionTypes.map((key) {
-              if (key != Symptoms.BM ||
-                  (state != TestState.logs && state != TestState.logsSubmit)) {
-                return RecordButton(key, (context) {
-                  context
-                      .pushNamed('recordType', pathParameters: {'type': key});
-                });
-              }
-              return RecordButton(
-                key,
-                (context) {
-                  context
-                      .pushNamed('recordType', pathParameters: {'type': key});
-                },
-                subText: AppLocalizations.of(context)!.testInProgressNotif,
-              );
-            }).toList(growable: false),
+              ...questionTypes.map((key) {
+                if (key != Symptoms.BM ||
+                    (state != TestState.logs &&
+                        state != TestState.logsSubmit)) {
+                  return RecordButton(key, (context) {
+                    context
+                        .pushNamed('recordType', pathParameters: {'type': key});
+                  });
+                }
+                return RecordButton(
+                  key,
+                  (context) {
+                    context
+                        .pushNamed('recordType', pathParameters: {'type': key});
+                  },
+                  subText: AppLocalizations.of(context)!.testInProgressNotif,
+                );
+              }).toList(growable: false),
+            ]),
             const Divider(
               height: 20,
               indent: 15,
