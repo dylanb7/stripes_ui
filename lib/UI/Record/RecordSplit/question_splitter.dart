@@ -94,7 +94,7 @@ final checkinProvider =
       ret[searchPeriod]!.add(CheckinItem(
           path: byType.value,
           type: byType.key,
-          response: valid.isEmpty ? null : valid.first as Response));
+          response: valid.isEmpty ? null : valid.first as DetailResponse));
     }
   }
   return ret;
@@ -104,7 +104,7 @@ final checkinProvider =
 class CheckinItem {
   final RecordPath path;
   final String type;
-  final Response? response;
+  final DetailResponse? response;
 
   const CheckinItem(
       {required this.path, required this.type, required this.response});
