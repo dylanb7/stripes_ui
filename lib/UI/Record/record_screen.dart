@@ -58,6 +58,32 @@ class Options extends ConsumerWidget {
             const SizedBox(
               height: 20.0,
             ),
+            if (checkin.isNotEmpty)
+              Text(
+                AppLocalizations.of(context)!.checkInLabel,
+                style: darkBackgroundHeaderStyle,
+              ),
+            ...checkin.keys.map((period) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    period.getRangeString(DateTime.now(), context),
+                    style: darkBackgroundStyle,
+                  ),
+                  ...checkin[period]!.map((checkin) => CheckInButton(
+                        item: checkin,
+                      ))
+                ],
+              );
+            }),
+            if (checkin.isNotEmpty)
+              const Divider(
+                height: 20,
+                indent: 15,
+                endIndent: 15,
+                thickness: 2,
+              ),
             FittedBox(
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerLeft,
@@ -84,40 +110,12 @@ class Options extends ConsumerWidget {
                 subText: AppLocalizations.of(context)!.testInProgressNotif,
               );
             }).toList(growable: false),
-            const SizedBox(
-              height: 10.0,
-            ),
             const Divider(
-              height: 2,
+              height: 20,
               indent: 15,
               endIndent: 15,
               thickness: 2,
             ),
-            const SizedBox(
-              height: 10.0,
-            ),
-            const SizedBox(
-              height: 10.0,
-            ),
-            if (checkin.isNotEmpty)
-              Text(
-                AppLocalizations.of(context)!.checkInLabel,
-                style: darkBackgroundHeaderStyle,
-              ),
-            ...checkin.keys.map((period) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    period.getRangeString(DateTime.now(), context),
-                    style: darkBackgroundStyle,
-                  ),
-                  ...checkin[period]!.map((checkin) => CheckInButton(
-                        item: checkin,
-                      ))
-                ],
-              );
-            }),
             const SizedBox(
               height: 20.0,
             ),
