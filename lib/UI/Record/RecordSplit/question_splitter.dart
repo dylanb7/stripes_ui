@@ -72,8 +72,7 @@ final checkinProvider =
       ref.watch(_pageSplitProvider.select((value) => value.checkinPaths));
 
   final DateTime searchTime = time ?? DateTime.now();
-  final List<Stamp> stamps =
-      ref.watch(stampHolderProvider.select((value) => value.stamps));
+  final List<Stamp> stamps = ref.watch(stampHolderProvider).stamps;
   final Map<Period, List<CheckinItem>> ret = {};
 
   for (final byPeriod in checkIns.entries) {
