@@ -85,7 +85,7 @@ class Options extends ConsumerWidget {
               );
             }).toList(growable: false),
             const SizedBox(
-              height: 20.0,
+              height: 10.0,
             ),
             const Divider(
               height: 2,
@@ -94,10 +94,14 @@ class Options extends ConsumerWidget {
               thickness: 2,
             ),
             const SizedBox(
-              height: 20.0,
+              height: 10.0,
+            ),
+            const SizedBox(
+              height: 10.0,
             ),
             ...checkin.keys.map((period) {
               return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     period.getRangeString(DateTime.now(), context),
@@ -108,7 +112,10 @@ class Options extends ConsumerWidget {
                       ))
                 ],
               );
-            })
+            }),
+            const SizedBox(
+              height: 20.0,
+            ),
           ],
         ),
       ),

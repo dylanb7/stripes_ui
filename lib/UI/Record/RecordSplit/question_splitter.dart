@@ -94,7 +94,7 @@ final checkinProvider =
       ret[searchPeriod]!.add(CheckinItem(
           path: byType.value,
           type: byType.key,
-          response: valid.isEmpty ? null : valid as Response));
+          response: valid.isEmpty ? null : valid.first as Response));
     }
   }
   return ret;
