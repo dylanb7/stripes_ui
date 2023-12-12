@@ -494,7 +494,7 @@ class ColorKey extends StatelessWidget {
       ),
       Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: keys
               .map(
                 (text) => Padding(
