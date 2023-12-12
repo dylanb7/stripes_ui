@@ -83,6 +83,7 @@ final checkinProvider =
     }
     for (final byType in byPeriod.value.entries) {
       final DateTimeRange range = searchPeriod.getRange(searchTime);
+      print(range);
       final String searchType = byType.key;
       final List<Stamp> valid = stamps.where((element) {
         final DateTime stampTime = dateFromStamp(element.stamp);
@@ -91,6 +92,7 @@ final checkinProvider =
             (stampTime.isAfter(range.start) ||
                 stampTime.isAtSameMomentAs(range.start));
       }).toList();
+      print(valid);
       ret[searchPeriod]!.add(CheckinItem(
           path: byType.value,
           type: byType.key,

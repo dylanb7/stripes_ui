@@ -102,7 +102,7 @@ class Options extends ConsumerWidget {
             if (checkin.isNotEmpty)
               Text(
                 AppLocalizations.of(context)!.checkInLabel,
-                style: lightBackgroundHeaderStyle,
+                style: darkBackgroundHeaderStyle,
               ),
             ...checkin.keys.map((period) {
               return Column(
