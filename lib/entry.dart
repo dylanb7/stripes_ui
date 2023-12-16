@@ -6,8 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/route_provider.dart';
-import 'package:stripes_ui/UI/History/EventView/entry_display.dart';
-import 'package:stripes_ui/UI/Record/question_screen.dart';
 import 'package:stripes_ui/Util/palette.dart';
 
 import 'l10n/app_localizations.dart';
@@ -68,10 +66,6 @@ class StripesApp extends StatelessWidget {
 
   final ExportAction? exportAction;
 
-  final Map<String, Widget Function(Response<Question>)>? displayOverrides;
-
-  final Map<String, QuestionEntry>? entryOverrides;
-
   final Function? removeTrace;
 
   final AuthStrat strat;
@@ -83,10 +77,8 @@ class StripesApp extends StatelessWidget {
       this.hasLogging = false,
       this.hasGraphing = true,
       this.locale = const Locale('en'),
-      this.displayOverrides,
       this.removeTrace,
       this.exportAction,
-      this.entryOverrides,
       this.builder,
       this.strat = AuthStrat.accessCode,
       Key? key})
@@ -98,10 +90,6 @@ class StripesApp extends StatelessWidget {
       overrides: [
         hasGraphingProvider.overrideWith((ref) => hasGraphing),
         if (repos != null) reposProvider.overrideWithValue(repos!),
-        if (entryOverrides != null)
-          questionEntryOverides.overrideWithValue(entryOverrides!),
-        if (displayOverrides != null)
-          questionDisplayOverides.overrideWithValue(displayOverrides!),
         if (exportAction != null)
           exportProvider.overrideWithValue(exportAction),
         if (removeTrace != null)

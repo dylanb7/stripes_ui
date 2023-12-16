@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
@@ -28,7 +29,10 @@ class _InstructionsState extends ConsumerState<Instructions> {
 
   @override
   Widget build(BuildContext context) {
-    final TestState state = ref.watch(testHolderProvider).state;
+    final BlueDyeObj? blueDye =
+        ref.watch(testHolderProvider).getObject<BlueDyeObj>();
+    final TestState state =
+        blueDye == null ? TestState.initial : stateFromTestOBJ(blueDye);
     final String stage = state == TestState.started
         ? AppLocalizations.of(context)!.blueDyeInstructionsStepOne
         : state == TestState.logs

@@ -3,18 +3,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:stripes_backend_helper/RepositoryBase/AuthBase/auth_user.dart';
+import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_ui/UI/Login/landing_page.dart';
-import 'package:stripes_ui/UI/Login/sign_up.dart';
+
 import 'package:stripes_ui/Providers/auth_provider.dart';
 import 'package:stripes_ui/UI/PatientManagement/PatientScreen/patient_screen.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/splitter.dart';
 
-import 'package:stripes_ui/UI/Record/symptom_record_data.dart';
 import 'package:stripes_ui/UI/SharedHomeWidgets/home_screen.dart';
 import 'package:stripes_ui/UI/SharedHomeWidgets/tab_view.dart';
 import 'package:stripes_ui/Util/constants.dart';
-
-import '../UI/Login/login.dart';
 
 final routeProvider = Provider<GoRouter>((ref) {
   final RouteNotifier router = RouteNotifier(ref);
@@ -128,11 +126,11 @@ class RouteNotifier extends ChangeNotifier {
         */
       ];
 
-  SymptomRecordData _data(GoRouterState state) {
-    if (state.extra == null || state.extra is! SymptomRecordData) {
-      return SymptomRecordData.empty;
+  QuestionsListener? _data(GoRouterState state) {
+    if (state.extra == null || state.extra is! QuestionsListener) {
+      return null;
     }
-    return state.extra as SymptomRecordData;
+    return state.extra as QuestionsListener;
   }
 }
 

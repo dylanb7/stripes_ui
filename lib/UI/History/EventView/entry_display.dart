@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
+import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
-import 'package:stripes_ui/UI/Record/question_screen.dart';
-import 'package:stripes_ui/UI/Record/symptom_record_data.dart';
 import 'package:stripes_ui/Util/date_helper.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
@@ -30,14 +30,14 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, Widget Function(Response<Question>)> overrides =
-        ref.watch(questionDisplayOverides);
+    final Map<String, Widget Function(Response<Question>, BuildContext)>
+        overrides = ref.watch(questionsProvider).displayOverrides ?? {};
     final DateTime date = dateFromStamp(widget.event.stamp);
     Widget? button;
     Widget? content;
-    final Widget Function(Response<Question>)? mainOverride =
+    final Widget Function(Response<Question>, BuildContext)? mainOverride =
         overrides[widget.event.question.id];
-    if (mainOverride != null) return mainOverride(widget.event);
+    if (mainOverride != null) return mainOverride(widget.event, context);
     if (widget.event is BlueDyeResp) {
       final BlueDyeResp resp = widget.event as BlueDyeResp;
       content = BlueDyeDisplay(resp: resp);
@@ -112,19 +112,13 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
   _edit(DetailResponse event, BuildContext context, DateTime date) {
     String? routeName = event.type;
 
-    final QuestionsListener questionsListener = QuestionsListener();
-    for (Response res in event.responses) {
-      questionsListener.addResponse(res);
-    }
-
     context.pushNamed('recordType',
         pathParameters: {'type': routeName},
-        extra: SymptomRecordData(
-            isEdit: true,
+        extra: QuestionsListener(
+            responses: event.responses,
             editId: event.id,
-            listener: questionsListener,
             submitTime: date,
-            initialDesc: event.description));
+            desc: event.description));
   }
 
   _delete(WidgetRef ref) {
@@ -137,6 +131,10 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
             });
           }
           await ref.read(stampProvider)?.removeStamp(widget.event);
+          await ref
+              .read(testHolderProvider)
+              .repo
+              ?.onResponseDelete(widget.event, widget.event.type);
           if (mounted) {
             setState(() {
               isLoading = false;
@@ -210,11 +208,11 @@ class ResponseDisplay extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final Map<String, Widget Function(Response<Question>)> overrides =
-        ref.watch(questionDisplayOverides);
-    final Widget Function(Response<Question>)? childOverride =
+    final Map<String, Widget Function(Response<Question>, BuildContext)>
+        overrides = ref.watch(questionsProvider).displayOverrides ?? {};
+    final Widget Function(Response<Question>, BuildContext)? childOverride =
         overrides[res.question.id];
-    if (childOverride != null) return childOverride(res);
+    if (childOverride != null) return childOverride(res, context);
     if (res is NumericResponse) {
       final NumericResponse numeric = res as NumericResponse;
       return Text('${numeric.question.prompt} - ${numeric.response}',
@@ -383,71 +381,6 @@ class DeleteErrorPrevention extends ConsumerWidget {
         ],
       ),
     );
-    /*return OverlayBackdrop(
-      child: SizedBox(
-        width: SMALL_LAYOUT / 1.7,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Card(
-              shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10.0))),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 10.0, vertical: 12.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      AppLocalizations.of(context)!.errorPreventionTitle,
-                      style: darkBackgroundHeaderStyle.copyWith(
-                          color: buttonDarkBackground),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(
-                      height: 8.0,
-                    ),
-                    Text(
-                      AppLocalizations.of(context)!.stampDeleteWarningOne,
-                      style: lightBackgroundStyle,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(
-                      height: 8.0,
-                    ),
-                    Text(
-                      AppLocalizations.of(context)!.stampDeleteWarningTwo,
-                      style: lightBackgroundStyle,
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(
-              height: 5,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                BasicButton(
-                    onClick: (_) {
-                      _closeOverlay(ref);
-                    },
-                    text: AppLocalizations.of(context)!.stampDeleteCancel),
-                BasicButton(
-                    onClick: (_) {
-                      _confirm(ref);
-                    },
-                    text: AppLocalizations.of(context)!.stampDeleteConfirm),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );*/
   }
 
   _confirm(WidgetRef ref) {
@@ -585,8 +518,3 @@ class MoodSliderDisplay extends StatelessWidget {
     );
   }
 }
-
-typedef DisplayBuilder<T extends Response> = Widget Function(T);
-
-final questionDisplayOverides =
-    Provider<Map<String, DisplayBuilder>>((ref) => {});

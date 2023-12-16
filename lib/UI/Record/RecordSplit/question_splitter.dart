@@ -3,11 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/QuestionModel/question.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo_base.dart';
+import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/record_period.dart';
 import 'package:stripes_backend_helper/RepositoryBase/StampBase/stamp.dart';
 import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
-import 'package:stripes_ui/UI/Record/question_screen.dart';
 
 final questionSplitProvider = Provider<Map<String, List<Question>>>((ref) {
   final QuestionNotifier repo = ref.watch(questionHomeProvider);
@@ -35,7 +35,7 @@ final pagePaths = Provider<Map<String, RecordPath>>((ref) {
       ref.watch(questionHomeProvider).home?.getLayouts();
   final Map<String, List<Question>> split = ref.watch(questionSplitProvider);
   final Map<String, QuestionEntry> questionOverrides =
-      ref.watch(questionEntryOverides);
+      ref.watch(questionsProvider).entryOverrides ?? {};
 
   return getAllPaths(pageOverrides, questionOverrides, split);
 });
@@ -82,7 +82,7 @@ final checkinProvider =
     }
     for (final byType in byPeriod.value.entries) {
       final DateTimeRange range = searchPeriod.getRange(searchTime);
-      print(range);
+
       final String searchType = byType.key;
       final List<Stamp> valid = stamps.where((element) {
         final DateTime stampTime = dateFromStamp(element.stamp);
@@ -91,7 +91,7 @@ final checkinProvider =
             (stampTime.isAfter(range.start) ||
                 stampTime.isAtSameMomentAs(range.start));
       }).toList();
-      print(valid);
+
       ret[searchPeriod]!.add(CheckinItem(
           path: byType.value,
           type: byType.key,

@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/QuestionModel/question.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
+import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
+import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo_base.dart';
 
 import 'package:stripes_backend_helper/date_format.dart';
+import 'package:stripes_ui/Providers/questions_provider.dart';
 
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/UI/Record/base_screen.dart';
@@ -12,35 +15,7 @@ import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 import 'package:collection/collection.dart';
 
-class QuestionsListener extends ChangeNotifier {
-  final Map<Question, Response> questions = {};
-
-  final Set<Question> pending = {};
-
-  addPending(Question question) {
-    pending.add(question);
-    notifyListeners();
-  }
-
-  removePending(Question question) {
-    pending.remove(question);
-    notifyListeners();
-  }
-
-  addResponse(Response response) {
-    questions[response.question] = response;
-    notifyListeners();
-  }
-
-  Response? fromQuestion(Question question) => questions[question];
-
-  removeResponse(Question question) {
-    questions.remove(question);
-    notifyListeners();
-  }
-}
-
-class QuestionScreen extends ConsumerWidget {
+class QuestionScreen extends StatelessWidget {
   final List<Question> questions;
 
   final String header;
@@ -55,9 +30,7 @@ class QuestionScreen extends ConsumerWidget {
       : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final Map<String, QuestionEntry> questionEntries =
-        ref.watch(questionEntryOverides);
+  Widget build(BuildContext context) {
     return Column(
       children: [
         Text(
@@ -68,30 +41,47 @@ class QuestionScreen extends ConsumerWidget {
         const SizedBox(
           height: 12.0,
         ),
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: questions.map((question) {
-            final EntryBuilder? override =
-                questionEntries[question.id]?.entryBuilder;
-            if (override != null) return override(questionsListener, question);
-
-            if (question is Check) {
-              return CheckBoxWidget(
-                  check: question, listener: questionsListener);
-            } else if (question is MultipleChoice) {
-              return MultiChoiceEntry(
-                  question: question, listener: questionsListener);
-            } else if (question is Numeric) {
-              return SeverityWidget(
-                  question: question, questionsListener: questionsListener);
-            } else if (question is FreeResponse) {
-              return FreeResponseEntry(
-                  question: question, listener: questionsListener);
-            }
-            return Text(question.prompt);
-          }).toList(),
-        ),
+        RenderQuestions(
+            questions: questions, questionsListener: questionsListener)
       ],
+    );
+  }
+}
+
+class RenderQuestions extends ConsumerWidget {
+  final List<Question> questions;
+
+  final QuestionsListener questionsListener;
+
+  const RenderQuestions(
+      {required this.questions, required this.questionsListener, super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final Map<String, QuestionEntry> questionEntries =
+        ref.watch(questionsProvider).entryOverrides ?? {};
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: questions.map((question) {
+        final EntryBuilder? override =
+            questionEntries[question.id]?.entryBuilder;
+        if (override != null) {
+          return override(questionsListener, context, question);
+        }
+        if (question is Check) {
+          return CheckBoxWidget(check: question, listener: questionsListener);
+        } else if (question is MultipleChoice) {
+          return MultiChoiceEntry(
+              question: question, listener: questionsListener);
+        } else if (question is Numeric) {
+          return SeverityWidget(
+              question: question, questionsListener: questionsListener);
+        } else if (question is FreeResponse) {
+          return FreeResponseEntry(
+              question: question, listener: questionsListener);
+        }
+        return Text(question.prompt);
+      }).toList(),
     );
   }
 }
@@ -1044,18 +1034,4 @@ class _BMSliderState extends ConsumerState<BMSlider> {
     listener.removeListener(_interactListener);
     super.dispose();
   }
-}
-
-final questionEntryOverides = Provider<Map<String, QuestionEntry>>((ref) => {});
-
-typedef EntryBuilder<T extends Question> = Widget Function(
-    QuestionsListener, T);
-
-class QuestionEntry {
-  final bool isSeparateScreen;
-
-  final EntryBuilder entryBuilder;
-
-  const QuestionEntry(
-      {required this.isSeparateScreen, required this.entryBuilder});
 }

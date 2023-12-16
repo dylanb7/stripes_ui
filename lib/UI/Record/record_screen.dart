@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:stripes_backend_helper/TestingReposImpl/test_question_repo.dart';
+import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
+import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/record_period.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
 import 'package:stripes_ui/UI/PatientManagement/patient_changer.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
-import 'package:stripes_ui/UI/Record/question_screen.dart';
-import 'package:stripes_ui/UI/Record/symptom_record_data.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
@@ -49,7 +48,8 @@ class Options extends ConsumerWidget {
     final Map<Period, List<CheckinItem>> checkin =
         ref.watch(checkinProvider(null));
     final List<String> questionTypes = recordPaths.keys.toList();
-    final TestState state = ref.watch(testHolderProvider).state;
+    final TestsRepo? repo = ref.watch(testHolderProvider).repo;
+
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       sliver: SliverList(
@@ -73,6 +73,8 @@ class Options extends ConsumerWidget {
                   ),
                   ...checkin[period]!.map((checkin) => CheckInButton(
                         item: checkin,
+                        additions:
+                            repo?.getPathAdditions(context, checkin.type) ?? [],
                       ))
                 ],
               );
@@ -91,22 +93,13 @@ class Options extends ConsumerWidget {
                 textAlign: TextAlign.left,
               ),
               ...questionTypes.map((key) {
-                if (key != Symptoms.BM ||
-                    (state != TestState.logs &&
-                        state != TestState.logsSubmit)) {
-                  return RecordButton(key, (context) {
-                    context
-                        .pushNamed('recordType', pathParameters: {'type': key});
-                  });
-                }
-                return RecordButton(
-                  key,
-                  (context) {
-                    context
-                        .pushNamed('recordType', pathParameters: {'type': key});
-                  },
-                  subText: AppLocalizations.of(context)!.testInProgressNotif,
-                );
+                final List<Widget> additions =
+                    repo?.getPathAdditions(context, key) ?? [];
+
+                return RecordButton(key, (context) {
+                  context
+                      .pushNamed('recordType', pathParameters: {'type': key});
+                }, additions);
               }).toList(growable: false),
             ]),
             const Divider(
@@ -178,38 +171,28 @@ class LastEntryText extends ConsumerWidget {
 
 class CheckInButton extends ConsumerWidget {
   final CheckinItem item;
+  final List<Widget> additions;
 
-  const CheckInButton({required this.item, super.key});
+  const CheckInButton({required this.item, required this.additions, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final DetailResponse? sub =
-        item.response != null ? item.response as DetailResponse : null;
-
     return Padding(
         padding: const EdgeInsets.symmetric(vertical: 5.0),
         child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT / 1.5),
             child: OutlinedButton(
               onPressed: () {
-                if (sub != null) {
-                  String? routeName = sub.type;
-
-                  final QuestionsListener questionsListener =
-                      QuestionsListener();
-                  for (Response res
-                      in (item.response as DetailResponse).responses) {
-                    questionsListener.addResponse(res);
-                  }
+                if (item.response != null) {
+                  String? routeName = item.response!.type;
 
                   context.pushNamed('recordType',
                       pathParameters: {'type': routeName},
-                      extra: SymptomRecordData(
-                          isEdit: true,
-                          editId: sub.id,
-                          listener: questionsListener,
-                          submitTime: dateFromStamp(sub.stamp),
-                          initialDesc: sub.description));
+                      extra: QuestionsListener(
+                          responses: item.response!.responses,
+                          editId: item.response?.id,
+                          submitTime: dateFromStamp(item.response!.stamp),
+                          desc: item.response!.description));
                 } else {
                   context.pushNamed(
                     'recordType',
@@ -224,9 +207,16 @@ class CheckInButton extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text(item.type, style: lightBackgroundHeaderStyle),
+                    Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Text(item.type, style: lightBackgroundHeaderStyle),
+                          ...additions
+                        ]),
                     CheckIndicator(
-                      checked: sub != null,
+                      checked: item.response != null,
                     )
                   ],
                 ),
@@ -264,9 +254,11 @@ class CheckIndicator extends StatelessWidget {
 class RecordButton extends StatelessWidget {
   final String text;
   final String? subText;
+  final List<Widget> additions;
   final Function(BuildContext) onClick;
 
-  const RecordButton(this.text, this.onClick, {this.subText, Key? key})
+  const RecordButton(this.text, this.onClick, this.additions,
+      {this.subText, Key? key})
       : super(key: key);
 
   @override
@@ -286,24 +278,17 @@ class RecordButton extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    if (subText != null && subText!.isNotEmpty)
-                      Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              text,
-                              style: lightBackgroundHeaderStyle,
-                            ),
-                            Text(
-                              subText!,
-                              style: lightBackgroundStyle.copyWith(
-                                  color:
-                                      Theme.of(context).colorScheme.secondary),
-                            ),
-                          ]),
-                    if (subText == null || subText!.isEmpty)
-                      Text(text, style: lightBackgroundHeaderStyle),
+                    Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Text(
+                            text,
+                            style: lightBackgroundHeaderStyle,
+                          ),
+                          ...additions
+                        ]),
                     const Icon(
                       Icons.add,
                       size: 35,

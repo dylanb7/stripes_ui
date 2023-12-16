@@ -161,19 +161,22 @@ class LargeLayout extends ConsumerWidget {
     Widget recordButton = selected == TabOption.record
         ? _decorationWrap(
             child: getButton(darkBackgroundHeaderStyle, TabOption.record,
-                AppLocalizations.of(context)!.recordTab))
+                AppLocalizations.of(context)!.recordTab),
+            context: context)
         : getButton(darkBackgroundHeaderStyle, TabOption.record,
             AppLocalizations.of(context)!.recordTab);
     Widget testButton = selected == TabOption.tests
         ? _decorationWrap(
             child: getButton(darkBackgroundHeaderStyle, TabOption.tests,
-                AppLocalizations.of(context)!.testTab))
+                AppLocalizations.of(context)!.testTab),
+            context: context)
         : getButton(darkBackgroundHeaderStyle, TabOption.tests,
             AppLocalizations.of(context)!.testTab);
     Widget historyButton = selected == TabOption.history
         ? _decorationWrap(
             child: getButton(darkBackgroundHeaderStyle, TabOption.history,
-                AppLocalizations.of(context)!.historyTab))
+                AppLocalizations.of(context)!.historyTab),
+            context: context)
         : getButton(darkBackgroundHeaderStyle, TabOption.history,
             AppLocalizations.of(context)!.historyTab);
     return SliverAppBar(
@@ -191,10 +194,8 @@ class LargeLayout extends ConsumerWidget {
               const SizedBox(
                 width: 6.0,
               ),
-              _decorationWrap(
-                child: Image.asset(
-                  'packages/stripes_ui/assets/images/StripesLogo.png',
-                ),
+              Image.asset(
+                'packages/stripes_ui/assets/images/StripesLogo.png',
               ),
               const Spacer(),
               recordButton,
@@ -220,10 +221,13 @@ class LargeLayout extends ConsumerWidget {
     );
   }
 
-  Widget _decorationWrap({required Widget child}) => DecoratedBox(
+  Widget _decorationWrap(
+          {required Widget child, required BuildContext context}) =>
+      DecoratedBox(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10.0),
-        ),
+            borderRadius: BorderRadius.circular(6.0),
+            border: Border.all(
+                color: Theme.of(context).colorScheme.secondary, width: 2.0)),
         child: child,
       );
 }

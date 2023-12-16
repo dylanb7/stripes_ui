@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:stripes_backend_helper/QuestionModel/response.dart';
-import 'package:stripes_backend_helper/RepositoryBase/TestBase/BlueDye/bm_test_log.dart';
-import 'package:stripes_backend_helper/date_format.dart';
+import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
@@ -11,14 +9,18 @@ import 'package:stripes_ui/Util/date_helper.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
+import 'package:stripes_ui/repos/blue_dye_test_repo.dart';
 
 class BlueRecordings extends ConsumerWidget {
   const BlueRecordings({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final TestNotifier notifier = ref.watch(testHolderProvider);
-    final List<BMTestLog> logs = notifier.obj!.logs;
+    final BlueDyeObj? blueObj =
+        ref.watch(testHolderProvider).getObject<BlueDyeObj>();
+    final List<BMTestLog> logs = blueObj?.logs ?? [];
+    final TestState state =
+        blueObj == null ? TestState.initial : stateFromTestOBJ(blueObj);
     final bool isLoading = ref.watch(testLoading);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -47,7 +49,7 @@ class BlueRecordings extends ConsumerWidget {
             width: 250,
             child: GestureDetector(
                 onTap: () {
-                  if (notifier.state != TestState.logsSubmit && !isLoading) {
+                  if (state != TestState.logsSubmit && !isLoading) {
                     showSnack(
                         AppLocalizations.of(context)!
                             .blueDyeLogsSubmitTestError,
@@ -55,13 +57,14 @@ class BlueRecordings extends ConsumerWidget {
                   }
                 },
                 child: FilledButton(
-                  onPressed: notifier.state != TestState.logsSubmit || isLoading
+                  onPressed: state != TestState.logsSubmit || isLoading
                       ? null
                       : () async {
                           ref.read(testLoading.notifier).state = true;
                           await ref
                               .read(testHolderProvider)
-                              .submit(DateTime.now());
+                              .getTest<BlueDyeTest>()
+                              ?.submit(DateTime.now());
                           ref.read(testLoading.notifier).state = false;
                           if (context.mounted) {
                             showSnack(

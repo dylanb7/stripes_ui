@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
+import 'package:stripes_backend_helper/RepositoryBase/TestBase/base_test_repo.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
@@ -12,6 +13,7 @@ import 'package:stripes_ui/UI/SharedHomeWidgets/tab_view.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
+import 'package:stripes_ui/repos/blue_dye_test_repo.dart';
 import '../../../Providers/sub_provider.dart';
 
 class TestScreen extends ConsumerStatefulWidget {
@@ -22,18 +24,21 @@ class TestScreen extends ConsumerStatefulWidget {
 }
 
 class _TestScreenState extends ConsumerState<TestScreen> {
-  late final ExpandibleController expandListener;
+  Test? selected;
 
   @override
   void initState() {
-    expandListener = ExpandibleController(true);
-
+    final List<Test> tests = ref.read(testHolderProvider).getTests();
+    if (tests.isNotEmpty) {
+      selected = tests.first;
+    }
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
+    final List<Test> tests = ref.watch(testHolderProvider).getTests();
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
       sliver: SliverList(
@@ -58,57 +63,35 @@ class _TestScreenState extends ConsumerState<TestScreen> {
           const SizedBox(
             height: 10,
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: Text(
-                AppLocalizations.of(context)!.blueDyeHeader,
-                style:
-                    darkBackgroundStyle.copyWith(fontWeight: FontWeight.bold),
-                textAlign: TextAlign.left,
-              ),
-            ),
-          ),
-          const SizedBox(
-            height: 8.0,
-          ),
-          Card(
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(
-                Radius.circular(10),
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Padding(
-                padding: const EdgeInsets.only(left: 16.0),
-                child: TestContent(
-                  expand: expandListener,
+          tests.length == 1
+              ? Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      tests[0].getName(context),
+                      style: darkBackgroundStyle.copyWith(
+                          fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                )
+              : DropdownButton<Test>(
+                  items: tests
+                      .map((e) => DropdownMenuItem(
+                            value: e,
+                            child: Text(e.getName(context)),
+                          ))
+                      .toList(),
+                  onChanged: (val) {
+                    setState(() {
+                      selected = val;
+                    });
+                  },
+                  value: selected,
                 ),
-              ),
-            ),
-          ),
-          const SizedBox(
-            height: 4.0,
-          ),
-          Card(
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(
-                Radius.circular(10),
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Instructions(
-                expandController: expandListener,
-              ),
-            ),
-          ),
-          const SizedBox(
-            height: 12.0,
-          ),
+          if (selected is BlueDyeTest) BlueDyeTestScreen(),
         ]),
       ),
     );
@@ -117,6 +100,58 @@ class _TestScreenState extends ConsumerState<TestScreen> {
   _name(WidgetRef ref) {
     SubUser current = ref.read(subHolderProvider).current;
     return SubUser.isEmpty(current) ? 'N/A' : current.name;
+  }
+}
+
+class BlueDyeTestScreen extends ConsumerWidget {
+  final ExpandibleController expandListener = ExpandibleController(true);
+
+  BlueDyeTestScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Column(
+      children: [
+        const SizedBox(
+          height: 8.0,
+        ),
+        Card(
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+              Radius.circular(10),
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Padding(
+              padding: const EdgeInsets.only(left: 16.0),
+              child: TestContent(
+                expand: expandListener,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(
+          height: 4.0,
+        ),
+        Card(
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+              Radius.circular(10),
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Instructions(
+              expandController: expandListener,
+            ),
+          ),
+        ),
+        const SizedBox(
+          height: 12.0,
+        ),
+      ],
+    );
   }
 }
 
@@ -181,7 +216,10 @@ class TestErrorPrevention extends ConsumerWidget {
           ],
         ),
         onConfirm: () {
-          ref.read(testHolderProvider.notifier).cancel();
+          ref
+              .read(testHolderProvider.notifier)
+              .getTest<BlueDyeTest>()
+              ?.cancel();
         },
         cancel: AppLocalizations.of(context)!.errorPreventionStay,
         confirm: AppLocalizations.of(context)!.errorPreventionLeave);

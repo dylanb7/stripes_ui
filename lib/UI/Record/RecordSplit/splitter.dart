@@ -1,10 +1,8 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:stripes_backend_helper/QuestionModel/question.dart';
-import 'package:stripes_backend_helper/QuestionModel/response.dart';
+import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo_base.dart';
 import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
@@ -13,7 +11,6 @@ import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
 import 'package:stripes_ui/UI/Record/question_screen.dart';
 import 'package:stripes_ui/UI/Record/submit_screen.dart';
-import 'package:stripes_ui/UI/Record/symptom_record_data.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
@@ -23,11 +20,9 @@ final continueTried = StateProvider.autoDispose((_) => false);
 class RecordSplitter extends ConsumerStatefulWidget {
   final String type;
 
-  final SymptomRecordData data;
-
   late final QuestionsListener questionListener;
-  RecordSplitter({super.key, required this.type, required this.data}) {
-    questionListener = data.listener ?? QuestionsListener();
+  RecordSplitter({super.key, required this.type, QuestionsListener? data}) {
+    questionListener = data ?? QuestionsListener();
   }
 
   @override
@@ -37,18 +32,22 @@ class RecordSplitter extends ConsumerStatefulWidget {
 }
 
 class RecordSplitterState extends ConsumerState<RecordSplitter> {
-  late final Map<Question, Response<Question>> original;
+  late final QuestionsListener original;
 
   late final PageController pageController;
 
   int currentIndex = 0;
 
+  bool hasChanged = false;
+
   @override
   void initState() {
-    original = Map.from(widget.questionListener.questions);
+    original = QuestionsListener.copy(widget.questionListener);
     pageController = PageController();
     widget.questionListener.addListener(() {
-      setState(() {});
+      setState(() {
+        hasChanged = original == widget.questionListener;
+      });
     });
     super.initState();
   }
@@ -139,10 +138,6 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                           questionsListener:
                                               widget.questionListener,
                                           type: widget.type,
-                                          desc: widget.data.initialDesc,
-                                          isEdit: widget.data.isEdit ?? false,
-                                          editedId: widget.data.editId,
-                                          submitTime: widget.data.submitTime,
                                         );
                                       } else {
                                         content = QuestionScreen(
@@ -325,7 +320,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
   }
 
   _showErrorPrevention(BuildContext context) {
-    if (mapEquals(original, widget.questionListener.questions)) {
+    if (!hasChanged) {
       ref.read(continueTried.notifier).state = false;
       if (context.canPop()) {
         context.pop();

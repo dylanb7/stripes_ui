@@ -273,7 +273,8 @@ GraphData _generateData(Available availible, GraphChoice graph, DateTime end,
   Map<int, DateTime> labels = {};
   switch (graph) {
     case GraphChoice.day:
-      labels = _iterLabels(bucketDivisor, 4, shiftAmount, startDate);
+      labels = _iterLabels(bucketDivisor, 4, shiftAmount,
+          DateTime(startDate.year, startDate.month, startDate.day));
 
       break;
     case GraphChoice.week:

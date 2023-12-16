@@ -42,7 +42,7 @@ class GraphWidget extends ConsumerWidget {
         const FittedBox(
           fit: BoxFit.contain,
           child: Text(
-            'Behavior Frequency',
+            'Event Frequency',
             maxLines: 1,
             style: darkBackgroundScreenHeaderStyle,
           ),
@@ -61,7 +61,7 @@ class GraphWidget extends ConsumerWidget {
                     _openBehaviorOverlay(ref, behaviors, selectedValue);
                   },
                   child: const Text(
-                    'Change Behavior',
+                    'Change Event',
                   ),
                 ),
               ]),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
+import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/record_period.dart';
 import 'package:stripes_backend_helper/TestingReposImpl/test_question_repo.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
@@ -19,20 +21,8 @@ class SubmitScreen extends ConsumerStatefulWidget {
 
   final QuestionsListener questionsListener;
 
-  final DateTime? submitTime;
-
-  final bool isEdit;
-
-  final String? desc, editedId;
-
   const SubmitScreen(
-      {required this.questionsListener,
-      required this.type,
-      this.submitTime,
-      this.isEdit = false,
-      this.editedId,
-      this.desc,
-      Key? key})
+      {required this.questionsListener, required this.type, Key? key})
       : super(key: key);
 
   @override
@@ -46,40 +36,54 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
 
   final TextEditingController _descriptionController = TextEditingController();
 
-  List<bool> toggleState = [false, false];
-
   bool isLoading = false;
+
+  late final bool isEdit;
 
   @override
   void initState() {
-    if (widget.submitTime != null) {
-      _dateListener.date = widget.submitTime!;
-      _timeListener.time = TimeOfDay.fromDateTime(widget.submitTime!);
+    if (widget.questionsListener.submitTime != null) {
+      _dateListener.date = widget.questionsListener.submitTime!;
+      _timeListener.time =
+          TimeOfDay.fromDateTime(widget.questionsListener.submitTime!);
     }
-    if (widget.desc != null) {
-      _descriptionController.text = widget.desc!;
+    if (widget.questionsListener.description != null) {
+      _descriptionController.text = widget.questionsListener.description!;
     }
+    widget.questionsListener.addListener(_state);
+    isEdit = widget.questionsListener.editId != null;
     super.initState();
+  }
+
+  _state() {
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    widget.questionsListener.removeListener(_state);
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final TestState state = ref.watch(testHolderProvider).state;
     final Color primary = Theme.of(context).colorScheme.primary;
     final Color surface =
         Theme.of(context).colorScheme.surface.withOpacity(0.12);
     final Color onPrimary = Theme.of(context).colorScheme.onPrimary;
     final Color onSurface = Theme.of(context).colorScheme.onSurface;
     Period? period = ref.watch(pagePaths)[widget.type]?.period;
-    final isBlueRecord =
-        (state == TestState.logs || state == TestState.logsSubmit) &&
-            (widget.type == "Poo" || widget.type == Symptoms.BM) &&
-            !widget.isEdit;
-    final bool canSubmit = !isBlueRecord || toggleState.contains(true);
+    final List<Question> testAdditions = ref
+            .watch(testHolderProvider)
+            .repo
+            ?.getRecordAdditions(context, widget.type) ??
+        [];
+
+    final bool canSubmit = widget.questionsListener.pending.isEmpty;
     return Column(
       children: [
         Text(
-          widget.isEdit
+          isEdit
               ? AppLocalizations.of(context)!.editSubmitHeader(widget.type)
               : AppLocalizations.of(context)!.submitHeader(widget.type),
           style: lightBackgroundHeaderStyle,
@@ -99,15 +103,18 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
             children: [
               DateWidget(
                 dateListener: _dateListener,
-                enabled: !widget.isEdit,
+                enabled: !isEdit,
               ),
               TimeWidget(
                 timeListener: _timeListener,
-                enabled: !widget.isEdit,
+                enabled: !isEdit,
               ),
             ],
           ),
-        if (isBlueRecord) ...[
+        RenderQuestions(
+            questions: testAdditions,
+            questionsListener: widget.questionsListener),
+        /*if (isBlueRecord) ...[
           const SizedBox(
             height: 18.0,
           ),
@@ -163,7 +170,7 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
               )
             ],
           ),
-        ],
+        ],*/
         const SizedBox(
           height: 18.0,
         ),
@@ -183,13 +190,12 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
             child: FilledButton(
               onPressed: canSubmit && !isLoading
                   ? () {
-                      _submitEntry(
-                          context, period, ref, isBlueRecord, toggleState);
+                      _submitEntry(context, period, ref);
                     }
                   : null,
               child: isLoading
                   ? const ButtonLoadingIndicator()
-                  : Text(widget.isEdit
+                  : Text(isEdit
                       ? AppLocalizations.of(context)!.editSubmitButtonText
                       : AppLocalizations.of(context)!.submitButtonText),
             ),
@@ -202,8 +208,11 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
     );
   }
 
-  _submitEntry(BuildContext context, Period? period, WidgetRef ref,
-      bool blueRecord, List<bool> toggles) async {
+  _submitEntry(
+    BuildContext context,
+    Period? period,
+    WidgetRef ref,
+  ) async {
     if (isLoading) return;
     setState(() {
       isLoading = true;
@@ -211,7 +220,7 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
     final DateTime date = _dateListener.date;
     final TimeOfDay time = _timeListener.time;
     final DateTime dateOfEntry =
-        widget.isEdit ? widget.submitTime ?? date : date;
+        isEdit ? widget.questionsListener.submitTime ?? date : date;
     final TimeOfDay timeOfEntry = time;
     final currentTime = DateTime.now();
     final DateTime combinedEntry = DateTime(
@@ -226,23 +235,28 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
         period?.getValue(combinedEntry) ?? combinedEntry;
     final int entryStamp = dateToStamp(submissionEntry);
     final DetailResponse detailResponse = DetailResponse(
-      id: widget.editedId,
+      id: widget.questionsListener.editId,
       description: _descriptionController.text,
       responses:
           widget.questionsListener.questions.values.toList(growable: false),
-      stamp: widget.isEdit ? dateToStamp(widget.submitTime!) : entryStamp,
+      stamp: isEdit
+          ? dateToStamp(widget.questionsListener.submitTime!)
+          : entryStamp,
       detailType: widget.type,
     );
 
-    if (widget.isEdit) {
+    if (isEdit) {
       await ref.read(stampProvider)?.updateStamp(detailResponse);
+      await ref
+          .read(testHolderProvider)
+          .repo
+          ?.onResponseEdit(detailResponse, widget.type);
     } else {
       await ref.read(stampProvider)?.addStamp(detailResponse);
-      if (blueRecord) {
-        await ref
-            .read(testHolderProvider)
-            .addLog(BMTestLog(response: detailResponse, isBlue: toggles.first));
-      }
+      await ref
+          .read(testHolderProvider)
+          .repo
+          ?.onResponseSubmit(detailResponse, widget.type);
     }
     setState(() {
       isLoading = false;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:stripes_backend_helper/RepositoryBase/TestBase/BlueDye/blue_dye_impl.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
@@ -9,6 +10,7 @@ import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
+import 'package:stripes_ui/repos/blue_dye_test_repo.dart';
 
 import 'blue_recordings.dart';
 
@@ -26,8 +28,10 @@ class TestContent extends ConsumerStatefulWidget {
 class TestContentState extends ConsumerState<TestContent> {
   @override
   Widget build(BuildContext context) {
-    final TestNotifier test = ref.watch(testHolderProvider);
-    final TestState state = test.state;
+    final BlueDyeObj? blueDyeObj =
+        ref.watch(testHolderProvider).getObject<BlueDyeObj>();
+    final TestState state =
+        blueDyeObj == null ? TestState.initial : stateFromTestOBJ(blueDyeObj);
     final bool isLoading = ref.watch(testLoading);
 
     return Column(
@@ -36,7 +40,7 @@ class TestContentState extends ConsumerState<TestContent> {
         state.testInProgress
             ? Text(
                 AppLocalizations.of(context)!.blueMealStartTime(
-                    test.obj!.startTime, test.obj!.startTime),
+                    blueDyeObj!.startTime!, blueDyeObj.startTime!),
                 textAlign: TextAlign.left,
                 style: lightBackgroundStyle,
               )
@@ -60,7 +64,8 @@ class TestContentState extends ConsumerState<TestContent> {
                               ref.read(testLoading.notifier).state = true;
                               await ref
                                   .read(testHolderProvider)
-                                  .setStart(DateTime.now());
+                                  .getTest<BlueDyeTest>()
+                                  ?.setStart(DateTime.now());
                               ref.read(testLoading.notifier).state = false;
                             },
                       child: isLoading
@@ -103,9 +108,13 @@ class TimerDisplay extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final TestNotifier test = ref.watch(testHolderProvider);
-    final bool isStarted = test.state == TestState.started;
-    final DateTime startTime = test.obj!.startTime;
+    final BlueDyeObj? blueDyeObj =
+        ref.watch(testHolderProvider).getObject<BlueDyeObj>();
+    final bool isStarted = (blueDyeObj == null
+            ? TestState.initial
+            : stateFromTestOBJ(blueDyeObj)) ==
+        TestState.started;
+    final DateTime startTime = blueDyeObj!.startTime!;
     final bool isLoading = ref.watch(testLoading);
 
     if (isStarted) {
@@ -136,7 +145,9 @@ class TimerDisplay extends ConsumerWidget {
                         ref.read(testLoading.notifier).state = true;
                         await ref
                             .read(testHolderProvider.notifier)
-                            .setDuration(DateTime.now().difference(startTime));
+                            .getTest<BlueDyeTest>()
+                            ?.finishedEating(
+                                DateTime.now().difference(startTime));
                         ref.read(testLoading.notifier).state = false;
                       },
                 child: isLoading
@@ -163,7 +174,7 @@ class TimerDisplay extends ConsumerWidget {
                     color: Theme.of(context).colorScheme.onPrimaryContainer),
               ),
               TextSpan(
-                text: '\t${from(test.obj!.finishedEating!)}',
+                text: '\t${from(blueDyeObj.finishedEating!)}',
                 style: lightBackgroundStyle.copyWith(
                     color: Theme.of(context).colorScheme.primary),
               ),
