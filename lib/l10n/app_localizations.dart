@@ -810,7 +810,7 @@ abstract class AppLocalizations {
   /// No description provided for @recordCount.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =0{Keine Einträge} =1{1 Eintrag senden} other{Senden Sie {count} Einträge}}'**
+  /// **'{count, plural, =0{No Entries} =1{1 Entry} other{{count} Entries}}'**
   String recordCount(num count);
 
   /// No description provided for @uploadDone.

@@ -440,9 +440,9 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Senden Sie $countString Einträge',
-      one: '1 Eintrag senden',
-      zero: 'Keine Einträge',
+      other: '$countString Entries',
+      one: '1 Entry',
+      zero: 'No Entries',
     );
     return '$_temp0';
   }
