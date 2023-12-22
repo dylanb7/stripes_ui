@@ -118,6 +118,7 @@ class BlueDyeTestScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(testHolderProvider);
     return Column(
       children: [
         const SizedBox(
