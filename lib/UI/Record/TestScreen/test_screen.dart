@@ -91,7 +91,7 @@ class _TestScreenState extends ConsumerState<TestScreen> {
                   },
                   value: selected,
                 ),
-          if (selected is BlueDyeTest) BlueDyeTestScreen(),
+          selected?.displayState(context) ?? Container(),
         ]),
       ),
     );
