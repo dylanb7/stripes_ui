@@ -86,6 +86,59 @@ class RenderQuestions extends ConsumerWidget {
   }
 }
 
+class QuestionWrap extends ConsumerStatefulWidget {
+  final Question question;
+
+  final QuestionsListener listener;
+
+  final Widget child;
+
+  const QuestionWrap(
+      {required this.question,
+      required this.listener,
+      required this.child,
+      super.key});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() => QuestionWrapState();
+}
+
+class QuestionWrapState extends ConsumerState<QuestionWrap> {
+  @override
+  void initState() {
+    if (widget.question.isRequired && !hasEntry) {
+      widget.listener.addPending(widget.question);
+    }
+
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bool hasError = widget.listener.tried &&
+        widget.listener.pending.contains(widget.question);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: const BorderRadius.all(Radius.circular(15.0)),
+          side: hasEntry
+              ? BorderSide(
+                  width: 3.0, color: Theme.of(context).colorScheme.secondary)
+              : hasError
+                  ? BorderSide(
+                      width: 3.0, color: Theme.of(context).colorScheme.error)
+                  : const BorderSide(width: 1.0),
+        ),
+        elevation: 1.0,
+        child: widget.child,
+      ),
+    );
+  }
+
+  bool get hasEntry => widget.listener.fromQuestion(widget.question) != null;
+}
+
 class MultiChoiceEntry extends ConsumerStatefulWidget {
   final MultipleChoice question;
 
@@ -242,44 +295,34 @@ class _CheckBoxWidgetState extends State<CheckBoxWidget> {
   @override
   Widget build(BuildContext context) {
     final bool isSelected = selected;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
+    return QuestionWrap(
+      question: widget.check,
+      listener: widget.listener,
       child: GestureDetector(
         onTap: () {
           _onTap();
         },
-        child: Card(
-          shape: RoundedRectangleBorder(
-              borderRadius: const BorderRadius.all(Radius.circular(15.0)),
-              side: isSelected
-                  ? BorderSide(
-                      color: Theme.of(context).colorScheme.secondary,
-                      width: 5.0)
-                  : const BorderSide(width: 0, color: Colors.transparent)),
-          elevation: 1.0,
-          child: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Flexible(
-                    child: Text(
-                  widget.check.prompt,
-                  style: lightBackgroundStyle,
-                )),
-                const SizedBox(
-                  width: 3.0,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                  child: Text(
+                widget.check.prompt,
+                style: lightBackgroundStyle,
+              )),
+              const SizedBox(
+                width: 3.0,
+              ),
+              IgnorePointer(
+                ignoring: true,
+                child: Checkbox(
+                  value: isSelected,
+                  onChanged: (val) {},
                 ),
-                IgnorePointer(
-                  ignoring: true,
-                  child: Checkbox(
-                    value: isSelected,
-                    onChanged: (val) {},
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
