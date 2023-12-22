@@ -81,7 +81,12 @@ class _TestScreenState extends ConsumerState<TestScreen> {
                   items: tests
                       .map((e) => DropdownMenuItem(
                             value: e,
-                            child: Text(e.getName(context)),
+                            child: Text(
+                              e.getName(context),
+                              style: darkBackgroundStyle.copyWith(
+                                  fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.left,
+                            ),
                           ))
                       .toList(),
                   onChanged: (val) {
