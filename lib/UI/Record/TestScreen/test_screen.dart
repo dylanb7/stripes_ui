@@ -77,24 +77,27 @@ class _TestScreenState extends ConsumerState<TestScreen> {
                     ),
                   ),
                 )
-              : DropdownButton<Test>(
-                  items: tests
-                      .map((e) => DropdownMenuItem(
-                            value: e,
-                            child: Text(
-                              e.getName(context),
-                              style: darkBackgroundStyle.copyWith(
-                                  fontWeight: FontWeight.bold),
-                              textAlign: TextAlign.left,
-                            ),
-                          ))
-                      .toList(),
-                  onChanged: (val) {
-                    setState(() {
-                      selected = val;
-                    });
-                  },
-                  value: selected,
+              : Align(
+                  alignment: Alignment.centerLeft,
+                  child: DropdownButton<Test>(
+                    items: tests
+                        .map((e) => DropdownMenuItem(
+                              value: e,
+                              child: Text(
+                                e.getName(context),
+                                style: darkBackgroundStyle.copyWith(
+                                    fontWeight: FontWeight.bold),
+                                textAlign: TextAlign.left,
+                              ),
+                            ))
+                        .toList(),
+                    onChanged: (val) {
+                      setState(() {
+                        selected = val;
+                      });
+                    },
+                    value: selected,
+                  ),
                 ),
           selected?.displayState(context) ?? Container(),
         ]),
