@@ -119,7 +119,7 @@ class QuestionWrapState extends ConsumerState<QuestionWrap> {
         widget.listener.pending.contains(widget.question);
     return Card(
       shape: RoundedRectangleBorder(
-        borderRadius: const BorderRadius.all(Radius.circular(15.0)),
+        borderRadius: const BorderRadius.all(Radius.circular(12.0)),
         side: hasEntry
             ? BorderSide(
                 width: 3.0, color: Theme.of(context).colorScheme.secondary)
@@ -404,33 +404,35 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
       child: ExpandibleRaw(
         controller: _controller,
         iconSize: 0.0,
-        header: Padding(
-          padding: const EdgeInsets.only(left: 6.0, bottom: 6.0, top: 6.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: Text(
-                      widget.question.prompt,
-                      style: lightBackgroundStyle,
+        header: Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(6.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        widget.question.prompt,
+                        style: lightBackgroundStyle,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(
-                width: 3.0,
-              ),
-              IgnorePointer(
-                ignoring: true,
-                child: Checkbox(
-                  value: res != null,
-                  onChanged: (val) {},
+                  ],
                 ),
-              ),
-            ],
+                const SizedBox(
+                  width: 3.0,
+                ),
+                IgnorePointer(
+                  ignoring: true,
+                  child: Checkbox(
+                    value: res != null,
+                    onChanged: (val) {},
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         view: Padding(
