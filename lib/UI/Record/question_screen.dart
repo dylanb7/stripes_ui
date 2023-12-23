@@ -128,7 +128,7 @@ class QuestionWrapState extends ConsumerState<QuestionWrap> {
               : hasError
                   ? BorderSide(
                       width: 3.0, color: Theme.of(context).colorScheme.error)
-                  : const BorderSide(width: 1.0),
+                  : const BorderSide(width: 0.0),
         ),
         elevation: 1.0,
         child: widget.child,
@@ -168,91 +168,79 @@ class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
   Widget build(BuildContext context) {
     final List<String> answers = widget.question.choices;
     final int? selectedIndex = selected();
-    final bool isSelected = selectedIndex != null;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: GestureDetector(
-        child: Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: const BorderRadius.all(Radius.circular(15.0)),
-            side: isSelected
-                ? const BorderSide(width: 1.0)
-                : const BorderSide(width: 0, color: Colors.transparent),
-          ),
-          elevation: 1.0,
-          child: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-            child: Column(
+    return QuestionWrap(
+      question: widget.question,
+      listener: widget.listener,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: Text(
+                widget.question.prompt,
+                style: lightBackgroundStyle,
+              ),
+            ),
+            const SizedBox(
+              height: 8.0,
+            ),
+            Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisSize: MainAxisSize.min,
-              children: [
-                Flexible(
-                  child: Text(
-                    widget.question.prompt,
-                    style: lightBackgroundStyle,
-                  ),
-                ),
-                const SizedBox(
-                  height: 8.0,
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  mainAxisSize: MainAxisSize.min,
-                  children: answers.mapIndexed((index, choice) {
-                    final bool isSelected = index == selectedIndex;
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 2.0),
-                      child: GestureDetector(
-                        onTap: () {
-                          _onTap(isSelected, index);
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(5.0)),
-                            border: Border.all(
-                                color: isSelected
-                                    ? Theme.of(context).colorScheme.secondary
-                                    : Colors.transparent,
-                                width: 2.0),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              Expanded(
-                                child: Text(
-                                  choice,
-                                  style: lightBackgroundStyle,
-                                ),
-                              ),
-                              const SizedBox(
-                                width: 6.0,
-                              ),
-                              IgnorePointer(
-                                ignoring: true,
-                                child: Checkbox(
-                                  value: isSelected,
-                                  visualDensity: VisualDensity.compact,
-                                  onChanged: (val) {},
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+              children: answers.mapIndexed((index, choice) {
+                final bool isSelected = index == selectedIndex;
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      _onTap(isSelected, index);
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(5.0)),
+                        border: Border.all(
+                            color: isSelected
+                                ? Theme.of(context).colorScheme.secondary
+                                : Colors.transparent,
+                            width: 2.0),
                       ),
-                    );
-                  }).toList(),
-                ),
-              ],
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Expanded(
+                            child: Text(
+                              choice,
+                              style: lightBackgroundStyle,
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 6.0,
+                          ),
+                          IgnorePointer(
+                            ignoring: true,
+                            child: Checkbox(
+                              value: isSelected,
+                              visualDensity: VisualDensity.compact,
+                              onChanged: (val) {},
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
-          ),
+          ],
         ),
       ),
     );
