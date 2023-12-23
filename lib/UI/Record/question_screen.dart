@@ -115,7 +115,8 @@ class QuestionWrapState extends ConsumerState<QuestionWrap> {
 
   @override
   Widget build(BuildContext context) {
-    final bool hasError = widget.listener.tried;
+    final bool hasError = widget.listener.tried &&
+        widget.listener.pending.contains(widget.question);
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: const BorderRadius.all(Radius.circular(12.0)),

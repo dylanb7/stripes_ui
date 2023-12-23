@@ -15,8 +15,6 @@ import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
-final continueTried = StateProvider.autoDispose((_) => false);
-
 class RecordSplitter extends ConsumerStatefulWidget {
   final String type;
 
@@ -58,7 +56,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
         ref.watch(pagePaths)[widget.type]?.pages ?? [];
     final int length = pages.length;
     final OverlayQuery query = ref.watch(overlayProvider);
-    final bool tried = ref.watch(continueTried);
+    final bool tried = widget.questionListener.tried;
     final hasPending = widget.questionListener.pending.isNotEmpty;
     final String? name = _name();
     final bool emptyName = name == null || name.isEmpty;
@@ -291,37 +289,37 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
 
   _goToPage(int index) {
     if (widget.questionListener.pending.isEmpty) {
-      ref.read(continueTried.notifier).state = false;
+      widget.questionListener.tried = false;
       pageController.animateToPage(index,
           duration: const Duration(milliseconds: 250), curve: Curves.linear);
     } else {
-      ref.read(continueTried.notifier).state = true;
+      widget.questionListener.tried = true;
     }
   }
 
   _next() {
     if (widget.questionListener.pending.isEmpty) {
-      ref.read(continueTried.notifier).state = false;
+      widget.questionListener.tried = false;
       pageController.nextPage(
           duration: const Duration(milliseconds: 250), curve: Curves.linear);
     } else {
-      ref.read(continueTried.notifier).state = true;
+      widget.questionListener.tried = true;
     }
   }
 
   _prev() {
     if (widget.questionListener.pending.isEmpty) {
-      ref.read(continueTried.notifier).state = false;
+      widget.questionListener.tried = false;
       pageController.previousPage(
           duration: const Duration(milliseconds: 250), curve: Curves.linear);
     } else {
-      ref.read(continueTried.notifier).state = true;
+      widget.questionListener.tried = true;
     }
   }
 
   _showErrorPrevention(BuildContext context) {
     if (!hasChanged) {
-      ref.read(continueTried.notifier).state = false;
+      widget.questionListener.tried = false;
       if (context.canPop()) {
         context.pop();
       } else {
