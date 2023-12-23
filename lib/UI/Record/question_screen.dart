@@ -117,22 +117,19 @@ class QuestionWrapState extends ConsumerState<QuestionWrap> {
   Widget build(BuildContext context) {
     final bool hasError = widget.listener.tried &&
         widget.listener.pending.contains(widget.question);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: const BorderRadius.all(Radius.circular(15.0)),
-          side: hasEntry
-              ? BorderSide(
-                  width: 3.0, color: Theme.of(context).colorScheme.secondary)
-              : hasError
-                  ? BorderSide(
-                      width: 3.0, color: Theme.of(context).colorScheme.error)
-                  : const BorderSide(width: 0.0),
-        ),
-        elevation: 1.0,
-        child: widget.child,
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: const BorderRadius.all(Radius.circular(15.0)),
+        side: hasEntry
+            ? BorderSide(
+                width: 3.0, color: Theme.of(context).colorScheme.secondary)
+            : hasError
+                ? BorderSide(
+                    width: 3.0, color: Theme.of(context).colorScheme.error)
+                : const BorderSide(width: 0.0, color: Colors.transparent),
       ),
+      elevation: 1.0,
+      child: widget.child,
     );
   }
 
@@ -168,79 +165,82 @@ class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
   Widget build(BuildContext context) {
     final List<String> answers = widget.question.choices;
     final int? selectedIndex = selected();
-    return QuestionWrap(
-      question: widget.question,
-      listener: widget.listener,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Flexible(
-              child: Text(
-                widget.question.prompt,
-                style: lightBackgroundStyle,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: QuestionWrap(
+        question: widget.question,
+        listener: widget.listener,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Text(
+                  widget.question.prompt,
+                  style: lightBackgroundStyle,
+                ),
               ),
-            ),
-            const SizedBox(
-              height: 8.0,
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: answers.mapIndexed((index, choice) {
-                final bool isSelected = index == selectedIndex;
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2.0),
-                  child: GestureDetector(
-                    onTap: () {
-                      _onTap(isSelected, index);
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(5.0)),
-                        border: Border.all(
-                            color: isSelected
-                                ? Theme.of(context).colorScheme.secondary
-                                : Colors.transparent,
-                            width: 2.0),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Expanded(
-                            child: Text(
-                              choice,
-                              style: lightBackgroundStyle,
+              const SizedBox(
+                height: 8.0,
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: answers.mapIndexed((index, choice) {
+                  final bool isSelected = index == selectedIndex;
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 2.0),
+                    child: GestureDetector(
+                      onTap: () {
+                        _onTap(isSelected, index);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(5.0)),
+                          border: Border.all(
+                              color: isSelected
+                                  ? Theme.of(context).colorScheme.secondary
+                                  : Colors.transparent,
+                              width: 2.0),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const SizedBox(
+                              width: 10,
                             ),
-                          ),
-                          const SizedBox(
-                            width: 6.0,
-                          ),
-                          IgnorePointer(
-                            ignoring: true,
-                            child: Checkbox(
-                              value: isSelected,
-                              visualDensity: VisualDensity.compact,
-                              onChanged: (val) {},
+                            Expanded(
+                              child: Text(
+                                choice,
+                                style: lightBackgroundStyle,
+                              ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(
+                              width: 6.0,
+                            ),
+                            IgnorePointer(
+                              ignoring: true,
+                              child: Checkbox(
+                                value: isSelected,
+                                visualDensity: VisualDensity.compact,
+                                onChanged: (val) {},
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ],
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -283,34 +283,38 @@ class _CheckBoxWidgetState extends State<CheckBoxWidget> {
   @override
   Widget build(BuildContext context) {
     final bool isSelected = selected;
-    return QuestionWrap(
-      question: widget.check,
-      listener: widget.listener,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: GestureDetector(
         onTap: () {
           _onTap();
         },
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                  child: Text(
-                widget.check.prompt,
-                style: lightBackgroundStyle,
-              )),
-              const SizedBox(
-                width: 3.0,
-              ),
-              IgnorePointer(
-                ignoring: true,
-                child: Checkbox(
-                  value: isSelected,
-                  onChanged: (val) {},
+        child: QuestionWrap(
+          question: widget.check,
+          listener: widget.listener,
+          child: Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                    child: Text(
+                  widget.check.prompt,
+                  style: lightBackgroundStyle,
+                )),
+                const SizedBox(
+                  width: 3.0,
                 ),
-              ),
-            ],
+                IgnorePointer(
+                  ignoring: true,
+                  child: Checkbox(
+                    value: isSelected,
+                    onChanged: (val) {},
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -393,57 +397,54 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
   @override
   Widget build(BuildContext context) {
     final num? res = response();
-    final bool tried = ref.watch(continueTried);
-    final bool errorHighlight =
-        tried && widget.questionsListener.pending.contains(widget.question);
-    return Expandible(
-      highlightColor: errorHighlight
-          ? Theme.of(context).colorScheme.error
-          : res != null
-              ? Theme.of(context).colorScheme.secondary
-              : null,
-      header: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Flexible(
-                child: Text(
-                  widget.question.prompt,
-                  style: lightBackgroundStyle,
+
+    return QuestionWrap(
+      question: widget.question,
+      listener: widget.questionsListener,
+      child: ExpandibleRaw(
+        controller: _controller,
+        iconSize: 0.0,
+        header: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Text(
+                    widget.question.prompt,
+                    style: lightBackgroundStyle,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(
-            width: 3.0,
-          ),
-          IgnorePointer(
-            ignoring: true,
-            child: Checkbox(
-              value: res != null,
-              onChanged: (val) {},
+              ],
             ),
-          ),
-        ],
+            const SizedBox(
+              width: 3.0,
+            ),
+            IgnorePointer(
+              ignoring: true,
+              child: Checkbox(
+                value: res != null,
+                onChanged: (val) {},
+              ),
+            ),
+          ],
+        ),
+        view: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: StripesSlider(
+              initial: value.toInt(),
+              min: widget.question.min?.toInt() ?? 1,
+              max: widget.question.max?.toInt() ?? 5,
+              onChange: (val) {
+                setState(() {
+                  value = val;
+                  _saveValue();
+                });
+              },
+              listener: _sliderListener,
+            )),
       ),
-      view: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-          child: StripesSlider(
-            initial: value.toInt(),
-            min: widget.question.min?.toInt() ?? 1,
-            max: widget.question.max?.toInt() ?? 5,
-            onChange: (val) {
-              setState(() {
-                value = val;
-                _saveValue();
-              });
-            },
-            listener: _sliderListener,
-          )),
-      hasIndicator: false,
-      listener: _controller,
     );
   }
 
