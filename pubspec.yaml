@@ -15,7 +15,9 @@ dependencies:
     sdk: flutter
   intl: any
   stripes_backend_helper:
-    path: ../stripes_backend_helper
+    git:
+      url: https://github.com/dylanb7/stripes_backend_helper
+      branch: master
   google_fonts: ^6.1.0
   flex_color_scheme: ^7.3.1
   flutter_riverpod: ^2.3.6
