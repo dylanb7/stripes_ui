@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:stripes_backend_helper/TestingReposImpl/test_question_repo.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
+import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -136,6 +137,11 @@ class BlueDyeTest extends Test<BlueDyeObj> {
   Future<void> submit(DateTime submitTime) async {
     stampRepo.addStamp(BlueDyeResp.from(_repo[subUser]!));
     cancel();
+  }
+
+  @override
+  Widget? displayState(BuildContext context) {
+    return BlueDyeTestScreen();
   }
 }
 

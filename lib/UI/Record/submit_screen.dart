@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/record_period.dart';
-import 'package:stripes_backend_helper/TestingReposImpl/test_question_repo.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
@@ -15,6 +14,7 @@ import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
+import 'package:uuid/uuid.dart';
 
 class SubmitScreen extends ConsumerStatefulWidget {
   final String type;
@@ -42,6 +42,7 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
 
   @override
   void initState() {
+    isEdit = widget.questionsListener.editId != null;
     if (widget.questionsListener.submitTime != null) {
       _dateListener.date = widget.questionsListener.submitTime!;
       _timeListener.time =
@@ -51,7 +52,6 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
       _descriptionController.text = widget.questionsListener.description!;
     }
     widget.questionsListener.addListener(_state);
-    isEdit = widget.questionsListener.editId != null;
     super.initState();
   }
 
@@ -67,11 +67,6 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final Color primary = Theme.of(context).colorScheme.primary;
-    final Color surface =
-        Theme.of(context).colorScheme.surface.withOpacity(0.12);
-    final Color onPrimary = Theme.of(context).colorScheme.onPrimary;
-    final Color onSurface = Theme.of(context).colorScheme.onSurface;
     Period? period = ref.watch(pagePaths)[widget.type]?.period;
     final List<Question> testAdditions = ref
             .watch(testHolderProvider)
@@ -235,7 +230,7 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
         period?.getValue(combinedEntry) ?? combinedEntry;
     final int entryStamp = dateToStamp(submissionEntry);
     final DetailResponse detailResponse = DetailResponse(
-      id: widget.questionsListener.editId,
+      id: widget.questionsListener.editId ?? const Uuid().v4(),
       description: _descriptionController.text,
       responses:
           widget.questionsListener.questions.values.toList(growable: false),

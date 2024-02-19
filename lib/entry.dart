@@ -122,9 +122,11 @@ class StripesHome extends ConsumerWidget {
       builder: builder,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      theme: light.copyWith(
+      theme:
+          light /*.copyWith(
           textTheme: GoogleFonts.atkinsonHyperlegibleTextTheme(
-              Theme.of(context).textTheme)),
+              Theme.of(context).textTheme))*/
+      ,
       routeInformationProvider: router.routeInformationProvider,
       routeInformationParser: router.routeInformationParser,
       routerDelegate: router.routerDelegate,

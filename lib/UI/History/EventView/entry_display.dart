@@ -30,14 +30,13 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, Widget Function(Response<Question>, BuildContext)>
-        overrides = ref.watch(questionsProvider).displayOverrides ?? {};
+    final Map<String, DisplayBuilder> overrides =
+        ref.watch(questionsProvider).displayOverrides ?? {};
     final DateTime date = dateFromStamp(widget.event.stamp);
     Widget? button;
     Widget? content;
-    final Widget Function(Response<Question>, BuildContext)? mainOverride =
-        overrides[widget.event.question.id];
-    if (mainOverride != null) return mainOverride(widget.event, context);
+    final DisplayBuilder? mainOverride = overrides[widget.event.question.id];
+    if (mainOverride != null) return mainOverride(context, widget.event);
     if (widget.event is BlueDyeResp) {
       final BlueDyeResp resp = widget.event as BlueDyeResp;
       content = BlueDyeDisplay(resp: resp);
@@ -208,11 +207,10 @@ class ResponseDisplay extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final Map<String, Widget Function(Response<Question>, BuildContext)>
-        overrides = ref.watch(questionsProvider).displayOverrides ?? {};
-    final Widget Function(Response<Question>, BuildContext)? childOverride =
-        overrides[res.question.id];
-    if (childOverride != null) return childOverride(res, context);
+    final Map<String, DisplayBuilder> overrides =
+        ref.watch(questionsProvider).displayOverrides ?? {};
+    final DisplayBuilder? childOverride = overrides[res.question.id];
+    if (childOverride != null) return childOverride(context, res);
     if (res is NumericResponse) {
       final NumericResponse numeric = res as NumericResponse;
       return Text('${numeric.question.prompt} - ${numeric.response}',

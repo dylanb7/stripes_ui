@@ -4,6 +4,7 @@ import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
+import 'package:stripes_ui/UI/History/EventView/entry_display.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_content.dart';
 import 'package:stripes_ui/Util/date_helper.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
@@ -94,7 +95,7 @@ class LogRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     DetailResponse event = log.response;
     final DateTime date = dateFromStamp(event.stamp);
-    List<Text> vals = [
+    List<Widget> vals = [
       Text(
         event.type,
         style: lightBackgroundHeaderStyle,
@@ -116,15 +117,7 @@ class LogRow extends ConsumerWidget {
       ),
       ...event.responses.map(
         (res) {
-          if (res is NumericResponse) {
-            return Text('${res.question.prompt} - ${res.response}',
-                style: lightBackgroundStyle, maxLines: null);
-          }
-          return Text(
-            res.question.prompt,
-            style: lightBackgroundStyle,
-            maxLines: null,
-          );
+          return ResponseDisplay(res: res);
         },
       ),
     ];
