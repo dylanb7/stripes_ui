@@ -1,6 +1,8 @@
 {
-    "@@locale": "en",
+    "@@locale": "es",
     "checkInLabel": "Check-ins",
+
+
     "signupWithAccessCode": "Sign up with access code",
     "loginButtonPrefix": "Already have an account? ",
     "loginButtonText": "Login",
