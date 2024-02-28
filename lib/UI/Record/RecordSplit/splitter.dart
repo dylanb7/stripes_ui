@@ -42,12 +42,16 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
   void initState() {
     original = QuestionsListener.copy(widget.questionListener);
     pageController = PageController();
-    widget.questionListener.addListener(() {
+    widget.questionListener.addListener(_changedUpdate);
+    super.initState();
+  }
+
+  _changedUpdate() {
+    if (mounted) {
       setState(() {
         hasChanged = original == widget.questionListener;
       });
-    });
-    super.initState();
+    }
   }
 
   @override
@@ -330,6 +334,12 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
 
     ref.read(overlayProvider.notifier).state =
         OverlayQuery(widget: ErrorPrevention(type: widget.type));
+  }
+
+  @override
+  void dispose() {
+    widget.questionListener.removeListener(_changedUpdate);
+    super.dispose();
   }
 }
 
