@@ -27,7 +27,8 @@ class BlueDyeTest extends Test<BlueDyeObj> {
   }
 
   setStart(DateTime time) {
-    _repo[subUser]?.setStart = time;
+    _repo[subUser] = _repo[subUser]?.copyWith(startTime: time) ??
+        BlueDyeObj(logs: [], startTime: time);
     _streamController.add(_repo[subUser]!);
   }
 
@@ -49,24 +50,27 @@ class BlueDyeTest extends Test<BlueDyeObj> {
   @override
   Future<void> onDelete(Response<Question> stamp, String type) async {
     if (stamp is! DetailResponse || !_repo.containsKey(subUser)) return;
-    final List<BMTestLog> logs = _repo[subUser]!.logs;
+    final BlueDyeObj current = _repo[subUser]!;
+    final List<BMTestLog> logs = current.logs;
     final List<BMTestLog> newLogs =
         logs.where((log) => log.response.stamp != stamp.stamp).toList();
     if (newLogs.length == logs.length) return;
-    _repo[subUser]!.setLogs(newLogs);
+
+    _repo[subUser] = current.copyWith(logs: newLogs);
     _streamController.add(_repo[subUser]!);
   }
 
   @override
   Future<void> onEdit(Response<Question> stamp, String type) async {
     if (stamp is! DetailResponse || !_repo.containsKey(subUser)) return;
-    final List<BMTestLog> logs = _repo[subUser]!.logs;
+    final BlueDyeObj current = _repo[subUser]!;
+    final List<BMTestLog> logs = current.logs;
     for (int i = 0; i < logs.length; i++) {
       if (stamp.stamp == logs[i].response.stamp) {
         final bool? blue = _isBlueFromDetail(stamp);
         if (blue == null) return;
         logs[i] = BMTestLog(response: stamp, isBlue: blue);
-        _repo[subUser]!.setLogs(logs);
+        _repo[subUser] = current.copyWith(logs: logs);
         _streamController.add(_repo[subUser]!);
         return;
       }
@@ -78,7 +82,9 @@ class BlueDyeTest extends Test<BlueDyeObj> {
     if (stamp is! DetailResponse) return;
     final bool? blue = _isBlueFromDetail(stamp);
     if (blue == null) return;
-    _repo[subUser]?.addLog(BMTestLog(response: stamp, isBlue: blue));
+    final BlueDyeObj? current = _repo[subUser];
+    _repo[subUser] = current?.copyWith(
+        logs: [...current.logs, BMTestLog(response: stamp, isBlue: blue)]);
     _streamController.add(_repo[subUser]!);
   }
 

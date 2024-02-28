@@ -13,7 +13,6 @@ import 'package:stripes_ui/UI/SharedHomeWidgets/tab_view.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
-import 'package:stripes_ui/repos/blue_dye_test_repo.dart';
 import '../../../Providers/sub_provider.dart';
 
 class TestScreen extends ConsumerStatefulWidget {
@@ -111,7 +110,7 @@ class _TestScreenState extends ConsumerState<TestScreen> {
   }
 }
 
-class BlueDyeTestScreen extends ConsumerWidget {
+class BlueDyeTestScreen<T extends Test> extends ConsumerWidget {
   final ExpandibleController expandListener = ExpandibleController(true);
 
   BlueDyeTestScreen({super.key});
@@ -194,7 +193,7 @@ class Info extends StatelessWidget {
   }
 }
 
-class TestErrorPrevention extends ConsumerWidget {
+class TestErrorPrevention<T extends Test> extends ConsumerWidget {
   const TestErrorPrevention({Key? key}) : super(key: key);
 
   @override
@@ -225,10 +224,7 @@ class TestErrorPrevention extends ConsumerWidget {
           ],
         ),
         onConfirm: () {
-          ref
-              .read(testHolderProvider.notifier)
-              .getTest<BlueDyeTest>()
-              ?.cancel();
+          ref.read(testHolderProvider.notifier).getTest<T>()?.cancel();
         },
         cancel: AppLocalizations.of(context)!.errorPreventionStay,
         confirm: AppLocalizations.of(context)!.errorPreventionLeave);

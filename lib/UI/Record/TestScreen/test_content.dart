@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/RepositoryBase/TestBase/BlueDye/blue_dye_impl.dart';
+import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
@@ -10,22 +11,21 @@ import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
-import 'package:stripes_ui/repos/blue_dye_test_repo.dart';
 
 import 'blue_recordings.dart';
 
 final testLoading = StateProvider<bool>((ref) => false);
 
-class TestContent extends ConsumerStatefulWidget {
+class TestContent<T extends Test> extends ConsumerStatefulWidget {
   final ExpandibleController expand;
 
   const TestContent({required this.expand, super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => TestContentState();
+  ConsumerState<ConsumerStatefulWidget> createState() => TestContentState<T>();
 }
 
-class TestContentState extends ConsumerState<TestContent> {
+class TestContentState<T extends Test> extends ConsumerState<TestContent> {
   @override
   Widget build(BuildContext context) {
     final BlueDyeObj? blueDyeObj =
@@ -64,8 +64,12 @@ class TestContentState extends ConsumerState<TestContent> {
                               ref.read(testLoading.notifier).state = true;
                               await ref
                                   .read(testHolderProvider)
-                                  .getTest<BlueDyeTest>()
-                                  ?.setStart(DateTime.now());
+                                  .getTest<T>()
+                                  ?.setValue(blueDyeObj?.copyWith(
+                                          startTime: DateTime.now()) ??
+                                      BlueDyeObj(
+                                          logs: [], startTime: DateTime.now()));
+
                               ref.read(testLoading.notifier).state = false;
                             },
                       child: isLoading
@@ -103,7 +107,7 @@ class TestContentState extends ConsumerState<TestContent> {
   }
 }
 
-class TimerDisplay extends ConsumerWidget {
+class TimerDisplay<T extends Test> extends ConsumerWidget {
   const TimerDisplay({super.key});
 
   @override
@@ -145,9 +149,10 @@ class TimerDisplay extends ConsumerWidget {
                         ref.read(testLoading.notifier).state = true;
                         await ref
                             .read(testHolderProvider.notifier)
-                            .getTest<BlueDyeTest>()
-                            ?.finishedEating(
-                                DateTime.now().difference(startTime));
+                            .getTest<T>()
+                            ?.setValue(blueDyeObj.copyWith(
+                                finishedEating:
+                                    DateTime.now().difference(startTime)));
                         ref.read(testLoading.notifier).state = false;
                       },
                 child: isLoading

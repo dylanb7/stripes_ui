@@ -53,5 +53,5 @@ class TestNotifier extends ChangeNotifier with EquatableMixin {
   }
 
   @override
-  List<Object?> get props => [repo];
+  List<Object?> get props => [repo, objects];
 }
