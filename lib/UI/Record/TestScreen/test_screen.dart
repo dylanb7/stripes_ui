@@ -133,7 +133,7 @@ class BlueDyeTestScreen<T extends Test> extends ConsumerWidget {
             padding: const EdgeInsets.all(12.0),
             child: Padding(
               padding: const EdgeInsets.only(left: 16.0),
-              child: TestContent(
+              child: TestContent<T>(
                 expand: expandListener,
               ),
             ),

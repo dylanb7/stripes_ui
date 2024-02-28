@@ -147,7 +147,7 @@ class BlueDyeTest extends Test<BlueDyeObj> {
 
   @override
   Widget? displayState(BuildContext context) {
-    return BlueDyeTestScreen();
+    return BlueDyeTestScreen<BlueDyeTest>();
   }
 }
 

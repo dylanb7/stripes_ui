@@ -10,9 +10,8 @@ import 'package:stripes_ui/Util/date_helper.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
-import 'package:stripes_ui/repos/blue_dye_test_repo.dart';
 
-class BlueRecordings extends ConsumerWidget {
+class BlueRecordings<T extends Test> extends ConsumerWidget {
   const BlueRecordings({super.key});
 
   @override
@@ -64,7 +63,7 @@ class BlueRecordings extends ConsumerWidget {
                           ref.read(testLoading.notifier).state = true;
                           await ref
                               .read(testHolderProvider)
-                              .getTest<BlueDyeTest>()
+                              .getTest<T>()
                               ?.submit(DateTime.now());
                           ref.read(testLoading.notifier).state = false;
                           if (context.mounted) {

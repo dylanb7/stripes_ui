@@ -79,9 +79,9 @@ class TestContentState<T extends Test> extends ConsumerState<TestContent> {
                   ),
                 )
               ]),
-        if (state.testInProgress) const TimerDisplay(),
+        if (state.testInProgress) TimerDisplay<T>(),
         if (state == TestState.logs || state == TestState.logsSubmit) ...[
-          const BlueRecordings(),
+          BlueRecordings<T>(),
         ],
         if (state.testInProgress)
           Padding(
