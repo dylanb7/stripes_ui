@@ -994,7 +994,9 @@ class _BlueDyeEntryState extends ConsumerState<BlueDyeEntry> {
       final int index = (res as MultiResponse).index;
       toggleState[index] = true;
     } else {
-      widget.listener.addPending(widget.question);
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        widget.listener.addPending(widget.question);
+      });
     }
 
     super.initState();
