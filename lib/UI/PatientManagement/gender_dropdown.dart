@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stripes_ui/Util/form_input.dart';
 import 'package:stripes_ui/Util/text_styles.dart';
 
 String? empty(String? val) {
@@ -36,47 +37,19 @@ class GenderDropdown extends FormField<String> {
                               : Border.all(
                                   color: Theme.of(context).colorScheme.error),
                           borderRadius: BorderRadius.circular(5)),
-                      child: DropdownButton<String>(
-                        onChanged: (value) {
+                      child: DropdownMenu<String>(
+                        onSelected: (value) {
                           holder.gender = value;
                           state.didChange(value);
                         },
-                        value: state.value,
-                        underline: Container(),
-                        hint: const Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            'Gender',
-                            textAlign: TextAlign.left,
-                          ),
-                        ),
-                        icon: const Icon(
+                        initialSelection: state.value,
+                        trailingIcon: const Icon(
                           Icons.arrow_downward,
                         ),
-                        isExpanded: true,
-                        items: values
-                            .map((e) => DropdownMenuItem(
-                                  value: e,
-                                  child: Container(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      e,
-                                      style: lightBackgroundStyle,
-                                      textAlign: TextAlign.left,
-                                    ),
-                                  ),
-                                ))
+                        dropdownMenuEntries: values
+                            .map((e) => DropdownMenuEntry(value: e, label: e))
                             .toList(),
-                        selectedItemBuilder: (BuildContext context) => values
-                            .map((e) => Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    e,
-                                    style: lightBackgroundStyle,
-                                    textAlign: TextAlign.left,
-                                  ),
-                                ))
-                            .toList(),
+                        errorText: state.errorText,
                       ),
                     ),
                     if (state.hasError)
