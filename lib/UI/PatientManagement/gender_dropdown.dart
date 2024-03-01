@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:stripes_ui/Util/form_input.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
 
 String? empty(String? val) {
   return val == null ? 'Not set' : null;
