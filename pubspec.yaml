@@ -48,6 +48,8 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   uses-material-design: true
+  fonts:
+    - packages/stripes_ui/assets/fonts/Inter/Inter-VariableFont_slnt,wght.ttf
   assets:
     - packages/stripes_ui/assets/images/Blue_Poop.png
     - packages/stripes_ui/assets/images/Brown_Poop.png

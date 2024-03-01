@@ -32,6 +32,7 @@ final ThemeData light = FlexThemeData.light(
   surfaceMode: FlexSurfaceMode.highBackgroundLowScaffold,
   blendLevel: 1,
   appBarStyle: FlexAppBarStyle.background,
+  fontFamily: "Inter",
   bottomAppBarElevation: 2.0,
   subThemesData: const FlexSubThemesData(
     blendOnLevel: 6,
