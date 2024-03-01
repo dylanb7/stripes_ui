@@ -25,6 +25,8 @@ class GenderDropdown extends FormField<String> {
             builder: (FormFieldState<String> state) {
               final List<String> values = ["Male", "Female", "Other"];
               return DropdownMenu<String>(
+                enableSearch: false,
+                expandedInsets: const EdgeInsets.all(0),
                 onSelected: (value) {
                   holder.gender = value;
                   state.didChange(value);
