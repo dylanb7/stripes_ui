@@ -44,7 +44,7 @@ class EventDisplay extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
-                children: [EventFrequency(), GraphWidget()],
+                children: [GraphWidget(), EventFrequency()],
               ),
             ),
           ),
