@@ -49,7 +49,9 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   fonts:
-    - packages/stripes_ui/assets/fonts/Inter/Inter-VariableFont_slnt,wght.ttf
+    - family: Inter
+      fonts:
+        - asset: packages/stripes_ui/assets/fonts/Inter/Inter-VariableFont_slnt,wght.ttf
   assets:
     - packages/stripes_ui/assets/images/Blue_Poop.png
     - packages/stripes_ui/assets/images/Brown_Poop.png
