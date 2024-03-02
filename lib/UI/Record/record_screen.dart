@@ -212,7 +212,7 @@ class CheckInButton extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           Text(item.type,
-                              style: Theme.of(context).textTheme.displayMedium),
+                              style: Theme.of(context).textTheme.titleLarge),
                           ...additions
                         ]),
                     CheckIndicator(
@@ -285,7 +285,7 @@ class RecordButton extends StatelessWidget {
                         children: [
                           Text(
                             text,
-                            style: Theme.of(context).textTheme.headlineMedium,
+                            style: Theme.of(context).textTheme.titleLarge,
                           ),
                           ...additions
                         ]),
