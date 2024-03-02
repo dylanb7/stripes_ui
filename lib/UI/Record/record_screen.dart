@@ -285,7 +285,7 @@ class RecordButton extends StatelessWidget {
                         children: [
                           Text(
                             text,
-                            style: Theme.of(context).textTheme.labelLarge,
+                            style: Theme.of(context).textTheme.headlineMedium,
                           ),
                           ...additions
                         ]),
