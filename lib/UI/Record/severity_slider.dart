@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class SliderListener extends ChangeNotifier {
@@ -74,8 +73,10 @@ class _StripesSliderState extends State<StripesSlider> {
           child: Text(
             AppLocalizations.of(context)!.levelReminder,
             textAlign: TextAlign.center,
-            style: lightBackgroundHeaderStyle.copyWith(
-                fontWeight: FontWeight.bold),
+            style: Theme.of(context)
+                .textTheme
+                .headlineSmall
+                ?.copyWith(fontWeight: FontWeight.bold),
           ),
         ),
         const SizedBox(
@@ -97,8 +98,7 @@ class _StripesSliderState extends State<StripesSlider> {
               child: GestureDetector(
                 child: Text(
                   '${widget.min}',
-                  style: darkBackgroundStyle.copyWith(
-                      fontSize: 16.0,
+                  style: Theme.of(context).textTheme.displayLarge?.copyWith(
                       color: Theme.of(context).colorScheme.onPrimary),
                   textAlign: TextAlign.center,
                 ),
@@ -172,7 +172,7 @@ class _StripesSliderState extends State<StripesSlider> {
                 child: GestureDetector(
                   child: Text(
                     '${widget.max}',
-                    style: darkBackgroundStyle.copyWith(
+                    style: Theme.of(context).textTheme.displayLarge?.copyWith(
                         fontSize: 16.0,
                         color: Theme.of(context).colorScheme.onPrimary),
                     textAlign: TextAlign.center,
@@ -203,11 +203,11 @@ class _StripesSliderState extends State<StripesSlider> {
             children: [
               Text(
                 widget.minLabel ?? AppLocalizations.of(context)!.mildTag,
-                style: lightBackgroundStyle,
+                style: Theme.of(context).textTheme.bodyLarge,
               ),
               Text(
                 widget.maxLabel ?? AppLocalizations.of(context)!.severeTag,
-                style: lightBackgroundStyle,
+                style: Theme.of(context).textTheme.bodyLarge,
               ),
             ],
           ),
@@ -283,8 +283,10 @@ class _MoodSliderState extends State<MoodSlider> {
           child: Text(
             AppLocalizations.of(context)!.levelReminder,
             textAlign: TextAlign.center,
-            style: lightBackgroundHeaderStyle.copyWith(
-                fontWeight: FontWeight.bold),
+            style: Theme.of(context)
+                .textTheme
+                .displayLarge
+                ?.copyWith(fontWeight: FontWeight.bold),
           ),
         ),
         const SizedBox(
@@ -324,7 +326,7 @@ class _MoodSliderState extends State<MoodSlider> {
                   child: GestureDetector(
                     child: Text(
                       '1',
-                      style: darkBackgroundStyle.copyWith(fontSize: 16.0),
+                      style: Theme.of(context).textTheme.bodyMedium,
                       textAlign: TextAlign.center,
                     ),
                     onTap: () {
@@ -396,7 +398,7 @@ class _MoodSliderState extends State<MoodSlider> {
                   child: GestureDetector(
                     child: Text(
                       '10',
-                      style: darkBackgroundStyle.copyWith(fontSize: 16.0),
+                      style: Theme.of(context).textTheme.bodyMedium,
                       textAlign: TextAlign.center,
                     ),
                     onTap: () {
@@ -422,11 +424,11 @@ class _MoodSliderState extends State<MoodSlider> {
           children: [
             Text(
               widget.minLabel ?? "",
-              style: lightBackgroundStyle,
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
             Text(
               widget.maxLabel ?? "",
-              style: lightBackgroundStyle,
+              style: Theme.of(context).textTheme.displayLarge,
             ),
           ],
         ),
@@ -530,8 +532,10 @@ class _PainSliderState extends State<PainSlider> {
           child: Text(
             AppLocalizations.of(context)!.levelReminder,
             textAlign: TextAlign.center,
-            style: lightBackgroundHeaderStyle.copyWith(
-                fontWeight: FontWeight.bold),
+            style: Theme.of(context)
+                .textTheme
+                .headlineSmall
+                ?.copyWith(fontWeight: FontWeight.bold),
           ),
         ),
         const SizedBox(
@@ -549,7 +553,7 @@ class _PainSliderState extends State<PainSlider> {
             if (listener.interact)
               Text(
                 hurtLevels[selectedIndex],
-                style: darkBackgroundStyle,
+                style: Theme.of(context).textTheme.bodyMedium,
                 textAlign: TextAlign.center,
               ),
             Padding(
@@ -576,7 +580,7 @@ class _PainSliderState extends State<PainSlider> {
                     child: GestureDetector(
                       child: Text(
                         '0',
-                        style: darkBackgroundStyle.copyWith(fontSize: 16.0),
+                        style: Theme.of(context).textTheme.bodyMedium,
                         textAlign: TextAlign.center,
                       ),
                       onTap: () {
@@ -649,7 +653,7 @@ class _PainSliderState extends State<PainSlider> {
                   child: GestureDetector(
                     child: Text(
                       '10',
-                      style: darkBackgroundStyle.copyWith(fontSize: 16.0),
+                      style: Theme.of(context).textTheme.bodyMedium,
                       textAlign: TextAlign.center,
                     ),
                     onTap: () {

@@ -11,7 +11,6 @@ import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/UI/Record/base_screen.dart';
 import 'package:stripes_ui/UI/Record/severity_slider.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 import 'package:collection/collection.dart';
 
@@ -35,7 +34,7 @@ class QuestionScreen extends StatelessWidget {
       children: [
         Text(
           header,
-          style: lightBackgroundHeaderStyle.copyWith(
+          style: Theme.of(context).textTheme.displayLarge?.copyWith(
               color: Theme.of(context).colorScheme.onPrimaryContainer),
         ),
         const SizedBox(
@@ -180,7 +179,7 @@ class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
               Flexible(
                 child: Text(
                   widget.question.prompt,
-                  style: lightBackgroundStyle,
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ),
               const SizedBox(
@@ -218,7 +217,7 @@ class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
                             Expanded(
                               child: Text(
                                 choice,
-                                style: lightBackgroundStyle,
+                                style: Theme.of(context).textTheme.bodyMedium,
                               ),
                             ),
                             const SizedBox(
@@ -301,7 +300,7 @@ class _CheckBoxWidgetState extends State<CheckBoxWidget> {
                 Flexible(
                     child: Text(
                   widget.check.prompt,
-                  style: lightBackgroundStyle,
+                  style: Theme.of(context).textTheme.bodyMedium,
                 )),
                 const SizedBox(
                   width: 3.0,
@@ -416,7 +415,7 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
                     Flexible(
                       child: Text(
                         widget.question.prompt,
-                        style: lightBackgroundStyle,
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ),
                   ],
@@ -636,7 +635,7 @@ class _SeverityPainWidgetState extends ConsumerState<SeverityPainWidget> {
               Flexible(
                 child: Text(
                   widget.question.prompt,
-                  style: lightBackgroundStyle,
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ),
             ],
@@ -836,7 +835,7 @@ class _FreeResponseEntryState extends State<FreeResponseEntry> {
                 child: Text(
                   widget.question.prompt,
                   textAlign: TextAlign.center,
-                  style: lightBackgroundStyle,
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ),
               const SizedBox(
@@ -1016,7 +1015,7 @@ class _BlueDyeEntryState extends ConsumerState<BlueDyeEntry> {
         ),
         Text(
           AppLocalizations.of(context)!.submitBlueQuestion,
-          style: lightBackgroundHeaderStyle,
+          style: Theme.of(context).textTheme.bodyLarge,
           textAlign: TextAlign.center,
         ),
         const SizedBox(

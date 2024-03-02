@@ -5,7 +5,6 @@ import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/date_time_entry.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class FilterButton extends ConsumerWidget {
@@ -108,7 +107,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                             ),
                             Text(
                               AppLocalizations.of(context)!.eventFilterHeader,
-                              style: lightBackgroundHeaderStyle,
+                              style: Theme.of(context).textTheme.headlineMedium,
                             ),
                             IconButton(
                                 onPressed: () {
@@ -130,7 +129,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                             children: [
                               Text(
                                 message,
-                                style: lightBackgroundStyle,
+                                style: Theme.of(context).textTheme.bodyMedium,
                               ),
                               const SizedBox(width: 4.0),
                               TextButton(
@@ -143,8 +142,12 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                                   child: Text(
                                     AppLocalizations.of(context)!
                                         .eventFilterReset,
-                                    style: lightBackgroundStyle.copyWith(
-                                        decoration: TextDecoration.underline),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                            decoration:
+                                                TextDecoration.underline),
                                   ))
                             ],
                           ),
@@ -155,7 +158,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                         if (types.isNotEmpty)
                           Text(
                             AppLocalizations.of(context)!.eventFilterTypesTag,
-                            style: lightBackgroundHeaderStyle,
+                            style: Theme.of(context).textTheme.bodyLarge,
                             textAlign: TextAlign.left,
                           ),
                         const SizedBox(
@@ -191,7 +194,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                         ),
                         Text(
                           AppLocalizations.of(context)!.eventFiltersFromTag,
-                          style: lightBackgroundHeaderStyle,
+                          style: Theme.of(context).textTheme.bodyLarge,
                         ),
                         const SizedBox(
                           height: 6.0,
@@ -219,7 +222,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                         ),
                         Text(
                           AppLocalizations.of(context)!.eventFiltersToTag,
-                          style: lightBackgroundHeaderStyle,
+                          style: Theme.of(context).textTheme.bodyLarge,
                         ),
                         const SizedBox(
                           height: 6.0,

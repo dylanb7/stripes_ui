@@ -5,7 +5,6 @@ import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/Util/constants.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
 
 import 'edit_patient.dart';
 
@@ -28,7 +27,7 @@ class UserView extends ConsumerWidget {
         padding: const EdgeInsets.only(top: 4.0),
         child: Text(
           subUser.name,
-          style: lightBackgroundHeaderStyle,
+          style: Theme.of(context).textTheme.headlineMedium,
         ),
       ),
       view: Column(
@@ -38,16 +37,16 @@ class UserView extends ConsumerWidget {
           ),
           Row(
             children: [
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     "Birth Year:",
-                    style: lightBackgroundStyle,
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   Text(
                     "Gender:",
-                    style: lightBackgroundStyle,
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ],
               ),
@@ -59,11 +58,11 @@ class UserView extends ConsumerWidget {
                 children: [
                   Text(
                     "${subUser.birthYear}",
-                    style: lightBackgroundStyle,
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   Text(
                     subUser.gender,
-                    style: lightBackgroundStyle,
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ],
               )
@@ -77,9 +76,9 @@ class UserView extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               selected
-                  ? const Text(
+                  ? Text(
                       'Current Patient',
-                      style: lightBackgroundStyle,
+                      style: Theme.of(context).textTheme.bodyMedium,
                     )
                   : TextButton(
                       child: Text('Select'),

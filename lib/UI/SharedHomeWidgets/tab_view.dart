@@ -10,7 +10,7 @@ import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
 import 'package:stripes_ui/UI/Record/record_screen.dart';
 
 import 'package:stripes_ui/Util/constants.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
+
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 enum TabOption {
@@ -147,38 +147,35 @@ class LargeLayout extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Widget getButton(TextStyle style, TabOption option, String text) =>
-        TextButton(
-            onPressed: () {
-              context
-                  .findAncestorWidgetOfExactType<StripesTabView>()!
-                  .handleTap(context, option, ref);
-            },
-            child: Text(
-              text,
-            ));
+    Widget getButton(TabOption option, String text) => TextButton(
+        onPressed: () {
+          context
+              .findAncestorWidgetOfExactType<StripesTabView>()!
+              .handleTap(context, option, ref);
+        },
+        child: Text(
+          text,
+        ));
 
     Widget recordButton = selected == TabOption.record
         ? _decorationWrap(
-            child: getButton(darkBackgroundHeaderStyle, TabOption.record,
-                AppLocalizations.of(context)!.recordTab),
+            child: getButton(
+                TabOption.record, AppLocalizations.of(context)!.recordTab),
             context: context)
-        : getButton(darkBackgroundHeaderStyle, TabOption.record,
-            AppLocalizations.of(context)!.recordTab);
+        : getButton(TabOption.record, AppLocalizations.of(context)!.recordTab);
     Widget testButton = selected == TabOption.tests
         ? _decorationWrap(
-            child: getButton(darkBackgroundHeaderStyle, TabOption.tests,
-                AppLocalizations.of(context)!.testTab),
+            child: getButton(
+                TabOption.tests, AppLocalizations.of(context)!.testTab),
             context: context)
-        : getButton(darkBackgroundHeaderStyle, TabOption.tests,
-            AppLocalizations.of(context)!.testTab);
+        : getButton(TabOption.tests, AppLocalizations.of(context)!.testTab);
     Widget historyButton = selected == TabOption.history
         ? _decorationWrap(
-            child: getButton(darkBackgroundHeaderStyle, TabOption.history,
-                AppLocalizations.of(context)!.historyTab),
+            child: getButton(
+                TabOption.history, AppLocalizations.of(context)!.historyTab),
             context: context)
-        : getButton(darkBackgroundHeaderStyle, TabOption.history,
-            AppLocalizations.of(context)!.historyTab);
+        : getButton(
+            TabOption.history, AppLocalizations.of(context)!.historyTab);
     return SliverAppBar(
       snap: true,
       floating: true,

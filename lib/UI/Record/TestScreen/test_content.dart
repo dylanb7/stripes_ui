@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:stripes_backend_helper/RepositoryBase/TestBase/BlueDye/blue_dye_impl.dart';
+
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
@@ -9,7 +9,6 @@ import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/instructions.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 import 'blue_recordings.dart';
@@ -42,7 +41,7 @@ class TestContentState<T extends Test> extends ConsumerState<TestContent> {
                 AppLocalizations.of(context)!.blueMealStartTime(
                     blueDyeObj!.startTime!, blueDyeObj.startTime!),
                 textAlign: TextAlign.left,
-                style: lightBackgroundStyle,
+                style: Theme.of(context).textTheme.bodyMedium,
               )
             : Column(children: [
                 LabeledList(strings: [
@@ -131,7 +130,7 @@ class TimerDisplay<T extends Test> extends ConsumerWidget {
           ),
           Text(
             AppLocalizations.of(context)!.blueMealDurationTag,
-            style: lightBackgroundHeaderStyle,
+            style: Theme.of(context).textTheme.headlineMedium,
           ),
           Visibility(
               visible: !isLoading,
@@ -175,13 +174,15 @@ class TimerDisplay<T extends Test> extends ConsumerWidget {
             text: TextSpan(children: [
               TextSpan(
                 text: AppLocalizations.of(context)!.blueMealFinalDurationTag,
-                style: lightBackgroundStyle.copyWith(
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onPrimaryContainer),
               ),
               TextSpan(
                 text: '\t${from(blueDyeObj.finishedEating!)}',
-                style: lightBackgroundStyle.copyWith(
-                    color: Theme.of(context).colorScheme.primary),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: Theme.of(context).colorScheme.primary),
               ),
             ])),
       ),

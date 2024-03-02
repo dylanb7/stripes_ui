@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/Providers/graph_data_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
 
 import 'freq_expand.dart';
 import 'frequency_row.dart';
@@ -43,12 +42,12 @@ class EventFrequency extends ConsumerWidget {
         const SizedBox(
           height: 14.0,
         ),
-        const FittedBox(
+        FittedBox(
           fit: BoxFit.scaleDown,
           child: Text(
             'Events by Category',
             maxLines: 1,
-            style: darkBackgroundScreenHeaderStyle,
+            style: Theme.of(context).textTheme.headlineMedium,
           ),
         ),
         const SizedBox(
@@ -106,9 +105,9 @@ class EventFrequency extends ConsumerWidget {
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Common Behaviors:',
-                            style: lightBackgroundHeaderStyle,
+                            style: Theme.of(context).textTheme.headlineMedium,
                           ),
                           ...displayed.keys.map((key) {
                             final int promptVal = displayed[key]!;

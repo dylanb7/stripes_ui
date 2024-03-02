@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
 
 String? empty(String? val) {
   return val == null ? 'Not set' : null;
@@ -56,8 +55,11 @@ class PatientControlSelector extends FormField<String> {
                           child: Text(
                             'Role',
                             textAlign: TextAlign.left,
-                            style: lightBackgroundStyle.copyWith(
-                                color: Colors.black.withOpacity(0.6)),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                    color: Colors.black.withOpacity(0.6)),
                           ),
                         ),
                         icon: const Icon(
@@ -71,7 +73,9 @@ class PatientControlSelector extends FormField<String> {
                                     alignment: Alignment.centerLeft,
                                     child: Text(
                                       e,
-                                      style: lightBackgroundStyle,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium,
                                       textAlign: TextAlign.left,
                                     ),
                                   ),
@@ -82,7 +86,8 @@ class PatientControlSelector extends FormField<String> {
                                   alignment: Alignment.centerLeft,
                                   child: Text(
                                     e,
-                                    style: lightBackgroundStyle,
+                                    style:
+                                        Theme.of(context).textTheme.bodyMedium,
                                     textAlign: TextAlign.left,
                                   ),
                                 ))
@@ -95,7 +100,11 @@ class PatientControlSelector extends FormField<String> {
                           child: Text(
                             state.errorText!,
                             textAlign: TextAlign.left,
-                            style: errorStyleTitle,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                    color: Theme.of(context).colorScheme.error),
                           )),
                   ]);
             });

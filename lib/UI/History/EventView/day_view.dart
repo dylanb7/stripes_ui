@@ -3,7 +3,6 @@ import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/UI/History/EventView/sig_dates.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
 
 import 'calendar_day.dart';
 
@@ -33,8 +32,11 @@ class DayView extends ConsumerWidget {
                   }
                 },
                 locale: Localizations.localeOf(context).languageCode,
-                weekdayTextStyle: darkBackgroundStyle.copyWith(
-                    color: Theme.of(context).colorScheme.onBackground),
+                weekdayTextStyle: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(
+                        color: Theme.of(context).colorScheme.onBackground),
                 showWeekDays: true,
                 customDayBuilder: (isSelectable,
                     index,
@@ -64,11 +66,16 @@ class DayView extends ConsumerWidget {
                 isScrollable: false,
                 scrollDirection: Axis.horizontal,
                 showHeader: true,
-                headerTextStyle: darkBackgroundHeaderStyle.copyWith(
-                    color: Theme.of(context).colorScheme.onBackground),
+                headerTextStyle: Theme.of(context)
+                    .textTheme
+                    .bodyLarge
+                    ?.copyWith(
+                        color: Theme.of(context).colorScheme.onBackground),
                 pageSnapping: true,
-                inactiveDaysTextStyle:
-                    lightBackgroundStyle.copyWith(fontSize: 14),
+                inactiveDaysTextStyle: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(fontSize: 14),
                 maxSelectedDate: DateTime.now(),
                 minSelectedDate: getMinDate(),
                 height: 150,

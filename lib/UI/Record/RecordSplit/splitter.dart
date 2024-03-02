@@ -12,7 +12,6 @@ import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
 import 'package:stripes_ui/UI/Record/question_screen.dart';
 import 'package:stripes_ui/UI/Record/submit_screen.dart';
 import 'package:stripes_ui/Util/constants.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class RecordSplitter extends ConsumerStatefulWidget {
@@ -96,7 +95,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                       .emptyRecordHeader(widget.type)
                                   : AppLocalizations.of(context)!
                                       .recordHeader(widget.type, name),
-                              style: darkBackgroundHeaderStyle,
+                              style: Theme.of(context).textTheme.bodyLarge,
                             ),
                           ),
                           IconButton(
@@ -195,10 +194,13 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                                     .questionListener
                                                     .pending
                                                     .length),
-                                            style: errorStyleTitle.copyWith(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .error),
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyMedium
+                                                ?.copyWith(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .error),
                                           ),
                                         Row(
                                             mainAxisAlignment:
@@ -356,7 +358,7 @@ class ErrorPrevention extends ConsumerWidget {
     return ConfirmationPopup(
         title: Text(
           AppLocalizations.of(context)!.errorPreventionTitle,
-          style: darkBackgroundHeaderStyle,
+          style: Theme.of(context).textTheme.headlineMedium,
           textAlign: TextAlign.center,
         ),
         body: Column(
@@ -365,7 +367,7 @@ class ErrorPrevention extends ConsumerWidget {
           children: [
             Text(
               AppLocalizations.of(context)!.errorPreventionLineOne,
-              style: lightBackgroundStyle,
+              style: Theme.of(context).textTheme.bodyMedium,
               textAlign: TextAlign.center,
             ),
             const SizedBox(
@@ -374,7 +376,7 @@ class ErrorPrevention extends ConsumerWidget {
             Text(
               AppLocalizations.of(context)!
                   .errorPreventionLineTwo(type.toLowerCase()),
-              style: lightBackgroundStyle,
+              style: Theme.of(context).textTheme.bodyMedium,
               textAlign: TextAlign.center,
             ),
           ],
@@ -507,7 +509,7 @@ class BasicButton extends StatelessWidget {
       ),
       child: Text(
         text,
-        style: darkBackgroundStyle,
+        style: Theme.of(context).textTheme.bodyMedium,
       ),
     );
   }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
 
 class FrequencyRow extends StatelessWidget {
   final double percent;
@@ -24,7 +23,7 @@ class FrequencyRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final Widget text = Text(
       prompt,
-      style: lightBackgroundStyle,
+      style: Theme.of(context).textTheme.bodyMedium,
       softWrap: false,
       overflow: TextOverflow.fade,
       maxLines: 1,
@@ -75,7 +74,7 @@ class FrequencyRow extends StatelessWidget {
                   ),
                   Text(
                     '$amount',
-                    style: lightBackgroundStyle,
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ],
               ),

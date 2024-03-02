@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stripes_ui/Util/form_input.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
 
 class BirthYearController {
   DateTime _birthYear = DateTime(2005);
@@ -45,9 +44,9 @@ class BirthYearSelector extends FormField<String> {
                         showDialog(
                           context: context,
                           builder: (context) => AlertDialog(
-                            title: const Text(
+                            title: Text(
                               'Select Birth Year',
-                              style: lightBackgroundHeaderStyle,
+                              style: Theme.of(context).textTheme.headlineMedium,
                             ),
                             content: SizedBox(
                               width: 300,

@@ -78,16 +78,23 @@ class MonthView extends ConsumerWidget {
                     todayBorderColor: Colors.transparent,
                     selectedDayBorderColor: Colors.transparent,
                     selectedDayButtonColor: Colors.transparent,
-                    daysTextStyle: darkBackgroundStyle,
-                    headerTextStyle: darkBackgroundHeaderStyle.copyWith(
-                        color: Theme.of(context).colorScheme.onBackground),
-                    weekendTextStyle: lightBackgroundStyle,
-                    inactiveDaysTextStyle: lightBackgroundStyle,
+                    daysTextStyle: Theme.of(context).textTheme.bodyMedium,
+                    headerTextStyle: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(
+                            color: Theme.of(context).colorScheme.onBackground),
+                    weekendTextStyle: Theme.of(context).textTheme.bodyMedium,
+                    inactiveDaysTextStyle:
+                        Theme.of(context).textTheme.bodyMedium,
                     maxSelectedDate: DateTime.now(),
                     minSelectedDate: getMinDate(),
                     showOnlyCurrentMonthDate: true,
-                    weekdayTextStyle: darkBackgroundStyle.copyWith(
-                        color: Theme.of(context).colorScheme.onBackground));
+                    weekdayTextStyle: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(
+                            color: Theme.of(context).colorScheme.onBackground));
               }),
             ),
           ),

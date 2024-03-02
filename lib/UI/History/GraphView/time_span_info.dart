@@ -7,7 +7,6 @@ import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 
 import 'package:stripes_ui/Util/date_helper.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
 
 class TimeSpanInfo extends ConsumerWidget {
   const TimeSpanInfo({super.key});
@@ -19,10 +18,10 @@ class TimeSpanInfo extends ConsumerWidget {
     final double width = MediaQuery.of(context).size.width;
 
     if (stamps.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           "No Data Recorded",
-          style: darkBackgroundHeaderStyle,
+          style: Theme.of(context).textTheme.bodyLarge,
         ),
       );
     }
@@ -45,13 +44,15 @@ class TimeSpanInfo extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const Text(
+                    Text(
                       'Events',
-                      style: lightBackgroundStyle,
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     Text('${stamps.length}',
-                        style: lightBackgroundStyle.copyWith(
-                            fontWeight: FontWeight.bold))
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.copyWith(fontWeight: FontWeight.bold))
                   ],
                 )),
                 const VerticalDivider(
@@ -66,14 +67,16 @@ class TimeSpanInfo extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const Text(
+                    Text(
                       'Oldest',
-                      style: lightBackgroundStyle,
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     Text(
                       '${_respToDateStr(stamps.last, context)}',
-                      style: lightBackgroundStyle.copyWith(
-                          fontWeight: FontWeight.bold),
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
                     )
                   ],
                 )),
@@ -89,14 +92,16 @@ class TimeSpanInfo extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const Text(
+                    Text(
                       'Newest',
-                      style: lightBackgroundStyle,
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     Text(
                       '${_respToDateStr(stamps.first, context)}',
-                      style: lightBackgroundStyle.copyWith(
-                          fontWeight: FontWeight.bold),
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
                     )
                   ],
                 )),

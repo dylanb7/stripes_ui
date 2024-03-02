@@ -5,7 +5,6 @@ import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 
 import 'package:stripes_ui/Util/constants.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
 
 import 'add_user_widget.dart';
 import 'user_view.dart';
@@ -27,11 +26,11 @@ class PatientScreen extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Flexible(
+                Flexible(
                     child: Text(
                   'Patient Profiles',
                   maxLines: 2,
-                  style: darkBackgroundScreenHeaderStyle,
+                  style: Theme.of(context).textTheme.headlineMedium,
                 )),
                 IconButton(
                     onPressed: () {

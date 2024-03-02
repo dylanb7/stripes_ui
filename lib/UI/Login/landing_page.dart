@@ -7,8 +7,6 @@ import 'package:stripes_ui/Providers/auth_provider.dart';
 
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/form_input.dart';
-
-import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/entry.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -127,7 +125,10 @@ class AccessLoginState extends ConsumerState<AccessLogin> {
             if (accessError != null && !loading)
               Text(
                 accessError!,
-                style: errorStyleTitle,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: Theme.of(context).colorScheme.error),
               ),
             const SizedBox(height: 6.0),
             if (!loading)
@@ -145,7 +146,7 @@ class AccessLoginState extends ConsumerState<AccessLogin> {
                 children: [
                   Text(
                     controller.text,
-                    style: lightBackgroundHeaderStyle,
+                    style: Theme.of(context).textTheme.bodyLarge,
                   ),
                   const SizedBox(
                     width: 12.0,

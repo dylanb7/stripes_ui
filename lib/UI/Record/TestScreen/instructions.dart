@@ -4,7 +4,7 @@ import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
+
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class Instructions extends ConsumerStatefulWidget {
@@ -45,7 +45,10 @@ class _InstructionsState extends ConsumerState<Instructions> {
         children: [
           Text(
             AppLocalizations.of(context)!.blueDyeInstructionsHeader,
-            style: lightBackgroundHeaderStyle.copyWith(fontSize: 20.0),
+            style: Theme.of(context)
+                .textTheme
+                .headlineMedium
+                ?.copyWith(fontSize: 20.0),
             textAlign: TextAlign.left,
           ),
           if (state != TestState.initial &&
@@ -55,7 +58,7 @@ class _InstructionsState extends ConsumerState<Instructions> {
             ),
             Text(
               stage,
-              style: lightBackgroundStyle,
+              style: Theme.of(context).textTheme.bodyMedium,
             )
           ]
         ]);
@@ -74,7 +77,7 @@ class _InstructionsState extends ConsumerState<Instructions> {
                 title: Text(
                   AppLocalizations.of(context)!.blueDyeInstructionsStepOne,
                   textAlign: TextAlign.left,
-                  style: lightBackgroundHeaderStyle,
+                  style: Theme.of(context).textTheme.headlineMedium,
                 ),
                 /*Row(
                     mainAxisSize: MainAxisSize.min,
@@ -117,7 +120,7 @@ class _InstructionsState extends ConsumerState<Instructions> {
             LabeledList(
                 title: Text(
                   AppLocalizations.of(context)!.blueDyeInstructionsStepTwo,
-                  style: lightBackgroundHeaderStyle,
+                  style: Theme.of(context).textTheme.headlineMedium,
                 ),
                 strings: [
                   AppLocalizations.of(context)!.blueDyeInstructionsStepTwoA,
@@ -131,7 +134,7 @@ class _InstructionsState extends ConsumerState<Instructions> {
             LabeledList(
                 title: Text(
                   AppLocalizations.of(context)!.blueDyeInstructionsStepThree,
-                  style: lightBackgroundHeaderStyle,
+                  style: Theme.of(context).textTheme.headlineMedium,
                 ),
                 strings: [
                   AppLocalizations.of(context)!.blueDyeInstructionsStepThreeA
@@ -186,7 +189,7 @@ class _InstructionsState extends ConsumerState<Instructions> {
               title: Text(
                 AppLocalizations.of(context)!.blueMuffinsInfoHeader,
                 textAlign: TextAlign.center,
-                style: lightBackgroundHeaderStyle,
+                style: Theme.of(context).textTheme.headlineMedium,
               ),
               contentPadding: const EdgeInsets.only(
                   left: 25.0, right: 25.0, bottom: 25.0, top: 10.0),
@@ -245,9 +248,9 @@ class LabeledList extends StatelessWidget {
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(
               marker(index.key),
-              style: lightBackgroundStyle.copyWith(
-                fontSize: 16.0,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontSize: 16.0,
+                  ),
             ),
             const SizedBox(
               width: 5,
@@ -257,7 +260,7 @@ class LabeledList extends StatelessWidget {
                 index.value,
                 softWrap: true,
                 textAlign: TextAlign.left,
-                style: lightBackgroundStyle,
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
             ),
           ]),

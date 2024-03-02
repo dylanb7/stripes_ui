@@ -9,7 +9,6 @@ import 'package:stripes_ui/UI/PatientManagement/gender_dropdown.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/form_input.dart';
 
-import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/Util/validators.dart';
 
 class AddUserWidget extends ConsumerStatefulWidget {
@@ -52,9 +51,9 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
           header: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'Add Patient',
-                style: lightBackgroundHeaderStyle,
+                style: Theme.of(context).textTheme.displayLarge,
               ),
               AnimatedOpacity(
                 duration: const Duration(milliseconds: 200),

@@ -9,8 +9,6 @@ import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 
-import 'package:stripes_ui/Util/text_styles.dart';
-
 final selectedGraphProvider = StateProvider<String?>((_) => null);
 
 class GraphWidget extends ConsumerWidget {
@@ -39,12 +37,12 @@ class GraphWidget extends ConsumerWidget {
         const SizedBox(
           height: 14.0,
         ),
-        const FittedBox(
+        FittedBox(
           fit: BoxFit.contain,
           child: Text(
-            'Event Frequency',
+            'Behavior Frequency',
             maxLines: 1,
-            style: darkBackgroundScreenHeaderStyle,
+            style: Theme.of(context).textTheme.headlineMedium,
           ),
         ),
         const SizedBox(
@@ -61,7 +59,7 @@ class GraphWidget extends ConsumerWidget {
                     _openBehaviorOverlay(ref, behaviors, selectedValue);
                   },
                   child: const Text(
-                    'Change Event',
+                    'Change Behavior',
                   ),
                 ),
               ]),
@@ -81,18 +79,20 @@ class GraphWidget extends ConsumerWidget {
                   selectedValue,
                   maxLines: null,
                   textAlign: TextAlign.center,
-                  style: lightBackgroundHeaderStyle,
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 const SizedBox(
                   height: 8.0,
                 ),
                 graphData.isEmpty
-                    ? const Center(
-                        child: Text(
-                          'No Data',
-                          style: lightBackgroundHeaderStyle,
-                        ),
-                      )
+                    ? Padding(
+                        padding: const EdgeInsets.only(top: 10),
+                        child: Center(
+                          child: Text(
+                            'No Data',
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          ),
+                        ))
                     : BarGraph(graphData: graphData),
               ],
             ),
@@ -296,7 +296,7 @@ class _BarGraphState extends ConsumerState<BarGraph> {
         axisNameSize: 20.0,
         axisNameWidget: Text(
           getLabel() ?? "",
-          style: lightBackgroundStyle,
+          style: Theme.of(context).textTheme.bodySmall,
         ),
         sideTitles: SideTitles(
           reservedSize: 24.0,
@@ -341,7 +341,7 @@ class _BarGraphState extends ConsumerState<BarGraph> {
     String severity = data.severity == null ? '' : '\nLevel: ${data.severity}';
     return BarTooltipItem(
       '${data.height}',
-      darkBackgroundStyle,
+      Theme.of(context).textTheme.bodySmall ?? const TextStyle(),
       children: [TextSpan(text: severity)],
     );
   }
@@ -406,9 +406,9 @@ class SelectBehaviorOverlay extends ConsumerWidget {
                         width: 35,
                       ),
                       const Spacer(),
-                      const Text(
+                      Text(
                         'Select Behavior',
-                        style: lightBackgroundHeaderStyle,
+                        style: Theme.of(context).textTheme.bodyLarge,
                       ),
                       const Spacer(),
                       IconButton(
@@ -429,7 +429,7 @@ class SelectBehaviorOverlay extends ConsumerWidget {
                         return ListTile(
                           title: Text(
                             option,
-                            style: lightBackgroundStyle,
+                            style: Theme.of(context).textTheme.bodyMedium,
                           ),
                           style: ListTileStyle.drawer,
                           trailing: selected == option
@@ -501,7 +501,7 @@ class ColorKey extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 3.0),
                   child: Text(
                     text,
-                    style: lightBackgroundStyle,
+                    style: Theme.of(context).textTheme.bodyMedium,
                     textAlign: TextAlign.left,
                   ),
                 ),

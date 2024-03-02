@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/Util/date_helper.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
 
 class DateControl extends ConsumerWidget {
   const DateControl({super.key});
@@ -56,8 +55,10 @@ class DateControl extends ConsumerWidget {
                         '${dateToMDY(start, context)} - ${dateToMDY(end, context)}',
                         overflow: TextOverflow.fade,
                         textAlign: TextAlign.center,
-                        style: lightBackgroundStyle.copyWith(
-                            fontWeight: FontWeight.bold),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),

@@ -12,7 +12,6 @@ import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
 import 'package:stripes_ui/UI/Record/question_screen.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 import 'package:uuid/uuid.dart';
 
@@ -81,7 +80,7 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
           isEdit
               ? AppLocalizations.of(context)!.editSubmitHeader(widget.type)
               : AppLocalizations.of(context)!.submitHeader(widget.type),
-          style: lightBackgroundHeaderStyle,
+          style: Theme.of(context).textTheme.headlineMedium,
           textAlign: TextAlign.center,
         ),
         const SizedBox(
@@ -90,7 +89,7 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
         if (period != null)
           Text(
             period.getRangeString(DateTime.now(), context),
-            style: lightBackgroundStyle,
+            style: Theme.of(context).textTheme.bodyMedium,
           )
         else
           Row(
@@ -280,7 +279,7 @@ class LongTextEntry extends StatelessWidget {
         children: [
           Text(
             AppLocalizations.of(context)!.submitDescriptionTag,
-            style: lightBackgroundHeaderStyle,
+            style: Theme.of(context).textTheme.headlineMedium,
             textAlign: TextAlign.center,
           ),
           const SizedBox(

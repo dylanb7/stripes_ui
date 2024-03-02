@@ -2,6 +2,7 @@ import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:stripes_ui/Util/palette.dart';
 
+/*
 TextStyle errorStyle = TextStyle(
   color: flexSchemeLight.error.onColor,
   fontSize: 16,
@@ -44,4 +45,4 @@ const TextStyle link = TextStyle(
   fontSize: 18,
   fontWeight: FontWeight.bold,
   decoration: TextDecoration.underline,
-);
+);*/

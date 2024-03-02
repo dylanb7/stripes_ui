@@ -13,7 +13,6 @@ import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/Util/date_helper.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class EntryDisplay extends ConsumerStatefulWidget {
@@ -67,12 +66,14 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
             children: [
               Text(
                 widget.event.type,
-                style: lightBackgroundHeaderStyle.copyWith(
-                    fontWeight: FontWeight.bold),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyLarge
+                    ?.copyWith(fontWeight: FontWeight.bold),
               ),
               Text(
                 '${dateToMDY(date, context)} - ${timeString(date, context)}',
-                style: lightBackgroundStyle,
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
             ]),
         iconSize: 35,
@@ -161,7 +162,7 @@ class DetailDisplay extends StatelessWidget {
         if (detail.description.isNotEmpty) ...[
           Text(
             AppLocalizations.of(context)!.descriptionLabel,
-            style: lightBackgroundHeaderStyle,
+            style: Theme.of(context).textTheme.bodyLarge,
             textAlign: TextAlign.left,
           ),
           const SizedBox(
@@ -169,7 +170,7 @@ class DetailDisplay extends StatelessWidget {
           ),
           Text(
             detail.description,
-            style: lightBackgroundStyle,
+            style: Theme.of(context).textTheme.bodyMedium,
             textAlign: TextAlign.left,
             maxLines: null,
           ),
@@ -180,7 +181,7 @@ class DetailDisplay extends StatelessWidget {
         if (detail.responses.isNotEmpty) ...[
           Text(
             AppLocalizations.of(context)!.behaviorsLabel,
-            style: lightBackgroundHeaderStyle,
+            style: Theme.of(context).textTheme.bodyMedium,
             textAlign: TextAlign.left,
           ),
           const SizedBox(
@@ -215,7 +216,7 @@ class ResponseDisplay extends ConsumerWidget {
       final NumericResponse numeric = res as NumericResponse;
       return Text('${numeric.question.prompt} - ${numeric.response}',
           textAlign: TextAlign.left,
-          style: lightBackgroundStyle,
+          style: Theme.of(context).textTheme.bodyMedium,
           maxLines: null);
     }
     if (res is MultiResponse) {
@@ -223,20 +224,20 @@ class ResponseDisplay extends ConsumerWidget {
       return Text(
         '${multi.question.prompt} - ${multi.question.choices[multi.index]}',
         textAlign: TextAlign.left,
-        style: lightBackgroundStyle,
+        style: Theme.of(context).textTheme.bodyMedium,
       );
     }
     if (res is OpenResponse) {
       final OpenResponse open = res as OpenResponse;
       return Text('${open.question.prompt} - ${open.response}',
           textAlign: TextAlign.left,
-          style: lightBackgroundStyle,
+          style: Theme.of(context).textTheme.bodyMedium,
           maxLines: null);
     }
     return Text(
       res.question.prompt,
       textAlign: TextAlign.left,
-      style: lightBackgroundStyle,
+      style: Theme.of(context).textTheme.bodyMedium,
       maxLines: null,
     );
   }
@@ -257,7 +258,7 @@ class BlueDyeDisplay extends StatelessWidget {
         Text(
           AppLocalizations.of(context)!.startTestEntry,
           textAlign: TextAlign.left, //
-          style: lightBackgroundHeaderStyle,
+          style: Theme.of(context).textTheme.bodyLarge,
         ),
         const SizedBox(
           height: 3.0,
@@ -265,7 +266,7 @@ class BlueDyeDisplay extends StatelessWidget {
         Text(
           '${dateToMDY(resp.startEating, context)} - ${timeString(resp.startEating, context)}',
           textAlign: TextAlign.left,
-          style: lightBackgroundStyle,
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(
           height: 3.0,
@@ -273,7 +274,7 @@ class BlueDyeDisplay extends StatelessWidget {
         Text(
           AppLocalizations.of(context)!.mealDurationEntry,
           textAlign: TextAlign.left,
-          style: lightBackgroundHeaderStyle,
+          style: Theme.of(context).textTheme.bodyLarge,
         ),
         const SizedBox(
           height: 3.0,
@@ -281,7 +282,7 @@ class BlueDyeDisplay extends StatelessWidget {
         Text(
           from(resp.eatingDuration),
           textAlign: TextAlign.left,
-          style: lightBackgroundStyle,
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(
           height: 3.0,
@@ -290,7 +291,7 @@ class BlueDyeDisplay extends StatelessWidget {
           Text(
             AppLocalizations.of(context)!.firstBlueEntry,
             textAlign: TextAlign.left,
-            style: lightBackgroundHeaderStyle,
+            style: Theme.of(context).textTheme.bodyLarge,
           ),
           const SizedBox(
             height: 3.0,
@@ -298,7 +299,7 @@ class BlueDyeDisplay extends StatelessWidget {
           Text(
             '${dateToMDY(resp.firstBlue, context)} - ${timeString(resp.firstBlue, context)}',
             textAlign: TextAlign.left,
-            style: lightBackgroundStyle,
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(
             height: 3.0,
@@ -307,7 +308,7 @@ class BlueDyeDisplay extends StatelessWidget {
         Text(
           AppLocalizations.of(context)!.lastBlueEntry,
           textAlign: TextAlign.left,
-          style: lightBackgroundHeaderStyle,
+          style: Theme.of(context).textTheme.bodyLarge,
         ),
         const SizedBox(
           height: 3.0,
@@ -315,7 +316,7 @@ class BlueDyeDisplay extends StatelessWidget {
         Text(
           '${dateToMDY(resp.lastBlue, context)} - ${timeString(resp.lastBlue, context)}',
           textAlign: TextAlign.left,
-          style: lightBackgroundStyle,
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(
           height: 3.0,
@@ -323,7 +324,7 @@ class BlueDyeDisplay extends StatelessWidget {
         Text(
           AppLocalizations.of(context)!.transitDurationEntry,
           textAlign: TextAlign.left,
-          style: lightBackgroundHeaderStyle,
+          style: Theme.of(context).textTheme.bodyLarge,
         ),
         const SizedBox(
           height: 3.0,
@@ -332,7 +333,7 @@ class BlueDyeDisplay extends StatelessWidget {
           from(resp.lastBlue
               .difference(resp.startEating.add(resp.eatingDuration))),
           textAlign: TextAlign.left,
-          style: lightBackgroundStyle,
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
       ],
     );
@@ -353,7 +354,7 @@ class DeleteErrorPrevention extends ConsumerWidget {
     return ConfirmationPopup(
       title: Text(
         AppLocalizations.of(context)!.errorPreventionTitle,
-        style: darkBackgroundHeaderStyle,
+        style: Theme.of(context).textTheme.bodyLarge,
         textAlign: TextAlign.center,
       ),
       cancel: AppLocalizations.of(context)!.stampDeleteCancel,
@@ -365,7 +366,7 @@ class DeleteErrorPrevention extends ConsumerWidget {
         children: [
           Text(
             AppLocalizations.of(context)!.stampDeleteWarningOne,
-            style: lightBackgroundStyle,
+            style: Theme.of(context).textTheme.bodyMedium,
             textAlign: TextAlign.center,
           ),
           const SizedBox(
@@ -373,7 +374,7 @@ class DeleteErrorPrevention extends ConsumerWidget {
           ),
           Text(
             AppLocalizations.of(context)!.stampDeleteWarningTwo,
-            style: lightBackgroundStyle,
+            style: Theme.of(context).textTheme.bodyMedium,
             textAlign: TextAlign.center,
           ),
         ],
@@ -409,7 +410,7 @@ class BMRow extends StatelessWidget {
     ];
     return Row(children: [
       Text('${response.question.prompt} - ${response.response.toInt()}',
-          style: lightBackgroundStyle, maxLines: null),
+          style: Theme.of(context).textTheme.bodyMedium, maxLines: null),
       const SizedBox(
         width: 4,
       ),
@@ -441,7 +442,7 @@ class PainSliderDisplay extends StatelessWidget {
     final int selectedIndex = (res.toDouble() / 2).floor();
     return Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
       Text('${response.question.prompt} - ${response.response}',
-          style: lightBackgroundStyle, maxLines: null),
+          style: Theme.of(context).textTheme.bodyMedium, maxLines: null),
       const SizedBox(
         width: 4,
       ),
@@ -455,7 +456,7 @@ class PainSliderDisplay extends StatelessWidget {
           ),
           Text(
             hurtLevels[selectedIndex],
-            style: lightBackgroundStyle,
+            style: Theme.of(context).textTheme.bodyMedium,
             maxLines: 1,
           ),
         ],
@@ -487,7 +488,7 @@ class MoodSliderDisplay extends StatelessWidget {
     final int selectedIndex = (res.toDouble() / 2).floor();
     return Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
       Text('${response.question.prompt} - ${response.response}',
-          style: lightBackgroundStyle, maxLines: null),
+          style: Theme.of(context).textTheme.bodyMedium, maxLines: null),
       const SizedBox(
         width: 4,
       ),

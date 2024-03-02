@@ -5,7 +5,6 @@ import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/UI/History/EventView/entry_display.dart';
 import 'package:stripes_ui/Util/constants.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class EventGrid extends ConsumerStatefulWidget {
@@ -29,7 +28,7 @@ class _EventGridState extends ConsumerState<EventGrid> {
             fit: BoxFit.scaleDown,
             child: Text(
               AppLocalizations.of(context)!.noEventsText,
-              style: darkBackgroundHeaderStyle,
+              style: Theme.of(context).textTheme.bodyLarge,
               textAlign: TextAlign.center,
               maxLines: null,
             ),

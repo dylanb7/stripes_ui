@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:stripes_ui/Util/mouse_hover.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class DateListener extends ChangeNotifier {
@@ -39,10 +38,10 @@ class DateWidget extends ConsumerWidget {
         final DateTime date = dateListener.date;
         final text = Text(
           AppLocalizations.of(context)!.dateChangeEntry(date),
-          style: lightBackgroundStyle.copyWith(
-            fontWeight: FontWeight.bold,
-            decoration: enabled ? TextDecoration.underline : null,
-          ),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                decoration: enabled ? TextDecoration.underline : null,
+              ),
         );
         final Widget inner = hasIcon
             ? Row(
@@ -117,10 +116,10 @@ class TimeWidget extends ConsumerWidget {
           final TimeOfDay time = timeListener.time;
           final Widget text = Text(
             time.format(context),
-            style: lightBackgroundStyle.copyWith(
-              fontWeight: FontWeight.bold,
-              decoration: enabled ? TextDecoration.underline : null,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  decoration: enabled ? TextDecoration.underline : null,
+                ),
           );
           final Widget inner = hasIcon
               ? Row(

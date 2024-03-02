@@ -11,7 +11,6 @@ import 'package:stripes_ui/UI/PatientManagement/patient_changer.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class Footer extends StatelessWidget {
@@ -61,7 +60,7 @@ class Options extends ConsumerWidget {
             if (checkin.isNotEmpty)
               Text(
                 AppLocalizations.of(context)!.checkInLabel,
-                style: darkBackgroundHeaderStyle,
+                style: Theme.of(context).textTheme.headlineLarge,
               ),
             ...checkin.keys.map((period) {
               return Column(
@@ -69,7 +68,7 @@ class Options extends ConsumerWidget {
                 children: [
                   Text(
                     period.getRangeString(DateTime.now(), context),
-                    style: darkBackgroundStyle,
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   ...checkin[period]!.map((checkin) => CheckInButton(
                         item: checkin,
@@ -89,7 +88,7 @@ class Options extends ConsumerWidget {
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(
                 AppLocalizations.of(context)!.categorySelect,
-                style: darkBackgroundHeaderStyle,
+                style: Theme.of(context).textTheme.bodyMedium,
                 textAlign: TextAlign.left,
               ),
               ...questionTypes.map((key) {
@@ -164,7 +163,7 @@ class LastEntryText extends ConsumerWidget {
             .lastEntry(dateFromStamp(vals.first.stamp));
     return Text(
       lastEntry,
-      style: darkBackgroundStyle.copyWith(fontSize: 16.0),
+      style: Theme.of(context).textTheme.bodyMedium,
     );
   }
 }
@@ -212,7 +211,8 @@ class CheckInButton extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          Text(item.type, style: lightBackgroundHeaderStyle),
+                          Text(item.type,
+                              style: Theme.of(context).textTheme.displayMedium),
                           ...additions
                         ]),
                     CheckIndicator(
@@ -285,7 +285,7 @@ class RecordButton extends StatelessWidget {
                         children: [
                           Text(
                             text,
-                            style: lightBackgroundHeaderStyle,
+                            style: Theme.of(context).textTheme.displayLarge,
                           ),
                           ...additions
                         ]),

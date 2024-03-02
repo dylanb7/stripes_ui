@@ -7,7 +7,6 @@ import 'package:stripes_ui/Providers/overlay_provider.dart';
 
 import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
 import 'package:stripes_ui/Util/date_helper.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class AddEvent extends ConsumerWidget {
@@ -63,7 +62,7 @@ class _QuestionTypeOverlay extends ConsumerWidget {
                       const SizedBox(width: 30),
                       Text(
                         AppLocalizations.of(context)!.addEventHeader,
-                        style: lightBackgroundHeaderStyle,
+                        style: Theme.of(context).textTheme.bodyLarge,
                       ),
                       IconButton(
                           onPressed: () {

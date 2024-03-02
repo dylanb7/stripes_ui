@@ -8,7 +8,6 @@ import 'package:stripes_ui/UI/History/EventView/entry_display.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_content.dart';
 import 'package:stripes_ui/Util/date_helper.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class BlueRecordings<T extends Test> extends ConsumerWidget {
@@ -31,7 +30,7 @@ class BlueRecordings<T extends Test> extends ConsumerWidget {
           child: Text(
             '${AppLocalizations.of(context)!.blueDyeLogsInstructionOne}${logs.isEmpty ? AppLocalizations.of(context)!.blueDyeLogsInstructionTwo : ''}',
             textAlign: TextAlign.left,
-            style: lightBackgroundStyle,
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
         ),
         ...logs.map((e) => LogRow(log: e, ref: ref)),
@@ -39,7 +38,7 @@ class BlueRecordings<T extends Test> extends ConsumerWidget {
         Text(
           AppLocalizations.of(context)!.blueDyeInstructionsStepThreeA,
           textAlign: TextAlign.left,
-          style: lightBackgroundStyle,
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(
           height: 8.0,
@@ -97,22 +96,22 @@ class LogRow extends ConsumerWidget {
     List<Widget> vals = [
       Text(
         event.type,
-        style: lightBackgroundHeaderStyle,
+        style: Theme.of(context).textTheme.bodyLarge,
       ),
       if (event.description.isNotEmpty) ...[
         Text(
           AppLocalizations.of(context)!.descriptionLabel,
-          style: lightBackgroundHeaderStyle,
+          style: Theme.of(context).textTheme.bodyLarge,
         ),
         Text(
           event.description,
-          style: lightBackgroundStyle,
+          style: Theme.of(context).textTheme.bodyMedium,
           maxLines: null,
         )
       ],
       Text(
         AppLocalizations.of(context)!.behaviorsLabel,
-        style: lightBackgroundHeaderStyle,
+        style: Theme.of(context).textTheme.bodyLarge,
       ),
       ...event.responses.map(
         (res) {
@@ -141,7 +140,7 @@ class LogRow extends ConsumerWidget {
             ),
             Text(
               '${dateToMDY(date, context)} - ${timeString(date, context)}',
-              style: lightBackgroundHeaderStyle,
+              style: Theme.of(context).textTheme.bodyLarge,
             ),
           ]),
       view: Column(

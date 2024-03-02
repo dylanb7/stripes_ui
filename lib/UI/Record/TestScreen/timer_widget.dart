@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
 
 class TimerWidget extends StatefulWidget {
   final DateTime start;
@@ -35,7 +34,7 @@ class _TimerWidgetState extends State<TimerWidget> {
   Widget build(BuildContext context) {
     return Text(
       from(gap),
-      style: darkBackgroundScreenHeaderStyle,
+      style: Theme.of(context).textTheme.headlineMedium,
     );
   }
 

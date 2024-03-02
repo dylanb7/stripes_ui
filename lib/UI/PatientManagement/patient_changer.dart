@@ -6,7 +6,6 @@ import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/SharedHomeWidgets/tab_view.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class PatientChanger extends ConsumerWidget {
@@ -48,7 +47,7 @@ class PatientChanger extends ConsumerWidget {
             fit: BoxFit.scaleDown,
             child: Text(
               getTitle(),
-              style: darkBackgroundScreenHeaderStyle,
+              style: Theme.of(context).textTheme.headlineMedium,
               textAlign: TextAlign.left,
             ),
           ),
@@ -100,8 +99,10 @@ class UserSelect extends ConsumerWidget {
                 Row(mainAxisAlignment: MainAxisAlignment.start, children: [
                   Text(
                     'Select Patient',
-                    style: darkBackgroundScreenHeaderStyle.copyWith(
-                        color: Colors.white),
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineMedium
+                        ?.copyWith(color: Colors.white),
                   ),
                   IconButton(
                       onPressed: () {
@@ -129,8 +130,8 @@ class UserSelect extends ConsumerWidget {
                       .map((user) => Padding(
                           padding: const EdgeInsets.symmetric(vertical: 5.0),
                           child: user.uid == current.uid
-                              ? _getSelected(ref, user, action)
-                              : _getSelectible(ref, user)))
+                              ? _getSelected(ref, context, user, action)
+                              : _getSelectible(ref, context, user)))
                       .toList(),
                 ),
               ],
@@ -141,7 +142,8 @@ class UserSelect extends ConsumerWidget {
     );
   }
 
-  Widget _getSelected(WidgetRef ref, SubUser current, Color selected) {
+  Widget _getSelected(
+      WidgetRef ref, BuildContext context, SubUser current, Color selected) {
     final String firstName = current.name.split(' ')[0];
     return InkWell(
         onTap: () {
@@ -154,7 +156,10 @@ class UserSelect extends ConsumerWidget {
           children: [
             Text(
               firstName,
-              style: darkBackgroundScreenHeaderStyle.copyWith(color: selected),
+              style: Theme.of(context)
+                  .textTheme
+                  .headlineMedium
+                  ?.copyWith(color: selected),
             ),
             Icon(
               Icons.check,
@@ -165,7 +170,7 @@ class UserSelect extends ConsumerWidget {
         ));
   }
 
-  Widget _getSelectible(WidgetRef ref, SubUser user) {
+  Widget _getSelectible(WidgetRef ref, BuildContext context, SubUser user) {
     final String firstName = user.name.split(' ')[0];
     return InkWell(
       onTap: () {
@@ -175,7 +180,10 @@ class UserSelect extends ConsumerWidget {
       splashFactory: NoSplash.splashFactory,
       child: Text(
         firstName,
-        style: darkBackgroundScreenHeaderStyle.copyWith(color: Colors.white),
+        style: Theme.of(context)
+            .textTheme
+            .bodyMedium
+            ?.copyWith(color: Colors.white),
       ),
     );
   }

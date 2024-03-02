@@ -10,7 +10,6 @@ import 'package:stripes_ui/UI/CommonWidgets/tonal_button.dart';
 import 'package:stripes_ui/UI/History/EventView/export.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/entry.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -35,7 +34,7 @@ class UserProfileButton extends ConsumerWidget {
             child: Row(children: [
               Text(
                 AppLocalizations.of(context)!.managePatientsButton,
-                style: lightBackgroundStyle,
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
               const Spacer(),
               const Icon(
@@ -48,41 +47,41 @@ class UserProfileButton extends ConsumerWidget {
           ),
         if (exportAction != null)
           PopupMenuItem(
-            child: const Row(children: [
+            child: Row(children: [
               Text(
                 "Hilfe",
-                style: lightBackgroundStyle,
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
-              Spacer(),
-              Icon(
+              const Spacer(),
+              const Icon(
                 Icons.info,
               ),
             ]),
             onTap: () {
-              ref.read(overlayProvider.notifier).state = const OverlayQuery(
+              ref.read(overlayProvider.notifier).state = OverlayQuery(
                 widget: OverlayBackdrop(
                   dismissOnBackdropTouch: true,
                   child: Padding(
-                    padding: EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(8.0),
                     child: Card(
-                      shape: RoundedRectangleBorder(
+                      shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(8.0))),
                       child: Padding(
-                        padding: EdgeInsets.all(6.0),
+                        padding: const EdgeInsets.all(6.0),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
                               "Hilfe",
-                              style: lightBackgroundHeaderStyle,
+                              style: Theme.of(context).textTheme.bodyMedium,
                               textAlign: TextAlign.center,
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 4.0,
                             ),
                             SelectableText(
                               "Bitte reichen Sie Ihre gesamten Daten nach einem Monat Dokumentation nach Studienvisite ein. Drücken Sie hierzu bitte auf „Datenexport“. So können wir Ihre Daten pseudonymisiert erhalten. Bei Fragen wenden Sie sich bitte an gpeschke@ukaachen.de",
-                              style: lightBackgroundStyle,
+                              style: Theme.of(context).textTheme.bodyMedium,
                             ),
                           ],
                         ),
@@ -98,7 +97,7 @@ class UserProfileButton extends ConsumerWidget {
             child: Row(children: [
               Text(
                 AppLocalizations.of(context)!.exportName,
-                style: lightBackgroundStyle,
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
               const Spacer(),
               const Icon(
@@ -125,7 +124,7 @@ class UserProfileButton extends ConsumerWidget {
             child: Row(children: [
               Text(
                 AppLocalizations.of(context)!.exitStudy,
-                style: lightBackgroundStyle,
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
               const Spacer(),
               const Icon(
@@ -141,7 +140,7 @@ class UserProfileButton extends ConsumerWidget {
           child: Row(children: [
             Text(
               AppLocalizations.of(context)!.logOutButton,
-              style: lightBackgroundStyle,
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
             const Spacer(),
             const Icon(
@@ -186,7 +185,7 @@ class ExitErrorPrevention extends ConsumerWidget {
                   children: [
                     Text(
                       AppLocalizations.of(context)!.errorPreventionTitle,
-                      style: darkBackgroundHeaderStyle.copyWith(),
+                      style: Theme.of(context).textTheme.bodyLarge,
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(
@@ -194,7 +193,7 @@ class ExitErrorPrevention extends ConsumerWidget {
                     ),
                     Text(
                       AppLocalizations.of(context)!.exitStudyWarning,
-                      style: lightBackgroundStyle,
+                      style: Theme.of(context).textTheme.bodyMedium,
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(

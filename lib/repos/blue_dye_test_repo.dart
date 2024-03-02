@@ -105,8 +105,10 @@ class BlueDyeTest extends Test<BlueDyeObj> {
     }
     return Text(
       AppLocalizations.of(context)!.testInProgressNotif,
-      style: lightBackgroundStyle.copyWith(
-          color: Theme.of(context).colorScheme.secondary),
+      style: Theme.of(context)
+          .textTheme
+          .bodyMedium
+          ?.copyWith(color: Theme.of(context).colorScheme.secondary),
     );
   }
 

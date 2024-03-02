@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:stripes_ui/Util/animated_painter.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
 
 class PinField extends StatelessWidget {
   final Function(String) onFilled;
@@ -34,7 +33,7 @@ class PinField extends StatelessWidget {
                 autoFocus: true,
                 length: 4,
                 onChanged: (val) {},
-                textStyle: lightBackgroundStyle.copyWith(fontSize: 44),
+                textStyle: Theme.of(context).textTheme.headlineMedium,
                 animationType: AnimationType.scale,
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -54,14 +53,20 @@ class PinField extends StatelessWidget {
           children: [
             Text(
               'We do not recognize that access code.',
-              style: errorStyleTitle,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: Theme.of(context).colorScheme.error),
             ),
             const SizedBox(
               height: 4,
             ),
             Text(
               'Please try again or tap "Can\'t find your access code?" below.',
-              style: errorStyle,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: Theme.of(context).colorScheme.error),
             ),
           ],
         ),

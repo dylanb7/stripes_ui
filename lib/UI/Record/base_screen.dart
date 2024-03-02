@@ -12,7 +12,6 @@ import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/Record/screen_manager.dart';
 import 'package:stripes_ui/Util/constants.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
 
 final continueTried = StateProvider.autoDispose((_) => false);
 
@@ -79,7 +78,7 @@ class _BaseScreenState extends ConsumerState<BaseScreen> {
                           Flexible(
                             child: Text(
                               'Recording ${widget.type}\nfor ${_name()}',
-                              style: darkBackgroundHeaderStyle,
+                              style: Theme.of(context).textTheme.headlineMedium,
                             ),
                           ),
                           IconButton(
@@ -142,10 +141,13 @@ class _BaseScreenState extends ConsumerState<BaseScreen> {
                                   if (tried)
                                     Text(
                                       'Select slider ${widget.listener.pending.length > 1 ? 'values' : 'value'}',
-                                      style: errorStyleTitle.copyWith(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .error),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.copyWith(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .error),
                                     ),
                                   widget.screen.hasNext()
                                       ? IconButton(
@@ -256,16 +258,20 @@ class ErrorPrevention extends ConsumerWidget {
                       children: [
                         Text(
                           'Wait!',
-                          style: darkBackgroundHeaderStyle.copyWith(
-                              color: Theme.of(context).colorScheme.secondary),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(
+                                  color:
+                                      Theme.of(context).colorScheme.secondary),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(
                           height: 8.0,
                         ),
-                        const Text(
+                        Text(
                           'Are you sure you want to leave this screen?',
-                          style: lightBackgroundStyle,
+                          style: Theme.of(context).textTheme.bodyMedium,
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(
@@ -273,7 +279,7 @@ class ErrorPrevention extends ConsumerWidget {
                         ),
                         Text(
                           'You will lose all information you\nentered for this ${type.toLowerCase()} entry',
-                          style: lightBackgroundStyle,
+                          style: Theme.of(context).textTheme.bodyMedium,
                           textAlign: TextAlign.center,
                         ),
                       ],
@@ -332,7 +338,7 @@ class BasicButton extends StatelessWidget {
       },
       child: Text(
         text,
-        style: darkBackgroundStyle,
+        style: Theme.of(context).textTheme.bodyMedium,
       ),
     );
   }

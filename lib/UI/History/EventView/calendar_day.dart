@@ -1,8 +1,6 @@
 import 'package:badges/badges.dart' as b;
 import 'package:flutter/material.dart';
 
-import 'package:stripes_ui/Util/text_styles.dart';
-
 class CalendarDay extends StatelessWidget {
   final bool isToday, selected, after;
 
@@ -47,8 +45,10 @@ class CalendarDay extends StatelessWidget {
             child: Center(
               child: Text(
                 text,
-                style: darkBackgroundStyle.copyWith(
-                    color: textColor, fontSize: 20),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: textColor, fontSize: 20),
               ),
             ),
           ),
@@ -59,7 +59,7 @@ class CalendarDay extends StatelessWidget {
     return b.Badge(
       badgeContent: Text(
         '$events',
-        style: darkBackgroundStyle.copyWith(
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             fontSize: 8.0, color: Theme.of(context).colorScheme.onPrimary),
       ),
       badgeStyle: b.BadgeStyle(

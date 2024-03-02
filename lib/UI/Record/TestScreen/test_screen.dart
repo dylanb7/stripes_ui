@@ -11,7 +11,6 @@ import 'package:stripes_ui/UI/Record/TestScreen/instructions.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_content.dart';
 import 'package:stripes_ui/UI/SharedHomeWidgets/tab_view.dart';
 import 'package:stripes_ui/Util/constants.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 import '../../../Providers/sub_provider.dart';
 
@@ -70,8 +69,10 @@ class _TestScreenState extends ConsumerState<TestScreen> {
                     alignment: Alignment.centerLeft,
                     child: Text(
                       tests[0].getName(context),
-                      style: darkBackgroundStyle.copyWith(
-                          fontWeight: FontWeight.bold),
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.left,
                     ),
                   ),
@@ -84,8 +85,10 @@ class _TestScreenState extends ConsumerState<TestScreen> {
                               value: e,
                               child: Text(
                                 e.getName(context),
-                                style: darkBackgroundStyle.copyWith(
-                                    fontWeight: FontWeight.bold),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(fontWeight: FontWeight.bold),
                                 textAlign: TextAlign.left,
                               ),
                             ))
@@ -177,7 +180,7 @@ class Info extends StatelessWidget {
             child: Text(
               AppLocalizations.of(context)!.blueDyeInfoHeader,
               textAlign: TextAlign.center,
-              style: lightBackgroundHeaderStyle,
+              style: Theme.of(context).textTheme.headlineMedium,
             ),
           ),
         ),
@@ -201,7 +204,7 @@ class TestErrorPrevention<T extends Test> extends ConsumerWidget {
     return ConfirmationPopup(
         title: Text(
           AppLocalizations.of(context)!.errorPreventionTitle,
-          style: darkBackgroundHeaderStyle,
+          style: Theme.of(context).textTheme.headlineMedium,
           textAlign: TextAlign.center,
         ),
         body: Column(
@@ -210,7 +213,7 @@ class TestErrorPrevention<T extends Test> extends ConsumerWidget {
           children: [
             Text(
               AppLocalizations.of(context)!.blueMuffinErrorPreventionLineOne,
-              style: lightBackgroundStyle,
+              style: Theme.of(context).textTheme.bodyMedium,
               textAlign: TextAlign.center,
             ),
             const SizedBox(
@@ -218,7 +221,7 @@ class TestErrorPrevention<T extends Test> extends ConsumerWidget {
             ),
             Text(
               AppLocalizations.of(context)!.blueMuffinErrorPreventionLineTwo,
-              style: lightBackgroundStyle,
+              style: Theme.of(context).textTheme.bodyMedium,
               textAlign: TextAlign.center,
             ),
           ],

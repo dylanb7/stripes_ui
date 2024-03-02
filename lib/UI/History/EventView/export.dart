@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/entry.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -59,7 +58,7 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
                           children: [
                             Text(
                               AppLocalizations.of(context)!.exportName,
-                              style: lightBackgroundHeaderStyle,
+                              style: Theme.of(context).textTheme.bodyMedium,
                             ),
                             IconButton(
                                 onPressed: () {
@@ -76,7 +75,7 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
                       ),
                       Text(
                         AppLocalizations.of(context)!.exportDialog,
-                        style: lightBackgroundStyle,
+                        style: Theme.of(context).textTheme.bodyMedium,
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(
@@ -85,7 +84,11 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
                       if (errorMessage != null) ...[
                         Text(
                           errorMessage!,
-                          style: errorStyle,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(
+                                  color: Theme.of(context).colorScheme.error),
                         ),
                         const SizedBox(
                           height: 8,

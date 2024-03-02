@@ -7,7 +7,6 @@ import 'package:stripes_ui/UI/PatientManagement/birth_year_selector.dart';
 import 'package:stripes_ui/UI/PatientManagement/gender_dropdown.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/form_input.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
 import 'package:stripes_ui/Util/validators.dart';
 
 class CreatePatient extends ConsumerWidget {
@@ -32,20 +31,22 @@ class CreatePatient extends ConsumerWidget {
           RichText(
               text: TextSpan(
                   text: 'Patient Profile ',
-                  style: darkBackgroundScreenHeaderStyle.copyWith(
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       color: Theme.of(context).colorScheme.onPrimary),
                   children: [
                 TextSpan(
                     text: '#1',
-                    style: darkBackgroundHeaderStyle.copyWith(
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         color: Theme.of(context).colorScheme.secondary,
                         fontSize: 28))
               ])),
           Text(
             'Please fill in the information for your first patient',
             textAlign: TextAlign.center,
-            style: darkBackgroundStyle.copyWith(
-                color: Theme.of(context).colorScheme.onPrimary),
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.copyWith(color: Theme.of(context).colorScheme.onPrimary),
           ),
           const Spacer(),
         ],
