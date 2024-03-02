@@ -75,7 +75,7 @@ class _StripesSliderState extends State<StripesSlider> {
             textAlign: TextAlign.center,
             style: Theme.of(context)
                 .textTheme
-                .headlineSmall
+                .bodyLarge
                 ?.copyWith(fontWeight: FontWeight.bold),
           ),
         ),
@@ -98,7 +98,7 @@ class _StripesSliderState extends State<StripesSlider> {
               child: GestureDetector(
                 child: Text(
                   '${widget.min}',
-                  style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).colorScheme.onPrimary),
                   textAlign: TextAlign.center,
                 ),
@@ -172,8 +172,7 @@ class _StripesSliderState extends State<StripesSlider> {
                 child: GestureDetector(
                   child: Text(
                     '${widget.max}',
-                    style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                        fontSize: 16.0,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Theme.of(context).colorScheme.onPrimary),
                     textAlign: TextAlign.center,
                   ),
