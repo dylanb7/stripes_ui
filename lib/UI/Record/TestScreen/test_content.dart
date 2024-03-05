@@ -130,7 +130,7 @@ class TimerDisplay<T extends Test> extends ConsumerWidget {
           ),
           Text(
             AppLocalizations.of(context)!.blueMealDurationTag,
-            style: Theme.of(context).textTheme.headlineMedium,
+            style: Theme.of(context).textTheme.bodyLarge,
           ),
           Visibility(
               visible: !isLoading,
