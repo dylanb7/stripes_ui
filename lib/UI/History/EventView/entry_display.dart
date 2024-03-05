@@ -162,7 +162,7 @@ class DetailDisplay extends StatelessWidget {
         if (detail.description != null && detail.description!.isNotEmpty) ...[
           Text(
             AppLocalizations.of(context)!.descriptionLabel,
-            style: Theme.of(context).textTheme.bodyLarge,
+            style: Theme.of(context).textTheme.titleMedium,
             textAlign: TextAlign.left,
           ),
           const SizedBox(
@@ -181,7 +181,7 @@ class DetailDisplay extends StatelessWidget {
         if (detail.responses.isNotEmpty) ...[
           Text(
             AppLocalizations.of(context)!.behaviorsLabel,
-            style: Theme.of(context).textTheme.bodyMedium,
+            style: Theme.of(context).textTheme.titleMedium,
             textAlign: TextAlign.left,
           ),
           const SizedBox(

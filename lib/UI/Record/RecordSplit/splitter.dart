@@ -2,11 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
-import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo_base.dart';
-import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
-import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
@@ -62,6 +58,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     if (mounted) {
       setState(() {
         hasChanged = original == widget.questionListener;
+        print(hasChanged);
       });
     }
   }
