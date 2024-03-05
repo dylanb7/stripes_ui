@@ -60,7 +60,7 @@ class Options extends ConsumerWidget {
             if (checkin.isNotEmpty)
               Text(
                 AppLocalizations.of(context)!.checkInLabel,
-                style: Theme.of(context).textTheme.headlineLarge,
+                style: Theme.of(context).textTheme.titleMedium,
               ),
             ...checkin.keys.map((period) {
               return Column(
@@ -88,7 +88,7 @@ class Options extends ConsumerWidget {
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(
                 AppLocalizations.of(context)!.categorySelect,
-                style: Theme.of(context).textTheme.bodyMedium,
+                style: Theme.of(context).textTheme.titleMedium,
                 textAlign: TextAlign.left,
               ),
               ...questionTypes.map((key) {
