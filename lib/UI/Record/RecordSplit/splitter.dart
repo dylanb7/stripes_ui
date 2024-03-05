@@ -416,7 +416,7 @@ class RecordHeader extends ConsumerWidget {
               name == null || name.isEmpty
                   ? AppLocalizations.of(context)!.emptyRecordHeader(type)
                   : AppLocalizations.of(context)!.recordHeader(type, name),
-              style: Theme.of(context).textTheme.titleMedium,
+              style: Theme.of(context).textTheme.titleLarge,
             ),
           ),
           IconButton(
