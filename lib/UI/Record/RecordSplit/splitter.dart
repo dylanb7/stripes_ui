@@ -56,8 +56,8 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
 
   _changedUpdate() {
     if (mounted) {
-      print(original);
-      print(widget.questionListener);
+      print("original $original");
+      print("new ${widget.questionListener}");
       setState(() {
         hasChanged = original != widget.questionListener;
       });
