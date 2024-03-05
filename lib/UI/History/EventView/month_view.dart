@@ -81,7 +81,7 @@ class MonthView extends ConsumerWidget {
                     daysTextStyle: Theme.of(context).textTheme.bodyMedium,
                     headerTextStyle: Theme.of(context)
                         .textTheme
-                        .bodyMedium
+                        .titleMedium
                         ?.copyWith(
                             color: Theme.of(context).colorScheme.onBackground),
                     weekendTextStyle: Theme.of(context).textTheme.bodyMedium,

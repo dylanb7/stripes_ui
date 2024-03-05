@@ -182,7 +182,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                                     .length),
                                             style: Theme.of(context)
                                                 .textTheme
-                                                .bodyLarge
+                                                .titleMedium
                                                 ?.copyWith(
                                                     color: Theme.of(context)
                                                         .colorScheme
@@ -224,6 +224,9 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                                           .submitButtonText),
                                             ),
                                           ),
+                                        const SizedBox(
+                                          height: 5.0,
+                                        ),
                                         Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
@@ -378,12 +381,15 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
       isLoading = false;
     });
     if (context.mounted) {
-      showSnack(
-          context,
-          AppLocalizations.of(context)!.undoEntry(
-              widget.type, submissionEntry, submissionEntry), action: () async {
-        await repo?.removeStamp(detailResponse);
-      });
+      if (!isEdit) {
+        showSnack(
+            context,
+            AppLocalizations.of(context)!
+                .undoEntry(widget.type, submissionEntry, submissionEntry),
+            action: () async {
+          await repo?.removeStamp(detailResponse);
+        });
+      }
       if (context.canPop()) {
         context.pop();
       } else {

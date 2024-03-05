@@ -63,12 +63,12 @@ class DayView extends ConsumerWidget {
                 iconColor: Theme.of(context).colorScheme.secondary,
                 headerMargin: const EdgeInsets.only(bottom: 5.0),
                 weekFormat: true,
-                isScrollable: false,
+                isScrollable: true,
                 scrollDirection: Axis.horizontal,
                 showHeader: true,
                 headerTextStyle: Theme.of(context)
                     .textTheme
-                    .bodyLarge
+                    .titleMedium
                     ?.copyWith(
                         color: Theme.of(context).colorScheme.onBackground),
                 pageSnapping: true,

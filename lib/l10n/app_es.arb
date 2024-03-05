@@ -68,7 +68,7 @@
     "testInProgressNotif": "Blue Dye Test in Progress",
 
     "undo": "undo",
-    "undoEntry": "Successfully added {symptomType} at {date} {time}",
+    "undoEntry": "Added {symptomType} on {date} at {time}",
     "@undoEntry": {
         "placeholders": {
             "symptomType": {
