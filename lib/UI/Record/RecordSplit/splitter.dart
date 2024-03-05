@@ -17,6 +17,7 @@ import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
 import 'package:stripes_ui/UI/Record/question_screen.dart';
 import 'package:stripes_ui/UI/Record/submit_screen.dart';
 import 'package:stripes_ui/Util/constants.dart';
+import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 import 'package:uuid/uuid.dart';
 
@@ -173,22 +174,37 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                       children: [
                                         if (isEdit ||
                                             currentIndex == pages.length)
-                                          FilledButton(
-                                            onPressed: !hasPending && !isLoading
-                                                ? () {
-                                                    _submitEntry(
-                                                        context, ref, isEdit);
-                                                  }
-                                                : null,
-                                            child: isLoading
-                                                ? const ButtonLoadingIndicator()
-                                                : Text(isEdit
-                                                    ? AppLocalizations.of(
+                                          GestureDetector(
+                                            onTap: () {
+                                              if (hasPending && !isLoading) {
+                                                showSnack(
+                                                    context,
+                                                    AppLocalizations.of(
                                                             context)!
-                                                        .editSubmitButtonText
-                                                    : AppLocalizations.of(
-                                                            context)!
-                                                        .submitButtonText),
+                                                        .nLevelError(widget
+                                                            .questionListener
+                                                            .pending
+                                                            .length));
+                                              }
+                                            },
+                                            child: FilledButton(
+                                              onPressed: !hasPending &&
+                                                      !isLoading
+                                                  ? () {
+                                                      _submitEntry(
+                                                          context, ref, isEdit);
+                                                    }
+                                                  : null,
+                                              child: isLoading
+                                                  ? const ButtonLoadingIndicator()
+                                                  : Text(isEdit
+                                                      ? AppLocalizations.of(
+                                                              context)!
+                                                          .editSubmitButtonText
+                                                      : AppLocalizations.of(
+                                                              context)!
+                                                          .submitButtonText),
+                                            ),
                                           ),
                                         if (tried && hasPending)
                                           Text(
@@ -199,11 +215,13 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                                     .length),
                                             style: Theme.of(context)
                                                 .textTheme
-                                                .bodyMedium
+                                                .bodyLarge
                                                 ?.copyWith(
                                                     color: Theme.of(context)
                                                         .colorScheme
-                                                        .error),
+                                                        .error,
+                                                    fontWeight:
+                                                        FontWeight.bold),
                                           ),
                                         Row(
                                             mainAxisAlignment:
@@ -320,21 +338,6 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     } else {
       widget.questionListener.tried = true;
     }
-  }
-
-  _showErrorPrevention(BuildContext context) {
-    if (!hasChanged) {
-      widget.questionListener.tried = false;
-      if (context.canPop()) {
-        context.pop();
-      } else {
-        context.go(Routes.HOME);
-      }
-      return;
-    }
-
-    ref.read(overlayProvider.notifier).state =
-        OverlayQuery(widget: ErrorPrevention(type: widget.type));
   }
 
   _submitEntry(BuildContext context, WidgetRef ref, bool isEdit) async {

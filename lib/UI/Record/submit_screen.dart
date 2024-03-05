@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/record_period.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
-import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
-import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
 import 'package:stripes_ui/UI/CommonWidgets/date_time_entry.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
 import 'package:stripes_ui/UI/Record/question_screen.dart';
-import 'package:stripes_ui/Util/constants.dart';
-import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
-import 'package:uuid/uuid.dart';
 
 class SubmitScreen extends ConsumerStatefulWidget {
   final String type;
@@ -99,8 +93,6 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
             .repo
             ?.getRecordAdditions(context, widget.type) ??
         [];
-
-    final bool canSubmit = widget.questionsListener.pending.isEmpty;
     return Column(
       children: [
         Text(
@@ -140,83 +132,10 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
         ),
         LongTextEntry(textController: _descriptionController),
         const SizedBox(
-          height: 30.0,
-        ),
-        ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 250),
-          child: GestureDetector(
-            onTap: () {
-              if (!canSubmit && !isLoading) {
-                showSnack(context,
-                    AppLocalizations.of(context)!.submitBlueQuestionError);
-              }
-            },
-            child: FilledButton(
-              onPressed: canSubmit && !isLoading
-                  ? () {
-                      _submitEntry(context, ref);
-                    }
-                  : null,
-              child: isLoading
-                  ? const ButtonLoadingIndicator()
-                  : Text(isEdit
-                      ? AppLocalizations.of(context)!.editSubmitButtonText
-                      : AppLocalizations.of(context)!.submitButtonText),
-            ),
-          ),
-        ),
-        const SizedBox(
-          height: 15,
+          height: 18.0,
         ),
       ],
     );
-  }
-
-  _submitEntry(
-    BuildContext context,
-    WidgetRef ref,
-  ) async {
-    if (isLoading) return;
-    setState(() {
-      isLoading = true;
-    });
-    final DateTime submissionEntry =
-        widget.questionsListener.submitTime ?? DateTime.now();
-    final int entryStamp = dateToStamp(submissionEntry);
-    final DetailResponse detailResponse = DetailResponse(
-      id: widget.questionsListener.editId ?? const Uuid().v4(),
-      description: widget.questionsListener.description,
-      responses:
-          widget.questionsListener.questions.values.toList(growable: false),
-      stamp: isEdit
-          ? dateToStamp(widget.questionsListener.submitTime!)
-          : entryStamp,
-      detailType: widget.type,
-    );
-
-    if (isEdit) {
-      await ref.read(stampProvider)?.updateStamp(detailResponse);
-      await ref
-          .read(testHolderProvider)
-          .repo
-          ?.onResponseEdit(detailResponse, widget.type);
-    } else {
-      await ref.read(stampProvider)?.addStamp(detailResponse);
-      await ref
-          .read(testHolderProvider)
-          .repo
-          ?.onResponseSubmit(detailResponse, widget.type);
-    }
-    setState(() {
-      isLoading = false;
-    });
-    if (context.mounted) {
-      if (context.canPop()) {
-        context.pop();
-      } else {
-        context.go(Routes.HOME);
-      }
-    }
   }
 }
 
