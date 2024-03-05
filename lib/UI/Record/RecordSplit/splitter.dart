@@ -7,6 +7,7 @@ import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_list
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo_base.dart';
 import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
 import 'package:stripes_backend_helper/date_format.dart';
+import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
@@ -345,6 +346,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     setState(() {
       isLoading = true;
     });
+    final StampRepo? repo = ref.read(stampProvider);
     final DateTime submissionEntry =
         widget.questionListener.submitTime ?? DateTime.now();
     final int entryStamp = dateToStamp(submissionEntry);
@@ -360,13 +362,13 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     );
 
     if (isEdit) {
-      await ref.read(stampProvider)?.updateStamp(detailResponse);
+      await repo?.updateStamp(detailResponse);
       await ref
           .read(testHolderProvider)
           .repo
           ?.onResponseEdit(detailResponse, widget.type);
     } else {
-      await ref.read(stampProvider)?.addStamp(detailResponse);
+      await repo?.addStamp(detailResponse);
       await ref
           .read(testHolderProvider)
           .repo
@@ -376,9 +378,11 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
       isLoading = false;
     });
     if (context.mounted) {
-      showSnack(context, AppLocalizations.of(context)!.undoEntry(widget.type),
-          action: () async {
-        await ref.read(stampProvider)?.removeStamp(detailResponse);
+      showSnack(
+          context,
+          AppLocalizations.of(context)!.undoEntry(
+              widget.type, submissionEntry, submissionEntry), action: () async {
+        await repo?.removeStamp(detailResponse);
       });
       if (context.canPop()) {
         context.pop();

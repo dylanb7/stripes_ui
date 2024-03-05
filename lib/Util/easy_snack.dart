@@ -6,6 +6,7 @@ showSnack(BuildContext context, String message,
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
     content: Text(message),
     dismissDirection: DismissDirection.up,
+    showCloseIcon: true,
     behavior: SnackBarBehavior.floating,
     margin: const EdgeInsets.only(bottom: 10, left: 10, right: 10),
     action: action != null

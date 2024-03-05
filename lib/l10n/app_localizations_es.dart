@@ -127,8 +127,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get undo => 'undo';
 
   @override
-  String undoEntry(String symptomType) {
-    return 'Successfully added $symptomType';
+  String undoEntry(String symptomType, DateTime date, DateTime time) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+    final intl.DateFormat timeDateFormat = intl.DateFormat.jm(localeName);
+    final String timeString = timeDateFormat.format(time);
+
+    return 'Successfully added $symptomType at $dateString $timeString';
   }
 
   @override

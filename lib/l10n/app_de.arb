@@ -66,12 +66,20 @@
     "testInProgressNotif": "Blue Dye Test in Progress",
 
     "undo": "undo",
-    "undoEntry": "Successfully added {symptomType}",
+    "undoEntry": "Successfully added {symptomType} at {date} {time}",
     "@undoEntry": {
         "placeholders": {
             "symptomType": {
                 "type": "String",
                 "example": "pain"
+            },
+            "date" : {
+                "type": "DateTime",
+                "format": "yMd"
+            },
+            "time" : {
+                "type": "DateTime",
+                "format": "jm"
             }
         }
     },
