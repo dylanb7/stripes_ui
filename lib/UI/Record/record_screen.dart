@@ -292,7 +292,13 @@ class RecordButton extends StatelessWidget {
                         children: [
                           Text(
                             text,
-                            style: Theme.of(context).textTheme.titleLarge,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color:
+                                        Theme.of(context).colorScheme.primary),
                           ),
                           ...additions
                         ]),

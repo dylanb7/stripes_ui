@@ -172,7 +172,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                           CrossAxisAlignment.center,
                                       children: [
                                         if (isEdit ||
-                                            currentIndex == pages.length - 1)
+                                            currentIndex == pages.length)
                                           FilledButton(
                                             onPressed: !hasPending && !isLoading
                                                 ? () {
@@ -405,7 +405,7 @@ class RecordHeader extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10.0),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Flexible(
@@ -413,7 +413,7 @@ class RecordHeader extends ConsumerWidget {
               name == null || name.isEmpty
                   ? AppLocalizations.of(context)!.emptyRecordHeader(type)
                   : AppLocalizations.of(context)!.recordHeader(type, name),
-              style: Theme.of(context).textTheme.bodyLarge,
+              style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
           IconButton(
