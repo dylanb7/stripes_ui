@@ -99,13 +99,13 @@ class LogRow extends ConsumerWidget {
         event.type,
         style: Theme.of(context).textTheme.bodyLarge,
       ),
-      if (event.description.isNotEmpty) ...[
+      if (event.description != null && event.description!.isNotEmpty) ...[
         Text(
           AppLocalizations.of(context)!.descriptionLabel,
           style: Theme.of(context).textTheme.bodyLarge,
         ),
         Text(
-          event.description,
+          event.description!,
           style: Theme.of(context).textTheme.bodyMedium,
           maxLines: null,
         )

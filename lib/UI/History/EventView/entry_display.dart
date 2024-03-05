@@ -159,7 +159,7 @@ class DetailDisplay extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (detail.description.isNotEmpty) ...[
+        if (detail.description != null && detail.description!.isNotEmpty) ...[
           Text(
             AppLocalizations.of(context)!.descriptionLabel,
             style: Theme.of(context).textTheme.bodyLarge,
@@ -169,7 +169,7 @@ class DetailDisplay extends StatelessWidget {
             height: 3.0,
           ),
           Text(
-            detail.description,
+            detail.description!,
             style: Theme.of(context).textTheme.bodyMedium,
             textAlign: TextAlign.left,
             maxLines: null,
