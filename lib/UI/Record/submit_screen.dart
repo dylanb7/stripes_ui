@@ -99,7 +99,7 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
           isEdit
               ? AppLocalizations.of(context)!.editSubmitHeader(widget.type)
               : AppLocalizations.of(context)!.submitHeader(widget.type),
-          style: Theme.of(context).textTheme.titleLarge,
+          style: Theme.of(context).textTheme.titleMedium,
           textAlign: TextAlign.center,
         ),
         const SizedBox(
@@ -153,14 +153,14 @@ class LongTextEntry extends StatelessWidget {
         children: [
           Text(
             AppLocalizations.of(context)!.submitDescriptionTag,
-            style: Theme.of(context).textTheme.titleLarge,
+            style: Theme.of(context).textTheme.titleMedium,
             textAlign: TextAlign.center,
           ),
           const SizedBox(
             height: 5,
           ),
           AspectRatio(
-            aspectRatio: 1.2,
+            aspectRatio: 0.7,
             child: TextField(
               controller: textController,
               maxLines: null,
