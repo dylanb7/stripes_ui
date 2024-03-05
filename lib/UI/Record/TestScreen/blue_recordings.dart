@@ -50,9 +50,9 @@ class BlueRecordings<T extends Test> extends ConsumerWidget {
                 onTap: () {
                   if (state != TestState.logsSubmit && !isLoading) {
                     showSnack(
-                        AppLocalizations.of(context)!
-                            .blueDyeLogsSubmitTestError,
-                        context);
+                      context,
+                      AppLocalizations.of(context)!.blueDyeLogsSubmitTestError,
+                    );
                   }
                 },
                 child: FilledButton(
@@ -67,8 +67,9 @@ class BlueRecordings<T extends Test> extends ConsumerWidget {
                           ref.read(testLoading.notifier).state = false;
                           if (context.mounted) {
                             showSnack(
-                                AppLocalizations.of(context)!.testSubmitSuccess,
-                                context);
+                                context,
+                                AppLocalizations.of(context)!
+                                    .testSubmitSuccess);
                           }
                         },
                   child: isLoading

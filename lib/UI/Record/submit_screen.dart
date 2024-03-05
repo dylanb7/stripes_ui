@@ -51,7 +51,31 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
       _descriptionController.text = widget.questionsListener.description!;
     }
     widget.questionsListener.addListener(_state);
+    _dateListener.addListener(_setSubmissionTime);
+    _timeListener.addListener(_setSubmissionTime);
+    _descriptionController.addListener(_updateDesc);
     super.initState();
+  }
+
+  _setSubmissionTime() {
+    widget.questionsListener.submitTime = _combinedTime();
+  }
+
+  _updateDesc() {
+    widget.questionsListener.description = _descriptionController.text;
+  }
+
+  DateTime _combinedTime() {
+    if (isEdit && widget.questionsListener.submitTime != null) {
+      return widget.questionsListener.submitTime!;
+    }
+    final Period? period = ref.read(pagePaths)[widget.type]?.period;
+    final DateTime date = _dateListener.date;
+    final TimeOfDay time = _timeListener.time;
+    final currentTime = DateTime.now();
+    final DateTime combinedEntry = DateTime(date.year, date.month, date.day,
+        time.hour, time.minute, currentTime.second, currentTime.millisecond);
+    return period?.getValue(combinedEntry) ?? combinedEntry;
   }
 
   _state() {
@@ -61,12 +85,15 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
   @override
   void dispose() {
     widget.questionsListener.removeListener(_state);
+    _dateListener.removeListener(_setSubmissionTime);
+    _timeListener.removeListener(_setSubmissionTime);
+    _descriptionController.removeListener(_updateDesc);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    Period? period = ref.watch(pagePaths)[widget.type]?.period;
+    final Period? period = ref.watch(pagePaths)[widget.type]?.period;
     final List<Question> testAdditions = ref
             .watch(testHolderProvider)
             .repo
@@ -108,63 +135,6 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
         RenderQuestions(
             questions: testAdditions,
             questionsListener: widget.questionsListener),
-        /*if (isBlueRecord) ...[
-          const SizedBox(
-            height: 18.0,
-          ),
-          Text(
-            AppLocalizations.of(context)!.submitBlueQuestion,
-            style: lightBackgroundHeaderStyle,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(
-            height: 8.0,
-          ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              ChoiceChip(
-                label: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12.0, vertical: 4.0),
-                    child: Text(AppLocalizations.of(context)!.blueQuestionYes)),
-                selected: toggleState[0],
-                selectedColor: primary,
-                backgroundColor: surface,
-                labelStyle: TextStyle(
-                    color: toggleState[0] ? onPrimary : onSurface,
-                    fontWeight: FontWeight.bold),
-                checkmarkColor: toggleState[0] ? onPrimary : onSurface,
-                onSelected: (value) {
-                  if (toggleState[0]) return;
-                  setState(() {
-                    toggleState = [true, false];
-                  });
-                },
-              ),
-              ChoiceChip(
-                label: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12.0, vertical: 4.0),
-                    child: Text(AppLocalizations.of(context)!.blueQuestionNo)),
-                selected: toggleState[1],
-                selectedColor: primary,
-                backgroundColor: surface,
-                labelStyle: TextStyle(
-                    color: toggleState[1] ? onPrimary : onSurface,
-                    fontWeight: FontWeight.bold),
-                checkmarkColor: toggleState[1] ? onPrimary : onSurface,
-                onSelected: (value) {
-                  if (toggleState[1]) return;
-                  setState(() {
-                    toggleState = [false, true];
-                  });
-                },
-              )
-            ],
-          ),
-        ],*/
         const SizedBox(
           height: 18.0,
         ),
@@ -177,14 +147,14 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
           child: GestureDetector(
             onTap: () {
               if (!canSubmit && !isLoading) {
-                showSnack(AppLocalizations.of(context)!.submitBlueQuestionError,
-                    context);
+                showSnack(context,
+                    AppLocalizations.of(context)!.submitBlueQuestionError);
               }
             },
             child: FilledButton(
               onPressed: canSubmit && !isLoading
                   ? () {
-                      _submitEntry(context, period, ref);
+                      _submitEntry(context, ref);
                     }
                   : null,
               child: isLoading
@@ -204,33 +174,18 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
 
   _submitEntry(
     BuildContext context,
-    Period? period,
     WidgetRef ref,
   ) async {
     if (isLoading) return;
     setState(() {
       isLoading = true;
     });
-    final DateTime date = _dateListener.date;
-    final TimeOfDay time = _timeListener.time;
-    final DateTime dateOfEntry =
-        isEdit ? widget.questionsListener.submitTime ?? date : date;
-    final TimeOfDay timeOfEntry = time;
-    final currentTime = DateTime.now();
-    final DateTime combinedEntry = DateTime(
-        dateOfEntry.year,
-        dateOfEntry.month,
-        dateOfEntry.day,
-        timeOfEntry.hour,
-        timeOfEntry.minute,
-        currentTime.second,
-        currentTime.millisecond);
     final DateTime submissionEntry =
-        period?.getValue(combinedEntry) ?? combinedEntry;
+        widget.questionsListener.submitTime ?? DateTime.now();
     final int entryStamp = dateToStamp(submissionEntry);
     final DetailResponse detailResponse = DetailResponse(
       id: widget.questionsListener.editId ?? const Uuid().v4(),
-      description: _descriptionController.text,
+      description: widget.questionsListener.description,
       responses:
           widget.questionsListener.questions.values.toList(growable: false),
       stamp: isEdit
@@ -274,7 +229,7 @@ class LongTextEntry extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 35.0),
+      padding: const EdgeInsets.symmetric(horizontal: 10.0),
       child: Column(
         children: [
           Text(
@@ -285,8 +240,8 @@ class LongTextEntry extends StatelessWidget {
           const SizedBox(
             height: 5,
           ),
-          SizedBox(
-            height: 120,
+          AspectRatio(
+            aspectRatio: 1.2,
             child: TextField(
               controller: textController,
               maxLines: null,

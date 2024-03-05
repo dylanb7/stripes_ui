@@ -148,8 +148,10 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
                               child: GestureDetector(
                                 onTap: () {
                                   if (!canSave) {
-                                    showSnack('Must make changes before saving',
-                                        context);
+                                    showSnack(
+                                      context,
+                                      'Must make changes before saving',
+                                    );
                                   }
                                 },
                                 child: FilledButton.tonal(

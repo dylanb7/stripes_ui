@@ -132,7 +132,7 @@ class CreatePatient extends ConsumerWidget {
           isControl: false);
       final subRepo = ref.read(subProvider);
       if (subRepo == null) {
-        showSnack('Unable to add patient', context);
+        showSnack(context, 'Unable to add patient');
       } else {
         await subRepo.addSubUser(user);
       }

@@ -124,6 +124,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get testInProgressNotif => 'Blue Dye Test in Progress';
 
   @override
+  String get undo => 'undo';
+
+  @override
   String recordHeader(String symptomType, String username) {
     return 'Recording $symptomType \nfor $username';
   }

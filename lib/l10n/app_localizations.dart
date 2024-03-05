@@ -311,6 +311,12 @@ abstract class AppLocalizations {
   /// **'Blue Dye Test in Progress'**
   String get testInProgressNotif;
 
+  /// No description provided for @undo.
+  ///
+  /// In en, this message translates to:
+  /// **'undo'**
+  String get undo;
+
   /// No description provided for @recordHeader.
   ///
   /// In en, this message translates to:

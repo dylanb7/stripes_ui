@@ -67,6 +67,7 @@
     "logOutButton": "Log Out",
     "testInProgressNotif": "Blue Dye Test in Progress",
 
+    "undo": "undo",
     "recordHeader": "Recording {symptomType} \nfor {username}",
     "@recordHeader": {
         "placeholders": {

@@ -2,17 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo_base.dart';
 import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
+import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
+import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
+import 'package:stripes_ui/Providers/test_provider.dart';
+import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
 import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
 import 'package:stripes_ui/UI/Record/question_screen.dart';
 import 'package:stripes_ui/UI/Record/submit_screen.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
+import 'package:uuid/uuid.dart';
 
 class RecordSplitter extends ConsumerStatefulWidget {
   final String type;
@@ -37,6 +43,8 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
 
   bool hasChanged = false;
 
+  bool isLoading = false;
+
   @override
   void initState() {
     original = QuestionsListener.copy(widget.questionListener);
@@ -60,14 +68,10 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
   Widget build(BuildContext context) {
     final List<PageLayout> pages =
         ref.watch(pagePaths)[widget.type]?.pages ?? [];
-    final int length = pages.length;
     final OverlayQuery query = ref.watch(overlayProvider);
     final bool tried = widget.questionListener.tried;
-    final hasPending = widget.questionListener.pending.isNotEmpty;
-    final String? name = _name();
-    final bool emptyName = name == null || name.isEmpty;
-    final Color primary = Theme.of(context).primaryColor;
-    final Color disabled = Theme.of(context).disabledColor;
+    final bool hasPending = widget.questionListener.pending.isNotEmpty;
+    final bool isEdit = widget.questionListener.editId != null;
     return SafeArea(
       child: Scaffold(
         body: Stack(children: [
@@ -82,34 +86,10 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                     const SizedBox(
                       height: 10,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            child: Text(
-                              emptyName
-                                  ? AppLocalizations.of(context)!
-                                      .emptyRecordHeader(widget.type)
-                                  : AppLocalizations.of(context)!
-                                      .recordHeader(widget.type, name),
-                              style: Theme.of(context).textTheme.bodyLarge,
-                            ),
-                          ),
-                          IconButton(
-                              onPressed: () {
-                                _showErrorPrevention(context);
-                              },
-                              alignment: Alignment.topRight,
-                              icon: const Icon(
-                                Icons.close,
-                                size: 35,
-                              ))
-                        ],
-                      ),
-                    ),
+                    RecordHeader(
+                        type: widget.type,
+                        hasChanged: hasChanged,
+                        listener: widget.questionListener),
                     const SizedBox(
                       height: 8.0,
                     ),
@@ -127,48 +107,52 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 Expanded(
-                                  child: PageView.builder(
-                                    onPageChanged: (value) {
-                                      setState(() {
-                                        currentIndex = value;
-                                      });
-                                    },
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    itemBuilder: (context, index) {
-                                      Widget content;
-                                      if (index == pages.length) {
-                                        content = SubmitScreen(
-                                          questionsListener:
-                                              widget.questionListener,
-                                          type: widget.type,
-                                        );
-                                      } else {
-                                        content = QuestionScreen(
-                                            header: pages[index].header ??
-                                                AppLocalizations.of(context)!
-                                                    .selectInstruction,
-                                            questions: pages[index].questions,
+                                  child: IgnorePointer(
+                                    ignoring: isLoading,
+                                    child: PageView.builder(
+                                      onPageChanged: (value) {
+                                        setState(() {
+                                          currentIndex = value;
+                                        });
+                                      },
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      itemBuilder: (context, index) {
+                                        Widget content;
+                                        if (index == pages.length) {
+                                          content = SubmitScreen(
                                             questionsListener:
-                                                widget.questionListener);
-                                      }
-                                      final ScrollController scrollController =
-                                          ScrollController();
-                                      return Scrollbar(
-                                        thumbVisibility: true,
-                                        thickness: 10,
-                                        controller: scrollController,
-                                        radius: const Radius.circular(20),
-                                        scrollbarOrientation:
-                                            ScrollbarOrientation.right,
-                                        child: SingleChildScrollView(
-                                            controller: scrollController,
-                                            scrollDirection: Axis.vertical,
-                                            child: content),
-                                      );
-                                    },
-                                    itemCount: pages.length + 1,
-                                    controller: pageController,
+                                                widget.questionListener,
+                                            type: widget.type,
+                                          );
+                                        } else {
+                                          content = QuestionScreen(
+                                              header: pages[index].header ??
+                                                  AppLocalizations.of(context)!
+                                                      .selectInstruction,
+                                              questions: pages[index].questions,
+                                              questionsListener:
+                                                  widget.questionListener);
+                                        }
+                                        final ScrollController
+                                            scrollController =
+                                            ScrollController();
+                                        return Scrollbar(
+                                          thumbVisibility: true,
+                                          thickness: 10,
+                                          controller: scrollController,
+                                          radius: const Radius.circular(20),
+                                          scrollbarOrientation:
+                                              ScrollbarOrientation.right,
+                                          child: SingleChildScrollView(
+                                              controller: scrollController,
+                                              scrollDirection: Axis.vertical,
+                                              child: content),
+                                        );
+                                      },
+                                      itemCount: pages.length + 1,
+                                      controller: pageController,
+                                    ),
                                   ),
                                 ),
                                 const Padding(
@@ -187,6 +171,25 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
                                       children: [
+                                        if (isEdit ||
+                                            currentIndex == pages.length - 1)
+                                          FilledButton(
+                                            onPressed: !hasPending && !isLoading
+                                                ? () {
+                                                    _submitEntry(
+                                                        context, ref, isEdit);
+                                                  }
+                                                : null,
+                                            child: isLoading
+                                                ? const ButtonLoadingIndicator()
+                                                : Text(isEdit
+                                                    ? AppLocalizations.of(
+                                                            context)!
+                                                        .editSubmitButtonText
+                                                    : AppLocalizations.of(
+                                                            context)!
+                                                        .submitButtonText),
+                                          ),
                                         if (tried && hasPending)
                                           Text(
                                             AppLocalizations.of(context)!
@@ -221,12 +224,11 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                                       icon: Icon(
                                                         Icons
                                                             .arrow_back_rounded,
-                                                        color: widget
-                                                                .questionListener
-                                                                .pending
-                                                                .isEmpty
-                                                            ? primary
-                                                            : disabled,
+                                                        color: !hasPending
+                                                            ? Theme.of(context)
+                                                                .primaryColor
+                                                            : Theme.of(context)
+                                                                .disabledColor,
                                                       ),
                                                     )
                                                   : const SizedBox(
@@ -234,7 +236,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                                     ),
                                               SmoothPageIndicator(
                                                 controller: pageController,
-                                                count: length + 1,
+                                                count: pages.length + 1,
                                                 onDotClicked: (index) {
                                                   _goToPage(index);
                                                 },
@@ -244,7 +246,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                                             .primaryColor,
                                                     activeDotScale: 1),
                                               ),
-                                              currentIndex < length
+                                              currentIndex < pages.length
                                                   ? IconButton(
                                                       padding: EdgeInsets.zero,
                                                       onPressed: _next,
@@ -259,12 +261,11 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                                       icon: Icon(
                                                         Icons
                                                             .arrow_forward_rounded,
-                                                        color: widget
-                                                                .questionListener
-                                                                .pending
-                                                                .isEmpty
-                                                            ? primary
-                                                            : disabled,
+                                                        color: !hasPending
+                                                            ? Theme.of(context)
+                                                                .primaryColor
+                                                            : Theme.of(context)
+                                                                .disabledColor,
                                                       ),
                                                     )
                                                   : const SizedBox(
@@ -289,11 +290,6 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
         ]),
       ),
     );
-  }
-
-  String? _name() {
-    SubUser current = ref.read(subHolderProvider).current;
-    return SubUser.isEmpty(current) ? null : current.name;
   }
 
   _goToPage(int index) {
@@ -341,10 +337,109 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
         OverlayQuery(widget: ErrorPrevention(type: widget.type));
   }
 
+  _submitEntry(BuildContext context, WidgetRef ref, bool isEdit) async {
+    if (isLoading) return;
+    setState(() {
+      isLoading = true;
+    });
+    final DateTime submissionEntry =
+        widget.questionListener.submitTime ?? DateTime.now();
+    final int entryStamp = dateToStamp(submissionEntry);
+    final DetailResponse detailResponse = DetailResponse(
+      id: widget.questionListener.editId ?? const Uuid().v4(),
+      description: widget.questionListener.description,
+      responses:
+          widget.questionListener.questions.values.toList(growable: false),
+      stamp: isEdit
+          ? dateToStamp(widget.questionListener.submitTime!)
+          : entryStamp,
+      detailType: widget.type,
+    );
+
+    if (isEdit) {
+      await ref.read(stampProvider)?.updateStamp(detailResponse);
+      await ref
+          .read(testHolderProvider)
+          .repo
+          ?.onResponseEdit(detailResponse, widget.type);
+    } else {
+      await ref.read(stampProvider)?.addStamp(detailResponse);
+      await ref
+          .read(testHolderProvider)
+          .repo
+          ?.onResponseSubmit(detailResponse, widget.type);
+    }
+    setState(() {
+      isLoading = false;
+    });
+    if (context.mounted) {
+      if (context.canPop()) {
+        context.pop();
+      } else {
+        context.go(Routes.HOME);
+      }
+    }
+  }
+
   @override
   void dispose() {
     widget.questionListener.removeListener(_changedUpdate);
     super.dispose();
+  }
+}
+
+class RecordHeader extends ConsumerWidget {
+  final String type;
+  final bool hasChanged;
+  final QuestionsListener listener;
+  const RecordHeader(
+      {required this.type,
+      required this.hasChanged,
+      required this.listener,
+      super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final SubUser current = ref.read(subHolderProvider).current;
+    final String? name = SubUser.isEmpty(current) ? null : current.name;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Flexible(
+            child: Text(
+              name == null || name.isEmpty
+                  ? AppLocalizations.of(context)!.emptyRecordHeader(type)
+                  : AppLocalizations.of(context)!.recordHeader(type, name),
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+          ),
+          IconButton(
+            onPressed: () {
+              if (!hasChanged) {
+                listener.tried = false;
+                if (context.canPop()) {
+                  context.pop();
+                } else {
+                  context.go(Routes.HOME);
+                }
+                return;
+              }
+
+              ref.read(overlayProvider.notifier).state =
+                  OverlayQuery(widget: ErrorPrevention(type: type));
+            },
+            alignment: Alignment.topRight,
+            icon: const Icon(
+              Icons.close,
+              size: 35,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -390,95 +485,6 @@ class ErrorPrevention extends ConsumerWidget {
         },
         cancel: AppLocalizations.of(context)!.errorPreventionStay,
         confirm: AppLocalizations.of(context)!.errorPreventionLeave);
-    /*return Stack(
-      children: [
-        Positioned.fill(
-          child: Container(
-            color: lightBackgroundText.withOpacity(0.9),
-          ),
-        ),
-        Center(
-          child: SizedBox(
-            width: SMALL_LAYOUT / 1.7,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Card(
-                  shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10.0))),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10.0, vertical: 12.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          AppLocalizations.of(context)!.errorPreventionTitle,
-                          style: darkBackgroundHeaderStyle.copyWith(
-                              color: buttonDarkBackground),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(
-                          height: 8.0,
-                        ),
-                        Text(
-                          AppLocalizations.of(context)!.errorPreventionLineOne,
-                          style: lightBackgroundStyle,
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(
-                          height: 8.0,
-                        ),
-                        Text(
-                          AppLocalizations.of(context)!
-                              .errorPreventionLineTwo(type.toLowerCase()),
-                          style: lightBackgroundStyle,
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    BasicButton(
-                        onClick: (context) {
-                          _dismiss(context, ref);
-                        },
-                        color: buttonDarkBackground,
-                        text:
-                            AppLocalizations.of(context)!.errorPreventionLeave),
-                    BasicButton(
-                        onClick: (context) {
-                          _closeOverlay(context, ref);
-                        },
-                        color: buttonLightBackground,
-                        text:
-                            AppLocalizations.of(context)!.errorPreventionStay),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );*/
-  }
-
-  _dismiss(BuildContext context, WidgetRef ref) {
-    _closeOverlay(context, ref);
-
-    context.pop();
-  }
-
-  _closeOverlay(BuildContext context, WidgetRef ref) {
-    ref.read(overlayProvider.notifier).state = closedQuery;
   }
 }
 
