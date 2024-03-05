@@ -58,7 +58,6 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     if (mounted) {
       setState(() {
         hasChanged = original != widget.questionListener;
-        print(hasChanged);
       });
     }
   }
@@ -71,6 +70,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     final bool tried = widget.questionListener.tried;
     final bool hasPending = widget.questionListener.pending.isNotEmpty;
     final bool isEdit = widget.questionListener.editId != null;
+    final bool edited = !isEdit || isEdit && hasChanged;
     return SafeArea(
       child: Scaffold(
         body: Stack(children: [
@@ -204,7 +204,8 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                             },
                                             child: FilledButton(
                                               onPressed: !hasPending &&
-                                                      !isLoading
+                                                      !isLoading &&
+                                                      edited
                                                   ? () {
                                                       _submitEntry(
                                                           context, ref, isEdit);
