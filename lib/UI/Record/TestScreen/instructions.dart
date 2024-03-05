@@ -45,10 +45,7 @@ class _InstructionsState extends ConsumerState<Instructions> {
         children: [
           Text(
             AppLocalizations.of(context)!.blueDyeInstructionsHeader,
-            style: Theme.of(context)
-                .textTheme
-                .headlineMedium
-                ?.copyWith(fontSize: 20.0),
+            style: Theme.of(context).textTheme.bodyLarge,
             textAlign: TextAlign.left,
           ),
           if (state != TestState.initial &&
@@ -77,7 +74,7 @@ class _InstructionsState extends ConsumerState<Instructions> {
                 title: Text(
                   AppLocalizations.of(context)!.blueDyeInstructionsStepOne,
                   textAlign: TextAlign.left,
-                  style: Theme.of(context).textTheme.headlineMedium,
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 /*Row(
                     mainAxisSize: MainAxisSize.min,
@@ -120,7 +117,7 @@ class _InstructionsState extends ConsumerState<Instructions> {
             LabeledList(
                 title: Text(
                   AppLocalizations.of(context)!.blueDyeInstructionsStepTwo,
-                  style: Theme.of(context).textTheme.headlineMedium,
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 strings: [
                   AppLocalizations.of(context)!.blueDyeInstructionsStepTwoA,
@@ -134,7 +131,7 @@ class _InstructionsState extends ConsumerState<Instructions> {
             LabeledList(
                 title: Text(
                   AppLocalizations.of(context)!.blueDyeInstructionsStepThree,
-                  style: Theme.of(context).textTheme.headlineMedium,
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 strings: [
                   AppLocalizations.of(context)!.blueDyeInstructionsStepThreeA
