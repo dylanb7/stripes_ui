@@ -172,6 +172,23 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
                                       children: [
+                                        if (tried && hasPending)
+                                          Text(
+                                            AppLocalizations.of(context)!
+                                                .nLevelError(widget
+                                                    .questionListener
+                                                    .pending
+                                                    .length),
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyLarge
+                                                ?.copyWith(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .error,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                          ),
                                         if (isEdit ||
                                             currentIndex == pages.length)
                                           GestureDetector(
@@ -205,23 +222,6 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                                               context)!
                                                           .submitButtonText),
                                             ),
-                                          ),
-                                        if (tried && hasPending)
-                                          Text(
-                                            AppLocalizations.of(context)!
-                                                .nLevelError(widget
-                                                    .questionListener
-                                                    .pending
-                                                    .length),
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyLarge
-                                                ?.copyWith(
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .error,
-                                                    fontWeight:
-                                                        FontWeight.bold),
                                           ),
                                         Row(
                                             mainAxisAlignment:
