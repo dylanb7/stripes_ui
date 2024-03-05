@@ -133,7 +133,7 @@ class AppLocalizationsEn extends AppLocalizations {
     final intl.DateFormat timeDateFormat = intl.DateFormat.jm(localeName);
     final String timeString = timeDateFormat.format(time);
 
-    return 'Successfully added $symptomType at $dateString $timeString';
+    return 'Added $symptomType on $dateString at $timeString';
   }
 
   @override

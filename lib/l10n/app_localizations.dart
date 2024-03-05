@@ -320,7 +320,7 @@ abstract class AppLocalizations {
   /// No description provided for @undoEntry.
   ///
   /// In en, this message translates to:
-  /// **'Successfully added {symptomType} at {date} {time}'**
+  /// **'Added {symptomType} on {date} at {time}'**
   String undoEntry(String symptomType, DateTime date, DateTime time);
 
   /// No description provided for @recordHeader.
