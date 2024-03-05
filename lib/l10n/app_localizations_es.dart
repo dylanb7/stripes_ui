@@ -127,6 +127,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get undo => 'undo';
 
   @override
+  String undoEntry(String symptomType) {
+    return 'Successfully added $symptomType';
+  }
+
+  @override
   String recordHeader(String symptomType, String username) {
     return 'Recording $symptomType \nfor $username';
   }

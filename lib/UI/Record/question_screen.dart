@@ -9,7 +9,6 @@ import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/questions_provider.dart';
 
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
-import 'package:stripes_ui/UI/Record/base_screen.dart';
 import 'package:stripes_ui/UI/Record/severity_slider.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 import 'package:collection/collection.dart';
@@ -617,7 +616,7 @@ class _SeverityPainWidgetState extends ConsumerState<SeverityPainWidget> {
   @override
   Widget build(BuildContext context) {
     final num? res = response();
-    final bool tried = ref.watch(continueTried);
+    final bool tried = widget.questionsListener.tried;
     final bool errorHighlight =
         tried && widget.questionsListener.pending.contains(widget.question);
     return Expandible(

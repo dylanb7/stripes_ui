@@ -376,6 +376,10 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
       isLoading = false;
     });
     if (context.mounted) {
+      showSnack(context, AppLocalizations.of(context)!.undoEntry(widget.type),
+          action: () async {
+        await ref.read(stampProvider)?.removeStamp(detailResponse);
+      });
       if (context.canPop()) {
         context.pop();
       } else {

@@ -317,6 +317,12 @@ abstract class AppLocalizations {
   /// **'undo'**
   String get undo;
 
+  /// No description provided for @undoEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Successfully added {symptomType}'**
+  String undoEntry(String symptomType);
+
   /// No description provided for @recordHeader.
   ///
   /// In en, this message translates to:

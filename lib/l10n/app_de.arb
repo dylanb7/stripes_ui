@@ -66,6 +66,16 @@
     "testInProgressNotif": "Blue Dye Test in Progress",
 
     "undo": "undo",
+    "undoEntry": "Successfully added {symptomType}",
+    "@undoEntry": {
+        "placeholders": {
+            "symptomType": {
+                "type": "String",
+                "example": "pain"
+            }
+        }
+    },
+
     "recordHeader": "Recording {symptomType} \nfor {username}",
     "@recordHeader": {
         "placeholders": {
