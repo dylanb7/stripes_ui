@@ -45,7 +45,6 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
 
   @override
   void initState() {
-    print("init");
     original = QuestionsListener.copy(widget.questionListener);
     pageController = PageController();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -57,8 +56,6 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
 
   _changedUpdate() {
     if (mounted) {
-      print("original $original");
-      print("new ${widget.questionListener}");
       setState(() {
         hasChanged = original != widget.questionListener;
       });
@@ -207,8 +204,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                             },
                                             child: FilledButton(
                                               onPressed: !hasPending &&
-                                                      !isLoading &&
-                                                      edited
+                                                      !isLoading
                                                   ? () {
                                                       _submitEntry(
                                                           context, ref, isEdit);
