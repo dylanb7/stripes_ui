@@ -144,7 +144,9 @@ Map<String, RecordPath> getAllPaths(
     pages.removeWhere((element) => element.isEmpty);
     recordPaths[type] = RecordPath(
         pages: pages
-            .map((pageQuestions) => PageLayout(questions: pageQuestions))
+            .map((pageQuestions) => PageLayout(
+                questionIds:
+                    pageQuestions.map((question) => question.id).toList()))
             .toList());
   }
   return recordPaths;

@@ -5,6 +5,7 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
+import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
@@ -67,6 +68,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     final List<PageLayout> pages =
         ref.watch(pagePaths)[widget.type]?.pages ?? [];
     final OverlayQuery query = ref.watch(overlayProvider);
+    final QuestionHome home = ref.watch(questionsProvider).questions;
     final bool tried = widget.questionListener.tried;
     final bool hasPending = widget.questionListener.pending.isNotEmpty;
     final bool isEdit = widget.questionListener.editId != null;
@@ -129,7 +131,11 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                               header: pages[index].header ??
                                                   AppLocalizations.of(context)!
                                                       .selectInstruction,
-                                              questions: pages[index].questions,
+                                              questions: pages[index]
+                                                  .questionIds
+                                                  .map(
+                                                      (id) => home.fromBank(id))
+                                                  .toList(),
                                               questionsListener:
                                                   widget.questionListener);
                                         }
