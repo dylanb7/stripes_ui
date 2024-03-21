@@ -6,7 +6,9 @@ import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/auth_provider.dart';
 import 'package:stripes_ui/Providers/route_provider.dart';
+import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
+import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/Util/palette.dart';
 
 import 'l10n/app_localizations.dart';
@@ -138,7 +140,10 @@ class _EarlyInit extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(authStream);
-    ref.watch(subStream);
+    ref.watch(subHolderProvider);
+    ref.watch(stampHolderProvider);
+    ref.watch(testStreamProvider);
+
     return child;
   }
 }
