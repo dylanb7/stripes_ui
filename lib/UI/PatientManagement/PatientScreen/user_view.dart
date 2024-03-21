@@ -26,7 +26,7 @@ class UserView extends ConsumerWidget {
         padding: const EdgeInsets.only(top: 4.0),
         child: Text(
           subUser.name,
-          style: Theme.of(context).textTheme.headlineMedium,
+          style: Theme.of(context).textTheme.titleLarge,
         ),
       ),
       view: Column(

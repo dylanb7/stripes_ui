@@ -161,8 +161,8 @@ class UserSelect extends ConsumerWidget {
               firstName,
               style: Theme.of(context)
                   .textTheme
-                  .headlineMedium
-                  ?.copyWith(color: selected),
+                  .titleLarge
+                  ?.copyWith(color: selected, fontWeight: FontWeight.bold),
             ),
             Icon(
               Icons.check,
@@ -185,7 +185,7 @@ class UserSelect extends ConsumerWidget {
         firstName,
         style: Theme.of(context)
             .textTheme
-            .bodyMedium
+            .titleLarge
             ?.copyWith(color: Colors.white),
       ),
     );
