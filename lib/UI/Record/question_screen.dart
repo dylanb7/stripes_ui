@@ -32,7 +32,7 @@ class QuestionScreen extends StatelessWidget {
       children: [
         Text(
           header,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
               color: Theme.of(context).colorScheme.onPrimaryContainer),
         ),
         const SizedBox(
