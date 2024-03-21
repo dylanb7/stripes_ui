@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/UI/History/EventView/sig_dates.dart';
 
 import 'calendar_day.dart';
 
 class DayView extends ConsumerWidget {
-  const DayView({Key? key}) : super(key: key);
+  const DayView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final DateTime now = DateTime.now();
     final DateTime? selected =
         ref.watch(filtersProvider.select((value) => value.selectedDate));
-    final EventList<CalendarEvent> eventMap = ref.watch(eventsMapProvider);
+    final AsyncValue<Map<DateTime, List<Response>>> eventMap =
+        ref.watch(eventsMapProvider);
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 30),
       sliver: SliverToBoxAdapter(
@@ -47,7 +49,7 @@ class DayView extends ConsumerWidget {
                     isNextMonthDay,
                     isThisMonthDay,
                     day) {
-                  final int events = eventMap.getEvents(day).length;
+                  final int events = eventMap.valueOrNull?[day]?.length ?? 0;
                   return CalendarDay(
                       text: '${day.day}',
                       isToday: isToday,

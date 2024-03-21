@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class ScreenManager extends StatefulWidget {
   final ScreenController controller;
 
-  const ScreenManager({required this.controller, Key? key}) : super(key: key);
+  const ScreenManager({required this.controller, super.key});
 
   @override
   State<StatefulWidget> createState() {

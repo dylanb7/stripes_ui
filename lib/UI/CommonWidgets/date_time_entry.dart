@@ -27,8 +27,7 @@ class DateWidget extends ConsumerWidget {
       this.hasHeader = true,
       this.enabled = true,
       this.hasIcon = true,
-      Key? key})
-      : super(key: key);
+      super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -106,8 +105,7 @@ class TimeWidget extends ConsumerWidget {
       this.enabled = true,
       this.hasHeader = true,
       this.hasIcon = true,
-      Key? key})
-      : super(key: key);
+      super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return AnimatedBuilder(
@@ -208,8 +206,7 @@ class DateTimeHolder extends StatelessWidget {
       required this.hasHeader,
       this.onClick,
       this.errorText,
-      Key? key})
-      : super(key: key);
+      super.key});
 
   @override
   Widget build(BuildContext context) {

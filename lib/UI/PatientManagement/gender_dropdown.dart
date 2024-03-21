@@ -12,14 +12,12 @@ class GenderDropdown extends FormField<String> {
   GenderDropdown(
       {required GenderHolder holder,
       required BuildContext context,
-      String? initialValue,
+      super.initialValue,
       AutovalidateMode autovalidate = AutovalidateMode.onUserInteraction,
-      Key? key})
+      super.key})
       : super(
-            key: key,
             validator: empty,
             autovalidateMode: autovalidate,
-            initialValue: initialValue,
             builder: (FormFieldState<String> state) {
               final List<String> values = ["Male", "Female", "Other"];
               return DropdownMenu<String>(

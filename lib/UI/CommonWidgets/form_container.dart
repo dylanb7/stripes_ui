@@ -23,8 +23,7 @@ class FormContainer extends StatefulWidget {
       this.hasClose = true,
       this.animated = true,
       this.close,
-      Key? key})
-      : super(key: key);
+      super.key});
 
   @override
   State createState() => _FormContainerState();

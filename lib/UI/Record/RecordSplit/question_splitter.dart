@@ -10,11 +10,11 @@ import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 
 final questionSplitProvider = Provider<Map<String, List<Question>>>((ref) {
-  final QuestionNotifier repo = ref.watch(questionHomeProvider);
-  QuestionRepo? home = repo.home;
-  if (home == null) return {};
+  final AsyncValue<QuestionRepo> repo = ref.watch(questionsProvider);
+  if (!repo.hasValue) return {};
+  QuestionHome home = repo.value!.questions;
   Map<String, List<Question>> questions = {};
-  for (Question question in home.questions.all.values) {
+  for (Question question in home.all.values) {
     final String type = question.type;
     if (questions.containsKey(type)) {
       questions[type]!.add(question);
@@ -22,7 +22,7 @@ final questionSplitProvider = Provider<Map<String, List<Question>>>((ref) {
       questions[type] = [question];
     }
   }
-  for (final layout in home.getLayouts().entries) {
+  for (final layout in repo.value!.getLayouts().entries) {
     if (!questions.containsKey(layout.key)) {
       questions[layout.key] = [];
     }
@@ -32,10 +32,10 @@ final questionSplitProvider = Provider<Map<String, List<Question>>>((ref) {
 
 final pagePaths = Provider<Map<String, RecordPath>>((ref) {
   final Map<String, RecordPath>? pageOverrides =
-      ref.watch(questionHomeProvider).home?.getLayouts();
+      ref.watch(questionsProvider).valueOrNull?.getLayouts();
   final Map<String, List<Question>> split = ref.watch(questionSplitProvider);
   final Map<String, QuestionEntry> questionOverrides =
-      ref.watch(questionsProvider).entryOverrides ?? {};
+      ref.watch(questionsProvider).valueOrNull?.entryOverrides ?? {};
 
   return getAllPaths(pageOverrides, questionOverrides, split);
 });
@@ -72,7 +72,7 @@ final checkinProvider =
       ref.watch(_pageSplitProvider.select((value) => value.checkinPaths));
 
   final DateTime searchTime = time ?? DateTime.now();
-  final List<Stamp> stamps = ref.watch(stampHolderProvider).stamps;
+  final List<Stamp> stamps = ref.watch(stampHolderProvider).valueOrNull ?? [];
   final Map<Period, List<CheckinItem>> ret = {};
 
   for (final byPeriod in checkIns.entries) {

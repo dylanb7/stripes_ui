@@ -11,14 +11,16 @@ import 'package:stripes_ui/l10n/app_localizations.dart';
 class PatientChanger extends ConsumerWidget {
   final TabOption tab;
 
-  const PatientChanger({this.tab = TabOption.record, Key? key})
-      : super(key: key);
+  const PatientChanger({this.tab = TabOption.record, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final SubNotifier sub = ref.watch(subHolderProvider);
-    final SubUser current = sub.current;
-    final bool isMarker = SubUser.isMarker(current);
+    final AsyncValue<SubState> state = ref.watch(subHolderProvider);
+
+    if (state.isLoading) return const Text('...');
+    final SubUser? current = state.valueOrNull?.selected;
+    final List<SubUser> subUsers = state.valueOrNull?.subUsers ?? [];
+    final bool isMarker = current != null && SubUser.isMarker(current);
 
     String getTitle() {
       if (isMarker) {
@@ -28,7 +30,7 @@ class PatientChanger extends ConsumerWidget {
                 ? AppLocalizations.of(context)!.testTab
                 : AppLocalizations.of(context)!.historyTab;
       }
-      String firstName = (current.name.split(' ')[0]);
+      String firstName = (current?.name.split(' ')[0]) ?? '';
       firstName = firstName.substring(0, min(firstName.length, 11));
       return tab == TabOption.record
           ? AppLocalizations.of(context)!.recordTitle(firstName)
@@ -54,7 +56,7 @@ class PatientChanger extends ConsumerWidget {
           const SizedBox(
             width: 2.0,
           ),
-          if (sub.users.length > 1)
+          if (subUsers.length > 1)
             IconButton(
                 padding: EdgeInsets.zero,
                 onPressed: () {
@@ -76,12 +78,13 @@ class PatientChanger extends ConsumerWidget {
 }
 
 class UserSelect extends ConsumerWidget {
-  const UserSelect({Key? key}) : super(key: key);
+  const UserSelect({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final SubNotifier subNotif = ref.read(subHolderProvider);
-    final SubUser current = subNotif.current;
+    final AsyncValue<SubState> subNotif = ref.read(subHolderProvider);
+    final SubUser? current = subNotif.valueOrNull?.selected;
+    final List<SubUser> subUsers = subNotif.valueOrNull?.subUsers ?? [];
     final Color action = Theme.of(context).colorScheme.secondary;
     return Stack(
       children: [
@@ -126,10 +129,10 @@ class UserSelect extends ConsumerWidget {
                 ]),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: subNotif.users
+                  children: subUsers
                       .map((user) => Padding(
                           padding: const EdgeInsets.symmetric(vertical: 5.0),
-                          child: user.uid == current.uid
+                          child: user.uid == current?.uid
                               ? _getSelected(ref, context, user, action)
                               : _getSelectible(ref, context, user)))
                       .toList(),

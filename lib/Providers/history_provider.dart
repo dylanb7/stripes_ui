@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar_carousel/classes/event.dart';
-import 'package:flutter_calendar_carousel/classes/event_list.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:stripes_backend_helper/QuestionModel/question.dart';
@@ -204,19 +203,19 @@ class CalendarEvent extends EventInterface {
   Response get response => res;
 }
 
-generateEventMap(List<Response> responses) {
-  Map<DateTime, List<CalendarEvent>> eventMap = {};
+Map<DateTime, List<Response>> generateEventMap(List<Response> responses) {
+  Map<DateTime, List<Response>> eventMap = {};
   for (Response res in responses) {
     final DateTime resDate = dateFromStamp(res.stamp);
     final DateTime calDate =
         DateTime(resDate.year, resDate.month, resDate.day, 0, 0, 0, 0, 0);
     if (eventMap.containsKey(calDate)) {
-      eventMap[calDate]!.add(CalendarEvent(res, calDate));
+      eventMap[calDate]!.add(res);
     } else {
-      eventMap[calDate] = [CalendarEvent(res, calDate)];
+      eventMap[calDate] = [res];
     }
   }
-  return EventList(events: eventMap);
+  return eventMap;
 }
 
 @immutable
@@ -274,12 +273,13 @@ final historyLocationProvider =
 
 final filtersProvider = StateProvider<Filters>((_) => Filters.reset());
 
-final availibleStampsProvider = Provider.autoDispose<Available>((ref) {
-  final StampNotifier notif = ref.watch(stampHolderProvider);
+final availibleStampsProvider =
+    FutureProvider.autoDispose<Available>((ref) async {
+  final List<Stamp> stamps = await ref.watch(stampHolderProvider.future);
   final HistoryLocation location = ref.watch(historyLocationProvider);
   final Filters filters = ref.watch(filtersProvider);
   return Available(
-      allStamps: _convertStamps(notif.stamps),
+      allStamps: _convertStamps(stamps),
       location: location,
       selected: filters.selectedDate,
       month: filters.selectedMonth,
@@ -287,9 +287,11 @@ final availibleStampsProvider = Provider.autoDispose<Available>((ref) {
       end: filters.end);
 });
 
-final eventsMapProvider = Provider.autoDispose<EventList<CalendarEvent>>((ref) {
-  final List<Stamp> resps = ref.watch(stampHolderProvider).stamps;
-  return generateEventMap(_convertStamps(resps));
+final eventsMapProvider =
+    FutureProvider.autoDispose<Map<DateTime, List<Response>>>((ref) async {
+  final List<Stamp> stamps = await ref.watch(stampHolderProvider.future);
+
+  return generateEventMap(_convertStamps(stamps));
 });
 
 List<Response> _convertStamps(List<Stamp> stamps) {

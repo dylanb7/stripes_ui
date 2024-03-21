@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/UI/History/EventView/calendar_day.dart';
 import 'package:stripes_ui/UI/History/EventView/sig_dates.dart';
 import 'package:stripes_ui/Util/constants.dart';
-import 'package:stripes_ui/Util/text_styles.dart';
 
 import 'day_view.dart';
 
 class MonthView extends ConsumerWidget {
-  const MonthView({Key? key}) : super(key: key);
+  const MonthView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final DateTime now = DateTime.now();
     final Filters filters = ref.watch(filtersProvider);
-    final EventList<CalendarEvent> eventMap = ref.watch(eventsMapProvider);
+    final AsyncValue<Map<DateTime, List<Response>>> eventMap =
+        ref.watch(eventsMapProvider);
     final DateTime? selected = filters.selectedDate;
     final int rows = _numRows(filters.selectedMonth);
     final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
@@ -54,7 +55,8 @@ class MonthView extends ConsumerWidget {
                         isNextMonthDay,
                         isThisMonthDay,
                         day) {
-                      final int events = eventMap.getEvents(day).length;
+                      final int events =
+                          eventMap.valueOrNull?[day]?.length ?? 0;
                       return CalendarDay(
                           text: '${day.day}',
                           isToday: isToday,

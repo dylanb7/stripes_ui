@@ -28,13 +28,16 @@ class RouteNotifier extends ChangeNotifier {
   final Ref _ref;
 
   RouteNotifier(this._ref) {
-    _ref.listen(currentAuthProvider, (previous, next) {
+    _ref.listen(authStream, (previous, next) {
       notifyListeners();
     });
   }
 
   String? _redirect(BuildContext context, GoRouterState state) {
-    final bool auth = !AuthUser.isEmpty(_ref.read(currentAuthProvider));
+    final bool auth = !AuthUser.isEmpty(_ref.read(authStream).map(
+        data: (val) => val.value,
+        error: (val) => const AuthUser.empty(),
+        loading: (val) => const AuthUser.empty()));
     final String loc = state.location;
     final bool noAuthRoute = Routes.noauth.contains(loc);
 
@@ -137,10 +140,9 @@ class RouteNotifier extends ChangeNotifier {
 class FadeIn extends CustomTransitionPage<void> {
   FadeIn({
     required GoRouterState state,
-    required Widget child,
+    required super.child,
   }) : super(
             key: state.pageKey,
-            child: child,
             transitionsBuilder: (_, animation, __, child) => FadeTransition(
                   opacity: animation.drive(_curveTween),
                   child: child,
@@ -152,7 +154,7 @@ class FadeIn extends CustomTransitionPage<void> {
 class Scaff extends StatelessWidget {
   final Widget child;
 
-  const Scaff({required this.child, Key? key}) : super(key: key);
+  const Scaff({required this.child, super.key});
 
   @override
   Widget build(BuildContext context) {

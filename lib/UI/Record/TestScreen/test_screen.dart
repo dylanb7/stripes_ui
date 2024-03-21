@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
 import 'package:stripes_backend_helper/RepositoryBase/TestBase/base_test_repo.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
@@ -12,10 +11,10 @@ import 'package:stripes_ui/UI/Record/TestScreen/test_content.dart';
 import 'package:stripes_ui/UI/SharedHomeWidgets/tab_view.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
-import '../../../Providers/sub_provider.dart';
+import 'package:collection/collection.dart';
 
 class TestScreen extends ConsumerStatefulWidget {
-  const TestScreen({Key? key}) : super(key: key);
+  const TestScreen({super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _TestScreenState();
@@ -25,18 +24,19 @@ class _TestScreenState extends ConsumerState<TestScreen> {
   Test? selected;
 
   @override
-  void initState() {
-    final List<Test> tests = ref.read(testHolderProvider).getTests();
-    if (tests.isNotEmpty) {
-      selected = tests.first;
-    }
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
-    final List<Test> tests = ref.watch(testHolderProvider).getTests();
+
+    final AsyncValue<TestsRepo?> testRepo = ref.watch(testProvider);
+    if (testRepo.isLoading) {
+      return const SliverToBoxAdapter(
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+    final List<Test> tests = testRepo.valueOrNull?.tests ?? [];
+    selected ??= tests.firstOrNull;
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
       sliver: SliverList(
@@ -106,11 +106,6 @@ class _TestScreenState extends ConsumerState<TestScreen> {
       ),
     );
   }
-
-  _name(WidgetRef ref) {
-    SubUser current = ref.read(subHolderProvider).current;
-    return SubUser.isEmpty(current) ? 'N/A' : current.name;
-  }
 }
 
 class BlueDyeTestScreen<T extends Test> extends ConsumerWidget {
@@ -120,7 +115,6 @@ class BlueDyeTestScreen<T extends Test> extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(testHolderProvider);
     return Column(
       children: [
         const SizedBox(
@@ -197,7 +191,7 @@ class Info extends StatelessWidget {
 }
 
 class TestErrorPrevention<T extends Test> extends ConsumerWidget {
-  const TestErrorPrevention({Key? key}) : super(key: key);
+  const TestErrorPrevention({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -227,7 +221,7 @@ class TestErrorPrevention<T extends Test> extends ConsumerWidget {
           ],
         ),
         onConfirm: () {
-          ref.read(testHolderProvider.notifier).getTest<T>()?.cancel();
+          getTest<T>(ref.read(testProvider))?.cancel();
         },
         cancel: AppLocalizations.of(context)!.errorPreventionStay,
         confirm: AppLocalizations.of(context)!.errorPreventionLeave);

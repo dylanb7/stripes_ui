@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 
@@ -16,7 +17,14 @@ class PatientScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     const double itemWidth = SMALL_LAYOUT / 1.5;
     final OverlayQuery overlay = ref.watch(overlayProvider);
-    final SubNotifier subNotifier = ref.watch(subHolderProvider);
+    final subNotifier = ref.watch(subHolderProvider);
+    if (subNotifier.isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+    final List<SubUser> subUsers = subNotifier.valueOrNull?.subUsers ?? [];
+    final SubUser? current = subNotifier.valueOrNull?.selected;
     return Stack(children: [
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 15.0),
@@ -48,13 +56,13 @@ class PatientScreen extends ConsumerWidget {
             Expanded(
               child: SingleChildScrollView(
                 child: Wrap(
-                  children: subNotifier.users
+                  children: subUsers
                       .map<Widget>(
                         (user) => SizedBox(
                           width: itemWidth,
                           child: UserView(
                             subUser: user,
-                            selected: user.uid == subNotifier.current.uid,
+                            selected: user.uid == current?.uid,
                           ),
                         ),
                       )

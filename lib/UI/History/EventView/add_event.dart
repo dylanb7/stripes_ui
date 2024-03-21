@@ -10,7 +10,7 @@ import 'package:stripes_ui/Util/date_helper.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class AddEvent extends ConsumerWidget {
-  const AddEvent({Key? key}) : super(key: key);
+  const AddEvent({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -40,7 +40,7 @@ class AddEvent extends ConsumerWidget {
 class _QuestionTypeOverlay extends ConsumerWidget {
   final DateTime date;
 
-  const _QuestionTypeOverlay({required this.date, Key? key}) : super(key: key);
+  const _QuestionTypeOverlay({required this.date});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

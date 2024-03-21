@@ -24,8 +24,7 @@ class QuestionScreen extends StatelessWidget {
       {required this.header,
       required this.questions,
       required this.questionsListener,
-      Key? key})
-      : super(key: key);
+      super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -56,8 +55,9 @@ class RenderQuestions extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final AsyncValue<QuestionRepo> questionRepo = ref.watch(questionsProvider);
     final Map<String, QuestionEntry> questionEntries =
-        ref.watch(questionsProvider).entryOverrides ?? {};
+        questionRepo.mapOrNull(data: (data) => data.value.entryOverrides) ?? {};
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: questions.map((question) {
@@ -270,8 +270,8 @@ class CheckBoxWidget extends StatefulWidget {
 
   final QuestionsListener listener;
 
-  const CheckBoxWidget({required this.check, required this.listener, Key? key})
-      : super(key: key);
+  const CheckBoxWidget(
+      {required this.check, required this.listener, super.key});
 
   @override
   State<CheckBoxWidget> createState() => _CheckBoxWidgetState();
@@ -339,8 +339,7 @@ class SeverityWidget extends ConsumerStatefulWidget {
   final Numeric question;
 
   const SeverityWidget(
-      {required this.questionsListener, required this.question, Key? key})
-      : super(key: key);
+      {required this.questionsListener, required this.question, super.key});
 
   @override
   ConsumerState<SeverityWidget> createState() => _SeverityWidgetState();
@@ -563,8 +562,7 @@ class SeverityPainWidget extends ConsumerStatefulWidget {
   final Numeric question;
 
   const SeverityPainWidget(
-      {required this.questionsListener, required this.question, Key? key})
-      : super(key: key);
+      {required this.questionsListener, required this.question, super.key});
 
   @override
   ConsumerState<SeverityPainWidget> createState() => _SeverityPainWidgetState();
@@ -1084,8 +1082,7 @@ class BMSlider extends ConsumerStatefulWidget {
 
   final Numeric question;
 
-  const BMSlider({required this.listener, required this.question, Key? key})
-      : super(key: key);
+  const BMSlider({required this.listener, required this.question, super.key});
 
   @override
   ConsumerState createState() => _BMSliderState();

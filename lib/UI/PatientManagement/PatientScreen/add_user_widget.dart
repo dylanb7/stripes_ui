@@ -30,6 +30,8 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
   final TextEditingController _firstName = TextEditingController(),
       _lastName = TextEditingController();
 
+  bool isLoading = false;
+
   @override
   void initState() {
     _expandibleListener = ExpandibleController(true);
@@ -44,124 +46,136 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
   @override
   Widget build(BuildContext context) {
     final isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
-    return Stack(children: [
-      Column(children: [
-        Expandible(
-          listener: _expandibleListener,
-          header: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Add Patient',
-                style: Theme.of(context).textTheme.displayLarge,
-              ),
-              AnimatedOpacity(
-                duration: const Duration(milliseconds: 200),
-                opacity: _expandibleListener.expanded ? 0 : 1,
-                child: const Icon(
-                  Icons.add,
-                ),
-              ),
-            ],
-          ),
-          view: FocusTraversalGroup(
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+    return Opacity(
+      opacity: isLoading ? 0.6 : 1,
+      child: IgnorePointer(
+        ignoring: isLoading,
+        child: Stack(children: [
+          Column(children: [
+            Expandible(
+              listener: _expandibleListener,
+              header: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const SizedBox(
-                    height: 12.0,
+                  Text(
+                    'Add Patient',
+                    style: Theme.of(context).textTheme.displayLarge,
                   ),
-                  TextFormField(
-                    controller: _firstName,
-                    validator: nameValidator,
-                    decoration: formFieldDecoration(
-                        hintText: 'First Name', controller: _firstName),
-                  ),
-                  const SizedBox(
-                    height: 8.0,
-                  ),
-                  TextFormField(
-                    controller: _lastName,
-                    validator: nameValidator,
-                    decoration: formFieldDecoration(
-                        hintText: 'Last Name', controller: _lastName),
-                  ),
-                  const SizedBox(
-                    height: 8.0,
-                  ),
-                  IntrinsicHeight(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Expanded(
-                          flex: 1,
-                          child: BirthYearSelector(
-                            context: context,
-                            controller: _yearController,
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 8.0,
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: GenderDropdown(
-                            context: context,
-                            holder: _genderController,
-                          ),
-                        ),
-                      ],
+                  AnimatedOpacity(
+                    duration: const Duration(milliseconds: 200),
+                    opacity: _expandibleListener.expanded ? 0 : 1,
+                    child: const Icon(
+                      Icons.add,
                     ),
                   ),
-                  const SizedBox(
-                    height: 25.0,
-                  )
                 ],
               ),
-            ),
-          ),
-          hasIndicator: false,
-          canExpand: isSmall,
-        ),
-        const SizedBox(
-          height: 25,
-        ),
-      ]),
-      if (_expandibleListener.expanded)
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: Center(
-              child: SizedBox(
-            width: 120,
-            height: 50,
-            child: TonalButtonTheme(
-                child: FilledButton.tonalIcon(
-              onPressed: () {
-                _addUser();
-              },
-              icon: const Icon(Icons.add),
-              label: const Text(
-                'Add',
+              view: FocusTraversalGroup(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const SizedBox(
+                        height: 12.0,
+                      ),
+                      TextFormField(
+                        controller: _firstName,
+                        validator: nameValidator,
+                        decoration: formFieldDecoration(
+                            hintText: 'First Name', controller: _firstName),
+                      ),
+                      const SizedBox(
+                        height: 8.0,
+                      ),
+                      TextFormField(
+                        controller: _lastName,
+                        validator: nameValidator,
+                        decoration: formFieldDecoration(
+                            hintText: 'Last Name', controller: _lastName),
+                      ),
+                      const SizedBox(
+                        height: 8.0,
+                      ),
+                      IntrinsicHeight(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Expanded(
+                              flex: 1,
+                              child: BirthYearSelector(
+                                context: context,
+                                controller: _yearController,
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 8.0,
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: GenderDropdown(
+                                context: context,
+                                holder: _genderController,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 25.0,
+                      )
+                    ],
+                  ),
+                ),
               ),
-            )),
-          )),
-        ),
-    ]);
+              hasIndicator: false,
+              canExpand: isSmall,
+            ),
+            const SizedBox(
+              height: 25,
+            ),
+          ]),
+          if (_expandibleListener.expanded)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Center(
+                  child: SizedBox(
+                width: 120,
+                height: 50,
+                child: TonalButtonTheme(
+                    child: FilledButton.tonalIcon(
+                  onPressed: () {
+                    _addUser();
+                  },
+                  icon: const Icon(Icons.add),
+                  label: const Text(
+                    'Add',
+                  ),
+                )),
+              )),
+            ),
+        ]),
+      ),
+    );
   }
 
-  _addUser() {
+  _addUser() async {
     _formKey.currentState?.save();
     if (_formKey.currentState?.validate() ?? false) {
+      setState(() {
+        isLoading = true;
+      });
       final SubUser toAdd = SubUser(
           name: '${_firstName.text} ${_lastName.text}',
           gender: _genderController.gender!,
           birthYear: _yearController.year,
           isControl: false);
-      ref.read(subProvider)?.addSubUser(toAdd);
+      await ref.read(subProvider).valueOrNull?.addSubUser(toAdd);
+      setState(() {
+        isLoading = false;
+      });
       _formKey.currentState?.reset();
     }
   }

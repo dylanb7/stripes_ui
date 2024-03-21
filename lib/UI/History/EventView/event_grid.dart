@@ -7,20 +7,24 @@ import 'package:stripes_ui/UI/History/EventView/entry_display.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
-class EventGrid extends ConsumerStatefulWidget {
+class EventGrid extends ConsumerWidget {
   const EventGrid({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _EventGridState();
-}
-
-class _EventGridState extends ConsumerState<EventGrid> {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
-    final List<Response> available =
-        ref.watch(availibleStampsProvider.select((value) => value.filtered));
-    if (available.isEmpty) {
+
+    final AsyncValue<Available> available = ref.watch(availibleStampsProvider);
+
+    if (available.isLoading) {
+      return const SliverToBoxAdapter(
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (available.valueOrNull?.filtered.isEmpty ?? true) {
       return SliverToBoxAdapter(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 5.0),
@@ -37,28 +41,28 @@ class _EventGridState extends ConsumerState<EventGrid> {
       );
     }
 
+    final List<Response> availableStamps =
+        available.valueOrNull?.filtered ?? [];
+
     return SliverPadding(
       padding: const EdgeInsets.only(left: 20.0, right: 20.0, bottom: 20.0),
       sliver: isSmall
           ? SliverList(
               delegate: SliverChildBuilderDelegate(
-                  (context, index) => EntryDisplay(event: available[index]),
-                  childCount: available.length),
+                  (context, index) =>
+                      EntryDisplay(event: availableStamps[index]),
+                  childCount: availableStamps.length),
             )
           : SliverMasonryGrid(
               delegate: SliverChildBuilderDelegate(
-                  (context, index) => EntryDisplay(event: available[index]),
-                  childCount: available.length),
+                  (context, index) =>
+                      EntryDisplay(event: availableStamps[index]),
+                  childCount: availableStamps.length),
               gridDelegate:
                   const SliverSimpleGridDelegateWithMaxCrossAxisExtent(
                 maxCrossAxisExtent: 400,
               ),
             ),
     );
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
   }
 }

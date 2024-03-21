@@ -15,8 +15,7 @@ class SubmitScreen extends ConsumerStatefulWidget {
   final QuestionsListener questionsListener;
 
   const SubmitScreen(
-      {required this.questionsListener, required this.type, Key? key})
-      : super(key: key);
+      {required this.questionsListener, required this.type, super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => SubmitScreenState();
@@ -89,8 +88,8 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
   Widget build(BuildContext context) {
     final Period? period = ref.watch(pagePaths)[widget.type]?.period;
     final List<Question> testAdditions = ref
-            .watch(testHolderProvider)
-            .repo
+            .watch(testProvider)
+            .valueOrNull
             ?.getRecordAdditions(context, widget.type) ??
         [];
     return Column(
@@ -142,8 +141,7 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
 class LongTextEntry extends StatelessWidget {
   final TextEditingController textController;
 
-  const LongTextEntry({required this.textController, Key? key})
-      : super(key: key);
+  const LongTextEntry({required this.textController, super.key});
 
   @override
   Widget build(BuildContext context) {

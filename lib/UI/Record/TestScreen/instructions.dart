@@ -30,7 +30,7 @@ class _InstructionsState extends ConsumerState<Instructions> {
   @override
   Widget build(BuildContext context) {
     final BlueDyeObj? blueDye =
-        ref.watch(testHolderProvider).getObject<BlueDyeObj>();
+        getObject<BlueDyeObj>(ref.watch(testStreamProvider));
     final TestState state =
         blueDye == null ? TestState.initial : stateFromTestOBJ(blueDye);
     final String stage = state == TestState.started

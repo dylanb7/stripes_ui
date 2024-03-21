@@ -18,7 +18,7 @@ import 'package:stripes_ui/l10n/app_localizations.dart';
 class EntryDisplay extends ConsumerStatefulWidget {
   final Response event;
 
-  const EntryDisplay({Key? key, required this.event}) : super(key: key);
+  const EntryDisplay({super.key, required this.event});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => EntryDisplayState();
@@ -30,7 +30,7 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
   @override
   Widget build(BuildContext context) {
     final Map<String, DisplayBuilder> overrides =
-        ref.watch(questionsProvider).displayOverrides ?? {};
+        ref.watch(questionsProvider).valueOrNull?.displayOverrides ?? {};
     final DateTime date = dateFromStamp(widget.event.stamp);
     Widget? button;
     Widget? content;
@@ -130,10 +130,10 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
               isLoading = true;
             });
           }
-          await ref.read(stampProvider)?.removeStamp(widget.event);
+          await ref.read(stampProvider).valueOrNull?.removeStamp(widget.event);
           await ref
-              .read(testHolderProvider)
-              .repo
+              .read(testProvider)
+              .valueOrNull
               ?.onResponseDelete(widget.event, widget.event.type);
           if (mounted) {
             setState(() {
@@ -209,7 +209,7 @@ class ResponseDisplay extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final Map<String, DisplayBuilder> overrides =
-        ref.watch(questionsProvider).displayOverrides ?? {};
+        ref.watch(questionsProvider).valueOrNull?.displayOverrides ?? {};
     final DisplayBuilder? childOverride = overrides[res.question.id];
     if (childOverride != null) return childOverride(context, res);
     if (res is NumericResponse) {
@@ -346,8 +346,7 @@ class DeleteErrorPrevention extends ConsumerWidget {
   final Function delete;
 
   const DeleteErrorPrevention(
-      {required this.delete, required this.type, Key? key})
-      : super(key: key);
+      {required this.delete, required this.type, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

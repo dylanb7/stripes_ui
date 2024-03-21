@@ -29,6 +29,7 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
   final PatientControlSliderListener _sliderListener =
       PatientControlSliderListener();
   bool canSave = false;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -56,120 +57,126 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
                 side: BorderSide(width: 5)),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: FocusTraversalGroup(
-                child: Form(
-                  onChanged: () {
-                    setState(() {
-                      canSave = _editsMade();
-                    });
-                  },
-                  key: _formKey,
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const SizedBox(
-                          height: 6.0,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Opacity(
+                opacity: isLoading ? 0.6 : 1,
+                child: IgnorePointer(
+                  ignoring: isLoading,
+                  child: FocusTraversalGroup(
+                    child: Form(
+                      onChanged: () {
+                        setState(() {
+                          canSave = _editsMade();
+                        });
+                      },
+                      key: _formKey,
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Text(
-                              'Edit Patient',
-                              style: Theme.of(context).textTheme.bodyLarge,
+                            const SizedBox(
+                              height: 6.0,
                             ),
-                            IconButton(
-                                onPressed: () {
-                                  _close(ref);
-                                },
-                                highlightColor: Colors.transparent,
-                                hoverColor: Colors.transparent,
-                                splashColor: Colors.transparent,
-                                icon: const Icon(
-                                  Icons.close,
-                                  size: 35,
-                                ))
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 6.0,
-                        ),
-                        TextFormField(
-                          controller: _firstName,
-                          validator: nameValidator,
-                          decoration: formFieldDecoration(
-                              hintText: 'First Name',
-                              controller: _firstName,
-                              clearable: false),
-                        ),
-                        const SizedBox(
-                          height: 6.0,
-                        ),
-                        TextFormField(
-                          controller: _lastName,
-                          validator: nameValidator,
-                          decoration: formFieldDecoration(
-                              hintText: 'Last Name',
-                              controller: _lastName,
-                              clearable: false),
-                        ),
-                        const SizedBox(
-                          height: 6.0,
-                        ),
-                        BirthYearSelector(
-                          context: context,
-                          controller: _birthYearController,
-                        ),
-                        const SizedBox(
-                          height: 6.0,
-                        ),
-                        GenderDropdown(
-                          context: context,
-                          initialValue: widget.subUser.gender,
-                          holder: _genderHolder,
-                        ),
-                        const SizedBox(
-                          height: 6.0,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            widget.subUser != subNotif.current
-                                ? TextButton(
-                                    child: const Text('Delete Patient'),
-                                    onPressed: () {
-                                      _deleteUser(ref);
-                                    },
-                                  )
-                                : const SizedBox(
-                                    width: 8.0,
-                                  ),
-                            SizedBox(
-                              width: 150,
-                              child: GestureDetector(
-                                onTap: () {
-                                  if (!canSave) {
-                                    showSnack(
-                                      context,
-                                      'Must make changes before saving',
-                                    );
-                                  }
-                                },
-                                child: FilledButton.tonal(
-                                  onPressed: !canSave
-                                      ? null
-                                      : () {
-                                          _editUser(ref);
-                                        },
-                                  child: const Text('Save Changes'),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Edit Patient',
+                                  style: Theme.of(context).textTheme.bodyLarge,
                                 ),
-                              ),
+                                IconButton(
+                                    onPressed: () {
+                                      _close(ref);
+                                    },
+                                    highlightColor: Colors.transparent,
+                                    hoverColor: Colors.transparent,
+                                    splashColor: Colors.transparent,
+                                    icon: const Icon(
+                                      Icons.close,
+                                      size: 35,
+                                    ))
+                              ],
                             ),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 12.0,
-                        ),
-                      ]),
+                            const SizedBox(
+                              height: 6.0,
+                            ),
+                            TextFormField(
+                              controller: _firstName,
+                              validator: nameValidator,
+                              decoration: formFieldDecoration(
+                                  hintText: 'First Name',
+                                  controller: _firstName,
+                                  clearable: false),
+                            ),
+                            const SizedBox(
+                              height: 6.0,
+                            ),
+                            TextFormField(
+                              controller: _lastName,
+                              validator: nameValidator,
+                              decoration: formFieldDecoration(
+                                  hintText: 'Last Name',
+                                  controller: _lastName,
+                                  clearable: false),
+                            ),
+                            const SizedBox(
+                              height: 6.0,
+                            ),
+                            BirthYearSelector(
+                              context: context,
+                              controller: _birthYearController,
+                            ),
+                            const SizedBox(
+                              height: 6.0,
+                            ),
+                            GenderDropdown(
+                              context: context,
+                              initialValue: widget.subUser.gender,
+                              holder: _genderHolder,
+                            ),
+                            const SizedBox(
+                              height: 6.0,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                widget.subUser != subNotif.valueOrNull?.selected
+                                    ? TextButton(
+                                        child: const Text('Delete Patient'),
+                                        onPressed: () {
+                                          _deleteUser(ref);
+                                        },
+                                      )
+                                    : const SizedBox(
+                                        width: 8.0,
+                                      ),
+                                SizedBox(
+                                  width: 150,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      if (!canSave) {
+                                        showSnack(
+                                          context,
+                                          'Must make changes before saving',
+                                        );
+                                      }
+                                    },
+                                    child: FilledButton.tonal(
+                                      onPressed: !canSave
+                                          ? null
+                                          : () {
+                                              _editUser(ref);
+                                            },
+                                      child: const Text('Save Changes'),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 12.0,
+                            ),
+                          ]),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -194,8 +201,11 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
     return !subEquals(newUser, widget.subUser);
   }
 
-  _editUser(WidgetRef ref) {
+  _editUser(WidgetRef ref) async {
     _formKey.currentState?.save();
+    setState(() {
+      isLoading = true;
+    });
     if (_formKey.currentState?.validate() ?? false) {
       final SubUser newUser = SubUser(
           name: '${_firstName.text} ${_lastName.text}',
@@ -204,14 +214,17 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
           isControl: false,
           id: widget.subUser.uid);
       if (!subEquals(newUser, widget.subUser)) {
-        ref.read(subProvider)?.updateSubUser(newUser);
+        await ref.read(subProvider).valueOrNull?.updateSubUser(newUser);
       }
+      setState(() {
+        isLoading = false;
+      });
       _close(ref);
     }
   }
 
   _deleteUser(WidgetRef ref) {
-    ref.read(subProvider)?.deleteSubUser(widget.subUser);
+    ref.read(subProvider).valueOrNull?.deleteSubUser(widget.subUser);
   }
 }
 

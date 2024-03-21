@@ -27,7 +27,7 @@ final GlobalKey scrollkey = GlobalKey();
 class StripesTabView extends ConsumerWidget {
   final TabOption selected;
 
-  const StripesTabView({required this.selected, Key? key}) : super(key: key);
+  const StripesTabView({required this.selected, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -98,8 +98,7 @@ class SmallLayout extends ConsumerWidget {
 
   final Widget child;
 
-  const SmallLayout({required this.child, required this.selected, Key? key})
-      : super(key: key);
+  const SmallLayout({required this.child, required this.selected, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -143,7 +142,7 @@ class SmallLayout extends ConsumerWidget {
 class LargeLayout extends ConsumerWidget {
   final TabOption selected;
 
-  const LargeLayout({required this.selected, Key? key}) : super(key: key);
+  const LargeLayout({required this.selected, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

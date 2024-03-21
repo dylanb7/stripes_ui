@@ -28,7 +28,7 @@ class TestContentState<T extends Test> extends ConsumerState<TestContent> {
   @override
   Widget build(BuildContext context) {
     final BlueDyeObj? blueDyeObj =
-        ref.watch(testHolderProvider).getObject<BlueDyeObj>();
+        getObject<BlueDyeObj>(ref.watch(testStreamProvider));
     final TestState state =
         blueDyeObj == null ? TestState.initial : stateFromTestOBJ(blueDyeObj);
     final bool isLoading = ref.watch(testLoading);
@@ -61,14 +61,12 @@ class TestContentState<T extends Test> extends ConsumerState<TestContent> {
                           ? null
                           : () async {
                               ref.read(testLoading.notifier).state = true;
-                              await ref
-                                  .read(testHolderProvider)
-                                  .getTest<T>()
-                                  ?.setValue(blueDyeObj?.copyWith(
-                                          startTime: DateTime.now()) ??
-                                      BlueDyeObj(
-                                          logs: [], startTime: DateTime.now()));
-
+                              final BlueDyeObj newVal = blueDyeObj?.copyWith(
+                                      startTime: DateTime.now()) ??
+                                  BlueDyeObj(
+                                      logs: [], startTime: DateTime.now());
+                              await getTest(ref.read(testProvider))
+                                  ?.setValue(newVal);
                               ref.read(testLoading.notifier).state = false;
                             },
                       child: isLoading
@@ -112,7 +110,7 @@ class TimerDisplay<T extends Test> extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final BlueDyeObj? blueDyeObj =
-        ref.watch(testHolderProvider).getObject<BlueDyeObj>();
+        getObject<BlueDyeObj>(ref.watch(testStreamProvider));
     final bool isStarted = (blueDyeObj == null
             ? TestState.initial
             : stateFromTestOBJ(blueDyeObj)) ==
@@ -146,12 +144,12 @@ class TimerDisplay<T extends Test> extends ConsumerWidget {
                     ? null
                     : () async {
                         ref.read(testLoading.notifier).state = true;
-                        await ref
-                            .read(testHolderProvider.notifier)
-                            .getTest<T>()
-                            ?.setValue(blueDyeObj.copyWith(
-                                finishedEating:
-                                    DateTime.now().difference(startTime)));
+                        final BlueDyeObj newValue = blueDyeObj.copyWith(
+                            finishedEating:
+                                DateTime.now().difference(startTime));
+                        await getTest<T>(ref.read(testProvider))
+                            ?.setValue(newValue);
+
                         ref.read(testLoading.notifier).state = false;
                       },
                 child: isLoading

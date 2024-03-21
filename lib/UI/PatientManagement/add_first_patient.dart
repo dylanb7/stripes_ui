@@ -5,7 +5,6 @@ import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/form_container.dart';
 import 'package:stripes_ui/UI/PatientManagement/birth_year_selector.dart';
 import 'package:stripes_ui/UI/PatientManagement/gender_dropdown.dart';
-import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/form_input.dart';
 import 'package:stripes_ui/Util/validators.dart';
 
@@ -19,7 +18,7 @@ class CreatePatient extends ConsumerWidget {
 
   final GenderHolder _genderValue = GenderHolder();
 
-  CreatePatient({Key? key}) : super(key: key);
+  CreatePatient({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -130,12 +129,7 @@ class CreatePatient extends ConsumerWidget {
           gender: _genderValue.gender!,
           birthYear: _yearController.year,
           isControl: false);
-      final subRepo = ref.read(subProvider);
-      if (subRepo == null) {
-        showSnack(context, 'Unable to add patient');
-      } else {
-        await subRepo.addSubUser(user);
-      }
+      await ref.read(subProvider).valueOrNull?.addSubUser(user);
     }
   }
 }

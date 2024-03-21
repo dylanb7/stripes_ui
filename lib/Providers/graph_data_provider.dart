@@ -322,7 +322,7 @@ GraphData _generateData(Available availible, GraphChoice graph, DateTime end,
 
 final resMapProvider =
     FutureProvider.autoDispose<CategoryBehaviorMaps>((ref) async {
-  final Available availible = ref.watch(availibleStampsProvider);
+  final Available availible = await ref.watch(availibleStampsProvider.future);
   final List<Response> all = availible.all;
   final List<Response> filt = availible.filtered;
   CancelableOperation<CategoryBehaviorMaps> freqs =
@@ -346,7 +346,7 @@ final orderedBehaviorProvider =
   );
   if (behaviors.isEmpty) return GraphData.empty();
 
-  Available availible = ref.watch(availibleStampsProvider);
+  Available availible = await ref.watch(availibleStampsProvider.future);
 
   GraphChoice graph =
       ref.watch(historyLocationProvider.select((value) => value.graph));

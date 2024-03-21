@@ -68,7 +68,15 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     final List<PageLayout> pages =
         ref.watch(pagePaths)[widget.type]?.pages ?? [];
     final OverlayQuery query = ref.watch(overlayProvider);
-    final QuestionHome home = ref.watch(questionsProvider).questions;
+    final AsyncValue<QuestionRepo> questionRepo = ref.watch(questionsProvider);
+
+    if (questionRepo.isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    final QuestionHome home = questionRepo.value!.questions;
     final bool tried = widget.questionListener.tried;
     final bool hasPending = widget.questionListener.pending.isNotEmpty;
     final bool isEdit = widget.questionListener.editId != null;
@@ -352,7 +360,10 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     setState(() {
       isLoading = true;
     });
-    final StampRepo? repo = ref.read(stampProvider);
+    final StampRepo? repo = ref.read(stampProvider).map(
+        data: (data) => data.value,
+        error: (error) => null,
+        loading: (loading) => null);
     final DateTime submissionEntry =
         widget.questionListener.submitTime ?? DateTime.now();
     final int entryStamp = dateToStamp(submissionEntry);
@@ -370,14 +381,14 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     if (isEdit) {
       await repo?.updateStamp(detailResponse);
       await ref
-          .read(testHolderProvider)
-          .repo
+          .read(testProvider)
+          .valueOrNull
           ?.onResponseEdit(detailResponse, widget.type);
     } else {
       await repo?.addStamp(detailResponse);
       await ref
-          .read(testHolderProvider)
-          .repo
+          .read(testProvider)
+          .valueOrNull
           ?.onResponseSubmit(detailResponse, widget.type);
     }
     setState(() {
@@ -420,8 +431,9 @@ class RecordHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final SubUser current = ref.read(subHolderProvider).current;
-    final String? name = SubUser.isEmpty(current) ? null : current.name;
+    final SubUser? current = ref.read(subHolderProvider).valueOrNull?.selected;
+    final String? name =
+        current == null || SubUser.isEmpty(current) ? null : current.name;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10.0),
       child: Row(
@@ -466,7 +478,7 @@ class RecordHeader extends ConsumerWidget {
 class ErrorPrevention extends ConsumerWidget {
   final String type;
 
-  const ErrorPrevention({required this.type, Key? key}) : super(key: key);
+  const ErrorPrevention({required this.type, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -519,8 +531,7 @@ class BasicButton extends StatelessWidget {
       {required this.onClick,
       required this.color,
       required this.text,
-      Key? key})
-      : super(key: key);
+      super.key});
 
   @override
   Widget build(BuildContext context) {

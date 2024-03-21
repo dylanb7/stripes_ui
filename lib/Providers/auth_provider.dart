@@ -6,21 +6,5 @@ import 'package:stripes_ui/entry.dart';
 final authProvider =
     Provider<AuthRepo>((ref) => ref.watch(reposProvider).auth());
 
-final authUserStream = StreamProvider<AuthUser>((ref) {
-  return ref.watch(authProvider).user;
-});
-
-final currentAuthProvider = StateNotifierProvider<CurrentAuth, AuthUser>(
-    (ref) => CurrentAuth(ref.watch(authUserStream)));
-
-class CurrentAuth extends StateNotifier<AuthUser> {
-  final AsyncValue<AuthUser> _ref;
-  CurrentAuth(this._ref) : super(const AuthUser.empty()) {
-    _ref.whenData((value) => state = value);
-  }
-
-  @override
-  String toString() {
-    return '$_ref';
-  }
-}
+final authStream =
+    StreamProvider<AuthUser>((ref) => ref.watch(authProvider).user);

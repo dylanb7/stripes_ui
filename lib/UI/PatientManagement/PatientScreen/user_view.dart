@@ -13,8 +13,7 @@ class UserView extends ConsumerWidget {
 
   final bool selected;
 
-  const UserView({required this.subUser, required this.selected, Key? key})
-      : super(key: key);
+  const UserView({required this.subUser, required this.selected, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -81,7 +80,7 @@ class UserView extends ConsumerWidget {
                       style: Theme.of(context).textTheme.bodyMedium,
                     )
                   : TextButton(
-                      child: Text('Select'),
+                      child: const Text('Select'),
                       onPressed: () {
                         _changeToCurrent(ref);
                       },

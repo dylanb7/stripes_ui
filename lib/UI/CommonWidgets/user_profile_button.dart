@@ -18,11 +18,16 @@ class UserProfileButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AuthUser user = ref.watch(currentAuthProvider);
+    final AuthUser user = ref.watch(authStream).map(
+        data: (val) => val.value,
+        error: (_) => const AuthUser.empty(),
+        loading: (_) => const AuthUser.empty());
     final bool hasSession =
         !AuthUser.isEmpty(user) && !AuthUser.isLocalCode(user);
-    final bool isMarker =
-        SubUser.isMarker(ref.watch(subHolderProvider).current);
+    final SubUser? current = ref
+        .watch(subHolderProvider)
+        .mapOrNull(data: (val) => val.value.selected);
+    final bool isMarker = current == null ? false : SubUser.isMarker(current);
     final ExportAction? exportAction = ref.watch(exportProvider);
     final Function? exitAction = ref.watch(exitStudyProvider);
     return PopupMenuButton(
@@ -110,11 +115,13 @@ class UserProfileButton extends ConsumerWidget {
                 showSnack(context, AppLocalizations.of(context)!.exportError);
                 return;
               }
-              List<Response> stamps = ref
-                  .watch(stampHolderProvider)
-                  .stamps
-                  .whereType<Response>()
-                  .toList();
+
+              final List<Response> stamps = ref
+                      .read(stampHolderProvider)
+                      .valueOrNull
+                      ?.whereType<Response>()
+                      .toList() ??
+                  [];
               ref.read(overlayProvider.notifier).state =
                   OverlayQuery(widget: ExportOverlay(responses: stamps));
             },
@@ -162,7 +169,7 @@ class UserProfileButton extends ConsumerWidget {
 }
 
 class ExitErrorPrevention extends ConsumerWidget {
-  const ExitErrorPrevention({Key? key}) : super(key: key);
+  const ExitErrorPrevention({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

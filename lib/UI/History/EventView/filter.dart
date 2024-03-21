@@ -61,7 +61,16 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Response> availible = ref.watch(availibleStampsProvider).stamps;
+    final AsyncValue<Available> availible = ref.watch(availibleStampsProvider);
+
+    if (availible.isLoading) {
+      return const _PopUpStyle(
+          child: Center(
+        child: CircularProgressIndicator(),
+      ));
+    }
+
+    final List<Response> stamps = availible.valueOrNull?.stamps ?? [];
     final int start =
         dateToStamp(_combine(startDateListener.date, startTimeListener.time));
     final int end =
@@ -73,202 +82,175 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
       return validType && val.stamp >= start && val.stamp <= end;
     }
 
-    final int amount = availible.where(filt).length;
+    final int amount = stamps.where(filt).length;
 
-    final Set<String> types = Set.from(availible.map((ent) => ent.type));
+    final Set<String> types = Set.from(stamps.map((ent) => ent.type));
     selectedTypes.difference(types);
 
     final String message = amount == 1 ? '$amount Result' : '$amount Results';
-    return OverlayBackdrop(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 450),
-          child: SingleChildScrollView(
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: DecoratedBox(
-                  decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(15.0))),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 8.0, horizontal: 15.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const SizedBox(
-                              width: 35,
-                            ),
-                            Text(
-                              AppLocalizations.of(context)!.eventFilterHeader,
-                              style: Theme.of(context).textTheme.headlineMedium,
-                            ),
-                            IconButton(
-                                onPressed: () {
-                                  ref.read(overlayProvider.notifier).state =
-                                      closedQuery;
-                                },
-                                icon: const Icon(
-                                  Icons.close,
-                                  size: 35,
-                                ))
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 6.0,
-                        ),
-                        Center(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                message,
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                              const SizedBox(width: 4.0),
-                              TextButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      selectedTypes = {};
-                                      initDateRange();
-                                    });
-                                  },
-                                  child: Text(
-                                    AppLocalizations.of(context)!
-                                        .eventFilterReset,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(
-                                            decoration:
-                                                TextDecoration.underline),
-                                  ))
-                            ],
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 12.0,
-                        ),
-                        if (types.isNotEmpty)
-                          Text(
-                            AppLocalizations.of(context)!.eventFilterTypesTag,
-                            style: Theme.of(context).textTheme.bodyLarge,
-                            textAlign: TextAlign.left,
-                          ),
-                        const SizedBox(
-                          height: 6.0,
-                        ),
-                        Wrap(
-                          direction: Axis.horizontal,
-                          alignment: WrapAlignment.center,
-                          spacing: 5.0,
-                          runSpacing: 5.0,
-                          children: types.map((type) {
-                            final bool selected = selectedTypes.contains(type);
-                            return ChoiceChip(
-                              padding: const EdgeInsets.all(5.0),
-                              label: Text(
-                                type,
-                              ),
-                              selected: selected,
-                              onSelected: (value) {
-                                setState(() {
-                                  if (value) {
-                                    selectedTypes.add(type);
-                                  } else {
-                                    selectedTypes.remove(type);
-                                  }
-                                });
-                              },
-                            );
-                          }).toList(),
-                        ),
-                        const SizedBox(
-                          height: 12.0,
-                        ),
-                        Text(
-                          AppLocalizations.of(context)!.eventFiltersFromTag,
-                          style: Theme.of(context).textTheme.bodyLarge,
-                        ),
-                        const SizedBox(
-                          height: 6.0,
-                        ),
-                        Center(
-                          child: Wrap(
-                            spacing: 5.0,
-                            runSpacing: 5.0,
-                            children: [
-                              DateWidget(
-                                dateListener: startDateListener,
-                                latest: endDateListener.date,
-                              ),
-                              const SizedBox(
-                                width: 25.0,
-                              ),
-                              TimeWidget(
-                                timeListener: startTimeListener,
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 12.0,
-                        ),
-                        Text(
-                          AppLocalizations.of(context)!.eventFiltersToTag,
-                          style: Theme.of(context).textTheme.bodyLarge,
-                        ),
-                        const SizedBox(
-                          height: 6.0,
-                        ),
-                        Center(
-                          child: Wrap(
-                            spacing: 5.0,
-                            runSpacing: 5.0,
-                            children: [
-                              DateWidget(
-                                dateListener: endDateListener,
-                                earliest: startDateListener.date,
-                              ),
-                              const SizedBox(
-                                width: 25.0,
-                              ),
-                              TimeWidget(
-                                timeListener: endTimeListener,
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 12.0,
-                        ),
-                        FilledButton(
-                            child: Text(AppLocalizations.of(context)!
-                                .eventFiltersApply),
-                            onPressed: () {
-                              final Filters filts = ref.read(filtersProvider);
-                              ref.read(filtersProvider.notifier).state =
-                                  filts.copyWith(filt: filt);
-                              ref.read(overlayProvider.notifier).state =
-                                  closedQuery;
-                            }),
-                        const SizedBox(
-                          height: 6.0,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+    return _PopUpStyle(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const SizedBox(
+                width: 35,
               ),
+              Text(
+                AppLocalizations.of(context)!.eventFilterHeader,
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              IconButton(
+                  onPressed: () {
+                    ref.read(overlayProvider.notifier).state = closedQuery;
+                  },
+                  icon: const Icon(
+                    Icons.close,
+                    size: 35,
+                  ))
+            ],
+          ),
+          const SizedBox(
+            height: 6.0,
+          ),
+          Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  message,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(width: 4.0),
+                TextButton(
+                    onPressed: () {
+                      setState(() {
+                        selectedTypes = {};
+                        initDateRange();
+                      });
+                    },
+                    child: Text(
+                      AppLocalizations.of(context)!.eventFilterReset,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(decoration: TextDecoration.underline),
+                    ))
+              ],
             ),
           ),
-        ),
+          const SizedBox(
+            height: 12.0,
+          ),
+          if (types.isNotEmpty)
+            Text(
+              AppLocalizations.of(context)!.eventFilterTypesTag,
+              style: Theme.of(context).textTheme.bodyLarge,
+              textAlign: TextAlign.left,
+            ),
+          const SizedBox(
+            height: 6.0,
+          ),
+          Wrap(
+            direction: Axis.horizontal,
+            alignment: WrapAlignment.center,
+            spacing: 5.0,
+            runSpacing: 5.0,
+            children: types.map((type) {
+              final bool selected = selectedTypes.contains(type);
+              return ChoiceChip(
+                padding: const EdgeInsets.all(5.0),
+                label: Text(
+                  type,
+                ),
+                selected: selected,
+                onSelected: (value) {
+                  setState(() {
+                    if (value) {
+                      selectedTypes.add(type);
+                    } else {
+                      selectedTypes.remove(type);
+                    }
+                  });
+                },
+              );
+            }).toList(),
+          ),
+          const SizedBox(
+            height: 12.0,
+          ),
+          Text(
+            AppLocalizations.of(context)!.eventFiltersFromTag,
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+          const SizedBox(
+            height: 6.0,
+          ),
+          Center(
+            child: Wrap(
+              spacing: 5.0,
+              runSpacing: 5.0,
+              children: [
+                DateWidget(
+                  dateListener: startDateListener,
+                  latest: endDateListener.date,
+                ),
+                const SizedBox(
+                  width: 25.0,
+                ),
+                TimeWidget(
+                  timeListener: startTimeListener,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(
+            height: 12.0,
+          ),
+          Text(
+            AppLocalizations.of(context)!.eventFiltersToTag,
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+          const SizedBox(
+            height: 6.0,
+          ),
+          Center(
+            child: Wrap(
+              spacing: 5.0,
+              runSpacing: 5.0,
+              children: [
+                DateWidget(
+                  dateListener: endDateListener,
+                  earliest: startDateListener.date,
+                ),
+                const SizedBox(
+                  width: 25.0,
+                ),
+                TimeWidget(
+                  timeListener: endTimeListener,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(
+            height: 12.0,
+          ),
+          FilledButton(
+              child: Text(AppLocalizations.of(context)!.eventFiltersApply),
+              onPressed: () {
+                final Filters filts = ref.read(filtersProvider);
+                ref.read(filtersProvider.notifier).state =
+                    filts.copyWith(filt: filt);
+                ref.read(overlayProvider.notifier).state = closedQuery;
+              }),
+          const SizedBox(
+            height: 6.0,
+          ),
+        ],
       ),
     );
   }
@@ -278,7 +260,8 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
   }
 
   initDateRange() {
-    final List<Response> availible = ref.read(availibleStampsProvider).stamps;
+    final List<Response> availible =
+        ref.read(availibleStampsProvider).valueOrNull?.stamps ?? [];
     DateTime startDate = DateTime.now();
     DateTime endDate = startDate;
     if (availible.isNotEmpty) {
@@ -303,5 +286,38 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
     endDateListener.removeListener(_set);
     endTimeListener.removeListener(_set);
     super.dispose();
+  }
+}
+
+class _PopUpStyle extends StatelessWidget {
+  final Widget child;
+
+  const _PopUpStyle({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return OverlayBackdrop(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 450),
+          child: SingleChildScrollView(
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: DecoratedBox(
+                  decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(15.0))),
+                  child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8.0, horizontal: 15.0),
+                      child: child),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

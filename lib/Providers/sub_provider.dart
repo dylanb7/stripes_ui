@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,83 +12,69 @@ import 'package:stripes_ui/Providers/shared_service_provider.dart';
 import 'package:stripes_ui/Services/shared_service.dart';
 import 'package:stripes_ui/entry.dart';
 
-final subProvider = Provider<SubUserRepo?>(
-  (ref) {
-    final auth = ref.watch(currentAuthProvider);
+final subProvider = FutureProvider<SubUserRepo?>(
+  (ref) async {
+    final auth = await ref.watch(authStream.future);
     return AuthUser.isEmpty(auth)
         ? null
         : ref.watch(reposProvider).sub(user: auth);
   },
 );
 
-final subHolderProvider = ChangeNotifierProvider<SubNotifier>((ref) {
-  final sub = ref.watch(subProvider);
-  final shared = ref.watch(sharedSeviceProvider);
-  return SubNotifier(sub, shared);
+final subStream = StreamProvider<List<SubUser>>((ref) {
+  return ref.watch(subProvider).mapOrNull(data: (data) => data.value!.users) ??
+      const Stream.empty();
 });
 
-class SubNotifier extends ChangeNotifier with EquatableMixin {
-  final SubUserRepo? ref;
-  final SharedService service;
-  List<SubUser> _values = [];
-  bool _isLoading = false;
-  SubUser _current = SubUser.empty();
+final subHolderProvider =
+    AsyncNotifierProvider<SubNotifier, SubState>(SubNotifier.new);
 
-  SubNotifier(this.ref, this.service) {
-    if (ref != null) {
-      ref!.users.listen((event) async {
-        _values = event;
-        await _setUpCurrent();
-        notifyListeners();
-      });
+class SubNotifier extends AsyncNotifier<SubState> {
+  @override
+  FutureOr<SubState> build() async {
+    final SharedService service = ref.watch(sharedSeviceProvider);
+    final List<SubUser> subUsers = await ref.watch(subStream.future);
+    if (subUsers.isEmpty) return SubState.empty();
+    final String? currentId = await service.getCurrentUser();
+    final SubUser? currentUser =
+        subUsers.firstWhereOrNull((element) => element.uid == currentId);
+    if (currentId == null || currentUser == null) {
+      final SubUser newSelected = subUsers.first;
+      await service.setCurrentUser(id: newSelected.uid);
+      return SubState(subUsers: subUsers, selected: newSelected);
     }
+    return SubState(subUsers: subUsers, selected: currentUser);
   }
 
   Future<bool> changeCurrent(SubUser newUser) async {
-    if (!_values.contains(newUser)) return false;
+    final SubState current = await future;
+    final SubUser? changedTo =
+        current.subUsers.firstWhereOrNull((user) => user.uid == newUser.uid);
+    if (changedTo == null) return false;
+    final SharedService service = ref.watch(sharedSeviceProvider);
     String? val = await service.getCurrentUser();
-    if (val == newUser.uid) return true;
-    final bool set = await service.setCurrentUser(id: newUser.uid);
-    if (set) {
-      _current = newUser;
-      notifyListeners();
+    if (val == changedTo.uid) return true;
+    final bool setUser = await service.setCurrentUser(id: changedTo.uid);
+
+    if (setUser) {
+      state = AsyncData(current.copyWith(selected: changedTo));
     }
-    return set;
+    return setUser;
   }
+}
 
-  Future<void> _setUpCurrent() async {
-    if (_values.isEmpty) {
-      _current = SubUser.empty();
-      return;
-    }
-    _isLoading = true;
-    String? user = await service.getCurrentUser();
-    List<SubUser> selected =
-        _values.where((element) => user == element.uid).toList(growable: false);
-    if (user != null && selected.isNotEmpty) {
-      _current = selected.first;
-      _isLoading = false;
-      return;
-    }
-    final SubUser toSet = _values.first;
-    bool set = await service.setCurrentUser(id: toSet.uid);
-    if (set) _current = toSet;
-    _isLoading = false;
-  }
+@immutable
+class SubState with EquatableMixin {
+  final List<SubUser> subUsers;
+  final SubUser? selected;
 
-  SubUser get current => _current;
+  SubState({required this.subUsers, this.selected});
 
-  List<SubUser> get users => _values;
+  factory SubState.empty() => SubState(subUsers: const []);
 
-  bool get isAvailable => ref != null;
-
-  bool get isLoading => _isLoading;
+  SubState copyWith({List<SubUser>? subUsers, SubUser? selected}) => SubState(
+      subUsers: subUsers ?? this.subUsers, selected: selected ?? this.selected);
 
   @override
-  List<Object?> get props => [_current, _values];
-
-  @override
-  String toString() {
-    return 'current($_current) | all($_values)';
-  }
+  List<Object?> get props => [subUsers, selected];
 }

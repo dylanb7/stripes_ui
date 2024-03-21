@@ -14,7 +14,7 @@ import 'package:stripes_ui/Util/mouse_hover.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class Footer extends StatelessWidget {
-  const Footer({Key? key}) : super(key: key);
+  const Footer({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +39,7 @@ class Footer extends StatelessWidget {
 }
 
 class Options extends ConsumerWidget {
-  const Options({Key? key}) : super(key: key);
+  const Options({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -47,7 +47,7 @@ class Options extends ConsumerWidget {
     final Map<Period, List<CheckinItem>> checkin =
         ref.watch(checkinProvider(null));
     final List<String> questionTypes = recordPaths.keys.toList();
-    final TestsRepo? repo = ref.watch(testHolderProvider).repo;
+    final TestsRepo? repo = ref.watch(testProvider).valueOrNull;
 
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -99,7 +99,7 @@ class Options extends ConsumerWidget {
                   context
                       .pushNamed('recordType', pathParameters: {'type': key});
                 }, additions);
-              }).toList(growable: false),
+              }),
             ]),
             const Divider(
               height: 20,
@@ -118,7 +118,7 @@ class Options extends ConsumerWidget {
 }
 
 class Header extends ConsumerWidget {
-  const Header({Key? key}) : super(key: key);
+  const Header({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -156,15 +156,24 @@ class LastEntryText extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final List<Stamp> vals = ref.watch(stampHolderProvider).stamps;
-    final String lastEntry = vals.isEmpty
-        ? AppLocalizations.of(context)!.noEntryText
-        : AppLocalizations.of(context)!
-            .lastEntry(dateFromStamp(vals.first.stamp));
-    return Text(
-      lastEntry,
-      style: Theme.of(context).textTheme.bodyMedium,
-    );
+    final AsyncValue<List<Stamp>> stamps = ref.watch(stampHolderProvider);
+    return stamps.map(
+        data: (data) {
+          final String lastEntry = data.value.isEmpty
+              ? AppLocalizations.of(context)!.noEntryText
+              : AppLocalizations.of(context)!
+                  .lastEntry(dateFromStamp(data.value.first.stamp));
+          return Text(
+            lastEntry,
+            style: Theme.of(context).textTheme.bodyMedium,
+          );
+        },
+        error: (error) => Container(
+              height: 10,
+              width: 10,
+              color: Theme.of(context).colorScheme.error,
+            ),
+        loading: (loading) => const CircularProgressIndicator());
   }
 }
 
@@ -265,8 +274,7 @@ class RecordButton extends StatelessWidget {
   final Function(BuildContext) onClick;
 
   const RecordButton(this.text, this.onClick, this.additions,
-      {this.subText, Key? key})
-      : super(key: key);
+      {this.subText, super.key});
 
   @override
   Widget build(BuildContext context) {

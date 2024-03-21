@@ -21,8 +21,7 @@ class ConfirmationPopup extends ConsumerWidget {
       required this.cancel,
       required this.confirm,
       this.onConfirm,
-      Key? key})
-      : super(key: key);
+      super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -123,8 +122,7 @@ class BasicButton extends StatelessWidget {
       {required this.onClick,
       required this.color,
       required this.text,
-      Key? key})
-      : super(key: key);
+      super.key});
 
   @override
   Widget build(BuildContext context) {

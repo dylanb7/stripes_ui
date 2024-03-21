@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
+import 'package:stripes_ui/Providers/auth_provider.dart';
 import 'package:stripes_ui/Providers/route_provider.dart';
+import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/Util/palette.dart';
 
 import 'l10n/app_localizations.dart';
@@ -33,9 +35,9 @@ class Logger extends ProviderObserver {
   }
 
   @override
-  void didDisposeProvider(ProviderBase provider, ProviderContainer containers) {
+  void didDisposeProvider(ProviderBase provider, ProviderContainer container) {
     print('removed provider ${provider.runtimeType}');
-    super.didDisposeProvider(provider, containers);
+    super.didDisposeProvider(provider, container);
   }
 }
 
@@ -80,8 +82,7 @@ class StripesApp extends StatelessWidget {
       this.exportAction,
       this.builder,
       this.strat = AuthStrat.accessCode,
-      Key? key})
-      : super(key: key);
+      super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -108,13 +109,13 @@ class StripesHome extends ConsumerWidget {
   final Locale locale;
 
   final Widget Function(BuildContext, Widget?)? builder;
-  const StripesHome({required this.locale, this.builder, Key? key})
-      : super(key: key);
+  const StripesHome({required this.locale, this.builder, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final GoRouter router = ref.watch(routeProvider);
-    return MaterialApp.router(
+    return _EarlyInit(
+        child: MaterialApp.router(
       locale: locale,
       debugShowCheckedModeBanner: false,
       title: 'Stripes Tracker',
@@ -125,6 +126,19 @@ class StripesHome extends ConsumerWidget {
       routeInformationProvider: router.routeInformationProvider,
       routeInformationParser: router.routeInformationParser,
       routerDelegate: router.routerDelegate,
-    );
+    ));
+  }
+}
+
+class _EarlyInit extends ConsumerWidget {
+  final Widget child;
+
+  const _EarlyInit({required this.child});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(authStream);
+    ref.watch(subStream);
+    return child;
   }
 }

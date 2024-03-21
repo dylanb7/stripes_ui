@@ -4,22 +4,7 @@ import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo
 import 'package:stripes_ui/Providers/auth_provider.dart';
 import 'package:stripes_ui/entry.dart';
 
-final questionsProvider = Provider<QuestionRepo>((ref) {
-  AuthUser user = ref.watch(currentAuthProvider);
+final questionsProvider = FutureProvider<QuestionRepo>((ref) async {
+  AuthUser user = await ref.watch(authStream.future);
   return ref.watch(reposProvider).questions(user: user);
 });
-
-final questionHomeProvider = StateProvider((ref) => QuestionNotifier(ref));
-
-class QuestionNotifier extends StateNotifier {
-  QuestionRepo? home;
-
-  QuestionNotifier(StateProviderRef ref) : super(null) {
-    _loadQuestions(ref);
-  }
-
-  _loadQuestions(StateProviderRef ref) async {
-    home = ref.watch(questionsProvider);
-    state = home;
-  }
-}

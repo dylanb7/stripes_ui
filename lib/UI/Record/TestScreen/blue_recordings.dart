@@ -16,7 +16,7 @@ class BlueRecordings<T extends Test> extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final BlueDyeObj? blueObj =
-        ref.watch(testHolderProvider).getObject<BlueDyeObj>();
+        getObject<BlueDyeObj>(ref.watch(testStreamProvider));
     final List<BMTestLog> logs = blueObj?.logs ?? [];
     final TestState state =
         blueObj == null ? TestState.initial : stateFromTestOBJ(blueObj);
@@ -60,10 +60,9 @@ class BlueRecordings<T extends Test> extends ConsumerWidget {
                       ? null
                       : () async {
                           ref.read(testLoading.notifier).state = true;
-                          await ref
-                              .read(testHolderProvider)
-                              .getTest<T>()
+                          await getTest(ref.read(testProvider))
                               ?.submit(DateTime.now());
+
                           ref.read(testLoading.notifier).state = false;
                           if (context.mounted) {
                             showSnack(
@@ -87,8 +86,7 @@ class BlueRecordings<T extends Test> extends ConsumerWidget {
 class LogRow extends ConsumerWidget {
   final BMTestLog log;
   final WidgetRef ref;
-  const LogRow({required this.log, required this.ref, Key? key})
-      : super(key: key);
+  const LogRow({required this.log, required this.ref, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

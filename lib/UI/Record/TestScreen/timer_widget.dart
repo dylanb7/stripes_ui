@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class TimerWidget extends StatefulWidget {
   final DateTime start;
 
-  const TimerWidget({required this.start, Key? key}) : super(key: key);
+  const TimerWidget({required this.start, super.key});
 
   @override
   State<StatefulWidget> createState() {

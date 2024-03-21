@@ -27,8 +27,7 @@ class Expandible extends StatefulWidget {
       this.iconSize,
       this.highlightColor,
       this.listener,
-      Key? key})
-      : super(key: key);
+      super.key});
 
   @override
   State<StatefulWidget> createState() {

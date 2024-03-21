@@ -17,8 +17,7 @@ class PinField extends StatelessWidget {
       this.errorText = false,
       this.loading = false,
       this.accepted = false,
-      Key? key})
-      : super(key: key);
+      super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +83,7 @@ class PinField extends StatelessWidget {
 class AnimatedCheck extends StatefulWidget {
   static const checkDuration = Duration(milliseconds: 400);
 
-  const AnimatedCheck({Key? key}) : super(key: key);
+  const AnimatedCheck({super.key});
 
   @override
   State createState() => _AnimatedCheckState();

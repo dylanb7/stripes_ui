@@ -14,9 +14,8 @@ class PatientControlSelector extends FormField<String> {
       required BuildContext context,
       bool? initialValue,
       AutovalidateMode autovalidate = AutovalidateMode.onUserInteraction,
-      Key? key})
+      super.key})
       : super(
-            key: key,
             validator: empty,
             autovalidateMode: autovalidate,
             onSaved: (value) {

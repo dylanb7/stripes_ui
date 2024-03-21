@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/RepositoryBase/AuthBase/auth_user.dart';
 import 'package:stripes_backend_helper/RepositoryBase/StampBase/base_stamp_repo.dart';
@@ -10,47 +11,55 @@ import 'package:stripes_ui/entry.dart';
 
 import 'auth_provider.dart';
 
-final stampProvider = Provider<StampRepo?>((ref) {
-  final auth = ref.watch(currentAuthProvider);
-  final sub = ref.watch(subHolderProvider.select((value) => value.current));
-  final questions = ref.watch(questionHomeProvider);
-  if (AuthUser.isEmpty(auth) ||
-      SubUser.isEmpty(sub) ||
-      questions.home == null) {
+final stampProvider = FutureProvider<StampRepo?>((ref) async {
+  final auth = await ref.watch(authStream.future);
+  final questions = await ref.watch(questionsProvider.future);
+  final sub = ref
+      .watch(subHolderProvider.select((value) => value.valueOrNull?.selected));
+  final bool subEmpty = sub == null || SubUser.isEmpty(sub);
+
+  if (AuthUser.isEmpty(auth) || subEmpty) {
     return null;
   }
   return ref
       .watch(reposProvider)
-      .stamp(user: auth, subUser: sub, questionRepo: questions.home!);
+      .stamp(user: auth, subUser: sub, questionRepo: questions);
 });
 
-final stampHolderProvider = ChangeNotifierProvider<StampNotifier>(
-    (ref) => StampNotifier(ref.watch(stampProvider)));
+final stampsStreamProvider = StreamProvider<List<Stamp>>((ref) {
+  return ref
+          .watch(stampProvider)
+          .mapOrNull(data: (data) => data.value!.stamps) ??
+      const Stream.empty();
+});
 
-class StampNotifier extends ChangeNotifier {
-  final StampRepo? stampRepo;
-  List<Stamp> stamps = [];
-  StampNotifier(this.stampRepo) {
-    if (available) {
-      stampRepo!.stamps.listen(_listen);
-    }
-  }
+final stampHolderProvider =
+    AsyncNotifierProvider<StampNotifier, List<Stamp>>(StampNotifier.new);
 
-  _listen(List<Stamp> event) {
-    stamps = event;
-    notifyListeners();
+class StampNotifier extends AsyncNotifier<List<Stamp>> {
+  @override
+  FutureOr<List<Stamp>> build() async {
+    return await ref.watch(stampsStreamProvider.future);
   }
 
   changeEarliest(DateTime time) {
-    if (stampRepo?.earliest != null && time.isBefore(stampRepo!.earliest!)) {
-      stampRepo?.earliestDate = time;
+    final AsyncData<StampRepo<Stamp>?>? current =
+        ref.read(stampProvider).asData;
+    if (current == null || !current.hasValue) return;
+    final StampRepo repo = current.value!;
+    if (repo.earliest != null && time.isBefore(repo.earliest!)) {
+      repo.earliestDate = time;
     }
   }
 
   @override
   String toString() {
-    return stamps.map((e) => e.type).join(' ');
+    return state
+        .map<List<Stamp>>(
+            data: (data) => data.value,
+            error: (error) => [],
+            loading: (loading) => [])
+        .map((e) => e.type)
+        .join(' ');
   }
-
-  bool get available => stampRepo != null;
 }
