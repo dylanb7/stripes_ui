@@ -26,11 +26,13 @@ final stampProvider = FutureProvider<StampRepo?>((ref) async {
       .stamp(user: auth, subUser: sub, questionRepo: questions);
 });
 
-final stampsStreamProvider = StreamProvider<List<Stamp>>((ref) {
-  return ref
-          .watch(stampProvider)
-          .mapOrNull(data: (data) => data.value!.stamps) ??
-      const Stream.empty();
+final stampsStreamProvider = StreamProvider<List<Stamp>>((ref) async* {
+  final StampRepo? repo = await ref.watch(stampProvider.future);
+  if (repo == null) {
+    yield [];
+  } else {
+    yield* repo.stamps;
+  }
 });
 
 final stampHolderProvider =

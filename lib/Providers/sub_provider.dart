@@ -21,9 +21,13 @@ final subProvider = FutureProvider<SubUserRepo?>(
   },
 );
 
-final subStream = StreamProvider<List<SubUser>>((ref) {
-  return ref.watch(subProvider).mapOrNull(data: (data) => data.value!.users) ??
-      const Stream.empty();
+final subStream = StreamProvider<List<SubUser>>((ref) async* {
+  final SubUserRepo? repo = await ref.watch(subProvider.future);
+  if (repo == null) {
+    yield [];
+  } else {
+    yield* repo.users;
+  }
 });
 
 final subHolderProvider =

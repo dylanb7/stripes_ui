@@ -20,11 +20,13 @@ final testProvider = FutureProvider<TestsRepo?>((ref) async {
       user: auth, subUser: sub, stampRepo: stamps, questionRepo: questions);
 });
 
-final testStreamProvider = StreamProvider<List<TestObj>>((ref) {
-  return ref
-          .watch(testProvider)
-          .mapOrNull(data: (data) => data.value!.objects) ??
-      const Stream.empty();
+final testStreamProvider = StreamProvider<List<TestObj>>((ref) async* {
+  final TestsRepo? repo = await ref.watch(testProvider.future);
+  if (repo == null) {
+    yield [];
+  } else {
+    yield* repo.objects;
+  }
 });
 
 T? getTest<T extends Test>(AsyncValue<TestsRepo?> repo) {
