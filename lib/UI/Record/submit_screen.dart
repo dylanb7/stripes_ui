@@ -98,7 +98,7 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
           isEdit
               ? AppLocalizations.of(context)!.editSubmitHeader(widget.type)
               : AppLocalizations.of(context)!.submitHeader(widget.type),
-          style: Theme.of(context).textTheme.titleLarge,
+          style: Theme.of(context).textTheme.titleMedium,
           textAlign: TextAlign.center,
         ),
         const SizedBox(
