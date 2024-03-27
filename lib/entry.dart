@@ -120,7 +120,7 @@ class StripesHome extends ConsumerWidget {
         child: MaterialApp.router(
       locale: locale,
       debugShowCheckedModeBanner: false,
-      title: 'Stripes Tracker',
+      title: 'Stripes',
       builder: builder,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
