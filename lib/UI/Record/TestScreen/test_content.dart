@@ -36,8 +36,6 @@ class TestContentState<T extends Test> extends ConsumerState<TestContent> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(state.toString()),
-        Text(blueDyeObj?.toString() ?? 'null'),
         state.testInProgress
             ? Text(
                 AppLocalizations.of(context)!.blueMealStartTime(
