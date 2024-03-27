@@ -111,6 +111,7 @@ class TimerDisplay<T extends Test> extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final BlueDyeObj? blueDyeObj =
         getObject<BlueDyeObj>(ref.watch(testStreamProvider));
+    print(blueDyeObj);
     final bool isStarted = (blueDyeObj == null
             ? TestState.initial
             : stateFromTestOBJ(blueDyeObj)) ==
