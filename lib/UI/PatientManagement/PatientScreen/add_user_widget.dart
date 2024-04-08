@@ -59,7 +59,7 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
                 children: [
                   Text(
                     'Add Patient',
-                    style: Theme.of(context).textTheme.titleMedium,
+                    style: Theme.of(context).textTheme.titleLarge,
                   ),
                   AnimatedOpacity(
                     duration: const Duration(milliseconds: 200),
