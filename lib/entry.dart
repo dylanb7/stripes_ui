@@ -60,7 +60,10 @@ class StripesApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ProviderScope(
-      overrides: [configProvider.overrideWith((ref) => config)],
+      overrides: [
+        configProvider.overrideWith((ref) => config),
+        if (repos != null) reposProvider.overrideWith((ref) => repos!)
+      ],
       observers: [if (config.hasLogging) const Logger()],
       child: StripesHome(
         locale: config.locale,
