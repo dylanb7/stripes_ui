@@ -10,6 +10,7 @@ import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/Util/palette.dart';
+import 'package:stripes_ui/config.dart';
 
 import 'l10n/app_localizations.dart';
 
@@ -45,70 +46,32 @@ class Logger extends ProviderObserver {
 
 final reposProvider = Provider<StripesRepoPackage>((ref) => LocalRepoPackage());
 
-typedef ExportAction = Future<void> Function(List<Response> responses);
-
-final exportProvider = Provider<ExportAction?>((ref) => null);
-
-final exitStudyProvider = Provider<Function?>((ref) => null);
-
-final hasGraphingProvider = StateProvider((ref) => true);
-
-final authStrat = Provider<AuthStrat>((ref) => AuthStrat.accessCode);
-
-enum AuthStrat {
-  accessCodeEmail,
-  accessCode;
-}
+final configProvider =
+    Provider<StripesConfig>((ref) => const StripesConfig.sandbox());
 
 class StripesApp extends StatelessWidget {
-  final bool hasLogging, hasGraphing;
-
-  final Locale locale;
-
   final StripesRepoPackage? repos;
 
-  final ExportAction? exportAction;
-
-  final Function? removeTrace;
-
-  final AuthStrat strat;
-
-  final Widget Function(BuildContext, Widget?)? builder;
+  final StripesConfig config;
 
   const StripesApp(
-      {this.repos,
-      this.hasLogging = false,
-      this.hasGraphing = true,
-      this.locale = const Locale('en'),
-      this.removeTrace,
-      this.exportAction,
-      this.builder,
-      this.strat = AuthStrat.accessCode,
-      super.key});
+      {this.repos, this.config = const StripesConfig.sandbox(), super.key});
 
   @override
   Widget build(BuildContext context) {
     return ProviderScope(
-      overrides: [
-        hasGraphingProvider.overrideWith((ref) => hasGraphing),
-        if (repos != null) reposProvider.overrideWithValue(repos!),
-        if (exportAction != null)
-          exportProvider.overrideWithValue(exportAction),
-        if (removeTrace != null)
-          exitStudyProvider.overrideWithValue(removeTrace),
-        authStrat.overrideWithValue(strat),
-      ],
-      observers: [if (hasLogging) const Logger()],
+      overrides: [configProvider.overrideWith((ref) => config)],
+      observers: [if (config.hasLogging) const Logger()],
       child: StripesHome(
-        locale: locale,
-        builder: builder,
+        locale: config.locale,
+        builder: config.builder,
       ),
     );
   }
 }
 
 class StripesHome extends ConsumerWidget {
-  final Locale locale;
+  final Locale? locale;
 
   final Widget Function(BuildContext, Widget?)? builder;
   const StripesHome({required this.locale, this.builder, super.key});

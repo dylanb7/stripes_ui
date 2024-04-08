@@ -7,6 +7,7 @@ import 'package:stripes_ui/Providers/auth_provider.dart';
 
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/form_input.dart';
+import 'package:stripes_ui/config.dart';
 import 'package:stripes_ui/entry.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -15,7 +16,7 @@ class LandingPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AuthStrat strat = ref.watch(authStrat);
+    final AuthStrategy? strat = ref.watch(configProvider).authStrategy;
     return Scaffold(
       body: Column(
         children: [
@@ -28,8 +29,8 @@ class LandingPage extends ConsumerWidget {
           const Spacer(
             flex: 1,
           ),
-          if (strat == AuthStrat.accessCodeEmail) const SignUpLogin(),
-          if (strat == AuthStrat.accessCode) const AccessLogin(),
+          if (strat == AuthStrategy.accessCodeEmail) const SignUpLogin(),
+          if (strat == AuthStrategy.accessCode) const AccessLogin(),
           const Spacer(
             flex: 3,
           ),

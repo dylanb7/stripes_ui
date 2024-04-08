@@ -39,7 +39,7 @@ class LocationBar extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (ref.watch(hasGraphingProvider))
+                if (ref.watch(configProvider).hasGraphing)
                   LocationToggle(
                       options: Loc.values.map((e) => locMap[e]!).toList(),
                       toggled: locMap[location.loc]!,

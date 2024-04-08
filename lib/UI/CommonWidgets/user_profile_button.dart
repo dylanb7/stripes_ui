@@ -10,6 +10,7 @@ import 'package:stripes_ui/UI/CommonWidgets/tonal_button.dart';
 import 'package:stripes_ui/UI/History/EventView/export.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
+import 'package:stripes_ui/config.dart';
 import 'package:stripes_ui/entry.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -28,8 +29,8 @@ class UserProfileButton extends ConsumerWidget {
         .watch(subHolderProvider)
         .mapOrNull(data: (val) => val.value.selected);
     final bool isMarker = current == null ? false : SubUser.isMarker(current);
-    final ExportAction? exportAction = ref.watch(exportProvider);
-    final Function? exitAction = ref.watch(exitStudyProvider);
+    final ExportAction? exportAction = ref.watch(configProvider).export;
+    final Function? exitAction = ref.watch(configProvider).onExitStudy;
     return PopupMenuButton(
       padding: EdgeInsets.zero,
       offset: const Offset(0, 1),
@@ -110,7 +111,7 @@ class UserProfileButton extends ConsumerWidget {
               ),
             ]),
             onTap: () {
-              final ExportAction? action = ref.watch(exportProvider);
+              final ExportAction? action = ref.watch(configProvider).export;
               if (action == null) {
                 showSnack(context, AppLocalizations.of(context)!.exportError);
                 return;
@@ -241,7 +242,7 @@ class ExitErrorPrevention extends ConsumerWidget {
 
   _confirm(WidgetRef ref) async {
     _closeOverlay(ref);
-    final Function? exitAction = ref.watch(exitStudyProvider);
+    final Function? exitAction = ref.watch(configProvider).onExitStudy;
     try {
       await exitAction!();
     } finally {

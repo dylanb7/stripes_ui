@@ -39,7 +39,7 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
 
   @override
   Widget build(BuildContext context) {
-    final exportFunc = ref.watch(exportProvider);
+    final exportFunc = ref.watch(configProvider).export;
 
     return OverlayBackdrop(
         child: Padding(
