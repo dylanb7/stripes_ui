@@ -146,40 +146,41 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
           const SizedBox(
             height: 12.0,
           ),
-          if (types.isNotEmpty)
+          if (types.length > 1) ...[
             Text(
               AppLocalizations.of(context)!.eventFilterTypesTag,
               style: Theme.of(context).textTheme.bodyLarge,
               textAlign: TextAlign.left,
             ),
-          const SizedBox(
-            height: 6.0,
-          ),
-          Wrap(
-            direction: Axis.horizontal,
-            alignment: WrapAlignment.center,
-            spacing: 5.0,
-            runSpacing: 5.0,
-            children: types.map((type) {
-              final bool selected = selectedTypes.contains(type);
-              return ChoiceChip(
-                padding: const EdgeInsets.all(5.0),
-                label: Text(
-                  type,
-                ),
-                selected: selected,
-                onSelected: (value) {
-                  setState(() {
-                    if (value) {
-                      selectedTypes.add(type);
-                    } else {
-                      selectedTypes.remove(type);
-                    }
-                  });
-                },
-              );
-            }).toList(),
-          ),
+            const SizedBox(
+              height: 6.0,
+            ),
+            Wrap(
+              direction: Axis.horizontal,
+              alignment: WrapAlignment.center,
+              spacing: 5.0,
+              runSpacing: 5.0,
+              children: types.map((type) {
+                final bool selected = selectedTypes.contains(type);
+                return ChoiceChip(
+                  padding: const EdgeInsets.all(5.0),
+                  label: Text(
+                    type,
+                  ),
+                  selected: selected,
+                  onSelected: (value) {
+                    setState(() {
+                      if (value) {
+                        selectedTypes.add(type);
+                      } else {
+                        selectedTypes.remove(type);
+                      }
+                    });
+                  },
+                );
+              }).toList(),
+            ),
+          ],
           const SizedBox(
             height: 12.0,
           ),

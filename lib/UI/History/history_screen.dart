@@ -3,6 +3,7 @@ import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/UI/History/EventView/action_row.dart';
 import 'package:stripes_ui/UI/History/EventView/day_view.dart';
 import 'package:stripes_ui/UI/History/EventView/event_grid.dart';
+import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
 import 'package:stripes_ui/UI/History/EventView/month_view.dart';
 import 'package:stripes_ui/UI/History/GraphView/date_control.dart';
 import 'package:stripes_ui/UI/History/GraphView/event_display.dart';
@@ -17,7 +18,7 @@ class SliversConfig {
     List<Widget> slivers = [];
     switch (location.loc) {
       case Loc.day:
-        slivers.add(const ActionRow());
+        /*slivers.add(const ActionRow());
         switch (location.day) {
           case DayChoice.day:
             slivers.add(const DayView());
@@ -27,8 +28,10 @@ class SliversConfig {
             break;
           case DayChoice.all:
             break;
-        }
-        slivers.add(const EventGrid());
+        }*/
+        slivers.add(SliverList(
+            delegate: SliverChildListDelegate(
+                const [ActionRow(), EventsCalendar(), EventGrid()])));
         break;
       case Loc.graph:
         slivers.add(SliverList(
