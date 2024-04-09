@@ -29,8 +29,8 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
         child: Center(
           child: TableCalendar(
             focusedDay: filters.selectedDate ?? DateTime.now(),
-            firstDay: keys[0],
-            lastDay: keys[keys.length - 1],
+            firstDay: keys.isEmpty ? DateTime.now() : keys[0],
+            lastDay: keys.isEmpty ? DateTime.now() : keys[keys.length - 1],
             onPageChanged: (focusedDay) {},
             onDaySelected: (selectedDay, focusedDay) {
               ref.read(filtersProvider.notifier).state =

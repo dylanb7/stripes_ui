@@ -29,9 +29,7 @@ class SliversConfig {
           case DayChoice.all:
             break;
         }*/
-        slivers.add(SliverList(
-            delegate: SliverChildListDelegate(
-                const [ActionRow(), EventsCalendar(), EventGrid()])));
+        slivers.addAll(const [ActionRow(), EventsCalendar(), EventGrid()]);
         break;
       case Loc.graph:
         slivers.add(SliverList(
