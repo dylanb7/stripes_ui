@@ -36,6 +36,7 @@ class SliversConfig {
       case Loc.graph:
         slivers.add(SliverList(
             delegate: SliverChildListDelegate([
+          ActionRow(),
           const DateControl(),
           const TimeSpanInfo(),
           const EventDisplay()
