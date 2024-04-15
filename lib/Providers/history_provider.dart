@@ -265,9 +265,10 @@ final availibleStampsProvider =
 
 final eventsMapProvider =
     FutureProvider.autoDispose<Map<DateTime, List<Response>>>((ref) async {
+  ref.watch(filtersProvider);
   final Available available = await ref.watch(availibleStampsProvider.future);
 
-  return generateEventMap(available.all);
+  return generateEventMap(available.filteredInRange);
 });
 
 List<Response> _convertStamps(List<Stamp> stamps) {

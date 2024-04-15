@@ -38,8 +38,6 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
     final List<DateTime> keys = eventMap.keys.toList()
       ..sort((a, b) => a.compareTo(b));
 
-    if (keys.isEmpty) return const SliverToBoxAdapter();
-
     builder(BuildContext context, DateTime day, DateTime focus) {
       final int events = eventMap[day]?.length ?? 0;
       return CalendarDay(
