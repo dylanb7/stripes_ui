@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar_carousel/classes/event.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import 'package:stripes_backend_helper/QuestionModel/question.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
@@ -92,71 +93,49 @@ const Map<GraphChoice, ShiftAmount> graphToShift = {
 };
 
 class Available {
-  late List<Response<Question>> _stamps;
+  late final List<Response<Question>> _filteredInRange;
 
-  late List<Response<Question>> _filtered;
+  late final List<Response<Question>> _visible;
 
-  late List<Response<Question>> _all;
+  late final List<Response<Question>> _filteredVisible;
+
+  late final List<Response<Question>> _all;
+
+  final Filters filters;
 
   Available(
-      {required List<Response<Question>> allStamps,
-      required HistoryLocation location,
-      required DateTime? selected,
-      required DateTime month,
-      required DateTime? end,
-      required bool Function(Stamp)? filter}) {
+      {required List<Response<Question>> allStamps, required this.filters}) {
     _all = allStamps;
-    _stamps = _getStamps(allStamps, location, selected, end, month);
-    _filtered = filter == null
-        ? _stamps
-        : _stamps.where((element) => filter(element)).toList();
+    _filteredInRange = _filter(_getStamps(_all, null, filters.range));
+    _visible = _getStamps(allStamps, filters.selectedDate, filters.range);
+    _filteredVisible = _filter(_visible);
   }
 
   List<Response> get all => _all;
 
-  List<Response> get stamps => _stamps;
+  List<Response> get filteredInRange => _filteredInRange;
 
-  List<Response> get filtered => _filtered;
+  List<Response> get visible => _visible;
+
+  List<Response> get filteredVisible => _filteredVisible;
+
+  List<Response> _filter(List<Response> stamps) {
+    if (filters.filter == null) return stamps;
+    return stamps.where((element) => filters.filter!.call(element)).toList();
+  }
 
   List<Response<Question>> _getStamps(
     List<Response<Question>> allStamps,
-    HistoryLocation location,
     DateTime? selected,
-    DateTime? end,
-    DateTime month,
+    DateTimeRange? range,
   ) {
-    end ??= DateTime.now();
-
-    switch (location.loc) {
-      case Loc.day:
-        switch (location.day) {
-          case DayChoice.day:
-            return selected == null
-                ? []
-                : allStamps
-                    .where((element) => _sameDay(selected, element))
-                    .toList();
-          case DayChoice.month:
-            return selected == null
-                ? allStamps
-                    .where((element) => _sameMonth(month, element))
-                    .toList()
-                : allStamps
-                    .where((element) => _sameDay(selected, element))
-                    .toList();
-          case DayChoice.all:
-            return allStamps;
-          default:
-            return [];
-        }
-      case Loc.graph:
-        final int time =
-            dateToStamp(end.subtract(graphToDuration[location.graph]!));
-        return allStamps
-            .where((element) =>
-                element.stamp >= time && element.stamp <= dateToStamp(end!))
-            .toList();
+    if (selected != null) {
+      return allStamps.where((element) => _sameDay(selected, element)).toList();
     }
+    if (range != null) {
+      return allStamps.where((element) => _inRange(range, element)).toList();
+    }
+    return allStamps;
   }
 
   bool _sameDay(DateTime day, Response test) {
@@ -166,9 +145,15 @@ class Available {
         day.day == testDate.day;
   }
 
-  bool _sameMonth(DateTime day, Response test) {
+  bool _inRange(DateTimeRange range, Response test) {
     final DateTime testDate = dateFromStamp(test.stamp);
-    return day.year == testDate.year && day.month == testDate.month;
+    return range.start.isBefore(testDate) && range.end.isAfter(testDate);
+  }
+
+  @override
+  String toString() {
+    // TODO: implement toString
+    return '\nIn Range: \n$filteredInRange \n\nVisible: \n$visible \n\nFiltered Visible: \n$filteredVisible';
   }
 }
 
@@ -208,7 +193,7 @@ Map<DateTime, List<Response>> generateEventMap(List<Response> responses) {
   for (Response res in responses) {
     final DateTime resDate = dateFromStamp(res.stamp);
     final DateTime calDate =
-        DateTime(resDate.year, resDate.month, resDate.day, 0, 0, 0, 0, 0);
+        DateTime.utc(resDate.year, resDate.month, resDate.day, 0, 0, 0, 0, 0);
     if (eventMap.containsKey(calDate)) {
       eventMap[calDate]!.add(res);
     } else {
@@ -222,50 +207,48 @@ Map<DateTime, List<Response>> generateEventMap(List<Response> responses) {
 class Filters with EquatableMixin {
   final DateTime? selectedDate;
 
-  final DateTime selectedMonth;
-
-  final DateTime? end;
+  final DateTimeRange? range;
 
   final bool Function(Stamp)? filter;
 
-  const Filters(
-      {required this.selectedMonth, this.selectedDate, this.filter, this.end});
+  const Filters({required this.range, this.selectedDate, this.filter});
 
   factory Filters.reset({
     HistoryLocation location = const HistoryLocation(
         day: DayChoice.day, loc: Loc.day, graph: GraphChoice.day),
   }) =>
       Filters(
-          selectedMonth: DateTime.now(),
-          selectedDate: location.day == DayChoice.day ? DateTime.now() : null,
-          end: DateTime.now());
+        range: null,
+        selectedDate: location.day == DayChoice.day ? DateTime.now() : null,
+      );
 
   Filters copyWith(
           {DateTime? selectDate,
-          DateTime? selectMonth,
+          DateTimeRange? range,
           bool Function(Stamp)? filt}) =>
       Filters(
-          selectedMonth: selectMonth ?? selectedMonth,
+          range: range ?? this.range,
           selectedDate: selectDate,
           filter: filt ?? filter);
 
-  Filters shift(ShiftAmount shift, ShiftDirection direction) {
-    DateTime? newEnd = direction == ShiftDirection.future
-        ? end?.add(shift.amount)
-        : end?.subtract(shift.amount);
-    final DateTime now = DateTime.now();
-    if (newEnd != null && newEnd.isAfter(now)) {
-      newEnd = now;
-    }
-    return Filters(
-        selectedMonth: selectedMonth,
-        selectedDate: selectedDate,
-        filter: filter,
-        end: newEnd);
+  String toRange(BuildContext context) {
+    String locale = Localizations.localeOf(context).languageCode;
+    final DateFormat yearFormat = DateFormat.yMMMd(locale);
+    if (selectedDate != null) return yearFormat.format(selectedDate!);
+    if (range == null) return '';
+    final bool sameYear = range!.end.year == range!.start.year;
+    final bool sameMonth = sameYear && range!.end.month == range!.start.month;
+    final String firstPortion = sameYear
+        ? DateFormat.MMMd(locale).format(range!.start)
+        : yearFormat.format(range!.start);
+    final String lastPortion = sameMonth
+        ? '${DateFormat.d(locale).format(range!.end)}, ${DateFormat.y(locale).format(range!.end)}'
+        : yearFormat.format(range!.end);
+    return '$firstPortion - $lastPortion';
   }
 
   @override
-  List<Object?> get props => [selectedDate, selectedMonth, filter];
+  List<Object?> get props => [selectedDate, range, filter];
 }
 
 final historyLocationProvider =
@@ -276,22 +259,15 @@ final filtersProvider = StateProvider<Filters>((_) => Filters.reset());
 final availibleStampsProvider =
     FutureProvider.autoDispose<Available>((ref) async {
   final List<Stamp> stamps = await ref.watch(stampHolderProvider.future);
-  final HistoryLocation location = ref.watch(historyLocationProvider);
   final Filters filters = ref.watch(filtersProvider);
-  return Available(
-      allStamps: _convertStamps(stamps),
-      location: location,
-      selected: filters.selectedDate,
-      month: filters.selectedMonth,
-      filter: filters.filter,
-      end: filters.end);
+  return Available(allStamps: _convertStamps(stamps), filters: filters);
 });
 
 final eventsMapProvider =
     FutureProvider.autoDispose<Map<DateTime, List<Response>>>((ref) async {
-  final List<Stamp> stamps = await ref.watch(stampHolderProvider.future);
+  final Available available = await ref.watch(availibleStampsProvider.future);
 
-  return generateEventMap(_convertStamps(stamps));
+  return generateEventMap(available.all);
 });
 
 List<Response> _convertStamps(List<Stamp> stamps) {

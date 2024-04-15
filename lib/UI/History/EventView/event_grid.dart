@@ -24,7 +24,7 @@ class EventGrid extends ConsumerWidget {
       );
     }
 
-    if (available.valueOrNull?.filtered.isEmpty ?? true) {
+    if (available.valueOrNull?.filteredVisible.isEmpty ?? true) {
       return SliverToBoxAdapter(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 5.0),
@@ -42,7 +42,7 @@ class EventGrid extends ConsumerWidget {
     }
 
     final List<Response> availableStamps =
-        available.valueOrNull?.filtered ?? [];
+        available.valueOrNull?.filteredVisible ?? [];
 
     return SliverPadding(
       padding: const EdgeInsets.only(left: 20.0, right: 20.0, bottom: 20.0),

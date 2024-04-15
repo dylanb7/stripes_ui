@@ -10,9 +10,7 @@ class DateControl extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final DateTime end =
-        ref.watch(filtersProvider.select((value) => value.end)) ??
-            DateTime.now();
+    final DateTime end = DateTime.now();
     final GraphChoice graphChoice = ref.watch(historyLocationProvider).graph;
     final ShiftAmount shiftAmount = graphToShift[graphChoice]!;
     final DateTime start = end.subtract(shiftAmount.amount);
@@ -87,12 +85,11 @@ class DateControl extends ConsumerWidget {
   }
 
   _shift(WidgetRef ref, ShiftDirection direction, ShiftAmount shiftAmount) {
-    final Filters currentFilters = ref.read(filtersProvider);
+    /*final Filters currentFilters = ref.read(filtersProvider);
 
     final Filters newFilters = currentFilters.shift(shiftAmount, direction);
-    if ((newFilters.end?.isAfter(DateTime.now()) ?? false) &&
-        direction == ShiftDirection.future) return;
-    ref.read(filtersProvider.notifier).state = newFilters;
+
+    ref.read(filtersProvider.notifier).state = newFilters;*/
   }
 
   Widget _buttonWrap({required Widget child}) => Card(

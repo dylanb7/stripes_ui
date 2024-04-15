@@ -70,7 +70,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
       ));
     }
 
-    final List<Response> stamps = availible.valueOrNull?.stamps ?? [];
+    final List<Response> stamps = availible.valueOrNull?.visible ?? [];
     final int start =
         dateToStamp(_combine(startDateListener.date, startTimeListener.time));
     final int end =
@@ -262,7 +262,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
 
   initDateRange() {
     final List<Response> availible =
-        ref.read(availibleStampsProvider).valueOrNull?.stamps ?? [];
+        ref.read(availibleStampsProvider).valueOrNull?.visible ?? [];
     DateTime startDate = DateTime.now();
     DateTime endDate = startDate;
     if (availible.isNotEmpty) {

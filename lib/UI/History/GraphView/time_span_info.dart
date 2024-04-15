@@ -14,7 +14,7 @@ class TimeSpanInfo extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final List<Response> stamps =
-        ref.watch(availibleStampsProvider).valueOrNull?.stamps ?? [];
+        ref.watch(availibleStampsProvider).valueOrNull?.visible ?? [];
 
     final double width = MediaQuery.of(context).size.width;
 

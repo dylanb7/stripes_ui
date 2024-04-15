@@ -259,7 +259,7 @@ double _genVariance(GraphBarData packet) {
 }
 
 Map<GraphChoice, int> buckets = {
-  GraphChoice.day: 8,
+  GraphChoice.day: 6,
   GraphChoice.week: 7,
   GraphChoice.month: 30,
   GraphChoice.year: 12,
@@ -274,7 +274,7 @@ GraphData _generateData(Available availible, GraphChoice graph, DateTime end,
   switch (graph) {
     case GraphChoice.day:
       labels = _iterLabels(bucketDivisor, 4, shiftAmount,
-          DateTime(startDate.year, startDate.month, startDate.day));
+          DateTime.utc(startDate.year, startDate.month, startDate.day));
 
       break;
     case GraphChoice.week:
@@ -324,7 +324,7 @@ final resMapProvider =
     FutureProvider.autoDispose<CategoryBehaviorMaps>((ref) async {
   final Available availible = await ref.watch(availibleStampsProvider.future);
   final List<Response> all = availible.all;
-  final List<Response> filt = availible.filtered;
+  final List<Response> filt = availible.filteredVisible;
   CancelableOperation<CategoryBehaviorMaps> freqs =
       CancelableOperation.fromFuture(
           Future.microtask(() => _generateValueMaps(availible, all, filt)));
@@ -351,8 +351,7 @@ final orderedBehaviorProvider =
   GraphChoice graph =
       ref.watch(historyLocationProvider.select((value) => value.graph));
 
-  DateTime end =
-      ref.watch(filtersProvider.select((value) => value.end)) ?? DateTime.now();
+  DateTime end = DateTime.now();
 
   CancelableOperation<GraphData> packets = CancelableOperation.fromFuture(
       Future.microtask(() => _generateData(availible, graph, end, behaviors)));

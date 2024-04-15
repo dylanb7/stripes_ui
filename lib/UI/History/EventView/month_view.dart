@@ -19,7 +19,7 @@ class MonthView extends ConsumerWidget {
     final AsyncValue<Map<DateTime, List<Response>>> eventMap =
         ref.watch(eventsMapProvider);
     final DateTime? selected = filters.selectedDate;
-    final int rows = _numRows(filters.selectedMonth);
+    final int rows = 5;
     final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 30),
@@ -58,7 +58,7 @@ class MonthView extends ConsumerWidget {
                       final int events =
                           eventMap.valueOrNull?[day]?.length ?? 0;
                       return CalendarDay(
-                          text: '${day.day}',
+                          day: day,
                           isToday: isToday,
                           selected:
                               selected == null ? false : sameDay(day, selected),
@@ -66,8 +66,10 @@ class MonthView extends ConsumerWidget {
                           events: events);
                     },
                     onCalendarChanged: (dateTime) {
-                      ref.read(filtersProvider.notifier).state = filters
-                          .copyWith(selectDate: null, selectMonth: dateTime);
+                      ref.read(filtersProvider.notifier).state =
+                          filters.copyWith(
+                        selectDate: null,
+                      );
                     },
                     headerMargin: const EdgeInsets.only(bottom: 5.0),
                     customGridViewPhysics: const NeverScrollableScrollPhysics(),

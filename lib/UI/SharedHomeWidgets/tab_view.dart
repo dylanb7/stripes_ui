@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
 import 'package:stripes_ui/UI/History/history_screen.dart';
-import 'package:stripes_ui/UI/History/location_bar.dart';
 import 'package:stripes_ui/UI/PatientManagement/patient_changer.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
 import 'package:stripes_ui/UI/Record/record_screen.dart';
@@ -66,7 +65,6 @@ class StripesTabView extends ConsumerWidget {
                   ]),
             ),
           ),
-          const LocationBar(),
           ...SliversConfig(loc).slivers,
         ],
         if (selected == TabOption.tests) const TestScreen()

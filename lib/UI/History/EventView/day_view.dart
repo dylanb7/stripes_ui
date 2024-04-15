@@ -51,7 +51,7 @@ class DayView extends ConsumerWidget {
                     day) {
                   final int events = eventMap.valueOrNull?[day]?.length ?? 0;
                   return CalendarDay(
-                      text: '${day.day}',
+                      day: day,
                       isToday: isToday,
                       selected:
                           selected == null ? false : sameDay(day, selected),

@@ -47,7 +47,7 @@ class EventFrequency extends ConsumerWidget {
           child: Text(
             'Events by Category',
             maxLines: 1,
-            style: Theme.of(context).textTheme.headlineMedium,
+            style: Theme.of(context).textTheme.titleLarge,
           ),
         ),
         const SizedBox(
@@ -107,7 +107,7 @@ class EventFrequency extends ConsumerWidget {
                         children: [
                           Text(
                             'Common Behaviors:',
-                            style: Theme.of(context).textTheme.headlineMedium,
+                            style: Theme.of(context).textTheme.titleMedium,
                           ),
                           ...displayed.keys.map((key) {
                             final int promptVal = displayed[key]!;
