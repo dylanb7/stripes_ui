@@ -402,6 +402,10 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                 .undoEntry(widget.type, submissionEntry, submissionEntry),
             action: () async {
           await repo?.removeStamp(detailResponse);
+          await ref
+              .read(testProvider)
+              .valueOrNull
+              ?.onResponseDelete(detailResponse, widget.type);
         });
       }
       if (context.canPop()) {

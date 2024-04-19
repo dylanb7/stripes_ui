@@ -30,7 +30,7 @@ class CalendarDay extends StatelessWidget {
     final Color textColor =
         selected ? Theme.of(context).colorScheme.onSecondary : onPrimary;
     final Widget dayView = Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2.0),
+        padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 2.0),
         child: AspectRatio(
           aspectRatio: 1.0,
           child: Container(

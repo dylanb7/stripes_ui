@@ -4,6 +4,7 @@ import 'package:stripes_ui/UI/History/EventView/action_row.dart';
 import 'package:stripes_ui/UI/History/EventView/day_view.dart';
 import 'package:stripes_ui/UI/History/EventView/event_grid.dart';
 import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
+import 'package:stripes_ui/UI/History/EventView/filter.dart';
 import 'package:stripes_ui/UI/History/EventView/month_view.dart';
 import 'package:stripes_ui/UI/History/GraphView/date_control.dart';
 import 'package:stripes_ui/UI/History/GraphView/event_display.dart';
@@ -30,11 +31,18 @@ class SliversConfig {
           case DayChoice.all:
             break;
         }*/
-        slivers.addAll(const [
-          EventsCalendar(),
-          ActionRow(),
-          SliverToBoxAdapter(child: EventFrequency()),
-          EventGrid()
+        slivers.addAll([
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 18.0),
+            sliver: SliverConstrainedCrossAxis(
+              maxExtent: 800,
+              sliver: SliverList(
+                delegate: SliverChildListDelegate(
+                    const [FilterView(), EventsCalendar(), ActionRow()]),
+              ),
+            ),
+          ),
+          const EventGrid()
         ]);
         break;
       case Loc.graph:

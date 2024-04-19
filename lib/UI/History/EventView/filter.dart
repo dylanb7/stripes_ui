@@ -7,6 +7,24 @@ import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/date_time_entry.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
+class FilterView extends ConsumerWidget {
+  const FilterView({super.key});
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const FilterButton(),
+            TextButton(onPressed: () {}, child: const Text('Show all'))
+          ],
+        )
+      ],
+    );
+  }
+}
+
 class FilterButton extends ConsumerWidget {
   const FilterButton({super.key});
 

@@ -8,11 +8,13 @@ import 'package:stripes_ui/UI/History/EventView/day_view.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class EventsCalendar extends ConsumerStatefulWidget {
-  final bool? sixWeeks;
+  final bool sixWeeks;
 
   final StartingDayOfWeek startDay;
   const EventsCalendar(
-      {this.sixWeeks, this.startDay = StartingDayOfWeek.monday, super.key});
+      {this.sixWeeks = false,
+      this.startDay = StartingDayOfWeek.monday,
+      super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
@@ -35,8 +37,6 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
     final DateTime? selected =
         ref.watch(filtersProvider.select((value) => value.selectedDate));
     final now = DateTime.now();
-    final List<DateTime> keys = eventMap.keys.toList()
-      ..sort((a, b) => a.compareTo(b));
 
     builder(BuildContext context, DateTime day, DateTime focus) {
       final int events = eventMap[day]?.length ?? 0;
@@ -48,78 +48,70 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
           events: events);
     }
 
-    return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 30),
-      sliver: SliverToBoxAdapter(
-        child: Center(
-          child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 800),
-              child: Column(
-                children: [
-                  _CalendarHeader(
-                      focusedDay: focusedDay,
-                      onLeftArrowTap: () {
-                        _pageController?.previousPage(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeOut,
-                        );
-                      },
-                      onRightArrowTap: () {
-                        _pageController?.nextPage(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeOut,
-                        );
-                      },
-                      onFormatChange: _onFormatChange,
-                      selected: _format),
-                  TableCalendar(
-                    focusedDay: focusedDay,
-                    firstDay:
-                        DateTime(0) /*keys.isEmpty ? DateTime(0) : keys[0]*/,
-                    lastDay: DateTime.now(),
-                    onFormatChanged: _onFormatChange,
-                    headerVisible: false,
-                    calendarFormat: _format,
-                    calendarStyle: const CalendarStyle(
-                        cellPadding: EdgeInsets.all(2.0),
-                        outsideDaysVisible: false),
-                    onCalendarCreated: (controller) {
-                      _pageController = controller;
-                      Future(() {
-                        ref.read(filtersProvider.notifier).state =
-                            filters.copyWith(range: _getVisibleRange());
-                      });
-                    },
-                    onDaySelected: (selectedDay, focusedDay) {
-                      setState(() {
-                        this.focusedDay = focusedDay;
-                      });
-                      if (selected != null && sameDay(selectedDay, selected)) {
-                        ref.read(filtersProvider.notifier).state =
-                            filters.copyWith(selectDate: null);
-                      } else {
-                        ref.read(filtersProvider.notifier).state =
-                            filters.copyWith(
-                          selectDate: selectedDay,
-                        );
-                      }
-                    },
-                    onPageChanged: (newFocus) {
-                      setState(() {
-                        ref.read(filtersProvider.notifier).state =
-                            filters.copyWith(
-                                selectDate: null, range: _getVisibleRange());
-                        focusedDay = newFocus;
-                      });
-                    },
-                    calendarBuilders: CalendarBuilders(
-                      defaultBuilder: builder,
-                      todayBuilder: builder,
-                    ),
-                  ),
-                ],
-              )),
-        ),
+    return Center(
+      child: Column(
+        children: [
+          Center(
+            child: _CalendarHeader(
+                focusedDay: focusedDay,
+                onLeftArrowTap: () {
+                  _pageController?.previousPage(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeOut,
+                  );
+                },
+                onRightArrowTap: () {
+                  _pageController?.nextPage(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeOut,
+                  );
+                },
+                onFormatChange: _onFormatChange,
+                selected: _format),
+          ),
+          TableCalendar(
+            focusedDay: focusedDay,
+            firstDay: DateTime(0) /*keys.isEmpty ? DateTime(0) : keys[0]*/,
+            lastDay: DateTime.now(),
+            onFormatChanged: _onFormatChange,
+            headerVisible: false,
+            calendarFormat: _format,
+            calendarStyle: const CalendarStyle(
+                cellPadding: EdgeInsets.all(2.0), outsideDaysVisible: false),
+            onCalendarCreated: (controller) {
+              _pageController = controller;
+              Future(() {
+                ref.read(filtersProvider.notifier).state =
+                    filters.copyWith(range: _getVisibleRange());
+              });
+            },
+            onDaySelected: (selectedDay, focusedDay) {
+              setState(() {
+                this.focusedDay = focusedDay;
+              });
+              if (selected != null && sameDay(selectedDay, selected)) {
+                ref.read(filtersProvider.notifier).state =
+                    filters.copyWith(selectDate: null);
+              } else {
+                print(selectedDay);
+                ref.read(filtersProvider.notifier).state = filters.copyWith(
+                  selectDate: selectedDay,
+                );
+              }
+            },
+            onPageChanged: (newFocus) {
+              setState(() {
+                focusedDay = newFocus;
+                ref.read(filtersProvider.notifier).state = filters.copyWith(
+                    selectDate: null, range: _getVisibleRange());
+              });
+            },
+            calendarBuilders: CalendarBuilders(
+              defaultBuilder: builder,
+              todayBuilder: builder,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -228,8 +220,8 @@ class _CalendarHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final headerText = DateFormat.yMMM().format(focusedDay);
-    Map<CalendarFormat, String> formatName = {
+    final String headerText = DateFormat.yMMM().format(focusedDay);
+    final Map<CalendarFormat, String> formatName = {
       CalendarFormat.week: "Week",
       CalendarFormat.twoWeeks: "Two Weeks",
       CalendarFormat.month: "Month"
@@ -242,8 +234,7 @@ class _CalendarHeader extends StatelessWidget {
             icon: const Icon(Icons.chevron_left),
             onPressed: onLeftArrowTap,
           ),
-          SizedBox(
-            width: 120.0,
+          Flexible(
             child: Text(
               headerText,
               style: Theme.of(context).textTheme.titleMedium,

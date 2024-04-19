@@ -20,45 +20,32 @@ class ActionRow extends ConsumerWidget {
     final double size = MediaQuery.of(context).size.width;
 
     final String range = filters.toRange(context);
-    return SliverToBoxAdapter(
-      child: Center(
-        child: SizedBox(
-          width: min(450, size - 80.0),
-          child: Padding(
-              padding: const EdgeInsets.only(bottom: 10.0),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      if (range.isNotEmpty)
-                        Text(
-                          range,
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                      Text(
-                        AppLocalizations.of(context)!
-                            .eventFilterResults(results),
-                        style: Theme.of(context).textTheme.titleMedium,
-                      )
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 8.0,
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      filters.selectedDate != null
-                          ? const AddEvent()
-                          : const FilterButton(),
-                      const Spacer(),
-                      const Export(),
-                    ],
-                  ),
-                ],
-              )),
-        ),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10.0),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              if (range.isNotEmpty)
+                Text(
+                  range,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              Row(children: [
+                Text(
+                  AppLocalizations.of(context)!.eventFilterResults(results),
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const Export()
+              ])
+            ],
+          ),
+          const SizedBox(
+            height: 8.0,
+          ),
+          if (filters.selectedDate != null) const AddEvent(),
+        ],
       ),
     );
   }

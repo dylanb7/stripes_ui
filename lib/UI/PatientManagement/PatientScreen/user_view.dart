@@ -20,10 +20,10 @@ class UserView extends ConsumerWidget {
     final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
     return Expandible(
       canExpand: isSmall,
-      highlightColor: selected ? Theme.of(context).colorScheme.secondary : null,
+      highlightColor: selected ? Theme.of(context).colorScheme.primary : null,
       highlightOnShrink: true,
       header: Padding(
-        padding: const EdgeInsets.only(top: 4.0),
+        padding: const EdgeInsets.symmetric(vertical: 4.0),
         child: Text(
           subUser.name,
           style: Theme.of(context).textTheme.titleLarge,
