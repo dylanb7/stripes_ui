@@ -17,8 +17,6 @@ class ActionRow extends ConsumerWidget {
     final Filters filters = ref.watch(filtersProvider);
     final int results = ref.watch(availibleStampsProvider
         .select((value) => value.valueOrNull?.filteredVisible.length ?? 0));
-    final double size = MediaQuery.of(context).size.width;
-
     final String range = filters.toRange(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 10.0),

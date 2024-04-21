@@ -37,73 +37,70 @@ class _TestScreenState extends ConsumerState<TestScreen> {
     }
     final List<Test> tests = testRepo.valueOrNull?.tests ?? [];
     selected ??= tests.firstOrNull;
-    return SliverPadding(
+    return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
-      sliver: SliverList(
-        delegate: SliverChildListDelegate([
-          Padding(
-            padding: const EdgeInsets.only(left: 8, right: 8, top: 20),
-            child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Expanded(
-                    child: PatientChanger(
-                      tab: TabOption.tests,
-                    ),
-                  ),
-                  isSmall
-                      ? const UserProfileButton()
-                      : const SizedBox(
-                          width: 35,
-                        )
-                ]),
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          tests.length == 1
-              ? Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      tests[0].getName(context),
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.left,
-                    ),
-                  ),
-                )
-              : Align(
+      child: Column(children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 8, right: 8, top: 20),
+          child:
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            const Expanded(
+              child: PatientChanger(
+                tab: TabOption.tests,
+              ),
+            ),
+            isSmall
+                ? const UserProfileButton()
+                : const SizedBox(
+                    width: 35,
+                  )
+          ]),
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        tests.length == 1
+            ? Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
                   alignment: Alignment.centerLeft,
-                  child: DropdownButton<Test>(
-                    items: tests
-                        .map((e) => DropdownMenuItem(
-                              value: e,
-                              child: Text(
-                                e.getName(context),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(fontWeight: FontWeight.bold),
-                                textAlign: TextAlign.left,
-                              ),
-                            ))
-                        .toList(),
-                    onChanged: (val) {
-                      setState(() {
-                        selected = val;
-                      });
-                    },
-                    value: selected,
+                  child: Text(
+                    tests[0].getName(context),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.left,
                   ),
                 ),
-          selected?.displayState(context) ?? Container(),
-        ]),
-      ),
+              )
+            : Align(
+                alignment: Alignment.centerLeft,
+                child: DropdownButton<Test>(
+                  items: tests
+                      .map((e) => DropdownMenuItem(
+                            value: e,
+                            child: Text(
+                              e.getName(context),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.left,
+                            ),
+                          ))
+                      .toList(),
+                  onChanged: (val) {
+                    setState(() {
+                      selected = val;
+                    });
+                  },
+                  value: selected,
+                ),
+              ),
+        selected?.displayState(context) ?? Container(),
+      ]),
     );
   }
 }

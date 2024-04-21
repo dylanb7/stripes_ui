@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:stripes_ui/Providers/auth_provider.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
+import 'package:stripes_ui/UI/History/EventView/action_row.dart';
+import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
+import 'package:stripes_ui/UI/History/EventView/filter.dart';
 import 'package:stripes_ui/UI/History/history_screen.dart';
 import 'package:stripes_ui/UI/PatientManagement/patient_changer.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
 import 'package:stripes_ui/UI/Record/record_screen.dart';
 
 import 'package:stripes_ui/Util/constants.dart';
+import 'package:stripes_ui/config.dart';
+import 'package:stripes_ui/entry.dart';
 
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -30,52 +36,74 @@ class StripesTabView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    HistoryLocation loc = ref.watch(historyLocationProvider);
     final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
     final ScrollController scrollController = ScrollController();
+    final Map<String, dynamic>? attributes =
+        ref.watch(authStream.select((value) => value.valueOrNull?.attributes));
+    final Widget Function(Map<String, dynamic>)? indicator =
+        ref.watch(configProvider).stageIndicator;
+    final Widget? addition =
+        attributes != null ? indicator?.call(attributes) : null;
 
-    Widget scroll = CustomScrollView(
+    Widget scroll = ListView(
       key: scrollkey,
       controller: scrollController,
-      slivers: [
+      children: [
         if (!isSmall) LargeLayout(selected: selected),
         if (selected == TabOption.record) ...const [
-          SliverPadding(padding: EdgeInsets.only(top: 20.0)),
+          SizedBox(
+            height: 20,
+          ),
           Header(),
           Options(),
         ],
         if (selected == TabOption.history) ...[
-          const SliverPadding(padding: EdgeInsets.only(top: 20)),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Expanded(
-                      child: PatientChanger(
-                        tab: TabOption.history,
-                      ),
-                    ),
-                    isSmall
-                        ? const UserProfileButton()
-                        : const SizedBox(
-                            width: 35,
-                          )
-                  ]),
-            ),
+          const SizedBox(
+            height: 20,
           ),
-          ...SliversConfig(loc).slivers,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Expanded(
+                    child: PatientChanger(
+                      tab: TabOption.history,
+                    ),
+                  ),
+                  isSmall
+                      ? const UserProfileButton()
+                      : const SizedBox(
+                          width: 35,
+                        )
+                ]),
+          ),
+          const Column(
+            children: [FilterView(), EventsCalendar(), ActionRow()],
+          )
         ],
-        if (selected == TabOption.tests) const TestScreen()
+        if (selected == TabOption.tests) const TestScreen(),
+      ],
+    );
+
+    final Widget stack = Stack(
+      children: [
+        scroll,
+        if (addition != null)
+          Positioned(
+            bottom: 5.0,
+            left: 5.0,
+            right: 5.0,
+            child: addition,
+          )
       ],
     );
     return isSmall
         ? SmallLayout(
             selected: selected,
-            child: scroll,
+            child: stack,
           )
-        : scroll;
+        : stack;
   }
 
   handleTap(BuildContext context, TabOption tapped, WidgetRef ref) {
@@ -108,7 +136,7 @@ class SmallLayout extends ConsumerWidget {
         ),
       ),
       BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
+        type: BottomNavigationBarType.shifting,
         currentIndex: TabOption.values.indexOf(selected),
         onTap: (index) {
           context

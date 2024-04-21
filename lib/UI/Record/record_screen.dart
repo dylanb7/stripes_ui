@@ -49,69 +49,66 @@ class Options extends ConsumerWidget {
     final List<String> questionTypes = recordPaths.keys.toList();
     final TestsRepo? repo = ref.watch(testProvider).valueOrNull;
 
-    return SliverPadding(
+    return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      sliver: SliverList(
-        delegate: SliverChildListDelegate(
-          [
-            const SizedBox(
-              height: 20.0,
+      child: Column(
+        children: [
+          const SizedBox(
+            height: 20.0,
+          ),
+          if (checkin.isNotEmpty)
+            Text(
+              AppLocalizations.of(context)!.checkInLabel,
+              style: Theme.of(context).textTheme.titleMedium,
             ),
-            if (checkin.isNotEmpty)
-              Text(
-                AppLocalizations.of(context)!.checkInLabel,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-            ...checkin.keys.map((period) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    period.getRangeString(DateTime.now(), context),
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  ...checkin[period]!.map((checkin) => CheckInButton(
-                        item: checkin,
-                        additions:
-                            repo?.getPathAdditions(context, checkin.type) ?? [],
-                      ))
-                ],
-              );
-            }),
-            if (checkin.isNotEmpty)
-              const Divider(
-                height: 20,
-                indent: 15,
-                endIndent: 15,
-                thickness: 2,
-              ),
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(
-                AppLocalizations.of(context)!.categorySelect,
-                style: Theme.of(context).textTheme.titleMedium,
-                textAlign: TextAlign.left,
-              ),
-              ...questionTypes.map((key) {
-                final List<Widget> additions =
-                    repo?.getPathAdditions(context, key) ?? [];
-
-                return RecordButton(key, (context) {
-                  context
-                      .pushNamed('recordType', pathParameters: {'type': key});
-                }, additions);
-              }),
-            ]),
+          ...checkin.keys.map((period) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  period.getRangeString(DateTime.now(), context),
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                ...checkin[period]!.map((checkin) => CheckInButton(
+                      item: checkin,
+                      additions:
+                          repo?.getPathAdditions(context, checkin.type) ?? [],
+                    ))
+              ],
+            );
+          }),
+          if (checkin.isNotEmpty)
             const Divider(
               height: 20,
               indent: 15,
               endIndent: 15,
               thickness: 2,
             ),
-            const SizedBox(
-              height: 20.0,
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(
+              AppLocalizations.of(context)!.categorySelect,
+              style: Theme.of(context).textTheme.titleMedium,
+              textAlign: TextAlign.left,
             ),
-          ],
-        ),
+            ...questionTypes.map((key) {
+              final List<Widget> additions =
+                  repo?.getPathAdditions(context, key) ?? [];
+
+              return RecordButton(key, (context) {
+                context.pushNamed('recordType', pathParameters: {'type': key});
+              }, additions);
+            }),
+          ]),
+          const Divider(
+            height: 20,
+            indent: 15,
+            endIndent: 15,
+            thickness: 2,
+          ),
+          const SizedBox(
+            height: 20.0,
+          ),
+        ],
       ),
     );
   }
@@ -123,30 +120,28 @@ class Header extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
-    return SliverPadding(
+    return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      sliver: SliverToBoxAdapter(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              const Expanded(child: PatientChanger()),
-              const SizedBox(
-                width: 8.0,
-              ),
-              isSmall
-                  ? const UserProfileButton()
-                  : const SizedBox(
-                      width: 35,
-                    ),
-            ],
-          ),
-          const SizedBox(
-            height: 4.0,
-          ),
-          const LastEntryText(),
-        ]),
-      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            const Expanded(child: PatientChanger()),
+            const SizedBox(
+              width: 8.0,
+            ),
+            isSmall
+                ? const UserProfileButton()
+                : const SizedBox(
+                    width: 35,
+                  ),
+          ],
+        ),
+        const SizedBox(
+          height: 4.0,
+        ),
+        const LastEntryText(),
+      ]),
     );
   }
 }
@@ -298,15 +293,19 @@ class RecordButton extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          Text(
-                            text,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color:
-                                        Theme.of(context).colorScheme.primary),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              text,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary),
+                            ),
                           ),
                           ...additions
                         ]),
