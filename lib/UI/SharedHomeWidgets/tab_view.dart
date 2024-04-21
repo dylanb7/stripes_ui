@@ -6,6 +6,7 @@ import 'package:stripes_ui/Providers/auth_provider.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
 import 'package:stripes_ui/UI/History/EventView/action_row.dart';
+import 'package:stripes_ui/UI/History/EventView/event_grid.dart';
 import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
 import 'package:stripes_ui/UI/History/EventView/filter.dart';
 import 'package:stripes_ui/UI/History/history_screen.dart';
@@ -88,6 +89,7 @@ class StripesTabView extends ConsumerWidget {
               ),
             ),
           ),
+          const EventGrid()
         ],
         if (selected == TabOption.tests) const TestScreen(),
       ],
