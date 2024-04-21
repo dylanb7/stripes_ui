@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stripes_ui/Providers/auth_provider.dart';
@@ -78,9 +79,15 @@ class StripesTabView extends ConsumerWidget {
                         )
                 ]),
           ),
-          const Column(
-            children: [FilterView(), EventsCalendar(), ActionRow()],
-          )
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 800),
+              child: const Column(
+                children: [FilterView(), EventsCalendar(), ActionRow()],
+              ),
+            ),
+          ),
         ],
         if (selected == TabOption.tests) const TestScreen(),
       ],
