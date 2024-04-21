@@ -143,7 +143,7 @@ class SmallLayout extends ConsumerWidget {
         ),
       ),
       BottomNavigationBar(
-        type: BottomNavigationBarType.shifting,
+        type: BottomNavigationBarType.fixed,
         currentIndex: TabOption.values.indexOf(selected),
         onTap: (index) {
           context
