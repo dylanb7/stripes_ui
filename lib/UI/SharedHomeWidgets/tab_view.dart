@@ -47,53 +47,96 @@ class StripesTabView extends ConsumerWidget {
     final Widget? addition =
         attributes != null ? indicator?.call(attributes) : null;
 
-    Widget scroll = ListView(
-      key: scrollkey,
-      controller: scrollController,
-      children: [
-        if (!isSmall) LargeLayout(selected: selected),
-        if (selected == TabOption.record) ...const [
-          SizedBox(
-            height: 20,
-          ),
-          Header(),
-          Options(),
-        ],
-        if (selected == TabOption.history) ...[
+    Widget scroll;
+
+    if (selected == TabOption.history) {
+      scroll = CustomScrollView(
+        slivers: [
           const SizedBox(
             height: 20,
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Expanded(
-                    child: PatientChanger(
-                      tab: TabOption.history,
+          SliverPadding(
+            padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
+            sliver: SliverToBoxAdapter(
+              child: Column(children: [
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Expanded(
+                        child: PatientChanger(
+                          tab: TabOption.history,
+                        ),
+                      ),
+                      isSmall
+                          ? const UserProfileButton()
+                          : const SizedBox(
+                              width: 35,
+                            )
+                    ]),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 800),
+                    child: const Column(
+                      children: [FilterView(), EventsCalendar(), ActionRow()],
                     ),
                   ),
-                  isSmall
-                      ? const UserProfileButton()
-                      : const SizedBox(
-                          width: 35,
-                        )
-                ]),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 800),
-              child: const Column(
-                children: [FilterView(), EventsCalendar(), ActionRow()],
-              ),
+                ),
+              ]),
             ),
           ),
           const EventGrid()
         ],
-        if (selected == TabOption.tests) const TestScreen(),
-      ],
-    );
+      );
+    } else {
+      scroll = ListView(
+        key: scrollkey,
+        controller: scrollController,
+        children: [
+          if (!isSmall) LargeLayout(selected: selected),
+          if (selected == TabOption.record) ...const [
+            SizedBox(
+              height: 20,
+            ),
+            Header(),
+            Options(),
+          ],
+          if (selected == TabOption.history) ...[
+            const SizedBox(
+              height: 20,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Expanded(
+                      child: PatientChanger(
+                        tab: TabOption.history,
+                      ),
+                    ),
+                    isSmall
+                        ? const UserProfileButton()
+                        : const SizedBox(
+                            width: 35,
+                          )
+                  ]),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 800),
+                child: const Column(
+                  children: [FilterView(), EventsCalendar(), ActionRow()],
+                ),
+              ),
+            ),
+            const EventGrid()
+          ],
+          if (selected == TabOption.tests) const TestScreen(),
+        ],
+      );
+    }
 
     final Widget stack = Stack(
       children: [
