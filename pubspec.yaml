@@ -14,6 +14,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: any
+  duration: ^3.0.13
   stripes_backend_helper:
     git:
       url: https://github.com/dylanb7/stripes_backend_helper

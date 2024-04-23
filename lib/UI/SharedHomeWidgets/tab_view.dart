@@ -1,21 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stripes_ui/Providers/auth_provider.dart';
-import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
 import 'package:stripes_ui/UI/History/EventView/action_row.dart';
 import 'package:stripes_ui/UI/History/EventView/event_grid.dart';
 import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
 import 'package:stripes_ui/UI/History/EventView/filter.dart';
-import 'package:stripes_ui/UI/History/history_screen.dart';
 import 'package:stripes_ui/UI/PatientManagement/patient_changer.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
 import 'package:stripes_ui/UI/Record/record_screen.dart';
 
 import 'package:stripes_ui/Util/constants.dart';
-import 'package:stripes_ui/config.dart';
 import 'package:stripes_ui/entry.dart';
 
 import 'package:stripes_ui/l10n/app_localizations.dart';
@@ -42,7 +38,7 @@ class StripesTabView extends ConsumerWidget {
     final ScrollController scrollController = ScrollController();
     final Map<String, dynamic>? attributes =
         ref.watch(authStream.select((value) => value.valueOrNull?.attributes));
-    final Widget Function(Map<String, dynamic>)? indicator =
+    final Widget? Function(Map<String, dynamic>)? indicator =
         ref.watch(configProvider).stageIndicator;
     final Widget? addition =
         attributes != null ? indicator?.call(attributes) : null;
@@ -52,9 +48,6 @@ class StripesTabView extends ConsumerWidget {
     if (selected == TabOption.history) {
       scroll = CustomScrollView(
         slivers: [
-          const SizedBox(
-            height: 20,
-          ),
           SliverPadding(
             padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
             sliver: SliverToBoxAdapter(
@@ -141,13 +134,7 @@ class StripesTabView extends ConsumerWidget {
     final Widget stack = Stack(
       children: [
         scroll,
-        if (addition != null)
-          Positioned(
-            bottom: 5.0,
-            left: 5.0,
-            right: 5.0,
-            child: addition,
-          )
+        if (addition != null) addition,
       ],
     );
     return isSmall

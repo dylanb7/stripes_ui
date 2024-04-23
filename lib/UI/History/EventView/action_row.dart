@@ -7,7 +7,6 @@ import 'package:stripes_ui/l10n/app_localizations.dart';
 
 import 'add_event.dart';
 import 'export.dart';
-import 'filter.dart';
 
 class ActionRow extends ConsumerWidget {
   const ActionRow({super.key});

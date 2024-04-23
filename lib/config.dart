@@ -14,7 +14,8 @@ enum ExportType {
 
 enum AccountStage { local, invited, enrolled, finished }
 
-typedef AccountIndicator = Widget Function(Map<String, dynamic> userAttributes);
+typedef AccountIndicator = Widget? Function(
+    Map<String, dynamic> userAttributes);
 
 typedef AccountAction = Future<bool> Function(
     Map<String, dynamic> userAttributes);

@@ -59,6 +59,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     if (mounted) {
       setState(() {
         hasChanged = original != widget.questionListener;
+        print(hasChanged);
       });
     }
   }
@@ -218,7 +219,8 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                             },
                                             child: FilledButton(
                                               onPressed: !hasPending &&
-                                                      !isLoading
+                                                      !isLoading &&
+                                                      edited
                                                   ? () {
                                                       _submitEntry(
                                                           context, ref, isEdit);

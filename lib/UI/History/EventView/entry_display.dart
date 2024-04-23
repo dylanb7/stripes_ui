@@ -1,4 +1,6 @@
 import 'package:collection/collection.dart';
+import 'package:duration/duration.dart';
+import 'package:duration/locale.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -11,7 +13,6 @@ import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
-import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/Util/date_helper.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -250,6 +251,8 @@ class BlueDyeDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Locale current = Localizations.localeOf(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
@@ -280,7 +283,13 @@ class BlueDyeDisplay extends StatelessWidget {
           height: 3.0,
         ),
         Text(
-          from(resp.eatingDuration),
+          prettyDuration(
+            resp.eatingDuration,
+            abbreviated: true,
+            delimiter: ' ',
+            locale: DurationLocale.fromLanguageCode(current.languageCode) ??
+                const EnglishDurationLocale(),
+          ),
           textAlign: TextAlign.left,
           style: Theme.of(context).textTheme.bodyMedium,
         ),
@@ -330,8 +339,14 @@ class BlueDyeDisplay extends StatelessWidget {
           height: 3.0,
         ),
         Text(
-          from(resp.lastBlue
-              .difference(resp.startEating.add(resp.eatingDuration))),
+          prettyDuration(
+              resp.lastBlue.difference(
+                resp.startEating.add(resp.eatingDuration),
+              ),
+              locale: DurationLocale.fromLanguageCode(current.languageCode) ??
+                  const EnglishDurationLocale(),
+              delimiter: ' ',
+              abbreviated: true),
           textAlign: TextAlign.left,
           style: Theme.of(context).textTheme.bodyMedium,
         ),

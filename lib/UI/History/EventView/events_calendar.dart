@@ -93,7 +93,6 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
                 ref.read(filtersProvider.notifier).state =
                     filters.copyWith(selectDate: null);
               } else {
-                print(selectedDay);
                 ref.read(filtersProvider.notifier).state = filters.copyWith(
                   selectDate: selectedDay,
                 );
@@ -165,32 +164,10 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
     return date.subtract(const Duration(days: 1));
   }
 
-  int _getDaysAfter(DateTime lastDay) {
-    int invertedStartingWeekday = 8 - getWeekdayNumber(widget.startDay);
-
-    int daysAfter = 7 - ((lastDay.weekday + invertedStartingWeekday) % 7);
-    if (daysAfter == 7) {
-      daysAfter = 0;
-    }
-
-    return daysAfter;
-  }
-
   DateTimeRange _daysInMonth(DateTime focusedDay) {
     final first = _firstDayOfMonth(focusedDay);
-    final daysBefore = _getDaysBefore(first);
-    final firstToDisplay = first.subtract(Duration(days: daysBefore));
-
-    if (widget.sixWeeks ?? false) {
-      final end = firstToDisplay.add(const Duration(days: 42));
-      return DateTimeRange(start: firstToDisplay, end: end);
-    }
-
     final last = _lastDayOfMonth(focusedDay);
-    final daysAfter = _getDaysAfter(last);
-    final lastToDisplay = last.add(Duration(days: daysAfter));
-
-    return DateTimeRange(start: firstToDisplay, end: lastToDisplay);
+    return DateTimeRange(start: first, end: last);
   }
 
   int _getDaysBefore(DateTime firstDay) {
