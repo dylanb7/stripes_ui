@@ -46,7 +46,8 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
 
   @override
   void initState() {
-    original = QuestionsListener.copy(widget.questionListener);
+    print("init");
+    original = widget.questionListener.copy();
     pageController = PageController();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       widget.questionListener.addListener(_changedUpdate);
@@ -56,10 +57,12 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
   }
 
   _changedUpdate() {
-    if (mounted) {
+    final bool change = original != widget.questionListener;
+    print("original: $original");
+    print("current: ${widget.questionListener}");
+    if (mounted && change) {
       setState(() {
-        hasChanged = original != widget.questionListener;
-        print(hasChanged);
+        hasChanged = change;
       });
     }
   }
