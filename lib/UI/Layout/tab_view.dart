@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:stripes_ui/Providers/auth_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
 import 'package:stripes_ui/UI/History/EventView/action_row.dart';
@@ -29,14 +28,13 @@ enum TabOption {
 final GlobalKey scrollkey = GlobalKey();
 
 class TabContent extends ConsumerWidget {
-  final TabOption selected;
-
-  const TabContent({required this.selected, super.key});
+  const TabContent({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
     final ScrollController scrollController = ScrollController();
+    final selected = ref.watch(tabProvider);
     final Map<String, dynamic>? attributes =
         ref.watch(authStream.select((value) => value.valueOrNull?.attributes));
     final Widget? Function(Map<String, dynamic>)? indicator =
@@ -137,18 +135,6 @@ class TabContent extends ConsumerWidget {
         if (addition != null) addition,
       ],
     );
-  }
-
-  handleTap(BuildContext context, TabOption tapped, WidgetRef ref) {
-    if (tapped == selected) return;
-
-    if (tapped == TabOption.record) {
-      context.go(Routes.HOME);
-    } else if (tapped == TabOption.history) {
-      context.go(Routes.HISTORY);
-    } else if (tapped == TabOption.tests) {
-      context.goNamed(Routes.TEST);
-    }
   }
 }
 

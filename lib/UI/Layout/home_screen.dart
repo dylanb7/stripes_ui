@@ -41,10 +41,13 @@ class Home extends ConsumerWidget {
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('AppBar Demo'),
+          automaticallyImplyLeading: true,
           scrolledUnderElevation: 4,
-          leading: Image.asset(
-            'packages/stripes_ui/assets/images/StripesLogo.png',
+          leading: Padding(
+            padding: const EdgeInsets.all(6.0),
+            child: Image.asset(
+              'packages/stripes_ui/assets/images/StripesLogo.png',
+            ),
           ),
           actions: [
             if (!isSmall)
@@ -58,7 +61,7 @@ class Home extends ConsumerWidget {
             ? CreatePatient()
             : Stack(
                 children: [
-                  TabContent(selected: path.option),
+                  const TabContent(),
                   if (overlay.widget != null) overlay.widget!
                 ],
               ),
