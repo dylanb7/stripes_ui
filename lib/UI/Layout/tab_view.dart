@@ -7,6 +7,7 @@ import 'package:stripes_ui/UI/History/EventView/action_row.dart';
 import 'package:stripes_ui/UI/History/EventView/event_grid.dart';
 import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
 import 'package:stripes_ui/UI/History/EventView/filter.dart';
+import 'package:stripes_ui/UI/Layout/home_screen.dart';
 import 'package:stripes_ui/UI/PatientManagement/patient_changer.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
 import 'package:stripes_ui/UI/Record/record_screen.dart';
@@ -27,10 +28,10 @@ enum TabOption {
 
 final GlobalKey scrollkey = GlobalKey();
 
-class StripesTabView extends ConsumerWidget {
+class TabContent extends ConsumerWidget {
   final TabOption selected;
 
-  const StripesTabView({required this.selected, super.key});
+  const TabContent({required this.selected, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -86,7 +87,6 @@ class StripesTabView extends ConsumerWidget {
         key: scrollkey,
         controller: scrollController,
         children: [
-          if (!isSmall) LargeLayout(selected: selected),
           if (selected == TabOption.record) ...const [
             SizedBox(
               height: 20,
@@ -131,18 +131,12 @@ class StripesTabView extends ConsumerWidget {
       );
     }
 
-    final Widget stack = Stack(
+    return Stack(
       children: [
         scroll,
         if (addition != null) addition,
       ],
     );
-    return isSmall
-        ? SmallLayout(
-            selected: selected,
-            child: stack,
-          )
-        : stack;
   }
 
   handleTap(BuildContext context, TabOption tapped, WidgetRef ref) {
@@ -161,125 +155,66 @@ class StripesTabView extends ConsumerWidget {
 class SmallLayout extends ConsumerWidget {
   final TabOption selected;
 
-  final Widget child;
-
-  const SmallLayout({required this.child, required this.selected, super.key});
+  const SmallLayout({required this.selected, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Column(children: [
-      Expanded(
-        child: SafeArea(
-          bottom: false,
-          child: child,
-        ),
-      ),
-      BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: TabOption.values.indexOf(selected),
-        onTap: (index) {
-          context
-              .findAncestorWidgetOfExactType<StripesTabView>()!
-              .handleTap(context, TabOption.values[index], ref);
-        },
-        items: [
-          BottomNavigationBarItem(
-              icon: const Icon(
-                Icons.add,
-              ),
-              label: AppLocalizations.of(context)!.recordTab),
-          BottomNavigationBarItem(
-              icon: const Icon(
-                Icons.checklist_outlined,
-              ),
-              label: AppLocalizations.of(context)!.testTab),
-          BottomNavigationBarItem(
-              icon: const Icon(
-                Icons.grading,
-              ),
-              label: AppLocalizations.of(context)!.historyTab),
-        ],
-      )
-    ]);
+    return BottomNavigationBar(
+      type: BottomNavigationBarType.fixed,
+      currentIndex: TabOption.values.indexOf(selected),
+      onTap: (index) {
+        ref.read(tabProvider.notifier).state = TabOption.values[index];
+      },
+      items: [
+        BottomNavigationBarItem(
+            icon: const Icon(
+              Icons.add,
+            ),
+            label: AppLocalizations.of(context)!.recordTab),
+        BottomNavigationBarItem(
+            icon: const Icon(
+              Icons.checklist_outlined,
+            ),
+            label: AppLocalizations.of(context)!.testTab),
+        BottomNavigationBarItem(
+            icon: const Icon(
+              Icons.grading,
+            ),
+            label: AppLocalizations.of(context)!.historyTab),
+      ],
+    );
   }
 }
 
-class LargeLayout extends ConsumerWidget {
-  final TabOption selected;
+class LargeNavButton extends ConsumerWidget {
+  final TabOption tab;
 
-  const LargeLayout({required this.selected, super.key});
+  const LargeNavButton({required this.tab, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Widget getButton(TabOption option, String text) => TextButton(
+    final TabOption selected = ref.watch(tabProvider);
+
+    Map<TabOption, String> buttonText = {
+      TabOption.record: AppLocalizations.of(context)!.recordTab,
+      TabOption.tests: AppLocalizations.of(context)!.testTab,
+      TabOption.history: AppLocalizations.of(context)!.historyTab,
+    };
+
+    final String text = buttonText[tab]!;
+
+    Widget button() => TextButton(
         onPressed: () {
-          context
-              .findAncestorWidgetOfExactType<StripesTabView>()!
-              .handleTap(context, option, ref);
+          ref.read(tabProvider.notifier).state = tab;
         },
         child: Text(
           text,
         ));
 
-    Widget recordButton = selected == TabOption.record
-        ? _decorationWrap(
-            child: getButton(
-                TabOption.record, AppLocalizations.of(context)!.recordTab),
-            context: context)
-        : getButton(TabOption.record, AppLocalizations.of(context)!.recordTab);
-    Widget testButton = selected == TabOption.tests
-        ? _decorationWrap(
-            child: getButton(
-                TabOption.tests, AppLocalizations.of(context)!.testTab),
-            context: context)
-        : getButton(TabOption.tests, AppLocalizations.of(context)!.testTab);
-    Widget historyButton = selected == TabOption.history
-        ? _decorationWrap(
-            child: getButton(
-                TabOption.history, AppLocalizations.of(context)!.historyTab),
-            context: context)
-        : getButton(
-            TabOption.history, AppLocalizations.of(context)!.historyTab);
-    return SliverAppBar(
-      snap: true,
-      floating: true,
-      expandedHeight: 70,
-      collapsedHeight: 70,
-      centerTitle: true,
-      flexibleSpace: Center(
-        child: SizedBox(
-          height: 50,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(
-                width: 6.0,
-              ),
-              Image.asset(
-                'packages/stripes_ui/assets/images/StripesLogo.png',
-              ),
-              const Spacer(),
-              recordButton,
-              const SizedBox(
-                width: 12.0,
-              ),
-              testButton,
-              const SizedBox(
-                width: 12.0,
-              ),
-              historyButton,
-              const SizedBox(
-                width: 25.0,
-              ),
-              const UserProfileButton(),
-              const SizedBox(
-                width: 12.0,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+    if (tab == selected) {
+      return _decorationWrap(child: button(), context: context);
+    }
+    return button();
   }
 
   Widget _decorationWrap(

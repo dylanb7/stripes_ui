@@ -10,8 +10,8 @@ import 'package:stripes_ui/Providers/auth_provider.dart';
 import 'package:stripes_ui/UI/PatientManagement/PatientScreen/patient_screen.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/splitter.dart';
 
-import 'package:stripes_ui/UI/SharedHomeWidgets/home_screen.dart';
-import 'package:stripes_ui/UI/SharedHomeWidgets/tab_view.dart';
+import 'package:stripes_ui/UI/Layout/home_screen.dart';
+import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/Util/constants.dart';
 
 final routeProvider = Provider<GoRouter>((ref) {

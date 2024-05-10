@@ -286,7 +286,6 @@ class BlueDyeDisplay extends StatelessWidget {
           prettyDuration(
             resp.eatingDuration,
             abbreviated: true,
-            delimiter: ' ',
             locale: DurationLocale.fromLanguageCode(current.languageCode) ??
                 const EnglishDurationLocale(),
           ),
@@ -345,7 +344,6 @@ class BlueDyeDisplay extends StatelessWidget {
               ),
               locale: DurationLocale.fromLanguageCode(current.languageCode) ??
                   const EnglishDurationLocale(),
-              delimiter: ' ',
               abbreviated: true),
           textAlign: TextAlign.left,
           style: Theme.of(context).textTheme.bodyMedium,

@@ -19,8 +19,10 @@ class AddEvent extends ConsumerWidget {
           OverlayQuery(widget: _QuestionTypeOverlay(date: addTime));
     }
 
-    final DateTime? selected =
-        ref.watch(filtersProvider.select((value) => value.selectedDate));
+    final DateTime? selected = ref
+        .watch(filtersProvider.select((value) => value.selectedDate?.toUtc()));
+
+    print(selected);
     return selected == null
         ? Container()
         : Tooltip(
