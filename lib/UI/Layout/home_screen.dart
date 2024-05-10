@@ -39,33 +39,37 @@ class Home extends ConsumerWidget {
     final bool empty = state.subUsers.isEmpty;
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: true,
-          scrolledUnderElevation: 4,
-          leading: Padding(
-            padding: const EdgeInsets.all(6.0),
-            child: Image.asset(
-              'packages/stripes_ui/assets/images/StripesLogo.png',
-            ),
-          ),
-          actions: [
-            if (!isSmall)
-              ...TabOption.values.map((tab) => LargeNavButton(tab: tab)),
-            const UserProfileButton()
-          ],
-        ),
-        body: empty ||
-                state.selected == null ||
-                SubUser.isEmpty((state.selected!))
-            ? CreatePatient()
-            : Stack(
-                children: [
-                  const TabContent(),
-                  if (overlay.widget != null) overlay.widget!
-                ],
+      child: Stack(
+        children: [
+          Scaffold(
+            appBar: AppBar(
+              automaticallyImplyLeading: false,
+              scrolledUnderElevation: 1,
+              leading: Padding(
+                padding:
+                    const EdgeInsets.only(left: 4.0, top: 2.0, bottom: 2.0),
+                child: Image.asset(
+                  'packages/stripes_ui/assets/images/StripesLogo.png',
+                ),
               ),
-        bottomNavigationBar: isSmall ? SmallLayout(selected: currentTab) : null,
+              leadingWidth:
+                  (Theme.of(context).textTheme.bodyMedium?.fontSize ?? 20) * 20,
+              actions: [
+                if (!isSmall)
+                  ...TabOption.values.map((tab) => LargeNavButton(tab: tab)),
+                const UserProfileButton()
+              ],
+            ),
+            body: empty ||
+                    state.selected == null ||
+                    SubUser.isEmpty((state.selected!))
+                ? CreatePatient()
+                : const TabContent(),
+            bottomNavigationBar:
+                isSmall ? SmallLayout(selected: currentTab) : null,
+          ),
+          if (overlay.widget != null) SafeArea(child: overlay.widget!)
+        ],
       ),
     );
   }

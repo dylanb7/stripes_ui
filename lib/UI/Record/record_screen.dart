@@ -119,28 +119,19 @@ class Header extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            const Expanded(child: PatientChanger()),
-            const SizedBox(
-              width: 8.0,
-            ),
-            isSmall
-                ? const UserProfileButton()
-                : const SizedBox(
-                    width: 35,
-                  ),
+            Expanded(child: PatientChanger()),
           ],
         ),
-        const SizedBox(
+        SizedBox(
           height: 4.0,
         ),
-        const LastEntryText(),
+        LastEntryText(),
       ]),
     );
   }

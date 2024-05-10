@@ -51,19 +51,14 @@ class TabContent extends ConsumerWidget {
             padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
             sliver: SliverToBoxAdapter(
               child: Column(children: [
-                Row(
+                const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Expanded(
+                      Expanded(
                         child: PatientChanger(
                           tab: TabOption.history,
                         ),
                       ),
-                      isSmall
-                          ? const UserProfileButton()
-                          : const SizedBox(
-                              width: 35,
-                            )
                     ]),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -96,21 +91,16 @@ class TabContent extends ConsumerWidget {
             const SizedBox(
               height: 20,
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
               child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Expanded(
+                    Expanded(
                       child: PatientChanger(
                         tab: TabOption.history,
                       ),
                     ),
-                    isSmall
-                        ? const UserProfileButton()
-                        : const SizedBox(
-                            width: 35,
-                          )
                   ]),
             ),
             Padding(
