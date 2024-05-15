@@ -556,7 +556,7 @@ class _PainSliderState extends State<PainSlider> {
                 textAlign: TextAlign.center,
               ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6.0),
+              padding: const EdgeInsets.all(6.0),
               child: Row(
                 children: List.generate(
                   6,
@@ -567,33 +567,31 @@ class _PainSliderState extends State<PainSlider> {
               ),
             ),
             Row(children: [
-              if (value.toInt() != 0) ...[
-                const SizedBox(
-                  width: 12.0,
-                ),
-                Visibility(
-                    visible: value.toInt() != 0,
-                    maintainSize: true,
-                    maintainAnimation: true,
-                    maintainState: true,
-                    child: GestureDetector(
-                      child: Text(
-                        '0',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                        textAlign: TextAlign.center,
-                      ),
-                      onTap: () {
-                        setState(() {
-                          if (!listener.interact) {
-                            listener.interacted();
-                          }
-                          value = 0.0;
-                          widget.onChange(value);
-                          if (widget.onSlide != null) widget.onSlide!(value);
-                        });
-                      },
-                    ).showCursorOnHover)
-              ],
+              const SizedBox(
+                width: 5.0,
+              ),
+              Visibility(
+                  visible: value.toInt() != 0,
+                  maintainSize: true,
+                  maintainAnimation: true,
+                  maintainState: true,
+                  child: GestureDetector(
+                    child: Text(
+                      '0',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                      textAlign: TextAlign.center,
+                    ),
+                    onTap: () {
+                      setState(() {
+                        if (!listener.interact) {
+                          listener.interacted();
+                        }
+                        value = 0.0;
+                        widget.onChange(value);
+                        if (widget.onSlide != null) widget.onSlide!(value);
+                      });
+                    },
+                  ).showCursorOnHover),
               Expanded(
                 child: Center(
                   child: SliderTheme(
@@ -667,7 +665,7 @@ class _PainSliderState extends State<PainSlider> {
                     },
                   ).showCursorOnHover),
               const SizedBox(
-                width: 12.0,
+                width: 5.0,
               ),
             ]),
           ]),

@@ -162,7 +162,6 @@ class UserProfileButton extends ConsumerWidget {
       ],
       icon: const Icon(
         Icons.person_2_outlined,
-        size: 26.0,
       ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(double.infinity),

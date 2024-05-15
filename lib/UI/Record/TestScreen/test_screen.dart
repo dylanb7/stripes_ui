@@ -40,20 +40,15 @@ class _TestScreenState extends ConsumerState<TestScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
       child: Column(children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 8, right: 8, top: 20),
+        const Padding(
+          padding: EdgeInsets.only(left: 8, right: 8, top: 20),
           child:
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            const Expanded(
+            Expanded(
               child: PatientChanger(
                 tab: TabOption.tests,
               ),
             ),
-            isSmall
-                ? const UserProfileButton()
-                : const SizedBox(
-                    width: 35,
-                  )
           ]),
         ),
         const SizedBox(

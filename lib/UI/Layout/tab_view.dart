@@ -32,7 +32,6 @@ class TabContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
     final ScrollController scrollController = ScrollController();
     final selected = ref.watch(tabProvider);
     final Map<String, dynamic>? attributes =
@@ -129,12 +128,12 @@ class TabContent extends ConsumerWidget {
 }
 
 class SmallLayout extends ConsumerWidget {
-  final TabOption selected;
-
-  const SmallLayout({required this.selected, super.key});
+  const SmallLayout({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final selected = ref.watch(tabProvider);
+
     return BottomNavigationBar(
       type: BottomNavigationBarType.fixed,
       currentIndex: TabOption.values.indexOf(selected),

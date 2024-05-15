@@ -32,6 +32,34 @@ class _TimerWidgetState extends State<TimerWidget> {
 
   @override
   Widget build(BuildContext context) {
+    Icons.restore;
+    return Container(
+      decoration: BoxDecoration(
+          color: Theme.of(context).primaryColor,
+          borderRadius: const BorderRadius.all(Radius.circular(12.0))),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Text(
+              from(gap),
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(
+              height: 12,
+            ),
+            Row(
+              children: [],
+            ),
+            const SizedBox(
+              height: 12,
+            ),
+          ],
+        ),
+      ),
+    );
     return Text(
       from(gap),
       style: Theme.of(context).textTheme.headlineMedium,

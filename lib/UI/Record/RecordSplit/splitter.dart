@@ -12,7 +12,7 @@ import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
 import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
-import 'package:stripes_ui/UI/Record/question_screen.dart';
+import 'package:stripes_ui/UI/Record/QuestionEntries/question_screen.dart';
 import 'package:stripes_ui/UI/Record/submit_screen.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
@@ -46,7 +46,6 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
 
   @override
   void initState() {
-    print("init");
     original = widget.questionListener.copy();
     pageController = PageController();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -58,8 +57,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
 
   _changedUpdate() {
     final bool change = original != widget.questionListener;
-    print("original: $original");
-    print("current: ${widget.questionListener}");
+
     if (mounted && change) {
       setState(() {
         hasChanged = change;
@@ -113,6 +111,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                             Radius.circular(10),
                           ),
                         ),
+                        elevation: 2.0,
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
                               vertical: 5.0, horizontal: 8.0),

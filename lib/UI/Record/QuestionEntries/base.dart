@@ -1,0 +1,511 @@
+import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:stripes_backend_helper/QuestionModel/question.dart';
+import 'package:stripes_backend_helper/QuestionModel/response.dart';
+import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
+import 'package:stripes_backend_helper/date_format.dart';
+import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
+import 'package:stripes_ui/UI/Record/QuestionEntries/question_screen.dart';
+import 'package:stripes_ui/UI/Record/severity_slider.dart';
+
+class MultiChoiceEntry extends ConsumerStatefulWidget {
+  final MultipleChoice question;
+
+  final QuestionsListener listener;
+
+  const MultiChoiceEntry(
+      {required this.question, required this.listener, super.key});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _MultiChoiceEntryState();
+}
+
+class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
+  @override
+  void initState() {
+    final bool pending = selected() == null;
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      if (pending) {
+        widget.listener.addPending(widget.question);
+      }
+    });
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final List<String> answers = widget.question.choices;
+    final int? selectedIndex = selected();
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: QuestionWrap(
+        question: widget.question,
+        listener: widget.listener,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Text(
+                  widget.question.prompt,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
+              const SizedBox(
+                height: 8.0,
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: answers.mapIndexed((index, choice) {
+                  final bool isSelected = index == selectedIndex;
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 2.0),
+                    child: GestureDetector(
+                      onTap: () {
+                        _onTap(isSelected, index);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(5.0)),
+                          border: Border.all(
+                              color: isSelected
+                                  ? Theme.of(context).colorScheme.secondary
+                                  : Colors.transparent,
+                              width: 2.0),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            Expanded(
+                              child: Text(
+                                choice,
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 6.0,
+                            ),
+                            IgnorePointer(
+                              ignoring: true,
+                              child: Checkbox(
+                                value: isSelected,
+                                visualDensity: VisualDensity.compact,
+                                onChanged: (val) {},
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  int? selected() {
+    Response? logged = widget.listener.fromQuestion(widget.question);
+    if (logged == null) return null;
+    return (logged as MultiResponse).index;
+  }
+
+  _onTap(bool isSelected, int index) {
+    if (isSelected) {
+      widget.listener.addPending(widget.question);
+      widget.listener.removeResponse(widget.question);
+    } else {
+      widget.listener.removePending(widget.question);
+      widget.listener.addResponse(MultiResponse(
+          question: widget.question,
+          stamp: dateToStamp(DateTime.now()),
+          index: index));
+    }
+    setState(() {});
+  }
+}
+
+class CheckBoxWidget extends StatefulWidget {
+  final Check check;
+
+  final QuestionsListener listener;
+
+  const CheckBoxWidget(
+      {required this.check, required this.listener, super.key});
+
+  @override
+  State<CheckBoxWidget> createState() => _CheckBoxWidgetState();
+}
+
+class _CheckBoxWidgetState extends State<CheckBoxWidget> {
+  @override
+  Widget build(BuildContext context) {
+    final bool isSelected = selected;
+    final bool hasError = widget.listener.tried &&
+        widget.listener.pending.contains(widget.check) &&
+        widget.check.isRequired;
+    return GestureDetector(
+      onTap: () {
+        _onTap();
+      },
+      child: QuestionWrap(
+        question: widget.check,
+        listener: widget.listener,
+        styled: false,
+        child: Stack(children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 9.0, right: 6.0, left: 6.0),
+            child: AnimatedContainer(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+                  color: isSelected
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).cardColor,
+                  border: hasError
+                      ? Border.all(
+                          color: Theme.of(context).colorScheme.error,
+                          width: 2.0)
+                      : Border.all(color: Theme.of(context).dividerColor)),
+              duration: const Duration(milliseconds: 150),
+              child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10.0, vertical: 5.0),
+                  child: Text(
+                    widget.check.prompt,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: isSelected
+                            ? Theme.of(context).colorScheme.onPrimary
+                            : Theme.of(context).colorScheme.onBackground),
+                  )),
+            ),
+          ),
+          if (isSelected)
+            Positioned(
+              right: 0.0,
+              top: 3.0,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(),
+                    color: Theme.of(context).colorScheme.surface),
+                child: const Padding(
+                  padding: EdgeInsets.all(4.0),
+                  child: Icon(
+                    Icons.close,
+                    size: 14.0,
+                  ),
+                ),
+              ),
+            )
+        ]),
+      ),
+    );
+  }
+
+  bool get selected => widget.listener.fromQuestion(widget.check) != null;
+
+  _onTap() {
+    setState(() {
+      if (selected) {
+        widget.listener.removeResponse(widget.check);
+      } else {
+        widget.listener.addResponse(Selected(
+            question: widget.check, stamp: dateToStamp(DateTime.now())));
+      }
+    });
+  }
+}
+
+class SeverityWidget extends ConsumerStatefulWidget {
+  final QuestionsListener questionsListener;
+
+  final Numeric question;
+
+  const SeverityWidget(
+      {required this.questionsListener, required this.question, super.key});
+
+  @override
+  ConsumerState<SeverityWidget> createState() => _SeverityWidgetState();
+}
+
+class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
+  late double value;
+
+  final SliderListener _sliderListener = SliderListener();
+
+  late final ExpandibleController _controller;
+
+  @override
+  void initState() {
+    _controller = ExpandibleController(false);
+    final double max = (widget.question.max ?? 5).toDouble();
+    final double min = (widget.question.min ?? 1).toDouble();
+
+    value = (((max - min) / 2) + min).roundToDouble();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      num? val = response();
+      if (val != null) {
+        value = val.toDouble();
+        _controller.set(true);
+        _sliderListener.interacted();
+      }
+    });
+
+    _controller.addListener(_expandListener);
+    _sliderListener.addListener(_interactListener);
+    super.initState();
+  }
+
+  _interactListener() {
+    widget.questionsListener.removePending(widget.question);
+  }
+
+  _expandListener() {
+    if (_controller.expanded) {
+      if (_sliderListener.interact) {
+        _saveValue();
+      } else {
+        widget.questionsListener.addPending(widget.question);
+      }
+    } else {
+      widget.questionsListener.removeResponse(widget.question);
+      widget.questionsListener.removePending(widget.question);
+    }
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final num? res = response();
+
+    return QuestionWrap(
+      question: widget.question,
+      listener: widget.questionsListener,
+      child: ExpandibleRaw(
+        controller: _controller,
+        iconSize: 0.0,
+        header: Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(6.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                  child: Text(
+                    widget.question.prompt,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ),
+                const SizedBox(
+                  width: 3.0,
+                ),
+                IgnorePointer(
+                  ignoring: true,
+                  child: Checkbox(
+                    value: res != null,
+                    onChanged: (val) {},
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        view: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: StripesSlider(
+              initial: value.toInt(),
+              min: widget.question.min?.toInt() ?? 1,
+              max: widget.question.max?.toInt() ?? 5,
+              onChange: (val) {
+                setState(() {
+                  value = val;
+                  _saveValue();
+                });
+              },
+              listener: _sliderListener,
+            )),
+      ),
+    );
+  }
+
+  num? response() {
+    Response? res = widget.questionsListener.fromQuestion(widget.question);
+    if (res == null) return null;
+    return (res as NumericResponse).response;
+  }
+
+  _saveValue() {
+    widget.questionsListener.addResponse(NumericResponse(
+        question: widget.question,
+        stamp: dateToStamp(DateTime.now()),
+        response: value));
+  }
+
+  @override
+  void dispose() {
+    _controller.removeListener(_expandListener);
+    _sliderListener.removeListener(_interactListener);
+    super.dispose();
+  }
+}
+
+class FreeResponseEntry extends StatefulWidget {
+  final FreeResponse question;
+
+  final QuestionsListener listener;
+
+  const FreeResponseEntry(
+      {required this.question, required this.listener, super.key});
+
+  @override
+  State<StatefulWidget> createState() => _FreeResponseEntryState();
+}
+
+class _FreeResponseEntryState extends State<FreeResponseEntry> {
+  final TextEditingController controller = TextEditingController();
+
+  @override
+  void initState() {
+    final Response? res = widget.listener.fromQuestion(widget.question);
+    if (res != null) {
+      controller.text = (res as OpenResponse).response;
+    }
+    controller.addListener(_onEdit);
+
+    super.initState();
+  }
+
+  _onEdit() {
+    widget.listener.addResponse(OpenResponse(
+        question: widget.question,
+        stamp: dateToStamp(DateTime.now()),
+        response: controller.text));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final InputBorder borderStyle = OutlineInputBorder(
+        borderSide: controller.text.isEmpty
+            ? const BorderSide(color: Colors.grey, width: 1)
+            : BorderSide(
+                color: Theme.of(context).colorScheme.secondary, width: 1),
+        borderRadius: const BorderRadius.all(Radius.circular(8.0)));
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Card(
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(
+            Radius.circular(15.0),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Text(
+                  widget.question.prompt,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
+              const SizedBox(
+                width: 8.0,
+              ),
+              SizedBox(
+                height: 120,
+                child: TextField(
+                  controller: controller,
+                  maxLines: null,
+                  keyboardType: TextInputType.multiline,
+                  textCapitalization: TextCapitalization.sentences,
+                  textInputAction: TextInputAction.newline,
+                  expands: true,
+                  textAlignVertical: TextAlignVertical.top,
+                  decoration: InputDecoration(
+                      focusedBorder: borderStyle,
+                      border: borderStyle,
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 8.0, vertical: 5.0)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    widget.listener.removeListener(_onEdit);
+    super.dispose();
+  }
+}
+
+class DependentEntry extends StatefulWidget {
+  final bool Function(QuestionsListener) showing;
+
+  final QuestionsListener listener;
+
+  final Question question;
+
+  const DependentEntry(
+      {super.key,
+      required this.listener,
+      required this.question,
+      required this.showing});
+
+  @override
+  State<StatefulWidget> createState() => DependentEntryState();
+}
+
+class DependentEntryState extends State<DependentEntry> {
+  bool showing = false;
+
+  @override
+  void initState() {
+    showing = widget.showing(widget.listener);
+    widget.listener.addListener(_updateShowing);
+
+    super.initState();
+  }
+
+  _updateShowing() {
+    setState(() {
+      showing = widget.showing(widget.listener);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!showing) return Container();
+    return RenderQuestions(
+        questions: [widget.question], questionsListener: widget.listener);
+  }
+
+  @override
+  void dispose() {
+    widget.listener.removeListener(_updateShowing);
+    super.dispose();
+  }
+}
