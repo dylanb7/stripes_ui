@@ -123,7 +123,7 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
   }
 
   _delete(WidgetRef ref) {
-    ref.read(overlayProvider.notifier).state = OverlayQuery(
+    ref.read(overlayProvider.notifier).state = CurrentOverlay(
       widget: DeleteErrorPrevention(
         delete: () async {
           if (mounted) {
@@ -458,21 +458,26 @@ class PainSliderDisplay extends StatelessWidget {
       const SizedBox(
         width: 4,
       ),
-      Wrap(
-        alignment: WrapAlignment.center,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: [
-          from(selectedIndex),
-          const SizedBox(
-            width: 4,
-          ),
-          Text(
-            hurtLevels[selectedIndex],
-            style: Theme.of(context).textTheme.bodyMedium,
-            maxLines: 1,
-          ),
-        ],
-      )
+      response.response == -1
+          ? Text(
+              "Undetermined",
+              style: Theme.of(context).textTheme.bodyMedium,
+            )
+          : Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                from(selectedIndex),
+                const SizedBox(
+                  width: 4,
+                ),
+                Text(
+                  hurtLevels[selectedIndex],
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  maxLines: 1,
+                ),
+              ],
+            )
     ]);
   }
 

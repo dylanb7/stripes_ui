@@ -57,7 +57,7 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Add Patient',
+                    'Add Profile',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   AnimatedOpacity(

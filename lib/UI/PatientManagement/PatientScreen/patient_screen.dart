@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
-import 'package:stripes_ui/Providers/overlay_provider.dart';
+
 import 'package:stripes_ui/Providers/sub_provider.dart';
+import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
+import 'package:stripes_ui/UI/Layout/home_screen.dart';
+import 'package:stripes_ui/UI/Layout/tab_view.dart';
 
 import 'package:stripes_ui/Util/constants.dart';
 
@@ -15,8 +18,9 @@ class PatientScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
     const double itemWidth = SMALL_LAYOUT / 1.5;
-    final OverlayQuery overlay = ref.watch(overlayProvider);
+
     final subNotifier = ref.watch(subHolderProvider);
     if (subNotifier.isLoading) {
       return const Center(
@@ -25,30 +29,26 @@ class PatientScreen extends ConsumerWidget {
     }
     final List<SubUser> subUsers = subNotifier.valueOrNull?.subUsers ?? [];
     final SubUser? current = subNotifier.valueOrNull?.selected;
-    return Stack(children: [
-      Padding(
+    return PageWrap(
+      actions: [
+        if (!isSmall)
+          ...TabOption.values.map((tab) => LargeNavButton(tab: tab)),
+        const UserProfileButton(
+          selected: true,
+        )
+      ],
+      bottomNav: isSmall ? const SmallLayout() : null,
+      child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 15.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Flexible(
-                    child: Text(
-                  'Patient Profiles',
-                  maxLines: 2,
-                  style: Theme.of(context).textTheme.headlineMedium,
-                )),
-                IconButton(
-                    onPressed: () {
-                      context.pop();
-                    },
-                    iconSize: 40,
-                    icon: const Icon(
-                      Icons.close,
-                    ))
-              ],
+            Text(
+              'Profiles',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).primaryColor),
+              textAlign: TextAlign.left,
             ),
             const SizedBox(
               height: 12.0,
@@ -79,7 +79,6 @@ class PatientScreen extends ConsumerWidget {
           ],
         ),
       ),
-      if (overlay.widget != null) overlay.widget!
-    ]);
+    );
   }
 }

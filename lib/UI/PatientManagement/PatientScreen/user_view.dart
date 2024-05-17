@@ -110,6 +110,6 @@ class UserView extends ConsumerWidget {
 
   _editPatient(WidgetRef ref) {
     ref.read(overlayProvider.notifier).state =
-        OverlayQuery(widget: EditUserWidget(subUser: subUser));
+        CurrentOverlay(widget: EditUserWidget(subUser: subUser));
   }
 }

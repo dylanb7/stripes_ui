@@ -11,6 +11,7 @@ import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
 import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
+import 'package:stripes_ui/UI/Layout/home_screen.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/question_screen.dart';
 import 'package:stripes_ui/UI/Record/submit_screen.dart';
@@ -69,7 +70,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
   Widget build(BuildContext context) {
     final List<PageLayout> pages =
         ref.watch(pagePaths)[widget.type]?.pages ?? [];
-    final OverlayQuery query = ref.watch(overlayProvider);
+
     final AsyncValue<QuestionRepo> questionRepo = ref.watch(questionsProvider);
 
     if (questionRepo.isLoading) {
@@ -79,287 +80,173 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     }
 
     final QuestionHome home = questionRepo.value!.questions;
-    final bool tried = widget.questionListener.tried;
-    final bool hasPending = widget.questionListener.pending.isNotEmpty;
+
     final bool isEdit = widget.questionListener.editId != null;
+
     final bool edited = !isEdit || isEdit && hasChanged;
-    return SafeArea(
-      child: Scaffold(
-        body: Stack(children: [
-          Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    RecordHeader(
-                        type: widget.type,
-                        hasChanged: hasChanged,
-                        listener: widget.questionListener),
-                    const SizedBox(
-                      height: 8.0,
-                    ),
-                    Expanded(
-                      child: Card(
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(10),
+
+    final bool hasPending = widget.questionListener.pending.isNotEmpty;
+
+    return PageWrap(
+      leading: IconButton(
+        padding: EdgeInsets.zero,
+        onPressed: () {
+          _close(ref, context);
+        },
+        icon: Icon(Icons.adaptive.arrow_back),
+      ),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              RecordHeader(
+                  type: widget.type,
+                  hasChanged: hasChanged,
+                  listener: widget.questionListener),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12.0),
+                      color: ElevationOverlay.applySurfaceTint(
+                          Theme.of(context).cardColor,
+                          Theme.of(context).colorScheme.surfaceTint,
+                          3)),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 5.0, horizontal: 8.0),
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(
+                            child: IgnorePointer(
+                              ignoring: isLoading,
+                              child: PageView.builder(
+                                onPageChanged: (value) {
+                                  setState(() {
+                                    currentIndex = value;
+                                  });
+                                },
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemBuilder: (context, index) {
+                                  Widget content;
+                                  if (index == pages.length) {
+                                    content = SubmitScreen(
+                                      questionsListener:
+                                          widget.questionListener,
+                                      type: widget.type,
+                                    );
+                                  } else {
+                                    content = QuestionScreen(
+                                        header: pages[index].header ??
+                                            AppLocalizations.of(context)!
+                                                .selectInstruction,
+                                        questions: pages[index]
+                                            .questionIds
+                                            .map((id) => home.fromBank(id))
+                                            .toList(),
+                                        questionsListener:
+                                            widget.questionListener);
+                                  }
+                                  final ScrollController scrollController =
+                                      ScrollController();
+                                  return Scrollbar(
+                                    thumbVisibility: true,
+                                    thickness: 10,
+                                    controller: scrollController,
+                                    radius: const Radius.circular(20),
+                                    scrollbarOrientation:
+                                        ScrollbarOrientation.right,
+                                    child: SingleChildScrollView(
+                                        controller: scrollController,
+                                        scrollDirection: Axis.vertical,
+                                        child: content),
+                                  );
+                                },
+                                itemCount: pages.length + 1,
+                                controller: pageController,
+                              ),
+                            ),
                           ),
-                        ),
-                        elevation: 2.0,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 5.0, horizontal: 8.0),
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Expanded(
-                                  child: IgnorePointer(
-                                    ignoring: isLoading,
-                                    child: PageView.builder(
-                                      onPageChanged: (value) {
-                                        setState(() {
-                                          currentIndex = value;
-                                        });
-                                      },
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      itemBuilder: (context, index) {
-                                        Widget content;
-                                        if (index == pages.length) {
-                                          content = SubmitScreen(
-                                            questionsListener:
-                                                widget.questionListener,
-                                            type: widget.type,
-                                          );
-                                        } else {
-                                          content = QuestionScreen(
-                                              header: pages[index].header ??
-                                                  AppLocalizations.of(context)!
-                                                      .selectInstruction,
-                                              questions: pages[index]
-                                                  .questionIds
-                                                  .map(
-                                                      (id) => home.fromBank(id))
-                                                  .toList(),
-                                              questionsListener:
-                                                  widget.questionListener);
-                                        }
-                                        final ScrollController
-                                            scrollController =
-                                            ScrollController();
-                                        return Scrollbar(
-                                          thumbVisibility: true,
-                                          thickness: 10,
-                                          controller: scrollController,
-                                          radius: const Radius.circular(20),
-                                          scrollbarOrientation:
-                                              ScrollbarOrientation.right,
-                                          child: SingleChildScrollView(
-                                              controller: scrollController,
-                                              scrollDirection: Axis.vertical,
-                                              child: content),
-                                        );
-                                      },
-                                      itemCount: pages.length + 1,
-                                      controller: pageController,
-                                    ),
-                                  ),
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.only(top: 1),
-                                  child: Divider(
-                                    height: 2,
-                                    indent: 15,
-                                    endIndent: 15,
-                                    thickness: 2,
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 20, vertical: 10),
-                                  child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        if (tried && hasPending)
-                                          Text(
+                          const Padding(
+                            padding: EdgeInsets.only(top: 1),
+                            child: Divider(
+                              height: 2,
+                              indent: 15,
+                              endIndent: 15,
+                              thickness: 2,
+                            ),
+                          ),
+                          RecordFooter(
+                            submitButton: isEdit || currentIndex == pages.length
+                                ? GestureDetector(
+                                    onTap: () {
+                                      if (hasPending && !isLoading) {
+                                        showSnack(
+                                            context,
                                             AppLocalizations.of(context)!
                                                 .nLevelError(widget
                                                     .questionListener
                                                     .pending
-                                                    .length),
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .titleMedium
-                                                ?.copyWith(
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .error,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                          ),
-                                        if (isEdit ||
-                                            currentIndex == pages.length)
-                                          GestureDetector(
-                                            onTap: () {
-                                              if (hasPending && !isLoading) {
-                                                showSnack(
-                                                    context,
-                                                    AppLocalizations.of(
-                                                            context)!
-                                                        .nLevelError(widget
-                                                            .questionListener
-                                                            .pending
-                                                            .length));
-                                              }
-                                            },
-                                            child: FilledButton(
-                                              onPressed: !hasPending &&
-                                                      !isLoading &&
-                                                      edited
-                                                  ? () {
-                                                      _submitEntry(
-                                                          context, ref, isEdit);
-                                                    }
-                                                  : null,
-                                              child: isLoading
-                                                  ? const ButtonLoadingIndicator()
-                                                  : Text(isEdit
-                                                      ? AppLocalizations.of(
-                                                              context)!
-                                                          .editSubmitButtonText
-                                                      : AppLocalizations.of(
-                                                              context)!
-                                                          .submitButtonText),
-                                            ),
-                                          ),
-                                        const SizedBox(
-                                          height: 5.0,
-                                        ),
-                                        Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              currentIndex > 0
-                                                  ? IconButton(
-                                                      padding: EdgeInsets.zero,
-                                                      onPressed: _prev,
-                                                      highlightColor:
-                                                          Colors.transparent,
-                                                      hoverColor:
-                                                          Colors.transparent,
-                                                      splashColor:
-                                                          Colors.transparent,
-                                                      tooltip: 'Previous',
-                                                      iconSize: 45,
-                                                      icon: Icon(
-                                                        Icons
-                                                            .arrow_back_rounded,
-                                                        color: !hasPending
-                                                            ? Theme.of(context)
-                                                                .primaryColor
-                                                            : Theme.of(context)
-                                                                .disabledColor,
-                                                      ),
-                                                    )
-                                                  : const SizedBox(
-                                                      width: 45,
-                                                    ),
-                                              SmoothPageIndicator(
-                                                controller: pageController,
-                                                count: pages.length + 1,
-                                                onDotClicked: (index) {
-                                                  _goToPage(index);
-                                                },
-                                                effect: ScrollingDotsEffect(
-                                                    activeDotColor:
-                                                        Theme.of(context)
-                                                            .primaryColor,
-                                                    activeDotScale: 1),
-                                              ),
-                                              currentIndex < pages.length
-                                                  ? IconButton(
-                                                      padding: EdgeInsets.zero,
-                                                      onPressed: _next,
-                                                      highlightColor:
-                                                          Colors.transparent,
-                                                      hoverColor:
-                                                          Colors.transparent,
-                                                      splashColor:
-                                                          Colors.transparent,
-                                                      tooltip: 'Next',
-                                                      iconSize: 45,
-                                                      icon: Icon(
-                                                        Icons
-                                                            .arrow_forward_rounded,
-                                                        color: !hasPending
-                                                            ? Theme.of(context)
-                                                                .primaryColor
-                                                            : Theme.of(context)
-                                                                .disabledColor,
-                                                      ),
-                                                    )
-                                                  : const SizedBox(
-                                                      width: 45,
-                                                    )
-                                            ])
-                                      ]),
-                                ),
-                              ]),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                  ],
+                                                    .length));
+                                      }
+                                    },
+                                    child: FilledButton(
+                                      onPressed:
+                                          !hasPending && !isLoading && edited
+                                              ? () {
+                                                  _submitEntry(
+                                                      context, ref, isEdit);
+                                                }
+                                              : null,
+                                      child: isLoading
+                                          ? const ButtonLoadingIndicator()
+                                          : Text(isEdit
+                                              ? AppLocalizations.of(context)!
+                                                  .editSubmitButtonText
+                                              : AppLocalizations.of(context)!
+                                                  .submitButtonText),
+                                    ),
+                                  )
+                                : null,
+                            questionListener: widget.questionListener,
+                            pageController: pageController,
+                            length: pages.length,
+                            pendingLength:
+                                widget.questionListener.pending.length,
+                          )
+                        ]),
+                  ),
                 ),
               ),
-            ),
+              const SizedBox(
+                height: 15,
+              )
+            ],
           ),
-          if (query.widget != null) query.widget!,
-        ]),
+        ),
       ),
     );
   }
 
-  _goToPage(int index) {
-    if (widget.questionListener.pending.isEmpty) {
+  void _close(WidgetRef ref, BuildContext context) {
+    if (!hasChanged) {
       widget.questionListener.tried = false;
-      pageController.animateToPage(index,
-          duration: const Duration(milliseconds: 250), curve: Curves.linear);
-    } else {
-      widget.questionListener.tried = true;
+      if (context.canPop()) {
+        context.pop();
+      } else {
+        context.go(Routes.HOME);
+      }
+      return;
     }
+
+    ref.read(overlayProvider.notifier).state =
+        CurrentOverlay(widget: ErrorPrevention(type: widget.type));
   }
 
-  _next() {
-    if (widget.questionListener.pending.isEmpty) {
-      widget.questionListener.tried = false;
-      pageController.nextPage(
-          duration: const Duration(milliseconds: 250), curve: Curves.linear);
-    } else {
-      widget.questionListener.tried = true;
-    }
-  }
-
-  _prev() {
-    if (widget.questionListener.pending.isEmpty) {
-      widget.questionListener.tried = false;
-      pageController.previousPage(
-          duration: const Duration(milliseconds: 250), curve: Curves.linear);
-    } else {
-      widget.questionListener.tried = true;
-    }
-  }
-
-  _submitEntry(BuildContext context, WidgetRef ref, bool isEdit) async {
+  void _submitEntry(BuildContext context, WidgetRef ref, bool isEdit) async {
     if (isLoading) return;
     setState(() {
       isLoading = true;
@@ -427,6 +314,164 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
   }
 }
 
+class SubmitFAB extends StatelessWidget {
+  final int pendingLength;
+
+  final bool isLoading, edited, isEdit;
+
+  final Function submit;
+
+  const SubmitFAB(
+      {required this.submit,
+      required this.pendingLength,
+      required this.isLoading,
+      required this.edited,
+      required this.isEdit,
+      super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    //if (isEdit || currentIndex == pages.length)
+    return FloatingActionButton.extended(
+      heroTag: "Submit-Button",
+      label: Text(isEdit
+          ? AppLocalizations.of(context)!.editSubmitButtonText
+          : AppLocalizations.of(context)!.submitButtonText),
+      icon: Icon(isEdit ? Icons.edit : Icons.add),
+      onPressed: pendingLength == 0 && !isLoading && edited
+          ? () {
+              if (pendingLength > 0 && !isLoading) {
+                showSnack(context,
+                    AppLocalizations.of(context)!.nLevelError(pendingLength));
+                return;
+              }
+              submit();
+            }
+          : null,
+    );
+  }
+}
+
+class RecordFooter extends StatelessWidget {
+  final QuestionsListener questionListener;
+  final PageController pageController;
+  final int length;
+  final Widget? submitButton;
+  final int pendingLength;
+  const RecordFooter(
+      {required this.questionListener,
+      required this.pageController,
+      required this.submitButton,
+      required this.length,
+      required this.pendingLength,
+      super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final int currentIndex = pageController.page?.round() ?? 0;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+        if (questionListener.tried && pendingLength > 0) ...[
+          Text(
+            AppLocalizations.of(context)!
+                .nLevelError(questionListener.pending.length),
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: Theme.of(context).colorScheme.error,
+                fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(
+            height: 8.0,
+          )
+        ],
+        if (submitButton != null) ...[
+          submitButton!,
+          const SizedBox(
+            height: 8.0,
+          )
+        ],
+        if (length != 0)
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            currentIndex > 0
+                ? IconButton(
+                    padding: EdgeInsets.zero,
+                    onPressed: _prev,
+                    highlightColor: Colors.transparent,
+                    hoverColor: Colors.transparent,
+                    splashColor: Colors.transparent,
+                    tooltip: 'Previous',
+                    iconSize: 45,
+                    icon: Icon(Icons.arrow_back_rounded,
+                        color: Theme.of(context).primaryColor),
+                  )
+                : const SizedBox(
+                    width: 45,
+                  ),
+            SmoothPageIndicator(
+              controller: pageController,
+              count: length + 1,
+              onDotClicked: (index) {
+                _goToPage(index);
+              },
+              effect: ScrollingDotsEffect(
+                  activeDotColor: Theme.of(context).primaryColor,
+                  activeDotScale: 1),
+            ),
+            currentIndex < length
+                ? IconButton(
+                    padding: EdgeInsets.zero,
+                    onPressed: _next,
+                    highlightColor: Colors.transparent,
+                    hoverColor: Colors.transparent,
+                    splashColor: Colors.transparent,
+                    tooltip: 'Next',
+                    iconSize: 45,
+                    icon: Icon(
+                      Icons.arrow_forward_rounded,
+                      color: pendingLength == 0
+                          ? Theme.of(context).primaryColor
+                          : Theme.of(context).disabledColor,
+                    ),
+                  )
+                : const SizedBox(
+                    width: 45,
+                  )
+          ])
+      ]),
+    );
+  }
+
+  _goToPage(int index) {
+    if (questionListener.pending.isEmpty) {
+      questionListener.tried = false;
+      pageController.animateToPage(index,
+          duration: const Duration(milliseconds: 200), curve: Curves.linear);
+    } else {
+      questionListener.tried = true;
+    }
+  }
+
+  _next() {
+    if (questionListener.pending.isEmpty) {
+      questionListener.tried = false;
+      pageController.nextPage(
+          duration: const Duration(milliseconds: 200), curve: Curves.linear);
+    } else {
+      questionListener.tried = true;
+    }
+  }
+
+  _prev() {
+    if (questionListener.pending.isEmpty) {
+      questionListener.tried = false;
+      pageController.previousPage(
+          duration: const Duration(milliseconds: 250), curve: Curves.linear);
+    } else {
+      questionListener.tried = true;
+    }
+  }
+}
+
 class RecordHeader extends ConsumerWidget {
   final String type;
   final bool hasChanged;
@@ -443,41 +488,29 @@ class RecordHeader extends ConsumerWidget {
     final String? name =
         current == null || SubUser.isEmpty(current) ? null : current.name;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Flexible(
-            child: Text(
-              name == null || name.isEmpty
-                  ? AppLocalizations.of(context)!.emptyRecordHeader(type)
-                  : AppLocalizations.of(context)!.recordHeader(type, name),
-              style: Theme.of(context).textTheme.titleLarge,
+      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              AppLocalizations.of(context)!.recordHeader(type),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: Theme.of(context).colorScheme.primary),
             ),
-          ),
-          IconButton(
-            onPressed: () {
-              if (!hasChanged) {
-                listener.tried = false;
-                if (context.canPop()) {
-                  context.pop();
-                } else {
-                  context.go(Routes.HOME);
-                }
-                return;
-              }
-
-              ref.read(overlayProvider.notifier).state =
-                  OverlayQuery(widget: ErrorPrevention(type: type));
-            },
-            alignment: Alignment.topRight,
-            icon: const Icon(
-              Icons.close,
-              size: 35,
-            ),
-          ),
-        ],
+            if (name != null && name.isNotEmpty) ...[
+              Text(
+                AppLocalizations.of(context)!.recordUsername(type, name),
+                style: Theme.of(context)
+                    .textTheme
+                    .titleSmall
+                    ?.copyWith(fontStyle: FontStyle.italic),
+              ),
+            ]
+          ],
+        ),
       ),
     );
   }

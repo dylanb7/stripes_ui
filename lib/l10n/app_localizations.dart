@@ -323,17 +323,17 @@ abstract class AppLocalizations {
   /// **'Added {symptomType} on {date} at {time}'**
   String undoEntry(String symptomType, DateTime date, DateTime time);
 
+  /// No description provided for @recordUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'for {username}'**
+  String recordUsername(String symptomType, String username);
+
   /// No description provided for @recordHeader.
   ///
   /// In en, this message translates to:
-  /// **'Recording {symptomType} \nfor {username}'**
-  String recordHeader(String symptomType, String username);
-
-  /// No description provided for @emptyRecordHeader.
-  ///
-  /// In en, this message translates to:
   /// **'Recording {symptomType}'**
-  String emptyRecordHeader(String symptomType);
+  String recordHeader(String symptomType);
 
   /// No description provided for @selectInstruction.
   ///

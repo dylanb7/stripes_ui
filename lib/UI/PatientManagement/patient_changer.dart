@@ -49,7 +49,9 @@ class PatientChanger extends ConsumerWidget {
             fit: BoxFit.scaleDown,
             child: Text(
               getTitle(),
-              style: Theme.of(context).textTheme.headlineMedium,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).primaryColor),
               textAlign: TextAlign.left,
             ),
           ),
@@ -73,7 +75,7 @@ class PatientChanger extends ConsumerWidget {
 
   _openUserSelect(WidgetRef ref) {
     ref.read(overlayProvider.notifier).state =
-        const OverlayQuery(widget: UserSelect());
+        const CurrentOverlay(widget: UserSelect());
   }
 }
 

@@ -94,15 +94,19 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
         [];
     return Column(
       children: [
+        const SizedBox(
+          height: 8.0,
+        ),
         Text(
           isEdit
               ? AppLocalizations.of(context)!.editSubmitHeader(widget.type)
               : AppLocalizations.of(context)!.submitHeader(widget.type),
-          style: Theme.of(context).textTheme.titleMedium,
-          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.bold),
         ),
         const SizedBox(
-          height: 40,
+          height: 40.0,
         ),
         if (period != null)
           Text(
@@ -159,7 +163,11 @@ class LongTextEntry extends StatelessWidget {
           ),
           AspectRatio(
             aspectRatio: 1.4,
-            child: TextField(
+            child: TextFormField(
+              scrollPadding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom +
+                      (Theme.of(context).textTheme.bodyMedium?.fontSize ?? 20) *
+                          4),
               controller: textController,
               maxLines: null,
               keyboardType: TextInputType.multiline,

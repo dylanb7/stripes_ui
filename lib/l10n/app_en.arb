@@ -84,8 +84,8 @@
         }
     },
 
-    "recordHeader": "Recording {symptomType} \nfor {username}",
-    "@recordHeader": {
+    "recordUsername": "for {username}",
+    "@recordUsername": {
         "placeholders": {
             "symptomType": {
                 "type": "String",
@@ -97,8 +97,8 @@
             }
         }
     },
-    "emptyRecordHeader": "Recording {symptomType}",
-    "@emptyRecordHeader": {
+    "recordHeader": "Recording {symptomType}",
+    "@recordHeader": {
         "placeholders": {
             "symptomType": {
                 "type": "String",

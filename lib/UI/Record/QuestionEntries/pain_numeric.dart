@@ -4,7 +4,7 @@ import 'package:stripes_backend_helper/QuestionModel/question.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_backend_helper/date_format.dart';
-import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
+import 'package:stripes_ui/UI/Record/QuestionEntries/base.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/question_screen.dart';
 import 'package:stripes_ui/UI/Record/severity_slider.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
@@ -22,26 +22,16 @@ class PainFacesWidget extends ConsumerStatefulWidget {
 }
 
 class _PainFacesWidgetState extends ConsumerState<PainFacesWidget> {
-  late double value;
-
   final SliderListener _sliderListener = SliderListener();
-
-  late final ExpandibleController _controller;
 
   @override
   void initState() {
-    _controller = ExpandibleController(false);
-    value = 5;
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       num? val = response();
       if (val != null) {
-        value = val.toDouble();
-        _controller.set(true);
         _sliderListener.interacted();
       }
     });
-
-    _controller.addListener(_expandListener);
     _sliderListener.addListener(_interactListener);
     super.initState();
   }
@@ -50,37 +40,47 @@ class _PainFacesWidgetState extends ConsumerState<PainFacesWidget> {
     widget.questionsListener.removePending(widget.question);
   }
 
-  _expandListener() {
-    if (_controller.expanded) {
-      if (_sliderListener.interact) {
-        _saveValue();
-      } else {
-        widget.questionsListener.addPending(widget.question);
-      }
-    } else {
-      widget.questionsListener.removeResponse(widget.question);
-      widget.questionsListener.removePending(widget.question);
-    }
-    setState(() {});
-  }
-
   @override
   Widget build(BuildContext context) {
     return QuestionWrap(
       question: widget.question,
       listener: widget.questionsListener,
+      styled: false,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10.0),
-        child: PainSlider(
-          initial: value.toInt(),
-          onChange: (val) {
-            setState(() {
-              value = val;
-              _saveValue();
-            });
-          },
-          listener: _sliderListener,
-        ),
+        child: Column(children: [
+          PainSlider(
+            initial: 5,
+            onChange: (val) {
+              setState(() {
+                _saveValue(val);
+              });
+            },
+            onSlide: (val) {
+              setState(() {
+                _saveValue(val);
+              });
+            },
+            listener: _sliderListener,
+          ),
+          const SizedBox(
+            height: 8.0,
+          ),
+          Selection(
+              text: "Unable to determine pain level",
+              onClick: () {
+                setState(() {
+                  if (response() == -1) {
+                    widget.questionsListener.removeResponse(widget.question);
+                    widget.questionsListener.addPending(widget.question);
+                  } else {
+                    _sliderListener.hasInteracted = false;
+                    _saveValue(-1);
+                  }
+                });
+              },
+              selected: response() == -1)
+        ]),
       ),
     );
   }
@@ -91,16 +91,15 @@ class _PainFacesWidgetState extends ConsumerState<PainFacesWidget> {
     return (res as NumericResponse).response;
   }
 
-  _saveValue() {
+  _saveValue(double newValue) {
     widget.questionsListener.addResponse(NumericResponse(
         question: widget.question,
         stamp: dateToStamp(DateTime.now()),
-        response: value));
+        response: newValue));
   }
 
   @override
   void dispose() {
-    _controller.removeListener(_expandListener);
     _sliderListener.removeListener(_interactListener);
     super.dispose();
   }
@@ -132,7 +131,7 @@ class PainNumericWidgetState extends State<PainNumericWidget> {
     final Response? res = widget.listener.fromQuestion(widget.question);
     bool pending = false;
     if (res != null) {
-      listener.interact = true;
+      listener.hasInteracted = true;
       value = (res as NumericResponse).response.toDouble();
     } else {
       pending = true;

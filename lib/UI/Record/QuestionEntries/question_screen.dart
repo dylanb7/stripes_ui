@@ -23,13 +23,17 @@ class QuestionScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        const SizedBox(
+          height: 8.0,
+        ),
         Text(
           header,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onPrimaryContainer),
+              color: Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.bold),
         ),
         const SizedBox(
-          height: 12.0,
+          height: 8.0,
         ),
         RenderQuestions(
             questions: questions, questionsListener: questionsListener)
@@ -101,9 +105,11 @@ class QuestionWrap extends ConsumerStatefulWidget {
 class QuestionWrapState extends ConsumerState<QuestionWrap> {
   @override
   void initState() {
-    if (widget.question.isRequired && !hasEntry) {
-      widget.listener.addPending(widget.question);
-    }
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      if (widget.question.isRequired && !hasEntry) {
+        widget.listener.addPending(widget.question);
+      }
+    });
 
     super.initState();
   }

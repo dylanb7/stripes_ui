@@ -1,51 +1,45 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
-
 import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
-import 'package:stripes_ui/Util/date_helper.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
-class AddEvent extends ConsumerWidget {
-  const AddEvent({super.key});
+enum FABType { scrollToTop, addEvent }
+
+@immutable
+class FabState {
+  final Widget? fab;
+  final FloatingActionButtonLocation? location;
+  const FabState({required this.fab, this.location});
+}
+
+class AddEventFAB extends ConsumerWidget {
+  const AddEventFAB({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    openEventOverlay(WidgetRef ref, DateTime addTime) {
-      ref.read(overlayProvider.notifier).state =
-          CurrentOverlay(widget: _QuestionTypeOverlay(date: addTime));
-    }
-
-    final DateTime? selected =
-        ref.watch(filtersProvider.select((value) => value.selectedDate));
-
-    print(selected);
-    return selected == null
-        ? Container()
-        : Tooltip(
-            message: dateToMDY(selected, context),
-            child: FilledButton(
-              child: Text(
-                AppLocalizations.of(context)!.addEventButton,
-              ),
-              onPressed: () {
-                openEventOverlay(ref, selected);
-              },
-            ),
-          );
+    return FloatingActionButton.extended(
+      onPressed: () {
+        ref.watch(overlayProvider.notifier).state =
+            const CurrentOverlay(widget: _QuestionTypeOverlay());
+      },
+      label: Text(AppLocalizations.of(context)!.addEventButton),
+      icon: const Icon(Icons.add),
+    );
   }
 }
 
 class _QuestionTypeOverlay extends ConsumerWidget {
-  final DateTime date;
-
-  const _QuestionTypeOverlay({required this.date});
+  const _QuestionTypeOverlay();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final DateTime? date =
+        ref.watch(filtersProvider.select((value) => value.selectedDate));
     final List<String> questionTypes =
         ref.watch(questionSplitProvider).keys.toList();
     return OverlayBackdrop(

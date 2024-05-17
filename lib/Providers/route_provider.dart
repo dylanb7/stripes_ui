@@ -65,20 +65,25 @@ class RouteNotifier extends ChangeNotifier {
             pageBuilder: (context, state) =>
                 const NoTransitionPage(child: LandingPage())),
         GoRoute(
+          name: Routes.USERS,
           path: Routes.USERS,
           pageBuilder: (context, state) =>
-              FadeIn(child: const Scaff(child: PatientScreen()), state: state),
+              const NoTransitionPage(child: PatientScreen()),
         ),
         GoRoute(
+          name: Routes.HISTORY,
           path: Routes.HISTORY,
           pageBuilder: (context, state) => const NoTransitionPage(
-              child: Home(path: NavPath(option: TabOption.history))),
+            child: Home(
+              selected: TabOption.history,
+            ),
+          ),
         ),
         GoRoute(
           path: Routes.HOME,
           pageBuilder: (context, state) => const NoTransitionPage(
             child: Home(
-              path: NavPath(option: TabOption.record),
+              selected: TabOption.record,
             ),
           ),
         ),
@@ -86,7 +91,9 @@ class RouteNotifier extends ChangeNotifier {
           name: Routes.TEST,
           path: Routes.TEST,
           pageBuilder: (context, state) => const NoTransitionPage(
-            child: Home(path: NavPath(option: TabOption.tests)),
+            child: Home(
+              selected: TabOption.tests,
+            ),
           ),
         ),
         GoRoute(

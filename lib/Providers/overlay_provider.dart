@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 @immutable
-class OverlayQuery {
+class CurrentOverlay {
   final Widget? widget;
-  const OverlayQuery({this.widget});
+  const CurrentOverlay({this.widget});
 }
 
-const closedQuery = OverlayQuery();
+const closedQuery = CurrentOverlay();
 
 class OverlayBackdrop extends ConsumerWidget {
   final Widget child;
@@ -40,4 +40,4 @@ class OverlayBackdrop extends ConsumerWidget {
 }
 
 final overlayProvider =
-    StateProvider.autoDispose<OverlayQuery>((_) => closedQuery);
+    StateProvider.autoDispose<CurrentOverlay>((_) => closedQuery);

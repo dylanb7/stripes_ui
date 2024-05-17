@@ -155,66 +155,20 @@ class CheckBoxWidget extends StatefulWidget {
 class _CheckBoxWidgetState extends State<CheckBoxWidget> {
   @override
   Widget build(BuildContext context) {
-    final bool isSelected = selected;
-    final bool hasError = widget.listener.tried &&
-        widget.listener.pending.contains(widget.check) &&
-        widget.check.isRequired;
     return GestureDetector(
       onTap: () {
         _onTap();
       },
       child: QuestionWrap(
-        question: widget.check,
-        listener: widget.listener,
-        styled: false,
-        child: Stack(children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 9.0, right: 6.0, left: 6.0),
-            child: AnimatedContainer(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-                  color: isSelected
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).cardColor,
-                  border: hasError
-                      ? Border.all(
-                          color: Theme.of(context).colorScheme.error,
-                          width: 2.0)
-                      : Border.all(color: Theme.of(context).dividerColor)),
-              duration: const Duration(milliseconds: 150),
-              child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 10.0, vertical: 5.0),
-                  child: Text(
-                    widget.check.prompt,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: isSelected
-                            ? Theme.of(context).colorScheme.onPrimary
-                            : Theme.of(context).colorScheme.onBackground),
-                  )),
-            ),
-          ),
-          if (isSelected)
-            Positioned(
-              right: 0.0,
-              top: 3.0,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(),
-                    color: Theme.of(context).colorScheme.surface),
-                child: const Padding(
-                  padding: EdgeInsets.all(4.0),
-                  child: Icon(
-                    Icons.close,
-                    size: 14.0,
-                  ),
-                ),
-              ),
-            )
-        ]),
-      ),
+          question: widget.check,
+          listener: widget.listener,
+          styled: false,
+          child: Selection(
+              text: widget.check.prompt,
+              onClick: () {
+                _onTap();
+              },
+              selected: selected)),
     );
   }
 
@@ -278,7 +232,7 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
 
   _expandListener() {
     if (_controller.expanded) {
-      if (_sliderListener.interact) {
+      if (_sliderListener.hasInteracted) {
         _saveValue();
       } else {
         widget.questionsListener.addPending(widget.question);
@@ -507,5 +461,71 @@ class DependentEntryState extends State<DependentEntry> {
   void dispose() {
     widget.listener.removeListener(_updateShowing);
     super.dispose();
+  }
+}
+
+class Selection extends StatelessWidget {
+  final String text;
+
+  final Function onClick;
+
+  final bool selected;
+
+  const Selection(
+      {required this.text,
+      required this.onClick,
+      required this.selected,
+      super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        onClick();
+      },
+      child: Stack(children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 9.0, right: 6.0, left: 6.0),
+          child: AnimatedContainer(
+            width: double.infinity,
+            decoration: BoxDecoration(
+                borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+                color: selected
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).cardColor,
+                border: Border.all(color: Theme.of(context).dividerColor)),
+            duration: const Duration(milliseconds: 150),
+            child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+                child: Text(
+                  text,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: selected
+                          ? Theme.of(context).colorScheme.onPrimary
+                          : Theme.of(context).colorScheme.onBackground),
+                )),
+          ),
+        ),
+        if (selected)
+          Positioned(
+            right: 0.0,
+            top: 3.0,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(),
+                  color: Theme.of(context).colorScheme.surface),
+              child: const Padding(
+                padding: EdgeInsets.all(4.0),
+                child: Icon(
+                  Icons.close,
+                  size: 14.0,
+                ),
+              ),
+            ),
+          )
+      ]),
+    );
   }
 }

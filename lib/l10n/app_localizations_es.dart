@@ -137,13 +137,13 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String recordHeader(String symptomType, String username) {
-    return 'Recording $symptomType \nfor $username';
+  String recordUsername(String symptomType, String username) {
+    return 'for $username';
   }
 
   @override
-  String emptyRecordHeader(String symptomType) {
-    return 'Recording $symptomType';
+  String recordHeader(String symptomType) {
+    return '$symptomType Dokumentation';
   }
 
   @override

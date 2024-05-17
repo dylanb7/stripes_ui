@@ -6,7 +6,6 @@ import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/record_period
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
-import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
 import 'package:stripes_ui/UI/PatientManagement/patient_changer.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
 import 'package:stripes_ui/Util/constants.dart';
@@ -128,10 +127,6 @@ class Header extends ConsumerWidget {
             Expanded(child: PatientChanger()),
           ],
         ),
-        SizedBox(
-          height: 4.0,
-        ),
-        LastEntryText(),
       ]),
     );
   }

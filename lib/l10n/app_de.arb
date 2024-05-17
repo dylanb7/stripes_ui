@@ -84,8 +84,9 @@
         }
     },
 
-    "recordHeader": "Recording {symptomType} \nfor {username}",
-    "@recordHeader": {
+
+    "recordUsername": "for {username}",
+    "@recordUsername": {
         "placeholders": {
             "symptomType": {
                 "type": "String",
@@ -97,8 +98,8 @@
             }
         }
     },
-    "emptyRecordHeader": "{symptomType} Dokumentation",
-    "@emptyRecordHeader": {
+    "recordHeader": "{symptomType} Dokumentation",
+    "@recordHeader": {
         "placeholders": {
             "symptomType": {
                 "type": "String",
@@ -106,6 +107,7 @@
             }
         }
     },
+    
     "selectInstruction": "Wählen Sie alle Verhaltensweisen aus, die angewendet werden",
     "mildTag": "Mild",
     "severeTag": "Severe",

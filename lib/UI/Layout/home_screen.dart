@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
+import 'package:stripes_ui/UI/Layout/fabs.dart';
 import 'package:stripes_ui/UI/PatientManagement/add_first_patient.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/Util/constants.dart';
+import 'package:stripes_ui/Util/mouse_hover.dart';
 
 import '../../Providers/overlay_provider.dart';
 import '../CommonWidgets/user_profile_button.dart';
@@ -15,16 +17,13 @@ class NavPath {
   const NavPath({required this.option});
 }
 
-final tabProvider = StateProvider<TabOption>((_) => TabOption.record);
-
 class Home extends ConsumerWidget {
-  final NavPath path;
+  final TabOption selected;
 
-  const Home({required this.path, super.key});
+  const Home({required this.selected, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final overlay = ref.watch(overlayProvider);
     final AsyncValue<SubState> subNotif = ref.watch(subHolderProvider);
     final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
 
@@ -33,48 +32,146 @@ class Home extends ConsumerWidget {
         child: CircularProgressIndicator(),
       );
     }
-    if (subNotif.hasError) {}
+
     final SubState state = subNotif.value!;
     final bool empty = state.subUsers.isEmpty;
-    Widget wrap({required Widget child, bool hasUser = false}) {
-      return GestureDetector(
-        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-        child: Stack(
-          children: [
-            Scaffold(
-              appBar: AppBar(
-                automaticallyImplyLeading: false,
-                scrolledUnderElevation: 1,
-                shape: RoundedRectangleBorder(
-                    side: BorderSide(color: Theme.of(context).dividerColor)),
-                title: Image.asset(
-                  'packages/stripes_ui/assets/images/StripesLogo.png',
-                  fit: BoxFit.contain,
-                  height: 50,
-                ),
-                centerTitle: false,
-                actions: hasUser
-                    ? [
-                        if (!isSmall)
-                          ...TabOption.values
-                              .map((tab) => LargeNavButton(tab: tab)),
-                        const UserProfileButton()
-                      ]
-                    : null,
+    if (empty || state.selected == null || SubUser.isEmpty(state.selected!)) {
+      return PageWrap(child: CreatePatient());
+    }
+    return PageWrap(
+      actions: [
+        if (!isSmall)
+          ...TabOption.values.map((tab) => LargeNavButton(
+                tab: tab,
+                selected: selected,
+              )),
+        const UserProfileButton()
+      ],
+      bottomNav: isSmall
+          ? SmallLayout(
+              selected: selected,
+            )
+          : null,
+      child: TabContent(
+        selected: selected,
+      ),
+    );
+  }
+}
+
+class PageWrap extends ConsumerStatefulWidget {
+  final Widget child;
+
+  final List<Widget>? actions;
+
+  final Widget? bottomNav;
+
+  final Widget? leading;
+
+  final FabState? fabState;
+
+  const PageWrap(
+      {required this.child,
+      this.actions,
+      this.bottomNav,
+      this.leading,
+      this.fabState,
+      super.key});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() {
+    return _PageWrapState();
+  }
+}
+
+class _PageWrapState extends ConsumerState<PageWrap> {
+  PersistentBottomSheetController? sheetController;
+
+  _PageWrapState();
+
+  @override
+  Widget build(BuildContext context) {
+    final CurrentOverlay overlay = ref.watch(overlayProvider);
+
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Stack(
+        children: [
+          Scaffold(
+            appBar: AppBar(
+              automaticallyImplyLeading: false,
+              leading: widget.leading,
+              scrolledUnderElevation: 1,
+              shape: RoundedRectangleBorder(
+                  side: BorderSide(color: Theme.of(context).dividerColor)),
+              titleSpacing: widget.leading != null ? 5.0 : null,
+              title: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                child: Builder(builder: (context) {
+                  return GestureDetector(
+                    onTap: () {
+                      _toggleBottomSheet(context);
+                    },
+                    child: Image.asset(
+                      'packages/stripes_ui/assets/images/StripesLogo.png',
+                      fit: BoxFit.contain,
+                      height: 35,
+                    ).showCursorOnHover,
+                  );
+                }),
               ),
-              body: child,
-              bottomNavigationBar:
-                  isSmall && hasUser ? const SmallLayout() : null,
+              centerTitle: false,
+              actions: widget.actions != null
+                  ? [...widget.actions!, const SizedBox(width: 8)]
+                  : null,
             ),
-            if (overlay.widget != null) Scaffold(body: overlay.widget!)
+            body: widget.child,
+            floatingActionButton: widget.fabState?.fab,
+            floatingActionButtonLocation: widget.fabState?.location,
+            floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
+            bottomNavigationBar: widget.bottomNav,
+          ),
+          if (overlay.widget != null)
+            SafeArea(child: Material(child: overlay.widget!))
+        ],
+      ),
+    );
+  }
+
+  _toggleBottomSheet(BuildContext context) {
+    if (sheetController != null) {
+      sheetController!.close();
+      sheetController = null;
+    } else {
+      sheetController = Scaffold.of(context).showBottomSheet((context) {
+        return const StripesInfoSheet();
+      });
+    }
+  }
+}
+
+class StripesInfoSheet extends StatelessWidget {
+  const StripesInfoSheet({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 200,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            const Text('BottomSheet'),
+            ElevatedButton(
+              child: const Text('Close'),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
           ],
         ),
-      );
-    }
-
-    if (empty || state.selected == null || SubUser.isEmpty(state.selected!)) {
-      return wrap(child: CreatePatient());
-    }
-    return wrap(child: const TabContent(), hasUser: true);
+      ),
+    );
   }
 }

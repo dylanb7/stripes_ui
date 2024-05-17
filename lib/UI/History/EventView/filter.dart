@@ -33,7 +33,7 @@ class FilterButton extends ConsumerWidget {
     return FilledButton(
         onPressed: () {
           ref.read(overlayProvider.notifier).state =
-              OverlayQuery(widget: _FilterPopUp());
+              CurrentOverlay(widget: _FilterPopUp());
         },
         child: Row(
           children: [

@@ -6,6 +6,7 @@ import 'package:stripes_backend_helper/QuestionModel/response.dart';
 
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
+import 'package:stripes_ui/UI/Record/QuestionEntries/base.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/question_screen.dart';
 
 class PainAreaWidget extends ConsumerStatefulWidget {
@@ -138,8 +139,6 @@ class _PainAreaWidgetState extends ConsumerState<PainAreaWidget> {
   Widget build(BuildContext context) {
     final Area? selected = response();
 
-    final bool noneSelected = selected == Area.none;
-
     return QuestionWrap(
       question: widget.question,
       listener: widget.questionsListener,
@@ -206,62 +205,12 @@ class _PainAreaWidgetState extends ConsumerState<PainAreaWidget> {
             const SizedBox(
               height: 12.0,
             ),
-            GestureDetector(
-              onTap: () {
-                setResponse(Area.none);
-              },
-              child: Stack(children: [
-                Padding(
-                  padding:
-                      const EdgeInsets.only(top: 9.0, right: 6.0, left: 6.0),
-                  child: AnimatedContainer(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(8.0)),
-                        color: noneSelected
-                            ? Theme.of(context).colorScheme.primary
-                            : Theme.of(context).cardColor,
-                        border:
-                            Border.all(color: Theme.of(context).dividerColor)),
-                    duration: const Duration(milliseconds: 150),
-                    child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10.0, vertical: 5.0),
-                        child: Text(
-                          "Unable to determine pain location",
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(
-                                  color: noneSelected
-                                      ? Theme.of(context).colorScheme.onPrimary
-                                      : Theme.of(context)
-                                          .colorScheme
-                                          .onBackground),
-                        )),
-                  ),
-                ),
-                if (noneSelected)
-                  Positioned(
-                    right: 0.0,
-                    top: 3.0,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(),
-                          color: Theme.of(context).colorScheme.surface),
-                      child: const Padding(
-                        padding: EdgeInsets.all(4.0),
-                        child: Icon(
-                          Icons.close,
-                          size: 14.0,
-                        ),
-                      ),
-                    ),
-                  )
-              ]),
-            ),
+            Selection(
+                text: "Unable to determine pain location",
+                onClick: () {
+                  setResponse(Area.none);
+                },
+                selected: selected == Area.none),
             const SizedBox(
               height: 12.0,
             )
@@ -333,8 +282,8 @@ class SelectableTile extends StatelessWidget {
         child: Stack(children: [
           Positioned.fill(
             child: FractionallySizedBox(
-              widthFactor: 0.6,
-              heightFactor: 0.6,
+              widthFactor: 0.8,
+              heightFactor: 0.8,
               child: AnimatedOpacity(
                 opacity: isSelected ? 1.0 : 0.0,
                 duration: const Duration(milliseconds: 150),

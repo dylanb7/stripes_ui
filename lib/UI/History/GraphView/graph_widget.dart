@@ -106,7 +106,7 @@ class GraphWidget extends ConsumerWidget {
   }
 
   _openBehaviorOverlay(WidgetRef ref, List<String> options, String selected) {
-    ref.read(overlayProvider.notifier).state = OverlayQuery(
+    ref.read(overlayProvider.notifier).state = CurrentOverlay(
         widget: SelectBehaviorOverlay(
       options: options,
       selected: selected,

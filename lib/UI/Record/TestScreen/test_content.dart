@@ -100,7 +100,7 @@ class TestContentState<T extends Test> extends ConsumerState<TestContent> {
 
   _cancelTest(BuildContext context, WidgetRef ref) {
     ref.read(overlayProvider.notifier).state =
-        const OverlayQuery(widget: TestErrorPrevention());
+        const CurrentOverlay(widget: TestErrorPrevention());
   }
 }
 

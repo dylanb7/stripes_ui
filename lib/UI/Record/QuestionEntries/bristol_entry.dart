@@ -46,7 +46,7 @@ class _BMSliderState extends ConsumerState<BMSlider> {
     final Response? res = widget.listener.fromQuestion(widget.question);
     bool pending = false;
     if (res != null) {
-      listener.interact = true;
+      listener.hasInteracted = true;
       value = (res as NumericResponse).response.toDouble();
     } else {
       pending = true;
