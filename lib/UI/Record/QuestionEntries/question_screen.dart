@@ -122,6 +122,7 @@ class QuestionWrapState extends ConsumerState<QuestionWrap> {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 150),
       decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
           borderRadius: const BorderRadius.all(Radius.circular(12.0)),
           border: hasEntry
               ? Border.all(

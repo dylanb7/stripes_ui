@@ -45,6 +45,9 @@ class Home extends ConsumerWidget {
                 tab: tab,
                 selected: selected,
               )),
+        const SizedBox(
+          width: 8.0,
+        ),
         const UserProfileButton()
       ],
       bottomNav: isSmall
@@ -101,7 +104,7 @@ class _PageWrapState extends ConsumerState<PageWrap> {
             appBar: AppBar(
               automaticallyImplyLeading: false,
               leading: widget.leading,
-              scrolledUnderElevation: 1,
+              scrolledUnderElevation: 0,
               shape: RoundedRectangleBorder(
                   side: BorderSide(color: Theme.of(context).dividerColor)),
               titleSpacing: widget.leading != null ? 5.0 : null,

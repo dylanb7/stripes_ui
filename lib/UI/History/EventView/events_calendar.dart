@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/UI/History/EventView/calendar_day.dart';
-import 'package:stripes_ui/UI/History/EventView/day_view.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class EventsCalendar extends ConsumerStatefulWidget {
@@ -237,4 +236,10 @@ class _CalendarHeader extends StatelessWidget {
       ),
     );
   }
+}
+
+bool sameDay(DateTime day, DateTime testDate) {
+  return day.year == testDate.year &&
+      day.month == testDate.month &&
+      day.day == testDate.day;
 }

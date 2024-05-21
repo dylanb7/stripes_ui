@@ -65,51 +65,12 @@ class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
                 mainAxisSize: MainAxisSize.min,
                 children: answers.mapIndexed((index, choice) {
                   final bool isSelected = index == selectedIndex;
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 2.0),
-                    child: GestureDetector(
-                      onTap: () {
+                  return Selection(
+                      text: choice,
+                      onClick: () {
                         _onTap(isSelected, index);
                       },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(5.0)),
-                          border: Border.all(
-                              color: isSelected
-                                  ? Theme.of(context).colorScheme.secondary
-                                  : Colors.transparent,
-                              width: 2.0),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Expanded(
-                              child: Text(
-                                choice,
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 6.0,
-                            ),
-                            IgnorePointer(
-                              ignoring: true,
-                              child: Checkbox(
-                                value: isSelected,
-                                visualDensity: VisualDensity.compact,
-                                onChanged: (val) {},
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
+                      selected: isSelected);
                 }).toList(),
               ),
             ],
@@ -247,6 +208,42 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
   @override
   Widget build(BuildContext context) {
     final num? res = response();
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 9.0, right: 6.0, left: 6.0),
+      child: QuestionWrap(
+        question: widget.question,
+        listener: widget.questionsListener,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                widget.question.prompt,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(
+                height: 8.0,
+              ),
+              StripesSlider(
+                initial: value.toInt(),
+                min: widget.question.min?.toInt() ?? 1,
+                max: widget.question.max?.toInt() ?? 5,
+                hasInstruction: false,
+                onChange: (val) {
+                  setState(() {
+                    value = val;
+                    _saveValue();
+                  });
+                },
+                listener: _sliderListener,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
 
     return QuestionWrap(
       question: widget.question,
@@ -500,7 +497,7 @@ class Selection extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
                 child: Text(
                   text,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: selected
                           ? Theme.of(context).colorScheme.onPrimary
                           : Theme.of(context).colorScheme.onBackground),

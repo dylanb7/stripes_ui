@@ -108,7 +108,7 @@ class _FormContainerState extends State<FormContainer>
                         child: Card(
                           shape: const RoundedRectangleBorder(
                             borderRadius:
-                                BorderRadius.all(Radius.circular(25.0)),
+                                BorderRadius.all(Radius.circular(12.0)),
                           ),
                           elevation: 1.0,
                           child: widget.form,

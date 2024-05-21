@@ -75,6 +75,7 @@ class _PainFacesWidgetState extends ConsumerState<PainFacesWidget> {
                     widget.questionsListener.addPending(widget.question);
                   } else {
                     _sliderListener.hasInteracted = false;
+                    widget.questionsListener.removePending(widget.question);
                     _saveValue(-1);
                   }
                 });

@@ -10,7 +10,7 @@ class Routes {
   static const String LOGIN = '/login';
   static const String HOME = '/record';
   static const String HISTORY = '/history';
-  static const String USERS = '/patients';
+  static const String USERS = '/account';
   static const String BM = 'bowelmovement';
   static const String PAIN = 'pain';
   static const String REFLUX = 'reflux';

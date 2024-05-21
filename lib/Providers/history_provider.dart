@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_calendar_carousel/classes/event.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -152,37 +151,19 @@ class Available {
 
   @override
   String toString() {
-    // TODO: implement toString
     return '\nIn Range: \n$filteredInRange \n\nVisible: \n$visible \n\nFiltered Visible: \n$filteredVisible';
   }
 }
 
-class CalendarEvent extends EventInterface {
+class CalendarEvent {
   final Response res;
 
   final DateTime date;
 
   CalendarEvent(this.res, this.date);
 
-  @override
   DateTime getDate() => date;
 
-  @override
-  String? getDescription() => res.question.prompt;
-
-  @override
-  Widget? getDot() => null;
-
-  @override
-  Widget? getIcon() => null;
-
-  @override
-  int? getId() => null;
-
-  @override
-  String? getLocation() => null;
-
-  @override
   String? getTitle() => res.type;
 
   Response get response => res;

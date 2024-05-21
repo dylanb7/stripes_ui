@@ -19,6 +19,8 @@ class StripesSlider extends StatefulWidget {
 
   final int? initial;
 
+  final bool hasInstruction;
+
   final SliderListener? listener;
 
   final Function(double) onChange;
@@ -30,6 +32,7 @@ class StripesSlider extends StatefulWidget {
       this.onSlide,
       this.min = 1,
       this.max = 5,
+      this.hasInstruction = true,
       this.initial,
       this.minLabel,
       this.maxLabel,
@@ -61,35 +64,15 @@ class _StripesSliderState extends State<StripesSlider> {
   Widget build(BuildContext context) {
     final Color primary = Theme.of(context).primaryColor;
     final Color disabled = Theme.of(context).disabledColor;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Visibility(
-          visible: !listener.hasInteracted,
-          maintainSize: true,
-          maintainAnimation: true,
-          maintainState: true,
-          child: Text(
-            AppLocalizations.of(context)!.levelReminder,
-            textAlign: TextAlign.center,
-            style: Theme.of(context)
-                .textTheme
-                .bodyLarge
-                ?.copyWith(fontWeight: FontWeight.bold),
-          ),
-        ),
-        const SizedBox(
-          height: 4.0,
-        ),
-        DecoratedBox(
-          decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-              color: listener.hasInteracted ? primary : disabled),
-          child: Row(children: [
-            const SizedBox(
-              width: 12.0,
-            ),
+
+    final Widget sliderBox = DecoratedBox(
+      decoration: BoxDecoration(
+          borderRadius: const BorderRadius.all(Radius.circular(12.0)),
+          color: listener.hasInteracted ? primary : disabled),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(children: [
+          Row(children: [
             Visibility(
               visible: value.toInt() != widget.min,
               maintainSize: true,
@@ -98,8 +81,10 @@ class _StripesSliderState extends State<StripesSlider> {
               child: GestureDetector(
                 child: Text(
                   '${widget.min}',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimary),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: listener.hasInteracted
+                          ? Theme.of(context).colorScheme.onPrimary
+                          : null),
                   textAlign: TextAlign.center,
                 ),
                 onTap: () {
@@ -177,8 +162,10 @@ class _StripesSliderState extends State<StripesSlider> {
                 child: GestureDetector(
                   child: Text(
                     '${widget.max}',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onPrimary),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: listener.hasInteracted
+                            ? Theme.of(context).colorScheme.onPrimary
+                            : null),
                     textAlign: TextAlign.center,
                   ),
                   onTap: () {
@@ -191,31 +178,55 @@ class _StripesSliderState extends State<StripesSlider> {
                     });
                   },
                 ).showCursorOnHover),
-            const SizedBox(
-              width: 12.0,
-            ),
           ]),
-        ),
-        const SizedBox(
-          height: 6.0,
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15.0),
-          child: Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
                 widget.minLabel ?? AppLocalizations.of(context)!.mildTag,
-                style: Theme.of(context).textTheme.bodyLarge,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: listener.hasInteracted
+                        ? Theme.of(context).colorScheme.onPrimary
+                        : null),
               ),
               Text(
                 widget.maxLabel ?? AppLocalizations.of(context)!.severeTag,
-                style: Theme.of(context).textTheme.bodyLarge,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: listener.hasInteracted
+                        ? Theme.of(context).colorScheme.onPrimary
+                        : null),
               ),
             ],
           ),
+        ]),
+      ),
+    );
+
+    if (!widget.hasInstruction) return sliderBox;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Visibility(
+          visible: !listener.hasInteracted,
+          maintainSize: true,
+          maintainAnimation: true,
+          maintainState: true,
+          child: Text(
+            AppLocalizations.of(context)!.levelReminder,
+            textAlign: TextAlign.center,
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(fontWeight: FontWeight.bold),
+          ),
         ),
+        const SizedBox(
+          height: 4.0,
+        ),
+        sliderBox
       ],
     );
   }
@@ -679,6 +690,7 @@ class _PainSliderState extends State<PainSlider> {
           });
         },
         containedInkWell: true,
+        borderRadius: BorderRadius.circular(double.infinity),
         customBorder: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(
             Radius.circular(double.infinity),

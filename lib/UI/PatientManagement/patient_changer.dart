@@ -17,7 +17,11 @@ class PatientChanger extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final AsyncValue<SubState> state = ref.watch(subHolderProvider);
 
-    if (state.isLoading) return const Text('...');
+    if (state.isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
     final SubUser? current = state.valueOrNull?.selected;
     final List<SubUser> subUsers = state.valueOrNull?.subUsers ?? [];
     final bool isMarker = current != null && SubUser.isMarker(current);
@@ -64,7 +68,7 @@ class PatientChanger extends ConsumerWidget {
                 onPressed: () {
                   _openUserSelect(ref);
                 },
-                tooltip: "Change Patient",
+                tooltip: "Change Profile",
                 icon: Icon(
                   Icons.keyboard_arrow_down,
                   size: 35.0,
@@ -103,7 +107,7 @@ class UserSelect extends ConsumerWidget {
               children: [
                 Row(mainAxisAlignment: MainAxisAlignment.start, children: [
                   Text(
-                    'Select Patient',
+                    'Select Profile',
                     style: Theme.of(context)
                         .textTheme
                         .headlineMedium

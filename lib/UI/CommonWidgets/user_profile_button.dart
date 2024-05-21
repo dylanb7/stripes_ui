@@ -24,7 +24,11 @@ class UserProfileButton extends ConsumerWidget {
       child: IconButton(
         padding: EdgeInsets.zero,
         onPressed: () {
-          context.goNamed(Routes.USERS);
+          if (selected && context.canPop()) {
+            context.pop();
+          } else {
+            context.pushNamed(Routes.USERS);
+          }
         },
         icon: Icon(
           Icons.person_2_outlined,

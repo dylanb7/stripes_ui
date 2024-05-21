@@ -7,7 +7,6 @@ import 'package:stripes_ui/UI/History/EventView/action_row.dart';
 import 'package:stripes_ui/UI/History/EventView/event_grid.dart';
 import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
 import 'package:stripes_ui/UI/History/EventView/filter.dart';
-import 'package:stripes_ui/UI/Layout/home_screen.dart';
 import 'package:stripes_ui/UI/PatientManagement/patient_changer.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
 import 'package:stripes_ui/UI/Record/record_screen.dart';
@@ -280,11 +279,11 @@ class LargeNavButton extends ConsumerWidget {
     Widget button() => TextButton(
         onPressed: () {
           if (tab == TabOption.record) {
-            context.goNamed(Routes.HOME);
+            context.push(Routes.HOME);
           } else if (tab == TabOption.tests) {
-            context.goNamed(Routes.TEST);
+            context.push(Routes.TEST);
           } else if (tab == TabOption.history) {
-            context.goNamed(Routes.HISTORY);
+            context.push(Routes.HISTORY);
           }
         },
         child: Text(
