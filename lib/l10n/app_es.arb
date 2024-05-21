@@ -49,7 +49,7 @@
             }
         }
     },
-    "testTab": "Tests",
+    "testTab": "Study",
     "historyTab": "History",
     "noEntryText": "No Patient Entries",
     "lastEntry": "Last Entry: {date}",

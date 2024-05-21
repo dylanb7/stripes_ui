@@ -29,7 +29,7 @@ class CreatePatient extends ConsumerWidget {
           const Spacer(),
           RichText(
               text: TextSpan(
-                  text: 'Patient Profile ',
+                  text: 'Profile ',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       color: Theme.of(context).colorScheme.onPrimary),
                   children: [
@@ -40,7 +40,7 @@ class CreatePatient extends ConsumerWidget {
                         fontSize: 28))
               ])),
           Text(
-            'Please fill in the information for your first patient',
+            'Please fill in the information for your first profile',
             textAlign: TextAlign.center,
             style: Theme.of(context)
                 .textTheme

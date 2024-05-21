@@ -260,7 +260,7 @@ abstract class AppLocalizations {
   /// No description provided for @testTab.
   ///
   /// In en, this message translates to:
-  /// **'Tests'**
+  /// **'Study'**
   String get testTab;
 
   /// No description provided for @historyTab.

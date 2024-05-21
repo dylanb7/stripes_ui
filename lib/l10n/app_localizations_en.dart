@@ -92,7 +92,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get testTab => 'Tests';
+  String get testTab => 'Study';
 
   @override
   String get historyTab => 'History';
