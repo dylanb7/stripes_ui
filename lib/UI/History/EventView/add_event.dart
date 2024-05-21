@@ -22,7 +22,6 @@ class AddEvent extends ConsumerWidget {
     final DateTime? selected =
         ref.watch(filtersProvider.select((value) => value.selectedDate));
 
-    print(selected);
     return selected == null
         ? Container()
         : Tooltip(

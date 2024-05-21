@@ -58,6 +58,7 @@ class _PainFacesWidgetState extends ConsumerState<PainFacesWidget> {
             },
             onSlide: (val) {
               setState(() {
+                widget.questionsListener.removePending(widget.question);
                 _saveValue(val);
               });
             },
