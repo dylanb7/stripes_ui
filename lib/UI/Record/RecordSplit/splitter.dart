@@ -214,8 +214,6 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                             questionListener: widget.questionListener,
                             pageController: pageController,
                             length: pages.length,
-                            pendingLength:
-                                widget.questionListener.pending.length,
                           )
                         ]),
                   ),
@@ -357,13 +355,12 @@ class RecordFooter extends StatelessWidget {
   final PageController pageController;
   final int length;
   final Widget? submitButton;
-  final int pendingLength;
+
   const RecordFooter(
       {required this.questionListener,
       required this.pageController,
       required this.submitButton,
       required this.length,
-      required this.pendingLength,
       super.key});
 
   @override
@@ -371,73 +368,83 @@ class RecordFooter extends StatelessWidget {
     final int currentIndex = pageController.page?.round() ?? 0;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-        if (questionListener.tried && pendingLength > 0) ...[
-          Text(
-            AppLocalizations.of(context)!
-                .nLevelError(questionListener.pending.length),
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: Theme.of(context).colorScheme.error,
-                fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(
-            height: 8.0,
-          )
-        ],
-        if (submitButton != null) ...[
-          submitButton!,
-          const SizedBox(
-            height: 8.0,
-          )
-        ],
-        if (length != 0)
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            currentIndex > 0
-                ? IconButton(
-                    padding: EdgeInsets.zero,
-                    onPressed: _prev,
-                    highlightColor: Colors.transparent,
-                    hoverColor: Colors.transparent,
-                    splashColor: Colors.transparent,
-                    tooltip: 'Previous',
-                    iconSize: 45,
-                    icon: Icon(Icons.arrow_back_rounded,
-                        color: Theme.of(context).primaryColor),
-                  )
-                : const SizedBox(
-                    width: 45,
+      child: ListenableBuilder(
+        listenable: questionListener,
+        builder: (context, child) {
+          return Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (questionListener.tried &&
+                    questionListener.pending.isNotEmpty) ...[
+                  Text(
+                    AppLocalizations.of(context)!
+                        .nLevelError(questionListener.pending.length),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.error,
+                        fontWeight: FontWeight.bold),
                   ),
-            SmoothPageIndicator(
-              controller: pageController,
-              count: length + 1,
-              onDotClicked: (index) {
-                _goToPage(index);
-              },
-              effect: ScrollingDotsEffect(
-                  activeDotColor: Theme.of(context).primaryColor,
-                  activeDotScale: 1),
-            ),
-            currentIndex < length
-                ? IconButton(
-                    padding: EdgeInsets.zero,
-                    onPressed: _next,
-                    highlightColor: Colors.transparent,
-                    hoverColor: Colors.transparent,
-                    splashColor: Colors.transparent,
-                    tooltip: 'Next',
-                    iconSize: 45,
-                    icon: Icon(
-                      Icons.arrow_forward_rounded,
-                      color: pendingLength == 0
-                          ? Theme.of(context).primaryColor
-                          : Theme.of(context).disabledColor,
-                    ),
+                  const SizedBox(
+                    height: 8.0,
                   )
-                : const SizedBox(
-                    width: 45,
+                ],
+                if (submitButton != null) ...[
+                  submitButton!,
+                  const SizedBox(
+                    height: 8.0,
                   )
-          ])
-      ]),
+                ],
+                if (length != 0)
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        currentIndex > 0
+                            ? IconButton(
+                                padding: EdgeInsets.zero,
+                                onPressed: _prev,
+                                highlightColor: Colors.transparent,
+                                hoverColor: Colors.transparent,
+                                splashColor: Colors.transparent,
+                                tooltip: 'Previous',
+                                iconSize: 45,
+                                icon: Icon(Icons.arrow_back_rounded,
+                                    color: Theme.of(context).primaryColor),
+                              )
+                            : const SizedBox(
+                                width: 45,
+                              ),
+                        SmoothPageIndicator(
+                          controller: pageController,
+                          count: length + 1,
+                          onDotClicked: (index) {
+                            _goToPage(index);
+                          },
+                          effect: ScrollingDotsEffect(
+                              activeDotColor: Theme.of(context).primaryColor,
+                              activeDotScale: 1),
+                        ),
+                        currentIndex < length
+                            ? IconButton(
+                                padding: EdgeInsets.zero,
+                                onPressed: _next,
+                                highlightColor: Colors.transparent,
+                                hoverColor: Colors.transparent,
+                                splashColor: Colors.transparent,
+                                tooltip: 'Next',
+                                iconSize: 45,
+                                icon: Icon(
+                                  Icons.arrow_forward_rounded,
+                                  color: questionListener.pending.isEmpty
+                                      ? Theme.of(context).primaryColor
+                                      : Theme.of(context).disabledColor,
+                                ),
+                              )
+                            : const SizedBox(
+                                width: 45,
+                              )
+                      ])
+              ]);
+        },
+      ),
     );
   }
 
@@ -462,13 +469,9 @@ class RecordFooter extends StatelessWidget {
   }
 
   _prev() {
-    if (questionListener.pending.isEmpty) {
-      questionListener.tried = false;
-      pageController.previousPage(
-          duration: const Duration(milliseconds: 250), curve: Curves.linear);
-    } else {
-      questionListener.tried = true;
-    }
+    questionListener.tried = false;
+    pageController.previousPage(
+        duration: const Duration(milliseconds: 250), curve: Curves.linear);
   }
 }
 
