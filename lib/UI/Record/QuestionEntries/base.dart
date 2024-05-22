@@ -209,40 +209,68 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
   Widget build(BuildContext context) {
     final num? res = response();
 
-    return Padding(
-      padding: const EdgeInsets.only(top: 9.0, right: 6.0, left: 6.0),
-      child: QuestionWrap(
-        question: widget.question,
-        listener: widget.questionsListener,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                widget.question.prompt,
-                style: Theme.of(context).textTheme.titleMedium,
+    return Stack(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 9.0, right: 6.0, left: 6.0),
+          child: QuestionWrap(
+            question: widget.question,
+            listener: widget.questionsListener,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.question.prompt,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(
+                    height: 8.0,
+                  ),
+                  StripesSlider(
+                    initial: value.toInt(),
+                    min: widget.question.min?.toInt() ?? 1,
+                    max: widget.question.max?.toInt() ?? 5,
+                    hasInstruction: false,
+                    onChange: (val) {
+                      setState(() {
+                        value = val;
+                        _saveValue();
+                      });
+                    },
+                    listener: _sliderListener,
+                  ),
+                ],
               ),
-              const SizedBox(
-                height: 8.0,
-              ),
-              StripesSlider(
-                initial: value.toInt(),
-                min: widget.question.min?.toInt() ?? 1,
-                max: widget.question.max?.toInt() ?? 5,
-                hasInstruction: false,
-                onChange: (val) {
-                  setState(() {
-                    value = val;
-                    _saveValue();
-                  });
-                },
-                listener: _sliderListener,
-              ),
-            ],
+            ),
           ),
         ),
-      ),
+        if (_sliderListener.hasInteracted)
+          Positioned(
+            right: 0.0,
+            top: 3.0,
+            child: GestureDetector(
+              onTap: () {
+                widget.questionsListener.removeResponse(widget.question);
+                _sliderListener.hasInteracted = false;
+              },
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(),
+                    color: Theme.of(context).colorScheme.surface),
+                child: const Padding(
+                  padding: EdgeInsets.all(4.0),
+                  child: Icon(
+                    Icons.close,
+                    size: 14.0,
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
 
     return QuestionWrap(

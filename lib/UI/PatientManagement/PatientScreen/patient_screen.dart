@@ -39,10 +39,13 @@ class PatientScreen extends ConsumerWidget {
       ],
       bottomNav: isSmall ? const SmallLayout() : null,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 15.0),
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            const SizedBox(
+              height: 20.0,
+            ),
             Text(
               'Profiles',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(

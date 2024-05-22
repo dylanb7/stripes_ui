@@ -499,6 +499,7 @@ class RecordHeader extends ConsumerWidget {
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w700,
                   color: Theme.of(context).colorScheme.primary),
+              textAlign: TextAlign.center,
             ),
             if (name != null && name.isNotEmpty) ...[
               Text(
@@ -507,6 +508,7 @@ class RecordHeader extends ConsumerWidget {
                     .textTheme
                     .titleSmall
                     ?.copyWith(fontStyle: FontStyle.italic),
+                textAlign: TextAlign.center,
               ),
             ]
           ],

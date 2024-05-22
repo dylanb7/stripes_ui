@@ -37,10 +37,10 @@ class _TestScreenState extends ConsumerState<TestScreen> {
     final List<Test> tests = testRepo.valueOrNull?.tests ?? [];
     selected ??= tests.firstOrNull;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Column(children: [
         const Padding(
-          padding: EdgeInsets.only(left: 8, right: 8, top: 20),
+          padding: EdgeInsets.only(top: 20),
           child:
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             Expanded(
