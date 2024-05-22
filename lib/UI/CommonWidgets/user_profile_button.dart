@@ -31,10 +31,10 @@ class UserProfileButton extends ConsumerWidget {
           }
         },
         icon: Icon(
-          Icons.person_2_outlined,
+          Icons.person_outline,
           color: selected
               ? Theme.of(context).colorScheme.onPrimary
-              : Theme.of(context).colorScheme.onBackground,
+              : Theme.of(context).colorScheme.onSurface,
         ),
         tooltip: 'Account',
       ),
