@@ -260,7 +260,7 @@ class SelectableTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final filledBorder =
-        BorderSide(color: Theme.of(context).colorScheme.onBackground);
+        BorderSide(color: Theme.of(context).colorScheme.onSurface);
     const blankBorder = BorderSide(color: Colors.transparent);
     final Area value = Area.none.fromValue(index + 1);
     final bool isSelected = value == selected;
@@ -306,10 +306,6 @@ class SelectableTile extends StatelessWidget {
               ),
             ),
           ),
-          Align(
-            alignment: Alignment.topLeft,
-            child: Text("${value.toIndex()}"),
-          )
         ]),
       ),
     );

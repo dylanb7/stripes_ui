@@ -107,7 +107,11 @@
             }
         }
     },
-    
+
+    "bristolLevel": "Select bowel movement consistancy",
+    "painLocation": "Select the location of the pain below",
+    "painLevelBM": "Select the pain during the bowel movement if applicable",
+    "painLevel": "Select the pain level",
     "selectInstruction": "Wählen Sie alle Verhaltensweisen aus, die angewendet werden",
     "mildTag": "Mild",
     "severeTag": "Severe",

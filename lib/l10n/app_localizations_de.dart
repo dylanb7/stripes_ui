@@ -147,6 +147,18 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get bristolLevel => 'Select bowel movement consistancy';
+
+  @override
+  String get painLocation => 'Select the location of the pain below';
+
+  @override
+  String get painLevel => 'Select the pain level';
+
+  @override
+  String get painLevelBM => 'Select the pain during the bowel movement if applicable';
+
+  @override
   String get selectInstruction => 'Wählen Sie alle Verhaltensweisen aus, die angewendet werden';
 
   @override

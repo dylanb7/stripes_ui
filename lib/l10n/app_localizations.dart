@@ -335,10 +335,34 @@ abstract class AppLocalizations {
   /// **'Recording {symptomType}'**
   String recordHeader(String symptomType);
 
+  /// No description provided for @bristolLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Select bowel movement consistancy'**
+  String get bristolLevel;
+
+  /// No description provided for @painLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Select the location of the pain below'**
+  String get painLocation;
+
+  /// No description provided for @painLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Select the pain level'**
+  String get painLevel;
+
+  /// No description provided for @painLevelBM.
+  ///
+  /// In en, this message translates to:
+  /// **'Select the pain during the bowel movement if applicable'**
+  String get painLevelBM;
+
   /// No description provided for @selectInstruction.
   ///
   /// In en, this message translates to:
-  /// **'Select all behaviors that apply'**
+  /// **'Select all the signs and symptoms that apply'**
   String get selectInstruction;
 
   /// No description provided for @mildTag.

@@ -45,8 +45,10 @@ class _QuestionTypeOverlay extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final List<String> questionTypes =
-        ref.watch(questionSplitProvider).keys.toList();
+    final List<String> questionTypes = ref
+        .watch(questionSplitProvider(PageProps(context: context)))
+        .keys
+        .toList();
     return OverlayBackdrop(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 350),
