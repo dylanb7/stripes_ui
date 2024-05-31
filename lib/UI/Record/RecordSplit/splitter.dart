@@ -12,6 +12,7 @@ import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
 import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
 import 'package:stripes_ui/UI/Layout/home_screen.dart';
+import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/question_screen.dart';
 import 'package:stripes_ui/UI/Record/submit_screen.dart';
@@ -70,6 +71,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
   Widget build(BuildContext context) {
     final List<PageLayout> pages =
         ref.watch(pagePaths)[widget.type]?.pages ?? [];
+    final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
 
     final AsyncValue<QuestionRepo> questionRepo = ref.watch(questionsProvider);
 
@@ -88,13 +90,11 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     final bool hasPending = widget.questionListener.pending.isNotEmpty;
 
     return PageWrap(
-      leading: IconButton(
-        padding: EdgeInsets.zero,
-        onPressed: () {
-          _close(ref, context);
-        },
-        icon: Icon(Icons.adaptive.arrow_back),
-      ),
+      actions: [
+        if (!isSmall)
+          ...TabOption.values.map((tab) => LargeNavButton(tab: tab)),
+      ],
+      bottomNav: isSmall ? const SmallLayout() : null,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
         child: Padding(
@@ -103,9 +103,11 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               RecordHeader(
-                  type: widget.type,
-                  hasChanged: hasChanged,
-                  listener: widget.questionListener),
+                type: widget.type,
+                hasChanged: hasChanged,
+                questionListener: widget.questionListener,
+                pageController: pageController,
+              ),
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
@@ -155,6 +157,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                   return Scrollbar(
                                     thumbVisibility: true,
                                     thickness: 10,
+                                    interactive: false,
                                     controller: scrollController,
                                     radius: const Radius.circular(20),
                                     scrollbarOrientation:
@@ -478,11 +481,14 @@ class RecordFooter extends StatelessWidget {
 class RecordHeader extends ConsumerWidget {
   final String type;
   final bool hasChanged;
-  final QuestionsListener listener;
+  final QuestionsListener questionListener;
+  final PageController pageController;
+
   const RecordHeader(
       {required this.type,
       required this.hasChanged,
-      required this.listener,
+      required this.questionListener,
+      required this.pageController,
       super.key});
 
   @override
@@ -492,30 +498,47 @@ class RecordHeader extends ConsumerWidget {
         current == null || SubUser.isEmpty(current) ? null : current.name;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              AppLocalizations.of(context)!.recordHeader(type),
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: Theme.of(context).colorScheme.primary),
-              textAlign: TextAlign.center,
-            ),
-            if (name != null && name.isNotEmpty) ...[
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          IconButton(
+            onPressed: () {
+              questionListener.tried = false;
+              pageController.previousPage(
+                  duration: const Duration(milliseconds: 250),
+                  curve: Curves.linear);
+            },
+            icon: const Icon(Icons.arrow_back),
+            iconSize: 35,
+          ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
               Text(
-                AppLocalizations.of(context)!.recordUsername(type, name),
-                style: Theme.of(context)
-                    .textTheme
-                    .titleSmall
-                    ?.copyWith(fontStyle: FontStyle.italic),
+                AppLocalizations.of(context)!.recordHeader(type),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: Theme.of(context).colorScheme.primary),
                 textAlign: TextAlign.center,
               ),
-            ]
-          ],
-        ),
+              if (name != null && name.isNotEmpty) ...[
+                Text(
+                  AppLocalizations.of(context)!.recordUsername(type, name),
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleSmall
+                      ?.copyWith(fontStyle: FontStyle.italic),
+                  textAlign: TextAlign.center,
+                ),
+              ]
+            ],
+          ),
+          const SizedBox(
+            width: 35,
+          ),
+        ],
       ),
     );
   }

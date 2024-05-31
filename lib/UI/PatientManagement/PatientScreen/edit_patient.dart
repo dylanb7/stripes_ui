@@ -53,7 +53,7 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
           child: Card(
             elevation: 12,
             shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                borderRadius: BorderRadius.all(Radius.circular(12.0)),
                 side: BorderSide(width: 5)),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -80,7 +80,13 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
                               children: [
                                 Text(
                                   'Edit Patient',
-                                  style: Theme.of(context).textTheme.bodyLarge,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge
+                                      ?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color:
+                                              Theme.of(context).primaryColor),
                                 ),
                                 IconButton(
                                     onPressed: () {
@@ -159,7 +165,7 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
                                         );
                                       }
                                     },
-                                    child: FilledButton.tonal(
+                                    child: FilledButton(
                                       onPressed: !canSave
                                           ? null
                                           : () {

@@ -64,6 +64,7 @@ class CreatePatient extends ConsumerWidget {
                 TextFormField(
                   validator: nameValidator,
                   controller: _firstName,
+                  
                   decoration: formFieldDecoration(
                       hintText: 'First Name', controller: _firstName),
                 ),

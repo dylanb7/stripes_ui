@@ -162,7 +162,7 @@ class LongTextEntry extends StatelessWidget {
             height: 5,
           ),
           AspectRatio(
-            aspectRatio: 1.4,
+            aspectRatio: 1.6,
             child: TextFormField(
               scrollPadding: EdgeInsets.only(
                   bottom: MediaQuery.of(context).viewInsets.bottom +
