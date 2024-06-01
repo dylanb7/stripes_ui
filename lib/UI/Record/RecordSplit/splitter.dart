@@ -213,12 +213,6 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                               ),
                             ),
                           ),
-                          RecordFooter(
-                            submitButton: submitButton(),
-                            questionListener: widget.questionListener,
-                            pageController: pageController,
-                            length: pages.length,
-                          )
                         ]),
                   ),
                 ),
@@ -226,11 +220,16 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
               const SizedBox(
                 height: 8.0,
               ),
-              RecordFooter(
-                submitButton: submitButton(),
-                questionListener: widget.questionListener,
-                pageController: pageController,
-                length: pages.length,
+              IgnorePointer(
+                ignoring: isLoading,
+                child: Center(
+                  child: RecordFooter(
+                    submitButton: submitButton(),
+                    questionListener: widget.questionListener,
+                    pageController: pageController,
+                    length: pages.length,
+                  ),
+                ),
               ),
               const SizedBox(
                 height: 8.0,
