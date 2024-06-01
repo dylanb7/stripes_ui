@@ -366,7 +366,7 @@ class RecordFooter extends StatelessWidget {
                     height: 8.0,
                   )
                 ],
-                if (length != 0 || currentIndex != length)
+                if (length != 0 && currentIndex != length)
                   GestureDetector(
                     onTap: () {
                       if (questionListener.pending.isNotEmpty) {
@@ -464,6 +464,7 @@ class RecordHeader extends ConsumerWidget {
     final SubUser? current = ref.read(subHolderProvider).valueOrNull?.selected;
     final String? name =
         current == null || SubUser.isEmpty(current) ? null : current.name;
+    final int currentIndex = pageController.page?.round() ?? 0;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
       child: Row(
@@ -471,12 +472,14 @@ class RecordHeader extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           IconButton(
-            onPressed: () {
-              questionListener.tried = false;
-              pageController.previousPage(
-                  duration: const Duration(milliseconds: 250),
-                  curve: Curves.linear);
-            },
+            onPressed: currentIndex == 0
+                ? null
+                : () {
+                    questionListener.tried = false;
+                    pageController.previousPage(
+                        duration: const Duration(milliseconds: 250),
+                        curve: Curves.linear);
+                  },
             icon: const Icon(Icons.arrow_back_sharp),
           ),
           Column(
