@@ -89,7 +89,15 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
 
     final bool edited = !isEdit || isEdit && hasChanged;
 
-    final bool hasPending = widget.questionListener.pending.isNotEmpty;
+    bool pending() {
+      if (currentIndex > pages.length - 1) return false;
+      final List<String> pageQuestions = pages[currentIndex].questionIds;
+      return widget.questionListener.pending
+          .where((pending) => pageQuestions.contains(pending.id))
+          .isNotEmpty;
+    }
+
+    final bool hasPending = pending();
 
     Widget? submitButton() {
       if (currentIndex != pages.length) return null;
@@ -228,6 +236,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                     questionListener: widget.questionListener,
                     pageController: pageController,
                     length: pages.length,
+                    hasPending: hasPending,
                   ),
                 ),
               ),
@@ -327,12 +336,14 @@ class RecordFooter extends StatelessWidget {
   final QuestionsListener questionListener;
   final PageController pageController;
   final int length;
+  final bool hasPending;
   final Widget? submitButton;
 
   const RecordFooter(
       {required this.questionListener,
       required this.pageController,
       required this.submitButton,
+      required this.hasPending,
       required this.length,
       super.key});
 
@@ -347,8 +358,7 @@ class RecordFooter extends StatelessWidget {
           return Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                if (questionListener.tried &&
-                    questionListener.pending.isNotEmpty) ...[
+                if (questionListener.tried && hasPending) ...[
                   Text(
                     AppLocalizations.of(context)!
                         .nLevelError(questionListener.pending.length),
@@ -369,12 +379,12 @@ class RecordFooter extends StatelessWidget {
                 if (length != 0 && currentIndex != length)
                   GestureDetector(
                     onTap: () {
-                      if (questionListener.pending.isNotEmpty) {
+                      if (hasPending) {
                         questionListener.tried = true;
                       }
                     },
                     child: FilledButton(
-                        onPressed: questionListener.pending.isEmpty
+                        onPressed: !hasPending
                             ? () {
                                 _next();
                               }

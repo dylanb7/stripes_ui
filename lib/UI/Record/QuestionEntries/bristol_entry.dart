@@ -79,7 +79,7 @@ class _BMSliderState extends ConsumerState<BMSlider> {
       children: [
         Center(
             child:
-                AspectRatio(aspectRatio: 1, child: images[value.toInt() - 1])),
+                AspectRatio(aspectRatio: 2, child: images[value.toInt() - 1])),
         StripesSlider(
           onChange: (p0) {},
           onSlide: (val) {
