@@ -135,7 +135,9 @@ class _PageWrapState extends ConsumerState<PageWrap> {
             bottomNavigationBar: widget.bottomNav,
           ),
           if (overlay.widget != null)
-            SafeArea(child: Material(child: overlay.widget!))
+            SafeArea(
+                child:
+                    Material(color: Colors.transparent, child: overlay.widget!))
         ],
       ),
     );
