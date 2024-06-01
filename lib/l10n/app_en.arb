@@ -106,6 +106,7 @@
             }
         }
     },
+    "nextButton": "Next",
     "bristolLevel": "Select bowel movement consistancy",
     "painLocation": "Select the location of the pain below",
     "painLevel": "Select the pain level",

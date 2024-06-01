@@ -380,7 +380,7 @@ class RecordFooter extends StatelessWidget {
                                 _next();
                               }
                             : null,
-                        child: child),
+                        child: Text(AppLocalizations.of(context)!.nextButton)),
                   ),
                 /*Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,

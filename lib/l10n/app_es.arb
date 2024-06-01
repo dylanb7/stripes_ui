@@ -108,6 +108,7 @@
             }
         }
     },
+    "nextButton": "Next",
     "bristolLevel": "Select bowel movement consistancy",
     "painLevelBM": "Select the pain during the bowel movement if applicable",
     "painLevel": "Select the pain level",

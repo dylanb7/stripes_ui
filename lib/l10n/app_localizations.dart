@@ -335,6 +335,12 @@ abstract class AppLocalizations {
   /// **'Recording {symptomType}'**
   String recordHeader(String symptomType);
 
+  /// No description provided for @nextButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get nextButton;
+
   /// No description provided for @bristolLevel.
   ///
   /// In en, this message translates to:

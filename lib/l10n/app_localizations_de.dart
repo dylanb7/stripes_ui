@@ -147,6 +147,9 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get nextButton => 'Next';
+
+  @override
   String get bristolLevel => 'Select bowel movement consistancy';
 
   @override
