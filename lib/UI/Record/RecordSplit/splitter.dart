@@ -154,6 +154,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                 hasChanged: hasChanged,
                 questionListener: widget.questionListener,
                 pageController: pageController,
+                currentIndex: currentIndex,
               ),
               Expanded(
                 child: Container(
@@ -237,6 +238,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                     pageController: pageController,
                     length: pages.length,
                     pendingCount: pendingCount,
+                    currentIndex: currentIndex,
                   ),
                 ),
               ),
@@ -335,8 +337,8 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
 class RecordFooter extends StatelessWidget {
   final QuestionsListener questionListener;
   final PageController pageController;
-  final int length;
-  final int pendingCount;
+  final int length, pendingCount, currentIndex;
+
   final Widget? submitButton;
 
   const RecordFooter(
@@ -344,12 +346,12 @@ class RecordFooter extends StatelessWidget {
       required this.pageController,
       required this.submitButton,
       required this.pendingCount,
+      required this.currentIndex,
       required this.length,
       super.key});
 
   @override
   Widget build(BuildContext context) {
-    final int currentIndex = pageController.page?.round() ?? 0;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: ListenableBuilder(
@@ -405,12 +407,14 @@ class RecordHeader extends ConsumerWidget {
   final bool hasChanged;
   final QuestionsListener questionListener;
   final PageController pageController;
+  final int currentIndex;
 
   const RecordHeader(
       {required this.type,
       required this.hasChanged,
       required this.questionListener,
       required this.pageController,
+      required this.currentIndex,
       super.key});
 
   @override
@@ -418,7 +422,6 @@ class RecordHeader extends ConsumerWidget {
     final SubUser? current = ref.read(subHolderProvider).valueOrNull?.selected;
     final String? name =
         current == null || SubUser.isEmpty(current) ? null : current.name;
-    final int currentIndex = pageController.page?.round() ?? 0;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
       child: Row(
