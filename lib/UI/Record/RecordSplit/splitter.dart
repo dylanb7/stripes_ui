@@ -366,7 +366,7 @@ class RecordFooter extends StatelessWidget {
                     height: 8.0,
                   )
                 ],
-                if (length != 0)
+                if (length != 0 || currentIndex != length)
                   GestureDetector(
                     onTap: () {
                       if (questionListener.pending.isNotEmpty) {
