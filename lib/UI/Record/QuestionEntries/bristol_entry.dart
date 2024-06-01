@@ -77,7 +77,9 @@ class _BMSliderState extends ConsumerState<BMSlider> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SizedBox(height: 250, child: images[value.toInt() - 1]),
+        Center(
+            child:
+                AspectRatio(aspectRatio: 1, child: images[value.toInt() - 1])),
         StripesSlider(
           onChange: (p0) {},
           onSlide: (val) {

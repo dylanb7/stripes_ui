@@ -131,8 +131,8 @@ class BasicButton extends StatelessWidget {
         onClick(context);
       },
       style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all(color),
-        shape: MaterialStateProperty.all(const RoundedRectangleBorder(
+        backgroundColor: WidgetStateProperty.all(color),
+        shape: WidgetStateProperty.all(const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(8.0)))),
       ),
       child: Padding(

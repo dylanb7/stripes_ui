@@ -36,7 +36,8 @@ class QuestionScreen extends StatelessWidget {
           height: 8.0,
         ),
         RenderQuestions(
-            questions: questions, questionsListener: questionsListener)
+            questions: questions, questionsListener: questionsListener),
+        const SizedBox(height: 16.0),
       ],
     );
   }

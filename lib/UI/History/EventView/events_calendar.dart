@@ -179,27 +179,25 @@ class _CalendarHeader extends StatelessWidget {
   final VoidCallback onLeftArrowTap;
   final VoidCallback onRightArrowTap;
   final void Function(CalendarFormat format) onFormatChange;
-  final List<CalendarFormat> formats;
+  final List<CalendarFormat> formats = const [
+    CalendarFormat.month,
+    CalendarFormat.week
+  ];
   final CalendarFormat selected;
 
-  const _CalendarHeader(
-      {required this.focusedDay,
-      required this.onLeftArrowTap,
-      required this.onRightArrowTap,
-      required this.onFormatChange,
-      required this.selected,
-      this.formats = const [
-        CalendarFormat.month,
-        CalendarFormat.twoWeeks,
-        CalendarFormat.week
-      ]});
+  const _CalendarHeader({
+    required this.focusedDay,
+    required this.onLeftArrowTap,
+    required this.onRightArrowTap,
+    required this.onFormatChange,
+    required this.selected,
+  });
 
   @override
   Widget build(BuildContext context) {
     final String headerText = DateFormat.yMMM().format(focusedDay);
     final Map<CalendarFormat, String> formatName = {
       CalendarFormat.week: "Week",
-      CalendarFormat.twoWeeks: "Two Weeks",
       CalendarFormat.month: "Month"
     };
     return Padding(

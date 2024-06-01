@@ -1,9 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:stripes_backend_helper/QuestionModel/response.dart';
-
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/base.dart';
@@ -157,7 +153,7 @@ class _PainAreaWidgetState extends ConsumerState<PainAreaWidget> {
                   width: double.infinity,
                   decoration: BoxDecoration(
                     border: Border.all(
-                        color: Theme.of(context).colorScheme.onBackground),
+                        color: Theme.of(context).colorScheme.onSurface),
                     borderRadius: BorderRadius.circular(12.0),
                   ),
                   child: ClipRRect(
@@ -222,7 +218,6 @@ class _PainAreaWidgetState extends ConsumerState<PainAreaWidget> {
 
   setResponse(Area newValue) {
     final Area? current = response();
-    print(current == newValue);
     if (current == newValue) {
       widget.questionsListener.removeResponse(widget.question);
       widget.questionsListener.addPending(widget.question);

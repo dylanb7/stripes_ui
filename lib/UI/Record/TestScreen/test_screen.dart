@@ -24,8 +24,6 @@ class _TestScreenState extends ConsumerState<TestScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
-
     final AsyncValue<TestsRepo?> testRepo = ref.watch(testProvider);
     if (testRepo.isLoading) {
       return const SliverToBoxAdapter(

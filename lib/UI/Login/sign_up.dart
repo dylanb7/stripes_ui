@@ -1,4 +1,4 @@
-import 'package:email_validator/email_validator.dart';
+/*import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -15,7 +15,7 @@ import 'package:stripes_ui/Util/validators.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../CommonWidgets/loading.dart';
-/*
+
 final isValid = StateProvider.autoDispose<bool>(
     (ref) => ref.watch(accessProvider).validState());
 

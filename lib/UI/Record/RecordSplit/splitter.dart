@@ -60,7 +60,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
   _changedUpdate() {
     final bool change = original != widget.questionListener;
 
-    if (mounted && change) {
+    if (mounted) {
       setState(() {
         hasChanged = change;
       });
@@ -91,12 +91,49 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
 
     final bool hasPending = widget.questionListener.pending.isNotEmpty;
 
+    Widget? submitButton() {
+      if (currentIndex != pages.length) return null;
+      return GestureDetector(
+        onTap: () {
+          if (hasPending && !isLoading) {
+            showSnack(
+                context,
+                AppLocalizations.of(context)!
+                    .nLevelError(widget.questionListener.pending.length));
+          }
+        },
+        child: FilledButton(
+          onPressed: !hasPending && !isLoading && edited
+              ? () {
+                  _submitEntry(context, ref, isEdit);
+                }
+              : null,
+          child: isLoading
+              ? const ButtonLoadingIndicator()
+              : Text(isEdit
+                  ? AppLocalizations.of(context)!.editSubmitButtonText
+                  : AppLocalizations.of(context)!.submitButtonText),
+        ),
+      );
+    }
+
     return PageWrap(
       actions: [
         if (!isSmall)
-          ...TabOption.values.map((tab) => LargeNavButton(tab: tab)),
+          ...TabOption.values.map((tab) => LargeNavButton(
+                tab: tab,
+                customSelect: (String route) {
+                  _close(ref, context, route);
+                },
+              )),
       ],
-      bottomNav: isSmall ? const SmallLayout() : null,
+      bottomNav: isSmall
+          ? SmallLayout(
+              customSelect: (String route) {
+                _close(ref, context, route);
+              },
+            )
+          : null,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
         child: Padding(
@@ -158,10 +195,11 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                       ScrollController();
                                   return Scrollbar(
                                     thumbVisibility: true,
-                                    thickness: 10,
+                                    thickness: 8.0,
                                     interactive: false,
                                     controller: scrollController,
-                                    radius: const Radius.circular(20),
+                                    radius:
+                                        const Radius.circular(double.infinity),
                                     scrollbarOrientation:
                                         ScrollbarOrientation.right,
                                     child: SingleChildScrollView(
@@ -185,37 +223,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                             ),
                           ),
                           RecordFooter(
-                            submitButton: isEdit || currentIndex == pages.length
-                                ? GestureDetector(
-                                    onTap: () {
-                                      if (hasPending && !isLoading) {
-                                        showSnack(
-                                            context,
-                                            AppLocalizations.of(context)!
-                                                .nLevelError(widget
-                                                    .questionListener
-                                                    .pending
-                                                    .length));
-                                      }
-                                    },
-                                    child: FilledButton(
-                                      onPressed:
-                                          !hasPending && !isLoading && edited
-                                              ? () {
-                                                  _submitEntry(
-                                                      context, ref, isEdit);
-                                                }
-                                              : null,
-                                      child: isLoading
-                                          ? const ButtonLoadingIndicator()
-                                          : Text(isEdit
-                                              ? AppLocalizations.of(context)!
-                                                  .editSubmitButtonText
-                                              : AppLocalizations.of(context)!
-                                                  .submitButtonText),
-                                    ),
-                                  )
-                                : null,
+                            submitButton: submitButton(),
                             questionListener: widget.questionListener,
                             pageController: pageController,
                             length: pages.length,
@@ -234,19 +242,18 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     );
   }
 
-  void _close(WidgetRef ref, BuildContext context) {
+  void _close(WidgetRef ref, BuildContext context, String route) {
     if (!hasChanged) {
       widget.questionListener.tried = false;
-      if (context.canPop()) {
-        context.pop();
-      } else {
-        context.go(Routes.HOME);
-      }
+      context.go(route);
       return;
     }
 
-    ref.read(overlayProvider.notifier).state =
-        CurrentOverlay(widget: ErrorPrevention(type: widget.type));
+    ref.read(overlayProvider.notifier).state = CurrentOverlay(
+        widget: ErrorPrevention(
+      type: widget.type,
+      route: route,
+    ));
   }
 
   void _submitEntry(BuildContext context, WidgetRef ref, bool isEdit) async {
@@ -317,44 +324,6 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
   }
 }
 
-class SubmitFAB extends StatelessWidget {
-  final int pendingLength;
-
-  final bool isLoading, edited, isEdit;
-
-  final Function submit;
-
-  const SubmitFAB(
-      {required this.submit,
-      required this.pendingLength,
-      required this.isLoading,
-      required this.edited,
-      required this.isEdit,
-      super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    //if (isEdit || currentIndex == pages.length)
-    return FloatingActionButton.extended(
-      heroTag: "Submit-Button",
-      label: Text(isEdit
-          ? AppLocalizations.of(context)!.editSubmitButtonText
-          : AppLocalizations.of(context)!.submitButtonText),
-      icon: Icon(isEdit ? Icons.edit : Icons.add),
-      onPressed: pendingLength == 0 && !isLoading && edited
-          ? () {
-              if (pendingLength > 0 && !isLoading) {
-                showSnack(context,
-                    AppLocalizations.of(context)!.nLevelError(pendingLength));
-                return;
-              }
-              submit();
-            }
-          : null,
-    );
-  }
-}
-
 class RecordFooter extends StatelessWidget {
   final QuestionsListener questionListener;
   final PageController pageController;
@@ -399,7 +368,21 @@ class RecordFooter extends StatelessWidget {
                   )
                 ],
                 if (length != 0)
-                  Row(
+                  GestureDetector(
+                    onTap: () {
+                      if (questionListener.pending.isNotEmpty) {
+                        questionListener.tried = true;
+                      }
+                    },
+                    child: FilledButton(
+                        onPressed: questionListener.pending.isEmpty
+                            ? () {
+                                _next();
+                              }
+                            : null,
+                        child: child),
+                  ),
+                /*Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         currentIndex > 0
@@ -446,21 +429,11 @@ class RecordFooter extends StatelessWidget {
                             : const SizedBox(
                                 width: 45,
                               )
-                      ])
+                      ])*/
               ]);
         },
       ),
     );
-  }
-
-  _goToPage(int index) {
-    if (questionListener.pending.isEmpty) {
-      questionListener.tried = false;
-      pageController.animateToPage(index,
-          duration: const Duration(milliseconds: 200), curve: Curves.linear);
-    } else {
-      questionListener.tried = true;
-    }
   }
 
   _next() {
@@ -471,12 +444,6 @@ class RecordFooter extends StatelessWidget {
     } else {
       questionListener.tried = true;
     }
-  }
-
-  _prev() {
-    questionListener.tried = false;
-    pageController.previousPage(
-        duration: const Duration(milliseconds: 250), curve: Curves.linear);
   }
 }
 
@@ -511,8 +478,7 @@ class RecordHeader extends ConsumerWidget {
                   duration: const Duration(milliseconds: 250),
                   curve: Curves.linear);
             },
-            icon: const Icon(Icons.arrow_back),
-            iconSize: 35,
+            icon: const Icon(Icons.arrow_back_sharp),
           ),
           Column(
             mainAxisSize: MainAxisSize.min,
@@ -537,9 +503,9 @@ class RecordHeader extends ConsumerWidget {
               ]
             ],
           ),
-          const SizedBox(
-            width: 35,
-          ),
+          SizedBox(
+            width: Theme.of(context).iconTheme.size ?? 20,
+          )
         ],
       ),
     );
@@ -549,7 +515,9 @@ class RecordHeader extends ConsumerWidget {
 class ErrorPrevention extends ConsumerWidget {
   final String type;
 
-  const ErrorPrevention({required this.type, super.key});
+  final String route;
+
+  const ErrorPrevention({required this.type, required this.route, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -580,11 +548,7 @@ class ErrorPrevention extends ConsumerWidget {
           ],
         ),
         onConfirm: () {
-          if (context.canPop()) {
-            context.pop();
-          } else {
-            context.go(Routes.HOME);
-          }
+          context.go(route);
         },
         cancel: AppLocalizations.of(context)!.errorPreventionStay,
         confirm: AppLocalizations.of(context)!.errorPreventionLeave);
@@ -611,9 +575,9 @@ class BasicButton extends StatelessWidget {
         onClick(context);
       },
       style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all(color),
-        shape: MaterialStateProperty.all(const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(15)))),
+        backgroundColor: WidgetStateProperty.all(color),
+        shape: WidgetStateProperty.all(const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(12.0)))),
       ),
       child: Text(
         text,

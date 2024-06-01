@@ -143,7 +143,9 @@ class AddIndicator extends ConsumerWidget {
 class SmallLayout extends ConsumerWidget {
   final TabOption? selected;
 
-  const SmallLayout({this.selected, super.key});
+  final Function(String)? customSelect;
+
+  const SmallLayout({this.selected, this.customSelect, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -170,7 +172,11 @@ class SmallLayout extends ConsumerWidget {
                 icon: const Icon(Icons.add),
                 label: AppLocalizations.of(context)!.recordTab,
                 onTap: () {
-                  context.go(Routes.HOME);
+                  if (customSelect != null) {
+                    customSelect!(Routes.HOME);
+                  } else {
+                    context.go(Routes.HOME);
+                  }
                 },
                 selected: selected == TabOption.record),
           ),
@@ -180,7 +186,11 @@ class SmallLayout extends ConsumerWidget {
                 icon: const Icon(Icons.checklist_outlined),
                 label: AppLocalizations.of(context)!.testTab,
                 onTap: () {
-                  context.go(Routes.TEST);
+                  if (customSelect != null) {
+                    customSelect!(Routes.TEST);
+                  } else {
+                    context.go(Routes.TEST);
+                  }
                 },
                 selected: selected == TabOption.tests),
           ),
@@ -190,7 +200,11 @@ class SmallLayout extends ConsumerWidget {
                 icon: const Icon(Icons.grading),
                 label: AppLocalizations.of(context)!.historyTab,
                 onTap: () {
-                  context.go(Routes.HISTORY);
+                  if (customSelect != null) {
+                    customSelect!(Routes.HISTORY);
+                  } else {
+                    context.go(Routes.HISTORY);
+                  }
                 },
                 selected: selected == TabOption.history),
           ),
@@ -264,7 +278,10 @@ class LargeNavButton extends ConsumerWidget {
 
   final TabOption? selected;
 
-  const LargeNavButton({required this.tab, this.selected, super.key});
+  final Function(String)? customSelect;
+
+  const LargeNavButton(
+      {required this.tab, this.selected, this.customSelect, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -278,12 +295,16 @@ class LargeNavButton extends ConsumerWidget {
 
     Widget button() => TextButton(
         onPressed: () {
-          if (tab == TabOption.record) {
-            context.push(Routes.HOME);
-          } else if (tab == TabOption.tests) {
-            context.push(Routes.TEST);
+          String route = Routes.HOME;
+          if (tab == TabOption.tests) {
+            route = Routes.TEST;
           } else if (tab == TabOption.history) {
-            context.push(Routes.HISTORY);
+            route = Routes.HISTORY;
+          }
+          if (customSelect != null) {
+            customSelect!(route);
+          } else {
+            context.push(route);
           }
         },
         child: Text(
