@@ -89,21 +89,21 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
 
     final bool edited = !isEdit || isEdit && hasChanged;
 
-    bool pending() {
-      if (currentIndex > pages.length - 1) return false;
+    int pending() {
+      if (currentIndex > pages.length - 1) return 0;
       final List<String> pageQuestions = pages[currentIndex].questionIds;
       return widget.questionListener.pending
           .where((pending) => pageQuestions.contains(pending.id))
-          .isNotEmpty;
+          .length;
     }
 
-    final bool hasPending = pending();
+    final int pendingCount = pending();
 
     Widget? submitButton() {
       if (currentIndex != pages.length) return null;
       return GestureDetector(
         onTap: () {
-          if (hasPending && !isLoading) {
+          if (pendingCount != 0 && !isLoading) {
             showSnack(
                 context,
                 AppLocalizations.of(context)!
@@ -111,7 +111,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
           }
         },
         child: FilledButton(
-          onPressed: !hasPending && !isLoading && edited
+          onPressed: pendingCount == 0 && !isLoading && edited
               ? () {
                   _submitEntry(context, ref, isEdit);
                 }
@@ -236,7 +236,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                     questionListener: widget.questionListener,
                     pageController: pageController,
                     length: pages.length,
-                    hasPending: hasPending,
+                    pendingCount: pendingCount,
                   ),
                 ),
               ),
@@ -336,14 +336,14 @@ class RecordFooter extends StatelessWidget {
   final QuestionsListener questionListener;
   final PageController pageController;
   final int length;
-  final bool hasPending;
+  final int pendingCount;
   final Widget? submitButton;
 
   const RecordFooter(
       {required this.questionListener,
       required this.pageController,
       required this.submitButton,
-      required this.hasPending,
+      required this.pendingCount,
       required this.length,
       super.key});
 
@@ -358,10 +358,9 @@ class RecordFooter extends StatelessWidget {
           return Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                if (questionListener.tried && hasPending) ...[
+                if (questionListener.tried && pendingCount != 0) ...[
                   Text(
-                    AppLocalizations.of(context)!
-                        .nLevelError(questionListener.pending.length),
+                    AppLocalizations.of(context)!.nLevelError(pendingCount),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: Theme.of(context).colorScheme.error,
                         fontWeight: FontWeight.bold),
@@ -379,80 +378,25 @@ class RecordFooter extends StatelessWidget {
                 if (length != 0 && currentIndex != length)
                   GestureDetector(
                     onTap: () {
-                      if (hasPending) {
+                      if (pendingCount != 0) {
                         questionListener.tried = true;
                       }
                     },
                     child: FilledButton(
-                        onPressed: !hasPending
+                        onPressed: pendingCount == 0
                             ? () {
-                                _next();
+                                questionListener.tried = false;
+                                pageController.nextPage(
+                                    duration: const Duration(milliseconds: 200),
+                                    curve: Curves.linear);
                               }
                             : null,
                         child: Text(AppLocalizations.of(context)!.nextButton)),
                   ),
-                /*Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        currentIndex > 0
-                            ? IconButton(
-                                padding: EdgeInsets.zero,
-                                onPressed: _prev,
-                                highlightColor: Colors.transparent,
-                                hoverColor: Colors.transparent,
-                                splashColor: Colors.transparent,
-                                tooltip: 'Previous',
-                                iconSize: 45,
-                                icon: Icon(Icons.arrow_back_rounded,
-                                    color: Theme.of(context).primaryColor),
-                              )
-                            : const SizedBox(
-                                width: 45,
-                              ),
-                        SmoothPageIndicator(
-                          controller: pageController,
-                          count: length + 1,
-                          onDotClicked: (index) {
-                            _goToPage(index);
-                          },
-                          effect: ScrollingDotsEffect(
-                              activeDotColor: Theme.of(context).primaryColor,
-                              activeDotScale: 1),
-                        ),
-                        currentIndex < length
-                            ? IconButton(
-                                padding: EdgeInsets.zero,
-                                onPressed: _next,
-                                highlightColor: Colors.transparent,
-                                hoverColor: Colors.transparent,
-                                splashColor: Colors.transparent,
-                                tooltip: 'Next',
-                                iconSize: 45,
-                                icon: Icon(
-                                  Icons.arrow_forward_rounded,
-                                  color: questionListener.pending.isEmpty
-                                      ? Theme.of(context).primaryColor
-                                      : Theme.of(context).disabledColor,
-                                ),
-                              )
-                            : const SizedBox(
-                                width: 45,
-                              )
-                      ])*/
               ]);
         },
       ),
     );
-  }
-
-  _next() {
-    if (questionListener.pending.isEmpty) {
-      questionListener.tried = false;
-      pageController.nextPage(
-          duration: const Duration(milliseconds: 200), curve: Curves.linear);
-    } else {
-      questionListener.tried = true;
-    }
   }
 }
 
