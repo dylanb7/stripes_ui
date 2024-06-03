@@ -31,6 +31,7 @@ class QuestionScreen extends StatelessWidget {
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
               color: Theme.of(context).colorScheme.primary,
               fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
         ),
         const SizedBox(
           height: 8.0,

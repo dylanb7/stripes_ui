@@ -425,7 +425,7 @@ class RecordHeader extends ConsumerWidget {
     final String? name =
         current == null || SubUser.isEmpty(current) ? null : current.name;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
+      padding: const EdgeInsets.symmetric(vertical: 20.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -445,31 +445,33 @@ class RecordHeader extends ConsumerWidget {
               : SizedBox(
                   width: Theme.of(context).iconTheme.size ?? 20,
                 ),
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                AppLocalizations.of(context)!.recordHeader(type),
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: Theme.of(context).colorScheme.primary),
-                textAlign: TextAlign.center,
-              ),
-              if (name != null && name.isNotEmpty) ...[
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
                 Text(
-                  AppLocalizations.of(context)!.recordUsername(type, name),
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleSmall
-                      ?.copyWith(fontStyle: FontStyle.italic),
+                  AppLocalizations.of(context)!.recordHeader(type),
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: Theme.of(context).colorScheme.primary),
                   textAlign: TextAlign.center,
                 ),
-              ]
-            ],
+                if (name != null && name.isNotEmpty) ...[
+                  Text(
+                    AppLocalizations.of(context)!.recordUsername(type, name),
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleSmall
+                        ?.copyWith(fontStyle: FontStyle.italic),
+                    textAlign: TextAlign.center,
+                  ),
+                ]
+              ],
+            ),
           ),
           SizedBox(
-            width: Theme.of(context).iconTheme.size ?? 20,
+            width: Theme.of(context).iconTheme.size ?? 24.0,
           ),
         ],
       ),
