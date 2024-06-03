@@ -50,12 +50,19 @@ class _BuildWhen extends StatefulWidget {
 
 class _BuildWhenState extends State<_BuildWhen> {
   @override
-  Widget build(BuildContext context) {
-    widget.notif.addListener(() {
-      if (mounted) {
-        setState(() {});
-      }
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.notif.addListener(() {
+        if (mounted) {
+          setState(() {});
+        }
+      });
     });
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return widget.child;
   }
 }
