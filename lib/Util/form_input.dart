@@ -8,32 +8,39 @@ InputDecoration formFieldDecoration(
     Widget? suffix,
     required TextEditingController controller}) {
   return InputDecoration(
-      prefixIcon: prefix == null ? null : Icon(prefix),
-      suffixIcon: suffix ??
-          (clearable
-              ? _BuildWhen(
-                  controller.text.isNotEmpty
-                      ? IconButton(
-                          padding: EdgeInsets.zero,
-                          onPressed: () {
-                            controller.clear();
-                          },
-                          icon: const Icon(
-                            Icons.clear,
-                          ))
-                      : SizedBox.fromSize(
-                          size: Size.zero,
-                        ),
-                  controller)
-              : null),
-      floatingLabelBehavior: FloatingLabelBehavior.auto,
-      labelText: hintText,
-      errorText: errorText,
-      errorMaxLines: 1,
-      errorBorder: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(5.0))),
-      border: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(5.0))));
+    prefixIcon: prefix == null ? null : Icon(prefix),
+    suffixIcon: suffix ??
+        (clearable
+            ? _BuildWhen(
+                controller.text.isNotEmpty
+                    ? IconButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () {
+                          controller.clear();
+                        },
+                        icon: const Icon(
+                          Icons.clear,
+                        ))
+                    : SizedBox.fromSize(
+                        size: Size.zero,
+                      ),
+                controller)
+            : null),
+    floatingLabelBehavior: FloatingLabelBehavior.auto,
+    labelText: hintText,
+    errorText: errorText,
+    errorMaxLines: 1,
+    errorBorder: const OutlineInputBorder(
+      borderRadius: BorderRadius.all(
+        Radius.circular(5.0),
+      ),
+    ),
+    border: const OutlineInputBorder(
+      borderRadius: BorderRadius.all(
+        Radius.circular(5.0),
+      ),
+    ),
+  );
 }
 
 class _BuildWhen extends StatefulWidget {

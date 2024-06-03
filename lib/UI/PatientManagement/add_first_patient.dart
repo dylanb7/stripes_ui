@@ -9,7 +9,7 @@ import 'package:stripes_ui/Util/form_input.dart';
 import 'package:stripes_ui/Util/validators.dart';
 
 class CreatePatient extends ConsumerWidget {
-  final GlobalKey<FormState> _formKey = GlobalKey();
+  static final GlobalKey<FormState> _formKey = GlobalKey();
 
   final TextEditingController _firstName = TextEditingController(),
       _lastName = TextEditingController();
