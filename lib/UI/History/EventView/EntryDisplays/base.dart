@@ -342,6 +342,7 @@ class BlueDyeDisplay extends StatelessWidget {
               resp.lastBlue.difference(
                 resp.startEating.add(resp.eatingDuration),
               ),
+              delimiter: ' ',
               locale: DurationLocale.fromLanguageCode(current.languageCode) ??
                   const EnglishDurationLocale(),
               abbreviated: true),

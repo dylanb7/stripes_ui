@@ -155,6 +155,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                 questionListener: widget.questionListener,
                 pageController: pageController,
                 currentIndex: currentIndex,
+                length: pages.length,
               ),
               Expanded(
                 child: Container(
@@ -407,7 +408,7 @@ class RecordHeader extends ConsumerWidget {
   final bool hasChanged;
   final QuestionsListener questionListener;
   final PageController pageController;
-  final int currentIndex;
+  final int currentIndex, length;
 
   const RecordHeader(
       {required this.type,
@@ -415,6 +416,7 @@ class RecordHeader extends ConsumerWidget {
       required this.questionListener,
       required this.pageController,
       required this.currentIndex,
+      required this.length,
       super.key});
 
   @override
@@ -428,17 +430,21 @@ class RecordHeader extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          IconButton(
-            onPressed: currentIndex == 0
-                ? null
-                : () {
-                    questionListener.tried = false;
-                    pageController.previousPage(
-                        duration: const Duration(milliseconds: 250),
-                        curve: Curves.linear);
-                  },
-            icon: const Icon(Icons.arrow_back_sharp),
-          ),
+          length != 0
+              ? IconButton(
+                  onPressed: currentIndex == 0
+                      ? null
+                      : () {
+                          questionListener.tried = false;
+                          pageController.previousPage(
+                              duration: const Duration(milliseconds: 250),
+                              curve: Curves.linear);
+                        },
+                  icon: const Icon(Icons.arrow_back_sharp),
+                )
+              : SizedBox(
+                  width: Theme.of(context).iconTheme.size ?? 20,
+                ),
           Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -464,7 +470,7 @@ class RecordHeader extends ConsumerWidget {
           ),
           SizedBox(
             width: Theme.of(context).iconTheme.size ?? 20,
-          )
+          ),
         ],
       ),
     );

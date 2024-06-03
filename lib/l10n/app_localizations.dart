@@ -551,6 +551,12 @@ abstract class AppLocalizations {
   /// **'Save Changes'**
   String get editSubmitButtonText;
 
+  /// No description provided for @mealTimerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Time Tracking'**
+  String get mealTimerTitle;
+
   /// No description provided for @errorPreventionTitle.
   ///
   /// In en, this message translates to:

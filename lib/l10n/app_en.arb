@@ -198,7 +198,7 @@
     "submitDescriptionPlaceholder": "Tap to type...",
     "submitButtonText": "Submit Entry",
     "editSubmitButtonText": "Save Changes",
-
+    "mealTimerTitle": "Time Tracking",
     "errorPreventionTitle": "Wait!",
     "errorPreventionLineOne": "Are you sure you want to leave this screen?",
     "errorPreventionLineTwo": "You will lose all information you entered for this {symptomType} entry.",

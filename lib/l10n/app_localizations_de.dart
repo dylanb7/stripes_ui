@@ -284,6 +284,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get editSubmitButtonText => 'Änderungen speichern';
 
   @override
+  String get mealTimerTitle => 'Time Tracking';
+
+  @override
   String get errorPreventionTitle => 'Moment!';
 
   @override

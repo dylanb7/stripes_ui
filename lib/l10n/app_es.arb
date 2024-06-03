@@ -214,7 +214,7 @@
     },
     "errorPreventionLeave": "Leave",
     "errorPreventionStay": "Stay",
-
+    "mealTimerTitle": "Time Tracking",
     "blueDyeHeader": "Blue Dye Test",
     "blueDyeInfoHeader": "Blue Dye Test Info",
     "blueDyeInfoLineOne": "The Blue Dye Test measures the time it takes for food to transit through the gut.",

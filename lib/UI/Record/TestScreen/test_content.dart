@@ -176,7 +176,7 @@ class TimerDisplay<T extends Test> extends ConsumerWidget {
                     color: Theme.of(context).colorScheme.onPrimaryContainer),
               ),
               TextSpan(
-                text: '\t${from(blueDyeObj.finishedEating!)}',
+                text: '\t${from(blueDyeObj.finishedEating!, context)}',
                 style: Theme.of(context)
                     .textTheme
                     .bodyMedium

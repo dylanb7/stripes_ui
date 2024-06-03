@@ -52,70 +52,67 @@ class CreatePatient extends ConsumerWidget {
       ),
       form: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: FocusTraversalGroup(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(
-                  height: 12.0,
-                ),
-                TextFormField(
-                  validator: nameValidator,
-                  controller: _firstName,
-                  
-                  decoration: formFieldDecoration(
-                      hintText: 'First Name', controller: _firstName),
-                ),
-                const SizedBox(
-                  height: 8.0,
-                ),
-                TextFormField(
-                  validator: nameValidator,
-                  controller: _lastName,
-                  decoration: formFieldDecoration(
-                      hintText: 'Last Name', controller: _lastName),
-                ),
-                const SizedBox(
-                  height: 8.0,
-                ),
-                IntrinsicHeight(
-                    child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(
+                height: 12.0,
+              ),
+              TextFormField(
+                validator: nameValidator,
+                controller: _firstName,
+                decoration: formFieldDecoration(
+                    hintText: 'First Name', controller: _firstName),
+              ),
+              const SizedBox(
+                height: 8.0,
+              ),
+              TextFormField(
+                validator: nameValidator,
+                controller: _lastName,
+                decoration: formFieldDecoration(
+                    hintText: 'Last Name', controller: _lastName),
+              ),
+              const SizedBox(
+                height: 8.0,
+              ),
+              IntrinsicHeight(
+                  child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: BirthYearSelector(
+                      controller: _yearController,
+                      context: context,
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 8.0,
+                  ),
+                  Expanded(
                       flex: 1,
-                      child: BirthYearSelector(
-                        controller: _yearController,
+                      child: GenderDropdown(
                         context: context,
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 8.0,
-                    ),
-                    Expanded(
-                        flex: 1,
-                        child: GenderDropdown(
-                          context: context,
-                          holder: _genderValue,
-                        )),
-                  ],
-                )),
-                const SizedBox(
-                  height: 8.0,
-                ),
-                FilledButton(
-                  child: const Text('Add Patient'),
-                  onPressed: () {
-                    _submit(context, ref);
-                  },
-                ),
-                const SizedBox(
-                  height: 12.0,
-                ),
-              ],
-            ),
+                        holder: _genderValue,
+                      )),
+                ],
+              )),
+              const SizedBox(
+                height: 8.0,
+              ),
+              FilledButton(
+                child: const Text('Add Patient'),
+                onPressed: () {
+                  _submit(context, ref);
+                },
+              ),
+              const SizedBox(
+                height: 12.0,
+              ),
+            ],
           ),
         ),
       ),

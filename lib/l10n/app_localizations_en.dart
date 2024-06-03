@@ -284,6 +284,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editSubmitButtonText => 'Save Changes';
 
   @override
+  String get mealTimerTitle => 'Time Tracking';
+
+  @override
   String get errorPreventionTitle => 'Wait!';
 
   @override

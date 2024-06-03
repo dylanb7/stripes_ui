@@ -1,19 +1,24 @@
 import 'dart:async';
 
+import 'package:duration/duration.dart';
+import 'package:duration/locale.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:stripes_ui/Providers/shared_service_provider.dart';
+import 'package:stripes_ui/l10n/app_localizations.dart';
 
-class TimerWidget extends StatefulWidget {
+class TimerWidget extends ConsumerStatefulWidget {
   final DateTime start;
 
   const TimerWidget({required this.start, super.key});
 
   @override
-  State<StatefulWidget> createState() {
+  ConsumerState createState() {
     return _TimerWidgetState();
   }
 }
 
-class _TimerWidgetState extends State<TimerWidget> {
+class _TimerWidgetState extends ConsumerState<TimerWidget> {
   Duration gap = Duration.zero;
   late Timer? timer;
   @override
@@ -40,12 +45,24 @@ class _TimerWidgetState extends State<TimerWidget> {
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Text(
-              from(gap),
-              style: Theme.of(context).textTheme.headlineMedium,
+              AppLocalizations.of(context)!.mealTimerTitle,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(color: Theme.of(context).colorScheme.onPrimary),
+            ),
+            Center(
+              child: Text(
+                from(gap, context),
+                style: Theme.of(context)
+                    .textTheme
+                    .headlineLarge
+                    ?.copyWith(color: Theme.of(context).colorScheme.onPrimary),
+              ),
             ),
             const SizedBox(
               height: 12,
@@ -60,11 +77,9 @@ class _TimerWidgetState extends State<TimerWidget> {
         ),
       ),
     );
-    return Text(
-      from(gap),
-      style: Theme.of(context).textTheme.headlineMedium,
-    );
   }
+
+  _pause() {}
 
   @override
   void dispose() {
@@ -73,23 +88,11 @@ class _TimerWidgetState extends State<TimerWidget> {
   }
 }
 
-String from(Duration duration) {
-  final List<String> parts =
-      duration.toString().split('.').first.padLeft(8, '0').split(':');
-  String hr = _removeZeros(parts[0]);
-  String minutes = _removeZeros(parts[1]);
-  if (hr.isNotEmpty) {
-    hr += 'h ';
-  }
-  if (minutes.isEmpty) {
-    minutes = '0';
-  }
-  return '$hr$minutes:${parts.last}';
-}
-
-String _removeZeros(String val) {
-  while (val.startsWith('0')) {
-    val = val.substring(1);
-  }
-  return val;
+String from(Duration duration, BuildContext context) {
+  final Locale current = Localizations.localeOf(context);
+  return prettyDuration(duration,
+      delimiter: ' ',
+      locale: DurationLocale.fromLanguageCode(current.languageCode) ??
+          const EnglishDurationLocale(),
+      abbreviated: true);
 }
