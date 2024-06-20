@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
@@ -31,11 +31,11 @@ class _InstructionsState extends ConsumerState<Instructions> {
   Widget build(BuildContext context) {
     final BlueDyeObj? blueDye =
         getObject<BlueDyeObj>(ref.watch(testStreamProvider));
-    final TestState state =
-        blueDye == null ? TestState.initial : stateFromTestOBJ(blueDye);
-    final String stage = state == TestState.started
+    final BlueDyeTestStage state =
+        blueDye == null ? BlueDyeTestStage.initial : stateFromTestOBJ(blueDye);
+    final String stage = state == BlueDyeTestStage.started
         ? AppLocalizations.of(context)!.blueDyeInstructionsStepOne
-        : state == TestState.logs
+        : state == BlueDyeTestStage.logs
             ? AppLocalizations.of(context)!.blueDyeInstructionsStepTwo
             : AppLocalizations.of(context)!.blueDyeInstructionsStepThree;
     final Widget header = Column(
@@ -48,7 +48,7 @@ class _InstructionsState extends ConsumerState<Instructions> {
             style: Theme.of(context).textTheme.bodyLarge,
             textAlign: TextAlign.left,
           ),
-          if (state != TestState.initial &&
+          if (state != BlueDyeTestStage.initial &&
               !widget.expandController.expanded) ...[
             const SizedBox(
               height: 4.0,
@@ -110,7 +110,7 @@ class _InstructionsState extends ConsumerState<Instructions> {
                   AppLocalizations.of(context)!.blueDyeInstructionsStepOneB
                 ],
                 mark: (index) => ['a.', 'b.'][index],
-                highlight: state == TestState.started),
+                highlight: state == BlueDyeTestStage.started),
             const SizedBox(
               height: 6.0,
             ),
@@ -124,7 +124,7 @@ class _InstructionsState extends ConsumerState<Instructions> {
                   AppLocalizations.of(context)!.blueDyeInstructionsStepTwoB
                 ],
                 mark: (index) => ['a.', 'b.'][index],
-                highlight: state == TestState.logs),
+                highlight: state == BlueDyeTestStage.logs),
             const SizedBox(
               height: 6.0,
             ),
@@ -137,7 +137,7 @@ class _InstructionsState extends ConsumerState<Instructions> {
                   AppLocalizations.of(context)!.blueDyeInstructionsStepThreeA
                 ],
                 mark: (_) => 'a.',
-                highlight: state == TestState.logsSubmit),
+                highlight: state == BlueDyeTestStage.logsSubmit),
             const SizedBox(
               height: 20.0,
             ),
@@ -243,12 +243,8 @@ class LabeledList extends StatelessWidget {
         return Padding(
           padding: EdgeInsets.only(bottom: isLast ? 0 : 6.0),
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(
-              marker(index.key),
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontSize: 16.0,
-                  ),
-            ),
+            Text(marker(index.key),
+                style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(
               width: 5,
             ),
@@ -292,4 +288,4 @@ class LabeledList extends StatelessWidget {
         padding: const EdgeInsets.all(4.0),
         child: titleWidget);
   }
-}
+}*/

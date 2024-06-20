@@ -4,6 +4,10 @@ version: 1.0.2
 homepage: https://github.com/dylanb7/stripes_ui
 publish_to: none
 
+#stripes_backend_helper:
+#    git:
+#    url: https://github.com/dylanb7/stripes_backend_helper
+
 environment:
   sdk: ">=2.17.0 <3.0.0"
   flutter: ">=1.17.0"
@@ -21,6 +25,7 @@ dependencies:
       branch: master
   flex_color_scheme: ^7.3.1
   flutter_svg: ^2.0.10+1
+  url_launcher: ^6.3.0
 
   go_router: ^7.1.1
   equatable: ^2.0.3
@@ -73,3 +78,4 @@ flutter:
     - packages/stripes_ui/assets/svg/pain_face_3.svg
     - packages/stripes_ui/assets/svg/pain_face_4.svg
     - packages/stripes_ui/assets/svg/pain_face_5.svg
+    - packages/stripes_ui/assets/svg/muffin_icon.svg

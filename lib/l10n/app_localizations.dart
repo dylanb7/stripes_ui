@@ -173,6 +173,702 @@ abstract class AppLocalizations {
   /// **'Create account'**
   String get createAccountText;
 
+  /// No description provided for @viewMoreButtonText.
+  ///
+  /// In en, this message translates to:
+  /// **'View More'**
+  String get viewMoreButtonText;
+
+  /// No description provided for @viewLessButtonText.
+  ///
+  /// In en, this message translates to:
+  /// **'View Less'**
+  String get viewLessButtonText;
+
+  /// No description provided for @stripesName.
+  ///
+  /// In en, this message translates to:
+  /// **'STRiPES'**
+  String get stripesName;
+
+  /// No description provided for @aboutStripes.
+  ///
+  /// In en, this message translates to:
+  /// **'About STRiPES'**
+  String get aboutStripes;
+
+  /// No description provided for @aboutLineOne.
+  ///
+  /// In en, this message translates to:
+  /// **'STRiPES is a symptom tracker that collects information on altered movement of food through the gut (aka motility), pain, bowel movements(BM) and reflux of patients with Phelan-McDermid Syndrome (PMS).'**
+  String get aboutLineOne;
+
+  /// No description provided for @aboutLineTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'The data will then be used in studies to further our understanding on gastrointestinal issues in patients with PMS.'**
+  String get aboutLineTwo;
+
+  /// No description provided for @aboutLineThree.
+  ///
+  /// In en, this message translates to:
+  /// **'If you want to learn more about the studies STRiPES is collecting data for, please click the link below:'**
+  String get aboutLineThree;
+
+  /// No description provided for @aboutQuestionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions and/or concerns?'**
+  String get aboutQuestionsTitle;
+
+  /// No description provided for @aboutCategoriesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'If at any moment you have questions regarding thing such as:'**
+  String get aboutCategoriesTitle;
+
+  /// No description provided for @aboutDataCollection.
+  ///
+  /// In en, this message translates to:
+  /// **'Data collection'**
+  String get aboutDataCollection;
+
+  /// No description provided for @aboutDataSecurity.
+  ///
+  /// In en, this message translates to:
+  /// **'Data security'**
+  String get aboutDataSecurity;
+
+  /// No description provided for @aboutStudyQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Study questions'**
+  String get aboutStudyQuestions;
+
+  /// No description provided for @aboutStudyResults.
+  ///
+  /// In en, this message translates to:
+  /// **'Study results'**
+  String get aboutStudyResults;
+
+  /// No description provided for @aboutWithdraw.
+  ///
+  /// In en, this message translates to:
+  /// **'How to withdraw from study'**
+  String get aboutWithdraw;
+
+  /// No description provided for @aboutETC.
+  ///
+  /// In en, this message translates to:
+  /// **'Something not listed in the above about the study or app'**
+  String get aboutETC;
+
+  /// No description provided for @aboutEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Please contact us at: {email}'**
+  String aboutEmail(String email);
+
+  /// No description provided for @aboutMeetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Meet the Team'**
+  String get aboutMeetTitle;
+
+  /// No description provided for @preStudySeeing.
+  ///
+  /// In en, this message translates to:
+  /// **'Why am I seeing this:'**
+  String get preStudySeeing;
+
+  /// No description provided for @preStudySeeingExp.
+  ///
+  /// In en, this message translates to:
+  /// **'If you are on this page, it\'s because you indicated that you were willing to participate in the Blue Meal Study (BMS). If you feel this is incorrect, please let us know at [email.domain.com].'**
+  String get preStudySeeingExp;
+
+  /// No description provided for @preStudyEnrollTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to Start?'**
+  String get preStudyEnrollTitle;
+
+  /// No description provided for @preStudyEnrollDescPartOne.
+  ///
+  /// In en, this message translates to:
+  /// **'If you have read and understand these instructions and are ready to begin the study, click the button below. This will take you directly to Step 1 of the study.'**
+  String get preStudyEnrollDescPartOne;
+
+  /// No description provided for @preStudyEnrollDescPartTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'You can access these instructions again at any time by pressing the icon with the \"i\" at the top of the page.'**
+  String get preStudyEnrollDescPartTwo;
+
+  /// No description provided for @preStudyEnrollButton.
+  ///
+  /// In en, this message translates to:
+  /// **'I am ready to start Step 1'**
+  String get preStudyEnrollButton;
+
+  /// No description provided for @inStudySeeingExp.
+  ///
+  /// In en, this message translates to:
+  /// **'Note: If you are returning to this page, please make sure to complete all the steps in the study flow. If you have any questions or concerns, don\'t hesitate to contact us at [add email address here].'**
+  String get inStudySeeingExp;
+
+  /// No description provided for @inStudyWithdrawTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw from Study'**
+  String get inStudyWithdrawTitle;
+
+  /// No description provided for @inStudyWithdrawDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'You may withdraw at any time by clicking the withdrawal button below. This notifies the research team of your wish to stop participating.'**
+  String get inStudyWithdrawDesc;
+
+  /// No description provided for @inStudyWithdrawButtonText.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw from study'**
+  String get inStudyWithdrawButtonText;
+
+  /// No description provided for @studyProgessionOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 1\nEat Blue Dye\nMeal'**
+  String get studyProgessionOne;
+
+  /// No description provided for @studyProgessionTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 2\nTrack BM'**
+  String get studyProgessionTwo;
+
+  /// No description provided for @studyProgessionThree.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 3\nEat Blue Dye\nMeal'**
+  String get studyProgessionThree;
+
+  /// No description provided for @studyProgessionFour.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 4\nTrack BM'**
+  String get studyProgessionFour;
+
+  /// No description provided for @stepClickWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'{step} is not yet active'**
+  String stepClickWarning(String step);
+
+  /// No description provided for @amountConsumedQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'How much of the blue meal was eaten?'**
+  String get amountConsumedQuestion;
+
+  /// No description provided for @amountConsumedUnable.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to determine amount consumed'**
+  String get amountConsumedUnable;
+
+  /// No description provided for @amountConsumedHalfOrLess.
+  ///
+  /// In en, this message translates to:
+  /// **'Less than half of blue meal'**
+  String get amountConsumedHalfOrLess;
+
+  /// No description provided for @amountConsumedHalf.
+  ///
+  /// In en, this message translates to:
+  /// **'Half of blue meal'**
+  String get amountConsumedHalf;
+
+  /// No description provided for @amountConsumedHalfOrMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More than half of blue meal'**
+  String get amountConsumedHalfOrMore;
+
+  /// No description provided for @amountConsumedAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All of blue meal'**
+  String get amountConsumedAll;
+
+  /// No description provided for @mealCompleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Meal Duration'**
+  String get mealCompleteTitle;
+
+  /// No description provided for @mealCompleteStartTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Time: {date} {time}'**
+  String mealCompleteStartTime(DateTime date, DateTime time);
+
+  /// No description provided for @mealCompleteDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Eating Duration'**
+  String get mealCompleteDuration;
+
+  /// No description provided for @recordingStateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bowel Movement Recording'**
+  String get recordingStateTitle;
+
+  /// No description provided for @stepOneCompletedText.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 1 - Completed'**
+  String get stepOneCompletedText;
+
+  /// No description provided for @stepTwoCompletedText.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 2 - Completed'**
+  String get stepTwoCompletedText;
+
+  /// No description provided for @stepTwoCompletedSubText.
+  ///
+  /// In en, this message translates to:
+  /// **'You can begin Step 3 in 7 days.'**
+  String get stepTwoCompletedSubText;
+
+  /// No description provided for @stepThreeCompletedText.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 3 - Completed'**
+  String get stepThreeCompletedText;
+
+  /// No description provided for @stepFourCompletedText.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 4 - Completed'**
+  String get stepFourCompletedText;
+
+  /// No description provided for @stepFourCompletedSubText.
+  ///
+  /// In en, this message translates to:
+  /// **'You have completed the Blue Meal Study. Thank you for your participation!'**
+  String get stepFourCompletedSubText;
+
+  /// No description provided for @studyExpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'About the study'**
+  String get studyExpTitle;
+
+  /// No description provided for @studyExpBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This study measures gut motility (the movement of food through the digestive system) in people with Phelan-McDermid Syndrome using a novel blue meal test. It involves eating blue muffins and tracking bowel movements to determine transit time, which is the duration it takes for food to move through the digestive system, from consumption to excretion. The study will measure transit time twice using the blue muffins and this mobile app.'**
+  String get studyExpBody;
+
+  /// No description provided for @studyExpBodyCont.
+  ///
+  /// In en, this message translates to:
+  /// **'During the study, you will be asked to report various gastrointestinal (GI) signs and symptoms using this app. While bowel movements are the primary focus of the study, we highly encourage you to track all relevant information, including:'**
+  String get studyExpBodyCont;
+
+  /// No description provided for @studyBodySymptomOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Meal times (not a symptom, but important for context)'**
+  String get studyBodySymptomOne;
+
+  /// No description provided for @studyBodySymptomTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'Pain'**
+  String get studyBodySymptomTwo;
+
+  /// No description provided for @studyBodySymptomThree.
+  ///
+  /// In en, this message translates to:
+  /// **'Reflux'**
+  String get studyBodySymptomThree;
+
+  /// No description provided for @studyBodySymptomFour.
+  ///
+  /// In en, this message translates to:
+  /// **'Neurological behavior'**
+  String get studyBodySymptomFour;
+
+  /// No description provided for @studyEligibilityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Eligibility'**
+  String get studyEligibilityTitle;
+
+  /// No description provided for @studyEligibilityParticipants.
+  ///
+  /// In en, this message translates to:
+  /// **'Participants must:'**
+  String get studyEligibilityParticipants;
+
+  /// No description provided for @studyEligibilityOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Have Phelan-McDermid Syndrome'**
+  String get studyEligibilityOne;
+
+  /// No description provided for @studyEligibilityTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'Be 4 years of age or older'**
+  String get studyEligibilityTwo;
+
+  /// No description provided for @studyEligibilityThree.
+  ///
+  /// In en, this message translates to:
+  /// **'Live in the United States'**
+  String get studyEligibilityThree;
+
+  /// No description provided for @studyEligibilityFour.
+  ///
+  /// In en, this message translates to:
+  /// **'Have an English-speaking caregiver to track symptoms'**
+  String get studyEligibilityFour;
+
+  /// No description provided for @studyFlowTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Study Flow'**
+  String get studyFlowTitle;
+
+  /// No description provided for @studyFlowDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'The study consists of a pre-study phase, preparation, and two transit time measurements:'**
+  String get studyFlowDesc;
+
+  /// No description provided for @studyFlowPreStudy.
+  ///
+  /// In en, this message translates to:
+  /// **'Pre-Study:'**
+  String get studyFlowPreStudy;
+
+  /// No description provided for @studyFlowPreStudyOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete the onboarding questionnaire'**
+  String get studyFlowPreStudyOne;
+
+  /// No description provided for @studyFlowPreStudyTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'Track GI symptoms, using this app, for at least 7 days before starting Step 1 (eating the blue meal).'**
+  String get studyFlowPreStudyTwo;
+
+  /// No description provided for @studyFlowPrepTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparation:'**
+  String get studyFlowPrepTitle;
+
+  /// No description provided for @studyFlowPrepOne.
+  ///
+  /// In en, this message translates to:
+  /// **'You will receive 4 blue muffins. Store them in the freezer until ready to use.'**
+  String get studyFlowPrepOne;
+
+  /// No description provided for @studyFlowPrepTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'Muffins contain gluten-free flour, protein powder, egg whites, jam, sugar, and blue food coloring.'**
+  String get studyFlowPrepTwo;
+
+  /// No description provided for @studyFlowStepOneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 1: Eat Blue Meal (Transit Time 1)'**
+  String get studyFlowStepOneTitle;
+
+  /// No description provided for @studyFlowStepOnePartOne.
+  ///
+  /// In en, this message translates to:
+  /// **'After a 6-8 hour overnight fast, feed the participant 2 blue muffins.'**
+  String get studyFlowStepOnePartOne;
+
+  /// No description provided for @studyFlowStepOnePartTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'Start the in-app timer when they begin eating. Stop when they finish. This records the muffin eating time.'**
+  String get studyFlowStepOnePartTwo;
+
+  /// No description provided for @studyFlowStepTwoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 2: Record Bowel Movements (Transit Time 1)'**
+  String get studyFlowStepTwoTitle;
+
+  /// No description provided for @studyFlowStepTwoPartOne.
+  ///
+  /// In en, this message translates to:
+  /// **'After the blue meal, record all bowel movements (BMs).'**
+  String get studyFlowStepTwoPartOne;
+
+  /// No description provided for @studyFlowStepTwoPartTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'Note the color, consistency, and any other symptoms for each BM.'**
+  String get studyFlowStepTwoPartTwo;
+
+  /// No description provided for @studyFlowStepTwoPartThree.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue until a brown BM occurs after a blue one.'**
+  String get studyFlowStepTwoPartThree;
+
+  /// No description provided for @studyFlowBetweenStepTwoStepThree.
+  ///
+  /// In en, this message translates to:
+  /// **'Between Step 2 & Step 3:'**
+  String get studyFlowBetweenStepTwoStepThree;
+
+  /// No description provided for @studyFlowBetweenStepTwoStepThreeDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Wait 7 days after completing steps 1 and 2 before staring Step 3.'**
+  String get studyFlowBetweenStepTwoStepThreeDesc;
+
+  /// No description provided for @studyFlowStepThreeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 3: Eat Blue Meal (Transit Time 2)'**
+  String get studyFlowStepThreeTitle;
+
+  /// No description provided for @studyFlowStepThreeDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'As in Step 1, after a 6-8 hour overnight fast, feed the participant the remaining 2 blue muffins. Again, start the in-app timer when they begin eating and stop when they finish to record eating time.'**
+  String get studyFlowStepThreeDesc;
+
+  /// No description provided for @studyFlowStepFourTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 4: Record Bowel Movements (Transit Time 2)'**
+  String get studyFlowStepFourTitle;
+
+  /// No description provided for @studyFlowStepFourDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'As in Step 2, after the second blue meal, record all bowel movements (BMs). Continue to note the color, consistency, and any other symptoms for each BM. Record until a brown BM occurs following a blue one.'**
+  String get studyFlowStepFourDesc;
+
+  /// No description provided for @studyFlowComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'After completing Step 4, your participation is complete!'**
+  String get studyFlowComplete;
+
+  /// No description provided for @studyContactTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Us'**
+  String get studyContactTitle;
+
+  /// No description provided for @studyContactBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions or problems? Email [email@university.edu] with \"Blue Meal Study\" in the subject line, or call Dr. XYZ at ###-###-#### during business hours.'**
+  String get studyContactBody;
+
+  /// No description provided for @studyStepOneExplanationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 1: Eat Blue Meal (Transit Time 1)'**
+  String get studyStepOneExplanationTitle;
+
+  /// No description provided for @studyStepOneExplanationPreReq.
+  ///
+  /// In en, this message translates to:
+  /// **'Before starting, ensure that the participant has completed a 6-8 hour fast.'**
+  String get studyStepOneExplanationPreReq;
+
+  /// No description provided for @studyStepOneExplanationPartOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Take two of the four blue muffins provided for the study.'**
+  String get studyStepOneExplanationPartOne;
+
+  /// No description provided for @studyStepOneExplanationPartTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'Feed the two blue muffins to the participant.'**
+  String get studyStepOneExplanationPartTwo;
+
+  /// No description provided for @studyStepOneExplanationPartThree.
+  ///
+  /// In en, this message translates to:
+  /// **'As soon as the participant starts eating the muffins, press the \"Start Timer\" button below to begin recording the eating time.'**
+  String get studyStepOneExplanationPartThree;
+
+  /// No description provided for @studyStepOneExplanationPartFour.
+  ///
+  /// In en, this message translates to:
+  /// **'Once the participant has finished eating the muffins, press the \"Stop Timer\" button to stop recording the eating time.'**
+  String get studyStepOneExplanationPartFour;
+
+  /// No description provided for @studyStepOneExplanationNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note: If you make a mistake while timing the participant, press the \"Reset\" button to clear the timer.'**
+  String get studyStepOneExplanationNote;
+
+  /// No description provided for @studyStepTwoExplanationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 2: Record Bowel Movements (Transit Time 1)'**
+  String get studyStepTwoExplanationTitle;
+
+  /// No description provided for @studyStepTwoExplanationDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'After the participant consumes the two blue muffins, track their bowel movements (BMs) using one of the following methods:'**
+  String get studyStepTwoExplanationDesc;
+
+  /// No description provided for @studyStepTwoExplanationPartOne.
+  ///
+  /// In en, this message translates to:
+  /// **'1. On this page (Study Tab): Click \"Record BM\" button to log each BM, noting:'**
+  String get studyStepTwoExplanationPartOne;
+
+  /// No description provided for @studyStepTwoExplanationPartOneDetailOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Date and time'**
+  String get studyStepTwoExplanationPartOneDetailOne;
+
+  /// No description provided for @studyStepTwoExplanationPartOneDetailTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'Presence or absence of blue-green color'**
+  String get studyStepTwoExplanationPartOneDetailTwo;
+
+  /// No description provided for @studyStepTwoExplanationPartOneDetailThree.
+  ///
+  /// In en, this message translates to:
+  /// **'Other relevant details (e.g., consistency, symptoms)'**
+  String get studyStepTwoExplanationPartOneDetailThree;
+
+  /// No description provided for @studyStepTwoExplanationPartTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'2. On the Track Tab:'**
+  String get studyStepTwoExplanationPartTwo;
+
+  /// No description provided for @studyStepTwoExplanationPartTwoDetailOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Press the \"Bowel Movement\" button to record each BM'**
+  String get studyStepTwoExplanationPartTwoDetailOne;
+
+  /// No description provided for @studyStepTwoExplanationPartTwoDetailTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in the required information, including the presence or absence of blue-green color'**
+  String get studyStepTwoExplanationPartTwoDetailTwo;
+
+  /// No description provided for @studyStepTwoExplanationColorExp.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue recording all BMs, even if not blue-green. After the first blue-green BM, keep tracking until a non-blue BM occurs. The system will automatically complete Step 2 once you record a non-blue BM after a blue-green one.'**
+  String get studyStepTwoExplanationColorExp;
+
+  /// No description provided for @studyStepTwoExplanationProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'After submitting, you will have completed the first half of the study. You can begin the second half in 7 days.'**
+  String get studyStepTwoExplanationProgress;
+
+  /// No description provided for @studyStepThreeExplanationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 3: Eat Blue Meal (Transit Time 2)'**
+  String get studyStepThreeExplanationTitle;
+
+  /// No description provided for @studyStepThreeExplanationPreReq.
+  ///
+  /// In en, this message translates to:
+  /// **'Before starting, ensure that the participant has completed a 6-8 hour fast'**
+  String get studyStepThreeExplanationPreReq;
+
+  /// No description provided for @studyStepThreeExplanationPartOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Feed the participant the remaining two blue muffins.'**
+  String get studyStepThreeExplanationPartOne;
+
+  /// No description provided for @studyStepThreeExplanationPartTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'Record the start and end time of the meal using the timer below.'**
+  String get studyStepThreeExplanationPartTwo;
+
+  /// No description provided for @studyStepFourExplanationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 4: Record Bowel Movements (Transit Time 2)'**
+  String get studyStepFourExplanationTitle;
+
+  /// No description provided for @studyStepFourExplanationDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'After the participant consumes the two blue muffins, track their bowel movements (BMs) as follows:'**
+  String get studyStepFourExplanationDesc;
+
+  /// No description provided for @studyStepFourExplanationPartOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Record each BM, noting the date, time, and presence or absence of blue-green color.'**
+  String get studyStepFourExplanationPartOne;
+
+  /// No description provided for @studyStepFourExplanationPartTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue recording all BMs until a non-blue BM occurs after a blue-green one.'**
+  String get studyStepFourExplanationPartTwo;
+
+  /// No description provided for @studyStepFourExplanationPartThree.
+  ///
+  /// In en, this message translates to:
+  /// **'The system will automatically submit your recordings once you record the first normal-colored BM after the blue one.'**
+  String get studyStepFourExplanationPartThree;
+
+  /// No description provided for @studyStepFourExplanationCompletedNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Once the system submits your recordings, you will have completed the Blue Meal Study. Thank you for your participation!'**
+  String get studyStepFourExplanationCompletedNotice;
+
+  /// No description provided for @studyResetLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get studyResetLabel;
+
+  /// No description provided for @studyPlayLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get studyPlayLabel;
+
+  /// No description provided for @studyPauseLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get studyPauseLabel;
+
   /// No description provided for @passwordRequirementHeader.
   ///
   /// In en, this message translates to:
@@ -572,25 +1268,25 @@ abstract class AppLocalizations {
   /// No description provided for @errorPreventionLineTwo.
   ///
   /// In en, this message translates to:
-  /// **'You will lose all information you entered for this {symptomType} entry.'**
+  /// **'You have unsaved information entered for this {symptomType} entry. If you leave this screen now, your changes will be discarded. Do you want to stay on this page and save your changes or leave without saving?'**
   String errorPreventionLineTwo(String symptomType);
 
   /// No description provided for @errorPreventionLeave.
   ///
   /// In en, this message translates to:
-  /// **'Leave'**
+  /// **'Discard Changes'**
   String get errorPreventionLeave;
 
   /// No description provided for @errorPreventionStay.
   ///
   /// In en, this message translates to:
-  /// **'Stay'**
+  /// **'Stay and Save'**
   String get errorPreventionStay;
 
   /// No description provided for @blueDyeHeader.
   ///
   /// In en, this message translates to:
-  /// **'Blue Dye Test'**
+  /// **'Blue Meal Study'**
   String get blueDyeHeader;
 
   /// No description provided for @blueDyeInfoHeader.

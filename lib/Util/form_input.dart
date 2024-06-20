@@ -11,20 +11,20 @@ InputDecoration formFieldDecoration(
     prefixIcon: prefix == null ? null : Icon(prefix),
     suffixIcon: suffix ??
         (clearable
-            ? _BuildWhen(
-                controller.text.isNotEmpty
-                    ? IconButton(
-                        padding: EdgeInsets.zero,
-                        onPressed: () {
-                          controller.clear();
-                        },
-                        icon: const Icon(
-                          Icons.clear,
-                        ))
-                    : SizedBox.fromSize(
-                        size: Size.zero,
-                      ),
-                controller)
+            ? ListenableBuilder(
+                listenable: controller,
+                builder: (context, child) {
+                  if (controller.text.isEmpty) return Container();
+                  return IconButton(
+                    padding: EdgeInsets.zero,
+                    onPressed: () {
+                      controller.clear();
+                    },
+                    icon: const Icon(
+                      Icons.clear,
+                    ),
+                  );
+                })
             : null),
     floatingLabelBehavior: FloatingLabelBehavior.auto,
     labelText: hintText,
@@ -41,35 +41,4 @@ InputDecoration formFieldDecoration(
       ),
     ),
   );
-}
-
-class _BuildWhen extends StatefulWidget {
-  final ValueNotifier notif;
-
-  final Widget child;
-
-  const _BuildWhen(this.child, this.notif);
-  @override
-  State<StatefulWidget> createState() {
-    return _BuildWhenState();
-  }
-}
-
-class _BuildWhenState extends State<_BuildWhen> {
-  @override
-  void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      widget.notif.addListener(() {
-        if (mounted) {
-          setState(() {});
-        }
-      });
-    });
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return widget.child;
-  }
 }

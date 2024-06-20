@@ -44,12 +44,8 @@ class TestScreenContent extends StatelessWidget {
   const TestScreenContent({super.key});
   @override
   Widget build(BuildContext context) {
-    return AddIndicator(
-      child: SingleChildScrollView(
-        key: scrollkey,
-        controller: ScrollController(),
-        child: const TestScreen(),
-      ),
+    return const AddIndicator(
+      child: TestScreen(),
     );
   }
 }
@@ -157,58 +153,65 @@ class SmallLayout extends ConsumerWidget {
       thickness: 1.0,
       width: 1.0,
     );
-    return Container(
-      decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(color: Theme.of(context).dividerColor),
+
+    return ColoredBox(
+      color: Theme.of(context).canvasColor,
+      child: SafeArea(
+        top: false,
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border(
+              top: BorderSide(color: Theme.of(context).dividerColor),
+            ),
           ),
-          color: Theme.of(context).canvasColor),
-      height: 70,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Expanded(
-            child: NavTile(
-                icon: const Icon(Icons.add),
-                label: AppLocalizations.of(context)!.recordTab,
-                onTap: () {
-                  if (customSelect != null) {
-                    customSelect!(Routes.HOME);
-                  } else {
-                    context.go(Routes.HOME);
-                  }
-                },
-                selected: selected == TabOption.record),
+          height: 70,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Expanded(
+                child: NavTile(
+                    icon: const Icon(Icons.add),
+                    label: AppLocalizations.of(context)!.recordTab,
+                    onTap: () {
+                      if (customSelect != null) {
+                        customSelect!(Routes.HOME);
+                      } else {
+                        context.go(Routes.HOME);
+                      }
+                    },
+                    selected: selected == TabOption.record),
+              ),
+              divider,
+              Expanded(
+                child: NavTile(
+                    icon: const Icon(Icons.checklist_outlined),
+                    label: AppLocalizations.of(context)!.testTab,
+                    onTap: () {
+                      if (customSelect != null) {
+                        customSelect!(Routes.TEST);
+                      } else {
+                        context.go(Routes.TEST);
+                      }
+                    },
+                    selected: selected == TabOption.tests),
+              ),
+              divider,
+              Expanded(
+                child: NavTile(
+                    icon: const Icon(Icons.grading),
+                    label: AppLocalizations.of(context)!.historyTab,
+                    onTap: () {
+                      if (customSelect != null) {
+                        customSelect!(Routes.HISTORY);
+                      } else {
+                        context.go(Routes.HISTORY);
+                      }
+                    },
+                    selected: selected == TabOption.history),
+              ),
+            ],
           ),
-          divider,
-          Expanded(
-            child: NavTile(
-                icon: const Icon(Icons.checklist_outlined),
-                label: AppLocalizations.of(context)!.testTab,
-                onTap: () {
-                  if (customSelect != null) {
-                    customSelect!(Routes.TEST);
-                  } else {
-                    context.go(Routes.TEST);
-                  }
-                },
-                selected: selected == TabOption.tests),
-          ),
-          divider,
-          Expanded(
-            child: NavTile(
-                icon: const Icon(Icons.grading),
-                label: AppLocalizations.of(context)!.historyTab,
-                onTap: () {
-                  if (customSelect != null) {
-                    customSelect!(Routes.HISTORY);
-                  } else {
-                    context.go(Routes.HISTORY);
-                  }
-                },
-                selected: selected == TabOption.history),
-          ),
-        ],
+        ),
       ),
     );
   }

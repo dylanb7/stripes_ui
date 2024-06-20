@@ -272,55 +272,6 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
           ),
       ],
     );
-
-    return QuestionWrap(
-      question: widget.question,
-      listener: widget.questionsListener,
-      child: ExpandibleRaw(
-        controller: _controller,
-        iconSize: 0.0,
-        header: Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(6.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Flexible(
-                  child: Text(
-                    widget.question.prompt,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                ),
-                const SizedBox(
-                  width: 3.0,
-                ),
-                IgnorePointer(
-                  ignoring: true,
-                  child: Checkbox(
-                    value: res != null,
-                    onChanged: (val) {},
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        view: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
-            child: StripesSlider(
-              initial: value.toInt(),
-              min: widget.question.min?.toInt() ?? 1,
-              max: widget.question.max?.toInt() ?? 5,
-              onChange: (val) {
-                setState(() {
-                  value = val;
-                  _saveValue();
-                });
-              },
-              listener: _sliderListener,
-            )),
-      ),
-    );
   }
 
   num? response() {
@@ -528,7 +479,7 @@ class Selection extends StatelessWidget {
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: selected
                           ? Theme.of(context).colorScheme.onPrimary
-                          : Theme.of(context).colorScheme.onBackground),
+                          : Theme.of(context).colorScheme.onSurface),
                 )),
           ),
         ),

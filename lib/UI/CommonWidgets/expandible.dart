@@ -106,7 +106,7 @@ class _ExpandibleState extends State<Expandible>
             },
             child: Card(
               shape: RoundedRectangleBorder(
-                  borderRadius: const BorderRadius.all(Radius.circular(15.0)),
+                  borderRadius: const BorderRadius.all(Radius.circular(12.0)),
                   side: (_expanded || widget.highlightOnShrink) &&
                           widget.highlightColor != null
                       ? BorderSide(color: widget.highlightColor!, width: 5.0)

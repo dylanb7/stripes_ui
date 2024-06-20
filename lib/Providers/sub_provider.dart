@@ -56,10 +56,8 @@ class SubNotifier extends AsyncNotifier<SubState> {
         current.subUsers.firstWhereOrNull((user) => user.uid == newUser.uid);
     if (changedTo == null) return false;
     final SharedService service = ref.watch(sharedSeviceProvider);
-    String? val = await service.getCurrentUser();
-    if (val == changedTo.uid) return true;
+    if (current.selected?.uid == changedTo.uid) return true;
     final bool setUser = await service.setCurrentUser(id: changedTo.uid);
-
     if (setUser) {
       state = AsyncData(current.copyWith(selected: changedTo));
     }

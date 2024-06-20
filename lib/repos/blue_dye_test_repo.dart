@@ -4,30 +4,30 @@ import 'package:flutter/material.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:stripes_backend_helper/TestingReposImpl/test_question_repo.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
-import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
+import 'package:stripes_ui/UI/Record/TestScreen/blue_dye_test_screen.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
-final Map<SubUser, BlueDyeObj?> _repo = {};
+final Map<SubUser, BlueDyeState?> _repo = {};
 
-class BlueDyeTest extends Test<BlueDyeObj> {
-  final BlueDyeObj blueDye = BlueDyeObj.empty();
+class BlueDyeTest extends Test<BlueDyeState> {
+  final BlueDyeState blueDye = BlueDyeState.empty();
 
-  final BehaviorSubject<BlueDyeObj> _streamController = BehaviorSubject();
+  final BehaviorSubject<BlueDyeState> _streamController = BehaviorSubject();
 
   BlueDyeTest(
       {required super.stampRepo,
       required super.authUser,
       required super.subUser,
       required super.questionRepo})
-      : super(listensTo: {Symptoms.BM}) {
+      : super(listensTo: {Symptoms.BM}, testName: "Blue Dye Test") {
     if (_repo[subUser] == null) {
-      _repo[subUser] = BlueDyeObj.empty();
+      _repo[subUser] = BlueDyeState.empty();
     }
   }
 
   setStart(DateTime time) {
     _repo[subUser] = _repo[subUser]?.copyWith(startTime: time) ??
-        BlueDyeObj(logs: [], startTime: time);
+        BlueDyeState(logs: [], startTime: time);
     _streamController.add(_repo[subUser]!);
   }
 
@@ -41,15 +41,16 @@ class BlueDyeTest extends Test<BlueDyeObj> {
   }
 
   @override
-  BehaviorSubject<BlueDyeObj> get obj => _streamController;
+  BehaviorSubject<BlueDyeState> get state => _streamController;
 
-  TestState get state =>
-      obj.hasValue ? stateFromTestOBJ(obj.value) : TestState.initial;
+  BlueDyeTestStage get testStage => state.hasValue
+      ? stageFromTestState(state.value)
+      : BlueDyeTestStage.initial;
 
   @override
   Future<void> onDelete(Response<Question> stamp, String type) async {
     if (stamp is! DetailResponse || !_repo.containsKey(subUser)) return;
-    final BlueDyeObj current = _repo[subUser]!;
+    final BlueDyeState current = _repo[subUser]!;
     final List<BMTestLog> logs = current.logs;
     final List<BMTestLog> newLogs =
         logs.where((log) => log.response.stamp != stamp.stamp).toList();
@@ -62,7 +63,7 @@ class BlueDyeTest extends Test<BlueDyeObj> {
   @override
   Future<void> onEdit(Response<Question> stamp, String type) async {
     if (stamp is! DetailResponse || !_repo.containsKey(subUser)) return;
-    final BlueDyeObj current = _repo[subUser]!;
+    final BlueDyeState current = _repo[subUser]!;
     final List<BMTestLog> logs = current.logs;
     for (int i = 0; i < logs.length; i++) {
       if (stamp.stamp == logs[i].response.stamp) {
@@ -81,7 +82,7 @@ class BlueDyeTest extends Test<BlueDyeObj> {
     if (stamp is! DetailResponse) return;
     final bool? blue = _isBlueFromDetail(stamp);
     if (blue == null) return;
-    final BlueDyeObj? current = _repo[subUser];
+    final BlueDyeState? current = _repo[subUser];
     _repo[subUser] = current?.copyWith(
         logs: [...current.logs, BMTestLog(response: stamp, isBlue: blue)]);
     _streamController.add(_repo[subUser]!);
@@ -98,8 +99,9 @@ class BlueDyeTest extends Test<BlueDyeObj> {
 
   @override
   Widget? pathAdditions(BuildContext context, String type) {
-    final TestState current = state;
-    if (current == TestState.initial || current == TestState.started) {
+    final BlueDyeTestStage current = testStage;
+    if (current == BlueDyeTestStage.initial ||
+        current == BlueDyeTestStage.started) {
       return null;
     }
     return Text(
@@ -113,9 +115,10 @@ class BlueDyeTest extends Test<BlueDyeObj> {
 
   @override
   List<Question> recordAdditions(BuildContext context, String type) {
-    final TestState current = state;
+    final BlueDyeTestStage current = testStage;
     return [
-      if (current == TestState.logs || current == TestState.logsSubmit)
+      if (current == BlueDyeTestStage.logs ||
+          current == BlueDyeTestStage.logsSubmit)
         MultipleChoice(
             id: blueQuestionId,
             isRequired: true,
@@ -130,13 +133,13 @@ class BlueDyeTest extends Test<BlueDyeObj> {
 
   @override
   Future<void> cancel() async {
-    _repo[subUser] = BlueDyeObj.empty();
-    _streamController.add(BlueDyeObj.empty());
+    _repo[subUser] = BlueDyeState.empty();
+    _streamController.add(BlueDyeState.empty());
   }
 
   @override
-  Future<void> setValue(BlueDyeObj obj) async {
-    _repo[subUser] = obj;
+  Future<void> setTestState(BlueDyeState state) async {
+    _repo[subUser] = state;
     _streamController.add(_repo[subUser]!);
   }
 
@@ -148,7 +151,7 @@ class BlueDyeTest extends Test<BlueDyeObj> {
 
   @override
   Widget? displayState(BuildContext context) {
-    return BlueDyeTestScreen<BlueDyeTest>();
+    return const BlueDyeTestScreen();
   }
 }
 

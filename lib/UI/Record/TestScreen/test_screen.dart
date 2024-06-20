@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/RepositoryBase/TestBase/base_test_repo.dart';
+import 'package:stripes_backend_helper/RepositoryBase/TestBase/test_state.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
-import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
-import 'package:stripes_ui/UI/PatientManagement/patient_changer.dart';
-import 'package:stripes_ui/UI/Record/TestScreen/instructions.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_content.dart';
-import 'package:stripes_ui/UI/Layout/tab_view.dart';
+
 import 'package:stripes_ui/l10n/app_localizations.dart';
-import 'package:collection/collection.dart';
 
 class TestScreen extends ConsumerStatefulWidget {
   const TestScreen({super.key});
@@ -23,158 +20,89 @@ class _TestScreenState extends ConsumerState<TestScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final AsyncValue<TestsRepo?> testRepo = ref.watch(testProvider);
-    if (testRepo.isLoading) {
-      return const SliverToBoxAdapter(
-        child: Center(
-          child: CircularProgressIndicator(),
-        ),
+    final Test<TestState>? selectedTest = ref.watch(
+        testsHolderProvider.select((state) => state.valueOrNull?.selected));
+    if (selectedTest == null) {
+      return const Center(
+        child: CircularProgressIndicator(),
       );
     }
-    final List<Test> tests = testRepo.valueOrNull?.tests ?? [];
-    selected ??= tests.firstOrNull;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-      child: Column(children: [
-        const Padding(
-          padding: EdgeInsets.only(top: 20),
-          child:
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Expanded(
-              child: PatientChanger(
-                tab: TabOption.tests,
-              ),
-            ),
-          ]),
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        tests.length == 1
-            ? Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: FittedBox(
+        padding: const EdgeInsets.only(top: 20.0, right: 20.0, left: 20.0),
+        child: selectedTest.displayState(context) ?? const SizedBox());
+  }
+}
+
+class TestSwitcher extends ConsumerWidget {
+  const TestSwitcher({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final AsyncValue<TestsState> testsState = ref.watch(testsHolderProvider);
+
+    return testsState.map<Widget>(data: (AsyncData<TestsState> data) {
+      final List<Test> tests = data.value.testsRepo?.tests ?? [];
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          tests.length == 1
+              ? FittedBox(
                   fit: BoxFit.scaleDown,
                   alignment: Alignment.centerLeft,
                   child: Text(
                     tests[0].getName(context),
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).primaryColor),
                     textAlign: TextAlign.left,
                   ),
+                )
+              : Align(
+                  alignment: Alignment.centerLeft,
+                  child: DropdownButton<Test>(
+                    items: tests
+                        .map((e) => DropdownMenuItem(
+                              value: e,
+                              child: Text(
+                                e.getName(context),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: Theme.of(context).primaryColor),
+                                textAlign: TextAlign.left,
+                              ),
+                            ))
+                        .toList(),
+                    onChanged: (val) async {
+                      if (val == null) return;
+
+                      await ref
+                          .read(testsHolderProvider.notifier)
+                          .changeCurrent(val);
+                    },
+                    value: data.value.selected,
+                  ),
                 ),
-              )
-            : Align(
-                alignment: Alignment.centerLeft,
-                child: DropdownButton<Test>(
-                  items: tests
-                      .map((e) => DropdownMenuItem(
-                            value: e,
-                            child: Text(
-                              e.getName(context),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(fontWeight: FontWeight.bold),
-                              textAlign: TextAlign.left,
-                            ),
-                          ))
-                      .toList(),
-                  onChanged: (val) {
-                    setState(() {
-                      selected = val;
-                    });
-                  },
-                  value: selected,
-                ),
-              ),
-        selected?.displayState(context) ?? Container(),
-      ]),
-    );
-  }
-}
-
-class BlueDyeTestScreen<T extends Test> extends ConsumerWidget {
-  final ExpandibleController expandListener = ExpandibleController(true);
-
-  BlueDyeTestScreen({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Column(
-      children: [
-        const SizedBox(
-          height: 8.0,
+        ],
+      );
+    }, error: (AsyncError<TestsState> error) {
+      return FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: Alignment.centerLeft,
+        child: Text(
+          error.error.toString(),
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).primaryColor),
+          textAlign: TextAlign.left,
         ),
-        Card(
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(10),
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Padding(
-              padding: const EdgeInsets.only(left: 16.0),
-              child: TestContent<T>(
-                expand: expandListener,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(
-          height: 4.0,
-        ),
-        Card(
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(10),
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Instructions(
-              expandController: expandListener,
-            ),
-          ),
-        ),
-        const SizedBox(
-          height: 12.0,
-        ),
-      ],
-    );
-  }
-}
-
-class Info extends StatelessWidget {
-  const Info({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: ExpandibleRaw(
-        header: Expanded(
-          child: FittedBox(
-            alignment: Alignment.centerLeft,
-            fit: BoxFit.scaleDown,
-            child: Text(
-              AppLocalizations.of(context)!.blueDyeInfoHeader,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ),
-        ),
-        iconSize: 35,
-        view: LabeledList(strings: [
-          AppLocalizations.of(context)!.blueDyeInfoLineOne,
-          AppLocalizations.of(context)!.blueDyeInfoLineTwo,
-          AppLocalizations.of(context)!.blueDyeInfoLineThree,
-          AppLocalizations.of(context)!.blueDyeInfoLineFour
-        ], highlight: false),
-      ),
-    );
+      );
+    }, loading: (AsyncLoading<TestsState> loading) {
+      return const CircularProgressIndicator();
+    });
   }
 }
 
@@ -208,90 +136,10 @@ class TestErrorPrevention<T extends Test> extends ConsumerWidget {
             ),
           ],
         ),
-        onConfirm: () {
-          getTest<T>(ref.read(testProvider))?.cancel();
+        onConfirm: () async {
+          (await ref.read(testsHolderProvider.notifier).getTest<T>())?.cancel();
         },
         cancel: AppLocalizations.of(context)!.errorPreventionStay,
         confirm: AppLocalizations.of(context)!.errorPreventionLeave);
-    /*return Stack(
-      children: [
-        Positioned.fill(
-          child: Container(
-            color: lightBackgroundText.withOpacity(0.9),
-          ),
-        ),
-        Center(
-          child: SizedBox(
-            width: SMALL_LAYOUT / 1.7,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Card(
-                  shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10.0))),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10.0, vertical: 12.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          AppLocalizations.of(context)!.errorPreventionTitle,
-                          style: darkBackgroundHeaderStyle.copyWith(
-                              color: buttonDarkBackground),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(
-                          height: 8.0,
-                        ),
-                        Text(
-                          AppLocalizations.of(context)!
-                              .blueMuffinErrorPreventionLineOne,
-                          style: lightBackgroundStyle,
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(
-                          height: 8.0,
-                        ),
-                        Text(
-                          AppLocalizations.of(context)!
-                              .blueMuffinErrorPreventionLineTwo,
-                          style: lightBackgroundStyle,
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    BasicButton(
-                        color: buttonDarkBackground,
-                        onClick: (context) {
-                          _dismiss(context, ref);
-                        },
-                        text:
-                            AppLocalizations.of(context)!.errorPreventionLeave),
-                    BasicButton(
-                        color: buttonLightBackground,
-                        onClick: (context) {
-                          _closeOverlay(context, ref);
-                        },
-                        text:
-                            AppLocalizations.of(context)!.errorPreventionStay),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );*/
   }
 }

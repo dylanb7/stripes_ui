@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
@@ -18,8 +18,9 @@ class BlueRecordings<T extends Test> extends ConsumerWidget {
     final BlueDyeObj? blueObj =
         getObject<BlueDyeObj>(ref.watch(testStreamProvider));
     final List<BMTestLog> logs = blueObj?.logs ?? [];
-    final TestState state =
-        blueObj == null ? TestState.initial : stateFromTestOBJ(blueObj);
+    final BlueDyeTestStage state = blueObj == null
+        ? BlueDyeTestStage.initial
+        : stageFromTestState(blueObj);
     final bool isLoading = ref.watch(testLoading);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -56,7 +57,7 @@ class BlueRecordings<T extends Test> extends ConsumerWidget {
                   }
                 },
                 child: FilledButton(
-                  onPressed: state != TestState.logsSubmit || isLoading
+                  onPressed: state != BlueDyeTestStage.logsSubmit || isLoading
                       ? null
                       : () async {
                           ref.read(testLoading.notifier).state = true;
@@ -157,3 +158,4 @@ class LogRow extends ConsumerWidget {
     );
   }
 }
+*/

@@ -30,6 +30,7 @@ final ThemeData light = FlexThemeData.light(
     error: Color(0xffb00020),
   ),
   surfaceMode: FlexSurfaceMode.highBackgroundLowScaffold,
+  fontFamilyFallback: [],
   blendLevel: 1,
   appBarStyle: FlexAppBarStyle.background,
   fontFamily: "Inter",

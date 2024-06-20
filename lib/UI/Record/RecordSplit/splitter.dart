@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
@@ -160,71 +159,70 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12.0),
-                      color: ElevationOverlay.applySurfaceTint(
-                          Theme.of(context).cardColor,
-                          Theme.of(context).colorScheme.surfaceTint,
-                          3)),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 5.0, horizontal: 8.0),
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Expanded(
-                            child: IgnorePointer(
-                              ignoring: isLoading,
-                              child: PageView.builder(
-                                onPageChanged: (value) {
-                                  setState(() {
-                                    currentIndex = value;
-                                  });
-                                },
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemBuilder: (context, index) {
-                                  Widget content;
-                                  if (index == pages.length) {
-                                    content = SubmitScreen(
-                                      questionsListener:
-                                          widget.questionListener,
-                                      type: widget.type,
-                                    );
-                                  } else {
-                                    content = QuestionScreen(
-                                        header: pages[index].header ??
-                                            AppLocalizations.of(context)!
-                                                .selectInstruction,
-                                        questions: pages[index]
-                                            .questionIds
-                                            .map((id) => home.fromBank(id))
-                                            .toList(),
-                                        questionsListener:
-                                            widget.questionListener);
-                                  }
-                                  final ScrollController scrollController =
-                                      ScrollController();
-                                  return Scrollbar(
-                                    thumbVisibility: true,
-                                    thickness: 8.0,
-                                    interactive: false,
-                                    controller: scrollController,
-                                    radius:
-                                        const Radius.circular(double.infinity),
-                                    scrollbarOrientation:
-                                        ScrollbarOrientation.right,
-                                    child: SingleChildScrollView(
-                                        controller: scrollController,
-                                        scrollDirection: Axis.vertical,
-                                        child: content),
+                    borderRadius: BorderRadius.circular(12.0),
+                    color: ElevationOverlay.applySurfaceTint(
+                        Theme.of(context).cardColor,
+                        Theme.of(context).colorScheme.surfaceTint,
+                        3),
+                  ),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(
+                          child: IgnorePointer(
+                            ignoring: isLoading,
+                            child: PageView.builder(
+                              onPageChanged: (value) {
+                                setState(() {
+                                  currentIndex = value;
+                                });
+                              },
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemBuilder: (context, index) {
+                                Widget content;
+                                if (index == pages.length) {
+                                  content = SubmitScreen(
+                                    questionsListener: widget.questionListener,
+                                    type: widget.type,
                                   );
-                                },
-                                itemCount: pages.length + 1,
-                                controller: pageController,
-                              ),
+                                } else {
+                                  content = QuestionScreen(
+                                      header: pages[index].header ??
+                                          AppLocalizations.of(context)!
+                                              .selectInstruction,
+                                      questions: pages[index]
+                                          .questionIds
+                                          .map((id) => home.fromBank(id))
+                                          .toList(),
+                                      questionsListener:
+                                          widget.questionListener);
+                                }
+                                final ScrollController scrollController =
+                                    ScrollController();
+                                return Scrollbar(
+                                  thumbVisibility: true,
+                                  thickness: 5.0,
+                                  interactive: false,
+                                  controller: scrollController,
+                                  radius: const Radius.circular(20.0),
+                                  scrollbarOrientation:
+                                      ScrollbarOrientation.right,
+                                  child: SingleChildScrollView(
+                                    controller: scrollController,
+                                    scrollDirection: Axis.vertical,
+                                    child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 5.0, horizontal: 8.0),
+                                        child: content),
+                                  ),
+                                );
+                              },
+                              itemCount: pages.length + 1,
+                              controller: pageController,
                             ),
                           ),
-                        ]),
-                  ),
+                        ),
+                      ]),
                 ),
               ),
               const SizedBox(

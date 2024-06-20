@@ -75,6 +75,10 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
             onFormatChanged: _onFormatChange,
             headerVisible: false,
             calendarFormat: _format,
+            availableCalendarFormats: const {
+              CalendarFormat.month: 'Month',
+              CalendarFormat.week: 'Week',
+            },
             calendarStyle: const CalendarStyle(
                 cellPadding: EdgeInsets.all(2.0), outsideDaysVisible: false),
             onCalendarCreated: (controller) {

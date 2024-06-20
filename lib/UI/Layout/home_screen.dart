@@ -5,8 +5,12 @@ import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/Layout/fabs.dart';
 import 'package:stripes_ui/UI/PatientManagement/add_first_patient.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
+import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
+import 'package:stripes_ui/UI/Record/TestScreen/instructions.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
+import 'package:stripes_ui/l10n/app_localizations.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../Providers/overlay_provider.dart';
 import '../CommonWidgets/user_profile_button.dart';
@@ -36,7 +40,7 @@ class Home extends ConsumerWidget {
     final SubState state = subNotif.value!;
     final bool empty = state.subUsers.isEmpty;
     if (empty || state.selected == null || SubUser.isEmpty(state.selected!)) {
-      return PageWrap(child: CreatePatient());
+      return const PageWrap(child: CreatePatient());
     }
     return PageWrap(
       actions: [
@@ -88,8 +92,6 @@ class PageWrap extends ConsumerStatefulWidget {
 }
 
 class _PageWrapState extends ConsumerState<PageWrap> {
-  PersistentBottomSheetController? sheetController;
-
   _PageWrapState();
 
   @override
@@ -142,39 +144,188 @@ class _PageWrapState extends ConsumerState<PageWrap> {
   }
 
   _toggleBottomSheet(BuildContext context) {
-    if (sheetController != null) {
-      sheetController!.close();
-      sheetController = null;
-    } else {
-      sheetController = Scaffold.of(context).showBottomSheet((context) {
-        return const StripesInfoSheet();
-      });
-    }
+    showModalBottomSheet(
+        context: context,
+        useSafeArea: true,
+        isScrollControlled: true,
+        showDragHandle: false,
+        shape: RoundedRectangleBorder(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(15.0),
+            topRight: Radius.circular(15.0),
+          ),
+          side: BorderSide(color: Theme.of(context).colorScheme.outline),
+        ),
+        builder: (context) {
+          return DraggableScrollableSheet(
+              initialChildSize: 1.0,
+              builder: (context, controller) {
+                return StripesInfoSheet(
+                  scrollController: controller,
+                );
+              });
+        });
   }
 }
 
 class StripesInfoSheet extends StatelessWidget {
-  const StripesInfoSheet({super.key});
+  final ScrollController? scrollController;
+
+  final Function? onClose;
+
+  const StripesInfoSheet({this.onClose, this.scrollController, super.key});
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 200,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            const Text('BottomSheet'),
-            ElevatedButton(
-              child: const Text('Close'),
-              onPressed: () {
-                Navigator.pop(context);
-              },
+    final ScrollController scroll = scrollController ?? ScrollController();
+    return Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          const SizedBox(
+            height: 15.0,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: Theme.of(context).iconTheme.size ?? 24.0,
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Text(
+                      AppLocalizations.of(context)!.stripesName,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: Theme.of(context).primaryColor,
+                          fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+                IconButton.filled(
+                    onPressed: () {
+                      if (onClose != null) {
+                        onClose!();
+                      }
+                      Navigator.pop(context);
+                    },
+                    icon: const Icon(Icons.close))
+              ],
             ),
-          ],
-        ),
-      ),
-    );
+          ),
+          const SizedBox(
+            height: 8.0,
+          ),
+          Expanded(
+            child: Stack(children: [
+              SingleChildScrollView(
+                controller: scrollController,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!.aboutStripes,
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(
+                        height: 6.0,
+                      ),
+                      Text(AppLocalizations.of(context)!.aboutLineOne),
+                      const SizedBox(
+                        height: 6.0,
+                      ),
+                      Text(AppLocalizations.of(context)!.aboutLineTwo),
+                      const SizedBox(
+                        height: 6.0,
+                      ),
+                      Text(AppLocalizations.of(context)!.aboutLineThree),
+                      const SizedBox(
+                        height: 8.0,
+                      ),
+                      InkWell(
+                        onTap: () =>
+                            launchUrl(Uri.parse('https://www.bluepoop.info')),
+                        child: const Text(
+                          'bluepoop.info',
+                          style:
+                              TextStyle(decoration: TextDecoration.underline),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 8.0,
+                      ),
+                      Text(
+                        AppLocalizations.of(context)!.aboutQuestionsTitle,
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(
+                        height: 6.0,
+                      ),
+                      LabeledList(
+                          title: Text(
+                            AppLocalizations.of(context)!.aboutCategoriesTitle,
+                          ),
+                          strings: [
+                            AppLocalizations.of(context)!.aboutDataCollection,
+                            AppLocalizations.of(context)!.aboutDataSecurity,
+                            AppLocalizations.of(context)!.aboutStudyQuestions,
+                            AppLocalizations.of(context)!.aboutStudyResults,
+                            AppLocalizations.of(context)!.aboutWithdraw,
+                            AppLocalizations.of(context)!.aboutETC
+                          ],
+                          highlight: false),
+                      const SizedBox(
+                        height: 6.0,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              ListenableBuilder(
+                  listenable: scroll,
+                  builder: (context, child) {
+                    if (!scroll.hasClients ||
+                        !scroll.position.hasContentDimensions) {
+                      return const SizedBox();
+                    }
+                    final double maxExtent = scroll.position.maxScrollExtent;
+                    return Align(
+                      alignment: Alignment.bottomRight,
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 6.0, bottom: 6.0),
+                        child: IconButton.filled(
+                          onPressed: () {
+                            if (scroll.offset < maxExtent / 2) {
+                              scroll.animateTo(maxExtent,
+                                  duration: const Duration(milliseconds: 200),
+                                  curve: Curves.easeIn);
+                            } else {
+                              scroll.animateTo(0,
+                                  duration: const Duration(milliseconds: 200),
+                                  curve: Curves.easeIn);
+                            }
+                          },
+                          icon: Icon(scroll.offset < maxExtent / 2
+                              ? Icons.arrow_downward
+                              : Icons.arrow_upward),
+                        ),
+                      ),
+                    );
+                  }),
+            ]),
+          ),
+        ]);
   }
 }

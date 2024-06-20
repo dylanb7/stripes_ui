@@ -8,20 +8,33 @@ import 'package:stripes_ui/UI/PatientManagement/gender_dropdown.dart';
 import 'package:stripes_ui/Util/form_input.dart';
 import 'package:stripes_ui/Util/validators.dart';
 
-class CreatePatient extends ConsumerWidget {
-  static final GlobalKey<FormState> _formKey = GlobalKey();
+class CreatePatient extends ConsumerStatefulWidget {
+  const CreatePatient({super.key});
 
-  final TextEditingController _firstName = TextEditingController(),
-      _lastName = TextEditingController();
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() {
+    return _CreatePatientState();
+  }
+}
+
+class _CreatePatientState extends ConsumerState<CreatePatient> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  late final TextEditingController _firstName, _lastName;
 
   final BirthYearController _yearController = BirthYearController();
 
   final GenderHolder _genderValue = GenderHolder();
 
-  CreatePatient({super.key});
+  @override
+  void initState() {
+    _firstName = TextEditingController();
+    _lastName = TextEditingController();
+    super.initState();
+  }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return FormContainer(
       hasClose: false,
       topPortion: Column(
@@ -64,7 +77,9 @@ class CreatePatient extends ConsumerWidget {
                 validator: nameValidator,
                 controller: _firstName,
                 decoration: formFieldDecoration(
-                    hintText: 'First Name', controller: _firstName),
+                  hintText: 'First Name',
+                  controller: _firstName,
+                ),
               ),
               const SizedBox(
                 height: 8.0,
@@ -73,7 +88,9 @@ class CreatePatient extends ConsumerWidget {
                 validator: nameValidator,
                 controller: _lastName,
                 decoration: formFieldDecoration(
-                    hintText: 'Last Name', controller: _lastName),
+                  hintText: 'Last Name',
+                  controller: _lastName,
+                ),
               ),
               const SizedBox(
                 height: 8.0,
@@ -106,7 +123,7 @@ class CreatePatient extends ConsumerWidget {
               FilledButton(
                 child: const Text('Add Patient'),
                 onPressed: () {
-                  _submit(context, ref);
+                  _submit();
                 },
               ),
               const SizedBox(
@@ -119,7 +136,7 @@ class CreatePatient extends ConsumerWidget {
     );
   }
 
-  void _submit(BuildContext context, WidgetRef ref) async {
+  void _submit() async {
     _formKey.currentState?.save();
     if ((_formKey.currentState?.validate() ?? false)) {
       final SubUser user = SubUser(

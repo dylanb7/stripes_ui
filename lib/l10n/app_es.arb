@@ -16,6 +16,166 @@
     "sendResetEmail": "Send reset email",
     "createAccountText": "Create account",
 
+    "viewMoreButtonText": "View More",
+    "viewLessButtonText": "View Less",
+
+    "stripesName": "STRiPES",
+    "aboutStripes": "About STRiPES", 
+    "aboutLineOne": "STRiPES is a symptom tracker that collects information on altered movement of food through the gut (aka motility), pain, bowel movements(BM) and reflux of patients with Phelan-McDermid Syndrome (PMS).",
+    "aboutLineTwo": "The data will then be used in studies to further our understanding on gastrointestinal issues in patients with PMS.",
+    "aboutLineThree": "If you want to learn more about the studies STRiPES is collecting data for, please click the link below:",
+    "aboutQuestionsTitle": "Questions and/or concerns?",
+    "aboutCategoriesTitle": "If at any moment you have questions regarding thing such as:",
+    "aboutDataCollection": "Data collection",
+    "aboutDataSecurity": "Data security",
+    "aboutStudyQuestions": "Study questions",
+    "aboutStudyResults": "Study results",
+    "aboutWithdraw": "How to withdraw from study",
+    "aboutETC": "Something not listed in the above about the study or app",
+    "aboutEmail": "Please contact us at: {email}",
+    "@aboutEmail": {
+        "placeholders": {
+            "email": {
+                "type": "String",
+                "example": "exampleemail@example.edu"
+            }
+        }
+    },
+    "aboutMeetTitle": "Meet the Team",
+
+    "preStudySeeing": "Why am I seeing this:",
+    "preStudySeeingExp": "If you are on this page, it's because you indicated that you were willing to participate in the Blue Meal Study (BMS). If you feel this is incorrect, please let us know at [email.domain.com].",
+    "preStudyEnrollTitle": "Ready to Start?",
+    "preStudyEnrollDescPartOne": "If you have read and understand these instructions and are ready to begin the study, click the button below. This will take you directly to Step 1 of the study.",
+    "preStudyEnrollDescPartTwo": "You can access these instructions again at any time by pressing the icon with the \"i\" at the top of the page.",
+    "preStudyEnrollButton": "I am ready to start Step 1",
+
+    "inStudySeeingExp": "Note: If you are returning to this page, please make sure to complete all the steps in the study flow. If you have any questions or concerns, don't hesitate to contact us at [add email address here].",
+    "inStudyWithdrawTitle": "Withdraw from Study",
+    "inStudyWithdrawDesc": "You may withdraw at any time by clicking the withdrawal button below. This notifies the research team of your wish to stop participating.",
+    "inStudyWithdrawButtonText": "Withdraw from study",
+
+    "studyProgessionOne": "Step 1\nEat Blue Dye\nMeal",
+    "studyProgessionTwo": "Step 2\nTrack BM",
+    "studyProgessionThree": "Step 3\nEat Blue Dye\nMeal",
+    "studyProgessionFour": "Step 4\nTrack BM",
+
+    "stepClickWarning": "{step} is not yet active",
+    "@stepClickWarning": {
+        "placeholders": {
+            "step" : {
+                "type": "String",
+                "example": "Step 1"
+            }
+        }
+    },
+
+    "amountConsumedQuestion": "How much of the blue meal was eaten?",
+    "amountConsumedUnable": "Unable to determine amount consumed",
+    "amountConsumedHalfOrLess": "Less than half of blue meal",
+    "amountConsumedHalf": "Half of blue meal",
+    "amountConsumedHalfOrMore": "More than half of blue meal",
+    "amountConsumedAll": "All of blue meal",
+
+    "mealCompleteTitle": "Meal Duration",
+    "mealCompleteStartTime": "Start Time: {date} {time}",
+    "@mealCompleteStartTime": {
+        "placeholders": {
+            "date": { 
+                "type": "DateTime",
+                "format": "yMMMd"
+            },
+            "time": { 
+                "type": "DateTime",
+                "format": "jm"
+            }
+        } 
+    },
+    "mealCompleteDuration": "Eating Duration",
+
+    "recordingStateTitle": "Bowel Movement Recording",
+
+    "stepOneCompletedText": "Step 1 - Completed",
+    "stepTwoCompletedText": "Step 2 - Completed",
+    "stepTwoCompletedSubText": "You can begin Step 3 in 7 days.",
+    "stepThreeCompletedText": "Step 3 - Completed",
+    "stepFourCompletedText": "Step 4 - Completed",
+    "stepFourCompletedSubText": "You have completed the Blue Meal Study. Thank you for your participation!",
+
+    "studyExpTitle": "About the study", 
+    "studyExpBody": "This study measures gut motility (the movement of food through the digestive system) in people with Phelan-McDermid Syndrome using a novel blue meal test. It involves eating blue muffins and tracking bowel movements to determine transit time, which is the duration it takes for food to move through the digestive system, from consumption to excretion. The study will measure transit time twice using the blue muffins and this mobile app.",
+    "studyExpBodyCont": "During the study, you will be asked to report various gastrointestinal (GI) signs and symptoms using this app. While bowel movements are the primary focus of the study, we highly encourage you to track all relevant information, including:",
+    "studyBodySymptomOne": "Meal times (not a symptom, but important for context)",
+    "studyBodySymptomTwo": "Pain",
+    "studyBodySymptomThree": "Reflux",
+    "studyBodySymptomFour": "Neurological behavior",
+    "studyEligibilityTitle": "Eligibility",
+    "studyEligibilityParticipants": "Participants must:",
+    "studyEligibilityOne": "Have Phelan-McDermid Syndrome",
+    "studyEligibilityTwo": "Be 4 years of age or older",
+    "studyEligibilityThree": "Live in the United States",
+    "studyEligibilityFour": "Have an English-speaking caregiver to track symptoms",
+    "studyFlowTitle": "Study Flow",
+    "studyFlowDesc": "The study consists of a pre-study phase, preparation, and two transit time measurements:",
+    "studyFlowPreStudy": "Pre-Study:",
+    "studyFlowPreStudyOne": "Complete the onboarding questionnaire",
+    "studyFlowPreStudyTwo": "Track GI symptoms, using this app, for at least 7 days before starting Step 1 (eating the blue meal).",
+    "studyFlowPrepTitle": "Preparation:",
+    "studyFlowPrepOne": "You will receive 4 blue muffins. Store them in the freezer until ready to use.",
+    "studyFlowPrepTwo": "Muffins contain gluten-free flour, protein powder, egg whites, jam, sugar, and blue food coloring.",
+    "studyFlowStepOneTitle": "Step 1: Eat Blue Meal (Transit Time 1)",
+    "studyFlowStepOnePartOne": "After a 6-8 hour overnight fast, feed the participant 2 blue muffins.",
+    "studyFlowStepOnePartTwo": "Start the in-app timer when they begin eating. Stop when they finish. This records the muffin eating time.",
+    "studyFlowStepTwoTitle": "Step 2: Record Bowel Movements (Transit Time 1)",
+    "studyFlowStepTwoPartOne": "After the blue meal, record all bowel movements (BMs).",
+    "studyFlowStepTwoPartTwo": "Note the color, consistency, and any other symptoms for each BM.",
+    "studyFlowStepTwoPartThree": "Continue until a brown BM occurs after a blue one.",
+    "studyFlowBetweenStepTwoStepThree": "Between Step 2 & Step 3:",
+    "studyFlowBetweenStepTwoStepThreeDesc": "Wait 7 days after completing steps 1 and 2 before staring Step 3.",
+    "studyFlowStepThreeTitle": "Step 3: Eat Blue Meal (Transit Time 2)",
+    "studyFlowStepThreeDesc": "As in Step 1, after a 6-8 hour overnight fast, feed the participant the remaining 2 blue muffins. Again, start the in-app timer when they begin eating and stop when they finish to record eating time.",
+    "studyFlowStepFourTitle": "Step 4: Record Bowel Movements (Transit Time 2)",
+    "studyFlowStepFourDesc": "As in Step 2, after the second blue meal, record all bowel movements (BMs). Continue to note the color, consistency, and any other symptoms for each BM. Record until a brown BM occurs following a blue one.",
+    "studyFlowComplete": "After completing Step 4, your participation is complete!",
+    "studyContactTitle": "Contact Us",
+    "studyContactBody": "Questions or problems? Email [email@university.edu] with \"Blue Meal Study\" in the subject line, or call Dr. XYZ at ###-###-#### during business hours.",
+    
+     "studyStepOneExplanationTitle": "Step 1: Eat Blue Meal (Transit Time 1)",
+    "studyStepOneExplanationPreReq": "Before starting, ensure that the participant has completed a 6-8 hour fast.",
+    "studyStepOneExplanationPartOne": "Take two of the four blue muffins provided for the study.",
+    "studyStepOneExplanationPartTwo": "Feed the two blue muffins to the participant.",
+    "studyStepOneExplanationPartThree": "As soon as the participant starts eating the muffins, press the \"Start Timer\" button below to begin recording the eating time.",
+    "studyStepOneExplanationPartFour": "Once the participant has finished eating the muffins, press the \"Stop Timer\" button to stop recording the eating time.",
+    "studyStepOneExplanationNote": "Note: If you make a mistake while timing the participant, press the \"Reset\" button to clear the timer.",
+
+    "studyStepTwoExplanationTitle": "Step 2: Record Bowel Movements (Transit Time 1)",
+    "studyStepTwoExplanationDesc": "After the participant consumes the two blue muffins, track their bowel movements (BMs) using one of the following methods:",
+    "studyStepTwoExplanationPartOne": "1. On this page (Study Tab): Click \"Record BM\" button to log each BM, noting:",
+    "studyStepTwoExplanationPartOneDetailOne": "Date and time",
+    "studyStepTwoExplanationPartOneDetailTwo": "Presence or absence of blue-green color",
+    "studyStepTwoExplanationPartOneDetailThree": "Other relevant details (e.g., consistency, symptoms)",
+    "studyStepTwoExplanationPartTwo": "2. On the Track Tab:",
+    "studyStepTwoExplanationPartTwoDetailOne": "Press the \"Bowel Movement\" button to record each BM",
+    "studyStepTwoExplanationPartTwoDetailTwo": "Fill in the required information, including the presence or absence of blue-green color",
+    "studyStepTwoExplanationColorExp": "Continue recording all BMs, even if not blue-green. After the first blue-green BM, keep tracking until a non-blue BM occurs. The system will automatically complete Step 2 once you record a non-blue BM after a blue-green one.",
+    "studyStepTwoExplanationProgress": "After submitting, you will have completed the first half of the study. You can begin the second half in 7 days.",
+    
+    "studyStepThreeExplanationTitle": "Step 3: Eat Blue Meal (Transit Time 2)",
+    "studyStepThreeExplanationPreReq": "Before starting, ensure that the participant has completed a 6-8 hour fast",
+    "studyStepThreeExplanationPartOne": "Feed the participant the remaining two blue muffins.",
+    "studyStepThreeExplanationPartTwo": "Record the start and end time of the meal using the timer below.",
+
+    "studyStepFourExplanationTitle": "Step 4: Record Bowel Movements (Transit Time 2)",
+    "studyStepFourExplanationDesc": "After the participant consumes the two blue muffins, track their bowel movements (BMs) as follows:",
+    "studyStepFourExplanationPartOne": "Record each BM, noting the date, time, and presence or absence of blue-green color.",
+    "studyStepFourExplanationPartTwo": "Continue recording all BMs until a non-blue BM occurs after a blue-green one.",
+    "studyStepFourExplanationPartThree": "The system will automatically submit your recordings once you record the first normal-colored BM after the blue one.",
+    "studyStepFourExplanationCompletedNotice": "Once the system submits your recordings, you will have completed the Blue Meal Study. Thank you for your participation!",
+
+    "studyResetLabel": "Reset",
+    "studyPlayLabel": "Start",
+    "studyPauseLabel": "Stop",
+ 
     "passwordRequirementHeader": "Password must:",
     "passwordLength": "Be a minimum of 8 characters long",
     "passwordLowercase": "Include a lowercase letter (a-z)",
@@ -215,7 +375,7 @@
     "errorPreventionLeave": "Leave",
     "errorPreventionStay": "Stay",
     "mealTimerTitle": "Time Tracking",
-    "blueDyeHeader": "Blue Dye Test",
+    "blueDyeHeader": "Blue Meal Study",
     "blueDyeInfoHeader": "Blue Dye Test Info",
     "blueDyeInfoLineOne": "The Blue Dye Test measures the time it takes for food to transit through the gut.",
     "blueDyeInfoLineTwo": "To start the test, your participant(s) should eat two blue muffins in the morning after a minimum of a six hour fasting period.",
