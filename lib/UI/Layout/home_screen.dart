@@ -6,7 +6,6 @@ import 'package:stripes_ui/UI/Layout/fabs.dart';
 import 'package:stripes_ui/UI/PatientManagement/add_first_patient.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
-import 'package:stripes_ui/UI/Record/TestScreen/instructions.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
@@ -159,6 +158,7 @@ class _PageWrapState extends ConsumerState<PageWrap> {
         builder: (context) {
           return DraggableScrollableSheet(
               initialChildSize: 1.0,
+              minChildSize: 1.0,
               builder: (context, controller) {
                 return StripesInfoSheet(
                   scrollController: controller,

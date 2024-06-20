@@ -1,3 +1,4 @@
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
@@ -45,13 +46,11 @@ class BlueDyeTestScreen extends ConsumerWidget {
         Expanded(
           child: progress.stage != BlueDyeTestStage.initial
               ? const StudyOngoing()
-              : SingleChildScrollView(
-                  child: BlueMealPreStudy(
-                    onClick: () {
-                      _startTest(ref);
-                    },
-                    isLoading: false,
-                  ),
+              : BlueMealPreStudy(
+                  onClick: () {
+                    _startTest(ref);
+                  },
+                  isLoading: false,
                 ),
         ),
       ],
@@ -81,9 +80,12 @@ class BlueDyeTestScreen extends ConsumerWidget {
         builder: (context) {
           return DraggableScrollableSheet(
               initialChildSize: 1.0,
+              minChildSize: 1.0,
               builder: (context, controller) {
-                return BlueMealInfoSheet(
-                  scrollController: controller,
+                return SafeArea(
+                  child: BlueMealInfoSheet(
+                    scrollController: controller,
+                  ),
                 );
               });
         });
@@ -106,25 +108,22 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
   void initState() {
     currentIndex =
         ref.read(blueDyeTestProgressProvider).getProgression()?.value ?? 0;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.listen<BlueDyeProgression?>(
-          blueDyeTestProgressProvider
-              .select((progress) => progress.getProgression()), (prev, next) {
-        if (mounted &&
-            next != null &&
-            (prev == null || next.value > prev.value)) {
-          setState(() {
-            currentIndex = next.index;
-          });
-        }
-      });
-    });
-
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<BlueDyeProgression?>(
+        blueDyeTestProgressProvider
+            .select((progress) => progress.getProgression()), (prev, next) {
+      if (mounted &&
+          next != null &&
+          (prev == null || next.value > prev.value)) {
+        setState(() {
+          currentIndex = next.index;
+        });
+      }
+    });
     final BlueDyeTestProgress progress = ref.watch(blueDyeTestProgressProvider);
     final BlueDyeProgression? currentProgression = progress.getProgression();
     final int index = currentProgression?.value ?? 0;
@@ -166,12 +165,13 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                 (step) => HorizontalStep(
                   title: Text(
                     step.getLabel(context),
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.bold,
                           color: step.value > index
                               ? Theme.of(context)
                                   .colorScheme
                                   .onSurface
-                                  .withOpacity(0.6)
+                                  .withOpacity(0.5)
                               : null,
                           decoration:
                               currentIndex != step.value && step.value <= index
@@ -185,17 +185,19 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: Theme.of(context).colorScheme.onPrimary,
                         fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
                   ),
                 ),
               )
               .toList(),
-          circleWidth: 35.0,
+          circleWidth: 70.0,
           onStepPressed: (index, isActive) {
             if (!isActive) {
               showSnack(
                   context,
                   AppLocalizations.of(context)!
                       .stepClickWarning("${index + 1}"));
+              return;
             }
             if (currentIndex == index) return;
             setState(() {
@@ -204,7 +206,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
           },
           progress: detailedProgress,
           active: Theme.of(context).colorScheme.primary,
-          inactive: Theme.of(context).dividerColor),
+          inactive: Theme.of(context).dividerColor.darken()),
       const SizedBox(
         height: 12.0,
       ),

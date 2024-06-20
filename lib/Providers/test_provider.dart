@@ -28,6 +28,7 @@ final testProvider = FutureProvider<TestsRepo?>((ref) async {
 
 final testStreamProvider = StreamProvider<List<TestState>>((ref) async* {
   final TestsRepo? repo = await ref.watch(testProvider.future);
+
   if (repo == null) {
     yield [];
   } else {
@@ -41,10 +42,12 @@ final testsHolderProvider =
 class TestsNotifier extends AsyncNotifier<TestsState> {
   @override
   FutureOr<TestsState> build() async {
-    final TestsRepo? testsRepo = await ref.watch(testProvider.future);
-    final List<TestState> testStates =
-        await ref.watch(testStreamProvider.future);
     final SharedService service = ref.watch(sharedSeviceProvider);
+    final TestsRepo? testsRepo = await ref.watch(testProvider.future);
+
+    final List<TestState> testStates =
+        ref.watch(testStreamProvider).valueOrNull ?? [];
+
     if (testsRepo == null || testsRepo.tests.isEmpty) return TestsState.empty();
     final String? currentTestName = await service.getCurrentTest();
     final Test? currentTest = testsRepo.tests

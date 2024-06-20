@@ -31,6 +31,7 @@ class HorizontalStepper extends StatelessWidget {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: steps
                 .mapIndexed((index, step) => InkWell(
                     onTap: () {
@@ -55,7 +56,8 @@ class HorizontalStepper extends StatelessWidget {
     const double lineHeight = 4.0;
     final List<Widget> parts = [];
     steps.asMap().forEach((index, step) {
-      final Color circleColor = index.toDouble() <= progress ? active : active;
+      final Color circleColor =
+          index.toDouble() <= progress ? active : inactive;
       parts.add(
         InkWell(
           onTap: () {
@@ -70,27 +72,36 @@ class HorizontalStepper extends StatelessWidget {
         ),
       );
       if (index != steps.length - 1) {
-        if (progressIndex == index) {
+        if (progressIndex == index && progress != index.toDouble()) {
           final double fractionFilled = progress - index.toDouble();
           parts.add(
             Expanded(
-              child: Row(
-                children: [
-                  FractionallySizedBox(
-                    widthFactor: fractionFilled,
-                    child: Container(
-                      height: lineHeight,
-                      color: active,
+              child: SizedBox(
+                height: lineHeight,
+                child: Row(
+                  children: [
+                    Flexible(
+                      child: FractionallySizedBox(
+                        widthFactor: fractionFilled,
+                        heightFactor: 1,
+                        child: Container(
+                          height: lineHeight,
+                          color: active,
+                        ),
+                      ),
                     ),
-                  ),
-                  FractionallySizedBox(
-                    widthFactor: 1.0 - fractionFilled,
-                    child: Container(
-                      height: lineHeight,
-                      color: inactive,
+                    Flexible(
+                      child: FractionallySizedBox(
+                        widthFactor: 1.0 - fractionFilled,
+                        heightFactor: 1,
+                        child: Container(
+                          height: lineHeight,
+                          color: inactive,
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           );
@@ -99,7 +110,7 @@ class HorizontalStepper extends StatelessWidget {
             Expanded(
               child: Container(
                 height: lineHeight,
-                color: index <= progressIndex ? active : inactive,
+                color: index < progressIndex ? active : inactive,
               ),
             ),
           );

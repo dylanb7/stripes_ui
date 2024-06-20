@@ -118,10 +118,41 @@ class BlueMealPreStudy extends StatelessWidget {
   }
 }
 
-class BlueMealInfoSheet extends StatelessWidget {
+class BlueMealInfoSheet extends StatefulWidget {
   final ScrollController scrollController;
 
   const BlueMealInfoSheet({super.key, required this.scrollController});
+
+  @override
+  State<StatefulWidget> createState() {
+    return _BlueMealInfoSheetState();
+  }
+}
+
+class _BlueMealInfoSheetState extends State<BlueMealInfoSheet> {
+  bool isShowing = false, isHalfway = false;
+  @override
+  void initState() {
+    //widget.scrollController.addListener(_onScroll);
+
+    super.initState();
+  }
+
+  void _onScroll() {
+    if (!widget.scrollController.hasClients ||
+        !widget.scrollController.position.hasContentDimensions) {
+      return;
+    }
+
+    final bool isHalfway = widget.scrollController.offset >=
+        widget.scrollController.position.maxScrollExtent / 2;
+    if (mounted && (isHalfway != this.isHalfway || !isShowing)) {
+      setState(() {
+        this.isHalfway = isHalfway;
+        isShowing = true;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -162,7 +193,7 @@ class BlueMealInfoSheet extends StatelessWidget {
             children: [
               ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                controller: scrollController,
+                controller: widget.scrollController,
                 shrinkWrap: true,
                 children: [
                   ColoredBox(
@@ -204,45 +235,41 @@ class BlueMealInfoSheet extends StatelessWidget {
                   ),
                 ],
               ),
-              ListenableBuilder(
-                listenable: scrollController,
-                builder: (context, child) {
-                  if (!scrollController.hasClients ||
-                      !scrollController.position.hasContentDimensions) {
-                    return const SizedBox();
-                  }
-                  final bool isHalfway = scrollController.offset >=
-                      scrollController.position.maxScrollExtent / 2;
-                  return Align(
-                    alignment: Alignment.bottomRight,
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 6.0, bottom: 6.0),
-                      child: IconButton.filled(
-                        onPressed: () {
-                          if (isHalfway) {
-                            scrollController.animateTo(0,
-                                duration: const Duration(milliseconds: 200),
-                                curve: Curves.easeIn);
-                          } else {
-                            scrollController.animateTo(
-                                scrollController.position.maxScrollExtent,
-                                duration: const Duration(milliseconds: 200),
-                                curve: Curves.easeIn);
-                          }
-                        },
-                        icon: Icon(isHalfway
-                            ? Icons.arrow_upward
-                            : Icons.arrow_downward),
-                      ),
+              if (isShowing)
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 6.0, bottom: 6.0),
+                    child: IconButton.filled(
+                      onPressed: () {
+                        if (isHalfway) {
+                          widget.scrollController.animateTo(0,
+                              duration: const Duration(milliseconds: 200),
+                              curve: Curves.easeIn);
+                        } else {
+                          widget.scrollController.animateTo(
+                              widget.scrollController.position.maxScrollExtent,
+                              duration: const Duration(milliseconds: 200),
+                              curve: Curves.easeIn);
+                        }
+                      },
+                      icon: Icon(isHalfway
+                          ? Icons.arrow_upward
+                          : Icons.arrow_downward),
                     ),
-                  );
-                },
-              ),
+                  ),
+                ),
             ],
           ),
         ),
       ],
     );
+  }
+
+  @override
+  void dispose() {
+    //widget.scrollController.removeListener(_onScroll);
+    super.dispose();
   }
 }
 
@@ -502,6 +529,7 @@ class _BlueStudyInstructionsPartTwoState
   @override
   void initState() {
     expanded = widget.initiallyExpanded;
+    _expandibleController = ExpandibleController(expanded);
     super.initState();
   }
 
