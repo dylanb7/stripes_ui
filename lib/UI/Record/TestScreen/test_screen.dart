@@ -4,7 +4,6 @@ import 'package:stripes_backend_helper/RepositoryBase/TestBase/base_test_repo.da
 import 'package:stripes_backend_helper/RepositoryBase/TestBase/test_state.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
-import 'package:stripes_ui/UI/Record/TestScreen/test_content.dart';
 
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -20,8 +19,10 @@ class _TestScreenState extends ConsumerState<TestScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final Test<TestState>? selectedTest = ref.watch(
-        testsHolderProvider.select((state) => state.valueOrNull?.selected));
+    final AsyncValue<TestsState> testsState = ref.watch(testsHolderProvider);
+    final Test<TestState>? selectedTest = ref.watch(testsHolderProvider
+            .select((state) => state.valueOrNull?.selected)) ??
+        testsState.valueOrNull?.testsRepo?.tests.first;
     if (selectedTest == null) {
       return const Center(
         child: CircularProgressIndicator(),
