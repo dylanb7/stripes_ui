@@ -59,7 +59,7 @@ class HorizontalStepper extends StatelessWidget {
       final Color circleColor =
           index.toDouble() <= progress ? active : inactive;
       parts.add(
-        InkWell(
+        GestureDetector(
           onTap: () {
             onStepPressed(index, index <= progressIndex);
           },
@@ -78,29 +78,23 @@ class HorizontalStepper extends StatelessWidget {
             Expanded(
               child: SizedBox(
                 height: lineHeight,
-                child: Row(
-                  children: [
-                    Flexible(
-                      child: FractionallySizedBox(
-                        widthFactor: fractionFilled,
-                        heightFactor: 1,
-                        child: Container(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return Row(
+                      children: [
+                        Container(
                           height: lineHeight,
+                          width: fractionFilled * constraints.maxWidth,
                           color: active,
                         ),
-                      ),
-                    ),
-                    Flexible(
-                      child: FractionallySizedBox(
-                        widthFactor: 1.0 - fractionFilled,
-                        heightFactor: 1,
-                        child: Container(
+                        Container(
                           height: lineHeight,
                           color: inactive,
+                          width: (1.0 - fractionFilled) * constraints.maxWidth,
                         ),
-                      ),
-                    ),
-                  ],
+                      ],
+                    );
+                  },
                 ),
               ),
             ),
