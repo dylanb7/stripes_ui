@@ -121,6 +121,8 @@ class StudyOngoing extends ConsumerStatefulWidget {
 class _StudyOngoingState extends ConsumerState<StudyOngoing> {
   late int currentIndex;
 
+  final ScrollController scrollContoller = ScrollController();
+
   @override
   void initState() {
     currentIndex =
@@ -136,9 +138,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
       if (mounted &&
           next != null &&
           (prev == null || next.value > prev.value)) {
-        setState(() {
-          currentIndex = next.index;
-        });
+        _changePage(next.index);
       }
     });
     final BlueDyeTestProgress progress = ref.watch(blueDyeTestProgressProvider);
@@ -163,9 +163,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
         if (isPrevious) {
           return MealFinishedDisplay(
             next: () {
-              setState(() {
-                currentIndex++;
-              });
+              _changePage(currentIndex + 1);
             },
             displaying: activeStage,
           );
@@ -183,9 +181,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
           (progress.testIteration == 2 && !progress.stage.testInProgress)) {
         return RecordingsView(
           next: () {
-            setState(() {
-              currentIndex++;
-            });
+            _changePage(currentIndex + 1);
           },
           clicked: activeStage,
         );
@@ -248,9 +244,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                         return;
                       }
                       if (currentIndex == index) return;
-                      setState(() {
-                        currentIndex = index;
-                      });
+                      _changePage(index);
                     },
                     progress: getDetailedProgress(),
                     active: Theme.of(context).colorScheme.primary,
@@ -261,6 +255,20 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                 getDisplayedWidget(),
               ],
             ),
-        scrollController: ScrollController());
+        scrollController: scrollContoller);
+  }
+
+  _changePage(int newIndex) {
+    if (!mounted) return;
+    setState(() {
+      currentIndex = newIndex;
+    });
+    try {
+      if (scrollContoller.hasClients) {
+        scrollContoller.jumpTo(scrollContoller.position.maxScrollExtent);
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 }
