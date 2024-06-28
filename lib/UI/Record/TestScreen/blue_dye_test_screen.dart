@@ -265,7 +265,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
     });
     try {
       if (scrollContoller.hasClients) {
-        scrollContoller.jumpTo(scrollContoller.position.maxScrollExtent);
+        scrollContoller.jumpTo(scrollContoller.position.minScrollExtent);
       }
     } catch (e) {
       debugPrint(e.toString());
