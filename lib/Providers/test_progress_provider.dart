@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:stripes_backend_helper/RepositoryBase/TestBase/BlueDye/blue_dye_response.dart';
-import 'package:stripes_backend_helper/RepositoryBase/TestBase/BlueDye/bm_test_log.dart';
+
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
@@ -12,74 +11,68 @@ final blueDyeTestProgressProvider = Provider<BlueDyeTestProgress>((ref) {
   final AsyncValue<List<Stamp>> stamps = ref.watch(stampHolderProvider);
   if (!stamps.hasValue || !asyncState.hasValue) {
     return const BlueDyeTestProgress(
-        stage: BlueDyeTestStage.initial,
-        testIteration: 0,
-        lastTestCompleted: null);
+        stage: BlueDyeTestStage.initial, testIteration: 0, orderedTests: []);
   }
   final List<BlueDyeResp> testResponses =
       stamps.value!.whereType<BlueDyeResp>().toList();
 
-  final MostRecent? mostRecent = _getMostRecent(testResponses);
+  final List<TestDate> mostRecent = _getOrderedTests(testResponses);
   final int iterations = testResponses.length;
   final BlueDyeState? state = asyncState.value!.getTestState<BlueDyeState>();
   return BlueDyeTestProgress(
       stage: stageFromTestState(state),
       testIteration: iterations,
-      lastTestCompleted: mostRecent);
+      orderedTests: mostRecent);
 });
 
 @immutable
-class MostRecent {
+class TestDate {
   final BlueDyeResp test;
   final DateTime finishTime;
 
-  const MostRecent({required this.test, required this.finishTime});
+  const TestDate({required this.test, required this.finishTime});
 }
 
-MostRecent? _getMostRecent(List<BlueDyeResp> testResponses) {
-  if (testResponses.isEmpty) return null;
-  BlueDyeResp? latest;
-  DateTime? latestsTime;
-  for (final BlueDyeResp testResponse in testResponses) {
+List<TestDate> _getOrderedTests(List<BlueDyeResp> testResponses) {
+  if (testResponses.isEmpty) return [];
+
+  DateTime end(BlueDyeResp resp) {
     DateTime? lastEntry;
-    for (final BMTestLog log in testResponse.logs) {
+    for (final BMTestLog log in resp.logs) {
       DateTime logTime = dateFromStamp(log.stamp);
       lastEntry ??= logTime;
       if (logTime.isAfter(lastEntry)) {
         lastEntry = logTime;
       }
     }
-    latestsTime ??= lastEntry;
-    latest ??= testResponse;
-    if (lastEntry != null && lastEntry.isAfter(latestsTime!)) {
-      latest = testResponse;
-      latestsTime = lastEntry;
-    }
+    return lastEntry ?? DateTime.now();
   }
-  if (latest != null && latestsTime != null) {
-    return MostRecent(test: latest, finishTime: latestsTime);
-  }
-  return null;
+
+  final List<TestDate> testDates = testResponses
+      .map<TestDate>((res) => TestDate(test: res, finishTime: end(res)))
+      .toList()
+    ..sort((first, second) => first.finishTime.compareTo(second.finishTime));
+
+  return testDates;
 }
 
 @immutable
 class BlueDyeTestProgress {
   final BlueDyeTestStage stage;
   final int testIteration;
-  final MostRecent? lastTestCompleted;
+  final List<TestDate> orderedTests;
 
   BlueDyeProgression? getProgression() {
     if (stage == BlueDyeTestStage.initial && testIteration == 0) return null;
-    if (testIteration == 0 && stage == BlueDyeTestStage.started ||
-        stage == BlueDyeTestStage.amountConsumed) {
+    if (testIteration == 0 &&
+        (stage == BlueDyeTestStage.started ||
+            stage == BlueDyeTestStage.amountConsumed)) {
       return BlueDyeProgression.stepOne;
     }
     if (testIteration == 0 ||
-        (lastTestCompleted != null &&
-            DateTime.now()
-                    .difference(lastTestCompleted!.finishTime)
-                    .compareTo(const Duration(days: 7)) <
-                0)) return BlueDyeProgression.stepTwo;
+        (orderedTests.length == 1 && !stage.testInProgress)) {
+      return BlueDyeProgression.stepTwo;
+    }
     if (stage == BlueDyeTestStage.amountConsumed ||
         stage == BlueDyeTestStage.started) return BlueDyeProgression.stepThree;
     return BlueDyeProgression.stepFour;
@@ -87,7 +80,7 @@ class BlueDyeTestProgress {
 
   const BlueDyeTestProgress(
       {required this.stage,
-      required this.lastTestCompleted,
+      required this.orderedTests,
       required this.testIteration});
 }
 

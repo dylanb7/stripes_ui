@@ -12,31 +12,68 @@ import 'package:stripes_ui/repos/blue_dye_test_repo.dart';
 class MealFinishedDisplay extends ConsumerWidget {
   final Function next;
 
-  final bool isStepThree;
+  final BlueDyeProgression displaying;
 
   const MealFinishedDisplay(
-      {required this.next, required this.isStepThree, super.key});
+      {required this.next, required this.displaying, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final BlueDyeTestProgress progress = ref.watch(blueDyeTestProgressProvider);
+
     final BlueDyeState? testsState = ref.watch(testsHolderProvider
         .select((holder) => holder.valueOrNull?.getTestState<BlueDyeState>()));
     final BlueDyeProgression progression =
         progress.getProgression() ?? BlueDyeProgression.stepOne;
-    final bool displayOld =
-        progression == BlueDyeProgression.stepThree && !isStepThree;
-    DateTime? blueMealStart = displayOld
-        ? progress.lastTestCompleted?.test.startEating
-        : testsState?.startTime;
-    Duration? blueMealDuration = displayOld
-        ? progress.lastTestCompleted?.test.eatingDuration
-        : testsState?.finishedEating;
+
+    final Map<AmountConsumed, String> amountText = {
+      AmountConsumed.halfOrLess:
+          AppLocalizations.of(context)!.amountConsumedHalfOrLess,
+      AmountConsumed.half: AppLocalizations.of(context)!.amountConsumedHalf,
+      AmountConsumed.moreThanHalf:
+          AppLocalizations.of(context)!.amountConsumedHalfOrMore,
+      AmountConsumed.all: AppLocalizations.of(context)!.amountConsumedAll,
+    };
+
+    BlueMealStats getMealStats() {
+      final bool testOngoing = progress.stage.testInProgress;
+      if (testOngoing &&
+              (displaying == BlueDyeProgression.stepOne &&
+                  progression == BlueDyeProgression.stepTwo) ||
+          (displaying == BlueDyeProgression.stepThree &&
+              progression == BlueDyeProgression.stepThree)) {
+        return BlueMealStats(
+            start: testsState?.startTime,
+            duration: testsState?.finishedEating,
+            amountConsumed: testsState?.amountConsumed);
+      }
+      final List<TestDate> dates = progress.orderedTests;
+      if (dates.isEmpty) {
+        return const BlueMealStats(
+            start: null, duration: null, amountConsumed: null);
+      }
+      if (displaying == BlueDyeProgression.stepOne) {
+        return BlueMealStats(
+            start: dates[0].test.startEating,
+            duration: dates[0].test.eatingDuration,
+            amountConsumed: dates[0].test.amountConsumed);
+      }
+      if (dates.length < 2) {
+        return const BlueMealStats(
+            start: null, duration: null, amountConsumed: null);
+      }
+      return BlueMealStats(
+          start: dates[1].test.startEating,
+          duration: dates[1].test.eatingDuration,
+          amountConsumed: dates[1].test.amountConsumed);
+    }
+
+    final BlueMealStats mealStats = getMealStats();
     final double iconSize = Theme.of(context).iconTheme.size ?? 20;
     return Column(
       children: [
         Text(
-          isStepThree
+          displaying == BlueDyeProgression.stepThree
               ? AppLocalizations.of(context)!.studyStepThreeExplanationTitle
               : AppLocalizations.of(context)!.studyStepOneExplanationTitle,
           style: Theme.of(context)
@@ -64,45 +101,67 @@ class MealFinishedDisplay extends ConsumerWidget {
                       .bodyMedium
                       ?.copyWith(fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(
-                  height: 8.0,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    const Icon(Icons.alarm),
-                    const SizedBox(
-                      width: 4.0,
-                    ),
-                    if (blueMealStart != null)
-                      Text(AppLocalizations.of(context)!
-                          .mealCompleteStartTime(blueMealStart, blueMealStart))
-                  ],
-                ),
-                const SizedBox(
-                  height: 8.0,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    SvgPicture.asset(
-                      'packages/stripes_ui/assets/svg/muffin_icon.svg',
-                      width: iconSize,
-                      height: iconSize,
-                    ),
-                    const SizedBox(
-                      width: 4.0,
-                    ),
-                    if (blueMealDuration != null)
+                if (mealStats.start != null) ...[
+                  const SizedBox(
+                    height: 8.0,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.alarm),
+                      const SizedBox(
+                        width: 6.0,
+                      ),
+                      if (mealStats.start != null)
+                        Text(AppLocalizations.of(context)!
+                            .mealCompleteStartTime(
+                                mealStats.start!, mealStats.start!))
+                    ],
+                  ),
+                ],
+                if (mealStats.duration != null) ...[
+                  const SizedBox(
+                    height: 8.0,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      SvgPicture.asset(
+                        'packages/stripes_ui/assets/svg/muffin_icon.svg',
+                        width: iconSize,
+                        height: iconSize,
+                      ),
+                      const SizedBox(
+                        width: 6.0,
+                      ),
+                      if (mealStats.duration != null)
+                        Text(
+                            "${AppLocalizations.of(context)!.mealCompleteDuration} ${from(mealStats.duration!, context)}")
+                    ],
+                  ),
+                ],
+                if (mealStats.amountConsumed != null) ...[
+                  const SizedBox(
+                    height: 8.0,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.blur_linear),
+                      const SizedBox(
+                        width: 6.0,
+                      ),
                       Text(
-                          "${AppLocalizations.of(context)!.mealCompleteDuration} ${from(blueMealDuration, context)}")
-                  ],
-                ),
+                        "${AppLocalizations.of(context)!.mealCompleteAmountConsumed} ${amountText[mealStats.amountConsumed!]!}",
+                      ),
+                    ],
+                  ),
+                ],
                 const SizedBox(
                   height: 8.0,
                 ),
                 Text(
-                  isStepThree
+                  displaying == BlueDyeProgression.stepThree
                       ? AppLocalizations.of(context)!.stepThreeCompletedText
                       : AppLocalizations.of(context)!.stepOneCompletedText,
                   style: Theme.of(context)
@@ -121,7 +180,7 @@ class MealFinishedDisplay extends ConsumerWidget {
           height: 12.0,
         ),
         Center(
-          child: ElevatedButton(
+          child: FilledButton(
             onPressed: () {
               next();
             },
@@ -134,6 +193,18 @@ class MealFinishedDisplay extends ConsumerWidget {
       ],
     );
   }
+}
+
+@immutable
+class BlueMealStats {
+  final DateTime? start;
+  final Duration? duration;
+  final AmountConsumed? amountConsumed;
+
+  const BlueMealStats(
+      {required this.start,
+      required this.duration,
+      required this.amountConsumed});
 }
 
 class AmountConsumedEntry extends ConsumerStatefulWidget {
@@ -201,7 +272,7 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
                       AppLocalizations.of(context)!.amountConsumedQuestion,
                       style: Theme.of(context)
                           .textTheme
-                          .bodyMedium
+                          .titleMedium
                           ?.copyWith(color: Theme.of(context).primaryColor),
                     ),
                     const SizedBox(
@@ -228,57 +299,49 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
                     const SizedBox(
                       height: 8.0,
                     ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Checkbox(
-                            value: value == AmountConsumed.undetermined,
-                            onChanged: (newValue) {
-                              if (newValue == null) return;
-                              if (newValue) {
-                                setState(() {
-                                  value = AmountConsumed.undetermined;
-                                });
-                              } else {
-                                setState(() {
-                                  value = null;
-                                });
-                              }
-                            }),
-                        const SizedBox(
-                          width: 4,
-                        ),
-                        Text(
-                          AppLocalizations.of(context)!.amountConsumedUnable,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(color: Theme.of(context).primaryColor),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 12.0,
-                    ),
-                    Center(
-                      child: ElevatedButton(
-                        onPressed: value != null && !isLoading
-                            ? () {
-                                _next(testsState);
-                              }
-                            : null,
-                        child: Text(AppLocalizations.of(context)!.nextButton),
+                    CheckboxListTile(
+                      value: value == AmountConsumed.undetermined,
+                      onChanged: (val) {
+                        if (val == null) return;
+                        if (value != AmountConsumed.undetermined) {
+                          setState(() {
+                            value = AmountConsumed.undetermined;
+                          });
+                        } else {
+                          setState(() {
+                            value = null;
+                          });
+                        }
+                      },
+                      title: Text(
+                        AppLocalizations.of(context)!.amountConsumedUnable,
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(color: Theme.of(context).primaryColor),
                       ),
-                    ),
-                    const SizedBox(
-                      height: 25.0,
                     ),
                   ],
                 ),
               ),
             ),
           ),
+        ),
+        const SizedBox(
+          height: 12.0,
+        ),
+        Center(
+          child: FilledButton(
+            onPressed: value != null && !isLoading
+                ? () {
+                    _next(testsState);
+                  }
+                : null,
+            child: Text(AppLocalizations.of(context)!.nextButton),
+          ),
+        ),
+        const SizedBox(
+          height: 25.0,
         ),
       ],
     );

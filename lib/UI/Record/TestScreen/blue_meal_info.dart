@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
-import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
+import 'package:stripes_ui/UI/CommonWidgets/scroll_assisted_list.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class BlueMealPreStudy extends StatelessWidget {
@@ -14,145 +14,84 @@ class BlueMealPreStudy extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        SingleChildScrollView(
-          controller: _scrollController,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              ColoredBox(
-                color: Colors.yellow.withOpacity(0.5),
-                child: Padding(
-                    padding: const EdgeInsets.all(4.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          AppLocalizations.of(context)!.preStudySeeing,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          AppLocalizations.of(context)!.preStudySeeingExp,
-                        ),
-                      ],
-                    )),
-              ),
-              const SizedBox(
-                height: 12.0,
-              ),
-              const BlueMealStudyInstructions(),
-              const SizedBox(
-                height: 12.0,
-              ),
-              Text(
-                AppLocalizations.of(context)!.preStudyEnrollTitle,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              Text(AppLocalizations.of(context)!.preStudyEnrollDescPartOne),
-              const SizedBox(
-                height: 12.0,
-              ),
-              Text(AppLocalizations.of(context)!.preStudyEnrollDescPartTwo),
-              const SizedBox(
-                height: 25.0,
-              ),
-              Center(
-                child: FilledButton(
-                  onPressed: isLoading
-                      ? null
-                      : () {
-                          onClick();
-                        },
-                  child: isLoading
-                      ? const ButtonLoadingIndicator()
-                      : Text(
-                          AppLocalizations.of(context)!.preStudyEnrollButton),
-                ),
-              ),
-              const SizedBox(
-                height: 50.0,
-              ),
-            ],
-          ),
-        ),
-        ListenableBuilder(
-            listenable: _scrollController,
-            builder: (context, child) {
-              if (!_scrollController.hasClients) return const SizedBox();
-              return Align(
-                alignment: Alignment.bottomRight,
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 6.0, bottom: 6.0),
-                  child: IconButton.filled(
-                    onPressed: () {
-                      if (_scrollController.offset <
-                          _scrollController.position.maxScrollExtent / 2) {
-                        _scrollController.animateTo(
-                            _scrollController.position.maxScrollExtent,
-                            duration: const Duration(milliseconds: 200),
-                            curve: Curves.easeIn);
-                      } else {
-                        _scrollController.animateTo(0,
-                            duration: const Duration(milliseconds: 200),
-                            curve: Curves.easeIn);
-                      }
-                    },
-                    icon: Icon(_scrollController.offset < 500
-                        ? Icons.arrow_downward
-                        : Icons.arrow_upward),
+    return ScrollAssistedList(
+        builder: (context, properties) => SingleChildScrollView(
+              key: properties.scrollStateKey,
+              controller: properties.scrollController,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  ColoredBox(
+                    color: Colors.yellow.withOpacity(0.5),
+                    child: Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              AppLocalizations.of(context)!.preStudySeeing,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              AppLocalizations.of(context)!.preStudySeeingExp,
+                            ),
+                          ],
+                        )),
                   ),
-                ),
-              );
-            }),
-      ],
-    );
+                  const SizedBox(
+                    height: 12.0,
+                  ),
+                  const BlueMealStudyInstructions(),
+                  const SizedBox(
+                    height: 12.0,
+                  ),
+                  Text(
+                    AppLocalizations.of(context)!.preStudyEnrollTitle,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  Text(AppLocalizations.of(context)!.preStudyEnrollDescPartOne),
+                  const SizedBox(
+                    height: 12.0,
+                  ),
+                  Text(AppLocalizations.of(context)!.preStudyEnrollDescPartTwo),
+                  const SizedBox(
+                    height: 25.0,
+                  ),
+                  Center(
+                    child: FilledButton(
+                      onPressed: isLoading
+                          ? null
+                          : () {
+                              onClick();
+                            },
+                      child: isLoading
+                          ? const ButtonLoadingIndicator()
+                          : Text(AppLocalizations.of(context)!
+                              .preStudyEnrollButton),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 50.0,
+                  ),
+                ],
+              ),
+            ),
+        scrollController: _scrollController);
   }
 }
 
-class BlueMealInfoSheet extends StatefulWidget {
+class BlueMealInfoSheet extends StatelessWidget {
   final ScrollController scrollController;
 
   const BlueMealInfoSheet({super.key, required this.scrollController});
-
-  @override
-  State<StatefulWidget> createState() {
-    return _BlueMealInfoSheetState();
-  }
-}
-
-class _BlueMealInfoSheetState extends State<BlueMealInfoSheet> {
-  bool isShowing = false, isHalfway = false;
-  @override
-  void initState() {
-    //widget.scrollController.addListener(_onScroll);
-
-    super.initState();
-  }
-
-  void _onScroll() {
-    if (!widget.scrollController.hasClients ||
-        !widget.scrollController.position.hasContentDimensions) {
-      return;
-    }
-
-    final bool isHalfway = widget.scrollController.offset >=
-        widget.scrollController.position.maxScrollExtent / 2;
-    if (mounted && (isHalfway != this.isHalfway || !isShowing)) {
-      setState(() {
-        this.isHalfway = isHalfway;
-        isShowing = true;
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -189,87 +128,56 @@ class _BlueMealInfoSheetState extends State<BlueMealInfoSheet> {
           height: 8.0,
         ),
         Expanded(
-          child: Stack(
-            children: [
-              ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                controller: widget.scrollController,
-                shrinkWrap: true,
-                children: [
-                  ColoredBox(
-                    color: Colors.yellow.withOpacity(0.5),
-                    child: Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      child: Text(
-                        AppLocalizations.of(context)!.inStudySeeingExp,
-                      ),
+            child: ScrollAssistedList(
+                builder: (context, properties) => ListView(
+                      physics: const ScrollPhysics(),
+                      shrinkWrap: true,
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      key: properties.scrollStateKey,
+                      controller: properties.scrollController,
+                      children: [
+                        ColoredBox(
+                          color: Colors.yellow.withOpacity(0.5),
+                          child: Padding(
+                            padding: const EdgeInsets.all(4.0),
+                            child: Text(
+                              AppLocalizations.of(context)!.inStudySeeingExp,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 12.0,
+                        ),
+                        const BlueMealStudyInstructions(),
+                        const SizedBox(
+                          height: 12.0,
+                        ),
+                        Text(
+                          AppLocalizations.of(context)!.inStudyWithdrawTitle,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          AppLocalizations.of(context)!.inStudyWithdrawDesc,
+                        ),
+                        const SizedBox(
+                          height: 12.0,
+                        ),
+                        Center(
+                            child: FilledButton(
+                                onPressed: () {},
+                                child: Text(AppLocalizations.of(context)!
+                                    .inStudyWithdrawButtonText))),
+                        const SizedBox(
+                          height: 25.0,
+                        ),
+                      ],
                     ),
-                  ),
-                  const SizedBox(
-                    height: 12.0,
-                  ),
-                  const BlueMealStudyInstructions(),
-                  const SizedBox(
-                    height: 12.0,
-                  ),
-                  Text(
-                    AppLocalizations.of(context)!.inStudyWithdrawTitle,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    AppLocalizations.of(context)!.inStudyWithdrawDesc,
-                  ),
-                  const SizedBox(
-                    height: 12.0,
-                  ),
-                  Center(
-                      child: FilledButton(
-                          onPressed: () {},
-                          child: Text(AppLocalizations.of(context)!
-                              .inStudyWithdrawButtonText))),
-                  const SizedBox(
-                    height: 25.0,
-                  ),
-                ],
-              ),
-              if (isShowing)
-                Align(
-                  alignment: Alignment.bottomRight,
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 6.0, bottom: 6.0),
-                    child: IconButton.filled(
-                      onPressed: () {
-                        if (isHalfway) {
-                          widget.scrollController.animateTo(0,
-                              duration: const Duration(milliseconds: 200),
-                              curve: Curves.easeIn);
-                        } else {
-                          widget.scrollController.animateTo(
-                              widget.scrollController.position.maxScrollExtent,
-                              duration: const Duration(milliseconds: 200),
-                              curve: Curves.easeIn);
-                        }
-                      },
-                      icon: Icon(isHalfway
-                          ? Icons.arrow_upward
-                          : Icons.arrow_downward),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
+                scrollController: scrollController)),
       ],
     );
-  }
-
-  @override
-  void dispose() {
-    //widget.scrollController.removeListener(_onScroll);
-    super.dispose();
   }
 }
 
@@ -523,13 +431,10 @@ class BlueStudyInstructionsPartTwo extends StatefulWidget {
 
 class _BlueStudyInstructionsPartTwoState
     extends State<BlueStudyInstructionsPartTwo> {
-  late final ExpandibleController _expandibleController;
-
   late bool expanded;
   @override
   void initState() {
     expanded = widget.initiallyExpanded;
-    _expandibleController = ExpandibleController(expanded);
     super.initState();
   }
 
@@ -610,7 +515,7 @@ class _BlueStudyInstructionsPartTwoState
                   });
                 },
                 label: Text(
-                  _expandibleController.expanded
+                  expanded
                       ? AppLocalizations.of(context)!.viewLessButtonText
                       : AppLocalizations.of(context)!.viewMoreButtonText,
                   style: Theme.of(context)
@@ -620,7 +525,7 @@ class _BlueStudyInstructionsPartTwoState
                 ),
                 iconAlignment: IconAlignment.end,
                 icon: Icon(
-                  _expandibleController.expanded
+                  expanded
                       ? Icons.keyboard_arrow_up
                       : Icons.keyboard_arrow_down,
                   color: Colors.blue,
@@ -652,7 +557,7 @@ class BlueStudyInstructionsPartThree extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              AppLocalizations.of(context)!.studyStepOneExplanationTitle,
+              AppLocalizations.of(context)!.studyStepThreeExplanationTitle,
               style: Theme.of(context)
                   .textTheme
                   .titleMedium
@@ -663,25 +568,58 @@ class BlueStudyInstructionsPartThree extends StatelessWidget {
             ),
             LabeledList(
               strings: [
-                AppLocalizations.of(context)!.studyStepOneExplanationPartOne,
-                AppLocalizations.of(context)!.studyStepOneExplanationPartTwo,
-                AppLocalizations.of(context)!.studyStepOneExplanationPartThree,
-                AppLocalizations.of(context)!.studyStepOneExplanationPartFour
+                AppLocalizations.of(context)!.studyStepThreeExplanationPartOne,
+                AppLocalizations.of(context)!.studyStepThreeExplanationPartTwo,
               ],
               mark: (i) => "${i + 1}. ",
-              title: Text(
-                  AppLocalizations.of(context)!.studyStepOneExplanationPreReq),
+              title: Text(AppLocalizations.of(context)!
+                  .studyStepThreeExplanationPreReq),
               highlight: false,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class BlueStudyInstructionsPartFour extends StatelessWidget {
+  const BlueStudyInstructionsPartFour({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12.0),
+        color: ElevationOverlay.applySurfaceTint(Theme.of(context).cardColor,
+            Theme.of(context).colorScheme.surfaceTint, 3),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              AppLocalizations.of(context)!.studyStepFourExplanationTitle,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(
               height: 8.0,
             ),
-            ColoredBox(
-              color: Colors.yellow.withOpacity(0.5),
-              child: Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: Text(AppLocalizations.of(context)!
-                      .studyStepOneExplanationNote)),
+            LabeledList(
+              strings: [
+                AppLocalizations.of(context)!.studyStepFourExplanationPartOne,
+                AppLocalizations.of(context)!.studyStepFourExplanationPartTwo,
+                AppLocalizations.of(context)!.studyStepFourExplanationPartThree,
+              ],
+              mark: (i) => "${i + 1}. ",
+              title: Text(
+                  AppLocalizations.of(context)!.studyStepFourExplanationDesc),
+              highlight: false,
             ),
           ],
         ),

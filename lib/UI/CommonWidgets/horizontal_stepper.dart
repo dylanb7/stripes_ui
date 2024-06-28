@@ -45,6 +45,7 @@ class HorizontalStepper extends StatelessWidget {
           ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: _buildSteps(progressIndex),
           )
         ],
@@ -59,12 +60,18 @@ class HorizontalStepper extends StatelessWidget {
       final Color circleColor =
           index.toDouble() <= progress ? active : inactive;
       parts.add(
-        GestureDetector(
+        InkWell(
+          radius: double.infinity,
+          borderRadius:
+              const BorderRadius.all(Radius.circular(double.infinity)),
           onTap: () {
             onStepPressed(index, index <= progressIndex);
           },
           child: Container(
+            clipBehavior: Clip.hardEdge,
+            padding: EdgeInsets.zero,
             width: circleWidth,
+            height: circleWidth,
             decoration:
                 BoxDecoration(color: circleColor, shape: BoxShape.circle),
             child: Center(child: step.dotContents),

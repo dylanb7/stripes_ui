@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
+import 'package:stripes_ui/UI/CommonWidgets/scroll_assisted_list.dart';
 import 'package:stripes_ui/UI/Layout/fabs.dart';
 import 'package:stripes_ui/UI/PatientManagement/add_first_patient.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
@@ -178,6 +179,45 @@ class StripesInfoSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ScrollController scroll = scrollController ?? ScrollController();
+    final List<Widget> infoItems = [
+      Text(
+        AppLocalizations.of(context)!.aboutStripes,
+        style: Theme.of(context)
+            .textTheme
+            .titleMedium
+            ?.copyWith(fontWeight: FontWeight.bold),
+      ),
+      Text(AppLocalizations.of(context)!.aboutLineOne),
+      Text(AppLocalizations.of(context)!.aboutLineTwo),
+      Text(AppLocalizations.of(context)!.aboutLineThree),
+      InkWell(
+        onTap: () => launchUrl(Uri.parse('https://www.bluepoop.info')),
+        child: const Text(
+          'bluepoop.info',
+          style: TextStyle(decoration: TextDecoration.underline),
+        ),
+      ),
+      Text(
+        AppLocalizations.of(context)!.aboutQuestionsTitle,
+        style: Theme.of(context)
+            .textTheme
+            .titleMedium
+            ?.copyWith(fontWeight: FontWeight.bold),
+      ),
+      LabeledList(
+          title: Text(
+            AppLocalizations.of(context)!.aboutCategoriesTitle,
+          ),
+          strings: [
+            AppLocalizations.of(context)!.aboutDataCollection,
+            AppLocalizations.of(context)!.aboutDataSecurity,
+            AppLocalizations.of(context)!.aboutStudyQuestions,
+            AppLocalizations.of(context)!.aboutStudyResults,
+            AppLocalizations.of(context)!.aboutWithdraw,
+            AppLocalizations.of(context)!.aboutETC
+          ],
+          highlight: false),
+    ];
     return Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,112 +260,21 @@ class StripesInfoSheet extends StatelessWidget {
             height: 8.0,
           ),
           Expanded(
-            child: Stack(children: [
-              SingleChildScrollView(
-                controller: scrollController,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        AppLocalizations.of(context)!.aboutStripes,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium
-                            ?.copyWith(fontWeight: FontWeight.bold),
+              child: ScrollAssistedList(
+                  builder: (context, properties) => ListView.builder(
+                        controller: properties.scrollController,
+                        key: properties.scrollStateKey,
+                        itemCount: infoItems.length,
+                        itemBuilder: (BuildContext context, int index) =>
+                            Padding(
+                                padding: const EdgeInsets.only(
+                                  left: 15.0,
+                                  right: 15.0,
+                                  bottom: 6.0,
+                                ),
+                                child: infoItems[index]),
                       ),
-                      const SizedBox(
-                        height: 6.0,
-                      ),
-                      Text(AppLocalizations.of(context)!.aboutLineOne),
-                      const SizedBox(
-                        height: 6.0,
-                      ),
-                      Text(AppLocalizations.of(context)!.aboutLineTwo),
-                      const SizedBox(
-                        height: 6.0,
-                      ),
-                      Text(AppLocalizations.of(context)!.aboutLineThree),
-                      const SizedBox(
-                        height: 8.0,
-                      ),
-                      InkWell(
-                        onTap: () =>
-                            launchUrl(Uri.parse('https://www.bluepoop.info')),
-                        child: const Text(
-                          'bluepoop.info',
-                          style:
-                              TextStyle(decoration: TextDecoration.underline),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 8.0,
-                      ),
-                      Text(
-                        AppLocalizations.of(context)!.aboutQuestionsTitle,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium
-                            ?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(
-                        height: 6.0,
-                      ),
-                      LabeledList(
-                          title: Text(
-                            AppLocalizations.of(context)!.aboutCategoriesTitle,
-                          ),
-                          strings: [
-                            AppLocalizations.of(context)!.aboutDataCollection,
-                            AppLocalizations.of(context)!.aboutDataSecurity,
-                            AppLocalizations.of(context)!.aboutStudyQuestions,
-                            AppLocalizations.of(context)!.aboutStudyResults,
-                            AppLocalizations.of(context)!.aboutWithdraw,
-                            AppLocalizations.of(context)!.aboutETC
-                          ],
-                          highlight: false),
-                      const SizedBox(
-                        height: 6.0,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              ListenableBuilder(
-                  listenable: scroll,
-                  builder: (context, child) {
-                    if (!scroll.hasClients ||
-                        !scroll.position.hasContentDimensions) {
-                      return const SizedBox();
-                    }
-                    final double maxExtent = scroll.position.maxScrollExtent;
-                    return Align(
-                      alignment: Alignment.bottomRight,
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 6.0, bottom: 6.0),
-                        child: IconButton.filled(
-                          onPressed: () {
-                            if (scroll.offset < maxExtent / 2) {
-                              scroll.animateTo(maxExtent,
-                                  duration: const Duration(milliseconds: 200),
-                                  curve: Curves.easeIn);
-                            } else {
-                              scroll.animateTo(0,
-                                  duration: const Duration(milliseconds: 200),
-                                  curve: Curves.easeIn);
-                            }
-                          },
-                          icon: Icon(scroll.offset < maxExtent / 2
-                              ? Icons.arrow_downward
-                              : Icons.arrow_upward),
-                        ),
-                      ),
-                    );
-                  }),
-            ]),
-          ),
+                  scrollController: scroll)),
         ]);
   }
 }

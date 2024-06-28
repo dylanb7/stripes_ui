@@ -177,7 +177,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get mealCompleteDuration => 'Eating Duration';
+  String get mealCompleteDuration => 'Eating Duration:';
+
+  @override
+  String get mealCompleteAmountConsumed => 'Amount Eaten:';
 
   @override
   String get recordingStateTitle => 'Bowel Movement Recording';
@@ -189,7 +192,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stepTwoCompletedText => 'Step 2 - Completed';
 
   @override
-  String get stepTwoCompletedSubText => 'You can begin Step 3 in 7 days.';
+  String get stepTwoCompletedSubText => 'You can begin Step 3 in ';
 
   @override
   String get stepThreeCompletedText => 'Step 3 - Completed';
@@ -199,6 +202,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stepFourCompletedSubText => 'You have completed the Blue Meal Study. Thank you for your participation!';
+
+  @override
+  String get studyRecordBMButton => 'Record BM';
 
   @override
   String get studyExpTitle => 'About the study';

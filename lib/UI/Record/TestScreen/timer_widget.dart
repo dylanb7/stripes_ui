@@ -12,53 +12,52 @@ import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 import 'package:stripes_ui/repos/blue_dye_test_repo.dart';
 
-class TimerWidget extends ConsumerStatefulWidget {
+class TimerWidget extends ConsumerWidget {
   const TimerWidget({super.key});
 
   @override
-  ConsumerState createState() {
-    return _TimerWidgetState();
-  }
-}
-
-class _TimerWidgetState extends ConsumerState<TimerWidget> {
-  Duration gap = Duration.zero;
-
-  TimerState? timerState;
-
-  bool isLoading = false;
-
-  Timer? timer;
-
-  @override
-  void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      _startTimer();
-    });
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final AsyncValue<TestsState> testsState = ref.watch(testsHolderProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
     final BlueDyeTestProgress progress = ref.watch(blueDyeTestProgressProvider);
     final BlueDyeProgression stage =
         progress.getProgression() ?? BlueDyeProgression.stepOne;
-    if (testsState.isLoading) return const CircularProgressIndicator();
-    if (testsState.hasError) return Container();
-    final BlueDyeState? blueDyeState =
-        testsState.value!.getTestState<BlueDyeState>();
+
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          stage == BlueDyeProgression.stepOne
+              ? const BlueStudyInstructionsPartOne()
+              : const BlueStudyInstructionsPartThree(),
+          const SizedBox(
+            height: 12,
+          ),
+          const TimerPortion(),
+        ]);
+  }
+}
+
+class TimerPortion extends ConsumerStatefulWidget {
+  const TimerPortion({super.key});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() {
+    return _TimerPortionState();
+  }
+}
+
+class _TimerPortionState extends ConsumerState<TimerPortion> {
+  Duration gap = Duration.zero;
+  bool isLoading = false;
+  TimerState? timerState;
+  Timer? timer;
+  @override
+  Widget build(BuildContext context) {
+    final BlueDyeState? blueDyeState = ref.watch(testsHolderProvider
+        .select((value) => value.valueOrNull?.getTestState<BlueDyeState>()));
+
     final bool paused = timerState?.pauseTime != null;
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        stage == BlueDyeProgression.stepOne
-            ? const BlueStudyInstructionsPartOne()
-            : const BlueStudyInstructionsPartThree(),
-        const SizedBox(
-          height: 12,
-        ),
         Container(
           width: double.infinity,
           decoration: BoxDecoration(
@@ -140,7 +139,7 @@ class _TimerWidgetState extends ConsumerState<TimerWidget> {
           height: 12.0,
         ),
         Center(
-          child: ElevatedButton(
+          child: FilledButton(
             onPressed: timerState?.pauseTime != null && gap != Duration.zero
                 ? () {
                     _next(blueDyeState);
@@ -156,16 +155,33 @@ class _TimerWidgetState extends ConsumerState<TimerWidget> {
     );
   }
 
+  @override
+  void didChangeDependencies() {
+    _startTimer();
+    super.didChangeDependencies();
+  }
+
   Future<void> _startTimer({TimerState? state}) async {
     if (state == null) {
-      timerState = _timerState();
+      if (mounted) {
+        setState(() {
+          isLoading = true;
+        });
+      }
+      timerState = await _timerState();
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     } else {
       timerState = state;
     }
-    if (mounted) setState(() {});
+
     if (timerState?.pauseTime != null) {
       gap = timerState!.pauseTime!.difference(timerState!.start);
       timer?.cancel();
+      if (mounted) setState(() {});
       return;
     }
     timer = Timer.periodic(const Duration(milliseconds: 200), (timer) {
@@ -176,9 +192,10 @@ class _TimerWidgetState extends ConsumerState<TimerWidget> {
     });
   }
 
-  TimerState _timerState() {
-    final BlueDyeState? blueDyeState =
-        ref.read(testsHolderProvider).valueOrNull?.getTestState<BlueDyeState>();
+  Future<TimerState> _timerState() async {
+    final BlueDyeState? blueDyeState = await ref
+        .read(testsHolderProvider.notifier)
+        .getTestState<BlueDyeState>();
 
     final DateTime? startTime = blueDyeState?.timerStart;
     final DateTime? pauseTime = blueDyeState?.pauseTime;
@@ -220,8 +237,13 @@ class _TimerWidgetState extends ConsumerState<TimerWidget> {
         DateTime.now().difference(timerState!.pauseTime!);
     final DateTime adjustedStart = timerState!.start.add(timePaused);
     await ref.read(testsHolderProvider.notifier).getTest<BlueDyeTest>().then(
-        (test) => test?.setTestState(
-            blueDyeState.copyWith(pauseTime: null, timerStart: adjustedStart)));
+        (test) => test?.setTestState(BlueDyeState(
+            id: blueDyeState.id,
+            startTime: blueDyeState.startTime,
+            timerStart: adjustedStart,
+            pauseTime: null,
+            logs: blueDyeState.logs)));
+
     setState(() {
       isLoading = false;
     });

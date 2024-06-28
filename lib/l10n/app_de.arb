@@ -89,16 +89,19 @@
             }
         } 
     },
-    "mealCompleteDuration": "Eating Duration",
+    "mealCompleteDuration": "Eating Duration:",
+    "mealCompleteAmountConsumed": "Amount Eaten:",
 
     "recordingStateTitle": "Bowel Movement Recording",
 
     "stepOneCompletedText": "Step 1 - Completed",
     "stepTwoCompletedText": "Step 2 - Completed",
-    "stepTwoCompletedSubText": "You can begin Step 3 in 7 days.",
+    "stepTwoCompletedSubText": "You can begin Step 3 in ",
     "stepThreeCompletedText": "Step 3 - Completed",
     "stepFourCompletedText": "Step 4 - Completed",
     "stepFourCompletedSubText": "You have completed the Blue Meal Study. Thank you for your participation!",
+
+    "studyRecordBMButton": "Record BM",
 
     "studyExpTitle": "About the study", 
     "studyExpBody": "This study measures gut motility (the movement of food through the digestive system) in people with Phelan-McDermid Syndrome using a novel blue meal test. It involves eating blue muffins and tracking bowel movements to determine transit time, which is the duration it takes for food to move through the digestive system, from consumption to excretion. The study will measure transit time twice using the blue muffins and this mobile app.",

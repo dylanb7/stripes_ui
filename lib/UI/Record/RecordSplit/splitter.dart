@@ -266,6 +266,14 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
   }
 
   void _submitEntry(BuildContext context, WidgetRef ref, bool isEdit) async {
+    if (widget.questionListener.pending.isNotEmpty) {
+      widget.questionListener.tried = true;
+      showSnack(
+          context,
+          AppLocalizations.of(context)!
+              .nLevelError(widget.questionListener.pending.length));
+      return;
+    }
     if (isLoading) return;
     setState(() {
       isLoading = true;

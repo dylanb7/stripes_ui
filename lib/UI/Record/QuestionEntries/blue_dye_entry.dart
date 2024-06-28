@@ -64,13 +64,12 @@ class _BlueDyeEntryState extends ConsumerState<BlueDyeEntry> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             ChoiceChip(
-              label: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12.0, vertical: 4.0),
-                  child: Text(AppLocalizations.of(context)!.blueQuestionYes)),
+              label: Text(AppLocalizations.of(context)!.blueQuestionYes),
               selected: toggleState[0],
               selectedColor: primary,
               backgroundColor: surface,
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
               labelStyle: TextStyle(
                   color: toggleState[0] ? onPrimary : onSurface,
                   fontWeight: FontWeight.bold),
@@ -88,13 +87,12 @@ class _BlueDyeEntryState extends ConsumerState<BlueDyeEntry> {
               },
             ),
             ChoiceChip(
-              label: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12.0, vertical: 4.0),
-                  child: Text(AppLocalizations.of(context)!.blueQuestionNo)),
+              label: Text(AppLocalizations.of(context)!.blueQuestionNo),
               selected: toggleState[1],
               selectedColor: primary,
               backgroundColor: surface,
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
               labelStyle: TextStyle(
                   color: toggleState[1] ? onPrimary : onSurface,
                   fontWeight: FontWeight.bold),

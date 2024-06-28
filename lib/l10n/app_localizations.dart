@@ -416,8 +416,14 @@ abstract class AppLocalizations {
   /// No description provided for @mealCompleteDuration.
   ///
   /// In en, this message translates to:
-  /// **'Eating Duration'**
+  /// **'Eating Duration:'**
   String get mealCompleteDuration;
+
+  /// No description provided for @mealCompleteAmountConsumed.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount Eaten:'**
+  String get mealCompleteAmountConsumed;
 
   /// No description provided for @recordingStateTitle.
   ///
@@ -440,7 +446,7 @@ abstract class AppLocalizations {
   /// No description provided for @stepTwoCompletedSubText.
   ///
   /// In en, this message translates to:
-  /// **'You can begin Step 3 in 7 days.'**
+  /// **'You can begin Step 3 in '**
   String get stepTwoCompletedSubText;
 
   /// No description provided for @stepThreeCompletedText.
@@ -460,6 +466,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You have completed the Blue Meal Study. Thank you for your participation!'**
   String get stepFourCompletedSubText;
+
+  /// No description provided for @studyRecordBMButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Record BM'**
+  String get studyRecordBMButton;
 
   /// No description provided for @studyExpTitle.
   ///

@@ -5,6 +5,7 @@ import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/test_progress_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/horizontal_stepper.dart';
+import 'package:stripes_ui/UI/CommonWidgets/scroll_assisted_list.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/amount_consumed.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/recordings_state.dart';
@@ -14,11 +15,20 @@ import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 import 'package:stripes_ui/repos/blue_dye_test_repo.dart';
 
-class BlueDyeTestScreen extends ConsumerWidget {
+class BlueDyeTestScreen extends ConsumerStatefulWidget {
   const BlueDyeTestScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConsumerStatefulWidget> createState() {
+    return _BlueDyeTestScreenState();
+  }
+}
+
+class _BlueDyeTestScreenState extends ConsumerState<BlueDyeTestScreen> {
+  bool isLoading = false;
+
+  @override
+  Widget build(BuildContext context) {
     final BlueDyeTestProgress progress = ref.watch(blueDyeTestProgressProvider);
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -44,24 +54,31 @@ class BlueDyeTestScreen extends ConsumerWidget {
           height: 12.0,
         ),
         Expanded(
-          child: progress.stage != BlueDyeTestStage.initial
-              ? const StudyOngoing()
-              : BlueMealPreStudy(
+          child: progress.stage == BlueDyeTestStage.initial &&
+                  progress.orderedTests.isEmpty
+              ? BlueMealPreStudy(
                   onClick: () {
-                    _startTest(ref);
+                    _startTest();
                   },
-                  isLoading: false,
-                ),
+                  isLoading: isLoading,
+                )
+              : const StudyOngoing(),
         ),
       ],
     );
   }
 
-  Future<void> _startTest(WidgetRef ref) async {
+  Future<void> _startTest() async {
+    setState(() {
+      isLoading = true;
+    });
     final DateTime start = DateTime.now();
     await ref.read(testsHolderProvider.notifier).getTest<BlueDyeTest>().then(
         (test) => test?.setTestState(BlueDyeState(
             startTime: start, timerStart: start, pauseTime: start, logs: [])));
+    setState(() {
+      isLoading = false;
+    });
   }
 
   toggleBottomSheet(BuildContext context) {
@@ -127,94 +144,123 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
     final BlueDyeTestProgress progress = ref.watch(blueDyeTestProgressProvider);
     final BlueDyeProgression? currentProgression = progress.getProgression();
     final int index = currentProgression?.value ?? 0;
-    final double detailedProgress =
-        progress.stage == BlueDyeTestStage.amountConsumed
-            ? index.toDouble() + 0.8
-            : progress.stage == BlueDyeTestStage.initial &&
-                    progress.testIteration > 0
-                ? index.toDouble() + 0.99
-                : index.toDouble();
+
     final BlueDyeProgression activeStage =
         BlueDyeProgression.values[currentIndex];
     final bool isPrevious = currentIndex < index;
+
+    double getDetailedProgress() {
+      final double base = index.toDouble();
+      if (progress.stage == BlueDyeTestStage.amountConsumed) return base + 0.8;
+      if (progress.stage == BlueDyeTestStage.initial &&
+          progress.testIteration > 0) return base + 0.99;
+      return base;
+    }
 
     Widget getDisplayedWidget() {
       final bool isStepThree = activeStage == BlueDyeProgression.stepThree;
       if (activeStage == BlueDyeProgression.stepOne || isStepThree) {
         if (isPrevious) {
           return MealFinishedDisplay(
-              next: () {
-                setState(() {
-                  currentIndex++;
-                });
-              },
-              isStepThree: isStepThree);
+            next: () {
+              setState(() {
+                currentIndex++;
+              });
+            },
+            displaying: activeStage,
+          );
         }
         return progress.stage == BlueDyeTestStage.amountConsumed
             ? const AmountConsumedEntry()
             : const TimerWidget();
       }
-      if (isPrevious) return Container();
+      final List<TestDate> orderedTests = progress.orderedTests;
+      if (!isPrevious &&
+          currentProgression == BlueDyeProgression.stepTwo &&
+          orderedTests.length == 1 &&
+          !progress.stage.testInProgress) return const RecordingsWaiting();
+      if (isPrevious ||
+          (progress.testIteration == 2 && !progress.stage.testInProgress)) {
+        return RecordingsView(
+          next: () {
+            setState(() {
+              currentIndex++;
+            });
+          },
+          clicked: activeStage,
+        );
+      }
       return const RecordingsState();
     }
 
-    return Column(children: [
-      HorizontalStepper(
-          steps: BlueDyeProgression.values
-              .map(
-                (step) => HorizontalStep(
-                  title: Text(
-                    step.getLabel(context),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: step.value > index
-                              ? Theme.of(context)
-                                  .colorScheme
-                                  .onSurface
-                                  .withOpacity(0.5)
-                              : null,
-                          decoration:
-                              currentIndex != step.value && step.value <= index
-                                  ? TextDecoration.underline
-                                  : null,
-                        ),
-                    textAlign: TextAlign.center,
-                  ),
-                  dotContents: Text(
-                    "${step.value + 1}",
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ),
+    return ScrollAssistedList(
+        builder: (context, properties) => ListView(
+              key: properties.scrollStateKey,
+              shrinkWrap: true,
+              controller: properties.scrollController,
+              children: [
+                HorizontalStepper(
+                    steps: BlueDyeProgression.values
+                        .map(
+                          (step) => HorizontalStep(
+                            title: Text(
+                              step.getLabel(context),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: step.value > index
+                                        ? Theme.of(context)
+                                            .colorScheme
+                                            .onSurface
+                                            .withOpacity(0.5)
+                                        : null,
+                                    decoration: currentIndex != step.value &&
+                                            step.value <= index
+                                        ? TextDecoration.underline
+                                        : null,
+                                  ),
+                              textAlign: TextAlign.center,
+                            ),
+                            dotContents: Text(
+                              "${step.value + 1}",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
+                                      fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        )
+                        .toList(),
+                    circleWidth: 45.0,
+                    onStepPressed: (index, isActive) {
+                      if (!isActive) {
+                        showSnack(
+                            context,
+                            AppLocalizations.of(context)!
+                                .stepClickWarning("${index + 1}"));
+                        return;
+                      }
+                      if (currentIndex == index) return;
+                      setState(() {
+                        currentIndex = index;
+                      });
+                    },
+                    progress: getDetailedProgress(),
+                    active: Theme.of(context).colorScheme.primary,
+                    inactive: Theme.of(context).dividerColor.darken()),
+                const SizedBox(
+                  height: 12.0,
                 ),
-              )
-              .toList(),
-          circleWidth: 70.0,
-          onStepPressed: (index, isActive) {
-            if (!isActive) {
-              showSnack(
-                  context,
-                  AppLocalizations.of(context)!
-                      .stepClickWarning("${index + 1}"));
-              return;
-            }
-            if (currentIndex == index) return;
-            setState(() {
-              currentIndex = index;
-            });
-          },
-          progress: detailedProgress,
-          active: Theme.of(context).colorScheme.primary,
-          inactive: Theme.of(context).dividerColor.darken()),
-      const SizedBox(
-        height: 12.0,
-      ),
-      Expanded(
-        child: SingleChildScrollView(
-          child: getDisplayedWidget(),
-        ),
-      ),
-    ]);
+                getDisplayedWidget(),
+              ],
+            ),
+        scrollController: ScrollController());
   }
 }

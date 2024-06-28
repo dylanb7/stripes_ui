@@ -89,16 +89,19 @@
             }
         } 
     },
-    "mealCompleteDuration": "Eating Duration",
+    "mealCompleteDuration": "Eating Duration:",
+    "mealCompleteAmountConsumed": "Amount Eaten:",
 
     "recordingStateTitle": "Bowel Movement Recording",
 
     "stepOneCompletedText": "Step 1 - Completed",
     "stepTwoCompletedText": "Step 2 - Completed",
-    "stepTwoCompletedSubText": "You can begin Step 3 in 7 days.",
+    "stepTwoCompletedSubText": "You can begin Step 3 in ",
     "stepThreeCompletedText": "Step 3 - Completed",
     "stepFourCompletedText": "Step 4 - Completed",
     "stepFourCompletedSubText": "You have completed the Blue Meal Study. Thank you for your participation!",
+
+    "studyRecordBMButton": "Record BM",
 
 
     "studyExpTitle": "About the study", 
