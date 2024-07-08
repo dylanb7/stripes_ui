@@ -239,7 +239,8 @@ class NavTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Color selectedColor = Theme.of(context).primaryColor;
-    final Color unselectedColor = Theme.of(context).disabledColor;
+    final Color unselectedColor =
+        Theme.of(context).colorScheme.onSurface.withOpacity(0.55);
     return InkResponse(
       containedInkWell: true,
       onTap: () {
@@ -265,8 +266,9 @@ class NavTile extends StatelessWidget {
               heightFactor: 1.0,
               child: Text(
                 label,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: selected ? selectedColor : unselectedColor),
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: selected ? selectedColor : unselectedColor,
+                    ),
               ),
             ),
           ),
@@ -326,7 +328,7 @@ class LargeNavButton extends ConsumerWidget {
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(6.0),
             border: Border.all(
-                color: Theme.of(context).colorScheme.secondary, width: 2.0)),
+                color: Theme.of(context).colorScheme.primary, width: 2.0)),
         child: child,
       );
 }

@@ -9,6 +9,7 @@ import 'package:stripes_ui/UI/Record/QuestionEntries/blue_dye_entry.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/bristol_entry.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/pain_area.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/pain_numeric.dart';
+import 'package:stripes_ui/UI/Record/QuestionEntries/vertical_pain_numeric.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 import 'package:stripes_ui/repos/blue_dye_test_repo.dart';
 
@@ -78,13 +79,13 @@ class Questions extends QuestionRepo {
         rating: QuestionEntry(
             isSeparateScreen: true,
             entryBuilder: (listener, context, question) {
-              return PainFacesWidget(
+              return VerticalPainFaces(
                   questionsListener: listener, question: question as Numeric);
             }),
         q6: QuestionEntry(
             isSeparateScreen: true,
             entryBuilder: (listener, context, question) {
-              return PainFacesWidget(
+              return VerticalPainFaces(
                   questionsListener: listener, question: question as Numeric);
             }),
         blueQuestionId: QuestionEntry(

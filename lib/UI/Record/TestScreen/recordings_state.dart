@@ -137,7 +137,7 @@ class _RecordingsWaitingState extends ConsumerState<RecordingsWaiting> {
     final Duration timePassed = DateTime.now().difference(testFinished);
     final bool canProgress = waitTime.compareTo(timePassed) < 0;
     if (!canProgress) {
-      timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      timer = Timer.periodic(const Duration(milliseconds: 500), (_) {
         if (mounted) setState(() {});
       });
     }

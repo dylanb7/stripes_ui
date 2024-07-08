@@ -45,6 +45,8 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
 
   bool isLoading = false;
 
+  bool submitSuccess = false;
+
   @override
   void initState() {
     original = widget.questionListener.copy();
@@ -100,6 +102,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
 
     Widget? submitButton() {
       if (currentIndex != pages.length) return null;
+      final bool canSubmit = pendingCount == 0 && !isLoading && edited;
       return GestureDetector(
         onTap: () {
           if (pendingCount != 0 && !isLoading) {
@@ -110,16 +113,20 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
           }
         },
         child: FilledButton(
-          onPressed: pendingCount == 0 && !isLoading && edited
-              ? () {
-                  _submitEntry(context, ref, isEdit);
-                }
-              : null,
-          child: isLoading
-              ? const ButtonLoadingIndicator()
-              : Text(isEdit
-                  ? AppLocalizations.of(context)!.editSubmitButtonText
-                  : AppLocalizations.of(context)!.submitButtonText),
+          onPressed: submitSuccess
+              ? () {}
+              : canSubmit
+                  ? () {
+                      _submitEntry(context, ref, isEdit);
+                    }
+                  : null,
+          child: submitSuccess
+              ? const Icon(Icons.check)
+              : isLoading
+                  ? const ButtonLoadingIndicator()
+                  : Text(isEdit
+                      ? AppLocalizations.of(context)!.editSubmitButtonText
+                      : AppLocalizations.of(context)!.submitButtonText),
         ),
       );
     }
@@ -309,6 +316,10 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
           .valueOrNull
           ?.onResponseSubmit(detailResponse, widget.type);
     }
+    setState(() {
+      submitSuccess = true;
+    });
+    await Future.delayed(const Duration(milliseconds: 500));
     setState(() {
       isLoading = false;
     });

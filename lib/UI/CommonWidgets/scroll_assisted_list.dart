@@ -21,26 +21,31 @@ class _ScrollAssistedListState extends State<ScrollAssistedList> {
   bool scrollsUp = false, showing = false;
 
   @override
-  void didChangeDependencies() {
+  void initState() {
+    super.initState();
     widget.scrollController.addListener(_listen);
-    super.didChangeDependencies();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {
+          showing = _position?.hasContentDimensions == true
+              ? (_position?.maxScrollExtent ?? 0) > 0
+              : false;
+        });
+      }
+    });
   }
 
-  ScrollPosition get _position =>
+  ScrollPosition? get _position =>
       _scrollStateKey.currentState?.position ??
-      widget.scrollController.positions.first;
+      (widget.scrollController.hasClients
+          ? widget.scrollController.position
+          : null);
 
   _listen() {
     try {
-      if (!_position.hasContentDimensions) return;
-      final bool shouldShow = _position.maxScrollExtent > 0;
-      if (shouldShow != showing && mounted) {
-        setState(() {
-          showing = shouldShow;
-        });
-      }
+      if (_position == null || !_position!.hasContentDimensions) return;
       final bool halfWay = widget.scrollController.offset >
-          (_position.maxScrollExtent - _position.minScrollExtent) / 2;
+          (_position!.maxScrollExtent - _position!.minScrollExtent) / 2;
       if (halfWay != scrollsUp && mounted) {
         setState(() {
           scrollsUp = halfWay;
@@ -64,26 +69,30 @@ class _ScrollAssistedListState extends State<ScrollAssistedList> {
               scrollController: widget.scrollController,
               scrollStateKey: _scrollStateKey),
         ),
-        Align(
-          alignment: Alignment.bottomRight,
-          child: Padding(
-            padding: const EdgeInsets.only(right: 6.0, bottom: 6.0),
-            child: IconButton.filled(
-              onPressed: () {
-                if (scrollsUp) {
-                  widget.scrollController.animateTo(_position.minScrollExtent,
-                      duration: const Duration(milliseconds: 200),
-                      curve: Curves.easeIn);
-                } else {
-                  widget.scrollController.animateTo(_position.maxScrollExtent,
-                      duration: const Duration(milliseconds: 200),
-                      curve: Curves.easeIn);
-                }
-              },
-              icon: Icon(scrollsUp ? Icons.arrow_upward : Icons.arrow_downward),
+        if (showing)
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 6.0, bottom: 6.0),
+              child: IconButton.filled(
+                onPressed: () {
+                  if (scrollsUp) {
+                    widget.scrollController.animateTo(
+                        _position?.minScrollExtent ?? 0,
+                        duration: const Duration(milliseconds: 200),
+                        curve: Curves.easeIn);
+                  } else {
+                    widget.scrollController.animateTo(
+                        _position?.maxScrollExtent ?? 0,
+                        duration: const Duration(milliseconds: 200),
+                        curve: Curves.easeIn);
+                  }
+                },
+                icon:
+                    Icon(scrollsUp ? Icons.arrow_upward : Icons.arrow_downward),
+              ),
             ),
           ),
-        ),
       ],
     );
   }

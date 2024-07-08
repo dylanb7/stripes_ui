@@ -133,7 +133,7 @@ class QuestionWrapState extends ConsumerState<QuestionWrap> {
                   ? Border.all(
                       width: 3.0, color: Theme.of(context).colorScheme.error)
                   : Border.all(
-                      width: 1.0, color: Theme.of(context).dividerColor)),
+                      width: 3.0, color: Theme.of(context).dividerColor)),
       child: widget.child,
     );
   }

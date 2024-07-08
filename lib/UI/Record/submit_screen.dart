@@ -106,6 +106,7 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
               color: Theme.of(context).colorScheme.primary,
               fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
         ),
         const SizedBox(
           height: 40.0,
@@ -129,11 +130,14 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
               ),
             ],
           ),
+        const SizedBox(
+          height: 8.0,
+        ),
         RenderQuestions(
             questions: testAdditions,
             questionsListener: widget.questionsListener),
         const SizedBox(
-          height: 18.0,
+          height: 8.0,
         ),
         LongTextEntry(textController: _descriptionController),
         const SizedBox(

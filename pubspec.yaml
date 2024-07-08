@@ -72,6 +72,11 @@ flutter:
     - packages/stripes_ui/assets/images/poop6.png
     - packages/stripes_ui/assets/images/poop7.png
     - packages/stripes_ui/assets/images/abdomin.png
+    - packages/stripes_ui/assets/images/pain_faces_0.png
+    - packages/stripes_ui/assets/images/pain_faces_1.png
+    - packages/stripes_ui/assets/images/pain_faces_2.png
+    - packages/stripes_ui/assets/images/pain_faces_3.png
+    - packages/stripes_ui/assets/images/pain_faces_4.png
     - packages/stripes_ui/assets/svg/pain_face_0.svg
     - packages/stripes_ui/assets/svg/pain_face_1.svg
     - packages/stripes_ui/assets/svg/pain_face_2.svg
