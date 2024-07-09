@@ -79,7 +79,7 @@ class Questions extends QuestionRepo {
         rating: QuestionEntry(
             isSeparateScreen: true,
             entryBuilder: (listener, context, question) {
-              return VerticalPainFaces(
+              return PainFacesWidget(
                   questionsListener: listener, question: question as Numeric);
             }),
         q6: QuestionEntry(
