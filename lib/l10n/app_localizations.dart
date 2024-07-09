@@ -1049,6 +1049,12 @@ abstract class AppLocalizations {
   /// **'Next'**
   String get nextButton;
 
+  /// No description provided for @firstPageError.
+  ///
+  /// In en, this message translates to:
+  /// **'No previous page'**
+  String get firstPageError;
+
   /// No description provided for @bristolLevel.
   ///
   /// In en, this message translates to:

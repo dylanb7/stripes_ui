@@ -70,22 +70,27 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
           ),
           TableCalendar(
             focusedDay: focusedDay,
-            firstDay: DateTime(0) /*keys.isEmpty ? DateTime(0) : keys[0]*/,
+            firstDay: DateTime.now().subtract(const Duration(
+                days: 700)) /*keys.isEmpty ? DateTime(0) : keys[0]*/,
             lastDay: DateTime.now(),
-            onFormatChanged: _onFormatChange,
+            rangeSelectionMode: RangeSelectionMode.enforced,
             headerVisible: false,
             calendarFormat: _format,
+            availableGestures: AvailableGestures.horizontalSwipe,
             availableCalendarFormats: const {
               CalendarFormat.month: 'Month',
               CalendarFormat.week: 'Week',
             },
+            onFormatChanged: null,
             calendarStyle: const CalendarStyle(
                 cellPadding: EdgeInsets.all(2.0), outsideDaysVisible: false),
             onCalendarCreated: (controller) {
               _pageController = controller;
-              Future(() {
-                ref.read(filtersProvider.notifier).state =
-                    filters.copyWith(range: _getVisibleRange());
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  ref.read(filtersProvider.notifier).state =
+                      filters.copyWith(range: _getVisibleRange());
+                }
               });
             },
             onDaySelected: (selectedDay, focusedDay) {
@@ -100,6 +105,16 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
                   selectDate: selectedDay,
                 );
               }
+            },
+            onRangeSelected: (start, end, focusedDay) {
+              setState(() {
+                this.focusedDay = focusedDay;
+                DateTimeRange visible = _getVisibleRange();
+                ref.read(filtersProvider.notifier).state = filters.copyWith(
+                    range: DateTimeRange(
+                        start: start ?? visible.start, end: end ?? visible.end),
+                    selectDate: null);
+              });
             },
             onPageChanged: (newFocus) {
               setState(() {

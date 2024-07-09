@@ -102,7 +102,17 @@ class TestSwitcher extends ConsumerWidget {
         ),
       );
     }, loading: (AsyncLoading<TestsState> loading) {
-      return const CircularProgressIndicator();
+      return FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: Alignment.centerLeft,
+        child: Text(
+          "...",
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).primaryColor),
+          textAlign: TextAlign.left,
+        ),
+      );
     });
   }
 }

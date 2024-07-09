@@ -45,6 +45,7 @@ class _VerticalPainFacesState extends State<VerticalPainFaces> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: List.generate(11, (index) {
                       return GestureDetector(
+                        behavior: HitTestBehavior.translucent,
                         onTap: () {
                           if (index == selected?.toInt()) {
                             setState(() {
@@ -71,8 +72,10 @@ class _VerticalPainFacesState extends State<VerticalPainFaces> {
                                 value: index,
                                 groupValue: (selected ?? -1).toInt(),
                                 toggleable: true,
+                                materialTapTargetSize:
+                                    MaterialTapTargetSize.padded,
                                 onChanged: (value) {
-                                  if (value == null || index == selected) {
+                                  /*if (value == null || index == selected) {
                                     setState(() {
                                       widget.questionsListener
                                           .removeResponse(widget.question);
@@ -85,7 +88,7 @@ class _VerticalPainFacesState extends State<VerticalPainFaces> {
                                     widget.questionsListener
                                         .removePending(widget.question);
                                     _saveValue(value);
-                                  });
+                                  });*/
                                 },
                               ),
                               const SizedBox(

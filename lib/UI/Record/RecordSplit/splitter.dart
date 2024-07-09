@@ -319,7 +319,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     setState(() {
       submitSuccess = true;
     });
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 750));
     setState(() {
       isLoading = false;
     });
@@ -448,16 +448,25 @@ class RecordHeader extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           length != 0
-              ? IconButton(
-                  onPressed: currentIndex == 0
-                      ? null
-                      : () {
-                          questionListener.tried = false;
-                          pageController.previousPage(
-                              duration: const Duration(milliseconds: 250),
-                              curve: Curves.linear);
-                        },
-                  icon: const Icon(Icons.arrow_back_sharp),
+              ? GestureDetector(
+                  onTap: currentIndex == 0
+                      ? () {
+                          showSnack(context,
+                              AppLocalizations.of(context)!.firstPageError);
+                        }
+                      : null,
+                  behavior: HitTestBehavior.opaque,
+                  child: IconButton(
+                    onPressed: currentIndex == 0
+                        ? null
+                        : () {
+                            questionListener.tried = false;
+                            pageController.previousPage(
+                                duration: const Duration(milliseconds: 250),
+                                curve: Curves.linear);
+                          },
+                    icon: const Icon(Icons.arrow_back_sharp),
+                  ),
                 )
               : SizedBox(
                   width: Theme.of(context).iconTheme.size ?? 20,

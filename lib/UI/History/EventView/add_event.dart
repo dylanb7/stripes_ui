@@ -31,7 +31,8 @@ class AddEvent extends ConsumerWidget {
                 AppLocalizations.of(context)!.addEventButton,
               ),
               onPressed: () {
-                openEventOverlay(ref, selected);
+                openEventOverlay(ref,
+                    DateTime(selected.year, selected.month, selected.day, 12));
               },
             ),
           );

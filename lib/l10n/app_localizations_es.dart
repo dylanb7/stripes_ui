@@ -515,6 +515,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get nextButton => 'Next';
 
   @override
+  String get firstPageError => 'No previous page';
+
+  @override
   String get bristolLevel => 'Select bowel movement consistancy';
 
   @override

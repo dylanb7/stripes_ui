@@ -207,8 +207,6 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final num? res = response();
-
     return Stack(
       children: [
         Padding(
@@ -251,6 +249,7 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
             right: 0.0,
             top: 3.0,
             child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
               onTap: () {
                 widget.questionsListener.removeResponse(widget.question);
                 _sliderListener.hasInteracted = false;
