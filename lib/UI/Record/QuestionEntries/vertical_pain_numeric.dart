@@ -75,7 +75,7 @@ class _VerticalPainFacesState extends State<VerticalPainFaces> {
                                 materialTapTargetSize:
                                     MaterialTapTargetSize.padded,
                                 onChanged: (value) {
-                                  /*if (value == null || index == selected) {
+                                  if (value == null || index == selected) {
                                     setState(() {
                                       widget.questionsListener
                                           .removeResponse(widget.question);
@@ -88,7 +88,7 @@ class _VerticalPainFacesState extends State<VerticalPainFaces> {
                                     widget.questionsListener
                                         .removePending(widget.question);
                                     _saveValue(value);
-                                  });*/
+                                  });
                                 },
                               ),
                               const SizedBox(

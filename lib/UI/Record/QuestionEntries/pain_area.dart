@@ -8,7 +8,7 @@ import 'package:stripes_ui/UI/Record/QuestionEntries/question_screen.dart';
 class PainAreaWidget extends ConsumerStatefulWidget {
   final QuestionsListener questionsListener;
 
-  final MultipleChoice question;
+  final AllThatApply question;
 
   const PainAreaWidget(
       {required this.questionsListener, required this.question, super.key});
@@ -124,16 +124,16 @@ class _PainAreaWidgetState extends ConsumerState<PainAreaWidget> {
     setState(() {});
   }
 
-  Area? response() {
+  List<Area>? response() {
     Response? res = widget.questionsListener.fromQuestion(widget.question);
     if (res == null) return null;
-    int index = (res as MultiResponse).index;
-    return Area.none.fromValue(index);
+    List<int> index = (res as AllResponse).responses;
+    return index.map((value) => Area.none.fromValue(value)).toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    final Area? selected = response();
+    final List<Area>? selected = response();
 
     return QuestionWrap(
       question: widget.question,
@@ -176,19 +176,24 @@ class _PainAreaWidgetState extends ConsumerState<PainAreaWidget> {
                             (colIndex) => Expanded(
                               child: Row(
                                 children: [
-                                  ...List.generate(
-                                    3,
-                                    (rowIndex) => Expanded(
+                                  ...List.generate(3, (rowIndex) {
+                                    final int index = (colIndex * 3) + rowIndex;
+                                    final Area area =
+                                        Area.none.fromValue(index + 1);
+                                    return Expanded(
                                       child: SelectableTile(
                                           row: rowIndex,
                                           col: colIndex,
-                                          index: (colIndex * 3) + rowIndex,
-                                          selected: selected,
+                                          index: index,
+                                          selected: (selected?.contains(area) ??
+                                                  false)
+                                              ? area
+                                              : null,
                                           onSelect: (newValue) {
                                             setResponse(newValue);
                                           }),
-                                    ),
-                                  )
+                                    );
+                                  })
                                 ],
                               ),
                             ),
@@ -206,7 +211,7 @@ class _PainAreaWidgetState extends ConsumerState<PainAreaWidget> {
                 onClick: () {
                   setResponse(Area.none);
                 },
-                selected: selected == Area.none),
+                selected: selected?.contains(Area.none) ?? false),
             const SizedBox(
               height: 12.0,
             )
@@ -217,15 +222,57 @@ class _PainAreaWidgetState extends ConsumerState<PainAreaWidget> {
   }
 
   setResponse(Area newValue) {
-    final Area? current = response();
-    if (current == newValue) {
-      widget.questionsListener.removeResponse(widget.question);
-      widget.questionsListener.addPending(widget.question);
-    } else {
-      widget.questionsListener.addResponse(MultiResponse(
+    final List<Area>? current = response();
+    if (newValue == Area.none) {
+      if (current?.contains(newValue) ?? false) {
+        widget.questionsListener.removeResponse(widget.question);
+        widget.questionsListener.addPending(widget.question);
+      } else {
+        widget.questionsListener.addResponse(
+          AllResponse(
+            question: widget.question,
+            stamp: dateToStamp(DateTime.now()),
+            responses: [newValue.toIndex()],
+          ),
+        );
+        widget.questionsListener.removePending(widget.question);
+      }
+      return;
+    }
+    if (current == null) {
+      widget.questionsListener.addResponse(AllResponse(
           question: widget.question,
           stamp: dateToStamp(DateTime.now()),
-          index: newValue.toIndex()));
+          responses: [newValue.toIndex()]));
+      widget.questionsListener.removePending(widget.question);
+    } else if (current.contains(newValue)) {
+      if (current.length == 1) {
+        widget.questionsListener.removeResponse(widget.question);
+        widget.questionsListener.addPending(widget.question);
+      } else {
+        current.remove(newValue);
+        widget.questionsListener.addResponse(
+          AllResponse(
+            question: widget.question,
+            stamp: dateToStamp(DateTime.now()),
+            responses: current.map((val) => val.toIndex()).toList(),
+          ),
+        );
+        widget.questionsListener.removePending(widget.question);
+      }
+    } else {
+      current.add(newValue);
+      widget.questionsListener.addResponse(
+        AllResponse(
+          question: widget.question,
+          stamp: dateToStamp(DateTime.now()),
+          responses: current
+              .map(
+                (val) => val.toIndex(),
+              )
+              .toList(),
+        ),
+      );
       widget.questionsListener.removePending(widget.question);
     }
   }
@@ -242,7 +289,7 @@ class SelectableTile extends StatelessWidget {
 
   final Area? selected;
 
-  final Function(Area) onSelect;
+  final void Function(Area) onSelect;
 
   const SelectableTile(
       {required this.row,

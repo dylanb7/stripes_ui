@@ -24,7 +24,11 @@ class EventsCalendar extends ConsumerStatefulWidget {
 class EventsCalendarState extends ConsumerState<EventsCalendar> {
   DateTime focusedDay = DateTime.now();
 
+  DateTime _selectedDay = DateTime.now();
+
   CalendarFormat _format = CalendarFormat.month;
+
+  RangeSelectionMode _rangeMode = RangeSelectionMode.toggledOn;
 
   PageController? _pageController;
 
@@ -73,7 +77,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
             firstDay: DateTime.now().subtract(const Duration(
                 days: 700)) /*keys.isEmpty ? DateTime(0) : keys[0]*/,
             lastDay: DateTime.now(),
-            rangeSelectionMode: RangeSelectionMode.enforced,
+            rangeSelectionMode: _rangeMode,
             headerVisible: false,
             calendarFormat: _format,
             availableGestures: AvailableGestures.horizontalSwipe,
@@ -186,6 +190,14 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
     final first = _firstDayOfMonth(focusedDay);
     final last = _lastDayOfMonth(focusedDay);
     return DateTimeRange(start: first, end: last);
+  }
+
+  List<DateTime> daysInRange(DateTime first, DateTime last) {
+    final dayCount = last.difference(first).inDays + 1;
+    return List.generate(
+      dayCount,
+      (index) => DateTime.utc(first.year, first.month, first.day + index),
+    );
   }
 
   int _getDaysBefore(DateTime firstDay) {

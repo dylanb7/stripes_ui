@@ -129,13 +129,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get inStudyWithdrawButtonText => 'Withdraw from study';
 
   @override
-  String get studyProgessionOne => 'Step 1\nEat Blue Dye\nMeal';
+  String get studyProgessionOne => 'Step 1\nEat Blue\nMeal';
 
   @override
   String get studyProgessionTwo => 'Step 2\nTrack BM';
 
   @override
-  String get studyProgessionThree => 'Step 3\nEat Blue Dye\nMeal';
+  String get studyProgessionThree => 'Step 3\nEat Blue\nMeal';
 
   @override
   String get studyProgessionFour => 'Step 4\nTrack BM';
@@ -518,7 +518,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get firstPageError => 'No previous page';
 
   @override
-  String get bristolLevel => 'Select bowel movement consistancy';
+  String get bristolLevel => 'Select the stool type that most closely resembles the bowel movement.';
 
   @override
   String get painLocation => 'Select the location of the pain below';

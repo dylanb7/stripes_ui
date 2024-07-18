@@ -53,9 +53,9 @@
     "inStudyWithdrawDesc": "You may withdraw at any time by clicking the withdrawal button below. This notifies the research team of your wish to stop participating.",
     "inStudyWithdrawButtonText": "Withdraw from study",
 
-    "studyProgessionOne": "Step 1\nEat Blue Dye\nMeal",
+    "studyProgessionOne": "Step 1\nEat Blue\nMeal",
     "studyProgessionTwo": "Step 2\nTrack BM",
-    "studyProgessionThree": "Step 3\nEat Blue Dye\nMeal",
+    "studyProgessionThree": "Step 3\nEat Blue\nMeal",
     "studyProgessionFour": "Step 4\nTrack BM",
 
     "stepClickWarning": "{step} is not yet active",
@@ -272,7 +272,7 @@
     },
     "nextButton": "Next",
     "firstPageError": "No previous page",
-    "bristolLevel": "Select bowel movement consistancy",
+    "bristolLevel": "Select the stool type that most closely resembles the bowel movement.",
     "painLocation": "Select the location of the pain below",
     "painLevelBM": "Select the pain during the bowel movement if applicable",
     "painLevel": "Select the pain level",

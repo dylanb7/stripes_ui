@@ -29,7 +29,7 @@ class Questions extends QuestionRepo {
     return {
       "Meal Time": const RecordPath(pages: []),
       Symptoms.PAIN: RecordPath(pages: [
-        const PageLayout(questionIds: [q1, q14, q18, q27, q28]),
+        const PageLayout(questionIds: [q14, q27, q28, q1, q18]),
         if (questionListener != null &&
             (hasId(questionListener, q1) || hasId(questionListener, q18)))
           PageLayout(
@@ -43,18 +43,17 @@ class Questions extends QuestionRepo {
         PageLayout(
             questionIds: const [q4],
             header: AppLocalizations.of(context)!.bristolLevel),
-        PageLayout(
-            questionIds: const [q6],
-            header: AppLocalizations.of(context)!.painLevelBM),
-        const PageLayout(questionIds: [q7, q8, q9, q29, q30]),
+        const PageLayout(questionIds: [q3, q31, q30, q7, q8, q29, q9]),
+        if (questionListener != null && hasId(questionListener, q8))
+          PageLayout(
+              questionIds: const [q6],
+              header: AppLocalizations.of(context)!.painLevelBM),
       ]),
       Symptoms.REFLUX: const RecordPath(pages: [
-        PageLayout(questionIds: [q10, q12, q19, q20]),
-        PageLayout(questionIds: [q2, q11, q13])
+        PageLayout(questionIds: [q20, q19, q10, q12, q11]),
       ]),
       Symptoms.NB: const RecordPath(pages: [
-        PageLayout(questionIds: [q21, q22, q23]),
-        PageLayout(questionIds: [q24, q25, q26]),
+        PageLayout(questionIds: [q21, q23, q22, q13, q2, q24, q25, q26]),
       ])
     };
   }
@@ -74,7 +73,7 @@ class Questions extends QuestionRepo {
             entryBuilder: (listener, context, question) {
               return PainAreaWidget(
                   questionsListener: listener,
-                  question: question as MultipleChoice);
+                  question: question as AllThatApply);
             }),
         rating: QuestionEntry(
             isSeparateScreen: true,
@@ -95,6 +94,8 @@ class Questions extends QuestionRepo {
                   listener: listener, question: question as MultipleChoice);
             })
       };
+
+  Map<String, String>? get displayTitleOverrides => {};
 
   @override
   Map<String, DisplayBuilder<Response<Question>>>? get displayOverrides => {
@@ -125,7 +126,7 @@ class Home extends QuestionHome {
             prompt: "Pain Level",
             type: Symptoms.PAIN,
             isRequired: true),
-        location: const MultipleChoice(
+        location: const AllThatApply(
             id: location,
             choices: [
               "Unable to determine pain location",

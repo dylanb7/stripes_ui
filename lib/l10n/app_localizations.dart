@@ -338,7 +338,7 @@ abstract class AppLocalizations {
   /// No description provided for @studyProgessionOne.
   ///
   /// In en, this message translates to:
-  /// **'Step 1\nEat Blue Dye\nMeal'**
+  /// **'Step 1\nEat Blue\nMeal'**
   String get studyProgessionOne;
 
   /// No description provided for @studyProgessionTwo.
@@ -350,7 +350,7 @@ abstract class AppLocalizations {
   /// No description provided for @studyProgessionThree.
   ///
   /// In en, this message translates to:
-  /// **'Step 3\nEat Blue Dye\nMeal'**
+  /// **'Step 3\nEat Blue\nMeal'**
   String get studyProgessionThree;
 
   /// No description provided for @studyProgessionFour.
@@ -1058,7 +1058,7 @@ abstract class AppLocalizations {
   /// No description provided for @bristolLevel.
   ///
   /// In en, this message translates to:
-  /// **'Select bowel movement consistancy'**
+  /// **'Select the stool type that most closely resembles the bowel movement.'**
   String get bristolLevel;
 
   /// No description provided for @painLocation.
