@@ -32,14 +32,15 @@ class ActionRow extends ConsumerWidget {
                   AppLocalizations.of(context)!.eventFilterResults(results),
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
-                const Export()
+                const AddEvent(),
+                const Export(),
               ])
             ],
           ),
-          const SizedBox(
-            height: 8.0,
+          Divider(
+            thickness: 1.5,
+            color: Theme.of(context).dividerColor,
           ),
-          if (filters.selectedDate != null) const AddEvent(),
         ],
       ),
     );

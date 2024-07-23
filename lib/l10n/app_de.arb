@@ -16,6 +16,9 @@
 
     "viewMoreButtonText": "View More",
     "viewLessButtonText": "View Less",
+    "noDateToAddTo": "No date selected",
+    "dateRangeButton": "Select Date Range",
+    "eventFilterGroupsTag": "Groups",
 
     "stripesName": "STRiPES",
     "aboutStripes": "About STRiPES", 

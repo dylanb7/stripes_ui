@@ -5,7 +5,6 @@ import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
 import 'package:stripes_ui/Util/constants.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class EventGrid extends ConsumerWidget {
   const EventGrid({super.key});
@@ -25,18 +24,9 @@ class EventGrid extends ConsumerWidget {
     }
 
     if (available.valueOrNull?.filteredVisible.isEmpty ?? true) {
-      return SliverToBoxAdapter(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 5.0),
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              AppLocalizations.of(context)!.noEventsText,
-              style: Theme.of(context).textTheme.bodyLarge,
-              textAlign: TextAlign.center,
-              maxLines: null,
-            ),
-          ),
+      return const SliverToBoxAdapter(
+        child: SizedBox(
+          height: 25.0,
         ),
       );
     }
@@ -49,14 +39,16 @@ class EventGrid extends ConsumerWidget {
       sliver: isSmall
           ? SliverList(
               delegate: SliverChildBuilderDelegate(
-                  (context, index) =>
-                      EntryDisplay(event: availableStamps[index]),
+                  (context, index) => EntryDisplay(
+                      event: availableStamps[
+                          (availableStamps.length - 1) - index]),
                   childCount: availableStamps.length),
             )
           : SliverMasonryGrid(
               delegate: SliverChildBuilderDelegate(
-                  (context, index) =>
-                      EntryDisplay(event: availableStamps[index]),
+                  (context, index) => EntryDisplay(
+                      event: availableStamps[
+                          (availableStamps.length - 1) - index]),
                   childCount: availableStamps.length),
               gridDelegate:
                   const SliverSimpleGridDelegateWithMaxCrossAxisExtent(

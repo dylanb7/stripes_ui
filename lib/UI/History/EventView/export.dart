@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
+import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/entry.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
@@ -10,8 +11,11 @@ class Export extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final AsyncValue<Available> available = ref.watch(availibleStampsProvider);
+    final List<Response> availableStamps =
+        available.valueOrNull?.filteredVisible ?? [];
     return IconButton(
-      onPressed: () {},
+      onPressed: available.isLoading || availableStamps.isEmpty ? null : () {},
       icon: const Icon(
         Icons.ios_share,
       ),

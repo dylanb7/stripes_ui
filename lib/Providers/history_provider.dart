@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +11,7 @@ import 'package:stripes_backend_helper/RepositoryBase/StampBase/stamp.dart';
 import 'package:stripes_backend_helper/date_format.dart';
 
 import 'package:stripes_ui/Providers/stamps_provider.dart';
+import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
 
 enum Loc {
   day,
@@ -105,8 +108,9 @@ class Available {
   Available(
       {required List<Response<Question>> allStamps, required this.filters}) {
     _all = allStamps;
-    _filteredInRange = _filter(_getStamps(_all, null, filters.range));
-    _visible = _getStamps(allStamps, filters.selectedDate, filters.range);
+    _filteredInRange = _filter(_getStamps(_all, null, null, null, true));
+    _visible = _getStamps(allStamps, filters.selectedDate, filters.rangeStart,
+        filters.rangeEnd, false);
     _filteredVisible = _filter(_visible);
   }
 
@@ -119,22 +123,44 @@ class Available {
   List<Response> get filteredVisible => _filteredVisible;
 
   List<Response> _filter(List<Response> stamps) {
-    if (filters.filter == null) return stamps;
-    return stamps.where((element) => filters.filter!.call(element)).toList();
+    if (filters.stampFilters == null || filters.stampFilters!.isEmpty) {
+      return stamps;
+    }
+    return stamps.where((element) {
+      for (final LabeledFilter stampFilter in filters.stampFilters!) {
+        if (stampFilter.filter(element)) {
+          return true;
+        }
+      }
+      return false;
+    }).toList();
   }
 
   List<Response<Question>> _getStamps(
-    List<Response<Question>> allStamps,
-    DateTime? selected,
-    DateTimeRange? range,
-  ) {
+      List<Response<Question>> allStamps,
+      DateTime? selected,
+      DateTime? rangeStart,
+      DateTime? rangeEnd,
+      bool includeTotalRange) {
     if (selected != null) {
       return allStamps.where((element) => _sameDay(selected, element)).toList();
     }
-    if (range != null) {
-      return allStamps.where((element) => _inRange(range, element)).toList();
+    if (rangeStart != null && rangeEnd != null) {
+      return allStamps
+          .where((element) => inRange(rangeStart, rangeEnd, element))
+          .toList();
     }
-    return allStamps;
+    if (rangeStart != null) {
+      return allStamps
+          .where((element) => _sameDay(rangeStart, element))
+          .toList();
+    }
+    final DateTime? earliest = filters.earliestRequired;
+    final DateTime? latest = filters.latestRequired;
+    if (!includeTotalRange || earliest == null || latest == null) return [];
+    return allStamps
+        .where((element) => inRange(earliest, latest, element))
+        .toList();
   }
 
   bool _sameDay(DateTime day, Response test) {
@@ -144,15 +170,17 @@ class Available {
         day.day == testDate.day;
   }
 
-  bool _inRange(DateTimeRange range, Response test) {
-    final DateTime testDate = dateFromStamp(test.stamp);
-    return range.start.isBefore(testDate) && range.end.isAfter(testDate);
-  }
-
   @override
   String toString() {
     return '\nIn Range: \n$filteredInRange \n\nVisible: \n$visible \n\nFiltered Visible: \n$filteredVisible';
   }
+}
+
+bool inRange(DateTime rangeStart, DateTime rangeEnd, Response test) {
+  final DateTime testDate = dateFromStamp(test.stamp);
+  return rangeStart.isBefore(testDate) && rangeEnd.isAfter(testDate) ||
+      sameDay(rangeStart, testDate) ||
+      sameDay(rangeEnd, testDate);
 }
 
 class CalendarEvent {
@@ -169,67 +197,106 @@ class CalendarEvent {
   Response get response => res;
 }
 
+int getHashCode(DateTime key) {
+  return key.day * 1000000 + key.month * 10000 + key.year;
+}
+
 Map<DateTime, List<Response>> generateEventMap(List<Response> responses) {
-  Map<DateTime, List<Response>> eventMap = {};
+  LinkedHashMap<DateTime, List<Response>> eventMap =
+      LinkedHashMap(equals: sameDay, hashCode: getHashCode);
+
   for (Response res in responses) {
     final DateTime resDate = dateFromStamp(res.stamp);
-    final DateTime calDate =
-        DateTime.utc(resDate.year, resDate.month, resDate.day, 0, 0, 0, 0, 0);
-    if (eventMap.containsKey(calDate)) {
-      eventMap[calDate]!.add(res);
+    if (eventMap.containsKey(resDate)) {
+      eventMap[resDate]!.add(res);
     } else {
-      eventMap[calDate] = [res];
+      eventMap[resDate] = [res];
     }
   }
   return eventMap;
+}
+
+typedef StampFilter = bool Function(Stamp);
+
+@immutable
+class LabeledFilter with EquatableMixin {
+  final String name;
+  final StampFilter filter;
+
+  const LabeledFilter({required this.name, required this.filter});
+
+  @override
+  List<Object?> get props => [name, filter];
 }
 
 @immutable
 class Filters with EquatableMixin {
   final DateTime? selectedDate;
 
-  final DateTimeRange? range;
+  final DateTime? earliestRequired, latestRequired;
 
-  final bool Function(Stamp)? filter;
+  final DateTime? rangeStart, rangeEnd;
 
-  const Filters({required this.range, this.selectedDate, this.filter});
+  final List<LabeledFilter>? stampFilters;
+
+  const Filters(
+      {required this.rangeStart,
+      required this.rangeEnd,
+      this.latestRequired,
+      this.earliestRequired,
+      this.selectedDate,
+      this.stampFilters});
 
   factory Filters.reset({
     HistoryLocation location = const HistoryLocation(
         day: DayChoice.day, loc: Loc.day, graph: GraphChoice.day),
   }) =>
       Filters(
-        range: null,
+        rangeStart: null,
+        rangeEnd: null,
+        earliestRequired: null,
+        latestRequired: null,
         selectedDate: location.day == DayChoice.day ? DateTime.now() : null,
       );
 
   Filters copyWith(
-          {DateTime? selectDate,
-          DateTimeRange? range,
-          bool Function(Stamp)? filt}) =>
+          {DateTime? selectedDate,
+          DateTime? rangeStart,
+          DateTime? rangeEnd,
+          DateTime? earliestRequired,
+          DateTime? latestRequired,
+          List<LabeledFilter>? stampFilters}) =>
       Filters(
-          range: range ?? this.range,
-          selectedDate: selectDate,
-          filter: filt ?? filter);
+          rangeStart: rangeStart ?? this.rangeStart,
+          rangeEnd: rangeEnd ?? this.rangeEnd,
+          selectedDate: selectedDate ?? this.selectedDate,
+          earliestRequired: earliestRequired ?? this.earliestRequired,
+          latestRequired: latestRequired ?? this.latestRequired,
+          stampFilters: stampFilters ?? this.stampFilters);
 
   String toRange(BuildContext context) {
     String locale = Localizations.localeOf(context).languageCode;
     final DateFormat yearFormat = DateFormat.yMMMd(locale);
-    if (selectedDate != null) return yearFormat.format(selectedDate!);
-    if (range == null) return '';
-    final bool sameYear = range!.end.year == range!.start.year;
-    final bool sameMonth = sameYear && range!.end.month == range!.start.month;
+    if (selectedDate != null) {
+      return yearFormat.format(selectedDate!);
+    }
+    if (rangeStart != null && rangeEnd == null) {
+      return yearFormat.format(rangeStart!);
+    }
+    if (rangeStart == null && rangeEnd == null) return '';
+    final bool sameYear = rangeEnd!.year == rangeStart!.year;
+    final bool sameMonth = sameYear && rangeEnd!.month == rangeStart!.month;
     final String firstPortion = sameYear
-        ? DateFormat.MMMd(locale).format(range!.start)
-        : yearFormat.format(range!.start);
+        ? DateFormat.MMMd(locale).format(rangeStart!)
+        : yearFormat.format(rangeStart!);
     final String lastPortion = sameMonth
-        ? '${DateFormat.d(locale).format(range!.end)}, ${DateFormat.y(locale).format(range!.end)}'
-        : yearFormat.format(range!.end);
+        ? '${DateFormat.d(locale).format(rangeEnd!)}, ${DateFormat.y(locale).format(rangeEnd!)}'
+        : yearFormat.format(rangeEnd!);
     return '$firstPortion - $lastPortion';
   }
 
   @override
-  List<Object?> get props => [selectedDate, range, filter];
+  List<Object?> get props => [selectedDate, rangeStart, rangeEnd, stampFilters];
 }
 
 final historyLocationProvider =
@@ -239,8 +306,12 @@ final filtersProvider = StateProvider<Filters>((_) => Filters.reset());
 
 final availibleStampsProvider =
     FutureProvider.autoDispose<Available>((ref) async {
+  final StampNotifier notifier = ref.watch(stampHolderProvider.notifier);
   final List<Stamp> stamps = await ref.watch(stampHolderProvider.future);
   final Filters filters = ref.watch(filtersProvider);
+  if (filters.earliestRequired != null) {
+    notifier.changeEarliest(filters.earliestRequired!);
+  }
   return Available(allStamps: _convertStamps(stamps), filters: filters);
 });
 
@@ -248,7 +319,6 @@ final eventsMapProvider =
     FutureProvider.autoDispose<Map<DateTime, List<Response>>>((ref) async {
   ref.watch(filtersProvider);
   final Available available = await ref.watch(availibleStampsProvider.future);
-
   return generateEventMap(available.filteredInRange);
 });
 

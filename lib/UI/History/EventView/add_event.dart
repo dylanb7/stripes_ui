@@ -19,23 +19,25 @@ class AddEvent extends ConsumerWidget {
           CurrentOverlay(widget: _QuestionTypeOverlay(date: addTime));
     }
 
-    final DateTime? selected =
-        ref.watch(filtersProvider.select((value) => value.selectedDate));
+    final Filters filters = ref.watch(filtersProvider);
 
-    return selected == null
-        ? Container()
-        : Tooltip(
-            message: dateToMDY(selected, context),
-            child: FilledButton(
-              child: Text(
-                AppLocalizations.of(context)!.addEventButton,
-              ),
-              onPressed: () {
+    final DateTime? selected = filters.selectedDate ??
+        (filters.rangeEnd == null ? filters.rangeStart : null);
+
+    return Tooltip(
+      message: filters.selectedDate == null
+          ? AppLocalizations.of(context)!.noDateToAddTo
+          : dateToMDY(filters.selectedDate!, context),
+      child: IconButton(
+        icon: const Icon(Icons.add),
+        onPressed: selected == null
+            ? null
+            : () {
                 openEventOverlay(ref,
                     DateTime(selected.year, selected.month, selected.day, 12));
               },
-            ),
-          );
+      ),
+    );
   }
 }
 

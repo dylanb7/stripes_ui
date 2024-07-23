@@ -17,6 +17,10 @@
     "viewMoreButtonText": "View More",
     "viewLessButtonText": "View Less",
 
+    "noDateToAddTo": "No date selected",
+    "dateRangeButton": "Select Date Range",
+    "eventFilterGroupsTag": "Groups",
+
     "stripesName": "STRiPES",
     "aboutStripes": "About STRiPES", 
     "aboutLineOne": "STRiPES is a symptom tracker that collects information on altered movement of food through the gut (aka motility), pain, bowel movements(BM) and reflux of patients with Phelan-McDermid Syndrome (PMS).",

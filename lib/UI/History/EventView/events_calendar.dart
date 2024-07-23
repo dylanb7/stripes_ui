@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
@@ -24,126 +25,280 @@ class EventsCalendar extends ConsumerStatefulWidget {
 class EventsCalendarState extends ConsumerState<EventsCalendar> {
   DateTime focusedDay = DateTime.now();
 
-  DateTime _selectedDay = DateTime.now();
-
   CalendarFormat _format = CalendarFormat.month;
 
-  RangeSelectionMode _rangeMode = RangeSelectionMode.toggledOn;
+  RangeSelectionMode _rangeMode = RangeSelectionMode.toggledOff;
 
   PageController? _pageController;
 
+  final DateTime firstDate = DateTime(2020);
+
   @override
   Widget build(BuildContext context) {
+    final Locale locale = Localizations.localeOf(context);
     final Filters filters = ref.watch(filtersProvider);
-    final Map<DateTime, List<Response>> eventMap =
-        ref.watch(eventsMapProvider).valueOrNull ?? {};
-    final DateTime? selected =
-        ref.watch(filtersProvider.select((value) => value.selectedDate));
-    final now = DateTime.now();
+    final AsyncValue<Map<DateTime, List<Response>>> eventsValue =
+        ref.watch(eventsMapProvider);
 
-    builder(BuildContext context, DateTime day, DateTime focus) {
+    final bool waiting = eventsValue.isLoading || eventsValue.hasError;
+    final Map<DateTime, List<Response>> eventMap =
+        eventsValue.valueOrNull ?? {};
+    final Color background =
+        Theme.of(context).colorScheme.primary.withOpacity(0.4);
+
+    final DateTime? selected = filters.selectedDate;
+    final DateTime? rangeStart = filters.rangeStart;
+    final DateTime? rangeEnd = filters.rangeEnd;
+    final DateTime now = DateTime.now();
+
+    Widget builder(BuildContext context, DateTime day, DateTime focus) {
       final int events = eventMap[day]?.length ?? 0;
       return CalendarDay(
-          day: day,
-          isToday: sameDay(day, now),
-          selected: selected == null ? false : sameDay(day, selected),
-          after: day.isAfter(now),
-          events: events);
+        day: day,
+        isToday: sameDay(day, now),
+        selected: selected == null ? false : sameDay(day, selected),
+        disabled: day.isAfter(now),
+        events: events,
+        rangeStart: rangeStart != null && sameDay(rangeStart, day),
+        rangeEnd: rangeEnd != null && sameDay(rangeEnd, day),
+        within: rangeStart != null &&
+            rangeEnd != null &&
+            day.isAfter(rangeStart) &&
+            day.isBefore(rangeEnd),
+        endSelected: rangeEnd != null,
+      );
     }
 
-    return Center(
+    Widget? rangeHighlight(
+        BuildContext context, DateTime day, bool withinRange) {
+      if (!withinRange) return null;
+      if (rangeStart == null || rangeEnd == null) return null;
+      final bool firstDay = sameDay(rangeStart, day);
+      final bool lastDay = sameDay(rangeEnd, day);
+
+      return Center(
+          child: Container(
+        margin: EdgeInsets.only(
+            top: 2.0,
+            bottom: 2.0,
+            left: firstDay ? 20.0 : 0.0,
+            right: lastDay ? 20.0 : 0.0),
+        decoration: BoxDecoration(
+          color: background,
+        ),
+      ));
+    }
+
+    Widget? dowBuilder(BuildContext context, DateTime day) {
+      final weekdayString = DateFormat.E(locale.languageCode).format(day);
+
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 6.0),
+        child: Center(
+          child: ExcludeSemantics(
+            child: Text(
+              weekdayString,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color:
+                      Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      decoration: BoxDecoration(
+          borderRadius: const BorderRadius.all(Radius.circular(10.0)),
+          border: Border.all(color: Theme.of(context).colorScheme.onSurface)),
+      padding: const EdgeInsets.only(bottom: 4.0),
       child: Column(
         children: [
-          Center(
-            child: _CalendarHeader(
-                focusedDay: focusedDay,
-                onLeftArrowTap: () {
-                  _pageController?.previousPage(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeOut,
-                  );
-                },
-                onRightArrowTap: () {
-                  _pageController?.nextPage(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeOut,
-                  );
-                },
-                onFormatChange: _onFormatChange,
-                selected: _format),
-          ),
-          TableCalendar(
-            focusedDay: focusedDay,
-            firstDay: DateTime.now().subtract(const Duration(
-                days: 700)) /*keys.isEmpty ? DateTime(0) : keys[0]*/,
-            lastDay: DateTime.now(),
-            rangeSelectionMode: _rangeMode,
-            headerVisible: false,
-            calendarFormat: _format,
-            availableGestures: AvailableGestures.horizontalSwipe,
-            availableCalendarFormats: const {
-              CalendarFormat.month: 'Month',
-              CalendarFormat.week: 'Week',
-            },
-            onFormatChanged: null,
-            calendarStyle: const CalendarStyle(
-                cellPadding: EdgeInsets.all(2.0), outsideDaysVisible: false),
-            onCalendarCreated: (controller) {
-              _pageController = controller;
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (mounted) {
-                  ref.read(filtersProvider.notifier).state =
-                      filters.copyWith(range: _getVisibleRange());
-                }
-              });
-            },
-            onDaySelected: (selectedDay, focusedDay) {
-              setState(() {
-                this.focusedDay = focusedDay;
-              });
-              if (selected != null && sameDay(selectedDay, selected)) {
-                ref.read(filtersProvider.notifier).state =
-                    filters.copyWith(selectDate: null);
-              } else {
-                ref.read(filtersProvider.notifier).state = filters.copyWith(
-                  selectDate: selectedDay,
+          _CalendarHeader(
+              onYearChange: _onYearChange,
+              focusedDay: focusedDay,
+              onLeftArrowTap: () {
+                _pageController?.previousPage(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOut,
                 );
-              }
-            },
-            onRangeSelected: (start, end, focusedDay) {
-              setState(() {
-                this.focusedDay = focusedDay;
-                DateTimeRange visible = _getVisibleRange();
-                ref.read(filtersProvider.notifier).state = filters.copyWith(
-                    range: DateTimeRange(
-                        start: start ?? visible.start, end: end ?? visible.end),
-                    selectDate: null);
-              });
-            },
-            onPageChanged: (newFocus) {
-              setState(() {
-                focusedDay = newFocus;
-                ref.read(filtersProvider.notifier).state = filters.copyWith(
-                    selectDate: null, range: _getVisibleRange());
-              });
-            },
-            calendarBuilders: CalendarBuilders(
-              defaultBuilder: builder,
-              todayBuilder: builder,
-            ),
+              },
+              onRightArrowTap: () {
+                _pageController?.nextPage(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOut,
+                );
+              },
+              onRangeToggle: () {
+                setState(() {
+                  if (_rangeMode == RangeSelectionMode.toggledOff) {
+                    _rangeMode = RangeSelectionMode.toggledOn;
+
+                    ref.read(filtersProvider.notifier).state = Filters(
+                        rangeStart: null,
+                        rangeEnd: null,
+                        selectedDate: null,
+                        stampFilters: filters.stampFilters,
+                        latestRequired: filters.latestRequired,
+                        earliestRequired: filters.earliestRequired);
+                  } else {
+                    _rangeMode = RangeSelectionMode.toggledOff;
+                    ref.read(filtersProvider.notifier).state = Filters(
+                        rangeStart: null,
+                        rangeEnd: null,
+                        selectedDate: rangeEnd ?? rangeStart,
+                        stampFilters: filters.stampFilters,
+                        latestRequired: filters.latestRequired,
+                        earliestRequired: filters.earliestRequired);
+                  }
+                });
+              },
+              mode: _rangeMode,
+              onFormatChange: _onFormatChange,
+              selected: _format),
+          Stack(
+            children: [
+              IgnorePointer(
+                ignoring: waiting,
+                child: Opacity(
+                  opacity: waiting ? 0.6 : 1.0,
+                  child: TableCalendar(
+                    locale: locale.languageCode,
+                    daysOfWeekHeight: 25,
+                    focusedDay: focusedDay,
+                    firstDay:
+                        firstDate /*keys.isEmpty ? DateTime(0) : keys[0]*/,
+                    lastDay: DateTime.now(),
+                    rangeSelectionMode: _rangeMode,
+                    rangeStartDay: rangeStart,
+                    rangeEndDay: rangeEnd,
+                    headerVisible: false,
+                    calendarFormat: _format,
+                    availableGestures: AvailableGestures.horizontalSwipe,
+                    availableCalendarFormats: const {
+                      CalendarFormat.month: 'Month',
+                      CalendarFormat.week: 'Week',
+                    },
+                    onFormatChanged: null,
+                    calendarStyle: const CalendarStyle(
+                      cellPadding: EdgeInsets.all(2.0),
+                      outsideDaysVisible: false,
+                    ),
+                    onCalendarCreated: (controller) {
+                      _pageController = controller;
+                      Future(() {
+                        ref.read(filtersProvider.notifier).state =
+                            filters.copyWith(
+                                earliestRequired: DateTime(
+                                    focusedDay.year, focusedDay.month, 1),
+                                latestRequired: _lastDayOfMonth(focusedDay));
+                      });
+                    },
+                    onDaySelected: (selectedDay, focusedDay) {
+                      setState(() {
+                        focusedDay = focusedDay;
+                        _rangeMode = RangeSelectionMode.toggledOff;
+                        if (selected != null &&
+                            sameDay(selectedDay, selected)) {
+                          ref.read(filtersProvider.notifier).state = Filters(
+                              rangeStart: null,
+                              rangeEnd: null,
+                              selectedDate: null,
+                              stampFilters: filters.stampFilters,
+                              latestRequired: filters.latestRequired,
+                              earliestRequired: filters.earliestRequired);
+                        } else {
+                          ref.read(filtersProvider.notifier).state = Filters(
+                              rangeStart: null,
+                              rangeEnd: null,
+                              selectedDate: selectedDay,
+                              stampFilters: filters.stampFilters,
+                              latestRequired: filters.latestRequired,
+                              earliestRequired: filters.earliestRequired);
+                        }
+                      });
+                    },
+                    onRangeSelected: (start, end, focusedDay) {
+                      setState(() {
+                        _rangeMode = RangeSelectionMode.toggledOn;
+                        this.focusedDay = focusedDay;
+                        ref.read(filtersProvider.notifier).state = Filters(
+                            rangeStart: start,
+                            rangeEnd: end,
+                            selectedDate: null,
+                            stampFilters: filters.stampFilters,
+                            latestRequired: filters.latestRequired,
+                            earliestRequired: filters.earliestRequired);
+                      });
+                    },
+                    onPageChanged: (newFocus) {
+                      setState(() {
+                        focusedDay = newFocus;
+                        ref.read(filtersProvider.notifier).state =
+                            filters.copyWith(
+                                earliestRequired:
+                                    DateTime(newFocus.year, newFocus.month, 1),
+                                latestRequired: _lastDayOfMonth(newFocus));
+                      });
+                    },
+                    calendarBuilders: CalendarBuilders(
+                        defaultBuilder: builder,
+                        todayBuilder: builder,
+                        rangeStartBuilder: builder,
+                        rangeEndBuilder: builder,
+                        withinRangeBuilder: builder,
+                        disabledBuilder: builder,
+                        dowBuilder: dowBuilder,
+                        rangeHighlightBuilder: rangeHighlight),
+                  ),
+                ),
+              ),
+              if (waiting)
+                AspectRatio(
+                  aspectRatio: 1.9,
+                  child: Center(
+                    child: eventsValue.isLoading
+                        ? const CircularProgressIndicator()
+                        : Text(eventsValue.error.toString()),
+                  ),
+                )
+            ],
           ),
         ],
       ),
     );
   }
 
+  _onYearChange() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        content: SizedBox(
+          width: 300,
+          height: 300,
+          child: YearPicker(
+            currentDate: focusedDay,
+            firstDate: firstDate,
+            lastDate: DateTime.now(),
+            selectedDate: focusedDay,
+            onChanged: (val) {
+              setState(() {
+                focusedDay =
+                    DateTime(val.year, focusedDay.month, focusedDay.day);
+              });
+              Navigator.pop(context);
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
   _onFormatChange(CalendarFormat newFormat) {
-    Filters filters = ref.read(filtersProvider);
     if (_format != newFormat) {
       setState(() {
         _format = newFormat;
-        ref.read(filtersProvider.notifier).state =
-            filters.copyWith(range: _getVisibleRange());
       });
     }
   }
@@ -210,19 +365,24 @@ class _CalendarHeader extends StatelessWidget {
   final VoidCallback onLeftArrowTap;
   final VoidCallback onRightArrowTap;
   final void Function(CalendarFormat format) onFormatChange;
+  final VoidCallback onRangeToggle;
+  final VoidCallback onYearChange;
+  final RangeSelectionMode mode;
   final List<CalendarFormat> formats = const [
     CalendarFormat.month,
     CalendarFormat.week
   ];
   final CalendarFormat selected;
 
-  const _CalendarHeader({
-    required this.focusedDay,
-    required this.onLeftArrowTap,
-    required this.onRightArrowTap,
-    required this.onFormatChange,
-    required this.selected,
-  });
+  const _CalendarHeader(
+      {required this.focusedDay,
+      required this.onLeftArrowTap,
+      required this.onRightArrowTap,
+      required this.onFormatChange,
+      required this.selected,
+      required this.onRangeToggle,
+      required this.onYearChange,
+      required this.mode});
 
   @override
   Widget build(BuildContext context) {
@@ -234,17 +394,27 @@ class _CalendarHeader extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
+        mainAxisSize: MainAxisSize.max,
         children: [
           IconButton(
             icon: const Icon(Icons.chevron_left),
             onPressed: onLeftArrowTap,
           ),
-          Flexible(
-            child: Text(
+          Text(
+            headerText,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          /*TextButton.icon(
+            onPressed: () {
+              onYearChange();
+            },
+            iconAlignment: IconAlignment.end,
+            label: Text(
               headerText,
               style: Theme.of(context).textTheme.titleMedium,
             ),
-          ),
+            icon: const Icon(Icons.arrow_drop_down),
+          ),*/
           const Spacer(),
           DropdownButton<CalendarFormat>(
             items: formats
@@ -256,6 +426,12 @@ class _CalendarHeader extends StatelessWidget {
             onChanged: (value) {
               if (value != null) onFormatChange(value);
             },
+          ),
+          IconButton(
+            onPressed: onRangeToggle,
+            icon: Icon(mode == RangeSelectionMode.toggledOn
+                ? Icons.date_range
+                : Icons.calendar_today),
           ),
           IconButton(
             icon: const Icon(Icons.chevron_right),

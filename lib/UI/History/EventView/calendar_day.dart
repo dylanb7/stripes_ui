@@ -3,7 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class CalendarDay extends StatelessWidget {
-  final bool isToday, selected, after;
+  final bool isToday,
+      selected,
+      disabled,
+      rangeStart,
+      rangeEnd,
+      within,
+      endSelected;
 
   final int events;
 
@@ -13,52 +19,79 @@ class CalendarDay extends StatelessWidget {
       {required this.day,
       required this.isToday,
       required this.selected,
-      required this.after,
+      required this.disabled,
       required this.events,
+      required this.rangeStart,
+      required this.rangeEnd,
+      required this.within,
+      required this.endSelected,
       super.key});
 
   @override
   Widget build(BuildContext context) {
     final Color primary = Theme.of(context).primaryColor;
     final Color onPrimary = Theme.of(context).colorScheme.onPrimary;
-    final Color background = selected
-        ? Theme.of(context).colorScheme.secondary
-        : after
-            ? primary.withOpacity(0.4)
-            : primary.withOpacity(0.8);
+    final Color onSurface = Theme.of(context).colorScheme.onSurface;
+    final bool highlighted = selected || rangeStart || rangeEnd;
+    final Color background = highlighted ? primary : Colors.transparent;
     final text = DateFormat.d().format(day);
-    final Color textColor =
-        selected ? Theme.of(context).colorScheme.onSecondary : onPrimary;
+    final Color textColor = highlighted
+        ? onPrimary
+        : disabled
+            ? onSurface.withOpacity(0.4)
+            : onSurface;
     final Widget dayView = Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 2.0),
-        child: AspectRatio(
-          aspectRatio: 1.0,
+      padding: EdgeInsets.only(
+          top: 2.0,
+          bottom: 2.0,
+          left: rangeEnd || within ? 0 : 2.0,
+          right: (rangeStart && endSelected) || within ? 0 : 2.0),
+      child: AspectRatio(
+        aspectRatio: 1.0,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          decoration: BoxDecoration(
+            color: background,
+            borderRadius: BorderRadius.only(
+                topRight: within || rangeStart
+                    ? Radius.zero
+                    : const Radius.circular(10.0),
+                topLeft: within || rangeEnd
+                    ? Radius.zero
+                    : const Radius.circular(10.0),
+                bottomRight: within || rangeStart
+                    ? Radius.zero
+                    : const Radius.circular(10.0),
+                bottomLeft: within || rangeEnd
+                    ? Radius.zero
+                    : const Radius.circular(10.0)),
+          ),
           child: Container(
             decoration: BoxDecoration(
-              color: background,
-              borderRadius: const BorderRadius.all(Radius.circular(10.0)),
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                      color: isToday ? onPrimary : Colors.transparent,
-                      width: 2.0)),
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Center(
-                  child: Text(
-                    text,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(color: textColor, fontSize: 20),
-                  ),
+                shape: BoxShape.circle,
+                border: Border.all(
+                    color: isToday
+                        ? highlighted
+                            ? onPrimary
+                            : onSurface
+                        : Colors.transparent,
+                    width: 2.0)),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Center(
+                child: Text(
+                  text,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(color: textColor, fontSize: 20),
                 ),
               ),
             ),
           ),
-        ));
+        ),
+      ),
+    );
     if (events == 0) return dayView;
     return b.Badge(
       badgeContent: Text(

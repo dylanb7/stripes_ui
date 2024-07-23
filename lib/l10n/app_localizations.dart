@@ -185,6 +185,24 @@ abstract class AppLocalizations {
   /// **'View Less'**
   String get viewLessButtonText;
 
+  /// No description provided for @noDateToAddTo.
+  ///
+  /// In en, this message translates to:
+  /// **'No date selected'**
+  String get noDateToAddTo;
+
+  /// No description provided for @dateRangeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Date Range'**
+  String get dateRangeButton;
+
+  /// No description provided for @eventFilterGroupsTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Groups'**
+  String get eventFilterGroupsTag;
+
   /// No description provided for @stripesName.
   ///
   /// In en, this message translates to:

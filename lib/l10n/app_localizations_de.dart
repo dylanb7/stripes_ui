@@ -52,6 +52,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get viewLessButtonText => 'View Less';
 
   @override
+  String get noDateToAddTo => 'No date selected';
+
+  @override
+  String get dateRangeButton => 'Select Date Range';
+
+  @override
+  String get eventFilterGroupsTag => 'Groups';
+
+  @override
   String get stripesName => 'STRiPES';
 
   @override
