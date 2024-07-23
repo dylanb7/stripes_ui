@@ -39,7 +39,8 @@ class _BlueDyeTestScreenState extends ConsumerState<BlueDyeTestScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const TestSwitcher(),
-            (progress.stage != BlueDyeTestStage.initial)
+            (progress.stage != BlueDyeTestStage.initial ||
+                    progress.orderedTests.isNotEmpty)
                 ? IconButton(
                     onPressed: () {
                       toggleBottomSheet(context);
