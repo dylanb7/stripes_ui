@@ -251,12 +251,12 @@ class Filters with EquatableMixin {
     HistoryLocation location = const HistoryLocation(
         day: DayChoice.day, loc: Loc.day, graph: GraphChoice.day),
   }) =>
-      const Filters(
+      Filters(
         rangeStart: null,
         rangeEnd: null,
         earliestRequired: null,
         latestRequired: null,
-        selectedDate: null,
+        selectedDate: DateTime.now(),
       );
 
   Filters copyWith(

@@ -530,7 +530,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get bristolLevel => 'Select the stool type that most closely resembles the bowel movement.';
 
   @override
-  String get painLocation => 'Select the location of the pain below';
+  String get painLocation => 'Select the location (s) of the pain below';
 
   @override
   String get painLevel => 'Select the pain level';

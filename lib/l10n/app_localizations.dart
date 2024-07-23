@@ -1082,7 +1082,7 @@ abstract class AppLocalizations {
   /// No description provided for @painLocation.
   ///
   /// In en, this message translates to:
-  /// **'Select the location of the pain below'**
+  /// **'Select the location (s) of the pain below'**
   String get painLocation;
 
   /// No description provided for @painLevel.

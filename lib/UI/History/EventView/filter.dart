@@ -247,7 +247,6 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
             },
             initialStart: newRange?.start,
             initialEnd: newRange?.end,
-            restorationId: "filters_range_picker",
           ),
           const SizedBox(
             height: 12.0,

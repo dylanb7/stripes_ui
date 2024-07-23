@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
 import 'package:stripes_ui/UI/History/EventView/sig_dates.dart';
@@ -245,9 +247,7 @@ class DateTimeHolder extends StatelessWidget {
   }
 }
 
-class DateRangePicker extends StatefulWidget {
-  final String? restorationId;
-
+class DateRangePicker extends StatelessWidget {
   final void Function(DateTimeRange?) onSelection;
 
   final DateTime? initialStart, initialEnd;
@@ -256,70 +256,18 @@ class DateRangePicker extends StatefulWidget {
       {required this.onSelection,
       this.initialStart,
       this.initialEnd,
-      this.restorationId,
       super.key});
 
-  @override
-  State<DateRangePicker> createState() => _DateRangePickerState();
-}
-
-class _DateRangePickerState extends State<DateRangePicker>
-    with RestorationMixin {
-  @override
-  String? get restorationId => widget.restorationId;
-
-  late final RestorableDateTimeN _startDate;
-  late final RestorableDateTimeN _endDate;
-  late final RestorableRouteFuture<DateTimeRange?>
-      _restorableDateRangePickerRouteFuture =
-      RestorableRouteFuture<DateTimeRange?>(
-    onComplete: _selectDateRange,
-    onPresent: (NavigatorState navigator, Object? arguments) {
-      return navigator
-          .restorablePush(_dateRangePickerRoute, arguments: <String, dynamic>{
-        'initialStartDate': _startDate.value?.millisecondsSinceEpoch,
-        'initialEndDate': _endDate.value?.millisecondsSinceEpoch,
-      });
-    },
-  );
-
-  @override
-  void initState() {
-    _startDate = RestorableDateTimeN(widget.initialStart);
-    _endDate = RestorableDateTimeN(widget.initialEnd);
-    super.initState();
-  }
-
-  void _selectDateRange(DateTimeRange? newSelectedDate) {
-    if (newSelectedDate != null) {
-      setState(() {
-        _startDate.value = newSelectedDate.start;
-        _endDate.value = newSelectedDate.end;
-        widget.onSelection(newSelectedDate);
-      });
-    }
-  }
-
-  @override
-  void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
-    registerForRestoration(_startDate, 'start_date');
-    registerForRestoration(_endDate, 'end_date');
-    registerForRestoration(
-        _restorableDateRangePickerRouteFuture, 'date_picker_route_future');
-  }
-
-  @pragma('vm:entry-point')
-  static Route<DateTimeRange?> _dateRangePickerRoute(
+  Route<DateTimeRange?> _dateRangePickerRoute(
     BuildContext context,
-    Object? arguments,
   ) {
     return DialogRoute<DateTimeRange?>(
       context: context,
       builder: (BuildContext context) {
         return DateRangePickerDialog(
-          restorationId: 'date_picker_dialog',
-          initialDateRange:
-              _initialDateTimeRange(arguments! as Map<dynamic, dynamic>),
+          initialDateRange: initialStart != null && initialEnd != null
+              ? DateTimeRange(start: initialStart!, end: initialEnd!)
+              : null,
           firstDate: SigDates.minDate,
           currentDate: DateTime.now(),
           lastDate: DateTime.now(),
@@ -328,25 +276,11 @@ class _DateRangePickerState extends State<DateRangePicker>
     );
   }
 
-  static DateTimeRange? _initialDateTimeRange(Map<dynamic, dynamic> arguments) {
-    if (arguments['initialStartDate'] != null &&
-        arguments['initialEndDate'] != null) {
-      return DateTimeRange(
-        start: DateTime.fromMillisecondsSinceEpoch(
-            arguments['initialStartDate'] as int),
-        end: DateTime.fromMillisecondsSinceEpoch(
-            arguments['initialEndDate'] as int),
-      );
-    }
-
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
     String toRange() {
-      final DateTime? rangeStart = _startDate.value;
-      final DateTime? rangeEnd = _endDate.value;
+      final DateTime? rangeStart = initialStart;
+      final DateTime? rangeEnd = initialEnd;
       if (rangeStart == null || rangeEnd == null) {
         return AppLocalizations.of(context)!.dateRangeButton;
       }
@@ -354,7 +288,7 @@ class _DateRangePickerState extends State<DateRangePicker>
 
       final DateFormat yearFormat = DateFormat.yMMMd(locale);
       if (sameDay(rangeStart, rangeEnd)) {
-        return yearFormat.format(_startDate.value!);
+        return yearFormat.format(rangeStart);
       }
 
       final bool sameYear = rangeEnd.year == rangeStart.year;
@@ -370,7 +304,7 @@ class _DateRangePickerState extends State<DateRangePicker>
 
     return OutlinedButton.icon(
       onPressed: () {
-        _restorableDateRangePickerRouteFuture.present();
+        Navigator.of(context).push(_dateRangePickerRoute(context));
       },
       label: Text(toRange()),
       icon: const Icon(Icons.date_range),
