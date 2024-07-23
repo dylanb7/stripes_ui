@@ -40,6 +40,22 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
     final AsyncValue<Map<DateTime, List<Response>>> eventsValue =
         ref.watch(eventsMapProvider);
 
+    bool hasRange(Filters? filters) {
+      if (filters == null) return false;
+      return filters.rangeStart != null || filters.rangeEnd != null;
+    }
+
+    ref.listen<Filters>(filtersProvider, (oldFilters, newFilters) {
+      final bool range = hasRange(newFilters);
+      if (hasRange(oldFilters) != range && mounted) {
+        setState(() {
+          _rangeMode = range
+              ? RangeSelectionMode.toggledOn
+              : RangeSelectionMode.toggledOff;
+        });
+      }
+    });
+
     final bool waiting = eventsValue.isLoading || eventsValue.hasError;
     final Map<DateTime, List<Response>> eventMap =
         eventsValue.valueOrNull ?? {};
@@ -50,7 +66,6 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
     final DateTime? rangeStart = filters.rangeStart;
     final DateTime? rangeEnd = filters.rangeEnd;
     final DateTime now = DateTime.now();
-
     Widget builder(BuildContext context, DateTime day, DateTime focus) {
       final int events = eventMap[day]?.length ?? 0;
       return CalendarDay(
@@ -255,14 +270,13 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
                 ),
               ),
               if (waiting)
-                AspectRatio(
-                  aspectRatio: 1.9,
-                  child: Center(
-                    child: eventsValue.isLoading
-                        ? const CircularProgressIndicator()
-                        : Text(eventsValue.error.toString()),
-                  ),
-                )
+                Center(
+                  child: eventsValue.isLoading
+                      ? const CircularProgressIndicator()
+                      : Text(
+                          eventsValue.error.toString(),
+                        ),
+                ),
             ],
           ),
         ],

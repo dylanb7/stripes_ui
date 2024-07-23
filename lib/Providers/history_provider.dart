@@ -251,12 +251,12 @@ class Filters with EquatableMixin {
     HistoryLocation location = const HistoryLocation(
         day: DayChoice.day, loc: Loc.day, graph: GraphChoice.day),
   }) =>
-      Filters(
+      const Filters(
         rangeStart: null,
         rangeEnd: null,
         earliestRequired: null,
         latestRequired: null,
-        selectedDate: location.day == DayChoice.day ? DateTime.now() : null,
+        selectedDate: null,
       );
 
   Filters copyWith(
@@ -317,7 +317,6 @@ final availibleStampsProvider =
 
 final eventsMapProvider =
     FutureProvider.autoDispose<Map<DateTime, List<Response>>>((ref) async {
-  ref.watch(filtersProvider);
   final Available available = await ref.watch(availibleStampsProvider.future);
   return generateEventMap(available.filteredInRange);
 });

@@ -15,8 +15,8 @@ class FilterView extends ConsumerWidget {
     final Filters filters = ref.watch(filtersProvider);
     final String range = filters.toRange(context);
     return Wrap(
-      spacing: 4.0,
-      runSpacing: 4.0,
+      spacing: 6.0,
+      runSpacing: 6.0,
       alignment: WrapAlignment.start,
       crossAxisAlignment: WrapCrossAlignment.start,
       children: [
@@ -41,33 +41,49 @@ class FilterView extends ConsumerWidget {
           ),
         ),
         if (range.isNotEmpty)
-          FilledButton.tonalIcon(
-            onPressed: () {
-              ref.read(filtersProvider.notifier).state = Filters(
-                  rangeStart: null,
-                  rangeEnd: null,
-                  selectedDate: null,
-                  latestRequired: filters.latestRequired,
-                  earliestRequired: filters.earliestRequired,
-                  stampFilters: filters.stampFilters);
-            },
-            label: Text(range),
-            icon: const Icon(Icons.close),
-            iconAlignment: IconAlignment.end,
-          ),
+          RemoveChip(
+              onPressed: () {
+                ref.read(filtersProvider.notifier).state = Filters(
+                    rangeStart: null,
+                    rangeEnd: null,
+                    selectedDate: null,
+                    latestRequired: filters.latestRequired,
+                    earliestRequired: filters.earliestRequired,
+                    stampFilters: filters.stampFilters);
+              },
+              text: range),
         ...filters.stampFilters?.map(
-              (filter) => FilledButton.tonalIcon(
+              (filter) => RemoveChip(
                 onPressed: () {
                   ref.read(filtersProvider.notifier).state = filters.copyWith(
                       stampFilters: filters.stampFilters?..remove(filter));
                 },
-                label: Text(filter.name),
-                icon: const Icon(Icons.close),
-                iconAlignment: IconAlignment.end,
+                text: filter.name,
               ),
             ) ??
             []
       ],
+    );
+  }
+}
+
+class RemoveChip extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  final String text;
+
+  const RemoveChip({super.key, required this.onPressed, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return FilledButton.tonalIcon(
+      onPressed: onPressed,
+      label: Text(text),
+      icon: const Icon(Icons.close),
+      style: Theme.of(context).filledButtonTheme.style?.copyWith(
+          padding: const WidgetStatePropertyAll(
+              EdgeInsets.symmetric(horizontal: 6.0))),
+      iconAlignment: IconAlignment.end,
     );
   }
 }
@@ -80,18 +96,24 @@ class _FilterPopUp extends ConsumerStatefulWidget {
 class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
   Set<String> selectedTypes = {};
 
-  Set<String> selectedGroups = {};
-
   DateTimeRange? newRange;
 
   @override
   void initState() {
+    final Filters filters = ref.read(filtersProvider);
+    final DateTime? start = filters.rangeStart ?? filters.selectedDate;
+    final DateTime? end = filters.rangeEnd ?? filters.selectedDate;
+    if (start != null && end != null) {
+      newRange = DateTimeRange(start: start, end: end);
+    }
+    selectedTypes.addAll(
+        filters.stampFilters?.map((filter) => filter.name).toList() ?? []);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final AsyncValue<Available> availible = ref.watch(availibleStampsProvider);
+    final AsyncValue<Set<String>> availible = ref.watch(setsProvider);
 
     final Filters filters = ref.watch(filtersProvider);
 
@@ -106,33 +128,41 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
       ));
     }
 
-    final List<Response> stamps = availible.valueOrNull?.visible ?? [];
+    final Set<String> availibleTypes = availible.valueOrNull ?? {};
 
-    bool filt(Response val) {
-      final bool validType =
-          selectedTypes.isEmpty || selectedTypes.contains(val.type);
-      final bool validGroup =
-          selectedGroups.isEmpty || selectedGroups.contains(val.group);
-      bool validDate() {
-        if (newRange != null) {
-          return inRange(newRange!.start, newRange!.end, val);
+    void apply() {
+      final List<LabeledFilter> typeFilters = selectedTypes.map((type) {
+        return LabeledFilter(name: type, filter: (stamp) => stamp.type == type);
+      }).toList();
+
+      final DateTime? newStart = newRange?.start ?? currentStart;
+      final DateTime? newEnd = newRange?.end ?? currentEnd;
+      final bool isSameDay =
+          ((newStart != null && newEnd != null) && sameDay(newStart, newEnd)) ||
+              newStart == null ||
+              newEnd == null;
+      DateTime? newEarliest() {
+        if (newRange == null || filters.earliestRequired == null) {
+          return filters.earliestRequired;
         }
-        return (currentStart != null &&
-            currentEnd != null &&
-            inRange(currentStart, currentEnd, val));
+        if (newRange!.start.isBefore(filters.earliestRequired!)) {
+          return newRange!.start;
+        }
+        return filters.earliestRequired;
       }
 
-      return validType && validGroup && validDate();
+      ref.read(filtersProvider.notifier).state = Filters(
+          rangeStart: isSameDay ? null : newStart,
+          rangeEnd: isSameDay ? null : newEnd,
+          selectedDate: isSameDay ? newStart ?? newEnd : null,
+          earliestRequired: newEarliest(),
+          latestRequired: filters.latestRequired,
+          stampFilters: [
+            ...typeFilters,
+          ]);
+      ref.read(overlayProvider.notifier).state = closedQuery;
     }
 
-    final int amount = stamps.where(filt).length;
-
-    final Set<String> types = Set.from(stamps.map((ent) => ent.type));
-
-    final Set<String> groups =
-        Set.from(stamps.map((ent) => ent.group).whereType<String>());
-
-    final String message = amount == 1 ? '$amount Result' : '$amount Results';
     return _PopUpStyle(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -162,35 +192,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
           const SizedBox(
             height: 6.0,
           ),
-          Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  message,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(width: 4.0),
-                TextButton(
-                    onPressed: () {
-                      setState(() {
-                        selectedTypes = {};
-                      });
-                    },
-                    child: Text(
-                      AppLocalizations.of(context)!.eventFilterReset,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(decoration: TextDecoration.underline),
-                    ))
-              ],
-            ),
-          ),
-          const SizedBox(
-            height: 12.0,
-          ),
-          if (types.length > 1) ...[
+          if (availibleTypes.length > 1) ...[
             Text(
               AppLocalizations.of(context)!.eventFilterTypesTag,
               style: Theme.of(context).textTheme.bodyLarge,
@@ -204,7 +206,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
               alignment: WrapAlignment.center,
               spacing: 5.0,
               runSpacing: 5.0,
-              children: types.map((type) {
+              children: availibleTypes.map((type) {
                 final bool selected = selectedTypes.contains(type);
                 return ChoiceChip(
                   padding: const EdgeInsets.all(5.0),
@@ -224,48 +226,10 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                 );
               }).toList(),
             ),
-          ],
-          const SizedBox(
-            height: 12.0,
-          ),
-          if (groups.length > 1) ...[
-            Text(
-              AppLocalizations.of(context)!.eventFilterGroupsTag,
-              style: Theme.of(context).textTheme.bodyLarge,
-              textAlign: TextAlign.left,
-            ),
             const SizedBox(
-              height: 6.0,
-            ),
-            Wrap(
-              direction: Axis.horizontal,
-              alignment: WrapAlignment.center,
-              spacing: 5.0,
-              runSpacing: 5.0,
-              children: groups.map((tag) {
-                final bool selected = selectedGroups.contains(tag);
-                return ChoiceChip(
-                  padding: const EdgeInsets.all(5.0),
-                  label: Text(
-                    tag,
-                  ),
-                  selected: selected,
-                  onSelected: (value) {
-                    setState(() {
-                      if (value) {
-                        selectedGroups.add(tag);
-                      } else {
-                        selectedGroups.remove(tag);
-                      }
-                    });
-                  },
-                );
-              }).toList(),
+              height: 12.0,
             ),
           ],
-          const SizedBox(
-            height: 12.0,
-          ),
           Text(
             AppLocalizations.of(context)!.eventFiltersFromTag,
             style: Theme.of(context).textTheme.bodyLarge,
@@ -281,39 +245,41 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                 });
               }
             },
-            initialStart: filters.rangeStart ?? filters.selectedDate,
-            initialEnd: filters.rangeEnd ?? filters.selectedDate,
+            initialStart: newRange?.start,
+            initialEnd: newRange?.end,
             restorationId: "filters_range_picker",
           ),
           const SizedBox(
             height: 12.0,
           ),
-          FilledButton(
-              child: Text(AppLocalizations.of(context)!.eventFiltersApply),
-              onPressed: () {
-                final List<LabeledFilter> typeFilters =
-                    selectedTypes.map((type) {
-                  return LabeledFilter(
-                      name: type, filter: (stamp) => stamp.type == type);
-                }).toList();
-                final List<LabeledFilter> groupFilters =
-                    selectedGroups.map((group) {
-                  return LabeledFilter(
-                      name: group, filter: (stamp) => stamp.group == group);
-                }).toList();
-                final DateTime? newStart = newRange?.start ?? currentStart;
-                final DateTime? newEnd = newRange?.end ?? currentEnd;
-                final bool isSameDay = ((newStart != null && newEnd != null) &&
-                        sameDay(newStart, newEnd)) ||
-                    newStart == null ||
-                    newEnd == null;
-                ref.read(filtersProvider.notifier).state = Filters(
-                    rangeStart: isSameDay ? null : newStart,
-                    rangeEnd: isSameDay ? null : newEnd,
-                    selectedDate: isSameDay ? newStart ?? newEnd : null,
-                    stampFilters: [...typeFilters, ...groupFilters]);
-                ref.read(overlayProvider.notifier).state = closedQuery;
-              }),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () {
+                    setState(() {
+                      selectedTypes = {};
+                      newRange = null;
+                    });
+                  },
+                  child: Text(
+                    AppLocalizations.of(context)!.eventFilterReset,
+                  ),
+                ),
+              ),
+              const SizedBox(
+                width: 12.0,
+              ),
+              Expanded(
+                child: FilledButton(
+                  child: Text(AppLocalizations.of(context)!.eventFiltersApply),
+                  onPressed: () {
+                    apply();
+                  },
+                ),
+              ),
+            ],
+          ),
           const SizedBox(
             height: 6.0,
           ),
@@ -322,6 +288,19 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
     );
   }
 }
+
+final setsProvider = FutureProvider.autoDispose((ref) async {
+  final List<Response> stamps =
+      (await ref.watch(availibleStampsProvider.future)).all;
+
+  final Set<String> values = {};
+
+  for (Response res in stamps) {
+    values.addAll([res.type, if (res.group != null) res.group!]);
+  }
+
+  return values;
+});
 
 class _PopUpStyle extends StatelessWidget {
   final Widget child;
