@@ -66,6 +66,11 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
     final DateTime? rangeStart = filters.rangeStart;
     final DateTime? rangeEnd = filters.rangeEnd;
     final DateTime now = DateTime.now();
+    const CalendarStyle calendarStyle = CalendarStyle(
+      cellPadding: EdgeInsets.all(2.0),
+      outsideDaysVisible: false,
+    );
+
     Widget builder(BuildContext context, DateTime day, DateTime focus) {
       final int events = eventMap[day]?.length ?? 0;
       return CalendarDay(
@@ -90,18 +95,24 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
       if (rangeStart == null || rangeEnd == null) return null;
       final bool firstDay = sameDay(rangeStart, day);
       final bool lastDay = sameDay(rangeEnd, day);
-
-      return Center(
+      return LayoutBuilder(builder: (context, constraints) {
+        final double shorterSide = constraints.maxHeight > constraints.maxWidth
+            ? constraints.maxWidth
+            : constraints.maxHeight;
+        return Center(
           child: Container(
-        margin: EdgeInsets.only(
-            top: 2.0,
-            bottom: 2.0,
-            left: firstDay ? 20.0 : 0.0,
-            right: lastDay ? 20.0 : 0.0),
-        decoration: BoxDecoration(
-          color: background,
-        ),
-      ));
+            margin: EdgeInsetsDirectional.only(
+              start: firstDay ? constraints.maxWidth * 0.5 : 0.0,
+              end: lastDay ? constraints.maxWidth * 0.5 : 0.0,
+              top: 2.0,
+              bottom: 2.0,
+            ),
+            height: (shorterSide - calendarStyle.cellMargin.vertical) *
+                calendarStyle.rangeHighlightScale,
+            color: background,
+          ),
+        );
+      });
     }
 
     Widget? dowBuilder(BuildContext context, DateTime day) {
@@ -196,10 +207,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
                       CalendarFormat.week: 'Week',
                     },
                     onFormatChanged: null,
-                    calendarStyle: const CalendarStyle(
-                      cellPadding: EdgeInsets.all(2.0),
-                      outsideDaysVisible: false,
-                    ),
+                    calendarStyle: calendarStyle,
                     onCalendarCreated: (controller) {
                       _pageController = controller;
                       Future(() {
