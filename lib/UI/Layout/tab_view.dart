@@ -97,24 +97,21 @@ class HistoryScreenContent extends StatelessWidget {
                 const SizedBox(
                   height: 20,
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 800),
-                    child: const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        FilterView(),
-                        SizedBox(
-                          height: 12.0,
-                        ),
-                        EventsCalendar(),
-                        SizedBox(
-                          height: 12.0,
-                        ),
-                        ActionRow()
-                      ],
-                    ),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 800),
+                  child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      FilterView(),
+                      SizedBox(
+                        height: 12.0,
+                      ),
+                      EventsCalendar(),
+                      SizedBox(
+                        height: 12.0,
+                      ),
+                      ActionRow()
+                    ],
                   ),
                 ),
               ]),
