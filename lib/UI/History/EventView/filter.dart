@@ -135,8 +135,8 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
         return LabeledFilter(name: type, filter: (stamp) => stamp.type == type);
       }).toList();
 
-      final DateTime? newStart = newRange?.start ?? currentStart;
-      final DateTime? newEnd = newRange?.end ?? currentEnd;
+      final DateTime? newStart = newRange?.start;
+      final DateTime? newEnd = newRange?.end;
       final bool isSameDay =
           ((newStart != null && newEnd != null) && sameDay(newStart, newEnd)) ||
               newStart == null ||
