@@ -1,6 +1,7 @@
 import 'package:badges/badges.dart' as b;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class CalendarDay extends StatelessWidget {
   final bool isToday,
@@ -10,6 +11,8 @@ class CalendarDay extends StatelessWidget {
       rangeEnd,
       within,
       endSelected;
+
+  final CalendarStyle style;
 
   final int events;
 
@@ -25,6 +28,7 @@ class CalendarDay extends StatelessWidget {
       required this.rangeEnd,
       required this.within,
       required this.endSelected,
+      required this.style,
       super.key});
 
   @override
@@ -42,13 +46,16 @@ class CalendarDay extends StatelessWidget {
             : onSurface;
     final Widget dayView = Padding(
       padding: EdgeInsets.only(
-          top: 2.0,
-          bottom: 2.0,
-          left: rangeEnd || within ? 0 : 2.0,
-          right: (rangeStart && endSelected) || within ? 0 : 2.0),
+          top: style.cellPadding.top,
+          bottom: style.cellPadding.bottom,
+          left: rangeEnd || within ? 0 : style.cellPadding.left,
+          right: (rangeStart && endSelected) || within
+              ? 0
+              : style.cellPadding.right),
       child: AspectRatio(
         aspectRatio: 1.0,
         child: AnimatedContainer(
+          margin: style.cellMargin,
           duration: const Duration(milliseconds: 250),
           decoration: BoxDecoration(
             color: background,

@@ -117,10 +117,6 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
 
     final Filters filters = ref.watch(filtersProvider);
 
-    final DateTime? currentStart = filters.rangeStart ?? filters.selectedDate;
-
-    final DateTime? currentEnd = filters.rangeEnd ?? filters.selectedDate;
-
     if (availible.isLoading) {
       return const _PopUpStyle(
           child: Center(
@@ -242,6 +238,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
               if (dateRange != null) {
                 setState(() {
                   newRange = dateRange;
+                  print(newRange);
                 });
               }
             },

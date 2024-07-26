@@ -279,32 +279,33 @@ class DateRangePicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String toRange() {
-      final DateTime? rangeStart = initialStart;
-      final DateTime? rangeEnd = initialEnd;
-      if (rangeStart == null || rangeEnd == null) {
+      if (initialStart == null || initialEnd == null) {
         return AppLocalizations.of(context)!.dateRangeButton;
       }
       String locale = Localizations.localeOf(context).languageCode;
 
       final DateFormat yearFormat = DateFormat.yMMMd(locale);
-      if (sameDay(rangeStart, rangeEnd)) {
-        return yearFormat.format(rangeStart);
+      if (sameDay(initialStart!, initialEnd!)) {
+        return yearFormat.format(initialStart!);
       }
 
-      final bool sameYear = rangeEnd.year == rangeStart.year;
-      final bool sameMonth = sameYear && rangeEnd.month == rangeStart.month;
+      final bool sameYear = initialEnd!.year == initialStart!.year;
+      final bool sameMonth =
+          sameYear && initialEnd!.month == initialStart!.month;
       final String firstPortion = sameYear
-          ? DateFormat.MMMd(locale).format(rangeStart)
-          : yearFormat.format(rangeStart);
+          ? DateFormat.MMMd(locale).format(initialStart!)
+          : yearFormat.format(initialStart!);
       final String lastPortion = sameMonth
-          ? '${DateFormat.d(locale).format(rangeEnd)}, ${DateFormat.y(locale).format(rangeEnd)}'
-          : yearFormat.format(rangeEnd);
+          ? '${DateFormat.d(locale).format(initialEnd!)}, ${DateFormat.y(locale).format(initialEnd!)}'
+          : yearFormat.format(initialEnd!);
       return '$firstPortion - $lastPortion';
     }
 
     return OutlinedButton.icon(
-      onPressed: () {
-        Navigator.of(context).push(_dateRangePickerRoute(context));
+      onPressed: () async {
+        final DateTimeRange? selectedRange = await Navigator.of(context)
+            .push<DateTimeRange?>(_dateRangePickerRoute(context));
+        onSelection(selectedRange);
       },
       label: Text(toRange()),
       icon: const Icon(Icons.date_range),

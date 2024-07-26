@@ -67,7 +67,8 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
     final DateTime? rangeEnd = filters.rangeEnd;
     final DateTime now = DateTime.now();
     const CalendarStyle calendarStyle = CalendarStyle(
-      cellPadding: EdgeInsets.all(2.0),
+      cellMargin: EdgeInsets.all(4.0),
+      cellPadding: EdgeInsets.all(0.0),
       outsideDaysVisible: false,
     );
 
@@ -86,6 +87,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
             day.isAfter(rangeStart) &&
             day.isBefore(rangeEnd),
         endSelected: rangeEnd != null,
+        style: calendarStyle,
       );
     }
 
@@ -99,18 +101,14 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
         final double shorterSide = constraints.maxHeight > constraints.maxWidth
             ? constraints.maxWidth
             : constraints.maxHeight;
-        return Center(
-          child: Container(
-            margin: EdgeInsetsDirectional.only(
+        return Container(
+          margin: EdgeInsetsDirectional.only(
+              top: calendarStyle.cellMargin.top,
               start: firstDay ? constraints.maxWidth * 0.5 : 0.0,
               end: lastDay ? constraints.maxWidth * 0.5 : 0.0,
-              top: 2.0,
-              bottom: 2.0,
-            ),
-            height: (shorterSide - calendarStyle.cellMargin.vertical) *
-                calendarStyle.rangeHighlightScale,
-            color: background,
-          ),
+              bottom: calendarStyle.cellMargin.bottom),
+          height: shorterSide - calendarStyle.cellMargin.vertical,
+          color: background,
         );
       });
     }
@@ -191,7 +189,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
                   opacity: waiting ? 0.6 : 1.0,
                   child: TableCalendar(
                     locale: locale.languageCode,
-                    daysOfWeekHeight: 25,
+                    daysOfWeekHeight: 25.0,
                     focusedDay: focusedDay,
                     firstDay:
                         firstDate /*keys.isEmpty ? DateTime(0) : keys[0]*/,
