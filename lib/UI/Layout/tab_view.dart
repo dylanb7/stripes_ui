@@ -104,11 +104,11 @@ class HistoryScreenContent extends StatelessWidget {
                     children: [
                       FilterView(),
                       SizedBox(
-                        height: 12.0,
+                        height: 8.0,
                       ),
                       EventsCalendar(),
                       SizedBox(
-                        height: 12.0,
+                        height: 8.0,
                       ),
                       ActionRow()
                     ],

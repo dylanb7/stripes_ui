@@ -203,6 +203,24 @@ abstract class AppLocalizations {
   /// **'Groups'**
   String get eventFilterGroupsTag;
 
+  /// No description provided for @calendarVisibilityWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
+  String get calendarVisibilityWeek;
+
+  /// No description provided for @calendarVisibilityMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get calendarVisibilityMonth;
+
+  /// No description provided for @calendarVisibilityHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden'**
+  String get calendarVisibilityHidden;
+
   /// No description provided for @stripesName.
   ///
   /// In en, this message translates to:

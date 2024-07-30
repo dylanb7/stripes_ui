@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/UI/History/EventView/calendar_day.dart';
+import 'package:stripes_ui/l10n/app_localizations.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class EventsCalendar extends ConsumerStatefulWidget {
@@ -26,6 +27,8 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
   DateTime focusedDay = DateTime.now();
 
   CalendarFormat _format = CalendarFormat.month;
+
+  bool isHidden = false;
 
   RangeSelectionMode _rangeMode = RangeSelectionMode.toggledOff;
 
@@ -71,6 +74,15 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
       cellPadding: EdgeInsets.all(0.0),
       outsideDaysVisible: false,
     );
+
+    final Map<CalendarFormat, String> formats = {
+      CalendarFormat.week: AppLocalizations.of(context)!.calendarVisibilityWeek,
+      CalendarFormat.month:
+          AppLocalizations.of(context)!.calendarVisibilityMonth
+    };
+
+    final String hidden =
+        AppLocalizations.of(context)!.calendarVisibilityHidden;
 
     Widget builder(BuildContext context, DateTime day, DateTime focus) {
       final int events = eventMap[day]?.length ?? 0;
@@ -131,163 +143,244 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
       );
     }
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 250),
-      decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(Radius.circular(10.0)),
-          border: Border.all(color: Theme.of(context).colorScheme.onSurface)),
-      padding: const EdgeInsets.only(bottom: 4.0),
-      child: Column(
+    return Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _CalendarHeader(
-              onYearChange: _onYearChange,
-              focusedDay: focusedDay,
-              onLeftArrowTap: () {
-                _pageController?.previousPage(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeOut,
-                );
-              },
-              onRightArrowTap: () {
-                _pageController?.nextPage(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeOut,
-                );
-              },
-              onRangeToggle: () {
-                setState(() {
-                  if (_rangeMode == RangeSelectionMode.toggledOff) {
-                    _rangeMode = RangeSelectionMode.toggledOn;
-
-                    ref.read(filtersProvider.notifier).state = Filters(
-                        rangeStart: null,
-                        rangeEnd: null,
-                        selectedDate: null,
-                        stampFilters: filters.stampFilters,
-                        latestRequired: filters.latestRequired,
-                        earliestRequired: filters.earliestRequired);
-                  } else {
-                    _rangeMode = RangeSelectionMode.toggledOff;
-                    ref.read(filtersProvider.notifier).state = Filters(
-                        rangeStart: null,
-                        rangeEnd: null,
-                        selectedDate: rangeEnd ?? rangeStart,
-                        stampFilters: filters.stampFilters,
-                        latestRequired: filters.latestRequired,
-                        earliestRequired: filters.earliestRequired);
-                  }
-                });
-              },
-              mode: _rangeMode,
-              onFormatChange: _onFormatChange,
-              selected: _format),
-          Stack(
-            children: [
-              IgnorePointer(
-                ignoring: waiting,
-                child: Opacity(
-                  opacity: waiting ? 0.6 : 1.0,
-                  child: TableCalendar(
-                    locale: locale.languageCode,
-                    daysOfWeekHeight: 25.0,
-                    focusedDay: focusedDay,
-                    firstDay:
-                        firstDate /*keys.isEmpty ? DateTime(0) : keys[0]*/,
-                    lastDay: DateTime.now(),
-                    rangeSelectionMode: _rangeMode,
-                    rangeStartDay: rangeStart,
-                    rangeEndDay: rangeEnd,
-                    headerVisible: false,
-                    calendarFormat: _format,
-                    availableGestures: AvailableGestures.horizontalSwipe,
-                    availableCalendarFormats: const {
-                      CalendarFormat.month: 'Month',
-                      CalendarFormat.week: 'Week',
-                    },
-                    onFormatChanged: null,
-                    calendarStyle: calendarStyle,
-                    onCalendarCreated: (controller) {
-                      _pageController = controller;
-                      Future(() {
-                        ref.read(filtersProvider.notifier).state =
-                            filters.copyWith(
-                                earliestRequired: DateTime(
-                                    focusedDay.year, focusedDay.month, 1),
-                                latestRequired: _lastDayOfMonth(focusedDay));
-                      });
-                    },
-                    onDaySelected: (selectedDay, focusedDay) {
-                      setState(() {
-                        focusedDay = focusedDay;
-                        _rangeMode = RangeSelectionMode.toggledOff;
-                        if (selected != null &&
-                            sameDay(selectedDay, selected)) {
-                          ref.read(filtersProvider.notifier).state = Filters(
-                              rangeStart: null,
-                              rangeEnd: null,
-                              selectedDate: null,
-                              stampFilters: filters.stampFilters,
-                              latestRequired: filters.latestRequired,
-                              earliestRequired: filters.earliestRequired);
-                        } else {
-                          ref.read(filtersProvider.notifier).state = Filters(
-                              rangeStart: null,
-                              rangeEnd: null,
-                              selectedDate: selectedDay,
-                              stampFilters: filters.stampFilters,
-                              latestRequired: filters.latestRequired,
-                              earliestRequired: filters.earliestRequired);
-                        }
-                      });
-                    },
-                    onRangeSelected: (start, end, focusedDay) {
-                      setState(() {
-                        _rangeMode = RangeSelectionMode.toggledOn;
-                        this.focusedDay = focusedDay;
-                        ref.read(filtersProvider.notifier).state = Filters(
-                            rangeStart: start,
-                            rangeEnd: end,
-                            selectedDate: null,
-                            stampFilters: filters.stampFilters,
-                            latestRequired: filters.latestRequired,
-                            earliestRequired: filters.earliestRequired);
-                      });
-                    },
-                    onPageChanged: (newFocus) {
-                      setState(() {
-                        focusedDay = newFocus;
-                        ref.read(filtersProvider.notifier).state =
-                            filters.copyWith(
-                                earliestRequired:
-                                    DateTime(newFocus.year, newFocus.month, 1),
-                                latestRequired: _lastDayOfMonth(newFocus));
-                      });
-                    },
-                    calendarBuilders: CalendarBuilders(
-                        defaultBuilder: builder,
-                        todayBuilder: builder,
-                        rangeStartBuilder: builder,
-                        rangeEndBuilder: builder,
-                        withinRangeBuilder: builder,
-                        disabledBuilder: builder,
-                        dowBuilder: dowBuilder,
-                        rangeHighlightBuilder: rangeHighlight),
-                  ),
-                ),
-              ),
-              if (waiting)
-                Center(
-                  child: eventsValue.isLoading
-                      ? const CircularProgressIndicator()
-                      : Text(
-                          eventsValue.error.toString(),
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColor,
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            clipBehavior: Clip.hardEdge,
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                isDense: true,
+                padding:
+                    const EdgeInsets.symmetric(vertical: 6.0, horizontal: 8.0),
+                borderRadius: BorderRadius.circular(8.0),
+                value: isHidden ? hidden : formats[_format],
+                iconEnabledColor: Theme.of(context).colorScheme.onPrimary,
+                selectedItemBuilder: (context) {
+                  return [...formats.values, hidden]
+                      .map(
+                        (value) => Center(
+                          child: Text(
+                            value,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onPrimary),
+                          ),
                         ),
-                ),
-            ],
+                      )
+                      .toList();
+                },
+                onChanged: (value) {
+                  if (value != null) {
+                    CalendarFormat? format;
+                    formats.forEach(
+                      (key, name) {
+                        if (value == name) {
+                          format = key;
+                        }
+                      },
+                    );
+                    _onFormatChange(format, value == hidden);
+                  }
+                },
+                items: [...formats.values, hidden]
+                    .map(
+                      (format) => DropdownMenuItem(
+                        value: format,
+                        child: Text(
+                          format,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
           ),
-        ],
-      ),
-    );
+          const SizedBox(
+            height: 6.0,
+          ),
+          Visibility(
+            maintainState: true,
+            visible: !isHidden,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(Radius.circular(10.0)),
+                  border: Border.all(
+                      color: Theme.of(context).colorScheme.onSurface)),
+              padding: const EdgeInsets.only(bottom: 4.0),
+              child: Column(
+                children: [
+                  _CalendarHeader(
+                      onYearChange: _onYearChange,
+                      focusedDay: focusedDay,
+                      onLeftArrowTap: () {
+                        _pageController?.previousPage(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeOut,
+                        );
+                      },
+                      onRightArrowTap: () {
+                        _pageController?.nextPage(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeOut,
+                        );
+                      },
+                      onRangeToggle: () {
+                        setState(() {
+                          if (_rangeMode == RangeSelectionMode.toggledOff) {
+                            _rangeMode = RangeSelectionMode.toggledOn;
+
+                            ref.read(filtersProvider.notifier).state = Filters(
+                                rangeStart: null,
+                                rangeEnd: null,
+                                selectedDate: null,
+                                stampFilters: filters.stampFilters,
+                                latestRequired: filters.latestRequired,
+                                earliestRequired: filters.earliestRequired);
+                          } else {
+                            _rangeMode = RangeSelectionMode.toggledOff;
+                            ref.read(filtersProvider.notifier).state = Filters(
+                                rangeStart: null,
+                                rangeEnd: null,
+                                selectedDate: rangeEnd ?? rangeStart,
+                                stampFilters: filters.stampFilters,
+                                latestRequired: filters.latestRequired,
+                                earliestRequired: filters.earliestRequired);
+                          }
+                        });
+                      },
+                      mode: _rangeMode,
+                      selected: _format),
+                  Stack(
+                    children: [
+                      IgnorePointer(
+                        ignoring: waiting,
+                        child: Opacity(
+                          opacity: waiting ? 0.6 : 1.0,
+                          child: TableCalendar(
+                            locale: locale.languageCode,
+                            daysOfWeekHeight: 25.0,
+                            focusedDay: focusedDay,
+                            firstDay:
+                                firstDate /*keys.isEmpty ? DateTime(0) : keys[0]*/,
+                            lastDay: DateTime.now(),
+                            rangeSelectionMode: _rangeMode,
+                            rangeStartDay: rangeStart,
+                            rangeEndDay: rangeEnd,
+                            headerVisible: false,
+                            calendarFormat: _format,
+                            availableGestures:
+                                AvailableGestures.horizontalSwipe,
+                            availableCalendarFormats: formats,
+                            onFormatChanged: null,
+                            calendarStyle: calendarStyle,
+                            onCalendarCreated: (controller) {
+                              _pageController = controller;
+                              Future(() {
+                                ref.read(filtersProvider.notifier).state =
+                                    filters.copyWith(
+                                        earliestRequired: DateTime(
+                                            focusedDay.year,
+                                            focusedDay.month,
+                                            1),
+                                        latestRequired:
+                                            _lastDayOfMonth(focusedDay));
+                              });
+                            },
+                            onDaySelected: (selectedDay, focusedDay) {
+                              setState(() {
+                                focusedDay = focusedDay;
+                                _rangeMode = RangeSelectionMode.toggledOff;
+                                if (selected != null &&
+                                    sameDay(selectedDay, selected)) {
+                                  ref.read(filtersProvider.notifier).state =
+                                      Filters(
+                                          rangeStart: null,
+                                          rangeEnd: null,
+                                          selectedDate: null,
+                                          stampFilters: filters.stampFilters,
+                                          latestRequired:
+                                              filters.latestRequired,
+                                          earliestRequired:
+                                              filters.earliestRequired);
+                                } else {
+                                  ref.read(filtersProvider.notifier).state =
+                                      Filters(
+                                          rangeStart: null,
+                                          rangeEnd: null,
+                                          selectedDate: selectedDay,
+                                          stampFilters: filters.stampFilters,
+                                          latestRequired:
+                                              filters.latestRequired,
+                                          earliestRequired:
+                                              filters.earliestRequired);
+                                }
+                              });
+                            },
+                            onRangeSelected: (start, end, focusedDay) {
+                              setState(() {
+                                _rangeMode = RangeSelectionMode.toggledOn;
+                                this.focusedDay = focusedDay;
+                                ref.read(filtersProvider.notifier).state =
+                                    Filters(
+                                        rangeStart: start,
+                                        rangeEnd: end,
+                                        selectedDate: null,
+                                        stampFilters: filters.stampFilters,
+                                        latestRequired: filters.latestRequired,
+                                        earliestRequired:
+                                            filters.earliestRequired);
+                              });
+                            },
+                            onPageChanged: (newFocus) {
+                              setState(() {
+                                focusedDay = newFocus;
+                                ref.read(filtersProvider.notifier).state =
+                                    filters.copyWith(
+                                        earliestRequired: DateTime(
+                                            newFocus.year, newFocus.month, 1),
+                                        latestRequired:
+                                            _lastDayOfMonth(newFocus));
+                              });
+                            },
+                            calendarBuilders: CalendarBuilders(
+                                defaultBuilder: builder,
+                                todayBuilder: builder,
+                                rangeStartBuilder: builder,
+                                rangeEndBuilder: builder,
+                                withinRangeBuilder: builder,
+                                disabledBuilder: builder,
+                                dowBuilder: dowBuilder,
+                                rangeHighlightBuilder: rangeHighlight),
+                          ),
+                        ),
+                      ),
+                      if (waiting)
+                        Center(
+                          child: eventsValue.isLoading
+                              ? const CircularProgressIndicator()
+                              : Text(
+                                  eventsValue.error.toString(),
+                                ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ]);
   }
 
   _onYearChange() {
@@ -315,10 +408,15 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
     );
   }
 
-  _onFormatChange(CalendarFormat newFormat) {
-    if (_format != newFormat) {
+  _onFormatChange(CalendarFormat? newFormat, bool hidden) {
+    if (hidden) {
       setState(() {
-        _format = newFormat;
+        isHidden = true;
+      });
+    } else if (newFormat != null) {
+      setState(() {
+        isHidden = false;
+        if (_format != newFormat) _format = newFormat;
       });
     }
   }
@@ -384,21 +482,17 @@ class _CalendarHeader extends StatelessWidget {
   final DateTime focusedDay;
   final VoidCallback onLeftArrowTap;
   final VoidCallback onRightArrowTap;
-  final void Function(CalendarFormat format) onFormatChange;
+
   final VoidCallback onRangeToggle;
   final VoidCallback onYearChange;
   final RangeSelectionMode mode;
-  final List<CalendarFormat> formats = const [
-    CalendarFormat.month,
-    CalendarFormat.week
-  ];
+
   final CalendarFormat selected;
 
   const _CalendarHeader(
       {required this.focusedDay,
       required this.onLeftArrowTap,
       required this.onRightArrowTap,
-      required this.onFormatChange,
       required this.selected,
       required this.onRangeToggle,
       required this.onYearChange,
@@ -407,10 +501,7 @@ class _CalendarHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String headerText = DateFormat.yMMM().format(focusedDay);
-    final Map<CalendarFormat, String> formatName = {
-      CalendarFormat.week: "Week",
-      CalendarFormat.month: "Month"
-    };
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -436,17 +527,6 @@ class _CalendarHeader extends StatelessWidget {
             icon: const Icon(Icons.arrow_drop_down),
           ),*/
           const Spacer(),
-          DropdownButton<CalendarFormat>(
-            items: formats
-                .map((format) => DropdownMenuItem(
-                    value: format, child: Text(formatName[format] ?? '')))
-                .toList(),
-            value: selected,
-            underline: Container(),
-            onChanged: (value) {
-              if (value != null) onFormatChange(value);
-            },
-          ),
           IconButton(
             onPressed: onRangeToggle,
             icon: Icon(mode == RangeSelectionMode.toggledOn

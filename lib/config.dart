@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
+import 'package:stripes_ui/UI/History/EventView/export.dart';
 
 enum AuthStrategy {
   accessCodeEmail,
@@ -20,7 +21,8 @@ typedef AccountIndicator = Widget? Function(
 typedef AccountAction = Future<bool> Function(
     Map<String, dynamic> userAttributes);
 
-typedef ExportAction = Future<void> Function(List<Response> responses);
+typedef ExportAction = Future<void> Function(
+    BuildContext context, List<Response> responses, ExportType type);
 
 @immutable
 class StripesConfig {
@@ -28,7 +30,7 @@ class StripesConfig {
 
   final ExportAction? export;
 
-  final ExportType? exportType;
+  final List<ExportType>? exportType;
 
   final Locale? locale;
 
@@ -57,7 +59,7 @@ class StripesConfig {
   const StripesConfig.sandbox()
       : hasGraphing = true,
         hasLogging = true,
-        export = null,
+        export = fileShare,
         builder = null,
         stageAction = null,
         stageIndicator = null,

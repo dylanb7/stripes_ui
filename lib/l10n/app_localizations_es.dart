@@ -61,6 +61,15 @@ class AppLocalizationsEs extends AppLocalizations {
   String get eventFilterGroupsTag => 'Groups';
 
   @override
+  String get calendarVisibilityWeek => 'Week';
+
+  @override
+  String get calendarVisibilityMonth => 'Month';
+
+  @override
+  String get calendarVisibilityHidden => 'Hidden';
+
+  @override
   String get stripesName => 'STRiPES';
 
   @override

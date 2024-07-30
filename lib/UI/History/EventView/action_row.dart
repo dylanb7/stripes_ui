@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
+import 'package:stripes_ui/config.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 import 'add_event.dart';
@@ -27,7 +28,9 @@ class ActionRow extends ConsumerWidget {
                 ),
               const Row(children: [
                 AddEvent(),
-                Export(),
+                Export(
+                  type: ExportType.perPage,
+                ),
               ])
             ],
           ),
