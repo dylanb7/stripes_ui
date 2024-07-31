@@ -74,8 +74,10 @@ class _BlueDyeTestScreenState extends ConsumerState<BlueDyeTestScreen> {
       isLoading = true;
     });
     final DateTime start = DateTime.now();
-    await ref.read(testsHolderProvider.notifier).getTest<BlueDyeTest>().then(
-        (test) => test?.setTestState(BlueDyeState(
+    await ref
+        .read(testsHolderProvider.notifier)
+        .getTest<Test<BlueDyeState>>()
+        .then((test) => test?.setTestState(BlueDyeState(
             startTime: start, timerStart: start, pauseTime: start, logs: [])));
     setState(() {
       isLoading = false;

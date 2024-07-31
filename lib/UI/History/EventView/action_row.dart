@@ -21,11 +21,10 @@ class ActionRow extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              if (results > 0)
-                Text(
-                  AppLocalizations.of(context)!.eventFilterResults(results),
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
+              Text(
+                AppLocalizations.of(context)!.eventFilterResults(results),
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
               const Row(children: [
                 AddEvent(),
                 Export(

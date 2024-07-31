@@ -5,6 +5,7 @@ import 'package:duration/locale.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/RepositoryBase/TestBase/BlueDye/blue_dye_impl.dart';
+import 'package:stripes_backend_helper/RepositoryBase/TestBase/base_test_repo.dart';
 import 'package:stripes_ui/Providers/test_progress_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
@@ -213,8 +214,10 @@ class _TimerPortionState extends ConsumerState<TimerPortion> {
       isLoading = true;
     });
     final DateTime setTime = DateTime.now();
-    await ref.read(testsHolderProvider.notifier).getTest<BlueDyeTest>().then(
-        (test) =>
+    await ref
+        .read(testsHolderProvider.notifier)
+        .getTest<Test<BlueDyeState>>()
+        .then((test) =>
             test?.setTestState(blueDyeState.copyWith(pauseTime: setTime)));
     setState(() {
       isLoading = false;
@@ -236,8 +239,10 @@ class _TimerPortionState extends ConsumerState<TimerPortion> {
     final Duration timePaused =
         DateTime.now().difference(timerState!.pauseTime!);
     final DateTime adjustedStart = timerState!.start.add(timePaused);
-    await ref.read(testsHolderProvider.notifier).getTest<BlueDyeTest>().then(
-        (test) => test?.setTestState(BlueDyeState(
+    await ref
+        .read(testsHolderProvider.notifier)
+        .getTest<Test<BlueDyeState>>()
+        .then((test) => test?.setTestState(BlueDyeState(
             id: blueDyeState.id,
             startTime: blueDyeState.startTime,
             timerStart: adjustedStart,
@@ -262,8 +267,10 @@ class _TimerPortionState extends ConsumerState<TimerPortion> {
       isLoading = true;
     });
     final DateTime newStart = DateTime.now();
-    await ref.read(testsHolderProvider.notifier).getTest<BlueDyeTest>().then(
-        (test) => test?.setTestState(
+    await ref
+        .read(testsHolderProvider.notifier)
+        .getTest<Test<BlueDyeState>>()
+        .then((test) => test?.setTestState(
             blueDyeState.copyWith(pauseTime: newStart, timerStart: newStart)));
     setState(() {
       isLoading = false;
@@ -285,7 +292,10 @@ class _TimerPortionState extends ConsumerState<TimerPortion> {
     final Duration timePaused = mealEnd.difference(timerState!.pauseTime!);
     final DateTime adjustedStart = timerState!.start.add(timePaused);
     final Duration mealDuration = mealEnd.difference(adjustedStart);
-    await ref.read(testsHolderProvider.notifier).getTest<BlueDyeTest>().then(
+    await ref
+        .read(testsHolderProvider.notifier)
+        .getTest<Test<BlueDyeState>>()
+        .then(
           (test) => test?.setTestState(
             blueDyeState.copyWith(
                 finishedEating: mealDuration,
