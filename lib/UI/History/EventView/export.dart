@@ -147,7 +147,7 @@ Future<void> fileShare(BuildContext context, List<Response> responses,
 
   if (detailsCsv == null && testsCsv == null) return;
 
-  final Directory tempDir = await getTemporaryDirectory();
+  final Directory tempDir = await getApplicationDocumentsDirectory();
   File? detailsFile, testsFile;
 
   if (detailsCsv != null) {
