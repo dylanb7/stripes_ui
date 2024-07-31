@@ -365,7 +365,7 @@ class _RecordingsState extends ConsumerState<RecordingsState> {
     });
     await ref
         .read(testsHolderProvider.notifier)
-        .getTest<BlueDyeTest>()
+        .getTest<Test<BlueDyeState>>()
         .then((test) => test?.submit(DateTime.now()));
     setState(() {
       isLoading = false;
