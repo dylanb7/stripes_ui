@@ -11,7 +11,6 @@ import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
-import 'package:stripes_ui/repos/blue_dye_test_repo.dart';
 
 class TimerWidget extends ConsumerWidget {
   const TimerWidget({super.key});
