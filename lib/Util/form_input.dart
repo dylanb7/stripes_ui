@@ -21,7 +21,7 @@ InputDecoration formFieldDecoration(
                 ),
               )
             : null),
-    floatingLabelBehavior: FloatingLabelBehavior.always,
+    floatingLabelBehavior: FloatingLabelBehavior.auto,
     hintText: hintText,
     labelText: hintText,
     errorText: errorText,
