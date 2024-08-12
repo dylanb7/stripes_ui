@@ -28,8 +28,8 @@ InputDecoration formFieldDecoration(
             : null),
     floatingLabelBehavior: FloatingLabelBehavior.auto,
     hintText: hintText,
+    labelText: hintText,
     errorText: errorText,
-    errorMaxLines: 1,
     errorBorder: const OutlineInputBorder(
       borderRadius: BorderRadius.all(
         Radius.circular(5.0),
