@@ -27,7 +27,7 @@ InputDecoration formFieldDecoration(
                 })
             : null),
     floatingLabelBehavior: FloatingLabelBehavior.auto,
-    labelText: hintText,
+    hintText: hintText,
     errorText: errorText,
     errorMaxLines: 1,
     errorBorder: const OutlineInputBorder(
