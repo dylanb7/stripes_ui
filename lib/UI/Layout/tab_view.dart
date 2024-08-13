@@ -138,7 +138,10 @@ class AddIndicator extends ConsumerWidget {
         attributes != null ? indicator?.call(attributes) : null;
     return addition != null
         ? Stack(
-            children: [child, addition],
+            children: [
+              child,
+              addition,
+            ],
           )
         : child;
   }
@@ -189,20 +192,22 @@ class SmallLayout extends ConsumerWidget {
                     },
                     selected: selected == TabOption.record),
               ),
-              divider,
-              Expanded(
-                child: NavTile(
-                    icon: const Icon(Icons.checklist_outlined),
-                    label: AppLocalizations.of(context)!.testTab,
-                    onTap: () {
-                      if (customSelect != null) {
-                        customSelect!(Routes.TEST);
-                      } else {
-                        context.go(Routes.TEST);
-                      }
-                    },
-                    selected: selected == TabOption.tests),
-              ),
+              if (hasTests) ...[
+                divider,
+                Expanded(
+                  child: NavTile(
+                      icon: const Icon(Icons.checklist_outlined),
+                      label: AppLocalizations.of(context)!.testTab,
+                      onTap: () {
+                        if (customSelect != null) {
+                          customSelect!(Routes.TEST);
+                        } else {
+                          context.go(Routes.TEST);
+                        }
+                      },
+                      selected: selected == TabOption.tests),
+                ),
+              ],
               divider,
               Expanded(
                 child: NavTile(
