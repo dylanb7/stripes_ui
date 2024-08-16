@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
+import 'package:stripes_backend_helper/RepositoryBase/AuthBase/auth_user.dart';
 import 'package:stripes_ui/UI/History/EventView/export.dart';
 
 enum AuthStrategy {
@@ -15,8 +16,7 @@ enum ExportType {
 
 enum AccountStage { local, invited, enrolled, finished }
 
-typedef AccountIndicator = Widget? Function(
-    Map<String, dynamic> userAttributes);
+typedef AccountIndicator = Widget? Function(AuthUser user);
 
 typedef AccountAction = Future<bool> Function(
     Map<String, dynamic> userAttributes);

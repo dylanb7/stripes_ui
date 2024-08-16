@@ -130,12 +130,11 @@ class AddIndicator extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final Map<String, dynamic>? attributes =
-        ref.watch(authStream.select((value) => value.valueOrNull?.attributes));
-    final Widget? Function(Map<String, dynamic>)? indicator =
+    final AuthUser? user =
+        ref.watch(authStream.select((value) => value.valueOrNull));
+    final Widget? Function(AuthUser)? indicator =
         ref.watch(configProvider).stageIndicator;
-    final Widget? addition =
-        attributes != null ? indicator?.call(attributes) : null;
+    final Widget? addition = user != null ? indicator?.call(user) : null;
     return addition != null
         ? Stack(
             children: [
@@ -157,7 +156,8 @@ class SmallLayout extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AuthUser? user = ref.watch(authStream).valueOrNull;
-    final bool hasTests = user?.attributes["custom:group"] != null;
+    final String? storageState = user?.attributes["custom:storage"];
+    final bool hasTests = storageState != null;
     const divider = VerticalDivider(
       endIndent: 10.0,
       indent: 10.0,
