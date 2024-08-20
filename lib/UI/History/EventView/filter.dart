@@ -128,7 +128,9 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
 
     void apply() {
       final List<LabeledFilter> typeFilters = selectedTypes.map((type) {
-        return LabeledFilter(name: type, filter: (stamp) => stamp.type == type);
+        return LabeledFilter(
+            name: type,
+            filter: (stamp) => stamp.type == type || stamp.group == type);
       }).toList();
 
       final DateTime? newStart = newRange?.start;
@@ -238,7 +240,6 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
               if (dateRange != null) {
                 setState(() {
                   newRange = dateRange;
-                  print(newRange);
                 });
               }
             },
