@@ -121,7 +121,7 @@ class _CreatePatientState extends ConsumerState<CreatePatient> {
                 height: 8.0,
               ),
               FilledButton(
-                child: const Text('Add Patient'),
+                child: const Text('Add Profile'),
                 onPressed: () {
                   _submit();
                 },
