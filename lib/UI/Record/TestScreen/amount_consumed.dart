@@ -26,6 +26,8 @@ class MealFinishedDisplay extends ConsumerWidget {
         progress.getProgression() ?? BlueDyeProgression.stepOne;
 
     final Map<AmountConsumed, String> amountText = {
+      AmountConsumed.undetermined:
+          AppLocalizations.of(context)!.amountConsumedUnable,
       AmountConsumed.halfOrLess:
           AppLocalizations.of(context)!.amountConsumedHalfOrLess,
       AmountConsumed.half: AppLocalizations.of(context)!.amountConsumedHalf,
