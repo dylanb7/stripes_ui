@@ -147,7 +147,7 @@ Future<void> fileShare(BuildContext context, List<Response> responses,
 
   if (detailsCsv == null && testsCsv == null) return;
 
-  final Directory tempDir = Directory.systemTemp;
+  final Directory tempDir = await getTemporaryDirectory();
   File? detailsFile, testsFile;
 
   if (detailsCsv != null) {
@@ -158,6 +158,7 @@ Future<void> fileShare(BuildContext context, List<Response> responses,
     testsFile = File('${tempDir.path}/test_responses.csv');
     await testsFile.writeAsString(testsCsv);
   }
+
   await Share.shareXFiles([
     if (detailsFile != null) XFile(detailsFile.path),
     if (testsFile != null) XFile(testsFile.path)
