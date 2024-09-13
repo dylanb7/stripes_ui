@@ -19,8 +19,8 @@ final routeProvider = Provider<GoRouter>((ref) {
   return GoRouter(
       debugLogDiagnostics: false,
       refreshListenable: router,
-      redirect: router._redirect,
-      initialLocation: Routes.LANDING,
+      /*redirect: router._redirect,*/
+      initialLocation: Routes.HOME,
       routes: router._routes);
 });
 
@@ -33,7 +33,7 @@ class RouteNotifier extends ChangeNotifier {
     });
   }
 
-  String? _redirect(BuildContext context, GoRouterState state) {
+  /*String? _redirect(BuildContext context, GoRouterState state) {
     final bool auth = !AuthUser.isEmpty(_ref.read(authStream).map(
         data: (val) => val.value,
         error: (val) => const AuthUser.empty(),
@@ -47,7 +47,7 @@ class RouteNotifier extends ChangeNotifier {
       return Routes.LANDING;
     }
     return null;
-  }
+  }*/
 
   List<GoRoute> get _routes => [
         GoRoute(

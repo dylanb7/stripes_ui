@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
+import 'package:stripes_ui/Providers/auth_provider.dart';
 
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
@@ -9,6 +10,7 @@ import 'package:stripes_ui/UI/Layout/home_screen.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 
 import 'package:stripes_ui/Util/constants.dart';
+import 'package:stripes_ui/l10n/app_localizations.dart';
 
 import 'add_user_widget.dart';
 import 'user_view.dart';
@@ -46,12 +48,22 @@ class PatientScreen extends ConsumerWidget {
             const SizedBox(
               height: 20.0,
             ),
-            Text(
-              'Profiles',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).primaryColor),
-              textAlign: TextAlign.left,
+            Row(
+              children: [
+                Text(
+                  'Profiles',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).primaryColor),
+                  textAlign: TextAlign.left,
+                ),
+                const Spacer(),
+                FilledButton(
+                    onPressed: () {
+                      ref.read(authProvider).logOut();
+                    },
+                    child: Text(AppLocalizations.of(context)!.logOutButton))
+              ],
             ),
             const SizedBox(
               height: 12.0,
