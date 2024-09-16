@@ -56,16 +56,21 @@ class RecordScreenContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AddIndicator(
-      child: ListView(
-        key: scrollkey,
-        controller: ScrollController(),
-        children: const [
-          SizedBox(
-            height: 20,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
+          child: ListView(
+            key: scrollkey,
+            controller: ScrollController(),
+            children: const [
+              SizedBox(
+                height: 20,
+              ),
+              Header(),
+              Options(),
+            ],
           ),
-          Header(),
-          Options(),
-        ],
+        ),
       ),
     );
   }

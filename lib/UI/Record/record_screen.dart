@@ -99,12 +99,6 @@ class Options extends ConsumerWidget {
               }, additions);
             }),
           ]),
-          const Divider(
-            height: 20,
-            indent: 15,
-            endIndent: 15,
-            thickness: 2,
-          ),
           const SizedBox(
             height: 20.0,
           ),
