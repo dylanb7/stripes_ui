@@ -148,110 +148,113 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
               },
             )
           : null,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              RecordHeader(
-                type: widget.type,
-                hasChanged: hasChanged,
-                questionListener: widget.questionListener,
-                pageController: pageController,
-                currentIndex: currentIndex,
-                length: pages.length,
-              ),
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12.0),
-                    color: ElevationOverlay.applySurfaceTint(
-                        Theme.of(context).cardColor,
-                        Theme.of(context).colorScheme.surfaceTint,
-                        3),
-                  ),
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Expanded(
-                          child: IgnorePointer(
-                            ignoring: isLoading,
-                            child: PageView.builder(
-                              onPageChanged: (value) {
-                                setState(() {
-                                  currentIndex = value;
-                                });
-                              },
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemBuilder: (context, index) {
-                                Widget content;
-                                if (index == pages.length) {
-                                  content = SubmitScreen(
-                                    questionsListener: widget.questionListener,
-                                    type: widget.type,
-                                  );
-                                } else {
-                                  content = QuestionScreen(
-                                      header: pages[index].header ??
-                                          AppLocalizations.of(context)!
-                                              .selectInstruction,
-                                      questions: pages[index]
-                                          .questionIds
-                                          .map((id) => home.fromBank(id))
-                                          .toList(),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RecordHeader(
+                  type: widget.type,
+                  hasChanged: hasChanged,
+                  questionListener: widget.questionListener,
+                  pageController: pageController,
+                  currentIndex: currentIndex,
+                  length: pages.length,
+                ),
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12.0),
+                      color: ElevationOverlay.applySurfaceTint(
+                          Theme.of(context).cardColor,
+                          Theme.of(context).colorScheme.surfaceTint,
+                          3),
+                    ),
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(
+                            child: IgnorePointer(
+                              ignoring: isLoading,
+                              child: PageView.builder(
+                                onPageChanged: (value) {
+                                  setState(() {
+                                    currentIndex = value;
+                                  });
+                                },
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemBuilder: (context, index) {
+                                  Widget content;
+                                  if (index == pages.length) {
+                                    content = SubmitScreen(
                                       questionsListener:
-                                          widget.questionListener);
-                                }
-                                final ScrollController scrollController =
-                                    ScrollController();
-                                return Scrollbar(
-                                  thumbVisibility: true,
-                                  thickness: 5.0,
-                                  interactive: false,
-                                  controller: scrollController,
-                                  radius: const Radius.circular(20.0),
-                                  scrollbarOrientation:
-                                      ScrollbarOrientation.right,
-                                  child: SingleChildScrollView(
+                                          widget.questionListener,
+                                      type: widget.type,
+                                    );
+                                  } else {
+                                    content = QuestionScreen(
+                                        header: pages[index].header ??
+                                            AppLocalizations.of(context)!
+                                                .selectInstruction,
+                                        questions: pages[index]
+                                            .questionIds
+                                            .map((id) => home.fromBank(id))
+                                            .toList(),
+                                        questionsListener:
+                                            widget.questionListener);
+                                  }
+                                  final ScrollController scrollController =
+                                      ScrollController();
+                                  return Scrollbar(
+                                    thumbVisibility: true,
+                                    thickness: 5.0,
+                                    interactive: false,
                                     controller: scrollController,
-                                    scrollDirection: Axis.vertical,
-                                    child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 5.0, horizontal: 8.0),
-                                        child: content),
-                                  ),
-                                );
-                              },
-                              itemCount: pages.length + 1,
-                              controller: pageController,
+                                    radius: const Radius.circular(20.0),
+                                    scrollbarOrientation:
+                                        ScrollbarOrientation.right,
+                                    child: SingleChildScrollView(
+                                      controller: scrollController,
+                                      scrollDirection: Axis.vertical,
+                                      child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 5.0, horizontal: 8.0),
+                                          child: content),
+                                    ),
+                                  );
+                                },
+                                itemCount: pages.length + 1,
+                                controller: pageController,
+                              ),
                             ),
                           ),
-                        ),
-                      ]),
-                ),
-              ),
-              const SizedBox(
-                height: 8.0,
-              ),
-              IgnorePointer(
-                ignoring: isLoading,
-                child: Center(
-                  child: RecordFooter(
-                    submitButton: submitButton(),
-                    questionListener: widget.questionListener,
-                    pageController: pageController,
-                    length: pages.length,
-                    pendingCount: pendingCount,
-                    currentIndex: currentIndex,
+                        ]),
                   ),
                 ),
-              ),
-              const SizedBox(
-                height: 8.0,
-              )
-            ],
+                const SizedBox(
+                  height: 8.0,
+                ),
+                IgnorePointer(
+                  ignoring: isLoading,
+                  child: Center(
+                    child: RecordFooter(
+                      submitButton: submitButton(),
+                      questionListener: widget.questionListener,
+                      pageController: pageController,
+                      length: pages.length,
+                      pendingCount: pendingCount,
+                      currentIndex: currentIndex,
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 8.0,
+                )
+              ],
+            ),
           ),
         ),
       ),

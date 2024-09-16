@@ -4,6 +4,7 @@ import 'package:stripes_backend_helper/RepositoryBase/TestBase/base_test_repo.da
 import 'package:stripes_backend_helper/RepositoryBase/TestBase/test_state.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
+import 'package:stripes_ui/Util/constants.dart';
 
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -29,8 +30,14 @@ class _TestScreenState extends ConsumerState<TestScreen> {
       );
     }
     return Padding(
-        padding: const EdgeInsets.only(top: 20.0, right: 20.0, left: 20.0),
-        child: selectedTest.displayState(context) ?? const SizedBox());
+      padding: const EdgeInsets.only(top: 20.0, right: 20.0, left: 20.0),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
+          child: selectedTest.displayState(context) ?? const SizedBox(),
+        ),
+      ),
+    );
   }
 }
 
