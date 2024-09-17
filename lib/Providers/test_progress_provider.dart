@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
+import 'package:stripes_ui/Providers/auth_provider.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
@@ -9,12 +10,16 @@ import 'package:stripes_ui/l10n/app_localizations.dart';
 final blueDyeTestProgressProvider = Provider<BlueDyeTestProgress>((ref) {
   final AsyncValue<TestsState> asyncState = ref.watch(testsHolderProvider);
   final AsyncValue<List<Stamp>> stamps = ref.watch(stampHolderProvider);
-  if (!stamps.hasValue || !asyncState.hasValue) {
+  final AuthUser? user = ref.watch(authStream).valueOrNull;
+  final String? group = user?.attributes["custom:group"];
+  if (!stamps.hasValue || !asyncState.hasValue || group == null) {
     return const BlueDyeTestProgress(
         stage: BlueDyeTestStage.initial, testIteration: 0, orderedTests: []);
   }
-  final List<BlueDyeResp> testResponses =
-      stamps.value!.whereType<BlueDyeResp>().toList();
+  final List<BlueDyeResp> testResponses = stamps.value!
+      .whereType<BlueDyeResp>()
+      .where((test) => test.group == group)
+      .toList();
 
   final List<TestDate> mostRecent = _getOrderedTests(testResponses);
   final int iterations = testResponses.length;
