@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/auth_provider.dart';
+import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/History/EventView/action_row.dart';
 import 'package:stripes_ui/UI/History/EventView/event_grid.dart';
 import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
@@ -165,9 +166,9 @@ class SmallLayout extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AuthUser? user = ref.watch(authStream).valueOrNull;
-    final String? storageState = user?.attributes["custom:storage"];
-    final bool hasTests = storageState != null;
+    final bool hasTests =
+        ref.watch(testsHolderProvider).value?.testsRepo?.tests.isNotEmpty ??
+            false;
     const divider = VerticalDivider(
       endIndent: 10.0,
       indent: 10.0,
@@ -313,6 +314,12 @@ class LargeNavButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final bool hasTests =
+        ref.watch(testsHolderProvider).value?.testsRepo?.tests.isNotEmpty ??
+            false;
+
+    if (tab == TabOption.tests && !hasTests) return Container();
+
     Map<TabOption, String> buttonText = {
       TabOption.record: AppLocalizations.of(context)!.recordTab,
       TabOption.tests: AppLocalizations.of(context)!.testTab,
