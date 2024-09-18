@@ -91,7 +91,7 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
                         'packages/stripes_ui/assets/images/Brown_Poop.png'),
               ),
               const SizedBox(
-                width: 4.0,
+                width: 8.0,
               ),
             ],
             Column(
