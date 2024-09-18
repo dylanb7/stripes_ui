@@ -157,41 +157,45 @@ class LongTextEntry extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10.0),
-      child: Column(
-        children: [
-          Text(
-            AppLocalizations.of(context)!.submitDescriptionTag,
-            style: Theme.of(context).textTheme.titleMedium,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(
-            height: 5,
-          ),
-          AspectRatio(
-            aspectRatio: 2.5,
-            child: TextFormField(
-              scrollPadding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom +
-                      (Theme.of(context).textTheme.bodyMedium?.fontSize ?? 20) *
-                          4),
-              controller: textController,
-              maxLines: null,
-              keyboardType: TextInputType.multiline,
-              textCapitalization: TextCapitalization.sentences,
-              textInputAction: TextInputAction.newline,
-              expands: true,
-              textAlignVertical: TextAlignVertical.top,
-              decoration: InputDecoration(
-                  border: const OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey, width: 1),
-                      borderRadius: BorderRadius.all(Radius.circular(8.0))),
-                  hintText: AppLocalizations.of(context)!
-                      .submitDescriptionPlaceholder,
-                  contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 8.0, vertical: 5.0)),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 320.0),
+        child: Column(
+          children: [
+            Text(
+              AppLocalizations.of(context)!.submitDescriptionTag,
+              style: Theme.of(context).textTheme.titleMedium,
+              textAlign: TextAlign.center,
             ),
-          ),
-        ],
+            const SizedBox(
+              height: 5,
+            ),
+            AspectRatio(
+              aspectRatio: 2.5,
+              child: TextFormField(
+                scrollPadding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom +
+                        (Theme.of(context).textTheme.bodyMedium?.fontSize ??
+                                20) *
+                            4),
+                controller: textController,
+                maxLines: null,
+                keyboardType: TextInputType.multiline,
+                textCapitalization: TextCapitalization.sentences,
+                textInputAction: TextInputAction.newline,
+                expands: true,
+                textAlignVertical: TextAlignVertical.top,
+                decoration: InputDecoration(
+                    border: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey, width: 1),
+                        borderRadius: BorderRadius.all(Radius.circular(8.0))),
+                    hintText: AppLocalizations.of(context)!
+                        .submitDescriptionPlaceholder,
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 8.0, vertical: 5.0)),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -28,6 +28,7 @@ class BlueDyeVisualDisplay extends StatelessWidget {
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           AppLocalizations.of(context)!.mealCompleteTitle,
@@ -109,12 +110,22 @@ class BlueDyeVisualDisplay extends StatelessWidget {
           height: 4.0,
         ),
         Text(
-            "Transit time: ${from(resp.firstBlue.difference(resp.startEating.add(resp.eatingDuration)), context)}"),
+          "Transit time: ${from(resp.firstBlue.difference(resp.startEating.add(resp.eatingDuration)), context)}",
+          style: Theme.of(context)
+              .textTheme
+              .bodyMedium
+              ?.copyWith(fontWeight: FontWeight.bold),
+        ),
         const SizedBox(
           height: 4.0,
         ),
         Text(
-            "Lag phase: ${from(resp.lastBlue.difference(resp.firstBlue), context)}"),
+          "Lag phase: ${from(resp.lastBlue.difference(resp.firstBlue), context)}",
+          style: Theme.of(context)
+              .textTheme
+              .bodyMedium
+              ?.copyWith(fontWeight: FontWeight.bold),
+        ),
       ],
     );
   }
