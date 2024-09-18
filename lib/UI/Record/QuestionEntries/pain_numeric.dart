@@ -50,7 +50,7 @@ class _PainFacesWidgetState extends ConsumerState<PainFacesWidget> {
         padding: const EdgeInsets.symmetric(horizontal: 10.0),
         child: Column(children: [
           PainSlider(
-            initial: 5,
+            initial: 0,
             onChange: (val) {
               setState(() {
                 _saveValue(val);
