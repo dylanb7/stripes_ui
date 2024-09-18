@@ -69,12 +69,16 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            if (isBlue ?? false) ...[
-              isBlue!
-                  ? Image.asset(
-                      'packages/stripes_ui/assets/images/Blue_Poop.png')
-                  : Image.asset(
-                      'packages/stripes_ui/assets/images/Brown_Poop.png'),
+            if (isBlue != null) ...[
+              SizedBox(
+                width: 35.0,
+                height: 35.0,
+                child: isBlue!
+                    ? Image.asset(
+                        'packages/stripes_ui/assets/images/Blue_Poop.png')
+                    : Image.asset(
+                        'packages/stripes_ui/assets/images/Brown_Poop.png'),
+              ),
               const SizedBox(
                 width: 4.0,
               ),
