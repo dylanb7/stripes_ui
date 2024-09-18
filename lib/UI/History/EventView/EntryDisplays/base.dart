@@ -13,6 +13,7 @@ import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
+import 'package:stripes_ui/UI/History/EventView/EntryDisplays/blue_dye.dart';
 import 'package:stripes_ui/Util/date_helper.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 import 'package:stripes_ui/repos/blue_dye_test_repo.dart';
@@ -20,7 +21,13 @@ import 'package:stripes_ui/repos/blue_dye_test_repo.dart';
 class EntryDisplay extends ConsumerStatefulWidget {
   final Response event;
 
-  const EntryDisplay({super.key, required this.event});
+  final bool hasControls, hasConstraints;
+
+  const EntryDisplay(
+      {super.key,
+      required this.event,
+      this.hasControls = false,
+      this.hasConstraints = false});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => EntryDisplayState();
@@ -42,7 +49,7 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
     if (mainOverride != null) return mainOverride(context, widget.event);
     if (widget.event is BlueDyeResp) {
       final BlueDyeResp resp = widget.event as BlueDyeResp;
-      content = BlueDyeDisplay(resp: resp);
+      content = BlueDyeVisualDisplay(resp: resp);
     } else if (widget.event is DetailResponse) {
       final DetailResponse detail = widget.event as DetailResponse;
       isBlue = _isBlueFromDetail(detail);
@@ -63,26 +70,14 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
     }
 
     return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 380),
+      constraints: widget.hasConstraints
+          ? const BoxConstraints(maxWidth: 380)
+          : const BoxConstraints(),
       child: Expandible(
         header: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            if (isBlue != null) ...[
-              SizedBox(
-                width: 35.0,
-                height: 35.0,
-                child: isBlue!
-                    ? Image.asset(
-                        'packages/stripes_ui/assets/images/Blue_Poop.png')
-                    : Image.asset(
-                        'packages/stripes_ui/assets/images/Brown_Poop.png'),
-              ),
-              const SizedBox(
-                width: 4.0,
-              ),
-            ],
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,6 +95,20 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
                 ),
               ],
             ),
+            if (isBlue != null) ...[
+              const SizedBox(
+                width: 4.0,
+              ),
+              SizedBox(
+                width: 35.0,
+                height: 35.0,
+                child: isBlue!
+                    ? Image.asset(
+                        'packages/stripes_ui/assets/images/Blue_Poop.png')
+                    : Image.asset(
+                        'packages/stripes_ui/assets/images/Brown_Poop.png'),
+              ),
+            ],
           ],
         ),
         iconSize: 35,
@@ -108,27 +117,29 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             content,
-            const SizedBox(
-              height: 3,
-            ),
-            Row(
-              children: [
-                TextButton(
-                    style: TextButton.styleFrom(
-                        foregroundColor:
-                            Theme.of(context).colorScheme.secondary),
-                    onPressed: isLoading
-                        ? null
-                        : () {
-                            _delete(ref);
-                          },
-                    child: Text(
-                      AppLocalizations.of(context)!.deleteAction,
-                    )),
-                const Spacer(),
-                if (button != null) button,
-              ],
-            ),
+            if (widget.hasControls) ...[
+              const SizedBox(
+                height: 3,
+              ),
+              Row(
+                children: [
+                  TextButton(
+                      style: TextButton.styleFrom(
+                          foregroundColor:
+                              Theme.of(context).colorScheme.secondary),
+                      onPressed: isLoading
+                          ? null
+                          : () {
+                              _delete(ref);
+                            },
+                      child: Text(
+                        AppLocalizations.of(context)!.deleteAction,
+                      )),
+                  const Spacer(),
+                  if (button != null) button,
+                ],
+              ),
+            ]
           ],
         ),
       ),

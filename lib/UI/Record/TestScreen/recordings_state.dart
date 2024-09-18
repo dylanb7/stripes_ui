@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:stripes_backend_helper/TestingReposImpl/test_question_repo.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/test_progress_provider.dart';
@@ -12,7 +11,6 @@ import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
-import 'package:stripes_ui/repos/blue_dye_test_repo.dart';
 
 class RecordingsView extends ConsumerWidget {
   final Function next;
@@ -386,7 +384,11 @@ class BMDisplay extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: logs.map((log) {
-        return EntryDisplay(event: log.response);
+        return EntryDisplay(
+          event: log.response,
+          hasControls: false,
+          hasConstraints: false,
+        );
         /*Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.start,
