@@ -31,7 +31,12 @@ class TimerWidget extends ConsumerWidget {
           const SizedBox(
             height: 12,
           ),
-          const TimerPortion(),
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 450.0),
+              child: const TimerPortion(),
+            ),
+          ),
         ]);
   }
 }

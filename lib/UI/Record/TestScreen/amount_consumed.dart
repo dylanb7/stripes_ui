@@ -152,8 +152,10 @@ class MealFinishedDisplay extends ConsumerWidget {
                       const SizedBox(
                         width: 6.0,
                       ),
-                      Text(
-                        "${AppLocalizations.of(context)!.mealCompleteAmountConsumed} ${amountText[mealStats.amountConsumed!]!}",
+                      Flexible(
+                        child: Text(
+                          "${AppLocalizations.of(context)!.mealCompleteAmountConsumed} ${amountText[mealStats.amountConsumed!]!}",
+                        ),
                       ),
                     ],
                   ),
@@ -253,76 +255,82 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
         const SizedBox(
           height: 8.0,
         ),
-        Opacity(
-          opacity: isLoading ? 0.6 : 1,
-          child: IgnorePointer(
-            ignoring: isLoading,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12.0),
-                color: ElevationOverlay.applySurfaceTint(
-                    Theme.of(context).cardColor,
-                    Theme.of(context).colorScheme.surfaceTint,
-                    3),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    Text(
-                      AppLocalizations.of(context)!.amountConsumedQuestion,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(color: Theme.of(context).primaryColor),
-                    ),
-                    const SizedBox(
-                      height: 8.0,
-                    ),
-                    ...amountText.keys.map<Widget>((amount) {
-                      return RadioListTile<AmountConsumed>(
-                          title: Text(amountText[amount]!),
-                          value: amount,
-                          groupValue: value,
-                          onChanged: (newValue) {
-                            if (newValue == null) return;
-                            if (newValue == value) {
+        Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 450.0),
+            child: Opacity(
+              opacity: isLoading ? 0.6 : 1,
+              child: IgnorePointer(
+                ignoring: isLoading,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12.0),
+                    color: ElevationOverlay.applySurfaceTint(
+                        Theme.of(context).cardColor,
+                        Theme.of(context).colorScheme.surfaceTint,
+                        3),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.amountConsumedQuestion,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(color: Theme.of(context).primaryColor),
+                        ),
+                        const SizedBox(
+                          height: 8.0,
+                        ),
+                        ...amountText.keys.map<Widget>((amount) {
+                          return RadioListTile<AmountConsumed>(
+                              title: Text(amountText[amount]!),
+                              value: amount,
+                              groupValue: value,
+                              onChanged: (newValue) {
+                                if (newValue == null) return;
+                                if (newValue == value) {
+                                  setState(() {
+                                    value = null;
+                                  });
+                                } else {
+                                  setState(() {
+                                    value = newValue;
+                                  });
+                                }
+                              });
+                        }),
+                        const SizedBox(
+                          height: 8.0,
+                        ),
+                        CheckboxListTile(
+                          value: value == AmountConsumed.undetermined,
+                          onChanged: (val) {
+                            if (val == null) return;
+                            if (value != AmountConsumed.undetermined) {
                               setState(() {
-                                value = null;
+                                value = AmountConsumed.undetermined;
                               });
                             } else {
                               setState(() {
-                                value = newValue;
+                                value = null;
                               });
                             }
-                          });
-                    }),
-                    const SizedBox(
-                      height: 8.0,
+                          },
+                          title: Text(
+                            AppLocalizations.of(context)!.amountConsumedUnable,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                    color: Theme.of(context).primaryColor),
+                          ),
+                        ),
+                      ],
                     ),
-                    CheckboxListTile(
-                      value: value == AmountConsumed.undetermined,
-                      onChanged: (val) {
-                        if (val == null) return;
-                        if (value != AmountConsumed.undetermined) {
-                          setState(() {
-                            value = AmountConsumed.undetermined;
-                          });
-                        } else {
-                          setState(() {
-                            value = null;
-                          });
-                        }
-                      },
-                      title: Text(
-                        AppLocalizations.of(context)!.amountConsumedUnable,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium
-                            ?.copyWith(color: Theme.of(context).primaryColor),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
