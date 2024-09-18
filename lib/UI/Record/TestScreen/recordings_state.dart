@@ -8,6 +8,7 @@ import 'package:stripes_backend_helper/TestingReposImpl/test_question_repo.dart'
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/test_progress_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
+import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
@@ -209,8 +210,10 @@ class _RecordingsWaitingState extends ConsumerState<RecordingsWaiting> {
                       "${AppLocalizations.of(context)!.stepTwoCompletedSubText}${from(timeLeft, context)}",
                       style: Theme.of(context)
                           .textTheme
-                          .bodyMedium
-                          ?.copyWith(fontWeight: FontWeight.bold),
+                          .headlineLarge
+                          ?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).primaryColor),
                       textAlign: TextAlign.center,
                     )),
                   const SizedBox(
@@ -383,8 +386,8 @@ class BMDisplay extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: logs.map((log) {
-        final DateTime logTime = dateFromStamp(log.stamp);
-        return Row(
+        return EntryDisplay(event: log.response);
+        /*Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -404,7 +407,7 @@ class BMDisplay extends StatelessWidget {
                 '${DateFormat.yMMMd().format(logTime)} - ${DateFormat.jm().format(logTime)}',
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
-            ]);
+            ]);*/
       }).toList(),
     );
   }

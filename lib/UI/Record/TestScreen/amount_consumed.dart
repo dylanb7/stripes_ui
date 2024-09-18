@@ -42,7 +42,7 @@ class MealFinishedDisplay extends ConsumerWidget {
               (displaying == BlueDyeProgression.stepOne &&
                   progression == BlueDyeProgression.stepTwo) ||
           (displaying == BlueDyeProgression.stepThree &&
-              progression == BlueDyeProgression.stepThree)) {
+              progression == BlueDyeProgression.stepFour)) {
         return BlueMealStats(
             start: testsState?.startTime,
             duration: testsState?.finishedEating,

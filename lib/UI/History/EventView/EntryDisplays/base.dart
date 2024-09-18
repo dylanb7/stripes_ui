@@ -15,6 +15,7 @@ import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/Util/date_helper.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
+import 'package:stripes_ui/repos/blue_dye_test_repo.dart';
 
 class EntryDisplay extends ConsumerStatefulWidget {
   final Response event;
@@ -27,6 +28,8 @@ class EntryDisplay extends ConsumerStatefulWidget {
 
 class EntryDisplayState extends ConsumerState<EntryDisplay> {
   bool isLoading = false;
+
+  bool? isBlue;
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +45,7 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
       content = BlueDyeDisplay(resp: resp);
     } else if (widget.event is DetailResponse) {
       final DetailResponse detail = widget.event as DetailResponse;
+      isBlue = _isBlueFromDetail(detail);
       button = IconButton(
         onPressed: isLoading
             ? null
@@ -61,22 +65,39 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 380),
       child: Expandible(
-        header: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                widget.event.type,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyLarge
-                    ?.copyWith(fontWeight: FontWeight.bold),
+        header: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            if (isBlue ?? false) ...[
+              isBlue!
+                  ? Image.asset(
+                      'packages/stripes_ui/assets/images/Blue_Poop.png')
+                  : Image.asset(
+                      'packages/stripes_ui/assets/images/Brown_Poop.png'),
+              const SizedBox(
+                width: 4.0,
               ),
-              Text(
-                '${dateToMDY(date, context)} - ${timeString(date, context)}',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ]),
+            ],
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.event.type,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyLarge
+                      ?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  '${dateToMDY(date, context)} - ${timeString(date, context)}',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ],
+            ),
+          ],
+        ),
         iconSize: 35,
         view: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,6 +129,15 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
         ),
       ),
     );
+  }
+
+  bool? _isBlueFromDetail(DetailResponse res) {
+    List<Response> blueRes = res.responses
+        .where((val) => val.question.id == blueQuestionId)
+        .toList();
+    if (blueRes.isEmpty) return null;
+    final MultiResponse multi = blueRes.first as MultiResponse;
+    return multi.index == 0;
   }
 
   _edit(DetailResponse event, BuildContext context, DateTime date) {

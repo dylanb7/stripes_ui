@@ -7,7 +7,7 @@ showSnack(BuildContext context, String message,
     content: Text(message),
     dismissDirection: DismissDirection.down,
     behavior: SnackBarBehavior.floating,
-    margin: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+    margin: const EdgeInsets.only(left: 0, right: 0, bottom: 0),
     action: action != null
         ? SnackBarAction(
             label: actionMessage ?? AppLocalizations.of(context)!.undo,
