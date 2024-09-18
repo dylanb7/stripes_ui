@@ -68,57 +68,63 @@ class _BlueDyeEntryState extends ConsumerState<BlueDyeEntry> {
             const SizedBox(
               height: 8.0,
             ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                ChoiceChip(
-                  label: Text(AppLocalizations.of(context)!.blueQuestionYes),
-                  selected: toggleState[0],
-                  selectedColor: primary,
-                  backgroundColor: surface,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 8.0, vertical: 4.0),
-                  labelStyle: TextStyle(
-                      color: toggleState[0] ? onPrimary : onSurface,
-                      fontWeight: FontWeight.bold),
-                  checkmarkColor: toggleState[0] ? onPrimary : onSurface,
-                  onSelected: (value) {
-                    if (toggleState[0]) return;
-                    setState(() {
-                      toggleState = [true, false];
-                      widget.listener.addResponse(MultiResponse(
-                          question: widget.question,
-                          stamp: DateTime.now().millisecondsSinceEpoch,
-                          index: 0));
-                      widget.listener.removePending(widget.question);
-                    });
-                  },
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 450.0),
+              child: Center(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    ChoiceChip(
+                      label:
+                          Text(AppLocalizations.of(context)!.blueQuestionYes),
+                      selected: toggleState[0],
+                      selectedColor: primary,
+                      backgroundColor: surface,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8.0, vertical: 4.0),
+                      labelStyle: TextStyle(
+                          color: toggleState[0] ? onPrimary : onSurface,
+                          fontWeight: FontWeight.bold),
+                      checkmarkColor: toggleState[0] ? onPrimary : onSurface,
+                      onSelected: (value) {
+                        if (toggleState[0]) return;
+                        setState(() {
+                          toggleState = [true, false];
+                          widget.listener.addResponse(MultiResponse(
+                              question: widget.question,
+                              stamp: DateTime.now().millisecondsSinceEpoch,
+                              index: 0));
+                          widget.listener.removePending(widget.question);
+                        });
+                      },
+                    ),
+                    ChoiceChip(
+                      label: Text(AppLocalizations.of(context)!.blueQuestionNo),
+                      selected: toggleState[1],
+                      selectedColor: primary,
+                      backgroundColor: surface,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8.0, vertical: 4.0),
+                      labelStyle: TextStyle(
+                          color: toggleState[1] ? onPrimary : onSurface,
+                          fontWeight: FontWeight.bold),
+                      checkmarkColor: toggleState[1] ? onPrimary : onSurface,
+                      onSelected: (value) {
+                        if (toggleState[1]) return;
+                        setState(() {
+                          toggleState = [false, true];
+                          widget.listener.addResponse(MultiResponse(
+                              question: widget.question,
+                              stamp: DateTime.now().millisecondsSinceEpoch,
+                              index: 1));
+                          widget.listener.removePending(widget.question);
+                        });
+                      },
+                    )
+                  ],
                 ),
-                ChoiceChip(
-                  label: Text(AppLocalizations.of(context)!.blueQuestionNo),
-                  selected: toggleState[1],
-                  selectedColor: primary,
-                  backgroundColor: surface,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 8.0, vertical: 4.0),
-                  labelStyle: TextStyle(
-                      color: toggleState[1] ? onPrimary : onSurface,
-                      fontWeight: FontWeight.bold),
-                  checkmarkColor: toggleState[1] ? onPrimary : onSurface,
-                  onSelected: (value) {
-                    if (toggleState[1]) return;
-                    setState(() {
-                      toggleState = [false, true];
-                      widget.listener.addResponse(MultiResponse(
-                          question: widget.question,
-                          stamp: DateTime.now().millisecondsSinceEpoch,
-                          index: 1));
-                      widget.listener.removePending(widget.question);
-                    });
-                  },
-                )
-              ],
+              ),
             ),
             if (hasError) ...[
               const SizedBox(
