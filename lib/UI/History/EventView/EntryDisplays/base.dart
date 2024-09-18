@@ -21,13 +21,14 @@ import 'package:stripes_ui/repos/blue_dye_test_repo.dart';
 class EntryDisplay extends ConsumerStatefulWidget {
   final Response event;
 
-  final bool hasControls, hasConstraints;
+  final bool hasControls, hasConstraints, elevated;
 
   const EntryDisplay(
       {super.key,
       required this.event,
       this.hasControls = false,
-      this.hasConstraints = false});
+      this.hasConstraints = false,
+      this.elevated = true});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => EntryDisplayState();
@@ -74,10 +75,25 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
           ? const BoxConstraints(maxWidth: 380)
           : const BoxConstraints(),
       child: Expandible(
+        elevated: widget.elevated,
         header: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            if (isBlue != null) ...[
+              SizedBox(
+                width: 30.0,
+                height: 30.0,
+                child: isBlue!
+                    ? Image.asset(
+                        'packages/stripes_ui/assets/images/Blue_Poop.png')
+                    : Image.asset(
+                        'packages/stripes_ui/assets/images/Brown_Poop.png'),
+              ),
+              const SizedBox(
+                width: 4.0,
+              ),
+            ],
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -95,20 +111,6 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
                 ),
               ],
             ),
-            if (isBlue != null) ...[
-              const SizedBox(
-                width: 4.0,
-              ),
-              SizedBox(
-                width: 35.0,
-                height: 35.0,
-                child: isBlue!
-                    ? Image.asset(
-                        'packages/stripes_ui/assets/images/Blue_Poop.png')
-                    : Image.asset(
-                        'packages/stripes_ui/assets/images/Brown_Poop.png'),
-              ),
-            ],
           ],
         ),
         iconSize: 35,

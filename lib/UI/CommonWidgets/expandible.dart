@@ -12,6 +12,8 @@ class Expandible extends StatefulWidget {
 
   final bool highlightOnShrink;
 
+  final bool elevated;
+
   final Color? highlightColor;
 
   final double? iconSize;
@@ -24,6 +26,7 @@ class Expandible extends StatefulWidget {
       this.canExpand = true,
       this.hasIndicator = true,
       this.highlightOnShrink = false,
+      this.elevated = true,
       this.iconSize,
       this.highlightColor,
       this.listener,
@@ -111,7 +114,7 @@ class _ExpandibleState extends State<Expandible>
                           widget.highlightColor != null
                       ? BorderSide(color: widget.highlightColor!, width: 5.0)
                       : const BorderSide(width: 0, color: Colors.transparent)),
-              elevation: 1.0,
+              elevation: widget.elevated ? 1.0 : 0.0,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 6.0),
                 child: Column(

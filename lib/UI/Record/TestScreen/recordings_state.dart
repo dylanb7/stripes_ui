@@ -385,6 +385,7 @@ class BMDisplay extends StatelessWidget {
     return Column(
       children: logs.map((log) {
         return EntryDisplay(
+          elevated: false,
           event: log.response,
           hasControls: false,
           hasConstraints: false,
