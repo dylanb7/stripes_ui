@@ -26,8 +26,8 @@ class EntryDisplay extends ConsumerStatefulWidget {
   const EntryDisplay(
       {super.key,
       required this.event,
-      this.hasControls = false,
-      this.hasConstraints = false,
+      this.hasControls = true,
+      this.hasConstraints = true,
       this.elevated = true});
 
   @override
