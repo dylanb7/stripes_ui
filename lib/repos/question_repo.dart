@@ -84,7 +84,7 @@ class Questions extends QuestionRepo {
         q6: QuestionEntry(
             isSeparateScreen: true,
             entryBuilder: (listener, context, question) {
-              return VerticalPainFaces(
+              return PainFacesWidget(
                   questionsListener: listener, question: question as Numeric);
             }),
         blueQuestionId: QuestionEntry(
