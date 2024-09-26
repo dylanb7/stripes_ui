@@ -7,6 +7,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
+import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/config.dart';
 import 'package:stripes_ui/entry.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
@@ -275,7 +276,7 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
                                 }
                               }
                             }),
-                      if (loading) const CircularProgressIndicator(),
+                      if (loading) const LoadingWidget(),
                       if (done)
                         FilledButton(
                             child:

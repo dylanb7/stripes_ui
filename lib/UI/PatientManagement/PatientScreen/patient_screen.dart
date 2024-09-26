@@ -5,6 +5,7 @@ import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/auth_provider.dart';
 
 import 'package:stripes_ui/Providers/sub_provider.dart';
+import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
 import 'package:stripes_ui/UI/Layout/home_screen.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
@@ -25,9 +26,7 @@ class PatientScreen extends ConsumerWidget {
 
     final subNotifier = ref.watch(subHolderProvider);
     if (subNotifier.isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const LoadingWidget();
     }
     final List<SubUser> subUsers = subNotifier.valueOrNull?.subUsers ?? [];
     final SubUser? current = subNotifier.valueOrNull?.selected;

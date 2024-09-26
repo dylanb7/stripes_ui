@@ -262,6 +262,7 @@ class _PainAreaWidgetState extends ConsumerState<PainAreaWidget> {
       }
     } else {
       current.add(newValue);
+      if (current.contains(Area.none)) current.remove(Area.none);
       widget.questionsListener.addResponse(
         AllResponse(
           question: widget.question,

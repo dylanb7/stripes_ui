@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
+import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
 import 'package:stripes_ui/Util/constants.dart';
 
@@ -16,11 +17,7 @@ class EventGrid extends ConsumerWidget {
     final AsyncValue<Available> available = ref.watch(availibleStampsProvider);
 
     if (available.isLoading) {
-      return const SliverToBoxAdapter(
-        child: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
+      return const SliverToBoxAdapter(child: LoadingWidget());
     }
 
     if (available.valueOrNull?.filteredVisible.isEmpty ?? true) {

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
+import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/History/EventView/calendar_day.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -369,7 +370,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
                       if (waiting)
                         Center(
                           child: eventsValue.isLoading
-                              ? const CircularProgressIndicator()
+                              ? const LoadingWidget()
                               : Text(
                                   eventsValue.error.toString(),
                                 ),

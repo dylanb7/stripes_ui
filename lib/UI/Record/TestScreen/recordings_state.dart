@@ -7,6 +7,7 @@ import 'package:stripes_backend_helper/TestingReposImpl/test_question_repo.dart'
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/test_progress_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
+import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
@@ -293,9 +294,7 @@ class _RecordingsState extends ConsumerState<RecordingsState> {
       }
     });
     if (blueDyeState == null) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const LoadingWidget();
     }
 
     return Column(

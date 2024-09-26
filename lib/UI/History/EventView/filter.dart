@@ -4,6 +4,7 @@ import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/date_time_entry.dart';
+import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -118,10 +119,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
     final Filters filters = ref.watch(filtersProvider);
 
     if (availible.isLoading) {
-      return const _PopUpStyle(
-          child: Center(
-        child: CircularProgressIndicator(),
-      ));
+      return const _PopUpStyle(child: LoadingWidget());
     }
 
     final Set<String> availibleTypes = availible.valueOrNull ?? {};

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
+import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -18,9 +19,7 @@ class PatientChanger extends ConsumerWidget {
     final AsyncValue<SubState> state = ref.watch(subHolderProvider);
 
     if (state.isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const LoadingWidget();
     }
     final SubUser? current = state.valueOrNull?.selected;
     final List<SubUser> subUsers = state.valueOrNull?.subUsers ?? [];

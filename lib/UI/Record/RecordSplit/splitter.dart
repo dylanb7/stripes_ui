@@ -10,6 +10,7 @@ import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
 import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
+import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/Layout/home_screen.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
@@ -79,9 +80,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     final AsyncValue<QuestionRepo> questionRepo = ref.watch(questionsProvider);
 
     if (questionRepo.isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const LoadingWidget();
     }
 
     final QuestionHome home = questionRepo.value!.questions;
