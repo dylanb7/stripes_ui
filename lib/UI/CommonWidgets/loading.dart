@@ -8,6 +8,7 @@ class LoadingWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
         child: LoadingAnimationWidget.threeRotatingDots(
-            color: Theme.of(context).primaryColor, size: 150));
+            color: Theme.of(context).primaryColor,
+            size: Theme.of(context).iconTheme.size ?? 40));
   }
 }
