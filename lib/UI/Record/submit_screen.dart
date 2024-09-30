@@ -184,6 +184,9 @@ class LongTextEntry extends StatelessWidget {
                 textInputAction: TextInputAction.newline,
                 expands: true,
                 textAlignVertical: TextAlignVertical.top,
+                onTapOutside: (event) {
+                  FocusManager.instance.primaryFocus?.unfocus();
+                },
                 decoration: InputDecoration(
                     border: const OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.grey, width: 1),

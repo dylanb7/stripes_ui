@@ -28,15 +28,7 @@ class _TestScreenState extends ConsumerState<TestScreen> {
     if (selectedTest == null) {
       return const LoadingWidget();
     }
-    return Padding(
-      padding: const EdgeInsets.only(top: 20.0, right: 20.0, left: 20.0),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
-          child: selectedTest.displayState(context) ?? const SizedBox(),
-        ),
-      ),
-    );
+    return selectedTest.displayState(context) ?? const SizedBox();
   }
 }
 

@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/auth_provider.dart';
+import 'package:stripes_ui/Providers/stamps_provider.dart';
+import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/History/EventView/action_row.dart';
 import 'package:stripes_ui/UI/History/EventView/event_grid.dart';
@@ -12,6 +16,7 @@ import 'package:stripes_ui/UI/PatientManagement/patient_changer.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
 import 'package:stripes_ui/UI/Record/record_screen.dart';
 import 'package:stripes_ui/Util/constants.dart';
+import 'package:stripes_ui/Util/easy_snack.dart';
 
 import 'package:stripes_ui/entry.dart';
 
@@ -51,25 +56,28 @@ class TestScreenContent extends StatelessWidget {
   }
 }
 
-class RecordScreenContent extends StatelessWidget {
+class RecordScreenContent extends ConsumerWidget {
   const RecordScreenContent({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return AddIndicator(
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
-          child: ListView(
-            key: scrollkey,
-            controller: ScrollController(),
-            children: const [
-              SizedBox(
-                height: 20,
-              ),
-              Header(),
-              Options(),
-            ],
+      child: RefreshWidget(
+        depth: RefreshDepth.authuser,
+        scrollable: SingleChildScrollView(
+          key: scrollkey,
+          controller: ScrollController(),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
+              child: const Column(children: [
+                SizedBox(
+                  height: 20,
+                ),
+                Header(),
+                Options(),
+              ]),
+            ),
           ),
         ),
       ),
@@ -86,48 +94,51 @@ class HistoryScreenContent extends StatelessWidget {
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
-          child: CustomScrollView(
-            key: scrollkey,
-            controller: ScrollController(),
-            slivers: [
-              SliverPadding(
-                padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
-                sliver: SliverToBoxAdapter(
-                  child: Column(children: [
-                    const Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: PatientChanger(
-                              tab: TabOption.history,
+          child: RefreshWidget(
+            depth: RefreshDepth.stamp,
+            scrollable: CustomScrollView(
+              key: scrollkey,
+              controller: ScrollController(),
+              slivers: [
+                SliverPadding(
+                  padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
+                  sliver: SliverToBoxAdapter(
+                    child: Column(children: [
+                      const Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: PatientChanger(
+                                tab: TabOption.history,
+                              ),
                             ),
-                          ),
-                        ]),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 800),
-                      child: const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          FilterView(),
-                          SizedBox(
-                            height: 8.0,
-                          ),
-                          EventsCalendar(),
-                          SizedBox(
-                            height: 8.0,
-                          ),
-                          ActionRow()
-                        ],
+                          ]),
+                      const SizedBox(
+                        height: 20,
                       ),
-                    ),
-                  ]),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 800),
+                        child: const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            FilterView(),
+                            SizedBox(
+                              height: 8.0,
+                            ),
+                            EventsCalendar(),
+                            SizedBox(
+                              height: 8.0,
+                            ),
+                            ActionRow()
+                          ],
+                        ),
+                      ),
+                    ]),
+                  ),
                 ),
-              ),
-              const EventGrid()
-            ],
+                const EventGrid()
+              ],
+            ),
           ),
         ),
       ),
@@ -154,6 +165,60 @@ class AddIndicator extends ConsumerWidget {
             ],
           )
         : child;
+  }
+}
+
+enum RefreshDepth { authuser, subuser, stamp }
+
+class RefreshWidget extends ConsumerStatefulWidget {
+  final Widget scrollable;
+  final RefreshDepth depth;
+  const RefreshWidget(
+      {required this.scrollable, this.depth = RefreshDepth.subuser, super.key});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() {
+    return RefreshWidgetState();
+  }
+}
+
+class RefreshWidgetState extends ConsumerState<RefreshWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return RefreshIndicator.adaptive(
+        onRefresh: () async {
+          const String timeout = "Time Out";
+          final Object completed = await Future.any([
+            if (widget.depth == RefreshDepth.authuser) authFuture(),
+            if (widget.depth == RefreshDepth.stamp) stampFuture(),
+            Future.delayed(const Duration(seconds: 5), () => timeout),
+          ]);
+          if (completed == timeout && mounted) {
+            showSnack(context, "Timed out");
+          }
+        },
+        child: widget.scrollable);
+  }
+
+  Future<AuthUser> authFuture() {
+    ref.invalidate(authProvider);
+    Completer<AuthUser> completer = Completer();
+    ref.read(authProvider).user.listen((data) {
+      completer.complete(data);
+    });
+    return completer.future;
+  }
+
+  Future<String> subFuture() async {
+    ref.invalidate(subProvider);
+    await ref.read(subStream.future);
+    return "Sub Complete";
+  }
+
+  Future<String> stampFuture() async {
+    ref.invalidate(stampProvider);
+    await ref.read(stampsStreamProvider.future);
+    return "Stamp Complete";
   }
 }
 

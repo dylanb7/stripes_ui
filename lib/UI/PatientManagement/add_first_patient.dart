@@ -110,11 +110,18 @@ class _CreatePatientState extends ConsumerState<CreatePatient> {
                     width: 8.0,
                   ),
                   Expanded(
-                      flex: 1,
+                    flex: 1,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onTap: () {
+                        FocusManager.instance.primaryFocus?.unfocus();
+                      },
                       child: GenderDropdown(
                         context: context,
                         holder: _genderValue,
-                      )),
+                      ),
+                    ),
+                  ),
                 ],
               )),
               const SizedBox(

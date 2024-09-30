@@ -5,12 +5,16 @@ import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/test_progress_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/horizontal_stepper.dart';
+import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/CommonWidgets/scroll_assisted_list.dart';
+import 'package:stripes_ui/UI/Layout/home_screen.dart';
+import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/amount_consumed.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/recordings_state.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
+import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -26,45 +30,87 @@ class BlueDyeTestScreen extends ConsumerStatefulWidget {
 class _BlueDyeTestScreenState extends ConsumerState<BlueDyeTestScreen> {
   bool isLoading = false;
 
+  final ScrollController scrollContoller = ScrollController();
+
   @override
   Widget build(BuildContext context) {
     final BlueDyeTestProgress progress = ref.watch(blueDyeTestProgressProvider);
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
+    if (progress.isLoading()) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 20.0, right: 20.0, left: 20.0),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
+            child: const Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TestSwitcher(),
+                SizedBox(
+                  height: 12.0,
+                ),
+                LoadingWidget()
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+    return RefreshWidget(
+      scrollable: ScrollAssistedList(
+        builder: (context, properties) => ListView(
+          key: properties.scrollStateKey,
+          shrinkWrap: true,
+          controller: properties.scrollController,
           children: [
-            const TestSwitcher(),
-            (progress.stage != BlueDyeTestStage.initial ||
-                    progress.orderedTests.isNotEmpty)
-                ? IconButton(
-                    onPressed: () {
-                      toggleBottomSheet(context);
-                    },
-                    icon: const Icon(Icons.info))
-                : SizedBox(
-                    width: Theme.of(context).iconTheme.size,
+            Padding(
+              padding:
+                  const EdgeInsets.only(top: 20.0, right: 20.0, left: 20.0),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const TestSwitcher(),
+                          (progress.stage != BlueDyeTestStage.initial ||
+                                  progress.orderedTests.isNotEmpty)
+                              ? IconButton(
+                                  onPressed: () {
+                                    toggleBottomSheet(context);
+                                  },
+                                  icon: const Icon(Icons.info))
+                              : SizedBox(
+                                  width: Theme.of(context).iconTheme.size,
+                                ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 12.0,
+                      ),
+                      progress.stage == BlueDyeTestStage.initial &&
+                              progress.orderedTests.isEmpty
+                          ? BlueMealPreStudy(
+                              onClick: () {
+                                _startTest();
+                              },
+                              isLoading: isLoading,
+                            )
+                          : const StudyOngoing(),
+                    ],
                   ),
+                ),
+              ),
+            ),
           ],
         ),
-        const SizedBox(
-          height: 12.0,
-        ),
-        Expanded(
-          child: progress.stage == BlueDyeTestStage.initial &&
-                  progress.orderedTests.isEmpty
-              ? BlueMealPreStudy(
-                  onClick: () {
-                    _startTest();
-                  },
-                  isLoading: isLoading,
-                )
-              : const StudyOngoing(),
-        ),
-      ],
+        scrollController: scrollContoller,
+      ),
     );
   }
 

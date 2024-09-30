@@ -10,7 +10,13 @@ import 'package:stripes_ui/l10n/app_localizations.dart';
 final blueDyeTestProgressProvider = Provider<BlueDyeTestProgress>((ref) {
   final AsyncValue<TestsState> asyncState = ref.watch(testsHolderProvider);
   final AsyncValue<List<Stamp>> stamps = ref.watch(stampHolderProvider);
-  final AuthUser? user = ref.watch(authStream).valueOrNull;
+  final AsyncValue<AuthUser> userStream = ref.watch(authStream);
+
+  if (asyncState.isLoading || stamps.isLoading || userStream.isLoading) {
+    return const BlueDyeTestProgress.loading();
+  }
+
+  final AuthUser? user = userStream.valueOrNull;
   final String? group = user?.attributes["custom:group"];
   if (!stamps.hasValue || !asyncState.hasValue || group == null) {
     return const BlueDyeTestProgress(
@@ -83,10 +89,17 @@ class BlueDyeTestProgress {
     return BlueDyeProgression.stepFour;
   }
 
+  const BlueDyeTestProgress.loading()
+      : stage = BlueDyeTestStage.initial,
+        testIteration = -1,
+        orderedTests = const [];
+
   const BlueDyeTestProgress(
       {required this.stage,
       required this.orderedTests,
       required this.testIteration});
+
+  bool isLoading() => testIteration == -1;
 }
 
 enum BlueDyeProgression {
