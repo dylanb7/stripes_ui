@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/auth_provider.dart';
+import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
@@ -65,6 +66,7 @@ class RecordScreenContent extends ConsumerWidget {
       child: RefreshWidget(
         depth: RefreshDepth.authuser,
         scrollable: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
           key: scrollkey,
           controller: ScrollController(),
           child: Center(
@@ -97,6 +99,7 @@ class HistoryScreenContent extends StatelessWidget {
           child: RefreshWidget(
             depth: RefreshDepth.stamp,
             scrollable: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
               key: scrollkey,
               controller: ScrollController(),
               slivers: [
@@ -188,8 +191,9 @@ class RefreshWidgetState extends ConsumerState<RefreshWidget> {
     return RefreshIndicator.adaptive(
         onRefresh: () async {
           const String timeout = "Time Out";
-          final Object completed = await Future.any([
+          final Object? completed = await Future.any([
             if (widget.depth == RefreshDepth.authuser) authFuture(),
+            if (widget.depth == RefreshDepth.subuser) subFuture(),
             if (widget.depth == RefreshDepth.stamp) stampFuture(),
             Future.delayed(const Duration(seconds: 5), () => timeout),
           ]);
@@ -209,16 +213,12 @@ class RefreshWidgetState extends ConsumerState<RefreshWidget> {
     return completer.future;
   }
 
-  Future<String> subFuture() async {
-    ref.invalidate(subProvider);
-    await ref.read(subStream.future);
-    return "Sub Complete";
+  Future<SubUserRepo?> subFuture() async {
+    return ref.refresh(subProvider.future).then((value) => value);
   }
 
-  Future<String> stampFuture() async {
-    ref.invalidate(stampProvider);
-    await ref.read(stampsStreamProvider.future);
-    return "Stamp Complete";
+  Future<StampRepo<Stamp>?> stampFuture() {
+    return ref.refresh(stampProvider.future);
   }
 }
 

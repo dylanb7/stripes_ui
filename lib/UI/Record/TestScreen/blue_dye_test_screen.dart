@@ -59,6 +59,7 @@ class _BlueDyeTestScreenState extends ConsumerState<BlueDyeTestScreen> {
     return RefreshWidget(
       scrollable: ScrollAssistedList(
         builder: (context, properties) => ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
           key: properties.scrollStateKey,
           shrinkWrap: true,
           controller: properties.scrollController,
