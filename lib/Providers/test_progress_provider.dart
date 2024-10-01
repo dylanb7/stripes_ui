@@ -7,29 +7,25 @@ import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
-final blueDyeTestProgressProvider = Provider<BlueDyeTestProgress>((ref) {
-  final AsyncValue<TestsState> asyncState = ref.watch(testsHolderProvider);
-  final AsyncValue<List<Stamp>> stamps = ref.watch(stampHolderProvider);
-  final AsyncValue<AuthUser> userStream = ref.watch(authStream);
+final blueDyeTestProgressProvider =
+    FutureProvider<BlueDyeTestProgress>((ref) async {
+  final TestsState testsState = await ref.watch(testsHolderProvider.future);
+  final List<Stamp> stamps = await ref.watch(stampHolderProvider.future);
+  final AuthUser user = await ref.watch(authStream.future);
 
-  if (asyncState.isLoading || stamps.isLoading || userStream.isLoading) {
-    return const BlueDyeTestProgress.loading();
-  }
+  final String? group = user.attributes["custom:group"];
 
-  final AuthUser? user = userStream.valueOrNull;
-  final String? group = user?.attributes["custom:group"];
-  if (!stamps.hasValue || !asyncState.hasValue || group == null) {
-    return const BlueDyeTestProgress(
-        stage: BlueDyeTestStage.initial, testIteration: 0, orderedTests: []);
-  }
-  final List<BlueDyeResp> testResponses = stamps.value!
+  final List<BlueDyeResp> testResponses = stamps
       .whereType<BlueDyeResp>()
       .where((test) => test.group == group)
       .toList();
 
   final List<TestDate> mostRecent = _getOrderedTests(testResponses);
   final int iterations = testResponses.length;
-  final BlueDyeState? state = asyncState.value!.getTestState<BlueDyeState>();
+  final BlueDyeState? state = testsState.getTestState<BlueDyeState>();
+  if (stageFromTestState(state) == BlueDyeTestStage.logsSubmit) {
+    await testsState.getTest<Test<BlueDyeState>>()?.submit(DateTime.now());
+  }
   return BlueDyeTestProgress(
       stage: stageFromTestState(state),
       testIteration: iterations,

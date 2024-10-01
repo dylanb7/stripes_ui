@@ -17,9 +17,10 @@ class TimerWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final BlueDyeTestProgress progress = ref.watch(blueDyeTestProgressProvider);
+    final AsyncValue<BlueDyeTestProgress> progress =
+        ref.watch(blueDyeTestProgressProvider);
     final BlueDyeProgression stage =
-        progress.getProgression() ?? BlueDyeProgression.stepOne;
+        progress.valueOrNull?.getProgression() ?? BlueDyeProgression.stepOne;
 
     return Column(
         crossAxisAlignment: CrossAxisAlignment.start,

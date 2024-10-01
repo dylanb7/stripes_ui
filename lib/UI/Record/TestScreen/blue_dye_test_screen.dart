@@ -34,8 +34,9 @@ class _BlueDyeTestScreenState extends ConsumerState<BlueDyeTestScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final BlueDyeTestProgress progress = ref.watch(blueDyeTestProgressProvider);
-    if (progress.isLoading()) {
+    final AsyncValue<BlueDyeTestProgress> progress =
+        ref.watch(blueDyeTestProgressProvider);
+    if (progress.isLoading) {
       return Padding(
         padding: const EdgeInsets.only(top: 20.0, right: 20.0, left: 20.0),
         child: Center(
@@ -56,7 +57,9 @@ class _BlueDyeTestScreenState extends ConsumerState<BlueDyeTestScreen> {
         ),
       );
     }
+    final BlueDyeTestProgress? loaded = progress.valueOrNull;
     return RefreshWidget(
+      depth: RefreshDepth.authuser,
       scrollable: ScrollAssistedList(
         builder: (context, properties) => ListView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -79,8 +82,8 @@ class _BlueDyeTestScreenState extends ConsumerState<BlueDyeTestScreen> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           const TestSwitcher(),
-                          (progress.stage != BlueDyeTestStage.initial ||
-                                  progress.orderedTests.isNotEmpty)
+                          (loaded?.stage != BlueDyeTestStage.initial ||
+                                  loaded!.orderedTests.isNotEmpty)
                               ? IconButton(
                                   onPressed: () {
                                     toggleBottomSheet(context);
@@ -94,8 +97,8 @@ class _BlueDyeTestScreenState extends ConsumerState<BlueDyeTestScreen> {
                       const SizedBox(
                         height: 12.0,
                       ),
-                      progress.stage == BlueDyeTestStage.initial &&
-                              progress.orderedTests.isEmpty
+                      loaded?.stage == BlueDyeTestStage.initial &&
+                              loaded!.orderedTests.isEmpty
                           ? BlueMealPreStudy(
                               onClick: () {
                                 _startTest();
@@ -174,8 +177,12 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
 
   @override
   void initState() {
-    currentIndex =
-        ref.read(blueDyeTestProgressProvider).getProgression()?.value ?? 0;
+    currentIndex = ref
+            .read(blueDyeTestProgressProvider)
+            .valueOrNull
+            ?.getProgression()
+            ?.value ??
+        0;
     super.initState();
   }
 
@@ -183,15 +190,24 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
   Widget build(BuildContext context) {
     ref.listen<BlueDyeProgression?>(
         blueDyeTestProgressProvider
-            .select((progress) => progress.getProgression()), (prev, next) {
+            .select((progress) => progress.valueOrNull?.getProgression()),
+        (prev, next) {
       if (mounted &&
           next != null &&
           (prev == null || next.value > prev.value)) {
         _changePage(next.index);
       }
     });
-    final BlueDyeTestProgress progress = ref.watch(blueDyeTestProgressProvider);
-    final BlueDyeProgression? currentProgression = progress.getProgression();
+    final AsyncValue<BlueDyeTestProgress> progress =
+        ref.watch(blueDyeTestProgressProvider);
+
+    if (progress.isLoading) {
+      return const LoadingWidget();
+    }
+
+    final BlueDyeTestProgress? loaded = progress.valueOrNull;
+
+    final BlueDyeProgression? currentProgression = loaded?.getProgression();
     final int index = currentProgression?.value ?? 0;
 
     final BlueDyeProgression activeStage =
@@ -200,9 +216,9 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
 
     double getDetailedProgress() {
       final double base = index.toDouble();
-      if (progress.stage == BlueDyeTestStage.amountConsumed) return base + 0.8;
-      if (progress.stage == BlueDyeTestStage.initial &&
-          progress.testIteration > 0) return base + 0.99;
+      if (loaded?.stage == BlueDyeTestStage.amountConsumed) return base + 0.8;
+      if (loaded?.stage == BlueDyeTestStage.initial &&
+          (loaded?.testIteration ?? 0) > 0) return base + 0.99;
       return base;
     }
 
@@ -217,17 +233,19 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
             displaying: activeStage,
           );
         }
-        return progress.stage == BlueDyeTestStage.amountConsumed
+        return loaded?.stage == BlueDyeTestStage.amountConsumed
             ? const AmountConsumedEntry()
             : const TimerWidget();
       }
-      final List<TestDate> orderedTests = progress.orderedTests;
+      final List<TestDate> orderedTests = loaded?.orderedTests ?? [];
       if (!isPrevious &&
           currentProgression == BlueDyeProgression.stepTwo &&
           orderedTests.length == 1 &&
-          !progress.stage.testInProgress) return const RecordingsWaiting();
+          !(loaded?.stage.testInProgress ?? false)) {
+        return const RecordingsWaiting();
+      }
       if (isPrevious ||
-          (progress.testIteration == 2 && !progress.stage.testInProgress)) {
+          (loaded?.testIteration == 2 && !loaded!.stage.testInProgress)) {
         return RecordingsView(
           next: () {
             _changePage(currentIndex + 1);

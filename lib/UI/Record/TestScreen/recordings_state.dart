@@ -22,11 +22,13 @@ class RecordingsView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final BlueDyeTestProgress progress = ref.watch(blueDyeTestProgressProvider);
+    final AsyncValue<BlueDyeTestProgress> progress =
+        ref.watch(blueDyeTestProgressProvider);
+    if (progress.isLoading) return const LoadingWidget();
     final List<BMTestLog> logs = clicked == BlueDyeProgression.stepFour &&
-            progress.orderedTests.length >= 2
-        ? progress.orderedTests[1].test.logs
-        : progress.orderedTests[0].test.logs;
+            (progress.valueOrNull?.orderedTests.length ?? 0) >= 2
+        ? progress.valueOrNull?.orderedTests[1].test.logs ?? []
+        : progress.valueOrNull?.orderedTests[0].test.logs ?? [];
     return Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,8 +134,15 @@ class _RecordingsWaitingState extends ConsumerState<RecordingsWaiting> {
 
   @override
   void didChangeDependencies() {
+    _onDependencyChange();
+    super.didChangeDependencies();
+  }
+
+  void _onDependencyChange() async {
     final DateTime testFinished =
-        ref.read(blueDyeTestProgressProvider).orderedTests[0].finishTime;
+        (await ref.read(blueDyeTestProgressProvider.future))
+            .orderedTests[0]
+            .finishTime;
     final Duration timePassed = DateTime.now().difference(testFinished);
     final bool canProgress = waitTime.compareTo(timePassed) < 0;
     if (!canProgress) {
@@ -141,13 +150,14 @@ class _RecordingsWaitingState extends ConsumerState<RecordingsWaiting> {
         if (mounted) setState(() {});
       });
     }
-    super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
-    final BlueDyeTestProgress progress = ref.watch(blueDyeTestProgressProvider);
-    final List<TestDate> orderedTests = progress.orderedTests;
+    final AsyncValue<BlueDyeTestProgress> progress =
+        ref.watch(blueDyeTestProgressProvider);
+    final List<TestDate> orderedTests =
+        progress.valueOrNull?.orderedTests ?? [];
     if (orderedTests.isEmpty) return Container();
     final Duration timePassed =
         DateTime.now().difference(orderedTests[0].finishTime);
@@ -278,39 +288,17 @@ class _RecordingsState extends ConsumerState<RecordingsState> {
   bool isLoading = false;
 
   @override
-  void initState() {
-    _checkSubmit();
-    super.initState();
-  }
-
-  _checkSubmit() {
-    final BlueDyeState? state = ref.read(testsHolderProvider
-        .select((holder) => holder.valueOrNull?.getTestState<BlueDyeState>()));
-    final BlueDyeTestStage stage = stageFromTestState(state);
-    if (stage.testInProgress &&
-        stage == BlueDyeTestStage.logsSubmit &&
-        !isLoading) {
-      _submitStage();
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     final BlueDyeState? blueDyeState = ref.watch(testsHolderProvider
         .select((holder) => holder.valueOrNull?.getTestState<BlueDyeState>()));
-    final BlueDyeTestProgress progress = ref.watch(blueDyeTestProgressProvider);
+    final AsyncValue<BlueDyeTestProgress> progress =
+        ref.watch(blueDyeTestProgressProvider);
+
+    if (progress.isLoading) return const LoadingWidget();
 
     final BlueDyeProgression stage =
-        progress.getProgression() ?? BlueDyeProgression.stepOne;
-    ref.listen<BlueDyeState?>(
-        testsHolderProvider.select(
-            (holder) => holder.valueOrNull?.getTestState<BlueDyeState>()),
-        (prev, next) {
-      if (stageFromTestState(next) == BlueDyeTestStage.logsSubmit &&
-          !isLoading) {
-        _submitStage();
-      }
-    });
+        progress.valueOrNull?.getProgression() ?? BlueDyeProgression.stepOne;
+
     if (blueDyeState == null) {
       return const LoadingWidget();
     }
@@ -377,19 +365,6 @@ class _RecordingsState extends ConsumerState<RecordingsState> {
         ),
       ],
     );
-  }
-
-  Future _submitStage() async {
-    setState(() {
-      isLoading = true;
-    });
-    await ref
-        .read(testsHolderProvider.notifier)
-        .getTest<Test<BlueDyeState>>()
-        .then((test) => test?.submit(DateTime.now()));
-    setState(() {
-      isLoading = false;
-    });
   }
 }
 

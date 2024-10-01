@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/test_progress_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
+import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
@@ -18,12 +19,16 @@ class MealFinishedDisplay extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final BlueDyeTestProgress progress = ref.watch(blueDyeTestProgressProvider);
+    final AsyncValue<BlueDyeTestProgress> progress =
+        ref.watch(blueDyeTestProgressProvider);
 
     final BlueDyeState? testsState = ref.watch(testsHolderProvider
         .select((holder) => holder.valueOrNull?.getTestState<BlueDyeState>()));
+
+    if (progress.isLoading) return const LoadingWidget();
+
     final BlueDyeProgression progression =
-        progress.getProgression() ?? BlueDyeProgression.stepOne;
+        progress.valueOrNull?.getProgression() ?? BlueDyeProgression.stepOne;
 
     final Map<AmountConsumed, String> amountText = {
       AmountConsumed.undetermined:
@@ -37,7 +42,8 @@ class MealFinishedDisplay extends ConsumerWidget {
     };
 
     BlueMealStats getMealStats() {
-      final bool testOngoing = progress.stage.testInProgress;
+      final bool testOngoing =
+          progress.valueOrNull?.stage.testInProgress ?? false;
       if (testOngoing &&
               (displaying == BlueDyeProgression.stepOne &&
                   progression == BlueDyeProgression.stepTwo) ||
@@ -48,7 +54,7 @@ class MealFinishedDisplay extends ConsumerWidget {
             duration: testsState?.finishedEating,
             amountConsumed: testsState?.amountConsumed);
       }
-      final List<TestDate> dates = progress.orderedTests;
+      final List<TestDate> dates = progress.valueOrNull?.orderedTests ?? [];
       if (dates.isEmpty) {
         return const BlueMealStats(
             start: null, duration: null, amountConsumed: null);
@@ -226,11 +232,15 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
 
   @override
   Widget build(BuildContext context) {
-    final BlueDyeTestProgress progress = ref.watch(blueDyeTestProgressProvider);
+    final AsyncValue<BlueDyeTestProgress> progress =
+        ref.watch(blueDyeTestProgressProvider);
     final BlueDyeState? testsState = ref.watch(testsHolderProvider
         .select((holder) => holder.valueOrNull?.getTestState<BlueDyeState>()));
+
+    if (progress.isLoading) return const LoadingWidget();
+
     final BlueDyeProgression stage =
-        progress.getProgression() ?? BlueDyeProgression.stepOne;
+        progress.valueOrNull?.getProgression() ?? BlueDyeProgression.stepOne;
 
     final Map<AmountConsumed, String> amountText = {
       AmountConsumed.halfOrLess:

@@ -98,7 +98,7 @@ class HistoryScreenContent extends StatelessWidget {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
           child: RefreshWidget(
-            depth: RefreshDepth.subuser,
+            depth: RefreshDepth.authuser,
             scrollable: CustomScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               key: scrollkey,
