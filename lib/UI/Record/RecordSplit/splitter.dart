@@ -321,7 +321,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     setState(() {
       submitSuccess = true;
     });
-    await Future.delayed(const Duration(milliseconds: 750));
+    await Future.delayed(const Duration(milliseconds: 600));
     setState(() {
       isLoading = false;
     });

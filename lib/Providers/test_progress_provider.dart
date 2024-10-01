@@ -100,6 +100,11 @@ class BlueDyeTestProgress {
       required this.testIteration});
 
   bool isLoading() => testIteration == -1;
+
+  @override
+  String toString() {
+    return 'Iteration: $testIteration, Stage: ${stage.name}, Tests: $orderedTests';
+  }
 }
 
 enum BlueDyeProgression {
