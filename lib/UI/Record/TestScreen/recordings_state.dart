@@ -278,6 +278,21 @@ class _RecordingsState extends ConsumerState<RecordingsState> {
   bool isLoading = false;
 
   @override
+  void initState() {
+    _checkSubmit();
+    super.initState();
+  }
+
+  _checkSubmit() {
+    final BlueDyeState? state = ref.read(testsHolderProvider
+        .select((holder) => holder.valueOrNull?.getTestState<BlueDyeState>()));
+    final BlueDyeTestStage stage = stageFromTestState(state);
+    if (stage.testInProgress && stage == BlueDyeTestStage.logsSubmit) {
+      _submitStage();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final BlueDyeState? blueDyeState = ref.watch(testsHolderProvider
         .select((holder) => holder.valueOrNull?.getTestState<BlueDyeState>()));
