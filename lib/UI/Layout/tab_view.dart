@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/auth_provider.dart';
-import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
@@ -65,20 +64,22 @@ class RecordScreenContent extends ConsumerWidget {
     return AddIndicator(
       child: RefreshWidget(
         depth: RefreshDepth.authuser,
-        scrollable: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          key: scrollkey,
-          controller: ScrollController(),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
-              child: const Column(children: [
-                SizedBox(
-                  height: 20,
-                ),
-                Header(),
-                Options(),
-              ]),
+        scrollable: SizedBox.expand(
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            key: scrollkey,
+            controller: ScrollController(),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
+                child: const Column(children: [
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Header(),
+                  Options(),
+                ]),
+              ),
             ),
           ),
         ),
@@ -97,7 +98,7 @@ class HistoryScreenContent extends StatelessWidget {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
           child: RefreshWidget(
-            depth: RefreshDepth.stamp,
+            depth: RefreshDepth.subuser,
             scrollable: CustomScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               key: scrollkey,
@@ -214,7 +215,7 @@ class RefreshWidgetState extends ConsumerState<RefreshWidget> {
   }
 
   Future<SubUserRepo?> subFuture() async {
-    return ref.refresh(subProvider.future).then((value) => value);
+    return ref.refresh(subProvider.future);
   }
 
   Future<StampRepo<Stamp>?> stampFuture() {
