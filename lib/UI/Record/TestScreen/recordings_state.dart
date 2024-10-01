@@ -287,7 +287,9 @@ class _RecordingsState extends ConsumerState<RecordingsState> {
     final BlueDyeState? state = ref.read(testsHolderProvider
         .select((holder) => holder.valueOrNull?.getTestState<BlueDyeState>()));
     final BlueDyeTestStage stage = stageFromTestState(state);
-    if (stage.testInProgress && stage == BlueDyeTestStage.logsSubmit) {
+    if (stage.testInProgress &&
+        stage == BlueDyeTestStage.logsSubmit &&
+        !isLoading) {
       _submitStage();
     }
   }
@@ -304,7 +306,8 @@ class _RecordingsState extends ConsumerState<RecordingsState> {
         testsHolderProvider.select(
             (holder) => holder.valueOrNull?.getTestState<BlueDyeState>()),
         (prev, next) {
-      if (stageFromTestState(next) == BlueDyeTestStage.logsSubmit) {
+      if (stageFromTestState(next) == BlueDyeTestStage.logsSubmit &&
+          !isLoading) {
         _submitStage();
       }
     });
