@@ -25,6 +25,7 @@ final blueDyeTestProgressProvider =
   final BlueDyeState? state = testsState.getTestState<BlueDyeState>();
   if (stageFromTestState(state) == BlueDyeTestStage.logsSubmit) {
     await testsState.getTest<Test<BlueDyeState>>()?.submit(DateTime.now());
+    ref.invalidateSelf();
   }
   return BlueDyeTestProgress(
       stage: stageFromTestState(state),
