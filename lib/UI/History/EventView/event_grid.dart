@@ -14,13 +14,16 @@ class EventGrid extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
 
-    final AsyncValue<Available> available = ref.watch(availibleStampsProvider);
+    final AsyncValue<List<Response>> available = ref.watch(
+        availibleStampsProvider.select((value) => value.hasValue
+            ? AsyncValue.data(value.valueOrNull!.filteredVisible)
+            : const AsyncLoading<List<Response>>()));
 
     if (available.isLoading) {
       return const SliverToBoxAdapter(child: LoadingWidget());
     }
 
-    if (available.valueOrNull?.filteredVisible.isEmpty ?? true) {
+    if (available.valueOrNull!.isEmpty ?? true) {
       return const SliverToBoxAdapter(
         child: SizedBox(
           height: 25.0,
@@ -28,8 +31,7 @@ class EventGrid extends ConsumerWidget {
       );
     }
 
-    final List<Response> availableStamps =
-        available.valueOrNull?.filteredVisible ?? [];
+    final List<Response> availableStamps = available.valueOrNull ?? [];
 
     return SliverPadding(
       padding: const EdgeInsets.only(left: 20.0, right: 20.0, bottom: 20.0),

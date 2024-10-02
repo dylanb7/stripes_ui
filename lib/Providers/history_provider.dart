@@ -306,9 +306,9 @@ final filtersProvider = StateProvider<Filters>((_) => Filters.reset());
 
 final availibleStampsProvider =
     FutureProvider.autoDispose<Available>((ref) async {
+  final Filters filters = ref.watch(filtersProvider);
   final StampNotifier notifier = ref.watch(stampHolderProvider.notifier);
   final List<Stamp> stamps = await ref.watch(stampHolderProvider.future);
-  final Filters filters = ref.watch(filtersProvider);
   if (filters.earliestRequired != null) {
     notifier.changeEarliest(filters.earliestRequired!);
   }
