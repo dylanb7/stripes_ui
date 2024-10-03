@@ -23,7 +23,7 @@ class EventGrid extends ConsumerWidget {
       return const SliverToBoxAdapter(child: LoadingWidget());
     }
 
-    if (available.valueOrNull!.isEmpty ?? true) {
+    if (available.valueOrNull!.isEmpty) {
       return const SliverToBoxAdapter(
         child: SizedBox(
           height: 25.0,
