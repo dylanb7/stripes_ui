@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:stripes_backend_helper/RepositoryBase/TestBase/BlueDye/blue_dye_impl.dart';
-import 'package:stripes_backend_helper/RepositoryBase/TestBase/BlueDye/blue_dye_response.dart';
+import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
@@ -111,7 +110,7 @@ class BlueDyeVisualDisplay extends StatelessWidget {
           height: 4.0,
         ),
         Text(
-          "Transit time: ${from(resp.firstBlue.difference(resp.startEating.add(resp.eatingDuration)), context)}",
+          "Transit time: ${from(resp.firstBlue.difference(resp.finishedEatingTime ?? resp.startEating.add(resp.eatingDuration)), context)}",
           style: Theme.of(context)
               .textTheme
               .bodyMedium
