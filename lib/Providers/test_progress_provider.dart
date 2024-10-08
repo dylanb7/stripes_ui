@@ -9,7 +9,8 @@ import 'package:stripes_ui/l10n/app_localizations.dart';
 
 final blueDyeTestProgressProvider =
     FutureProvider<BlueDyeTestProgress>((ref) async {
-  final TestsState testsState = await ref.watch(testsHolderProvider.future);
+  final BlueDyeState? blueDyeState = await ref.watch(testsHolderProvider
+      .selectAsync((value) => value.getTestState<BlueDyeState>()));
   final List<Stamp> stamps = await ref.watch(stampHolderProvider.future);
   final AuthUser user = await ref.watch(authStream.future);
 
@@ -22,13 +23,9 @@ final blueDyeTestProgressProvider =
 
   final List<TestDate> mostRecent = _getOrderedTests(testResponses);
   final int iterations = testResponses.length;
-  final BlueDyeState? state = testsState.getTestState<BlueDyeState>();
-  if (stageFromTestState(state) == BlueDyeTestStage.logsSubmit) {
-    await testsState.getTest<Test<BlueDyeState>>()?.submit(DateTime.now());
-    ref.invalidateSelf();
-  }
+
   return BlueDyeTestProgress(
-      stage: stageFromTestState(state),
+      stage: stageFromTestState(blueDyeState),
       testIteration: iterations,
       orderedTests: mostRecent);
 });
