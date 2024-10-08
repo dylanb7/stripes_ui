@@ -50,8 +50,16 @@ class TestScreenContent extends StatelessWidget {
   const TestScreenContent({super.key});
   @override
   Widget build(BuildContext context) {
-    return const AddIndicator(
-      child: TestScreen(),
+    return AddIndicator(
+      builder: (context, hasIndicator) => Column(
+        children: [
+          const TestScreen(),
+          if (hasIndicator)
+            const SizedBox(
+              height: 100.0,
+            )
+        ],
+      ),
     );
   }
 }
@@ -62,7 +70,7 @@ class RecordScreenContent extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return AddIndicator(
-      child: RefreshWidget(
+      builder: (context, hasIndicator) => RefreshWidget(
         depth: RefreshDepth.authuser,
         scrollable: SizedBox.expand(
           child: SingleChildScrollView(
@@ -72,12 +80,16 @@ class RecordScreenContent extends ConsumerWidget {
             child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
-                child: const Column(children: [
-                  SizedBox(
+                child: Column(children: [
+                  const SizedBox(
                     height: 20,
                   ),
-                  Header(),
-                  Options(),
+                  const Header(),
+                  const Options(),
+                  if (hasIndicator)
+                    const SizedBox(
+                      height: 100.0,
+                    ),
                 ]),
               ),
             ),
@@ -93,8 +105,8 @@ class HistoryScreenContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AddIndicator(
-      child: Center(
+    return AddIndicator(builder: (context, hasIndicator) {
+      return Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
           child: RefreshWidget(
@@ -145,14 +157,14 @@ class HistoryScreenContent extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 }
 
 class AddIndicator extends ConsumerWidget {
-  final Widget child;
-  const AddIndicator({required this.child, super.key});
+  final Widget Function(BuildContext context, bool hasAddition) builder;
+  const AddIndicator({required this.builder, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -164,11 +176,11 @@ class AddIndicator extends ConsumerWidget {
     return addition != null
         ? Stack(
             children: [
-              child,
+              builder(context, true),
               addition,
             ],
           )
-        : child;
+        : builder(context, false);
   }
 }
 
