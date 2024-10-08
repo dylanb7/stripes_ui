@@ -60,60 +60,66 @@ class _BlueDyeTestScreenState extends ConsumerState<BlueDyeTestScreen> {
     final BlueDyeTestProgress? loaded = progress.valueOrNull;
     return RefreshWidget(
       depth: RefreshDepth.authuser,
-      scrollable: ScrollAssistedList(
-        builder: (context, properties) => ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          key: properties.scrollStateKey,
-          shrinkWrap: true,
-          controller: properties.scrollController,
-          children: [
-            Padding(
-              padding:
-                  const EdgeInsets.only(top: 20.0, right: 20.0, left: 20.0),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const TestSwitcher(),
-                          (loaded?.stage != BlueDyeTestStage.initial ||
-                                  loaded!.orderedTests.isNotEmpty)
-                              ? IconButton(
-                                  onPressed: () {
-                                    toggleBottomSheet(context);
-                                  },
-                                  icon: const Icon(Icons.info))
-                              : SizedBox(
-                                  width: Theme.of(context).iconTheme.size,
-                                ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 12.0,
-                      ),
-                      loaded?.stage == BlueDyeTestStage.initial &&
-                              loaded!.orderedTests.isEmpty
-                          ? BlueMealPreStudy(
-                              onClick: () {
-                                _startTest();
-                              },
-                              isLoading: isLoading,
-                            )
-                          : const StudyOngoing(),
-                    ],
+      scrollable: AddIndicator(
+        builder: (context, hasIndicator) => ScrollAssistedList(
+          builder: (context, properties) => ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            key: properties.scrollStateKey,
+            shrinkWrap: true,
+            controller: properties.scrollController,
+            children: [
+              Padding(
+                padding:
+                    const EdgeInsets.only(top: 20.0, right: 20.0, left: 20.0),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const TestSwitcher(),
+                            (loaded?.stage != BlueDyeTestStage.initial ||
+                                    loaded!.orderedTests.isNotEmpty)
+                                ? IconButton(
+                                    onPressed: () {
+                                      toggleBottomSheet(context);
+                                    },
+                                    icon: const Icon(Icons.info))
+                                : SizedBox(
+                                    width: Theme.of(context).iconTheme.size,
+                                  ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 12.0,
+                        ),
+                        loaded?.stage == BlueDyeTestStage.initial &&
+                                loaded!.orderedTests.isEmpty
+                            ? BlueMealPreStudy(
+                                onClick: () {
+                                  _startTest();
+                                },
+                                isLoading: isLoading,
+                              )
+                            : const StudyOngoing(),
+                        if (hasIndicator)
+                          const SizedBox(
+                            height: 100,
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
+          scrollController: scrollContoller,
         ),
-        scrollController: scrollContoller,
       ),
     );
   }

@@ -50,17 +50,7 @@ class TestScreenContent extends StatelessWidget {
   const TestScreenContent({super.key});
   @override
   Widget build(BuildContext context) {
-    return AddIndicator(
-      builder: (context, hasIndicator) => Column(
-        children: [
-          const TestScreen(),
-          if (hasIndicator)
-            const SizedBox(
-              height: 100.0,
-            )
-        ],
-      ),
-    );
+    return const TestScreen();
   }
 }
 
