@@ -146,7 +146,7 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
                               children: [
                                 widget.subUser != subNotif.valueOrNull?.selected
                                     ? TextButton(
-                                        child: const Text('Delete Patient'),
+                                        child: const Text('Delete User'),
                                         onPressed: () {
                                           _deleteUser(ref);
                                         },
