@@ -11,15 +11,16 @@ final blueDyeTestProgressProvider =
     FutureProvider<BlueDyeTestProgress>((ref) async {
   final BlueDyeState? blueDyeState = await ref.watch(testsHolderProvider
       .selectAsync((value) => value.getTestState<BlueDyeState>()));
-  final List<Stamp> stamps = await ref.watch(stampHolderProvider.future);
   final AuthUser user = await ref.watch(authStream.future);
 
   final String? group = user.attributes["custom:group"];
 
-  final List<BlueDyeResp> testResponses = stamps
-      .whereType<BlueDyeResp>()
-      .where((test) => test.group == group)
-      .toList();
+  final List<BlueDyeResp> testResponses =
+      await ref.watch(stampHolderProvider.selectAsync((stampHolder) {
+    final Iterable<BlueDyeResp> blueResponses =
+        stampHolder.whereType<BlueDyeResp>();
+    return blueResponses.where((test) => test.group == group).toList();
+  }));
 
   final List<TestDate> mostRecent = _getOrderedTests(testResponses);
   final int iterations = testResponses.length;
