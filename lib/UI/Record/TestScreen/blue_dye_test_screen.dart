@@ -194,14 +194,15 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<BlueDyeProgression?>(
-        blueDyeTestProgressProvider
-            .select((progress) => progress.valueOrNull?.getProgression()),
-        (prev, next) {
+    ref.listen<Future<BlueDyeProgression?>>(
+        blueDyeTestProgressProvider.selectAsync(
+            (progress) => progress.getProgression()), (prev, next) async {
+      final BlueDyeProgression? nextValue = await next;
+      final BlueDyeProgression? prevValue = await next;
       if (mounted &&
-          next != null &&
-          (prev == null || next.value > prev.value)) {
-        _changePage(next.index);
+          nextValue != null &&
+          (prevValue == null || nextValue.index > prevValue.index)) {
+        _changePage(nextValue.index);
       }
     });
     final AsyncValue<BlueDyeTestProgress> progress =

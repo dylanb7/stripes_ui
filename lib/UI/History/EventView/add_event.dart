@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
+import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
 
 import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
 import 'package:stripes_ui/Util/date_helper.dart';
@@ -24,6 +25,8 @@ class AddEvent extends ConsumerWidget {
     final DateTime? selected = filters.selectedDate ??
         (filters.rangeEnd == null ? filters.rangeStart : null);
 
+    final DateTime now = DateTime.now();
+
     return Tooltip(
       message: filters.selectedDate == null
           ? AppLocalizations.of(context)!.noDateToAddTo
@@ -33,8 +36,12 @@ class AddEvent extends ConsumerWidget {
         onPressed: selected == null
             ? null
             : () {
-                openEventOverlay(ref,
-                    DateTime(selected.year, selected.month, selected.day, 12));
+                openEventOverlay(
+                    ref,
+                    sameDay(now, selected)
+                        ? now
+                        : DateTime(
+                            selected.year, selected.month, selected.day, 12));
               },
       ),
     );
