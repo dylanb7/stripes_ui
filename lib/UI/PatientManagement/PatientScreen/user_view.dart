@@ -59,13 +59,14 @@ class UserView extends ConsumerWidget {
                 : const BorderSide(width: 0, color: Colors.transparent)),
         elevation: 1.0,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6.0),
+          padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 6.0),
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
                 child: Text(
                   subUser.name,
+                  textAlign: TextAlign.left,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),

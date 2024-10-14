@@ -36,7 +36,7 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
   @override
   void initState() {
     final bool isName =
-        ref.watch(configProvider).profileType == ProfileType.name;
+        ref.read(configProvider).profileType == ProfileType.name;
     if (isName) {
       List<String> names = widget.subUser.name.split(' ');
       _firstName = TextEditingController(text: names[0]);
