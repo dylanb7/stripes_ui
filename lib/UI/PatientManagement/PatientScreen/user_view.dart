@@ -28,9 +28,12 @@ class UserView extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         selected
-            ? const TextButton(
+            ? TextButton(
                 onPressed: null,
-                child: Text('Current Patient'),
+                child: Text(
+                  'Selected',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
               )
             : TextButton(
                 child: const Text('Select'),
