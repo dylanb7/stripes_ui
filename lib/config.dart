@@ -16,6 +16,8 @@ enum ExportType {
 
 enum AccountStage { local, invited, enrolled, finished }
 
+enum ProfileType { username, name }
+
 typedef AccountIndicator = Widget? Function(AuthUser user);
 
 typedef AccountAction = Future<bool> Function(
@@ -42,10 +44,13 @@ class StripesConfig {
 
   final Function? onExitStudy;
 
+  final ProfileType? profileType;
+
   final Widget Function(BuildContext, Widget?)? builder;
 
   const StripesConfig(
-      {required this.hasGraphing,
+      {required this.profileType,
+      required this.hasGraphing,
       required this.hasLogging,
       this.locale,
       this.authStrategy,
@@ -59,6 +64,7 @@ class StripesConfig {
   const StripesConfig.sandbox()
       : hasGraphing = true,
         hasLogging = true,
+        profileType = ProfileType.username,
         export = fileShare,
         builder = null,
         stageAction = null,

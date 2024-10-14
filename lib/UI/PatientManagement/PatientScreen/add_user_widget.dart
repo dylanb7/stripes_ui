@@ -9,6 +9,8 @@ import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/form_input.dart';
 
 import 'package:stripes_ui/Util/validators.dart';
+import 'package:stripes_ui/config.dart';
+import 'package:stripes_ui/entry.dart';
 
 class AddUserWidget extends ConsumerStatefulWidget {
   const AddUserWidget({super.key});
@@ -45,6 +47,9 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
   @override
   Widget build(BuildContext context) {
     final isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
+
+    final bool isName =
+        ref.watch(configProvider).profileType == ProfileType.name;
     return Opacity(
       opacity: isLoading ? 0.6 : 1,
       child: IgnorePointer(
@@ -78,48 +83,64 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
                       const SizedBox(
                         height: 12.0,
                       ),
-                      TextFormField(
-                        controller: _firstName,
-                        validator: nameValidator,
-                        decoration: formFieldDecoration(
-                            hintText: 'First Name', controller: _firstName),
-                      ),
-                      const SizedBox(
-                        height: 8.0,
-                      ),
-                      TextFormField(
-                        controller: _lastName,
-                        validator: nameValidator,
-                        decoration: formFieldDecoration(
-                            hintText: 'Last Name', controller: _lastName),
-                      ),
-                      const SizedBox(
-                        height: 8.0,
-                      ),
-                      IntrinsicHeight(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Expanded(
-                              flex: 1,
-                              child: BirthYearSelector(
-                                context: context,
-                                controller: _yearController,
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 8.0,
-                            ),
-                            Expanded(
-                              flex: 1,
-                              child: GenderDropdown(
-                                context: context,
-                                holder: _genderController,
-                              ),
-                            ),
-                          ],
+                      if (isName) ...[
+                        TextFormField(
+                          controller: _firstName,
+                          validator: nameValidator,
+                          decoration: formFieldDecoration(
+                              hintText: 'First Name', controller: _firstName),
                         ),
-                      ),
+                        const SizedBox(
+                          height: 8.0,
+                        ),
+                        TextFormField(
+                          controller: _lastName,
+                          validator: nameValidator,
+                          decoration: formFieldDecoration(
+                              hintText: 'Last Name', controller: _lastName),
+                        ),
+                        const SizedBox(
+                          height: 8.0,
+                        ),
+                        IntrinsicHeight(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Expanded(
+                                flex: 1,
+                                child: BirthYearSelector(
+                                  context: context,
+                                  controller: _yearController,
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 8.0,
+                              ),
+                              Expanded(
+                                flex: 1,
+                                child: GenderDropdown(
+                                  context: context,
+                                  holder: _genderController,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ] else ...[
+                        TextFormField(
+                          validator: (name) {
+                            if (name == null || name.isEmpty) {
+                              return 'Empty Field';
+                            }
+                            return null;
+                          },
+                          controller: _firstName,
+                          decoration: formFieldDecoration(
+                            hintText: 'Username',
+                            controller: _firstName,
+                          ),
+                        ),
+                      ],
                       const SizedBox(
                         height: 25.0,
                       )
@@ -145,7 +166,7 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
                   height: 50,
                   child: FilledButton.icon(
                     onPressed: () {
-                      _addUser();
+                      _addUser(isName);
                     },
                     icon: const Icon(Icons.add),
                     label: const Text(
@@ -160,17 +181,23 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
     );
   }
 
-  _addUser() async {
+  _addUser(bool isName) async {
     _formKey.currentState?.save();
     if (_formKey.currentState?.validate() ?? false) {
       setState(() {
         isLoading = true;
       });
-      final SubUser toAdd = SubUser(
-          name: '${_firstName.text} ${_lastName.text}',
-          gender: _genderController.gender!,
-          birthYear: _yearController.year,
-          isControl: false);
+      final SubUser toAdd = isName
+          ? SubUser(
+              name: '${_firstName.text} ${_lastName.text}',
+              gender: _genderController.gender!,
+              birthYear: _yearController.year,
+              isControl: false)
+          : SubUser(
+              name: _firstName.text,
+              gender: "",
+              birthYear: 0,
+              isControl: false);
       await ref.read(subProvider).valueOrNull?.addSubUser(toAdd);
       setState(() {
         isLoading = false;

@@ -7,6 +7,8 @@ import 'package:stripes_ui/UI/PatientManagement/birth_year_selector.dart';
 import 'package:stripes_ui/UI/PatientManagement/gender_dropdown.dart';
 import 'package:stripes_ui/Util/form_input.dart';
 import 'package:stripes_ui/Util/validators.dart';
+import 'package:stripes_ui/config.dart';
+import 'package:stripes_ui/entry.dart';
 
 class CreatePatient extends ConsumerStatefulWidget {
   const CreatePatient({super.key});
@@ -35,6 +37,8 @@ class _CreatePatientState extends ConsumerState<CreatePatient> {
 
   @override
   Widget build(BuildContext context) {
+    final StripesConfig config = ref.watch(configProvider);
+
     return FormContainer(
       hasClose: false,
       topPortion: Column(
@@ -69,74 +73,103 @@ class _CreatePatientState extends ConsumerState<CreatePatient> {
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(
-                height: 12.0,
-              ),
-              TextFormField(
-                validator: nameValidator,
-                controller: _firstName,
-                decoration: formFieldDecoration(
-                  hintText: 'First Name',
-                  controller: _firstName,
-                ),
-              ),
-              const SizedBox(
-                height: 8.0,
-              ),
-              TextFormField(
-                validator: nameValidator,
-                controller: _lastName,
-                decoration: formFieldDecoration(
-                  hintText: 'Last Name',
-                  controller: _lastName,
-                ),
-              ),
-              const SizedBox(
-                height: 8.0,
-              ),
-              IntrinsicHeight(
-                  child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Expanded(
-                    flex: 1,
-                    child: BirthYearSelector(
-                      controller: _yearController,
-                      context: context,
+            children: config.profileType == ProfileType.name
+                ? [
+                    const SizedBox(
+                      height: 12.0,
                     ),
-                  ),
-                  const SizedBox(
-                    width: 8.0,
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.translucent,
-                      onTap: () {
-                        FocusManager.instance.primaryFocus?.unfocus();
-                      },
-                      child: GenderDropdown(
-                        context: context,
-                        holder: _genderValue,
+                    TextFormField(
+                      validator: nameValidator,
+                      controller: _firstName,
+                      decoration: formFieldDecoration(
+                        hintText: 'First Name',
+                        controller: _firstName,
                       ),
                     ),
-                  ),
-                ],
-              )),
-              const SizedBox(
-                height: 8.0,
-              ),
-              FilledButton(
-                child: const Text('Add Profile'),
-                onPressed: () {
-                  _submit();
-                },
-              ),
-              const SizedBox(
-                height: 12.0,
-              ),
-            ],
+                    const SizedBox(
+                      height: 8.0,
+                    ),
+                    TextFormField(
+                      validator: nameValidator,
+                      controller: _lastName,
+                      decoration: formFieldDecoration(
+                        hintText: 'Last Name',
+                        controller: _lastName,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 8.0,
+                    ),
+                    IntrinsicHeight(
+                        child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(
+                          flex: 1,
+                          child: BirthYearSelector(
+                            controller: _yearController,
+                            context: context,
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 8.0,
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.translucent,
+                            onTap: () {
+                              FocusManager.instance.primaryFocus?.unfocus();
+                            },
+                            child: GenderDropdown(
+                              context: context,
+                              holder: _genderValue,
+                            ),
+                          ),
+                        ),
+                      ],
+                    )),
+                    const SizedBox(
+                      height: 8.0,
+                    ),
+                    FilledButton(
+                      child: const Text('Add Profile'),
+                      onPressed: () {
+                        _submit();
+                      },
+                    ),
+                    const SizedBox(
+                      height: 12.0,
+                    ),
+                  ]
+                : [
+                    const SizedBox(
+                      height: 12.0,
+                    ),
+                    TextFormField(
+                      validator: (name) {
+                        if (name == null || name.isEmpty) return 'Empty Field';
+                        return null;
+                      },
+                      controller: _firstName,
+                      decoration: formFieldDecoration(
+                        hintText: 'Username',
+                        controller: _firstName,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 8.0,
+                    ),
+                    FilledButton(
+                      child: const Text('Add Profile'),
+                      onPressed: () {
+                        _submit();
+                      },
+                    ),
+                    const SizedBox(
+                      height: 12.0,
+                    ),
+                  ],
           ),
         ),
       ),
@@ -144,13 +177,21 @@ class _CreatePatientState extends ConsumerState<CreatePatient> {
   }
 
   void _submit() async {
+    final bool isName =
+        ref.read(configProvider).profileType == ProfileType.name;
     _formKey.currentState?.save();
     if ((_formKey.currentState?.validate() ?? false)) {
-      final SubUser user = SubUser(
-          name: '${_firstName.text} ${_lastName.text}',
-          gender: _genderValue.gender!,
-          birthYear: _yearController.year,
-          isControl: false);
+      final SubUser user = isName
+          ? SubUser(
+              name: '${_firstName.text} ${_lastName.text}',
+              gender: _genderValue.gender!,
+              birthYear: _yearController.year,
+              isControl: false)
+          : SubUser(
+              name: _firstName.text,
+              gender: "",
+              birthYear: 0,
+              isControl: false);
       await ref.read(subProvider).valueOrNull?.addSubUser(user);
     }
   }

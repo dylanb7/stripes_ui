@@ -5,6 +5,8 @@ import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/Util/constants.dart';
+import 'package:stripes_ui/config.dart';
+import 'package:stripes_ui/entry.dart';
 
 import 'edit_patient.dart';
 
@@ -17,7 +19,68 @@ class UserView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final StripesConfig config = ref.watch(configProvider);
+    final bool isName = config.profileType == ProfileType.name;
     final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
+
+    final Widget controlRow = Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        selected
+            ? Text(
+                'Current Patient',
+                style: Theme.of(context).textTheme.bodyMedium,
+              )
+            : TextButton(
+                child: const Text('Select'),
+                onPressed: () {
+                  _changeToCurrent(ref);
+                },
+              ),
+        IconButton(
+          highlightColor: Colors.transparent,
+          hoverColor: Colors.transparent,
+          splashColor: Colors.transparent,
+          onPressed: () {
+            _editPatient(ref);
+          },
+          icon: const Icon(Icons.edit),
+        )
+      ],
+    );
+    if (!isName) {
+      return Card(
+        shape: RoundedRectangleBorder(
+            borderRadius: const BorderRadius.all(Radius.circular(12.0)),
+            side: selected
+                ? BorderSide(
+                    color: Theme.of(context).colorScheme.primary, width: 5.0)
+                : const BorderSide(width: 0, color: Colors.transparent)),
+        elevation: 1.0,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6.0),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                child: Text(
+                  subUser.name,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ),
+              const SizedBox(
+                height: 6.0,
+              ),
+              controlRow,
+              const SizedBox(
+                height: 6.0,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     return Expandible(
       canExpand: isSmall,
       highlightColor: selected ? Theme.of(context).colorScheme.primary : null,
@@ -70,32 +133,7 @@ class UserView extends ConsumerWidget {
           const SizedBox(
             height: 6.0,
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              selected
-                  ? Text(
-                      'Current Patient',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    )
-                  : TextButton(
-                      child: const Text('Select'),
-                      onPressed: () {
-                        _changeToCurrent(ref);
-                      },
-                    ),
-              IconButton(
-                highlightColor: Colors.transparent,
-                hoverColor: Colors.transparent,
-                splashColor: Colors.transparent,
-                onPressed: () {
-                  _editPatient(ref);
-                },
-                icon: const Icon(Icons.edit),
-              )
-            ],
-          ),
+          controlRow,
           const SizedBox(
             height: 6.0,
           ),
