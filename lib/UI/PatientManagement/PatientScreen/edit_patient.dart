@@ -256,9 +256,9 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
               gender: "",
               birthYear: 0,
               isControl: false);
-      if (!subEquals(newUser, widget.subUser)) {
-        await ref.read(subProvider).valueOrNull?.updateSubUser(newUser);
-      }
+
+      await ref.read(subProvider).valueOrNull?.updateSubUser(newUser);
+
       setState(() {
         isLoading = false;
       });
