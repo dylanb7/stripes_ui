@@ -322,7 +322,7 @@ abstract class AppLocalizations {
   /// No description provided for @preStudySeeingExp.
   ///
   /// In en, this message translates to:
-  /// **'If you are on this page, it\'s because you indicated that you were willing to participate in the Blue Meal Study (BMS). If you feel this is incorrect, please let us know at [email.domain.com].'**
+  /// **'If you are on this page, it\'s because you indicated that you were willing to participate in the Blue Meal Study (BMS). If you feel this is incorrect, please let us know at help@symplifysolutions.com.'**
   String get preStudySeeingExp;
 
   /// No description provided for @preStudyEnrollTitle.
@@ -352,7 +352,7 @@ abstract class AppLocalizations {
   /// No description provided for @inStudySeeingExp.
   ///
   /// In en, this message translates to:
-  /// **'Note: If you are returning to this page, please make sure to complete all the steps in the study flow. If you have any questions or concerns, don\'t hesitate to contact us at [add email address here].'**
+  /// **'Note: If you are returning to this page, please make sure to complete all the steps in the study flow. If you have any questions or concerns, don\'t hesitate to contact us at help@symplifysolutions.com.'**
   String get inStudySeeingExp;
 
   /// No description provided for @inStudyWithdrawTitle.
@@ -730,7 +730,7 @@ abstract class AppLocalizations {
   /// No description provided for @studyContactBody.
   ///
   /// In en, this message translates to:
-  /// **'Questions or problems? Email [email@university.edu] with \"Blue Meal Study\" in the subject line, or call Dr. XYZ at ###-###-#### during business hours.'**
+  /// **'Questions or problems? Email help@symplifysolutions.com with \"Blue Meal Study\" in the subject line, or call Dr. XYZ at ###-###-#### during business hours.'**
   String get studyContactBody;
 
   /// No description provided for @studyStepOneExplanationTitle.
