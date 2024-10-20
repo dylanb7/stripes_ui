@@ -61,9 +61,10 @@ class _BlueDyeTestScreenState extends ConsumerState<BlueDyeTestScreen> {
     return RefreshWidget(
       depth: RefreshDepth.authuser,
       scrollable: AddIndicator(
-        builder: (context, hasIndicator) => SizedBox.expand(
-          child: ScrollAssistedList(
-            builder: (context, properties) => ListView(
+        builder: (context, hasIndicator) => ScrollAssistedList(
+          scrollController: scrollContoller,
+          builder: (context, properties) => SizedBox.expand(
+            child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
               key: properties.scrollStateKey,
               shrinkWrap: true,
@@ -119,7 +120,6 @@ class _BlueDyeTestScreenState extends ConsumerState<BlueDyeTestScreen> {
                 ),
               ],
             ),
-            scrollController: scrollContoller,
           ),
         ),
       ),
