@@ -45,10 +45,10 @@ class MealFinishedDisplay extends ConsumerWidget {
       final bool testOngoing = (progress.valueOrNull?.testIteration ?? 0) < 2 ||
           (progress.valueOrNull?.stage.testInProgress ?? false);
       if (testOngoing &&
-              (displaying == BlueDyeProgression.stepOne &&
+          ((displaying == BlueDyeProgression.stepOne &&
                   progression == BlueDyeProgression.stepTwo) ||
-          (displaying == BlueDyeProgression.stepThree &&
-              progression == BlueDyeProgression.stepFour)) {
+              (displaying == BlueDyeProgression.stepThree &&
+                  progression == BlueDyeProgression.stepFour))) {
         return BlueMealStats(
             start: testsState?.startTime,
             duration: testsState?.finishedEating,
