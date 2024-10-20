@@ -35,7 +35,7 @@ class RecordingsView extends ConsumerWidget {
         children: [
           clicked == BlueDyeProgression.stepTwo
               ? const BlueStudyInstructionsPartTwo(initiallyExpanded: false)
-              : const BlueStudyInstructionsPartFour(),
+              : const SizedBox(),
           const SizedBox(
             height: 12.0,
           ),
