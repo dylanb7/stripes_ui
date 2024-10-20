@@ -44,6 +44,8 @@ class MealFinishedDisplay extends ConsumerWidget {
     BlueMealStats getMealStats() {
       final bool testOngoing =
           progress.valueOrNull?.stage.testInProgress ?? false;
+      print(
+          "Progress: $progression, Displaying: $displaying, State: $testsState");
       if (testOngoing &&
               (displaying == BlueDyeProgression.stepOne &&
                   progression == BlueDyeProgression.stepTwo) ||
@@ -55,6 +57,7 @@ class MealFinishedDisplay extends ConsumerWidget {
             amountConsumed: testsState?.amountConsumed);
       }
       final List<TestDate> dates = progress.valueOrNull?.orderedTests ?? [];
+      print("Tests: ${dates.map((ele) => ele.test).toList()}");
       if (dates.isEmpty) {
         return const BlueMealStats(
             start: null, duration: null, amountConsumed: null);
