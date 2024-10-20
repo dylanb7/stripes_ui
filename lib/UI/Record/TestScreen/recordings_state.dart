@@ -33,11 +33,8 @@ class RecordingsView extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          clicked == BlueDyeProgression.stepTwo
-              ? const BlueStudyInstructionsPartTwo(initiallyExpanded: false)
-              : const SizedBox(),
           const SizedBox(
-            height: 12.0,
+            height: 6.0,
           ),
           DecoratedBox(
             decoration: BoxDecoration(
