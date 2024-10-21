@@ -95,58 +95,101 @@ class HistoryScreenContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AddIndicator(builder: (context, hasIndicator) {
-      return Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
-          child: RefreshWidget(
-            depth: RefreshDepth.authuser,
-            scrollable: CustomScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              key: scrollkey,
-              controller: ScrollController(),
-              slivers: [
-                SliverPadding(
-                  padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
-                  sliver: SliverToBoxAdapter(
-                    child: Column(children: [
-                      const Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: PatientChanger(
-                                tab: TabOption.history,
+    final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
+    if (isSmall) {
+      return AddIndicator(builder: (context, hasIndicator) {
+        return Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
+            child: RefreshWidget(
+              depth: RefreshDepth.authuser,
+              scrollable: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                key: scrollkey,
+                controller: ScrollController(),
+                slivers: [
+                  SliverPadding(
+                    padding:
+                        const EdgeInsets.only(left: 20, right: 20, top: 20),
+                    sliver: SliverToBoxAdapter(
+                      child: Column(children: [
+                        const Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: PatientChanger(
+                                  tab: TabOption.history,
+                                ),
                               ),
-                            ),
-                          ]),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 800),
-                        child: const Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            FilterView(),
-                            SizedBox(
-                              height: 8.0,
-                            ),
-                            EventsCalendar(),
-                            SizedBox(
-                              height: 8.0,
-                            ),
-                            ActionRow()
-                          ],
+                            ]),
+                        const SizedBox(
+                          height: 20,
                         ),
-                      ),
-                    ]),
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 800),
+                          child: const Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              FilterView(),
+                              SizedBox(
+                                height: 8.0,
+                              ),
+                              EventsCalendar(),
+                              SizedBox(
+                                height: 8.0,
+                              ),
+                              ActionRow()
+                            ],
+                          ),
+                        ),
+                      ]),
+                    ),
                   ),
-                ),
-                const EventGrid()
-              ],
+                  const EventGrid()
+                ],
+              ),
             ),
           ),
-        ),
+        );
+      });
+    }
+    return AddIndicator(builder: (context, hasIndicator) {
+      return Row(
+        children: [
+          const FractionallySizedBox(
+            alignment: Alignment.centerLeft,
+            widthFactor: 0.6,
+            heightFactor: 1,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  FilterView(),
+                  SizedBox(
+                    height: 8.0,
+                  ),
+                  EventsCalendar(),
+                ],
+              ),
+            ),
+          ),
+          const VerticalDivider(),
+          Expanded(
+            child: RefreshWidget(
+              depth: RefreshDepth.authuser,
+              scrollable: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                key: scrollkey,
+                controller: ScrollController(),
+                slivers: const [
+                  SliverToBoxAdapter(child: ActionRow()),
+                  EventGrid(),
+                ],
+              ),
+            ),
+          )
+        ],
       );
     });
   }

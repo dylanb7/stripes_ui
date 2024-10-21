@@ -18,6 +18,63 @@ import 'package:stripes_ui/Util/date_helper.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 import 'package:stripes_ui/repos/blue_dye_test_repo.dart';
 
+class RenderEntryGroup extends ConsumerWidget {
+  final bool grouped;
+  final List<Response> responses;
+  const RenderEntryGroup(
+      {required this.responses, required this.grouped, super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (!grouped) {
+      return Column(
+        children: responses.map((res) => EntryDisplay(event: res)).toList(),
+      );
+    }
+    Map<String, List<Response>> byType = {};
+    for (final Response response in responses) {
+      if (byType.containsKey(response.type)) {
+        byType[response.type]!.add(response);
+      } else {
+        byType[response.type] = [response];
+      }
+    }
+    return Column(
+      children: byType.keys.map((type) {
+        final ExpandibleController controller = ExpandibleController(false);
+        final List<Response> forType = byType[type]!;
+        return ListenableBuilder(
+            listenable: controller,
+            builder: (context, widget) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6.0),
+                child: ExpandibleRaw(
+                  header: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          "$type (${AppLocalizations.of(context)!.eventFilterResults(forType.length)})",
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        Icon(
+                          controller.expanded
+                              ? Icons.keyboard_arrow_up
+                              : Icons.keyboard_arrow_down,
+                        )
+                      ]),
+                  view: Column(
+                    children:
+                        forType.map((res) => EntryDisplay(event: res)).toList(),
+                  ),
+                ),
+              );
+            });
+      }).toList(),
+    );
+  }
+}
+
 class EntryDisplay extends ConsumerStatefulWidget {
   final Response event;
 
@@ -106,7 +163,7 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
                       ?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  '${dateToMDY(date, context)} - ${timeString(date, context)}',
+                  timeString(date, context),
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ],

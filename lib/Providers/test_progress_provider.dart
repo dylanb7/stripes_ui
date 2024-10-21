@@ -15,12 +15,15 @@ final blueDyeTestProgressProvider =
 
   final String? group = user.attributes["custom:group"];
 
-  final List<BlueDyeResp> testResponses =
-      await ref.watch(stampHolderProvider.selectAsync((stampHolder) {
-    final Iterable<BlueDyeResp> blueResponses =
-        stampHolder.whereType<BlueDyeResp>();
-    return blueResponses.where((test) => test.group == group).toList();
-  }));
+  final List<BlueDyeResp> testResponses = await ref.watch(
+    stampHolderProvider.selectAsync(
+      (stampHolder) {
+        final Iterable<BlueDyeResp> blueResponses =
+            stampHolder.whereType<BlueDyeResp>();
+        return blueResponses.where((test) => test.group == group).toList();
+      },
+    ),
+  );
 
   final List<TestDate> mostRecent = _getOrderedTests(testResponses);
   final int iterations = testResponses.length;
