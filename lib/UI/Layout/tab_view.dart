@@ -156,10 +156,8 @@ class HistoryScreenContent extends StatelessWidget {
     return AddIndicator(builder: (context, hasIndicator) {
       return Row(
         children: [
-          const FractionallySizedBox(
-            alignment: Alignment.centerLeft,
-            widthFactor: 0.6,
-            heightFactor: 1,
+          const Expanded(
+            flex: 2,
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
