@@ -28,6 +28,8 @@ class RenderEntryGroup extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     if (!grouped) {
       return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: responses.map((res) => EntryDisplay(event: res)).toList(),
       );
     }
@@ -41,35 +43,20 @@ class RenderEntryGroup extends ConsumerWidget {
     }
     return Column(
       children: byType.keys.map((type) {
-        final ExpandibleController controller = ExpandibleController(false);
         final List<Response> forType = byType[type]!;
-        return ListenableBuilder(
-            listenable: controller,
-            builder: (context, widget) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6.0),
-                child: ExpandibleRaw(
-                  header: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          "$type (${AppLocalizations.of(context)!.eventFilterResults(forType.length)})",
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                        Icon(
-                          controller.expanded
-                              ? Icons.keyboard_arrow_up
-                              : Icons.keyboard_arrow_down,
-                        )
-                      ]),
-                  view: Column(
-                    children:
-                        forType.map((res) => EntryDisplay(event: res)).toList(),
-                  ),
-                ),
-              );
-            });
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6.0),
+          child: ExpandibleRaw(
+            header: Text(
+              "$type (${AppLocalizations.of(context)!.eventFilterResults(forType.length)})",
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            view: Column(
+              children: forType.map((res) => EntryDisplay(event: res)).toList(),
+            ),
+          ),
+        );
       }).toList(),
     );
   }

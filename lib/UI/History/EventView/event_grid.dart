@@ -72,15 +72,17 @@ class EventGrid extends ConsumerWidget {
                 textAlign: TextAlign.left,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-              const Divider(
-                height: 8.0,
-              ),
             ],
           ),
         );
       }
       components.add(
           RenderEntryGroup(responses: daySymptoms, grouped: symptomsGrouping));
+      components.add(
+        const Divider(
+          height: 8.0,
+        ),
+      );
     }
 
     return SliverPadding(

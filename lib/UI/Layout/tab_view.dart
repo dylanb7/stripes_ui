@@ -186,7 +186,12 @@ class HistoryScreenContent extends StatelessWidget {
                 key: scrollkey,
                 controller: ScrollController(),
                 slivers: const [
-                  SliverToBoxAdapter(child: ActionRow()),
+                  SliverPadding(
+                    padding: EdgeInsets.symmetric(horizontal: 12.0),
+                    sliver: SliverToBoxAdapter(
+                      child: ActionRow(),
+                    ),
+                  ),
                   EventGrid(),
                 ],
               ),
