@@ -12,6 +12,7 @@ class ActionRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final Filters filters = ref.watch(filtersProvider);
     final int results = ref.watch(availibleStampsProvider
         .select((value) => value.valueOrNull?.filteredVisible.length ?? 0));
     return Padding(
@@ -31,6 +32,23 @@ class ActionRow extends ConsumerWidget {
                   type: ExportType.perPage,
                 ),
               ])
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                filters.toRange(context),
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              ChoiceChip(
+                label: const Text("Group Symptoms"),
+                selected: filters.groupSymptoms,
+                onSelected: (value) {
+                  ref.read(filtersProvider.notifier).state =
+                      filters.copyWith(groupSymptoms: value);
+                },
+              )
             ],
           ),
           Divider(

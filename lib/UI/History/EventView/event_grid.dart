@@ -8,13 +8,14 @@ import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class EventGrid extends ConsumerWidget {
-  final bool daysSeparated, symptomsGrouping;
+  final bool daysSeparated;
 
-  const EventGrid(
-      {this.daysSeparated = true, this.symptomsGrouping = false, super.key});
+  const EventGrid({this.daysSeparated = true, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final bool symptomsGrouping =
+        ref.watch(filtersProvider.select((filters) => filters.groupSymptoms));
     final AsyncValue<List<Response>> available = ref.watch(
         availibleStampsProvider.select((value) => value.hasValue
             ? AsyncValue.data(value.valueOrNull!.filteredVisible)
@@ -64,11 +65,12 @@ class EventGrid extends ConsumerWidget {
       if (keys.length > 1) {
         components.add(
           Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 "${headerFormat.format(dateGroup)} (${AppLocalizations.of(context)!.eventFilterResults(daySymptoms.length)})",
                 textAlign: TextAlign.left,
-                style: Theme.of(context).textTheme.titleLarge,
+                style: Theme.of(context).textTheme.titleMedium,
               ),
               const Divider(
                 height: 8.0,

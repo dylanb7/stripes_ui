@@ -239,12 +239,15 @@ class Filters with EquatableMixin {
 
   final List<LabeledFilter>? stampFilters;
 
+  final bool groupSymptoms;
+
   const Filters(
       {required this.rangeStart,
       required this.rangeEnd,
       this.latestRequired,
       this.earliestRequired,
       this.selectedDate,
+      this.groupSymptoms = false,
       this.stampFilters});
 
   factory Filters.reset({
@@ -255,6 +258,7 @@ class Filters with EquatableMixin {
         rangeStart: null,
         rangeEnd: null,
         earliestRequired: null,
+        groupSymptoms: false,
         latestRequired: null,
         selectedDate: DateTime.now(),
       );
@@ -265,6 +269,7 @@ class Filters with EquatableMixin {
           DateTime? rangeEnd,
           DateTime? earliestRequired,
           DateTime? latestRequired,
+          bool? groupSymptoms,
           List<LabeledFilter>? stampFilters}) =>
       Filters(
           rangeStart: rangeStart ?? this.rangeStart,
@@ -272,7 +277,8 @@ class Filters with EquatableMixin {
           selectedDate: selectedDate ?? this.selectedDate,
           earliestRequired: earliestRequired ?? this.earliestRequired,
           latestRequired: latestRequired ?? this.latestRequired,
-          stampFilters: stampFilters ?? this.stampFilters);
+          stampFilters: stampFilters ?? this.stampFilters,
+          groupSymptoms: groupSymptoms ?? this.groupSymptoms);
 
   String toRange(BuildContext context) {
     String locale = Localizations.localeOf(context).languageCode;

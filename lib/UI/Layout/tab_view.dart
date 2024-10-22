@@ -156,19 +156,24 @@ class HistoryScreenContent extends StatelessWidget {
     return AddIndicator(builder: (context, hasIndicator) {
       return Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 2,
             child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  FilterView(),
-                  SizedBox(
-                    height: 8.0,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 800),
+                  child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      FilterView(),
+                      SizedBox(
+                        height: 8.0,
+                      ),
+                      EventsCalendar(),
+                    ],
                   ),
-                  EventsCalendar(),
-                ],
+                ),
               ),
             ),
           ),

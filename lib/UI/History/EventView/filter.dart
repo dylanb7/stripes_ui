@@ -41,7 +41,7 @@ class FilterView extends ConsumerWidget {
             ],
           ),
         ),
-        if (range.isNotEmpty)
+        if (false && range.isNotEmpty)
           RemoveChip(
               onPressed: () {
                 ref.read(filtersProvider.notifier).state = Filters(
