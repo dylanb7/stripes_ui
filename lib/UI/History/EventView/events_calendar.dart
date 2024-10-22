@@ -192,7 +192,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
                             _rangeMode = RangeSelectionMode.toggledOn;
 
                             ref.read(filtersProvider.notifier).state = Filters(
-                                rangeStart: null,
+                                rangeStart: focusedDay,
                                 rangeEnd: null,
                                 selectedDate: null,
                                 stampFilters: filters.stampFilters,
