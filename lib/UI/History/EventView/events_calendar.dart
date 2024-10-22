@@ -148,68 +148,6 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor,
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-            clipBehavior: Clip.hardEdge,
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                isDense: true,
-                padding:
-                    const EdgeInsets.symmetric(vertical: 6.0, horizontal: 8.0),
-                borderRadius: BorderRadius.circular(8.0),
-                value: isHidden ? hidden : formats[_format],
-                iconEnabledColor: Theme.of(context).colorScheme.onPrimary,
-                selectedItemBuilder: (context) {
-                  return [...formats.values, hidden]
-                      .map(
-                        (value) => Center(
-                          child: Text(
-                            value,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onPrimary),
-                          ),
-                        ),
-                      )
-                      .toList();
-                },
-                onChanged: (value) {
-                  if (value != null) {
-                    CalendarFormat? format;
-                    formats.forEach(
-                      (key, name) {
-                        if (value == name) {
-                          format = key;
-                        }
-                      },
-                    );
-                    _onFormatChange(format, value == hidden);
-                  }
-                },
-                items: [...formats.values, hidden]
-                    .map(
-                      (format) => DropdownMenuItem(
-                        value: format,
-                        child: Text(
-                          format,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      ),
-                    )
-                    .toList(),
-              ),
-            ),
-          ),
-          const SizedBox(
-            height: 6.0,
-          ),
           Visibility(
             maintainState: true,
             visible: !isHidden,
@@ -261,6 +199,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
                           }
                         });
                       },
+                      onFormatChange: _onFormatChange,
                       mode: _rangeMode,
                       selected: _format),
                   Stack(
@@ -409,14 +348,9 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
     );
   }
 
-  _onFormatChange(CalendarFormat? newFormat, bool hidden) {
-    if (hidden) {
+  _onFormatChange(CalendarFormat? newFormat) {
+    if (newFormat != null) {
       setState(() {
-        isHidden = true;
-      });
-    } else if (newFormat != null) {
-      setState(() {
-        isHidden = false;
         if (_format != newFormat) _format = newFormat;
       });
     }
@@ -479,16 +413,18 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
   }
 }
 
-class _CalendarHeader extends StatelessWidget {
+class _CalendarHeader extends ConsumerWidget {
   final DateTime focusedDay;
   final VoidCallback onLeftArrowTap;
   final VoidCallback onRightArrowTap;
 
   final VoidCallback onRangeToggle;
   final VoidCallback onYearChange;
+
   final RangeSelectionMode mode;
 
   final CalendarFormat selected;
+  final Function(CalendarFormat?) onFormatChange;
 
   const _CalendarHeader(
       {required this.focusedDay,
@@ -497,10 +433,16 @@ class _CalendarHeader extends StatelessWidget {
       required this.selected,
       required this.onRangeToggle,
       required this.onYearChange,
-      required this.mode});
+      required this.mode,
+      required this.onFormatChange});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final Map<CalendarFormat, String> formats = {
+      CalendarFormat.week: AppLocalizations.of(context)!.calendarVisibilityWeek,
+      CalendarFormat.month:
+          AppLocalizations.of(context)!.calendarVisibilityMonth
+    };
     final String headerText = DateFormat.yMMM().format(focusedDay);
 
     return Padding(
@@ -516,6 +458,10 @@ class _CalendarHeader extends StatelessWidget {
             headerText,
             style: Theme.of(context).textTheme.titleMedium,
           ),
+          IconButton(
+            icon: const Icon(Icons.chevron_right),
+            onPressed: onRightArrowTap,
+          ),
           /*TextButton.icon(
             onPressed: () {
               onYearChange();
@@ -528,15 +474,71 @@ class _CalendarHeader extends StatelessWidget {
             icon: const Icon(Icons.arrow_drop_down),
           ),*/
           const Spacer(),
-          IconButton(
-            onPressed: onRangeToggle,
-            icon: Icon(mode == RangeSelectionMode.toggledOn
-                ? Icons.date_range
-                : Icons.calendar_today),
+          FilledButton.icon(
+            onPressed: () {
+              ref.read(filtersProvider.notifier).state = Filters.reset();
+            },
+            label: Text(AppLocalizations.of(context)!.eventFilterReset),
+            icon: const Icon(Icons.restart_alt),
           ),
-          IconButton(
-            icon: const Icon(Icons.chevron_right),
-            onPressed: onRightArrowTap,
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColor,
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            clipBehavior: Clip.hardEdge,
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                isDense: true,
+                padding:
+                    const EdgeInsets.symmetric(vertical: 6.0, horizontal: 8.0),
+                borderRadius: BorderRadius.circular(8.0),
+                value: formats[selected],
+                iconEnabledColor: Theme.of(context).colorScheme.onPrimary,
+                selectedItemBuilder: (context) {
+                  return [...formats.values]
+                      .map(
+                        (value) => Center(
+                          child: Text(
+                            value,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onPrimary),
+                          ),
+                        ),
+                      )
+                      .toList();
+                },
+                onChanged: (value) {
+                  if (value != null) {
+                    CalendarFormat? format;
+                    formats.forEach(
+                      (key, name) {
+                        if (value == name) {
+                          format = key;
+                        }
+                      },
+                    );
+                    onFormatChange(format);
+                  }
+                },
+                items: [...formats.values]
+                    .map(
+                      (format) => DropdownMenuItem(
+                        value: format,
+                        child: Text(
+                          format,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
           ),
         ],
       ),

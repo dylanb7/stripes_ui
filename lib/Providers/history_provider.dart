@@ -260,6 +260,7 @@ class Filters with EquatableMixin {
         earliestRequired: null,
         groupSymptoms: false,
         latestRequired: null,
+        stampFilters: null,
         selectedDate: DateTime.now(),
       );
 

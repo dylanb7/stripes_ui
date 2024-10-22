@@ -33,7 +33,8 @@ class EventGrid extends ConsumerWidget {
       );
     }
 
-    final List<Response> availableStamps = available.valueOrNull ?? [];
+    final List<Response> availableStamps =
+        (available.valueOrNull ?? []).reversed.toList();
 
     if (!daysSeparated) {
       return SliverPadding(
@@ -59,7 +60,7 @@ class EventGrid extends ConsumerWidget {
     final DateFormat headerFormat = DateFormat.yMMMd();
     final List<DateTime> keys = questionsByDay.keys.toList();
     List<Widget> components = [];
-    for (int i = keys.length - 1; i >= 0; i--) {
+    for (int i = 0; i < keys.length; i++) {
       final DateTime dateGroup = keys[i];
       final List<Response> daySymptoms = questionsByDay[dateGroup]!;
       if (keys.length > 1) {
@@ -70,7 +71,10 @@ class EventGrid extends ConsumerWidget {
               Text(
                 "${headerFormat.format(dateGroup)} (${AppLocalizations.of(context)!.eventFilterResults(daySymptoms.length)})",
                 textAlign: TextAlign.left,
-                style: Theme.of(context).textTheme.titleMedium,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold),
               ),
             ],
           ),

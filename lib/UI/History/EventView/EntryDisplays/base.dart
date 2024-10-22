@@ -93,6 +93,7 @@ class _ExpandibleSymptomAreaState extends State<ExpandibleSymptomArea> {
         padding: const EdgeInsets.all(8.0),
         child: AnimatedSize(
           duration: const Duration(milliseconds: 200),
+          alignment: Alignment.topLeft,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,

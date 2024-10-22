@@ -136,7 +136,7 @@ class HistoryScreenContent extends StatelessWidget {
                               ),
                               EventsCalendar(),
                               SizedBox(
-                                height: 8.0,
+                                height: 16.0,
                               ),
                               ActionRow()
                             ],
@@ -164,9 +164,12 @@ class HistoryScreenContent extends StatelessWidget {
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 800),
                   child: const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
+                      PatientChanger(
+                        tab: TabOption.history,
+                      ),
                       FilterView(),
                       SizedBox(
                         height: 8.0,
@@ -182,6 +185,9 @@ class HistoryScreenContent extends StatelessWidget {
           Expanded(
             child: Column(
               children: [
+                const SizedBox(
+                  height: 8.0,
+                ),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 12.0),
                   child: ActionRow(),
@@ -194,7 +200,10 @@ class HistoryScreenContent extends StatelessWidget {
                       key: scrollkey,
                       controller: ScrollController(),
                       slivers: const [
-                        EventGrid(),
+                        SliverPadding(
+                          padding: EdgeInsets.only(top: 8.0),
+                          sliver: EventGrid(),
+                        )
                       ],
                     ),
                   ),

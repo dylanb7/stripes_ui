@@ -15,51 +15,51 @@ class ActionRow extends ConsumerWidget {
     final Filters filters = ref.watch(filtersProvider);
     final int results = ref.watch(availibleStampsProvider
         .select((value) => value.valueOrNull?.filteredVisible.length ?? 0));
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10.0),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                AppLocalizations.of(context)!.eventFilterResults(results),
-                style: Theme.of(context)
-                    .textTheme
-                    .titleLarge
-                    ?.copyWith(color: Theme.of(context).primaryColor),
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              AppLocalizations.of(context)!.eventFilterResults(results),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(color: Theme.of(context).primaryColor),
+            ),
+            const Row(children: [
+              AddEvent(),
+              Export(
+                type: ExportType.perPage,
               ),
-              const Row(children: [
-                AddEvent(),
-                Export(
-                  type: ExportType.perPage,
-                ),
-              ])
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                filters.toRange(context),
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              ChoiceChip(
-                label: const Text("Group Types"),
-                selected: filters.groupSymptoms,
-                onSelected: (value) {
-                  ref.read(filtersProvider.notifier).state =
-                      filters.copyWith(groupSymptoms: value);
-                },
-              )
-            ],
-          ),
-          Divider(
-            thickness: 1.5,
-            color: Theme.of(context).dividerColor,
-          ),
-        ],
-      ),
+            ])
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              filters.toRange(context),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            ChoiceChip(
+              label: const Text("Group Types"),
+              selected: filters.groupSymptoms,
+              onSelected: (value) {
+                ref.read(filtersProvider.notifier).state =
+                    filters.copyWith(groupSymptoms: value);
+              },
+            )
+          ],
+        ),
+        Divider(
+          thickness: 1.5,
+          color: Theme.of(context).dividerColor,
+        ),
+      ],
     );
   }
 }
