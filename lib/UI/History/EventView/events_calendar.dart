@@ -82,8 +82,16 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
           AppLocalizations.of(context)!.calendarVisibilityMonth
     };
 
-    final String hidden =
-        AppLocalizations.of(context)!.calendarVisibilityHidden;
+    reset() {
+      setState(() {
+        focusedDay = DateTime.now();
+        ref.read(filtersProvider.notifier).state = filters.copyWith(
+            selectedDate: DateTime.now(),
+            rangeStart: null,
+            rangeEnd: null,
+            stampFilters: null);
+      });
+    }
 
     Widget builder(BuildContext context, DateTime day, DateTime focus) {
       final int events = eventMap[day]?.length ?? 0;
@@ -174,6 +182,9 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
                           duration: const Duration(milliseconds: 300),
                           curve: Curves.easeOut,
                         );
+                      },
+                      reset: () {
+                        reset();
                       },
                       onRangeToggle: () {
                         setState(() {
@@ -411,6 +422,8 @@ class _CalendarHeader extends ConsumerWidget {
   final VoidCallback onRangeToggle;
   final VoidCallback onYearChange;
 
+  final VoidCallback reset;
+
   final RangeSelectionMode mode;
 
   final CalendarFormat selected;
@@ -424,6 +437,7 @@ class _CalendarHeader extends ConsumerWidget {
       required this.onRangeToggle,
       required this.onYearChange,
       required this.mode,
+      required this.reset,
       required this.onFormatChange});
 
   @override
@@ -466,13 +480,7 @@ class _CalendarHeader extends ConsumerWidget {
           const Spacer(),
           FilledButton.icon(
             onPressed: () {
-              ref.read(filtersProvider.notifier).state = ref
-                  .read(filtersProvider)
-                  .copyWith(
-                      selectedDate: DateTime.now(),
-                      rangeStart: null,
-                      rangeEnd: null,
-                      stampFilters: null);
+              reset();
             },
             label: Text(AppLocalizations.of(context)!.eventFilterReset),
             icon: const Icon(Icons.restart_alt),
