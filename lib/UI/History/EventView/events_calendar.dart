@@ -85,7 +85,15 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
     reset() {
       setState(() {
         focusedDay = DateTime.now();
-        ref.read(filtersProvider.notifier).state = filters.copyWith(
+        _rangeMode = RangeSelectionMode.toggledOff;
+        ref.read(filtersProvider.notifier).state = Filters(
+            rangeStart: null,
+            rangeEnd: null,
+            stampFilters: null,
+            latestRequired: filters.latestRequired,
+            earliestRequired: filters.earliestRequired,
+            selectedDate: focusedDay);
+        filters.copyWith(
             selectedDate: DateTime.now(),
             rangeStart: null,
             rangeEnd: null,
