@@ -242,19 +242,9 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
                               setState(() {
                                 focusedDay = focusedDay;
                                 _rangeMode = RangeSelectionMode.toggledOff;
+
                                 if (selected != null &&
-                                    sameDay(selectedDay, selected)) {
-                                  ref.read(filtersProvider.notifier).state =
-                                      Filters(
-                                          rangeStart: null,
-                                          rangeEnd: null,
-                                          selectedDate: null,
-                                          stampFilters: filters.stampFilters,
-                                          latestRequired:
-                                              filters.latestRequired,
-                                          earliestRequired:
-                                              filters.earliestRequired);
-                                } else {
+                                    !sameDay(selectedDay, selected)) {
                                   ref.read(filtersProvider.notifier).state =
                                       Filters(
                                           rangeStart: null,
