@@ -80,7 +80,7 @@ class EventGrid extends ConsumerWidget {
           RenderEntryGroup(responses: daySymptoms, grouped: symptomsGrouping));
       components.add(
         const Divider(
-          height: 8.0,
+          height: 16.0,
         ),
       );
     }

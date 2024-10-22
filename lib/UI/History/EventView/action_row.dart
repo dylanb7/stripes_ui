@@ -24,7 +24,10 @@ class ActionRow extends ConsumerWidget {
             children: [
               Text(
                 AppLocalizations.of(context)!.eventFilterResults(results),
-                style: Theme.of(context).textTheme.titleMedium,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge
+                    ?.copyWith(color: Theme.of(context).primaryColor),
               ),
               const Row(children: [
                 AddEvent(),
@@ -39,10 +42,10 @@ class ActionRow extends ConsumerWidget {
             children: [
               Text(
                 filters.toRange(context),
-                style: Theme.of(context).textTheme.titleSmall,
+                style: Theme.of(context).textTheme.titleMedium,
               ),
               ChoiceChip(
-                label: const Text("Group Symptoms"),
+                label: const Text("Group Types"),
                 selected: filters.groupSymptoms,
                 onSelected: (value) {
                   ref.read(filtersProvider.notifier).state =

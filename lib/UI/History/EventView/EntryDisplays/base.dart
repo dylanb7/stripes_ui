@@ -47,17 +47,80 @@ class RenderEntryGroup extends ConsumerWidget {
 
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 6.0),
-          child: ExpandibleRaw(
-            header: Text(
-              "$type (${AppLocalizations.of(context)!.eventFilterResults(forType.length)})",
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            view: Column(
-              children: forType.map((res) => EntryDisplay(event: res)).toList(),
-            ),
-          ),
+          child: ExpandibleSymptomArea(
+              header: Text(
+                "$type (${AppLocalizations.of(context)!.eventFilterResults(forType.length)})",
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              responses: forType),
         );
       }).toList(),
+    );
+  }
+}
+
+class ExpandibleSymptomArea extends StatefulWidget {
+  final List<Response> responses;
+
+  final Widget header;
+
+  const ExpandibleSymptomArea(
+      {required this.header, required this.responses, super.key});
+
+  @override
+  State<StatefulWidget> createState() {
+    return _ExpandibleSymptomAreaState();
+  }
+}
+
+class _ExpandibleSymptomAreaState extends State<ExpandibleSymptomArea> {
+  bool expanded = false;
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12.0),
+        color: ElevationOverlay.applySurfaceTint(Theme.of(context).cardColor,
+            Theme.of(context).colorScheme.surfaceTint, 3),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: AnimatedSize(
+          duration: const Duration(milliseconds: 200),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              widget.header,
+              if (expanded)
+                ...widget.responses.map((res) => EntryDisplay(event: res)),
+              TextButton.icon(
+                onPressed: () {
+                  setState(() {
+                    expanded = !expanded;
+                  });
+                },
+                label: Text(
+                  expanded
+                      ? AppLocalizations.of(context)!.viewLessButtonText
+                      : AppLocalizations.of(context)!.viewMoreButtonText,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(color: Colors.blue),
+                ),
+                iconAlignment: IconAlignment.end,
+                icon: Icon(
+                  expanded
+                      ? Icons.keyboard_arrow_up
+                      : Icons.keyboard_arrow_down,
+                  color: Colors.blue,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

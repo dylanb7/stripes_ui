@@ -184,7 +184,7 @@ class HistoryScreenContent extends StatelessWidget {
               children: [
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 12.0),
-                  child: const ActionRow(),
+                  child: ActionRow(),
                 ),
                 Expanded(
                   child: RefreshWidget(
