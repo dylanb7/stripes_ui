@@ -173,125 +173,163 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
 
     return _PopUpStyle(
       child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const SizedBox(
-                width: 35,
-              ),
-              Text(
-                AppLocalizations.of(context)!.eventFilterHeader,
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              IconButton(
-                  onPressed: () {
-                    ref.read(overlayProvider.notifier).state = closedQuery;
-                  },
-                  icon: const Icon(
-                    Icons.close,
-                    size: 35,
-                  ))
-            ],
-          ),
-          const SizedBox(
-            height: 6.0,
-          ),
-          if (availibleTypes.length > 1) ...[
-            Text(
-              AppLocalizations.of(context)!.eventFilterTypesTag,
-              style: Theme.of(context).textTheme.bodyLarge,
-              textAlign: TextAlign.left,
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const SizedBox(
+                  width: 35,
+                ),
+                Text(
+                  AppLocalizations.of(context)!.eventFilterHeader,
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                IconButton(
+                    onPressed: () {
+                      ref.read(overlayProvider.notifier).state = closedQuery;
+                    },
+                    icon: const Icon(
+                      Icons.close,
+                      size: 35,
+                    ))
+              ],
             ),
             const SizedBox(
               height: 6.0,
             ),
-            Wrap(
-              direction: Axis.horizontal,
-              alignment: WrapAlignment.center,
-              spacing: 5.0,
-              runSpacing: 5.0,
-              children: availibleTypes.map((type) {
-                final bool selected = selectedTypes.contains(type);
-                return ChoiceChip(
-                  padding: const EdgeInsets.all(5.0),
-                  label: Text(
-                    type,
-                  ),
-                  selected: selected,
-                  onSelected: (value) {
-                    setState(() {
-                      if (value) {
-                        selectedTypes.add(type);
-                      } else {
-                        selectedTypes.remove(type);
-                      }
-                    });
-                  },
-                );
-              }).toList(),
-            ),
-            const SizedBox(
-              height: 12.0,
-            ),
-          ],
-          Text(
-            AppLocalizations.of(context)!.eventFiltersFromTag,
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-          const SizedBox(
-            height: 6.0,
-          ),
-          DateRangePicker(
-            onSelection: (dateRange) {
-              if (dateRange != null) {
-                setState(() {
-                  newRange = dateRange;
-                });
-              }
-            },
-            initialStart: newRange?.start,
-            initialEnd: newRange?.end,
-          ),
-          const SizedBox(
-            height: 12.0,
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () {
-                    setState(() {
-                      selectedTypes = {};
-                      newRange = null;
-                    });
-                  },
-                  child: Text(
-                    AppLocalizations.of(context)!.eventFilterReset,
-                  ),
-                ),
+            if (availibleTypes.length > 1) ...[
+              Text(
+                AppLocalizations.of(context)!.eventFilterTypesTag,
+                style: Theme.of(context).textTheme.bodyLarge,
+                textAlign: TextAlign.left,
               ),
               const SizedBox(
-                width: 12.0,
+                height: 6.0,
               ),
-              Expanded(
-                child: FilledButton(
-                  child: Text(AppLocalizations.of(context)!.eventFiltersApply),
-                  onPressed: () {
-                    apply();
-                  },
+              Wrap(
+                direction: Axis.horizontal,
+                alignment: WrapAlignment.center,
+                spacing: 5.0,
+                runSpacing: 5.0,
+                children: availibleTypes.map((type) {
+                  final bool selected = selectedTypes.contains(type);
+                  return ChoiceChip(
+                    padding: const EdgeInsets.all(5.0),
+                    label: Text(
+                      type,
+                    ),
+                    selected: selected,
+                    onSelected: (value) {
+                      setState(() {
+                        if (value) {
+                          selectedTypes.add(type);
+                        } else {
+                          selectedTypes.remove(type);
+                        }
+                      });
+                    },
+                  );
+                }).toList(),
+              ),
+              const SizedBox(
+                height: 6.0,
+              ),
+              if (availibleGroups.isNotEmpty) ...[
+                Text(
+                  "Study",
+                  style: Theme.of(context).textTheme.bodyLarge,
+                  textAlign: TextAlign.left,
                 ),
+                const SizedBox(
+                  height: 6.0,
+                ),
+                Wrap(
+                  direction: Axis.horizontal,
+                  alignment: WrapAlignment.center,
+                  spacing: 5.0,
+                  runSpacing: 5.0,
+                  children: availibleGroups.map((type) {
+                    final bool selected = selectedTypes.contains(type);
+                    return ChoiceChip(
+                      padding: const EdgeInsets.all(5.0),
+                      label: Text(
+                        type,
+                      ),
+                      selected: selected,
+                      onSelected: (value) {
+                        setState(() {
+                          if (value) {
+                            selectedTypes.add(type);
+                          } else {
+                            selectedTypes.remove(type);
+                          }
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(
+                  height: 12.0,
+                ),
+              ],
+              Text(
+                AppLocalizations.of(context)!.eventFiltersFromTag,
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+              const SizedBox(
+                height: 6.0,
+              ),
+              DateRangePicker(
+                onSelection: (dateRange) {
+                  if (dateRange != null) {
+                    setState(() {
+                      newRange = dateRange;
+                    });
+                  }
+                },
+                initialStart: newRange?.start,
+                initialEnd: newRange?.end,
+              ),
+              const SizedBox(
+                height: 12.0,
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        setState(() {
+                          selectedTypes = {};
+                          newRange = null;
+                        });
+                      },
+                      child: Text(
+                        AppLocalizations.of(context)!.eventFilterReset,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 12.0,
+                  ),
+                  Expanded(
+                    child: FilledButton(
+                      child:
+                          Text(AppLocalizations.of(context)!.eventFiltersApply),
+                      onPressed: () {
+                        apply();
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 6.0,
               ),
             ],
-          ),
-          const SizedBox(
-            height: 6.0,
-          ),
-        ],
-      ),
+          ]),
     );
   }
 }

@@ -44,7 +44,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
     final AsyncValue<Map<DateTime, List<Response>>> eventsValue =
         ref.watch(eventsMapProvider);
 
-    bool hasRange(Filters? filters) {
+    /*bool hasRange(Filters? filters) {
       if (filters == null) return false;
       return filters.rangeStart != null || filters.rangeEnd != null;
     }
@@ -58,7 +58,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
               : RangeSelectionMode.toggledOff;
         });
       }
-    });
+    });*/
 
     final bool waiting = eventsValue.isLoading || eventsValue.hasError;
     final Map<DateTime, List<Response>> eventMap =
@@ -466,9 +466,15 @@ class _CalendarHeader extends ConsumerWidget {
             icon: const Icon(Icons.chevron_left),
             onPressed: onLeftArrowTap,
           ),
+          const SizedBox(
+            width: 4.0,
+          ),
           Text(
             headerText,
             style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(
+            width: 4.0,
           ),
           IconButton(
             icon: const Icon(Icons.chevron_right),
