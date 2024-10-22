@@ -180,22 +180,26 @@ class HistoryScreenContent extends StatelessWidget {
           ),
           const VerticalDivider(),
           Expanded(
-            child: RefreshWidget(
-              depth: RefreshDepth.authuser,
-              scrollable: CustomScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                key: scrollkey,
-                controller: ScrollController(),
-                slivers: const [
-                  SliverPadding(
-                    padding: EdgeInsets.symmetric(horizontal: 12.0),
-                    sliver: SliverToBoxAdapter(
-                      child: ActionRow(),
+            child: Column(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 12.0),
+                  child: const ActionRow(),
+                ),
+                Expanded(
+                  child: RefreshWidget(
+                    depth: RefreshDepth.authuser,
+                    scrollable: CustomScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      key: scrollkey,
+                      controller: ScrollController(),
+                      slivers: const [
+                        EventGrid(),
+                      ],
                     ),
                   ),
-                  EventGrid(),
-                ],
-              ),
+                ),
+              ],
             ),
           )
         ],
