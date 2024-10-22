@@ -165,6 +165,7 @@ class HistoryScreenContent extends StatelessWidget {
                   constraints: const BoxConstraints(maxWidth: 800),
                   child: const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       FilterView(),
                       SizedBox(
