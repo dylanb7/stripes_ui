@@ -155,6 +155,7 @@ class HistoryScreenContent extends StatelessWidget {
     }
     return AddIndicator(builder: (context, hasIndicator) {
       return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             flex: 2,
@@ -164,11 +165,14 @@ class HistoryScreenContent extends StatelessWidget {
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 800),
                   child: const Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       PatientChanger(
                         tab: TabOption.history,
+                      ),
+                      SizedBox(
+                        height: 20.0,
                       ),
                       FilterView(),
                       SizedBox(
