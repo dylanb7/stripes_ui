@@ -466,11 +466,18 @@ class _CalendarHeader extends ConsumerWidget {
           const Spacer(),
           FilledButton.icon(
             onPressed: () {
-              ref.read(filtersProvider.notifier).state = Filters.reset();
+              ref.read(filtersProvider.notifier).state = ref
+                  .read(filtersProvider)
+                  .copyWith(
+                      selectedDate: DateTime.now(),
+                      rangeStart: null,
+                      rangeEnd: null,
+                      stampFilters: null);
             },
             label: Text(AppLocalizations.of(context)!.eventFilterReset),
             icon: const Icon(Icons.restart_alt),
           ),
+          const SizedBox(width: 6.0),
           Container(
             decoration: BoxDecoration(
               color: Theme.of(context).primaryColor,
@@ -530,6 +537,7 @@ class _CalendarHeader extends ConsumerWidget {
               ),
             ),
           ),
+          const SizedBox(width: 6.0),
         ],
       ),
     );

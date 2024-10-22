@@ -114,7 +114,8 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
 
   @override
   Widget build(BuildContext context) {
-    final AsyncValue<Set<String>> availible = ref.watch(setsProvider);
+    final AsyncValue<Map<String, Set<String>>> availible =
+        ref.watch(setsProvider);
 
     final Filters filters = ref.watch(filtersProvider);
 
@@ -122,13 +123,24 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
       return const _PopUpStyle(child: LoadingWidget());
     }
 
-    final Set<String> availibleTypes = availible.valueOrNull ?? {};
+    final Set<String> availibleTypes =
+        (availible.valueOrNull ?? {})[types] ?? {};
+
+    final Set<String> availibleGroups =
+        (availible.valueOrNull ?? {})[groups] ?? {};
 
     void apply() {
       final List<LabeledFilter> typeFilters = selectedTypes.map((type) {
+        if (availibleTypes.contains(type)) {
+          return LabeledFilter(
+              name: type,
+              filter: (stamp) => stamp.type == type,
+              filterClass: type);
+        }
         return LabeledFilter(
             name: type,
-            filter: (stamp) => stamp.type == type || stamp.group == type);
+            filter: (stamp) => stamp.group == type,
+            filterClass: groups);
       }).toList();
 
       final DateTime? newStart = newRange?.start;
@@ -284,14 +296,20 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
   }
 }
 
+const String types = "types";
+const String groups = "groups";
+
 final setsProvider = FutureProvider.autoDispose((ref) async {
   final List<Response> stamps =
       (await ref.watch(availibleStampsProvider.future)).all;
 
-  final Set<String> values = {};
+  final Map<String, Set<String>> values = {types: {}, groups: {}};
 
   for (Response res in stamps) {
-    values.addAll([res.type, if (res.group != null) res.group!]);
+    values[types]!.add(res.type);
+    if (res.group != null) {
+      values[groups]!.add(res.group!);
+    }
   }
 
   return values;

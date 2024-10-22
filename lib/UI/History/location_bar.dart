@@ -63,8 +63,8 @@ class LocationBar extends ConsumerWidget {
                           graphChoice: GraphChoice.values.firstWhere(
                               (element) => graphMap[element] == value),
                         );
-                        ref.read(filtersProvider.notifier).state =
-                            Filters.reset(location: newLoc);
+                        /*ref.read(filtersProvider.notifier).state =
+                            Filters.reset(location: newLoc);*/
                         ref.read(historyLocationProvider.notifier).state =
                             newLoc;
                       }),

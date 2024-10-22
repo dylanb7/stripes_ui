@@ -221,12 +221,14 @@ typedef StampFilter = bool Function(Stamp);
 @immutable
 class LabeledFilter with EquatableMixin {
   final String name;
+  final String filterClass;
   final StampFilter filter;
 
-  const LabeledFilter({required this.name, required this.filter});
+  const LabeledFilter(
+      {required this.name, required this.filterClass, required this.filter});
 
   @override
-  List<Object?> get props => [name, filter];
+  List<Object?> get props => [name, filter, filterClass];
 }
 
 @immutable
@@ -250,11 +252,7 @@ class Filters with EquatableMixin {
       this.groupSymptoms = false,
       this.stampFilters});
 
-  factory Filters.reset({
-    HistoryLocation location = const HistoryLocation(
-        day: DayChoice.day, loc: Loc.day, graph: GraphChoice.day),
-  }) =>
-      Filters(
+  factory Filters.reset() => Filters(
         rangeStart: null,
         rangeEnd: null,
         earliestRequired: null,
