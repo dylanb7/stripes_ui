@@ -41,20 +41,26 @@ class RenderEntryGroup extends ConsumerWidget {
         byType[response.type] = [response];
       }
     }
-    return Column(
-      children: byType.keys.map((type) {
-        final List<Response> forType = byType[type]!;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: byType.keys.map((type) {
+          final List<Response> forType = byType[type]!;
 
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6.0),
-          child: ExpandibleSymptomArea(
-              header: Text(
-                "$type (${AppLocalizations.of(context)!.eventFilterResults(forType.length)})",
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              responses: forType),
-        );
-      }).toList(),
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6.0),
+            child: ExpandibleSymptomArea(
+                header: Text(
+                  "$type (${AppLocalizations.of(context)!.eventFilterResults(forType.length)})",
+                  style: Theme.of(context).textTheme.titleMedium,
+                  textAlign: TextAlign.left,
+                ),
+                responses: forType),
+          );
+        }).toList(),
+      ),
     );
   }
 }
