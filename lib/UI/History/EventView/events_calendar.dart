@@ -663,6 +663,7 @@ class _DateSelectionDisplayState extends State<DateSelectionDisplay> {
         TextButton(
             onPressed: () {
               widget.listener.setMode(selectingRange: !singleDate);
+              setState(() {});
             },
             child: Text(singleDate ? "Select Range" : "Select Day"))
       ],
