@@ -662,7 +662,7 @@ class _DateSelectionDisplayState extends State<DateSelectionDisplay> {
         ),
         TextButton(
             onPressed: () {
-              widget.listener.setMode(selectingRange: !singleDate);
+              widget.listener.setMode(selectingRange: singleDate);
               setState(() {});
             },
             child: Text(singleDate ? "Select Range" : "Select Day"))
@@ -691,7 +691,7 @@ class DateDispay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(2.0),
+      padding: const EdgeInsets.all(6.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
