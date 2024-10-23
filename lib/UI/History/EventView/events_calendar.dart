@@ -210,7 +210,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
                             firstDay:
                                 firstDate /*keys.isEmpty ? DateTime(0) : keys[0]*/,
                             lastDay: DateTime.now(),
-                            rangeSelectionMode: _rangeMode,
+                            rangeSelectionMode: dateRangeSelectionListener.mode,
                             rangeStartDay: rangeStart,
                             rangeEndDay: rangeEnd,
                             headerVisible: false,
