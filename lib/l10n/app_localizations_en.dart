@@ -473,7 +473,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String historyTitle(String username) {
-    return '$username\'s History';
+    return '$username\'\'s History';
   }
 
   @override

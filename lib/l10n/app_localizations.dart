@@ -1000,7 +1000,7 @@ abstract class AppLocalizations {
   /// No description provided for @historyTitle.
   ///
   /// In en, this message translates to:
-  /// **'{username}\'s History'**
+  /// **'{username}\'\'s History'**
   String historyTitle(String username);
 
   /// No description provided for @testTab.

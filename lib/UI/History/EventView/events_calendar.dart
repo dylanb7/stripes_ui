@@ -1,3 +1,4 @@
+import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -37,28 +38,24 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
 
   final DateTime firstDate = DateTime(2020);
 
+  late final CustomSegmentedController<RangeSelection> rangeSelection;
+
+  late final DateRangeSelectionListener dateRangeSelectionListener;
+
+  @override
+  void initState() {
+    rangeSelection = CustomSegmentedController(value: RangeSelection.start);
+    dateRangeSelectionListener =
+        DateRangeSelectionListener(RangeSelectionMode.disabled);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final Locale locale = Localizations.localeOf(context);
     final Filters filters = ref.watch(filtersProvider);
     final AsyncValue<Map<DateTime, List<Response>>> eventsValue =
         ref.watch(eventsMapProvider);
-
-    /*bool hasRange(Filters? filters) {
-      if (filters == null) return false;
-      return filters.rangeStart != null || filters.rangeEnd != null;
-    }
-
-    ref.listen<Filters>(filtersProvider, (oldFilters, newFilters) {
-      final bool range = hasRange(newFilters);
-      if (hasRange(oldFilters) != range && mounted) {
-        setState(() {
-          _rangeMode = range
-              ? RangeSelectionMode.toggledOn
-              : RangeSelectionMode.toggledOff;
-        });
-      }
-    });*/
 
     final bool waiting = eventsValue.isLoading || eventsValue.hasError;
     final Map<DateTime, List<Response>> eventMap =
@@ -92,12 +89,8 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
             stampFilters: null,
             latestRequired: filters.latestRequired,
             earliestRequired: filters.earliestRequired,
-            selectedDate: focusedDay);
-        filters.copyWith(
-            selectedDate: DateTime.now(),
-            rangeStart: null,
-            rangeEnd: null,
-            stampFilters: null);
+            selectedDate: focusedDay,
+            groupSymptoms: filters.groupSymptoms);
       });
     }
 
@@ -164,6 +157,14 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          DateSelectionDisplay(
+              listener: dateRangeSelectionListener,
+              onStartClear: () {},
+              onEndClear: () {},
+              selectedDay: selected,
+              start: rangeStart,
+              end: rangeEnd,
+              rangeSelectionController: rangeSelection),
           Visibility(
             maintainState: true,
             visible: !isHidden,
@@ -194,32 +195,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
                       reset: () {
                         reset();
                       },
-                      onRangeToggle: () {
-                        setState(() {
-                          if (_rangeMode == RangeSelectionMode.toggledOff) {
-                            _rangeMode = RangeSelectionMode.toggledOn;
-
-                            ref.read(filtersProvider.notifier).state = Filters(
-                                rangeStart: focusedDay,
-                                rangeEnd: null,
-                                selectedDate: null,
-                                stampFilters: filters.stampFilters,
-                                latestRequired: filters.latestRequired,
-                                earliestRequired: filters.earliestRequired);
-                          } else {
-                            _rangeMode = RangeSelectionMode.toggledOff;
-                            ref.read(filtersProvider.notifier).state = Filters(
-                                rangeStart: null,
-                                rangeEnd: null,
-                                selectedDate: rangeEnd ?? rangeStart,
-                                stampFilters: filters.stampFilters,
-                                latestRequired: filters.latestRequired,
-                                earliestRequired: filters.earliestRequired);
-                          }
-                        });
-                      },
                       onFormatChange: _onFormatChange,
-                      mode: _rangeMode,
                       selected: _format),
                   Stack(
                     children: [
@@ -273,7 +249,8 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
                                           latestRequired:
                                               filters.latestRequired,
                                           earliestRequired:
-                                              filters.earliestRequired);
+                                              filters.earliestRequired,
+                                          groupSymptoms: filters.groupSymptoms);
                                 }
                               });
                             },
@@ -289,7 +266,8 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
                                         stampFilters: filters.stampFilters,
                                         latestRequired: filters.latestRequired,
                                         earliestRequired:
-                                            filters.earliestRequired);
+                                            filters.earliestRequired,
+                                        groupSymptoms: filters.groupSymptoms);
                               });
                             },
                             onPageChanged: (newFocus) {
@@ -427,12 +405,9 @@ class _CalendarHeader extends ConsumerWidget {
   final VoidCallback onLeftArrowTap;
   final VoidCallback onRightArrowTap;
 
-  final VoidCallback onRangeToggle;
   final VoidCallback onYearChange;
 
   final VoidCallback reset;
-
-  final RangeSelectionMode mode;
 
   final CalendarFormat selected;
   final Function(CalendarFormat?) onFormatChange;
@@ -442,9 +417,7 @@ class _CalendarHeader extends ConsumerWidget {
       required this.onLeftArrowTap,
       required this.onRightArrowTap,
       required this.selected,
-      required this.onRangeToggle,
       required this.onYearChange,
-      required this.mode,
       required this.reset,
       required this.onFormatChange});
 
@@ -467,14 +440,17 @@ class _CalendarHeader extends ConsumerWidget {
             onPressed: onLeftArrowTap,
           ),
           const SizedBox(
-            width: 4.0,
+            width: 6.0,
           ),
-          Text(
-            headerText,
-            style: Theme.of(context).textTheme.titleMedium,
+          TextButton(
+            child: Text(
+              headerText,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            onPressed: () {},
           ),
           const SizedBox(
-            width: 4.0,
+            width: 6.0,
           ),
           IconButton(
             icon: const Icon(Icons.chevron_right),
@@ -560,6 +536,207 @@ class _CalendarHeader extends ConsumerWidget {
             ),
           ),
           const SizedBox(width: 6.0),
+        ],
+      ),
+    );
+  }
+}
+
+enum RangeSelection {
+  start,
+  end;
+}
+
+class DateRangeSelectionListener extends ChangeNotifier {
+  RangeSelectionMode mode;
+
+  DateRangeSelectionListener(this.mode);
+
+  setMode({required bool selectingRange}) {
+    final RangeSelectionMode newMode = selectingRange
+        ? RangeSelectionMode.enforced
+        : RangeSelectionMode.disabled;
+    if (newMode != mode) {
+      mode = newMode;
+      notifyListeners();
+    }
+  }
+}
+
+class DateSelectionDisplay extends StatefulWidget {
+  final DateRangeSelectionListener listener;
+
+  final CustomSegmentedController<RangeSelection> rangeSelectionController;
+
+  final void Function() onStartClear, onEndClear;
+
+  final DateTime? selectedDay, start, end;
+
+  const DateSelectionDisplay({
+    required this.listener,
+    required this.onStartClear,
+    required this.onEndClear,
+    required this.rangeSelectionController,
+    this.selectedDay,
+    this.start,
+    this.end,
+    super.key,
+  });
+
+  @override
+  State<StatefulWidget> createState() {
+    return _DateSelectionDisplayState();
+  }
+}
+
+class _DateSelectionDisplayState extends State<DateSelectionDisplay> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bool singleDate = widget.listener.mode == RangeSelectionMode.disabled;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        if (singleDate)
+          DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8.0),
+              color: ElevationOverlay.applySurfaceTint(
+                  Theme.of(context).cardColor,
+                  Theme.of(context).colorScheme.surfaceTint,
+                  3),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(2.0),
+              child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).canvasColor,
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: DateDispay(
+                    title: "Selected",
+                    clear: null,
+                    hovered: true,
+                    selected: widget.selectedDay,
+                  )),
+            ),
+          )
+        else
+          CustomSlidingSegmentedControl<RangeSelection>(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8.0),
+              color: ElevationOverlay.applySurfaceTint(
+                  Theme.of(context).cardColor,
+                  Theme.of(context).colorScheme.surfaceTint,
+                  3),
+            ),
+            thumbDecoration: BoxDecoration(
+                color: Theme.of(context).canvasColor,
+                borderRadius: BorderRadius.circular(8.0)),
+            children: {
+              RangeSelection.start: DateDispay(
+                title: "Start",
+                clear: widget.onStartClear,
+                hovered: widget.rangeSelectionController.value ==
+                    RangeSelection.start,
+                selected: widget.start,
+              ),
+              RangeSelection.end: DateDispay(
+                title: "End",
+                clear: widget.onEndClear,
+                hovered:
+                    widget.rangeSelectionController.value == RangeSelection.end,
+                selected: widget.end,
+              )
+            },
+            onValueChanged: (_) {},
+            controller: CustomSegmentedController(value: RangeSelection.start),
+          ),
+        const SizedBox(
+          width: 6.0,
+        ),
+        TextButton(
+            onPressed: () {
+              widget.listener.setMode(selectingRange: !singleDate);
+            },
+            child: Text(singleDate ? "Select Range" : "Select Day"))
+      ],
+    );
+  }
+}
+
+class DateDispay extends StatelessWidget {
+  final bool hovered;
+
+  final String title;
+
+  final DateTime? selected;
+
+  final void Function()? clear;
+
+  const DateDispay({
+    super.key,
+    required this.title,
+    required this.hovered,
+    this.selected,
+    this.clear,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(2.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(fontWeight: hovered ? FontWeight.bold : null),
+              ),
+              const SizedBox(
+                height: 4.0,
+              ),
+              if (selected != null)
+                Text(
+                  DateFormat.yMd().format(selected!),
+                  style: hovered
+                      ? Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).primaryColor)
+                      : Theme.of(context).textTheme.bodyMedium,
+                )
+              else
+                Text(
+                  "Make selction",
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.surfaceDim,
+                      fontWeight: hovered ? FontWeight.bold : null),
+                )
+            ],
+          ),
+          const SizedBox(
+            width: 6.0,
+          ),
+          if (clear != null)
+            IconButton.filled(
+              onPressed: () {
+                clear!();
+              },
+              icon: const Icon(Icons.clear),
+            ),
         ],
       ),
     );
