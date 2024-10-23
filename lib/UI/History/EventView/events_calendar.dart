@@ -639,7 +639,7 @@ class _DateSelectionDisplayState extends State<DateSelectionDisplay> {
                 color: Theme.of(context).canvasColor,
                 borderRadius: BorderRadius.circular(8.0)),
             padding: 0,
-            height: 50,
+            height: 52,
             children: {
               RangeSelection.start: DateDispay(
                 title: "Start",
@@ -656,7 +656,9 @@ class _DateSelectionDisplayState extends State<DateSelectionDisplay> {
                 selected: widget.end,
               )
             },
-            onValueChanged: (_) {},
+            onValueChanged: (_) {
+              setState(() {});
+            },
             controller: CustomSegmentedController(value: RangeSelection.start),
           ),
         const SizedBox(
@@ -725,7 +727,7 @@ class DateDispay extends StatelessWidget {
                 Text(
                   "Make selction",
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.surfaceDim,
+                      color: Theme.of(context).disabledColor,
                       fontWeight: hovered ? FontWeight.bold : null),
                 )
             ],
@@ -740,7 +742,7 @@ class DateDispay extends StatelessWidget {
               },
               icon: const Icon(
                 Icons.clear,
-                size: 25.0,
+                size: 10.0,
               ),
             ),
         ],
