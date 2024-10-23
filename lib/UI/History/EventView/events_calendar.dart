@@ -638,6 +638,7 @@ class _DateSelectionDisplayState extends State<DateSelectionDisplay> {
             thumbDecoration: BoxDecoration(
                 color: Theme.of(context).canvasColor,
                 borderRadius: BorderRadius.circular(8.0)),
+            padding: 0,
             children: {
               RangeSelection.start: DateDispay(
                 title: "Start",
