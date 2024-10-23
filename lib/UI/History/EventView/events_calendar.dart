@@ -659,7 +659,7 @@ class _DateSelectionDisplayState extends State<DateSelectionDisplay> {
             onValueChanged: (_) {
               setState(() {});
             },
-            controller: CustomSegmentedController(value: RangeSelection.start),
+            controller: widget.rangeSelectionController,
           ),
         const SizedBox(
           width: 6.0,
@@ -740,9 +740,9 @@ class DateDispay extends StatelessWidget {
               onPressed: () {
                 clear!();
               },
+              iconSize: 20.0,
               icon: const Icon(
                 Icons.clear,
-                size: 10.0,
               ),
             ),
         ],
