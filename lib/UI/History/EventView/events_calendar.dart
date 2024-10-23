@@ -609,7 +609,7 @@ class _DateSelectionDisplayState extends State<DateSelectionDisplay> {
               color: ElevationOverlay.applySurfaceTint(
                   Theme.of(context).cardColor,
                   Theme.of(context).colorScheme.surfaceTint,
-                  3),
+                  8),
             ),
             child: Padding(
               padding: const EdgeInsets.all(2.0),
@@ -633,13 +633,13 @@ class _DateSelectionDisplayState extends State<DateSelectionDisplay> {
               color: ElevationOverlay.applySurfaceTint(
                   Theme.of(context).cardColor,
                   Theme.of(context).colorScheme.surfaceTint,
-                  3),
+                  8),
             ),
             thumbDecoration: BoxDecoration(
                 color: Theme.of(context).canvasColor,
                 borderRadius: BorderRadius.circular(8.0)),
             padding: 0,
-            height: 60,
+            height: 50,
             children: {
               RangeSelection.start: DateDispay(
                 title: "Start",
@@ -734,11 +734,14 @@ class DateDispay extends StatelessWidget {
             width: 6.0,
           ),
           if (clear != null)
-            IconButton.filled(
+            IconButton.outlined(
               onPressed: () {
                 clear!();
               },
-              icon: const Icon(Icons.clear),
+              icon: const Icon(
+                Icons.clear,
+                size: 25.0,
+              ),
             ),
         ],
       ),
