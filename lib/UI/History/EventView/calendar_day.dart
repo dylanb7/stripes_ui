@@ -99,18 +99,44 @@ class CalendarDay extends StatelessWidget {
         ),
       ),
     );
-    if (events == 0) return dayView;
-    return b.Badge(
-      badgeContent: Text(
-        '$events',
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            fontSize: 8.0, color: Theme.of(context).colorScheme.onPrimary),
-      ),
-      badgeStyle: b.BadgeStyle(
-        badgeColor: Theme.of(context).colorScheme.onPrimaryContainer,
-      ),
-      position: b.BadgePosition.topEnd(end: 0, top: 0),
-      child: dayView,
-    );
+    final Widget addedEvents = events == 0
+        ? dayView
+        : b.Badge(
+            badgeContent: Text(
+              '$events',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontSize: 8.0,
+                  color: Theme.of(context).colorScheme.onPrimary),
+            ),
+            badgeStyle: b.BadgeStyle(
+              badgeColor: Theme.of(context).colorScheme.onPrimaryContainer,
+            ),
+            position: b.BadgePosition.topEnd(end: 0, top: 0),
+            child: dayView,
+          );
+    if (within || rangeStart || rangeEnd) {
+      return Stack(children: [
+        Align(
+          alignment: Alignment.center,
+          child: addedEvents,
+        ),
+        LayoutBuilder(builder: (context, constraints) {
+          final double shorterSide =
+              constraints.maxHeight > constraints.maxWidth
+                  ? constraints.maxWidth
+                  : constraints.maxHeight;
+          return Container(
+            margin: EdgeInsetsDirectional.only(
+                top: style.cellMargin.top,
+                start: rangeStart ? constraints.maxWidth * 0.5 : 0.0,
+                end: rangeEnd ? constraints.maxWidth * 0.5 : 0.0,
+                bottom: style.cellMargin.bottom),
+            height: shorterSide - style.cellMargin.vertical,
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.4),
+          );
+        }),
+      ]);
+    }
+    return addedEvents;
   }
 }

@@ -25,14 +25,62 @@ class EventsCalendar extends ConsumerStatefulWidget {
   }
 }
 
+/*onRangeSelected: (start, end, focusedDay) {
+                              setState(() {
+                                final RangeSelection? selectingFor =
+                                    rangeSelection.value;
+                                final Filters filters = _filters;
+                                this.focusedDay = focusedDay;
+
+                                if (selectingFor == RangeSelection.start) {
+                                  if (start != null) {
+                                    if (filters.calendarSelection.rangeEnd !=
+                                        null) {
+                                      if (start.isAfter(filters
+                                          .calendarSelection.rangeEnd!)) {
+                                        ref
+                                                .read(filtersProvider.notifier)
+                                                .state =
+                                            filters.copyWith(
+                                                calendarSelection:
+                                                    CalendarSelection.range(
+                                                        start, null));
+                                        rangeSelection.value =
+                                            RangeSelection.end;
+                                      } else {
+                                        ref
+                                                .read(filtersProvider.notifier)
+                                                .state =
+                                            filters.copyWith(
+                                                calendarSelection:
+                                                    CalendarSelection.range(
+                                                        start,
+                                                        filters
+                                                            .calendarSelection
+                                                            .rangeEnd));
+                                      }
+                                    }
+                                  }
+                                } else {}
+
+                                ref.read(filtersProvider.notifier).state =
+                                    Filters(
+                                        calendarSelection:
+                                            CalendarSelection.range(start, end),
+                                        stampFilters: filters.stampFilters,
+                                        latestRequired: filters.latestRequired,
+                                        earliestRequired:
+                                            filters.earliestRequired,
+                                        groupSymptoms: filters.groupSymptoms);
+                              });
+                            }, */
+
 class EventsCalendarState extends ConsumerState<EventsCalendar> {
   DateTime focusedDay = DateTime.now();
 
   CalendarFormat _format = CalendarFormat.month;
 
   bool isHidden = false;
-
-  RangeSelectionMode _rangeMode = RangeSelectionMode.toggledOff;
 
   PageController? _pageController;
 
@@ -46,26 +94,42 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
   void initState() {
     rangeSelection = CustomSegmentedController(value: RangeSelection.start);
     dateRangeSelectionListener =
-        DateRangeSelectionListener(RangeSelectionMode.disabled);
+        DateRangeSelectionListener(RangeStatus.disabled);
+    dateRangeSelectionListener.addListener(() {
+      if (!mounted) return;
+      if (dateRangeSelectionListener.selectingRange) {
+        rangeSelection.value = RangeSelection.end;
+        final Filters filters = _filters;
+        ref.read(filtersProvider.notifier).state = filters.copyWith(
+            calendarSelection: CalendarSelection.range(
+                filters.calendarSelection.selectedDate, null));
+      } else {
+        final Filters filters = _filters;
+        ref.read(filtersProvider.notifier).state = filters.copyWith(
+            calendarSelection: CalendarSelection.selected(
+                filters.calendarSelection.rangeStart ??
+                    filters.calendarSelection.rangeEnd ??
+                    DateTime.now()));
+      }
+    });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     final Locale locale = Localizations.localeOf(context);
-    final Filters filters = ref.watch(filtersProvider);
+    final CalendarSelection calendarSelection = ref
+        .watch(filtersProvider.select((filters) => filters.calendarSelection));
     final AsyncValue<Map<DateTime, List<Response>>> eventsValue =
         ref.watch(eventsMapProvider);
 
     final bool waiting = eventsValue.isLoading || eventsValue.hasError;
     final Map<DateTime, List<Response>> eventMap =
         eventsValue.valueOrNull ?? {};
-    final Color background =
-        Theme.of(context).colorScheme.primary.withOpacity(0.4);
 
-    final DateTime? selected = filters.selectedDate;
-    final DateTime? rangeStart = filters.rangeStart;
-    final DateTime? rangeEnd = filters.rangeEnd;
+    final DateTime? selected = calendarSelection.selectedDate;
+    final DateTime? rangeStart = calendarSelection.rangeStart;
+    final DateTime? rangeEnd = calendarSelection.rangeEnd;
     final DateTime now = DateTime.now();
     const CalendarStyle calendarStyle = CalendarStyle(
       cellMargin: EdgeInsets.all(4.0),
@@ -79,17 +143,18 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
           AppLocalizations.of(context)!.calendarVisibilityMonth
     };
 
+    final bool canClear = rangeStart != null && rangeEnd != null;
+
     reset() {
       setState(() {
+        final Filters filters = _filters;
+        dateRangeSelectionListener.setMode(selectingRange: false);
         focusedDay = DateTime.now();
-        _rangeMode = RangeSelectionMode.toggledOff;
         ref.read(filtersProvider.notifier).state = Filters(
-            rangeStart: null,
-            rangeEnd: null,
+            calendarSelection: CalendarSelection.selected(focusedDay),
             stampFilters: null,
             latestRequired: filters.latestRequired,
             earliestRequired: filters.earliestRequired,
-            selectedDate: focusedDay,
             groupSymptoms: filters.groupSymptoms);
       });
     }
@@ -113,7 +178,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
       );
     }
 
-    Widget? rangeHighlight(
+    /*Widget? rangeHighlight(
         BuildContext context, DateTime day, bool withinRange) {
       if (!withinRange) return null;
       if (rangeStart == null || rangeEnd == null) return null;
@@ -133,7 +198,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
           color: background,
         );
       });
-    }
+    }*/
 
     Widget? dowBuilder(BuildContext context, DateTime day) {
       final weekdayString = DateFormat.E(locale.languageCode).format(day);
@@ -159,12 +224,25 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
         children: [
           DateSelectionDisplay(
               listener: dateRangeSelectionListener,
-              onStartClear: () {},
-              onEndClear: () {},
+              onStartClear: null,
+              onEndClear: canClear
+                  ? () {
+                      final Filters filters = _filters;
+                      ref.read(filtersProvider.notifier).state =
+                          filters.copyWith(
+                        calendarSelection: CalendarSelection.range(
+                            filters.calendarSelection.rangeStart, null),
+                      );
+                      rangeSelection.value = RangeSelection.end;
+                    }
+                  : null,
               selectedDay: selected,
               start: rangeStart,
               end: rangeEnd,
               rangeSelectionController: rangeSelection),
+          const SizedBox(
+            height: 6.0,
+          ),
           Visibility(
             maintainState: true,
             visible: !isHidden,
@@ -210,9 +288,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
                             firstDay:
                                 firstDate /*keys.isEmpty ? DateTime(0) : keys[0]*/,
                             lastDay: DateTime.now(),
-                            rangeSelectionMode: dateRangeSelectionListener.mode,
-                            rangeStartDay: rangeStart,
-                            rangeEndDay: rangeEnd,
+                            rangeSelectionMode: RangeSelectionMode.disabled,
                             headerVisible: false,
                             calendarFormat: _format,
                             availableGestures:
@@ -222,6 +298,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
                             calendarStyle: calendarStyle,
                             onCalendarCreated: (controller) {
                               _pageController = controller;
+                              final Filters filters = _filters;
                               Future(() {
                                 ref.read(filtersProvider.notifier).state =
                                     filters.copyWith(
@@ -236,43 +313,70 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
                             onDaySelected: (selectedDay, focusedDay) {
                               setState(() {
                                 focusedDay = focusedDay;
-                                _rangeMode = RangeSelectionMode.toggledOff;
 
                                 if (selected != null &&
                                     !sameDay(selectedDay, selected)) {
                                   ref.read(filtersProvider.notifier).state =
-                                      Filters(
-                                          rangeStart: null,
-                                          rangeEnd: null,
-                                          selectedDate: selectedDay,
-                                          stampFilters: filters.stampFilters,
-                                          latestRequired:
-                                              filters.latestRequired,
-                                          earliestRequired:
-                                              filters.earliestRequired,
-                                          groupSymptoms: filters.groupSymptoms);
+                                      _filters.copyWith(
+                                    calendarSelection:
+                                        CalendarSelection.selected(selectedDay),
+                                  );
+                                  return;
+                                }
+                                final RangeSelection? selection =
+                                    rangeSelection.value;
+                                final Filters filters = _filters;
+                                final CalendarSelection calendarSelection =
+                                    _filters.calendarSelection;
+                                if (selection == RangeSelection.start) {
+                                  if (calendarSelection.rangeEnd != null &&
+                                      calendarSelection.rangeEnd!
+                                          .isBefore(selectedDay)) {
+                                    ref.read(filtersProvider.notifier).state =
+                                        filters.copyWith(
+                                      calendarSelection:
+                                          CalendarSelection.range(
+                                              selectedDay, null),
+                                    );
+                                  } else {
+                                    ref.read(filtersProvider.notifier).state =
+                                        filters.copyWith(
+                                      calendarSelection:
+                                          CalendarSelection.range(selectedDay,
+                                              calendarSelection.rangeEnd),
+                                    );
+                                    if (calendarSelection.rangeEnd == null) {
+                                      rangeSelection.value = RangeSelection.end;
+                                    }
+                                  }
+                                } else if (selection == RangeSelection.end) {
+                                  if (calendarSelection.rangeStart != null) {
+                                    if (selectedDay.isBefore(
+                                        calendarSelection.rangeStart!)) {
+                                      ref.read(filtersProvider.notifier).state =
+                                          filters.copyWith(
+                                        calendarSelection:
+                                            CalendarSelection.range(
+                                                selectedDay, null),
+                                      );
+                                    } else {
+                                      ref.read(filtersProvider.notifier).state =
+                                          filters.copyWith(
+                                        calendarSelection:
+                                            CalendarSelection.range(
+                                                calendarSelection.rangeStart,
+                                                selectedDay),
+                                      );
+                                    }
+                                  }
                                 }
                               });
                             },
-                            onRangeSelected: (start, end, focusedDay) {
-                              setState(() {
-                                _rangeMode = RangeSelectionMode.toggledOn;
-                                this.focusedDay = focusedDay;
-                                ref.read(filtersProvider.notifier).state =
-                                    Filters(
-                                        rangeStart: start,
-                                        rangeEnd: end,
-                                        selectedDate: null,
-                                        stampFilters: filters.stampFilters,
-                                        latestRequired: filters.latestRequired,
-                                        earliestRequired:
-                                            filters.earliestRequired,
-                                        groupSymptoms: filters.groupSymptoms);
-                              });
-                            },
+                            onRangeSelected: null,
                             onPageChanged: (newFocus) {
                               setState(() {
                                 focusedDay = newFocus;
+                                final Filters filters = _filters;
                                 ref.read(filtersProvider.notifier).state =
                                     filters.copyWith(
                                         earliestRequired: DateTime(
@@ -282,14 +386,14 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
                               });
                             },
                             calendarBuilders: CalendarBuilders(
-                                defaultBuilder: builder,
-                                todayBuilder: builder,
-                                rangeStartBuilder: builder,
-                                rangeEndBuilder: builder,
-                                withinRangeBuilder: builder,
-                                disabledBuilder: builder,
-                                dowBuilder: dowBuilder,
-                                rangeHighlightBuilder: rangeHighlight),
+                              defaultBuilder: builder,
+                              todayBuilder: builder,
+                              rangeStartBuilder: builder,
+                              rangeEndBuilder: builder,
+                              withinRangeBuilder: builder,
+                              disabledBuilder: builder,
+                              dowBuilder: dowBuilder,
+                            ),
                           ),
                         ),
                       ),
@@ -309,6 +413,8 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
           ),
         ]);
   }
+
+  Filters get _filters => ref.read(filtersProvider);
 
   _onYearChange() {
     showDialog(
@@ -400,7 +506,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
   }
 }
 
-class _CalendarHeader extends ConsumerWidget {
+class _CalendarHeader extends StatelessWidget {
   final DateTime focusedDay;
   final VoidCallback onLeftArrowTap;
   final VoidCallback onRightArrowTap;
@@ -422,7 +528,7 @@ class _CalendarHeader extends ConsumerWidget {
       required this.onFormatChange});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final Map<CalendarFormat, String> formats = {
       CalendarFormat.week: AppLocalizations.of(context)!.calendarVisibilityWeek,
       CalendarFormat.month:
@@ -547,20 +653,26 @@ enum RangeSelection {
   end;
 }
 
+enum RangeStatus {
+  enabled,
+  disabled;
+}
+
 class DateRangeSelectionListener extends ChangeNotifier {
-  RangeSelectionMode mode;
+  RangeStatus mode;
 
   DateRangeSelectionListener(this.mode);
 
   setMode({required bool selectingRange}) {
-    final RangeSelectionMode newMode = selectingRange
-        ? RangeSelectionMode.enforced
-        : RangeSelectionMode.disabled;
+    final RangeStatus newMode =
+        selectingRange ? RangeStatus.enabled : RangeStatus.disabled;
     if (newMode != mode) {
       mode = newMode;
       notifyListeners();
     }
   }
+
+  bool get selectingRange => mode == RangeSelectionMode.enforced;
 }
 
 class DateSelectionDisplay extends StatefulWidget {
@@ -568,7 +680,7 @@ class DateSelectionDisplay extends StatefulWidget {
 
   final CustomSegmentedController<RangeSelection> rangeSelectionController;
 
-  final void Function() onStartClear, onEndClear;
+  final void Function()? onStartClear, onEndClear;
 
   final DateTime? selectedDay, start, end;
 
@@ -603,27 +715,30 @@ class _DateSelectionDisplayState extends State<DateSelectionDisplay> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         if (singleDate)
-          DecoratedBox(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8.0),
-              color: ElevationOverlay.applySurfaceTint(
-                  Theme.of(context).cardColor,
-                  Theme.of(context).colorScheme.surfaceTint,
-                  8),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(2.0),
-              child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).canvasColor,
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  child: DateDispay(
-                    title: "Selected",
-                    clear: null,
-                    hovered: true,
-                    selected: widget.selectedDay,
-                  )),
+          SizedBox(
+            height: 60.0,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8.0),
+                color: ElevationOverlay.applySurfaceTint(
+                    Theme.of(context).cardColor,
+                    Theme.of(context).colorScheme.surfaceTint,
+                    8),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).canvasColor,
+                      borderRadius: BorderRadius.circular(4.0),
+                    ),
+                    child: DateDispay(
+                      title: "Selected",
+                      clear: null,
+                      hovered: true,
+                      selected: widget.selectedDay,
+                    )),
+              ),
             ),
           )
         else
@@ -637,9 +752,10 @@ class _DateSelectionDisplayState extends State<DateSelectionDisplay> {
             ),
             thumbDecoration: BoxDecoration(
                 color: Theme.of(context).canvasColor,
-                borderRadius: BorderRadius.circular(8.0)),
+                borderRadius: BorderRadius.circular(4.0)),
+            innerPadding: const EdgeInsets.all(4.0),
             padding: 0,
-            height: 52,
+            height: 52.0,
             children: {
               RangeSelection.start: DateDispay(
                 title: "Start",
@@ -694,8 +810,9 @@ class DateDispay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool hasDate = selected != null;
     return Padding(
-      padding: const EdgeInsets.all(6.0),
+      padding: const EdgeInsets.all(4.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -712,39 +829,44 @@ class DateDispay extends StatelessWidget {
                     ?.copyWith(fontWeight: hovered ? FontWeight.bold : null),
               ),
               const SizedBox(
-                height: 4.0,
+                height: 2.0,
               ),
-              if (selected != null)
-                Text(
-                  DateFormat.yMd().format(selected!),
+              SizedBox(
+                width: 80.0,
+                child: Text(
+                  hasDate ? DateFormat.yMd().format(selected!) : "select",
                   style: hovered
                       ? Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: Theme.of(context).primaryColor)
-                      : Theme.of(context).textTheme.bodyMedium,
-                )
-              else
-                Text(
-                  "Make selction",
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).disabledColor,
-                      fontWeight: hovered ? FontWeight.bold : null),
-                )
+                          color: hasDate
+                              ? Theme.of(context).primaryColor
+                              : Theme.of(context).disabledColor)
+                      : Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: !hasDate
+                              ? Theme.of(context).disabledColor
+                              : null),
+                ),
+              ),
             ],
           ),
           const SizedBox(
             width: 6.0,
           ),
-          if (clear != null)
-            IconButton.outlined(
-              onPressed: () {
-                clear!();
-              },
-              iconSize: 20.0,
-              icon: const Icon(
-                Icons.clear,
-              ),
-            ),
+          clear != null
+              ? IconButton(
+                  onPressed: () {
+                    clear!();
+                  },
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                  iconSize: 18.0,
+                  icon: const Icon(
+                    Icons.clear,
+                  ),
+                )
+              : const SizedBox(
+                  width: 18,
+                ),
         ],
       ),
     );

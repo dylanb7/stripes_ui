@@ -123,7 +123,7 @@ class HistoryScreenContent extends StatelessWidget {
                               ),
                             ]),
                         const SizedBox(
-                          height: 20,
+                          height: 12.0,
                         ),
                         ConstrainedBox(
                           constraints: const BoxConstraints(maxWidth: 800),
@@ -172,7 +172,7 @@ class HistoryScreenContent extends StatelessWidget {
                         tab: TabOption.history,
                       ),
                       SizedBox(
-                        height: 20.0,
+                        height: 12.0,
                       ),
                       FilterView(),
                       SizedBox(

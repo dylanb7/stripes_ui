@@ -20,17 +20,20 @@ class AddEvent extends ConsumerWidget {
           CurrentOverlay(widget: _QuestionTypeOverlay(date: addTime));
     }
 
-    final Filters filters = ref.watch(filtersProvider);
+    final CalendarSelection calendarSelection = ref
+        .watch(filtersProvider.select((filters) => filters.calendarSelection));
 
-    final DateTime? selected = filters.selectedDate ??
-        (filters.rangeEnd == null ? filters.rangeStart : null);
+    final DateTime? selected = calendarSelection.selectedDate ??
+        (calendarSelection.rangeEnd == null
+            ? calendarSelection.rangeStart
+            : null);
 
     final DateTime now = DateTime.now();
 
     return Tooltip(
-      message: filters.selectedDate == null
+      message: calendarSelection.selectedDate == null
           ? AppLocalizations.of(context)!.noDateToAddTo
-          : dateToMDY(filters.selectedDate!, context),
+          : dateToMDY(calendarSelection.selectedDate!, context),
       child: IconButton(
         icon: const Icon(Icons.add),
         onPressed: selected == null

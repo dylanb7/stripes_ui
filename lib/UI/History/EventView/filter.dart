@@ -45,9 +45,8 @@ class FilterView extends ConsumerWidget {
           RemoveChip(
               onPressed: () {
                 ref.read(filtersProvider.notifier).state = Filters(
-                    rangeStart: null,
-                    rangeEnd: null,
-                    selectedDate: null,
+                    calendarSelection:
+                        CalendarSelection.selected(DateTime.now()),
                     latestRequired: filters.latestRequired,
                     earliestRequired: filters.earliestRequired,
                     stampFilters: filters.stampFilters);
@@ -102,8 +101,10 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
   @override
   void initState() {
     final Filters filters = ref.read(filtersProvider);
-    final DateTime? start = filters.rangeStart ?? filters.selectedDate;
-    final DateTime? end = filters.rangeEnd ?? filters.selectedDate;
+    final DateTime? start = filters.calendarSelection.rangeStart ??
+        filters.calendarSelection.selectedDate;
+    final DateTime? end = filters.calendarSelection.rangeEnd ??
+        filters.calendarSelection.selectedDate;
     if (start != null && end != null) {
       newRange = DateTimeRange(start: start, end: end);
     }
@@ -160,9 +161,10 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
       }
 
       ref.read(filtersProvider.notifier).state = Filters(
-          rangeStart: isSameDay ? null : newStart,
-          rangeEnd: isSameDay ? null : newEnd,
-          selectedDate: isSameDay ? newStart ?? newEnd : null,
+          calendarSelection: CalendarSelection(
+              selectedDate: isSameDay ? newStart ?? newEnd : null,
+              rangeStart: isSameDay ? null : newStart,
+              rangeEnd: isSameDay ? null : newEnd),
           earliestRequired: newEarliest(),
           latestRequired: filters.latestRequired,
           stampFilters: [

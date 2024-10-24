@@ -103,14 +103,18 @@ class Available {
 
   late final List<Response<Question>> _all;
 
-  final Filters filters;
+  final AvailableFilters filters;
 
   Available(
       {required List<Response<Question>> allStamps, required this.filters}) {
     _all = allStamps;
     _filteredInRange = _filter(_getStamps(_all, null, null, null, true));
-    _visible = _getStamps(allStamps, filters.selectedDate, filters.rangeStart,
-        filters.rangeEnd, false);
+    _visible = _getStamps(
+        allStamps,
+        filters.calendarSelection.selectedDate,
+        filters.calendarSelection.rangeStart,
+        filters.calendarSelection.rangeEnd,
+        false);
     _filteredVisible = _filter(_visible);
   }
 
@@ -232,48 +236,56 @@ class LabeledFilter with EquatableMixin {
 }
 
 @immutable
+class CalendarSelection with EquatableMixin {
+  final DateTime? selectedDate, rangeStart, rangeEnd;
+
+  const CalendarSelection(
+      {required this.selectedDate,
+      required this.rangeStart,
+      required this.rangeEnd});
+
+  factory CalendarSelection.selected(DateTime selected) => CalendarSelection(
+      selectedDate: selected, rangeStart: null, rangeEnd: null);
+  factory CalendarSelection.range(DateTime? start, DateTime? end) =>
+      CalendarSelection(selectedDate: null, rangeStart: start, rangeEnd: end);
+
+  @override
+  List<Object?> get props => [selectedDate, rangeStart, rangeEnd];
+}
+
+@immutable
 class Filters with EquatableMixin {
-  final DateTime? selectedDate;
+  final CalendarSelection calendarSelection;
 
   final DateTime? earliestRequired, latestRequired;
-
-  final DateTime? rangeStart, rangeEnd;
 
   final List<LabeledFilter>? stampFilters;
 
   final bool groupSymptoms;
 
   const Filters(
-      {required this.rangeStart,
-      required this.rangeEnd,
+      {required this.calendarSelection,
       this.latestRequired,
       this.earliestRequired,
-      this.selectedDate,
       this.groupSymptoms = false,
       this.stampFilters});
 
   factory Filters.reset() => Filters(
-        rangeStart: null,
-        rangeEnd: null,
+        calendarSelection: CalendarSelection.selected(DateTime.now()),
         earliestRequired: null,
         groupSymptoms: false,
         latestRequired: null,
         stampFilters: null,
-        selectedDate: DateTime.now(),
       );
 
   Filters copyWith(
-          {DateTime? selectedDate,
-          DateTime? rangeStart,
-          DateTime? rangeEnd,
+          {CalendarSelection? calendarSelection,
           DateTime? earliestRequired,
           DateTime? latestRequired,
           bool? groupSymptoms,
           List<LabeledFilter>? stampFilters}) =>
       Filters(
-          rangeStart: rangeStart ?? this.rangeStart,
-          rangeEnd: rangeEnd ?? this.rangeEnd,
-          selectedDate: selectedDate ?? this.selectedDate,
+          calendarSelection: calendarSelection ?? this.calendarSelection,
           earliestRequired: earliestRequired ?? this.earliestRequired,
           latestRequired: latestRequired ?? this.latestRequired,
           stampFilters: stampFilters ?? this.stampFilters,
@@ -282,26 +294,44 @@ class Filters with EquatableMixin {
   String toRange(BuildContext context) {
     String locale = Localizations.localeOf(context).languageCode;
     final DateFormat yearFormat = DateFormat.yMMMd(locale);
-    if (selectedDate != null) {
-      return yearFormat.format(selectedDate!);
+    if (calendarSelection.selectedDate != null) {
+      return yearFormat.format(calendarSelection.selectedDate!);
     }
-    if (rangeStart != null && rangeEnd == null) {
-      return yearFormat.format(rangeStart!);
+    if (calendarSelection.rangeStart != null &&
+        calendarSelection.rangeEnd == null) {
+      return yearFormat.format(calendarSelection.rangeStart!);
     }
-    if (rangeStart == null && rangeEnd == null) return '';
-    final bool sameYear = rangeEnd!.year == rangeStart!.year;
-    final bool sameMonth = sameYear && rangeEnd!.month == rangeStart!.month;
+    if (calendarSelection.rangeStart == null &&
+        calendarSelection.rangeEnd == null) return '';
+    final bool sameYear =
+        calendarSelection.rangeEnd!.year == calendarSelection.rangeStart!.year;
+    final bool sameMonth = sameYear &&
+        calendarSelection.rangeEnd!.month ==
+            calendarSelection.rangeStart!.month;
     final String firstPortion = sameYear
-        ? DateFormat.MMMd(locale).format(rangeStart!)
-        : yearFormat.format(rangeStart!);
+        ? DateFormat.MMMd(locale).format(calendarSelection.rangeStart!)
+        : yearFormat.format(calendarSelection.rangeStart!);
     final String lastPortion = sameMonth
-        ? '${DateFormat.d(locale).format(rangeEnd!)}, ${DateFormat.y(locale).format(rangeEnd!)}'
-        : yearFormat.format(rangeEnd!);
+        ? '${DateFormat.d(locale).format(calendarSelection.rangeEnd!)}, ${DateFormat.y(locale).format(calendarSelection.rangeEnd!)}'
+        : yearFormat.format(calendarSelection.rangeEnd!);
     return '$firstPortion - $lastPortion';
   }
 
   @override
-  List<Object?> get props => [selectedDate, rangeStart, rangeEnd, stampFilters];
+  List<Object?> get props => [calendarSelection, stampFilters];
+}
+
+@immutable
+class AvailableFilters {
+  final CalendarSelection calendarSelection;
+  final DateTime? earliestRequired, latestRequired;
+  final List<LabeledFilter>? stampFilters;
+
+  const AvailableFilters(
+      {required this.calendarSelection,
+      required this.earliestRequired,
+      required this.latestRequired,
+      required this.stampFilters});
 }
 
 final historyLocationProvider =
@@ -311,7 +341,15 @@ final filtersProvider = StateProvider<Filters>((_) => Filters.reset());
 
 final availibleStampsProvider =
     FutureProvider.autoDispose<Available>((ref) async {
-  final Filters filters = ref.watch(filtersProvider);
+  final AvailableFilters filters = ref.watch(
+    filtersProvider.select(
+      (filters) => AvailableFilters(
+          calendarSelection: filters.calendarSelection,
+          earliestRequired: filters.earliestRequired,
+          latestRequired: filters.latestRequired,
+          stampFilters: filters.stampFilters),
+    ),
+  );
   final StampNotifier notifier = ref.watch(stampHolderProvider.notifier);
   final List<Stamp> stamps = await ref.watch(stampHolderProvider.future);
   if (filters.earliestRequired != null) {

@@ -38,8 +38,8 @@ class _QuestionTypeOverlay extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final DateTime? date =
-        ref.watch(filtersProvider.select((value) => value.selectedDate));
+    final DateTime? date = ref.watch(filtersProvider
+        .select((value) => value.calendarSelection.selectedDate));
     final List<String> questionTypes = ref
         .watch(questionSplitProvider(PageProps(context: context)))
         .keys
