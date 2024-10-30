@@ -210,7 +210,7 @@
         }
     },
     "recordTab": "Record",
-    "historyTitle": "{username}''s History",
+    "historyTitle": "{username}'s History",
     "@historyTitle": {
         "placeholders": {
             "username" : {
