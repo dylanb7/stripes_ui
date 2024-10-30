@@ -114,12 +114,8 @@ class CalendarDay extends StatelessWidget {
             position: b.BadgePosition.topEnd(end: 0, top: 0),
             child: dayView,
           );
-    if (within || rangeStart || rangeEnd) {
+    if (endSelected && (within || rangeStart || rangeEnd)) {
       return Stack(children: [
-        Align(
-          alignment: Alignment.center,
-          child: addedEvents,
-        ),
         LayoutBuilder(builder: (context, constraints) {
           final double shorterSide =
               constraints.maxHeight > constraints.maxWidth
@@ -135,6 +131,10 @@ class CalendarDay extends StatelessWidget {
             color: Theme.of(context).colorScheme.primary.withOpacity(0.4),
           );
         }),
+        Align(
+          alignment: Alignment.center,
+          child: addedEvents,
+        ),
       ]);
     }
     return addedEvents;

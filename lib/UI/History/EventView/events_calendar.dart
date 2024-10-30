@@ -7,6 +7,7 @@ import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/History/EventView/calendar_day.dart';
+import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -529,12 +530,25 @@ class _CalendarHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool reallySmall =
+        MediaQuery.of(context).size.width < REALLY_SMALL_LAYOUT;
+
     final Map<CalendarFormat, String> formats = {
       CalendarFormat.week: AppLocalizations.of(context)!.calendarVisibilityWeek,
       CalendarFormat.month:
           AppLocalizations.of(context)!.calendarVisibilityMonth
     };
     final String headerText = DateFormat.yMMM().format(focusedDay);
+
+    final Widget calendarFormatIcon = selected == CalendarFormat.month
+        ? Icon(
+            Icons.calendar_month,
+            color: Theme.of(context).colorScheme.onPrimary,
+          )
+        : Icon(
+            Icons.calendar_view_week,
+            color: Theme.of(context).colorScheme.onPrimary,
+          );
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -545,18 +559,12 @@ class _CalendarHeader extends StatelessWidget {
             icon: const Icon(Icons.chevron_left),
             onPressed: onLeftArrowTap,
           ),
-          const SizedBox(
-            width: 6.0,
-          ),
           TextButton(
             child: Text(
               headerText,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             onPressed: () {},
-          ),
-          const SizedBox(
-            width: 6.0,
           ),
           IconButton(
             icon: const Icon(Icons.chevron_right),
@@ -574,72 +582,67 @@ class _CalendarHeader extends StatelessWidget {
             icon: const Icon(Icons.arrow_drop_down),
           ),*/
           const Spacer(),
-          FilledButton.icon(
-            onPressed: () {
-              reset();
-            },
-            label: Text(AppLocalizations.of(context)!.eventFilterReset),
-            icon: const Icon(Icons.restart_alt),
-          ),
+          reallySmall
+              ? IconButton.filled(
+                  style: ButtonStyle(
+                    shape: WidgetStateProperty.all(const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)))),
+                  ),
+                  onPressed: () {
+                    reset();
+                  },
+                  icon: const Icon(Icons.restart_alt))
+              : FilledButton.icon(
+                  onPressed: () {
+                    reset();
+                  },
+                  label: Text(AppLocalizations.of(context)!.eventFilterReset),
+                  icon: const Icon(Icons.restart_alt),
+                ),
           const SizedBox(width: 6.0),
-          Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor,
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-            clipBehavior: Clip.hardEdge,
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                isDense: true,
-                padding:
-                    const EdgeInsets.symmetric(vertical: 6.0, horizontal: 8.0),
-                borderRadius: BorderRadius.circular(8.0),
-                value: formats[selected],
-                iconEnabledColor: Theme.of(context).colorScheme.onPrimary,
-                selectedItemBuilder: (context) {
-                  return [...formats.values]
-                      .map(
-                        (value) => Center(
-                          child: Text(
-                            value,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onPrimary),
-                          ),
-                        ),
-                      )
-                      .toList();
-                },
-                onChanged: (value) {
-                  if (value != null) {
-                    CalendarFormat? format;
-                    formats.forEach(
-                      (key, name) {
-                        if (value == name) {
-                          format = key;
-                        }
-                      },
-                    );
-                    onFormatChange(format);
-                  }
-                },
-                items: [...formats.values]
-                    .map(
-                      (format) => DropdownMenuItem(
-                        value: format,
-                        child: Text(
-                          format,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      ),
-                    )
-                    .toList(),
+          PopupMenuButton<CalendarFormat>(
+            initialValue: selected,
+            onSelected: (format) {
+              onFormatChange(format);
+            },
+            icon: reallySmall
+                ? DecoratedBox(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8.0),
+                        color: Theme.of(context).primaryColor),
+                    child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: calendarFormatIcon),
+                  )
+                : IgnorePointer(
+                    child: FilledButton.icon(
+                      style: const ButtonStyle(
+                          splashFactory: NoSplash.splashFactory),
+                      onPressed: () {},
+                      label: Text(formats[selected]!),
+                      icon: calendarFormatIcon,
+                    ),
+                  ),
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: CalendarFormat.month,
+                child: ListTile(
+                  leading: const Icon(
+                    Icons.calendar_month,
+                  ),
+                  title: Text(formats[CalendarFormat.month]!),
+                ),
               ),
-            ),
+              PopupMenuItem(
+                value: CalendarFormat.week,
+                child: ListTile(
+                  leading: const Icon(
+                    Icons.calendar_view_week,
+                  ),
+                  title: Text(formats[CalendarFormat.week]!),
+                ),
+              ),
+            ],
           ),
           const SizedBox(width: 6.0),
         ],
@@ -672,7 +675,7 @@ class DateRangeSelectionListener extends ChangeNotifier {
     }
   }
 
-  bool get selectingRange => mode == RangeSelectionMode.enforced;
+  bool get selectingRange => mode == RangeStatus.enabled;
 }
 
 class DateSelectionDisplay extends StatefulWidget {
@@ -709,83 +712,123 @@ class _DateSelectionDisplayState extends State<DateSelectionDisplay> {
 
   @override
   Widget build(BuildContext context) {
-    final bool singleDate = widget.listener.mode == RangeSelectionMode.disabled;
+    final bool singleDate = widget.listener.mode == RangeStatus.disabled;
+
+    final bool reallySmall =
+        MediaQuery.of(context).size.width < REALLY_SMALL_LAYOUT;
+
+    final Widget rangeSelectionIcon = singleDate
+        ? Icon(
+            Icons.event,
+            color: Theme.of(context).colorScheme.onPrimary,
+          )
+        : Icon(
+            Icons.date_range,
+            color: Theme.of(context).colorScheme.onPrimary,
+          );
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
+        PopupMenuButton<RangeStatus>(
+            padding: EdgeInsets.zero,
+            icon: reallySmall
+                ? DecoratedBox(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8.0),
+                        color: Theme.of(context).primaryColor),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: rangeSelectionIcon,
+                    ),
+                  )
+                : IgnorePointer(
+                    child: FilledButton.icon(
+                      style: const ButtonStyle(
+                          splashFactory: NoSplash.splashFactory),
+                      onPressed: () {},
+                      label: Text(singleDate ? "Day" : "Range"),
+                      icon: rangeSelectionIcon,
+                    ),
+                  ),
+            onSelected: (status) {
+              widget.listener
+                  .setMode(selectingRange: status == RangeStatus.enabled);
+              setState(() {});
+            },
+            itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: RangeStatus.enabled,
+                    child: ListTile(
+                      leading: Icon(Icons.date_range),
+                      title: Text("Range"),
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: RangeStatus.disabled,
+                    child: ListTile(
+                      leading: Icon(Icons.event),
+                      title: Text("Day"),
+                    ),
+                  ),
+                ]),
+        const SizedBox(
+          width: 6.0,
+        ),
         if (singleDate)
           SizedBox(
-            height: 60.0,
+            height: Theme.of(context).buttonTheme.height,
             child: DecoratedBox(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8.0),
-                color: ElevationOverlay.applySurfaceTint(
-                    Theme.of(context).cardColor,
-                    Theme.of(context).colorScheme.surfaceTint,
-                    8),
+                border:
+                    Border.all(color: Theme.of(context).colorScheme.onSurface),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).canvasColor,
-                      borderRadius: BorderRadius.circular(4.0),
-                    ),
-                    child: DateDispay(
-                      title: "Selected",
-                      clear: null,
-                      hovered: true,
-                      selected: widget.selectedDay,
-                    )),
+              child: DateDispay(
+                title: "Selected",
+                clear: null,
+                hovered: true,
+                selected: widget.selectedDay,
               ),
             ),
           )
         else
-          CustomSlidingSegmentedControl<RangeSelection>(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8.0),
-              color: ElevationOverlay.applySurfaceTint(
-                  Theme.of(context).cardColor,
-                  Theme.of(context).colorScheme.surfaceTint,
-                  8),
+          SizedBox(
+            height: Theme.of(context).buttonTheme.height,
+            child: CustomSlidingSegmentedControl<RangeSelection>(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8.0),
+                  color: Colors.transparent,
+                  border: Border.all(color: Theme.of(context).disabledColor)),
+              thumbDecoration: BoxDecoration(
+                  border: Border.all(
+                      color: Theme.of(context).colorScheme.onSurface),
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(7.0)),
+              innerPadding: EdgeInsets.zero,
+              padding: 2,
+              children: {
+                RangeSelection.start: DateDispay(
+                  title: "Start",
+                  clear: widget.onStartClear,
+                  hovered: widget.rangeSelectionController.value ==
+                      RangeSelection.start,
+                  selected: widget.start,
+                ),
+                RangeSelection.end: DateDispay(
+                  title: "End",
+                  clear: widget.onEndClear,
+                  hovered: widget.rangeSelectionController.value ==
+                      RangeSelection.end,
+                  selected: widget.end,
+                )
+              },
+              onValueChanged: (_) {
+                setState(() {});
+              },
+              controller: widget.rangeSelectionController,
             ),
-            thumbDecoration: BoxDecoration(
-                color: Theme.of(context).canvasColor,
-                borderRadius: BorderRadius.circular(4.0)),
-            innerPadding: const EdgeInsets.all(4.0),
-            padding: 0,
-            height: 52.0,
-            children: {
-              RangeSelection.start: DateDispay(
-                title: "Start",
-                clear: widget.onStartClear,
-                hovered: widget.rangeSelectionController.value ==
-                    RangeSelection.start,
-                selected: widget.start,
-              ),
-              RangeSelection.end: DateDispay(
-                title: "End",
-                clear: widget.onEndClear,
-                hovered:
-                    widget.rangeSelectionController.value == RangeSelection.end,
-                selected: widget.end,
-              )
-            },
-            onValueChanged: (_) {
-              setState(() {});
-            },
-            controller: widget.rangeSelectionController,
           ),
-        const SizedBox(
-          width: 6.0,
-        ),
-        TextButton(
-            onPressed: () {
-              widget.listener.setMode(selectingRange: singleDate);
-              setState(() {});
-            },
-            child: Text(singleDate ? "Select Range" : "Select Day"))
       ],
     );
   }
@@ -812,42 +855,25 @@ class DateDispay extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool hasDate = selected != null;
     return Padding(
-      padding: const EdgeInsets.all(4.0),
+      padding: const EdgeInsets.symmetric(horizontal: 2.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodySmall
-                    ?.copyWith(fontWeight: hovered ? FontWeight.bold : null),
-              ),
-              const SizedBox(
-                height: 2.0,
-              ),
-              SizedBox(
-                width: 80.0,
-                child: Text(
-                  hasDate ? DateFormat.yMd().format(selected!) : "select",
-                  style: hovered
-                      ? Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: hasDate
-                              ? Theme.of(context).primaryColor
-                              : Theme.of(context).disabledColor)
-                      : Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: !hasDate
-                              ? Theme.of(context).disabledColor
-                              : null),
-                ),
-              ),
-            ],
+          SizedBox(
+            width: 80.0,
+            child: Text(
+              hasDate ? DateFormat.yMd().format(selected!) : "select",
+              textAlign: TextAlign.center,
+              style: hovered
+                  ? Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: hasDate
+                          ? Theme.of(context).primaryColor
+                          : Theme.of(context).disabledColor)
+                  : Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: !hasDate ? Theme.of(context).disabledColor : null),
+            ),
           ),
           const SizedBox(
             width: 6.0,

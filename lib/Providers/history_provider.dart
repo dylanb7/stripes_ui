@@ -352,9 +352,11 @@ final availibleStampsProvider =
   );
   final StampNotifier notifier = ref.watch(stampHolderProvider.notifier);
   final List<Stamp> stamps = await ref.watch(stampHolderProvider.future);
+
   if (filters.earliestRequired != null) {
     notifier.changeEarliest(filters.earliestRequired!);
   }
+
   return Available(allStamps: _convertStamps(stamps), filters: filters);
 });
 
