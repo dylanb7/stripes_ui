@@ -121,14 +121,16 @@ class CalendarDay extends StatelessWidget {
               constraints.maxHeight > constraints.maxWidth
                   ? constraints.maxWidth
                   : constraints.maxHeight;
-          return Container(
-            margin: EdgeInsetsDirectional.only(
-                top: style.cellMargin.top,
-                start: rangeStart ? constraints.maxWidth * 0.5 : 0.0,
-                end: rangeEnd ? constraints.maxWidth * 0.5 : 0.0,
-                bottom: style.cellMargin.bottom),
-            height: shorterSide - style.cellMargin.vertical,
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.4),
+          return Center(
+            child: Container(
+              margin: EdgeInsetsDirectional.only(
+                  top: style.cellMargin.top,
+                  start: rangeStart ? constraints.maxWidth * 0.5 : 0.0,
+                  end: rangeEnd ? constraints.maxWidth * 0.5 : 0.0,
+                  bottom: style.cellMargin.bottom),
+              height: shorterSide - style.cellMargin.vertical,
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.4),
+            ),
           );
         }),
         Align(

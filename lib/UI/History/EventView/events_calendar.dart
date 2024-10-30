@@ -26,56 +26,6 @@ class EventsCalendar extends ConsumerStatefulWidget {
   }
 }
 
-/*onRangeSelected: (start, end, focusedDay) {
-                              setState(() {
-                                final RangeSelection? selectingFor =
-                                    rangeSelection.value;
-                                final Filters filters = _filters;
-                                this.focusedDay = focusedDay;
-
-                                if (selectingFor == RangeSelection.start) {
-                                  if (start != null) {
-                                    if (filters.calendarSelection.rangeEnd !=
-                                        null) {
-                                      if (start.isAfter(filters
-                                          .calendarSelection.rangeEnd!)) {
-                                        ref
-                                                .read(filtersProvider.notifier)
-                                                .state =
-                                            filters.copyWith(
-                                                calendarSelection:
-                                                    CalendarSelection.range(
-                                                        start, null));
-                                        rangeSelection.value =
-                                            RangeSelection.end;
-                                      } else {
-                                        ref
-                                                .read(filtersProvider.notifier)
-                                                .state =
-                                            filters.copyWith(
-                                                calendarSelection:
-                                                    CalendarSelection.range(
-                                                        start,
-                                                        filters
-                                                            .calendarSelection
-                                                            .rangeEnd));
-                                      }
-                                    }
-                                  }
-                                } else {}
-
-                                ref.read(filtersProvider.notifier).state =
-                                    Filters(
-                                        calendarSelection:
-                                            CalendarSelection.range(start, end),
-                                        stampFilters: filters.stampFilters,
-                                        latestRequired: filters.latestRequired,
-                                        earliestRequired:
-                                            filters.earliestRequired,
-                                        groupSymptoms: filters.groupSymptoms);
-                              });
-                            }, */
-
 class EventsCalendarState extends ConsumerState<EventsCalendar> {
   DateTime focusedDay = DateTime.now();
 
@@ -93,24 +43,31 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
 
   @override
   void initState() {
-    rangeSelection = CustomSegmentedController(value: RangeSelection.start);
-    dateRangeSelectionListener =
-        DateRangeSelectionListener(RangeStatus.disabled);
+    final Filters filters = _filters;
+    rangeSelection = CustomSegmentedController(value: RangeSelection.end);
+    dateRangeSelectionListener = DateRangeSelectionListener(
+        filters.calendarSelection.selectedDate != null
+            ? RangeStatus.disabled
+            : RangeStatus.enabled);
     dateRangeSelectionListener.addListener(() {
       if (!mounted) return;
+      final Filters filters = _filters;
       if (dateRangeSelectionListener.selectingRange) {
         rangeSelection.value = RangeSelection.end;
-        final Filters filters = _filters;
+
         ref.read(filtersProvider.notifier).state = filters.copyWith(
             calendarSelection: CalendarSelection.range(
-                filters.calendarSelection.selectedDate, null));
+                filters.calendarSelection.selectedDate, null),
+            earliestRequired: DateTime(focusedDay.year, focusedDay.month, 1),
+            latestRequired: _lastDayOfMonth(focusedDay));
       } else {
-        final Filters filters = _filters;
         ref.read(filtersProvider.notifier).state = filters.copyWith(
             calendarSelection: CalendarSelection.selected(
                 filters.calendarSelection.rangeStart ??
                     filters.calendarSelection.rangeEnd ??
-                    DateTime.now()));
+                    DateTime.now()),
+            earliestRequired: DateTime(focusedDay.year, focusedDay.month, 1),
+            latestRequired: _lastDayOfMonth(focusedDay));
       }
     });
     super.initState();
@@ -127,7 +84,6 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
     final bool waiting = eventsValue.isLoading || eventsValue.hasError;
     final Map<DateTime, List<Response>> eventMap =
         eventsValue.valueOrNull ?? {};
-
     final DateTime? selected = calendarSelection.selectedDate;
     final DateTime? rangeStart = calendarSelection.rangeStart;
     final DateTime? rangeEnd = calendarSelection.rangeEnd;
@@ -796,6 +752,7 @@ class _DateSelectionDisplayState extends State<DateSelectionDisplay> {
           SizedBox(
             height: Theme.of(context).buttonTheme.height,
             child: CustomSlidingSegmentedControl<RangeSelection>(
+              initialValue: widget.rangeSelectionController.value,
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8.0),
                   color: Colors.transparent,

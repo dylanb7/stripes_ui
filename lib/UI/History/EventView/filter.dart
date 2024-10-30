@@ -284,7 +284,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
               const SizedBox(
                 height: 6.0,
               ),
-              DateRangePicker(
+              /*DateRangePicker(
                 onSelection: (dateRange) {
                   if (dateRange != null) {
                     setState(() {
@@ -294,7 +294,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                 },
                 initialStart: newRange?.start,
                 initialEnd: newRange?.end,
-              ),
+              ),*/
               const SizedBox(
                 height: 12.0,
               ),
@@ -305,7 +305,6 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                       onPressed: () {
                         setState(() {
                           selectedTypes = {};
-                          newRange = null;
                         });
                       },
                       child: Text(
