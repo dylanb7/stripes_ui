@@ -30,7 +30,7 @@ class Home extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AsyncValue<SubState> subNotif = ref.watch(subHolderProvider);
-    final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
+    final bool isSmall = MediaQuery.of(context).size.width < 1400;
 
     if (subNotif.isLoading) {
       return const LoadingWidget();
@@ -43,21 +43,21 @@ class Home extends ConsumerWidget {
     }
     return PageWrap(
       actions: [
-        /*if (!isSmall)
+        if (!isSmall)
           ...TabOption.values.map((tab) => LargeNavButton(
                 tab: tab,
                 selected: selected,
-              )),*/
+              )),
         const SizedBox(
           width: 8.0,
         ),
         const UserProfileButton()
       ],
-      bottomNav: /*isSmall
-          ? */
-          SmallLayout(
-        selected: selected,
-      ) /*: null*/,
+      bottomNav: isSmall
+          ? SmallLayout(
+              selected: selected,
+            )
+          : null,
       child: TabContent(
         selected: selected,
       ),
