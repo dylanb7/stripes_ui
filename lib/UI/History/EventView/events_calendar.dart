@@ -684,7 +684,7 @@ class _DateSelectionDisplayState extends State<DateSelectionDisplay> {
           );
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         PopupMenuButton<RangeStatus>(
             padding: EdgeInsets.zero,
@@ -814,7 +814,7 @@ class DateDispay extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 2.0),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
