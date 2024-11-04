@@ -43,21 +43,21 @@ class Home extends ConsumerWidget {
     }
     return PageWrap(
       actions: [
-        if (!isSmall)
+        /*if (!isSmall)
           ...TabOption.values.map((tab) => LargeNavButton(
                 tab: tab,
                 selected: selected,
-              )),
+              )),*/
         const SizedBox(
           width: 8.0,
         ),
         const UserProfileButton()
       ],
-      bottomNav: isSmall
-          ? SmallLayout(
-              selected: selected,
-            )
-          : null,
+      bottomNav: /*isSmall
+          ? */
+          SmallLayout(
+        selected: selected,
+      ) /*: null*/,
       child: TabContent(
         selected: selected,
       ),
