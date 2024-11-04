@@ -817,20 +817,17 @@ class DateDispay extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SizedBox(
-            width: 80.0,
-            child: Text(
-              hasDate ? DateFormat.yMd().format(selected!) : "select",
-              textAlign: TextAlign.center,
-              style: hovered
-                  ? Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: hasDate
-                          ? Theme.of(context).primaryColor
-                          : Theme.of(context).disabledColor)
-                  : Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: !hasDate ? Theme.of(context).disabledColor : null),
-            ),
+          Text(
+            hasDate ? DateFormat.yMd().format(selected!) : "select",
+            textAlign: TextAlign.center,
+            style: hovered
+                ? Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: hasDate
+                        ? Theme.of(context).primaryColor
+                        : Theme.of(context).disabledColor)
+                : Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: !hasDate ? Theme.of(context).disabledColor : null),
           ),
           const SizedBox(
             width: 6.0,

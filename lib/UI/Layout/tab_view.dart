@@ -481,6 +481,7 @@ class LargeNavButton extends ConsumerWidget {
         },
         child: Text(
           text,
+          style: Theme.of(context).textTheme.bodyLarge,
         ));
 
     if (tab == selected) {
