@@ -830,7 +830,7 @@ class DateDispay extends StatelessWidget {
                     color: !hasDate ? Theme.of(context).disabledColor : null),
           ),
           const SizedBox(
-            width: 6.0,
+            width: 2.0,
           ),
           clear != null
               ? IconButton(

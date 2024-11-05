@@ -21,7 +21,7 @@ class PatientScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
+    final bool isSmall = MediaQuery.of(context).size.width < 1400;
     const double itemWidth = SMALL_LAYOUT / 1.5;
 
     final subNotifier = ref.watch(subHolderProvider);

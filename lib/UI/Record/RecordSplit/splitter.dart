@@ -75,7 +75,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
         PageProps(context: context, questionListener: widget.questionListener);
     final List<PageLayout> pages =
         ref.watch(pagePaths(props))[widget.type]?.pages ?? [];
-    final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
+    final bool isSmall = MediaQuery.of(context).size.width < 1400;
 
     final AsyncValue<QuestionRepo> questionRepo = ref.watch(questionsProvider);
 
