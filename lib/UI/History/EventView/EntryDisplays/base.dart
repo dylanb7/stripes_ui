@@ -14,6 +14,7 @@ import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/UI/History/EventView/EntryDisplays/blue_dye.dart';
+import 'package:stripes_ui/UI/Record/QuestionEntries/pain_area.dart';
 import 'package:stripes_ui/Util/date_helper.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 import 'package:stripes_ui/repos/blue_dye_test_repo.dart';
@@ -694,5 +695,138 @@ class MoodSliderDisplay extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class PainLocationDisplay extends StatelessWidget {
+  final AllResponse painLocation;
+
+  const PainLocationDisplay({required this.painLocation, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final filledBorder =
+        BorderSide(color: Theme.of(context).colorScheme.onSurface);
+    const blankBorder = BorderSide(color: Colors.transparent);
+
+    return Column(mainAxisAlignment: MainAxisAlignment.start, children: [
+      Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+        Text(
+            '${painLocation.question.prompt} - ${painLocation.responses.map((res) => painLocation.choices[res]).toList().join(", ")}',
+            style: Theme.of(context).textTheme.bodyMedium,
+            maxLines: null)
+      ]),
+      const SizedBox(
+        width: 4,
+      ),
+      if (painLocation.responses.length != 1 ||
+          Area.none.fromValue(painLocation.responses[0]) != Area.none)
+        SizedBox(
+          height: 100,
+          child: Stack(children: [
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                border:
+                    Border.all(color: Theme.of(context).colorScheme.onSurface),
+                borderRadius: BorderRadius.circular(12.0),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12.0),
+                clipBehavior: Clip.hardEdge,
+                child: Image.asset(
+                  'packages/stripes_ui/assets/images/abdomin.png',
+                  fit: BoxFit.fill,
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 4.0,
+            ),
+            Positioned.fill(
+              child: FractionallySizedBox(
+                  widthFactor: 0.55,
+                  heightFactor: 0.7,
+                  child: Column(
+                    children: [
+                      ...List.generate(
+                        3,
+                        (colIndex) => Expanded(
+                          child: Row(
+                            children: [
+                              ...List.generate(3, (rowIndex) {
+                                final int index = (colIndex * 3) + rowIndex;
+                                final bool isSelected =
+                                    painLocation.responses.contains(index + 1);
+                                return Expanded(
+                                  child: Container(
+                                    padding: const EdgeInsets.all(4.0),
+                                    width: double.infinity,
+                                    height: double.infinity,
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                          top: colIndex == 0
+                                              ? blankBorder
+                                              : filledBorder,
+                                          left: rowIndex == 0
+                                              ? blankBorder
+                                              : filledBorder,
+                                          right: rowIndex == 2
+                                              ? blankBorder
+                                              : filledBorder,
+                                          bottom: colIndex == 2
+                                              ? blankBorder
+                                              : filledBorder),
+                                    ),
+                                    child: Stack(children: [
+                                      Positioned.fill(
+                                        child: FractionallySizedBox(
+                                          widthFactor: 0.8,
+                                          heightFactor: 0.8,
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              gradient: isSelected
+                                                  ? RadialGradient(
+                                                      center: Alignment.center,
+                                                      radius: 0.5,
+                                                      colors: [
+                                                        Theme.of(context)
+                                                            .colorScheme
+                                                            .error,
+                                                        Colors.transparent
+                                                      ],
+                                                      stops: const [0.1, 1.0],
+                                                    )
+                                                  : null,
+                                            ),
+                                            width: double.infinity,
+                                            height: double.infinity,
+                                          ),
+                                        ),
+                                      ),
+                                    ]),
+                                  ), /*SelectableTile(
+                                  row: rowIndex,
+                                  col: colIndex,
+                                  index: index,
+                                  selected: (selected?.contains(area) ?? false)
+                                      ? area
+                                      : null,
+                                  onSelect: (newValue) {
+                                    setResponse(newValue);
+                                  }),*/
+                                );
+                              })
+                            ],
+                          ),
+                        ),
+                      )
+                    ],
+                  )),
+            ),
+          ]),
+        ),
+    ]);
   }
 }

@@ -103,6 +103,8 @@ class Questions extends QuestionRepo {
             scrollDirection: Axis.horizontal, child: BMRow(response: numeric)),
         rating: <Numeric>(context, numeric) =>
             PainSliderDisplay(response: numeric),
+        location: <AllResponse>(context, all) =>
+            PainLocationDisplay(painLocation: all),
         q6: <Numeric>(context, numeric) => PainSliderDisplay(response: numeric),
       };
 }
