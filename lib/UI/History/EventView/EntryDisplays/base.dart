@@ -712,14 +712,14 @@ class PainLocationDisplay extends StatelessWidget {
     return Column(mainAxisAlignment: MainAxisAlignment.start, children: [
       Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
         Text(
-            '${painLocation.question.prompt} - ${"painLocation.responses.map((res) => painLocation.choices[res]).toList().join(", ")"}',
+            '${painLocation.question.prompt} - ${'painLocation.responses.map((res) => painLocation.choices[res]).toList().join(", ")'}',
             style: Theme.of(context).textTheme.bodyMedium,
             maxLines: null)
       ]),
       const SizedBox(
         width: 4,
       ),
-      if (painLocation.responses.length != 1 ||
+      if (painLocation.responses.isNotEmpty &&
           Area.none.fromValue(painLocation.responses[0]) != Area.none)
         SizedBox(
           height: 100,
