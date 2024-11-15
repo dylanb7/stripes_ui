@@ -709,6 +709,8 @@ class PainLocationDisplay extends StatelessWidget {
         BorderSide(color: Theme.of(context).colorScheme.onSurface);
     const blankBorder = BorderSide(color: Colors.transparent);
 
+    print("${painLocation.choices} ${painLocation.responses}");
+
     return Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
