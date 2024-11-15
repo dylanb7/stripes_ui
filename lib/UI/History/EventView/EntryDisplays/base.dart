@@ -712,7 +712,7 @@ class PainLocationDisplay extends StatelessWidget {
     return Column(mainAxisAlignment: MainAxisAlignment.start, children: [
       Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
         Text(
-            '${painLocation.question.prompt} - ${painLocation.responses.map((res) => painLocation.choices[res]).toList().join(", ")}',
+            '${painLocation.question.prompt} - ${"painLocation.responses.map((res) => painLocation.choices[res]).toList().join(", ")"}',
             style: Theme.of(context).textTheme.bodyMedium,
             maxLines: null)
       ]),
