@@ -127,7 +127,7 @@ class _RecordingsWaitingState extends ConsumerState<RecordingsWaiting> {
 
   Timer? timer;
 
-  final Duration waitTime = const Duration(days: 6);
+  final Duration waitTime = const Duration(seconds: 10);
 
   @override
   void didChangeDependencies() {
