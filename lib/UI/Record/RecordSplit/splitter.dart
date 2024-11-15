@@ -162,6 +162,9 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                   pageController: pageController,
                   currentIndex: currentIndex,
                   length: pages.length,
+                  close: () {
+                    _close(ref, context, null);
+                  },
                 ),
                 Expanded(
                   child: Container(
@@ -260,10 +263,14 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     );
   }
 
-  void _close(WidgetRef ref, BuildContext context, String route) {
+  void _close(WidgetRef ref, BuildContext context, String? route) {
     if (!hasChanged) {
       widget.questionListener.tried = false;
-      context.go(route);
+      if (route == null) {
+        context.pop();
+      } else {
+        context.go(route);
+      }
       return;
     }
 
@@ -428,6 +435,7 @@ class RecordHeader extends ConsumerWidget {
   final QuestionsListener questionListener;
   final PageController pageController;
   final int currentIndex, length;
+  final Function close;
 
   const RecordHeader(
       {required this.type,
@@ -436,6 +444,7 @@ class RecordHeader extends ConsumerWidget {
       required this.pageController,
       required this.currentIndex,
       required this.length,
+      required this.close,
       super.key});
 
   @override
@@ -450,25 +459,20 @@ class RecordHeader extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           length != 0
-              ? GestureDetector(
-                  onTap: currentIndex == 0
-                      ? () {
-                          showSnack(context,
-                              AppLocalizations.of(context)!.firstPageError);
-                        }
-                      : null,
-                  behavior: HitTestBehavior.opaque,
-                  child: IconButton(
-                    onPressed: currentIndex == 0
-                        ? null
-                        : () {
+              ? IconButton(
+                  onPressed: currentIndex == 0
+                      ? null
+                      : () {
+                          if (currentIndex == 0) {
+                            close();
+                          } else {
                             questionListener.tried = false;
                             pageController.previousPage(
                                 duration: const Duration(milliseconds: 250),
                                 curve: Curves.linear);
-                          },
-                    icon: const Icon(Icons.arrow_back_sharp),
-                  ),
+                          }
+                        },
+                  icon: const Icon(Icons.arrow_back_sharp),
                 )
               : SizedBox(
                   width: Theme.of(context).iconTheme.size ?? 20,
@@ -510,7 +514,7 @@ class RecordHeader extends ConsumerWidget {
 class ErrorPrevention extends ConsumerWidget {
   final String type;
 
-  final String route;
+  final String? route;
 
   const ErrorPrevention({required this.type, required this.route, super.key});
 
@@ -543,7 +547,11 @@ class ErrorPrevention extends ConsumerWidget {
           ],
         ),
         onConfirm: () {
-          context.go(route);
+          if (route == null) {
+            context.pop();
+          } else {
+            context.go(route!);
+          }
         },
         cancel: AppLocalizations.of(context)!.errorPreventionStay,
         confirm: AppLocalizations.of(context)!.errorPreventionLeave);
