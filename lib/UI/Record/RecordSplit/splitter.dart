@@ -460,18 +460,16 @@ class RecordHeader extends ConsumerWidget {
         children: [
           length != 0
               ? IconButton(
-                  onPressed: currentIndex == 0
-                      ? null
-                      : () {
-                          if (currentIndex == 0) {
-                            close();
-                          } else {
-                            questionListener.tried = false;
-                            pageController.previousPage(
-                                duration: const Duration(milliseconds: 250),
-                                curve: Curves.linear);
-                          }
-                        },
+                  onPressed: () {
+                    if (currentIndex == 0) {
+                      close();
+                    } else {
+                      questionListener.tried = false;
+                      pageController.previousPage(
+                          duration: const Duration(milliseconds: 250),
+                          curve: Curves.linear);
+                    }
+                  },
                   icon: const Icon(Icons.arrow_back_sharp),
                 )
               : SizedBox(
