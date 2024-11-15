@@ -710,19 +710,17 @@ class PainLocationDisplay extends StatelessWidget {
     const blankBorder = BorderSide(color: Colors.transparent);
 
     return Column(mainAxisAlignment: MainAxisAlignment.start, children: [
-      Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-        Text(
-            '${painLocation.question.prompt} - ${'painLocation.responses.map((res) => painLocation.choices[res]).toList().join(", ")'}',
-            style: Theme.of(context).textTheme.bodyMedium,
-            maxLines: null)
-      ]),
+      Text(
+          '${painLocation.question.prompt} - ${'painLocation.responses.map((res) => painLocation.choices[res]).toList().join(", ")'}',
+          style: Theme.of(context).textTheme.bodyMedium,
+          maxLines: null),
       const SizedBox(
         width: 4,
       ),
       if (painLocation.responses.isNotEmpty &&
           Area.none.fromValue(painLocation.responses[0]) != Area.none)
         SizedBox(
-          height: 100,
+          width: 100,
           child: Stack(children: [
             Container(
               width: double.infinity,
