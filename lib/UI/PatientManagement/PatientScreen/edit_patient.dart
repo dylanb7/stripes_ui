@@ -243,7 +243,6 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
     setState(() {
       isLoading = true;
     });
-    print(_formKey.currentState?.validate());
     if (_formKey.currentState?.validate() ?? false) {
       final SubUser newUser = isName
           ? SubUser(
