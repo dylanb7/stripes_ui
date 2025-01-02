@@ -472,8 +472,8 @@
     "eventFiltersApply": "Filter anwenden",
     "noEventsText": "Keine Einträge dokumentiert",
 
-    "behaviorsLabel": "Verhaltensweisen:",
-    "descriptionLabel": "Beschreibung:",
+    "behaviorsLabel": "Verhaltensweisen",
+    "descriptionLabel": "Beschreibung",
     "deleteAction": "Löschen",
 
     "startTestEntry": "Teststart:",

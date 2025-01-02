@@ -475,8 +475,8 @@
     "eventFiltersApply": "Apply Filters",
     "noEventsText": "No events recorded",
 
-    "behaviorsLabel": "Behaviors:",
-    "descriptionLabel": "Description:",
+    "behaviorsLabel": "Behaviors",
+    "descriptionLabel": "Description",
     "deleteAction": "Delete", 
 
     "startTestEntry": "Started Test:",

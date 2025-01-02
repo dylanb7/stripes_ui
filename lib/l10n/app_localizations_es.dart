@@ -891,10 +891,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get noEventsText => 'No events recorded';
 
   @override
-  String get behaviorsLabel => 'Behaviors:';
+  String get behaviorsLabel => 'Behaviors';
 
   @override
-  String get descriptionLabel => 'Description:';
+  String get descriptionLabel => 'Description';
 
   @override
   String get deleteAction => 'Delete';

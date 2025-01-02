@@ -322,11 +322,13 @@ class DetailDisplay extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Divider(),
         if (detail.description != null && detail.description!.isNotEmpty) ...[
           Text(
             AppLocalizations.of(context)!.descriptionLabel,
-            style: Theme.of(context).textTheme.titleMedium,
+            style: Theme.of(context)
+                .textTheme
+                .labelSmall
+                ?.copyWith(color: Theme.of(context).dividerColor),
             textAlign: TextAlign.left,
           ),
           const SizedBox(
@@ -345,7 +347,10 @@ class DetailDisplay extends StatelessWidget {
         if (detail.responses.isNotEmpty) ...[
           Text(
             AppLocalizations.of(context)!.behaviorsLabel,
-            style: Theme.of(context).textTheme.titleMedium,
+            style: Theme.of(context)
+                .textTheme
+                .labelSmall
+                ?.copyWith(color: Theme.of(context).dividerColor),
             textAlign: TextAlign.left,
           ),
           const SizedBox(

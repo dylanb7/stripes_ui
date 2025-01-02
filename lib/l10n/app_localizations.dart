@@ -1666,13 +1666,13 @@ abstract class AppLocalizations {
   /// No description provided for @behaviorsLabel.
   ///
   /// In en, this message translates to:
-  /// **'Behaviors:'**
+  /// **'Behaviors'**
   String get behaviorsLabel;
 
   /// No description provided for @descriptionLabel.
   ///
   /// In en, this message translates to:
-  /// **'Description:'**
+  /// **'Description'**
   String get descriptionLabel;
 
   /// No description provided for @deleteAction.

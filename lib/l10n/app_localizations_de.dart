@@ -891,10 +891,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get noEventsText => 'Keine Einträge dokumentiert';
 
   @override
-  String get behaviorsLabel => 'Verhaltensweisen:';
+  String get behaviorsLabel => 'Verhaltensweisen';
 
   @override
-  String get descriptionLabel => 'Beschreibung:';
+  String get descriptionLabel => 'Beschreibung';
 
   @override
   String get deleteAction => 'Löschen';
