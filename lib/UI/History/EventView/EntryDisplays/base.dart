@@ -322,6 +322,7 @@ class DetailDisplay extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
+        const Divider(),
         if (detail.description != null && detail.description!.isNotEmpty) ...[
           Text(
             AppLocalizations.of(context)!.descriptionLabel,
@@ -722,8 +723,8 @@ class PainLocationDisplay extends StatelessWidget {
           ),
           if (painLocation.responses.isNotEmpty &&
               Area.none.fromValue(painLocation.responses[0]) != Area.none)
-            SizedBox(
-              height: 100,
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 100, maxWidth: 400),
               child: Stack(children: [
                 Container(
                   width: double.infinity,
@@ -792,7 +793,7 @@ class PainLocationDisplay extends StatelessWidget {
                                                       ? RadialGradient(
                                                           center:
                                                               Alignment.center,
-                                                          radius: 0.5,
+                                                          radius: 0.7,
                                                           colors: [
                                                             Theme.of(context)
                                                                 .colorScheme

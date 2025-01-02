@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/auth_provider.dart';
+import 'package:stripes_ui/Providers/route_provider.dart';
 
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
@@ -58,8 +59,9 @@ class PatientScreen extends ConsumerWidget {
                 ),
                 const Spacer(),
                 FilledButton(
-                    onPressed: () {
-                      ref.read(authProvider).logOut();
+                    onPressed: () async {
+                      await ref.read(authProvider).logOut();
+                      ref.invalidate(routeProvider);
                     },
                     child: Text(AppLocalizations.of(context)!.logOutButton))
               ],
