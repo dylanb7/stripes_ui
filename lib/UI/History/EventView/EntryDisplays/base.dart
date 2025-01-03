@@ -339,8 +339,8 @@ class DetailDisplay extends StatelessWidget {
             textAlign: TextAlign.left,
             maxLines: null,
           ),
-          const SizedBox(
-            height: 3.0,
+          const Divider(
+            height: 8.0,
           ),
         ],
         if (detail.responses.isNotEmpty) ...[
@@ -350,9 +350,6 @@ class DetailDisplay extends StatelessWidget {
                 color:
                     Theme.of(context).colorScheme.onSurface.withOpacity(0.75)),
             textAlign: TextAlign.left,
-          ),
-          const Divider(
-            height: 6.0,
           ),
         ],
         ...detail.responses.mapIndexed<Widget>((index, res) {
