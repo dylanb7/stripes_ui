@@ -351,8 +351,8 @@ class DetailDisplay extends StatelessWidget {
                     Theme.of(context).colorScheme.onSurface.withOpacity(0.75)),
             textAlign: TextAlign.left,
           ),
-          const SizedBox(
-            height: 3.0,
+          const Divider(
+            height: 6.0,
           ),
         ],
         ...detail.responses.mapIndexed<Widget>((index, res) {
