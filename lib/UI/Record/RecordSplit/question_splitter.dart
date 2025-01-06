@@ -37,11 +37,13 @@ final questionSplitProvider =
 
 final pagePaths =
     Provider.family<Map<String, RecordPath>, PageProps>((ref, props) {
-  final Map<String, RecordPath>? pageOverrides = ref
-      .watch(questionsProvider)
-      .valueOrNull
-      ?.getLayouts(
-          context: props.context, questionListener: props.questionListener);
+  final Map<String, RecordPath>? pageOverrides = ref.watch(
+    questionsProvider.select(
+      (questions) => questions.valueOrNull?.getLayouts(
+          context: props.context, questionListener: props.questionListener),
+    ),
+  );
+
   final Map<String, List<Question>> split =
       ref.watch(questionSplitProvider(props));
   final Map<String, QuestionEntry> questionOverrides =
