@@ -7,7 +7,6 @@ import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/horizontal_stepper.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/CommonWidgets/scroll_assisted_list.dart';
-import 'package:stripes_ui/UI/Layout/home_screen.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/amount_consumed.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
@@ -227,7 +226,9 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
       final double base = index.toDouble();
       if (loaded?.stage == BlueDyeTestStage.amountConsumed) return base + 0.8;
       if (loaded?.stage == BlueDyeTestStage.initial &&
-          (loaded?.testIteration ?? 0) > 0) return base + 0.99;
+          (loaded?.testIteration ?? 0) > 0) {
+        return base + 0.99;
+      }
       return base;
     }
 
@@ -331,7 +332,8 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                 getDisplayedWidget(),
               ],
             ),
-        scrollController: scrollContoller);
+        scrollController: scrollContoller,
+        key: const PageStorageKey("blueDyeStudyOngoing"));
   }
 
   _changePage(int newIndex) {
