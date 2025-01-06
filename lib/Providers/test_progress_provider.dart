@@ -26,6 +26,8 @@ final blueDyeTestProgressProvider =
   );
 
   final List<TestDate> mostRecent = _getOrderedTests(testResponses);
+  print(blueDyeState);
+  print(mostRecent);
   final int iterations = testResponses.length;
 
   return BlueDyeTestProgress(
@@ -83,7 +85,9 @@ class BlueDyeTestProgress {
       return BlueDyeProgression.stepTwo;
     }
     if (stage == BlueDyeTestStage.amountConsumed ||
-        stage == BlueDyeTestStage.started) return BlueDyeProgression.stepThree;
+        stage == BlueDyeTestStage.started) {
+      return BlueDyeProgression.stepThree;
+    }
     return BlueDyeProgression.stepFour;
   }
 
