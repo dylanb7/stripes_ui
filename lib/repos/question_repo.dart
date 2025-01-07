@@ -28,8 +28,8 @@ class Questions extends QuestionRepo {
   Map<String, RecordPath> getLayouts(
       {required BuildContext context, QuestionsListener? questionListener}) {
     return {
-      "Meal Time": const RecordPath(period: Period.day, pages: []),
-      Symptoms.PAIN: RecordPath(period: Period.week, pages: [
+      "Meal Time": const RecordPath(pages: []),
+      Symptoms.PAIN: RecordPath(pages: [
         const PageLayout(questionIds: [q14, q27, q28, q1, q18]),
         if (questionListener != null &&
             (hasId(questionListener, q1) || hasId(questionListener, q18)))
