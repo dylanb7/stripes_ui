@@ -3,6 +3,7 @@ import 'package:stripes_backend_helper/QuestionModel/question.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo_base.dart';
+import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/record_period.dart';
 import 'package:stripes_backend_helper/TestingReposImpl/test_question_repo.dart';
 import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/blue_dye_entry.dart';
@@ -27,8 +28,8 @@ class Questions extends QuestionRepo {
   Map<String, RecordPath> getLayouts(
       {required BuildContext context, QuestionsListener? questionListener}) {
     return {
-      "Meal Time": const RecordPath(pages: []),
-      Symptoms.PAIN: RecordPath(pages: [
+      "Meal Time": const RecordPath(period: Period.day, pages: []),
+      Symptoms.PAIN: RecordPath(period: Period.week, pages: [
         const PageLayout(questionIds: [q14, q27, q28, q1, q18]),
         if (questionListener != null &&
             (hasId(questionListener, q1) || hasId(questionListener, q18)))
