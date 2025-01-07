@@ -60,6 +60,7 @@ class Options extends ConsumerWidget {
             Text(
               AppLocalizations.of(context)!.checkInLabel,
               style: Theme.of(context).textTheme.titleMedium,
+              textAlign: TextAlign.left,
             ),
           ...checkin.keys.map((period) {
             return Column(
