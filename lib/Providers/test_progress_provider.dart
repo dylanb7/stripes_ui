@@ -26,7 +26,7 @@ final blueDyeTestProgressProvider =
   );
 
   final List<TestDate> mostRecent = _getOrderedTests(testResponses);
-  print(blueDyeState);
+  print("BlueDyeState:å $blueDyeState");
   print(mostRecent);
   final int iterations = testResponses.length;
 

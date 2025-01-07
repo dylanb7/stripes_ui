@@ -140,7 +140,10 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
         const SizedBox(
           height: 8.0,
         ),
-        LongTextEntry(textController: _descriptionController),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: LongTextEntry(textController: _descriptionController),
+        ),
         const SizedBox(
           height: 18.0,
         ),
