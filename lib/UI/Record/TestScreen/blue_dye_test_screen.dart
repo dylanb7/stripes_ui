@@ -62,6 +62,7 @@ class _BlueDyeTestScreenState extends ConsumerState<BlueDyeTestScreen> {
       scrollable: AddIndicator(
         builder: (context, hasIndicator) => ScrollAssistedList(
           scrollController: scrollContoller,
+          key: const PageStorageKey("BlueDyeScroll"),
           builder: (context, properties) => SizedBox.expand(
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
