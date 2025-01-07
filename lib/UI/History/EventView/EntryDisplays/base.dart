@@ -347,8 +347,11 @@ class DetailDisplay extends StatelessWidget {
           Text(
             AppLocalizations.of(context)!.behaviorsLabel,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color:
-                    Theme.of(context).colorScheme.onSurface.withOpacity(0.75)),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withValues(alpha: 0.85),
+                ),
             textAlign: TextAlign.left,
           ),
         ],
