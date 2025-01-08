@@ -48,6 +48,8 @@ class ActionRow extends ConsumerWidget {
             ChoiceChip(
               label: const Icon(Icons.layers),
               selected: filters.groupSymptoms,
+              showCheckmark: false,
+              selectedColor: Theme.of(context).primaryColor,
               onSelected: (value) {
                 ref.read(filtersProvider.notifier).state =
                     filters.copyWith(groupSymptoms: value);
