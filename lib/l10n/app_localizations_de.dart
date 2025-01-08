@@ -335,7 +335,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get studyContactTitle => 'Contact Us';
 
   @override
-  String get studyContactBody => 'Questions or problems? Email [email@university.edu] with \"Blue Meal Study\" in the subject line, or call Dr. XYZ at ###-###-#### during business hours.';
+  String get studyContactBody => 'Questions or problems? Email [email@university.edu] with \"Blue Meal Study\" in the subject line.';
 
   @override
   String get studyStepOneExplanationTitle => 'Step 1: Eat Blue Meal (Transit Time 1)';

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -127,7 +128,7 @@ class _RecordingsWaitingState extends ConsumerState<RecordingsWaiting> {
 
   Timer? timer;
 
-  final Duration waitTime = const Duration(seconds: 10);
+  final Duration waitTime = const Duration(days: 7);
 
   @override
   void didChangeDependencies() {
@@ -156,6 +157,7 @@ class _RecordingsWaitingState extends ConsumerState<RecordingsWaiting> {
     final List<TestDate> orderedTests =
         progress.valueOrNull?.orderedTests ?? [];
     if (orderedTests.isEmpty) return Container();
+    final DateTime progressDate = orderedTests[0].finishTime.add(waitTime);
     final Duration timePassed =
         DateTime.now().difference(orderedTests[0].finishTime);
 
@@ -210,7 +212,7 @@ class _RecordingsWaitingState extends ConsumerState<RecordingsWaiting> {
                         ?.copyWith(fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   )),
-                  if (!canProgress)
+                  if (!canProgress) ...[
                     Center(
                         child: Text(
                       "${AppLocalizations.of(context)!.stepTwoCompletedSubText}${from(timeLeft, context)}",
@@ -222,6 +224,26 @@ class _RecordingsWaitingState extends ConsumerState<RecordingsWaiting> {
                               color: Theme.of(context).primaryColor),
                       textAlign: TextAlign.center,
                     )),
+                    const SizedBox(
+                      height: 8.0,
+                    ),
+                    Center(
+                      child: TextButton(
+                          onPressed: () {
+                            Add2Calendar.addEvent2Cal(
+                              Event(
+                                title: "Blue Meal Test",
+                                description:
+                                    "The second Blue Meal Test is available today.",
+                                startDate: progressDate,
+                                endDate: progressDate,
+                                allDay: true,
+                              ),
+                            );
+                          },
+                          child: const Text("Add to Calendar")),
+                    )
+                  ],
                   const SizedBox(
                     height: 12.0,
                   ),

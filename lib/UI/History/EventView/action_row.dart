@@ -46,7 +46,7 @@ class ActionRow extends ConsumerWidget {
                   ?.copyWith(fontWeight: FontWeight.bold),
             ),
             ChoiceChip(
-              label: const Text("Group Types"),
+              label: const Icon(Icons.layers),
               selected: filters.groupSymptoms,
               onSelected: (value) {
                 ref.read(filtersProvider.notifier).state =

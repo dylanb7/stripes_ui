@@ -268,73 +268,65 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
     }
 
     return ScrollAssistedList(
-        builder: (context, properties) => ListView(
-              key: properties.scrollStateKey,
-              shrinkWrap: true,
-              controller: properties.scrollController,
-              children: [
-                HorizontalStepper(
-                    steps: BlueDyeProgression.values
-                        .map(
-                          (step) => HorizontalStep(
-                            title: Text(
-                              step.getLabel(context),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: step.value > index
-                                        ? Theme.of(context)
-                                            .colorScheme
-                                            .onSurface
-                                            .withOpacity(0.5)
-                                        : null,
-                                    decoration: currentIndex != step.value &&
-                                            step.value <= index
-                                        ? TextDecoration.underline
-                                        : null,
-                                  ),
-                              textAlign: TextAlign.center,
+      builder: (context, properties) => ListView(
+        key: properties.scrollStateKey,
+        shrinkWrap: true,
+        controller: properties.scrollController,
+        children: [
+          HorizontalStepper(
+              steps: BlueDyeProgression.values
+                  .map(
+                    (step) => HorizontalStep(
+                      title: Text(
+                        step.getLabel(context),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: step.value > index
+                                  ? Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withOpacity(0.5)
+                                  : null,
+                              decoration: currentIndex != step.value &&
+                                      step.value <= index
+                                  ? TextDecoration.underline
+                                  : null,
                             ),
-                            dotContents: Text(
-                              "${step.value + 1}",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyLarge
-                                  ?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimary,
-                                      fontWeight: FontWeight.bold),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        )
-                        .toList(),
-                    circleWidth: 45.0,
-                    onStepPressed: (index, isActive) {
-                      if (!isActive) {
-                        showSnack(
-                            context,
-                            AppLocalizations.of(context)!
-                                .stepClickWarning("${index + 1}"));
-                        return;
-                      }
-                      if (currentIndex == index) return;
-                      _changePage(index);
-                    },
-                    progress: getDetailedProgress(),
-                    active: Theme.of(context).colorScheme.primary,
-                    inactive: Theme.of(context).dividerColor.darken()),
-                const SizedBox(
-                  height: 12.0,
-                ),
-                getDisplayedWidget(),
-              ],
-            ),
-        scrollController: scrollContoller,
-        key: const PageStorageKey("blueDyeStudyOngoing"));
+                        textAlign: TextAlign.center,
+                      ),
+                      dotContents: Text(
+                        "${step.value + 1}",
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  )
+                  .toList(),
+              circleWidth: 45.0,
+              onStepPressed: (index, isActive) {
+                if (!isActive) {
+                  showSnack(
+                      context,
+                      AppLocalizations.of(context)!
+                          .stepClickWarning("${index + 1}"));
+                  return;
+                }
+                if (currentIndex == index) return;
+                _changePage(index);
+              },
+              progress: getDetailedProgress(),
+              active: Theme.of(context).colorScheme.primary,
+              inactive: Theme.of(context).dividerColor.darken()),
+          const SizedBox(
+            height: 12.0,
+          ),
+          getDisplayedWidget(),
+        ],
+      ),
+      scrollController: scrollContoller,
+    );
   }
 
   _changePage(int newIndex) {
