@@ -26,6 +26,7 @@ class RecordingsView extends ConsumerWidget {
     final AsyncValue<BlueDyeTestProgress> progress =
         ref.watch(blueDyeTestProgressProvider);
     if (progress.isLoading) return const LoadingWidget();
+    print(progress);
     final List<BMTestLog> logs = clicked == BlueDyeProgression.stepFour &&
             (progress.valueOrNull?.orderedTests.length ?? 0) >= 2
         ? progress.valueOrNull?.orderedTests[1].test.logs ?? []
@@ -312,6 +313,8 @@ class _RecordingsState extends ConsumerState<RecordingsState> {
         .select((holder) => holder.valueOrNull?.getTestState<BlueDyeState>()));
     final AsyncValue<BlueDyeTestProgress> progress =
         ref.watch(blueDyeTestProgressProvider);
+
+    print(progress);
 
     if (progress.isLoading) return const LoadingWidget();
 
