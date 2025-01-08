@@ -326,6 +326,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
         ],
       ),
       scrollController: scrollContoller,
+      key: const PageStorageKey("BlueDyeArea"),
     );
   }
 
