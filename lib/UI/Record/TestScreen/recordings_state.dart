@@ -219,7 +219,7 @@ class _RecordingsWaitingState extends ConsumerState<RecordingsWaiting> {
                       "${AppLocalizations.of(context)!.stepTwoCompletedSubText}${from(timeLeft, context)}",
                       style: Theme.of(context)
                           .textTheme
-                          .headlineMedium
+                          .headlineSmall
                           ?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: Theme.of(context).primaryColor),
