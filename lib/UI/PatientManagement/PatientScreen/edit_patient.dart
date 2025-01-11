@@ -89,7 +89,7 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  'Edit Patient',
+                                  'Edit Profile',
                                   style: Theme.of(context)
                                       .textTheme
                                       .titleLarge
@@ -172,7 +172,7 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
                               children: [
                                 widget.subUser != subNotif.valueOrNull?.selected
                                     ? TextButton(
-                                        child: const Text('Delete User'),
+                                        child: const Text('Delete Profile'),
                                         onPressed: () {
                                           _deleteUser(ref);
                                         },
