@@ -46,7 +46,12 @@ class ActionRow extends ConsumerWidget {
                   ?.copyWith(fontWeight: FontWeight.bold),
             ),
             ChoiceChip(
-              label: const Icon(Icons.layers),
+              label: Icon(
+                Icons.layers,
+                color: filters.groupSymptoms
+                    ? Theme.of(context).canvasColor
+                    : Theme.of(context).colorScheme.onSurface,
+              ),
               selected: filters.groupSymptoms,
               showCheckmark: false,
               selectedColor: Theme.of(context).primaryColor,
