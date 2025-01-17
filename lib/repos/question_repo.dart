@@ -53,7 +53,7 @@ class Questions extends QuestionRepo {
       Symptoms.REFLUX: const RecordPath(pages: [
         PageLayout(questionIds: [q20, q19, q10, q12, q11]),
       ]),
-      Symptoms.NB: const RecordPath(pages: [
+      Symptoms.NB: const RecordPath(period: Period.week, pages: [
         PageLayout(questionIds: [q21, q23, q22, q13, q2, q24, q25, q26]),
       ])
     };
