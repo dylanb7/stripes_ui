@@ -28,7 +28,7 @@ class Questions extends QuestionRepo {
   Map<String, RecordPath> getLayouts(
       {required BuildContext context, QuestionsListener? questionListener}) {
     return {
-      "Meal Time": const RecordPath(pages: []),
+      "Meal Time": const RecordPath(pages: [], period: Period.day),
       Symptoms.PAIN: RecordPath(pages: [
         const PageLayout(questionIds: [q14, q27, q28, q1, q18]),
         if (questionListener != null &&
@@ -145,7 +145,7 @@ class Home extends QuestionHome {
             ],
             prompt: "Pain Location",
             type: Symptoms.PAIN,
-            isRequired: true)
+            isRequired: true),
       };
 
   @override
