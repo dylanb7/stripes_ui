@@ -377,8 +377,9 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
     await ref
         .read(testsHolderProvider.notifier)
         .getTest<Test<BlueDyeState>>()
-        .then((test) =>
-            test?.setTestState(state!.copyWith(amountConsumed: value)));
+        .then((test) {
+      test?.setTestState(state!.copyWith(amountConsumed: value));
+    });
     setState(() {
       isLoading = false;
     });

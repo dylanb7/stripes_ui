@@ -132,27 +132,33 @@ class BlueDyeTest extends Test<BlueDyeState> {
   }
 
   @override
-  Future<void> cancel() async {
+  Future<bool> cancel() async {
     _repo[subUser] = BlueDyeState.empty();
     _streamController.add(BlueDyeState.empty());
+    return true;
   }
 
   @override
-  Future<void> setTestState(BlueDyeState state) async {
+  Future<bool> setTestState(BlueDyeState state) async {
     _repo[subUser] = state;
     _streamController.add(_repo[subUser]!);
+    return true;
   }
 
   @override
-  Future<void> submit(DateTime submitTime) async {
+  Future<bool> submit(DateTime submitTime) async {
     stampRepo.addStamp(BlueDyeResp.from(_repo[subUser]!));
     cancel();
+    return true;
   }
 
   @override
   Widget? displayState(BuildContext context) {
     return const BlueDyeTestScreen();
   }
+
+  @override
+  Future<void> refresh() async {}
 }
 
 const blueQuestionId = "BlueDyeQuestion";

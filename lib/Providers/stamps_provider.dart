@@ -5,13 +5,15 @@ import 'package:stripes_backend_helper/RepositoryBase/AuthBase/auth_user.dart';
 import 'package:stripes_backend_helper/RepositoryBase/StampBase/base_stamp_repo.dart';
 import 'package:stripes_backend_helper/RepositoryBase/StampBase/stamp.dart';
 import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
+import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
+import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/entry.dart';
 
 import 'auth_provider.dart';
 
-final stampProvider = FutureProvider<StampRepo?>((ref) async {
+final stampProvider = FutureProvider<StampRepo<Stamp>?>((ref) async {
   final auth = await ref.watch(authStream.future);
   final questions = await ref.watch(questionsProvider.future);
   final sub = ref

@@ -222,8 +222,9 @@ class _TimerPortionState extends ConsumerState<TimerPortion> {
     await ref
         .read(testsHolderProvider.notifier)
         .getTest<Test<BlueDyeState>>()
-        .then((test) =>
-            test?.setTestState(blueDyeState.copyWith(pauseTime: setTime)));
+        .then((test) {
+      test?.setTestState(blueDyeState.copyWith(pauseTime: setTime));
+    });
     setState(() {
       isLoading = false;
     });
@@ -247,12 +248,14 @@ class _TimerPortionState extends ConsumerState<TimerPortion> {
     await ref
         .read(testsHolderProvider.notifier)
         .getTest<Test<BlueDyeState>>()
-        .then((test) => test?.setTestState(BlueDyeState(
-            id: blueDyeState.id,
-            startTime: blueDyeState.startTime,
-            timerStart: adjustedStart,
-            pauseTime: null,
-            logs: blueDyeState.logs)));
+        .then((test) {
+      test?.setTestState(BlueDyeState(
+          id: blueDyeState.id,
+          startTime: blueDyeState.startTime,
+          timerStart: adjustedStart,
+          pauseTime: null,
+          logs: blueDyeState.logs));
+    });
 
     setState(() {
       isLoading = false;
@@ -275,8 +278,10 @@ class _TimerPortionState extends ConsumerState<TimerPortion> {
     await ref
         .read(testsHolderProvider.notifier)
         .getTest<Test<BlueDyeState>>()
-        .then((test) => test?.setTestState(
-            blueDyeState.copyWith(pauseTime: newStart, timerStart: newStart)));
+        .then((test) {
+      test?.setTestState(
+          blueDyeState.copyWith(pauseTime: newStart, timerStart: newStart));
+    });
     setState(() {
       isLoading = false;
     });
@@ -300,15 +305,15 @@ class _TimerPortionState extends ConsumerState<TimerPortion> {
     await ref
         .read(testsHolderProvider.notifier)
         .getTest<Test<BlueDyeState>>()
-        .then(
-          (test) => test?.setTestState(
-            blueDyeState.copyWith(
-                finishedEating: mealDuration,
-                finishedEatingTime: mealEnd,
-                pauseTime: null,
-                timerStart: null),
-          ),
-        );
+        .then((test) {
+      test?.setTestState(
+        blueDyeState.copyWith(
+            finishedEating: mealDuration,
+            finishedEatingTime: mealEnd,
+            pauseTime: null,
+            timerStart: null),
+      );
+    });
     setState(() {
       isLoading = false;
     });
