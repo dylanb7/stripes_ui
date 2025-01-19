@@ -222,8 +222,8 @@ class _TimerPortionState extends ConsumerState<TimerPortion> {
     await ref
         .read(testsHolderProvider.notifier)
         .getTest<Test<BlueDyeState>>()
-        .then((test) {
-      test?.setTestState(blueDyeState.copyWith(pauseTime: setTime));
+        .then((test) async {
+      await test?.setTestState(blueDyeState.copyWith(pauseTime: setTime));
     });
     setState(() {
       isLoading = false;
@@ -248,8 +248,8 @@ class _TimerPortionState extends ConsumerState<TimerPortion> {
     await ref
         .read(testsHolderProvider.notifier)
         .getTest<Test<BlueDyeState>>()
-        .then((test) {
-      test?.setTestState(BlueDyeState(
+        .then((test) async {
+      await test?.setTestState(BlueDyeState(
           id: blueDyeState.id,
           startTime: blueDyeState.startTime,
           timerStart: adjustedStart,
@@ -278,8 +278,8 @@ class _TimerPortionState extends ConsumerState<TimerPortion> {
     await ref
         .read(testsHolderProvider.notifier)
         .getTest<Test<BlueDyeState>>()
-        .then((test) {
-      test?.setTestState(
+        .then((test) async {
+      await test?.setTestState(
           blueDyeState.copyWith(pauseTime: newStart, timerStart: newStart));
     });
     setState(() {
@@ -305,8 +305,8 @@ class _TimerPortionState extends ConsumerState<TimerPortion> {
     await ref
         .read(testsHolderProvider.notifier)
         .getTest<Test<BlueDyeState>>()
-        .then((test) {
-      test?.setTestState(
+        .then((test) async {
+      await test?.setTestState(
         blueDyeState.copyWith(
             finishedEating: mealDuration,
             finishedEatingTime: mealEnd,
