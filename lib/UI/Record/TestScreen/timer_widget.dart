@@ -84,8 +84,11 @@ class _TimerPortionState extends ConsumerState<TimerPortion> {
                   child: Text(
                     from(
                         isLoading
-                            ? timerState!.pauseTime!
-                                .difference(timerState!.start)
+                            ? timerState?.pauseTime != null &&
+                                    timerState?.start != null
+                                ? timerState!.pauseTime!
+                                    .difference(timerState!.start)
+                                : Duration.zero
                             : gap,
                         context),
                     style: Theme.of(context).textTheme.headlineLarge?.copyWith(
