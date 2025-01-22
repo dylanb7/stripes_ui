@@ -81,17 +81,14 @@ class _TimerPortionState extends ConsumerState<TimerPortion> {
                       color: Theme.of(context).colorScheme.onPrimary),
                 ),
                 Center(
-                  child: isLoading
-                      ? const CircularProgressIndicator()
-                      : Text(
-                          from(gap, context),
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineLarge
-                              ?.copyWith(
-                                  color:
-                                      Theme.of(context).colorScheme.onPrimary),
-                        ),
+                  child: Text(
+                    from(gap, context),
+                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onPrimary
+                            .withValues(alpha: isLoading ? 0.75 : 1.0)),
+                  ),
                 ),
                 const SizedBox(
                   height: 12,
