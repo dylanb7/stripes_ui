@@ -26,7 +26,6 @@ class RecordingsView extends ConsumerWidget {
     final AsyncValue<BlueDyeTestProgress> progress =
         ref.watch(blueDyeTestProgressProvider);
     if (progress.isLoading) return const LoadingWidget();
-    print(progress);
     final List<BMTestLog> logs = clicked == BlueDyeProgression.stepFour &&
             (progress.valueOrNull?.orderedTests.length ?? 0) >= 2
         ? progress.valueOrNull?.orderedTests[1].test.logs ?? []
@@ -129,7 +128,7 @@ class _RecordingsWaitingState extends ConsumerState<RecordingsWaiting> {
 
   Timer? timer;
 
-  final Duration waitTime = const Duration(days: 7);
+  final Duration waitTime = const Duration(seconds: 30);
 
   @override
   void didChangeDependencies() {
