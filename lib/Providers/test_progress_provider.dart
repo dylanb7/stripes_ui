@@ -13,7 +13,7 @@ final blueDyeTestProgressProvider =
   final BlueDyeState? blueDyeState = await ref.watch(testsHolderProvider
       .selectAsync((value) => value.getTestState<BlueDyeState>()));
 
-  print(blueDyeState);
+  print("Blue dye progress state: $blueDyeState");
 
   final String? group = user.attributes["custom:group"];
 
@@ -26,6 +26,8 @@ final blueDyeTestProgressProvider =
       },
     ),
   );
+
+  print("Blue dye progress previous ressponses: $testResponses");
 
   final List<TestDate> mostRecent = _getOrderedTests(testResponses);
 
