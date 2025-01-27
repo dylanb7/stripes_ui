@@ -18,6 +18,11 @@ final blueDyeTestProgressProvider =
   final String? group = user.attributes["custom:group"];
   final AsyncValue<List<Stamp>> stampHolder = ref.watch(stampHolderProvider);
 
+  final List<BlueDyeResp> allTestResponses =
+      stampHolder.valueOrNull?.whereType<BlueDyeResp>().toList() ?? [];
+
+  print(allTestResponses);
+
   final List<BlueDyeResp> testResponses = stampHolder.valueOrNull
           ?.whereType<BlueDyeResp>()
           .where((test) => test.group == group)
