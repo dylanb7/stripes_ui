@@ -9,9 +9,11 @@ import 'package:stripes_ui/l10n/app_localizations.dart';
 
 final blueDyeTestProgressProvider =
     FutureProvider<BlueDyeTestProgress>((ref) async {
+  final AuthUser user = await ref.watch(authStream.future);
   final BlueDyeState? blueDyeState = await ref.watch(testsHolderProvider
       .selectAsync((value) => value.getTestState<BlueDyeState>()));
-  final AuthUser user = await ref.watch(authStream.future);
+
+  print(blueDyeState);
 
   final String? group = user.attributes["custom:group"];
 
