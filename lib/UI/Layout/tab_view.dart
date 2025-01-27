@@ -149,9 +149,6 @@ class HistoryScreenContent extends StatelessWidget {
                     ),
                   ),
                   const EventGrid(),
-                  const SliverList(
-                      delegate: SliverChildListDelegate.fixed(
-                          [DateControl(), TimeSpanInfo(), EventDisplay()]))
                 ],
               ),
             ),
