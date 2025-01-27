@@ -38,9 +38,6 @@ class SliversConfig {
                   FilterView(),
                   EventsCalendar(),
                   ActionRow(),
-                  DateControl(),
-                  TimeSpanInfo(),
-                  EventDisplay()
                 ]),
               ),
             ),
