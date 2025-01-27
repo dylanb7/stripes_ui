@@ -34,8 +34,14 @@ class SliversConfig {
             sliver: SliverConstrainedCrossAxis(
               maxExtent: 800,
               sliver: SliverList(
-                delegate: SliverChildListDelegate(
-                    const [FilterView(), EventsCalendar(), ActionRow()]),
+                delegate: SliverChildListDelegate(const [
+                  FilterView(),
+                  EventsCalendar(),
+                  ActionRow(),
+                  DateControl(),
+                  TimeSpanInfo(),
+                  EventDisplay()
+                ]),
               ),
             ),
           ),
