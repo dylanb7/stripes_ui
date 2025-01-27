@@ -13,21 +13,12 @@ final blueDyeTestProgressProvider =
   final BlueDyeState? blueDyeState = await ref.watch(testsHolderProvider
       .selectAsync((value) => value.getTestState<BlueDyeState>()));
 
-  print("Blue dye progress state: $blueDyeState");
-
   final String? group = user.attributes["custom:group"];
-  final AsyncValue<List<Stamp>> stampHolder = ref.watch(stampHolderProvider);
-
-  final List<BlueDyeResp> allTestResponses =
-      stampHolder.valueOrNull?.whereType<BlueDyeResp>().toList() ?? [];
-
-  print(allTestResponses);
-
-  final List<BlueDyeResp> testResponses = stampHolder.valueOrNull
-          ?.whereType<BlueDyeResp>()
+  final List<BlueDyeResp> testResponses = await ref.watch(
+      stampHolderProvider.selectAsync((responses) => responses
+          .whereType<BlueDyeResp>()
           .where((test) => test.group == group)
-          .toList() ??
-      [];
+          .toList()));
 
   print("Blue dye progress previous responses: $testResponses");
 
