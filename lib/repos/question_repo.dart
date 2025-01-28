@@ -28,7 +28,7 @@ class Questions extends QuestionRepo {
   Map<String, RecordPath> getLayouts(
       {required BuildContext context, QuestionsListener? questionListener}) {
     return {
-      "Meal Time": const RecordPath(pages: [], period: Period.day),
+      "Meal Time": const RecordPath(pages: []),
       Symptoms.PAIN: RecordPath(pages: [
         const PageLayout(questionIds: [q14, q27, q28, q1, q18]),
         if (questionListener != null &&
@@ -53,7 +53,7 @@ class Questions extends QuestionRepo {
       Symptoms.REFLUX: const RecordPath(pages: [
         PageLayout(questionIds: [q20, q19, q10, q12, q11]),
       ]),
-      Symptoms.NB: const RecordPath(period: Period.week, pages: [
+      Symptoms.NB: const RecordPath(pages: [
         PageLayout(questionIds: [q21, q23, q22, q13, q2, q24, q25, q26]),
       ])
     };
