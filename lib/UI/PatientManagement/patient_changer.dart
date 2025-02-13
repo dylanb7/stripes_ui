@@ -7,6 +7,8 @@ import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
+import 'package:stripes_ui/config.dart';
+import 'package:stripes_ui/entry.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class PatientChanger extends ConsumerWidget {
@@ -17,6 +19,7 @@ class PatientChanger extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AsyncValue<SubState> state = ref.watch(subHolderProvider);
+    final config = ref.watch(configProvider);
 
     if (state.isLoading) {
       return const LoadingWidget();
@@ -33,7 +36,9 @@ class PatientChanger extends ConsumerWidget {
                 ? AppLocalizations.of(context)!.testTab
                 : AppLocalizations.of(context)!.historyTab;
       }
-      String firstName = (current?.name.split(' ')[0]) ?? '';
+      String firstName = config.profileType == ProfileType.username
+          ? current?.name ?? ''
+          : (current?.name.split(' ')[0]) ?? '';
       firstName = firstName.substring(0, min(firstName.length, 11));
       return tab == TabOption.record
           ? AppLocalizations.of(context)!.recordTitle(firstName)
