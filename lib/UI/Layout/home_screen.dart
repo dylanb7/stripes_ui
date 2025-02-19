@@ -5,7 +5,7 @@ import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/CommonWidgets/scroll_assisted_list.dart';
 import 'package:stripes_ui/UI/Layout/fabs.dart';
-import 'package:stripes_ui/UI/PatientManagement/add_first_patient.dart';
+import 'package:stripes_ui/UI/AccountManagement/add_first_profile.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
 import 'package:stripes_ui/Util/constants.dart';

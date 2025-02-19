@@ -6,7 +6,7 @@ import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_list
 import 'package:stripes_ui/UI/Login/landing_page.dart';
 
 import 'package:stripes_ui/Providers/auth_provider.dart';
-import 'package:stripes_ui/UI/PatientManagement/PatientScreen/patient_screen.dart';
+import 'package:stripes_ui/UI/AccountManagement/ProfileScreen/profile_screen.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/splitter.dart';
 
 import 'package:stripes_ui/UI/Layout/home_screen.dart';

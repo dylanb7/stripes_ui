@@ -3,12 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
+import 'package:stripes_ui/UI/AccountManagement/ProfileScreen/edit_profile.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/config.dart';
 import 'package:stripes_ui/entry.dart';
-
-import 'edit_patient.dart';
 
 class UserView extends ConsumerWidget {
   final SubUser subUser;
