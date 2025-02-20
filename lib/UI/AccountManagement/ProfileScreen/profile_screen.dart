@@ -227,7 +227,10 @@ class _DeleteAccountPopupState extends ConsumerState<DeleteAccountPopup> {
 
   _onDelete() async {
     if (_controller.text.isEmpty || _controller.text != "Delete") {
-      error = "Field doesn't match";
+      setState(() {
+        error = "Field doesn't match";
+      });
+
       return;
     }
     if (await ref.read(authProvider).deleteAccount()) {
