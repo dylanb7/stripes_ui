@@ -82,11 +82,13 @@ class EventGrid extends ConsumerWidget {
       }
       components.add(
           RenderEntryGroup(responses: daySymptoms, grouped: symptomsGrouping));
-      components.add(
-        const Divider(
-          height: 32.0,
-        ),
-      );
+      if (i < keys.length - 1) {
+        components.add(
+          const Divider(
+            height: 32.0,
+          ),
+        );
+      }
     }
 
     return SliverPadding(

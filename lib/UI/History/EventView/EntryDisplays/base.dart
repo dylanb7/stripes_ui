@@ -191,6 +191,9 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
           : const BoxConstraints(),
       child: Expandible(
         elevated: widget.elevated,
+        highlightColor:
+            widget.elevated ? null : Theme.of(context).colorScheme.onSurface,
+        highlightWidth: widget.elevated ? null : 1.0,
         header: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,

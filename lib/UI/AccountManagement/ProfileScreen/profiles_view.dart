@@ -58,8 +58,9 @@ class UserView extends ConsumerWidget {
             side: selected
                 ? BorderSide(
                     color: Theme.of(context).colorScheme.primary, width: 5.0)
-                : const BorderSide(width: 0, color: Colors.transparent)),
-        elevation: 1.0,
+                : BorderSide(
+                    width: 1.0,
+                    color: Theme.of(context).colorScheme.onSurface)),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 6.0),
           child: Column(
