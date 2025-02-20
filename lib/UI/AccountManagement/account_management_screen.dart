@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
 import 'package:stripes_ui/Providers/auth_provider.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
+import 'package:stripes_ui/Providers/route_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
@@ -11,6 +12,7 @@ import 'package:stripes_ui/UI/Layout/home_screen.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
+import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class AccountManagementScreen extends ConsumerWidget {
   const AccountManagementScreen({super.key});
@@ -35,61 +37,66 @@ class AccountManagementScreen extends ConsumerWidget {
         )
       ],
       bottomNav: isSmall ? const SmallLayout() : null,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(
-                height: 20,
-              ),
-              Text(
-                'Account',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).primaryColor),
-                textAlign: TextAlign.left,
-              ),
-              ListTile(
-                dense: false,
-                visualDensity: VisualDensity.comfortable,
-                title: const Text("Profiles"),
-                trailing: const Icon(Icons.keyboard_arrow_right),
-                subtitle: current?.name != null
-                    ? Text(
-                        current!.name,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      )
-                    : null,
-                onTap: () {
-                  context.goNamed(Routes.USERS);
-                },
-              ),
-              const SizedBox(
-                height: 12.0,
-              ),
-              Center(
-                child: TextButton(
-                  onPressed: () {
-                    ref.read(overlayProvider.notifier).state =
-                        const CurrentOverlay(widget: DeleteAccountPopup());
-                  },
-                  style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all(Theme.of(context)
-                          .colorScheme
-                          .error
-                          .withValues(alpha: 0.4))),
-                  child: Text(
-                    "Delete account",
-                    style:
-                        TextStyle(color: Theme.of(context).colorScheme.error),
-                  ),
-                ),
-              ),
-            ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(
+            height: 20,
           ),
-        ),
+          Row(children: [
+            Text(
+              'Account',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).primaryColor),
+              textAlign: TextAlign.left,
+            ),
+            const Spacer(),
+            FilledButton(
+                onPressed: () async {
+                  await ref.read(authProvider).logOut();
+                  ref.invalidate(routeProvider);
+                },
+                child: Text(AppLocalizations.of(context)!.logOutButton))
+          ]),
+          const Divider(),
+          ListTile(
+            dense: false,
+            visualDensity: VisualDensity.comfortable,
+            title: const Text("Profiles"),
+            trailing: const Icon(Icons.keyboard_arrow_right),
+            subtitle: current?.name != null
+                ? Text(
+                    current!.name,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  )
+                : null,
+            onTap: () {
+              context.goNamed(Routes.USERS);
+            },
+          ),
+          const Divider(),
+          const SizedBox(
+            height: 12.0,
+          ),
+          Center(
+            child: TextButton(
+              onPressed: () {
+                ref.read(overlayProvider.notifier).state =
+                    const CurrentOverlay(widget: DeleteAccountPopup());
+              },
+              style: ButtonStyle(
+                  backgroundColor: WidgetStateProperty.all(Theme.of(context)
+                      .colorScheme
+                      .error
+                      .withValues(alpha: 0.2))),
+              child: Text(
+                "Delete account",
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -115,7 +122,7 @@ class _DeleteAccountPopupState extends ConsumerState<DeleteAccountPopup> {
       children: [
         Positioned.fill(
           child: Container(
-            color: Colors.black.withOpacity(0.9),
+            color: Colors.black.withValues(alpha: 0.9),
           ),
         ),
         Padding(
@@ -138,9 +145,6 @@ class _DeleteAccountPopupState extends ConsumerState<DeleteAccountPopup> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          const SizedBox(
-                            width: 35,
-                          ),
                           Text(
                             "Delete account",
                             style: Theme.of(context)
@@ -163,7 +167,7 @@ class _DeleteAccountPopupState extends ConsumerState<DeleteAccountPopup> {
                         height: 8,
                       ),
                       const Text(
-                          "Are you sure you want to delete your account? This action is and will remove all data associated. To confirm this action type \"Delete\""),
+                          "Are you sure you want to delete your account?\nThis action is irreversable and will remove all data associated with the account.\nTo confirm this action type \"Delete\""),
                       const SizedBox(
                         height: 6.0,
                       ),

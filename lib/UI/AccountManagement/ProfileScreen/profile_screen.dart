@@ -44,60 +44,49 @@ class PatientScreen extends ConsumerWidget {
       ],
       bottomNav: isSmall ? const SmallLayout() : null,
       child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            const SizedBox(
-              height: 20.0,
-            ),
-            Row(
-              children: [
-                IconButton(
-                    onPressed: () {
-                      context.goNamed(Routes.ACCOUNT);
-                    },
-                    icon: const Icon(Icons.keyboard_arrow_left)),
-                Text(
-                  'Profiles',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor),
-                  textAlign: TextAlign.left,
-                ),
-                const Spacer(),
-                FilledButton(
-                    onPressed: () async {
-                      await ref.read(authProvider).logOut();
-                      ref.invalidate(routeProvider);
-                    },
-                    child: Text(AppLocalizations.of(context)!.logOutButton))
-              ],
-            ),
-            const SizedBox(
-              height: 12.0,
-            ),
-            Wrap(
-              children: subUsers
-                  .map<Widget>(
-                    (user) => SizedBox(
-                      width: itemWidth,
-                      child: UserView(
-                        subUser: user,
-                        selected: user.uid == current?.uid,
-                      ),
-                    ),
-                  )
-                  .toList()
-                ..add(
-                  const SizedBox(
-                    width: itemWidth,
-                    child: AddUserWidget(),
+        child:
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          const SizedBox(
+            height: 20.0,
+          ),
+          Row(
+            children: [
+              IconButton(
+                  onPressed: () {
+                    context.goNamed(Routes.ACCOUNT);
+                  },
+                  icon: const Icon(Icons.keyboard_arrow_left)),
+              Text(
+                'Profiles',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).primaryColor),
+                textAlign: TextAlign.left,
+              ),
+            ],
+          ),
+          const SizedBox(
+            height: 12.0,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Wrap(children: [
+              const SizedBox(
+                width: itemWidth,
+                child: AddUserWidget(),
+              ),
+              ...subUsers.map<Widget>(
+                (user) => SizedBox(
+                  width: itemWidth,
+                  child: UserView(
+                    subUser: user,
+                    selected: user.uid == current?.uid,
                   ),
                 ),
-            ),
-          ]),
-        ),
+              )
+            ]),
+          ),
+        ]),
       ),
     );
   }
