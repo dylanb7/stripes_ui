@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
+import 'package:stripes_ui/UI/AccountManagement/account_management_screen.dart';
 import 'package:stripes_ui/UI/Login/landing_page.dart';
 
 import 'package:stripes_ui/Providers/auth_provider.dart';
@@ -64,10 +65,17 @@ class RouteNotifier extends ChangeNotifier {
             pageBuilder: (context, state) =>
                 const NoTransitionPage(child: LandingPage())),
         GoRoute(
-          name: Routes.USERS,
-          path: Routes.USERS,
+          name: Routes.ACCOUNT,
+          path: Routes.ACCOUNT,
+          routes: [
+            GoRoute(
+              path: Routes.USERS,
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: PatientScreen()),
+            ),
+          ],
           pageBuilder: (context, state) =>
-              const NoTransitionPage(child: PatientScreen()),
+              const NoTransitionPage(child: AccountManagementScreen()),
         ),
         GoRoute(
           name: Routes.HISTORY,

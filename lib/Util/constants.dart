@@ -18,6 +18,7 @@ class Routes {
   static const String REFLUX = 'reflux';
   static const String NB = 'neurobehavior';
   static const String TEST = '/tests';
+  static const String ACCOUNT = '/account';
 
   static const String PAGE_ID_PARAM = 'pid';
 

@@ -27,7 +27,7 @@ class UserProfileButton extends ConsumerWidget {
           if (selected && context.canPop()) {
             context.pop();
           } else {
-            context.pushNamed(Routes.USERS);
+            context.pushNamed(Routes.ACCOUNT);
           }
         },
         icon: Icon(

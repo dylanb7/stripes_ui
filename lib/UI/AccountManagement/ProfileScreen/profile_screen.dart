@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/auth_provider.dart';
@@ -52,6 +53,11 @@ class PatientScreen extends ConsumerWidget {
             ),
             Row(
               children: [
+                IconButton(
+                    onPressed: () {
+                      context.goNamed(Routes.ACCOUNT);
+                    },
+                    icon: const Icon(Icons.keyboard_arrow_left)),
                 Text(
                   'Profiles',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
