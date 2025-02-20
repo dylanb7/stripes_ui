@@ -69,6 +69,7 @@ class RouteNotifier extends ChangeNotifier {
           path: Routes.ACCOUNT,
           routes: [
             GoRoute(
+              name: Routes.USERS,
               path: Routes.USERS,
               pageBuilder: (context, state) =>
                   const NoTransitionPage(child: PatientScreen()),
