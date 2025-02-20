@@ -151,9 +151,10 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
               hasIndicator: false,
               canExpand: isSmall,
             ),
-            const SizedBox(
-              height: 25,
-            ),
+            if (_expandibleListener.expanded)
+              const SizedBox(
+                height: 25,
+              ),
           ]),
           if (_expandibleListener.expanded)
             Positioned(

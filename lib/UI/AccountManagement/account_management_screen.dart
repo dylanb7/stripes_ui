@@ -44,6 +44,9 @@ class AccountManagementScreen extends ConsumerWidget {
             height: 20,
           ),
           Row(children: [
+            const SizedBox(
+              width: 20,
+            ),
             Text(
               'Account',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -52,14 +55,16 @@ class AccountManagementScreen extends ConsumerWidget {
               textAlign: TextAlign.left,
             ),
             const Spacer(),
-            FilledButton(
+            TextButton(
                 onPressed: () async {
                   await ref.read(authProvider).logOut();
                   ref.invalidate(routeProvider);
                 },
-                child: Text(AppLocalizations.of(context)!.logOutButton))
+                child: Text(AppLocalizations.of(context)!.logOutButton)),
+            const SizedBox(
+              width: 20,
+            ),
           ]),
-          const Divider(),
           ListTile(
             dense: false,
             visualDensity: VisualDensity.comfortable,
@@ -75,7 +80,10 @@ class AccountManagementScreen extends ConsumerWidget {
               context.goNamed(Routes.USERS);
             },
           ),
-          const Divider(),
+          const Divider(
+            endIndent: 8.0,
+            indent: 8.0,
+          ),
           const SizedBox(
             height: 12.0,
           ),
