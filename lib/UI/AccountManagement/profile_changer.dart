@@ -103,53 +103,58 @@ class UserSelect extends ConsumerWidget {
           color: Colors.black.withOpacity(0.9),
         )),
         Positioned.fill(
-          child: SingleChildScrollView(
+          child: SafeArea(
+            child: SingleChildScrollView(
               child: Padding(
-            padding: const EdgeInsets.only(left: 30.0, right: 30.0, top: 30),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-                  Text(
-                    'Select Profile',
-                    style: Theme.of(context)
-                        .textTheme
-                        .headlineMedium
-                        ?.copyWith(color: Colors.white),
-                  ),
-                  IconButton(
-                      onPressed: () {
-                        _close(ref);
-                      },
-                      iconSize: 35,
-                      icon: Icon(
-                        Icons.keyboard_arrow_up,
-                        color: action,
-                      )),
-                  const Spacer(),
-                  IconButton(
-                      onPressed: () {
-                        _close(ref);
-                      },
-                      iconSize: 35,
-                      icon: Icon(
-                        Icons.close,
-                        color: action,
-                      ))
-                ]),
-                Column(
+                padding:
+                    const EdgeInsets.only(left: 30.0, right: 30.0, top: 30),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: subUsers
-                      .map((user) => Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 5.0),
-                          child: user.uid == current?.uid
-                              ? _getSelected(ref, context, user, action)
-                              : _getSelectible(ref, context, user)))
-                      .toList(),
+                  children: [
+                    Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+                      Text(
+                        'Select Profile',
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineMedium
+                            ?.copyWith(color: Colors.white),
+                      ),
+                      IconButton(
+                          onPressed: () {
+                            _close(ref);
+                          },
+                          iconSize: 35,
+                          icon: Icon(
+                            Icons.keyboard_arrow_up,
+                            color: action,
+                          )),
+                      const Spacer(),
+                      IconButton(
+                          onPressed: () {
+                            _close(ref);
+                          },
+                          iconSize: 35,
+                          icon: Icon(
+                            Icons.close,
+                            color: action,
+                          ))
+                    ]),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: subUsers
+                          .map((user) => Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 5.0),
+                              child: user.uid == current?.uid
+                                  ? _getSelected(ref, context, user, action)
+                                  : _getSelectible(ref, context, user)))
+                          .toList(),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          )),
+          ),
         )
       ],
     );

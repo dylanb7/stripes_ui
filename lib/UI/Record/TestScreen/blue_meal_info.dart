@@ -19,7 +19,7 @@ class BlueMealPreStudy extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         ColoredBox(
-          color: Colors.yellow.withOpacity(0.5),
+          color: Colors.yellow.withValues(alpha: 0.5),
           child: Padding(
               padding: const EdgeInsets.all(4.0),
               child: Column(

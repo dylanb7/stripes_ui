@@ -6,6 +6,7 @@ import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/date_time_entry.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
+import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class FilterView extends ConsumerWidget {
@@ -15,6 +16,7 @@ class FilterView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final Filters filters = ref.watch(filtersProvider);
     final String range = filters.toRange(context);
+    final bool isSmall = MediaQuery.of(context).size.width <= SMALL_LAYOUT;
     return Wrap(
       spacing: 6.0,
       runSpacing: 6.0,
@@ -23,8 +25,22 @@ class FilterView extends ConsumerWidget {
       children: [
         FilledButton(
           onPressed: () {
-            ref.read(overlayProvider.notifier).state =
-                CurrentOverlay(widget: _FilterPopUp());
+            if (isSmall) {
+              Scaffold.of(context).showBottomSheet((context) => DecoratedBox(
+                    decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(15.0),
+                          topRight: Radius.circular(15.0),
+                        ),
+                        color: Theme.of(context).colorScheme.surface),
+                    child: _FilterPopUp(),
+                  ));
+            }
+            ref.read(overlayProvider.notifier).state = CurrentOverlay(
+              widget: _PopUpStyle(
+                child: _FilterPopUp(),
+              ),
+            );
           },
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -173,38 +189,74 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
       ref.read(overlayProvider.notifier).state = closedQuery;
     }
 
-    return _PopUpStyle(
-      child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const SizedBox(
-                  width: 35,
-                ),
-                Text(
-                  AppLocalizations.of(context)!.eventFilterHeader,
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-                IconButton(
-                    onPressed: () {
-                      ref.read(overlayProvider.notifier).state = closedQuery;
-                    },
-                    icon: const Icon(
-                      Icons.close,
-                      size: 35,
-                    ))
-              ],
+    return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const SizedBox(
+                width: 35,
+              ),
+              Text(
+                AppLocalizations.of(context)!.eventFilterHeader,
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              IconButton(
+                  onPressed: () {
+                    ref.read(overlayProvider.notifier).state = closedQuery;
+                  },
+                  icon: const Icon(
+                    Icons.close,
+                    size: 35,
+                  ))
+            ],
+          ),
+          const SizedBox(
+            height: 6.0,
+          ),
+          if (availibleTypes.length > 1) ...[
+            Text(
+              AppLocalizations.of(context)!.eventFilterTypesTag,
+              style: Theme.of(context).textTheme.bodyLarge,
+              textAlign: TextAlign.left,
             ),
             const SizedBox(
               height: 6.0,
             ),
-            if (availibleTypes.length > 1) ...[
+            Wrap(
+              direction: Axis.horizontal,
+              alignment: WrapAlignment.center,
+              spacing: 5.0,
+              runSpacing: 5.0,
+              children: availibleTypes.map((type) {
+                final bool selected = selectedTypes.contains(type);
+                return ChoiceChip(
+                  padding: const EdgeInsets.all(5.0),
+                  label: Text(
+                    type,
+                  ),
+                  selected: selected,
+                  onSelected: (value) {
+                    setState(() {
+                      if (value) {
+                        selectedTypes.add(type);
+                      } else {
+                        selectedTypes.remove(type);
+                      }
+                    });
+                  },
+                );
+              }).toList(),
+            ),
+            const SizedBox(
+              height: 6.0,
+            ),
+            if (availibleGroups.isNotEmpty) ...[
               Text(
-                AppLocalizations.of(context)!.eventFilterTypesTag,
+                "Study",
                 style: Theme.of(context).textTheme.bodyLarge,
                 textAlign: TextAlign.left,
               ),
@@ -216,7 +268,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                 alignment: WrapAlignment.center,
                 spacing: 5.0,
                 runSpacing: 5.0,
-                children: availibleTypes.map((type) {
+                children: availibleGroups.map((type) {
                   final bool selected = selectedTypes.contains(type);
                   return ChoiceChip(
                     padding: const EdgeInsets.all(5.0),
@@ -237,46 +289,10 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                 }).toList(),
               ),
               const SizedBox(
-                height: 6.0,
+                height: 12.0,
               ),
-              if (availibleGroups.isNotEmpty) ...[
-                Text(
-                  "Study",
-                  style: Theme.of(context).textTheme.bodyLarge,
-                  textAlign: TextAlign.left,
-                ),
-                const SizedBox(
-                  height: 6.0,
-                ),
-                Wrap(
-                  direction: Axis.horizontal,
-                  alignment: WrapAlignment.center,
-                  spacing: 5.0,
-                  runSpacing: 5.0,
-                  children: availibleGroups.map((type) {
-                    final bool selected = selectedTypes.contains(type);
-                    return ChoiceChip(
-                      padding: const EdgeInsets.all(5.0),
-                      label: Text(
-                        type,
-                      ),
-                      selected: selected,
-                      onSelected: (value) {
-                        setState(() {
-                          if (value) {
-                            selectedTypes.add(type);
-                          } else {
-                            selectedTypes.remove(type);
-                          }
-                        });
-                      },
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(
-                  height: 12.0,
-                ),
-              ],
+            ],
+            /*
               Text(
                 AppLocalizations.of(context)!.eventFiltersFromTag,
                 style: Theme.of(context).textTheme.bodyLarge,
@@ -284,7 +300,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
               const SizedBox(
                 height: 6.0,
               ),
-              /*DateRangePicker(
+              DateRangePicker(
                 onSelection: (dateRange) {
                   if (dateRange != null) {
                     setState(() {
@@ -295,43 +311,42 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                 initialStart: newRange?.start,
                 initialEnd: newRange?.end,
               ),*/
-              const SizedBox(
-                height: 12.0,
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () {
-                        setState(() {
-                          selectedTypes = {};
-                        });
-                      },
-                      child: Text(
-                        AppLocalizations.of(context)!.eventFilterReset,
-                      ),
+            const SizedBox(
+              height: 12.0,
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () {
+                      setState(() {
+                        selectedTypes = {};
+                      });
+                    },
+                    child: Text(
+                      AppLocalizations.of(context)!.eventFilterReset,
                     ),
                   ),
-                  const SizedBox(
-                    width: 12.0,
+                ),
+                const SizedBox(
+                  width: 12.0,
+                ),
+                Expanded(
+                  child: FilledButton(
+                    child:
+                        Text(AppLocalizations.of(context)!.eventFiltersApply),
+                    onPressed: () {
+                      apply();
+                    },
                   ),
-                  Expanded(
-                    child: FilledButton(
-                      child:
-                          Text(AppLocalizations.of(context)!.eventFiltersApply),
-                      onPressed: () {
-                        apply();
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 6.0,
-              ),
-            ],
-          ]),
-    );
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 6.0,
+            ),
+          ],
+        ]);
   }
 }
 

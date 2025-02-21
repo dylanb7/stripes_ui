@@ -43,50 +43,53 @@ class PatientScreen extends ConsumerWidget {
         )
       ],
       bottomNav: isSmall ? const SmallLayout() : null,
-      child: SingleChildScrollView(
-        child:
-            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          const SizedBox(
-            height: 20.0,
-          ),
-          Row(
-            children: [
-              IconButton(
-                  onPressed: () {
-                    context.goNamed(Routes.ACCOUNT);
-                  },
-                  icon: const Icon(Icons.keyboard_arrow_left)),
-              Text(
-                'Profiles',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).primaryColor),
-                textAlign: TextAlign.left,
-              ),
-            ],
-          ),
-          const SizedBox(
-            height: 12.0,
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: Wrap(children: [
-              const SizedBox(
-                width: itemWidth,
-                child: AddUserWidget(),
-              ),
-              ...subUsers.map<Widget>(
-                (user) => SizedBox(
-                  width: itemWidth,
-                  child: UserView(
-                    subUser: user,
-                    selected: user.uid == current?.uid,
-                  ),
+      child: RefreshWidget(
+        depth: RefreshDepth.subuser,
+        scrollable: SingleChildScrollView(
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            const SizedBox(
+              height: 20.0,
+            ),
+            Row(
+              children: [
+                IconButton(
+                    onPressed: () {
+                      context.goNamed(Routes.ACCOUNT);
+                    },
+                    icon: const Icon(Icons.keyboard_arrow_left)),
+                Text(
+                  'Profiles',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).primaryColor),
+                  textAlign: TextAlign.left,
                 ),
-              )
-            ]),
-          ),
-        ]),
+              ],
+            ),
+            const SizedBox(
+              height: 12.0,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Wrap(children: [
+                const SizedBox(
+                  width: itemWidth,
+                  child: AddUserWidget(),
+                ),
+                ...subUsers.map<Widget>(
+                  (user) => SizedBox(
+                    width: itemWidth,
+                    child: UserView(
+                      subUser: user,
+                      selected: user.uid == current?.uid,
+                    ),
+                  ),
+                )
+              ]),
+            ),
+          ]),
+        ),
       ),
     );
   }
