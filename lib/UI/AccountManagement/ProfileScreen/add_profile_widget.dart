@@ -58,6 +58,8 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
           Column(children: [
             Expandible(
               listener: _expandibleListener,
+              highlightColor: Theme.of(context).colorScheme.onPrimary,
+              highlightWidth: 1.0,
               header: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
