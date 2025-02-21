@@ -199,6 +199,7 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
         highlightColor:
             widget.elevated ? null : Theme.of(context).colorScheme.onSurface,
         highlightWidth: widget.elevated ? null : 1.0,
+        highlightOnShrink: true,
         header: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
