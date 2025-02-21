@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
-import 'package:stripes_ui/UI/CommonWidgets/date_time_entry.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
 import 'package:stripes_ui/Util/constants.dart';
@@ -28,6 +27,8 @@ class FilterView extends ConsumerWidget {
             if (isSmall) {
               Scaffold.of(context).showBottomSheet((context) => DecoratedBox(
                     decoration: BoxDecoration(
+                        border: Border.all(
+                            color: Theme.of(context).colorScheme.onSurface),
                         borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(15.0),
                           topRight: Radius.circular(15.0),
@@ -35,12 +36,13 @@ class FilterView extends ConsumerWidget {
                         color: Theme.of(context).colorScheme.surface),
                     child: _FilterPopUp(),
                   ));
+            } else {
+              ref.read(overlayProvider.notifier).state = CurrentOverlay(
+                widget: _PopUpStyle(
+                  child: _FilterPopUp(),
+                ),
+              );
             }
-            ref.read(overlayProvider.notifier).state = CurrentOverlay(
-              widget: _PopUpStyle(
-                child: _FilterPopUp(),
-              ),
-            );
           },
           child: Row(
             mainAxisSize: MainAxisSize.min,
