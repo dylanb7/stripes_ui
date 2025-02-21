@@ -56,6 +56,7 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
     final subNotif = ref.watch(subHolderProvider);
     final bool isName =
         ref.watch(configProvider).profileType == ProfileType.name;
+    final bool isSelected = widget.subUser == subNotif.valueOrNull?.selected;
     return OverlayBackdrop(
       child: SizedBox(
         width: SMALL_LAYOUT / 1.5,
@@ -173,17 +174,19 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  widget.subUser !=
-                                          subNotif.valueOrNull?.selected
-                                      ? TextButton(
-                                          child: const Text('Delete Profile'),
-                                          onPressed: () {
-                                            _deleteUser(ref);
-                                          },
-                                        )
-                                      : const SizedBox(
-                                          width: 8.0,
-                                        ),
+                                  Tooltip(
+                                    message: isSelected
+                                        ? "Cannot delete selected profile"
+                                        : null,
+                                    child: TextButton(
+                                      onPressed: !isSelected
+                                          ? () {
+                                              _deleteUser(ref);
+                                            }
+                                          : null,
+                                      child: const Text('Delete Profile'),
+                                    ),
+                                  ),
                                   SizedBox(
                                     width: 150,
                                     child: GestureDetector(
