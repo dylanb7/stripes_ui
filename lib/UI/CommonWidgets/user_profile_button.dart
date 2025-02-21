@@ -28,7 +28,7 @@ class UserProfileButton extends ConsumerWidget {
           if (selected) {
             while (router.location.startsWith(Routes.ACCOUNT)) {
               if (!router.canPop()) {
-                router.pushNamed(Routes.HOME);
+                router.go(Routes.HOME);
                 return;
               }
               router.pop();
