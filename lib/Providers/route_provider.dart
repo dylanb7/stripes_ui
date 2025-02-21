@@ -109,7 +109,27 @@ class RouteNotifier extends ChangeNotifier {
           name: 'recordType',
           pageBuilder: (context, state) {
             final String? type = state.pathParameters['type'];
-            if (type == null) return FadeIn(state: state, child: Container());
+            if (type == null) {
+              return FadeIn(
+                state: state,
+                child: Center(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text("Path does not exist"),
+                      const SizedBox(
+                        height: 8.0,
+                      ),
+                      TextButton(
+                          onPressed: () {
+                            context.pop();
+                          },
+                          child: const Text("Back"))
+                    ],
+                  ),
+                ),
+              );
+            }
             return FadeIn(
                 child: RecordSplitter(type: type, data: _data(state)),
                 state: state);

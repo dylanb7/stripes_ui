@@ -20,13 +20,10 @@ class AccountManagementScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool isSmall = MediaQuery.of(context).size.width < 1400;
-    const double itemWidth = SMALL_LAYOUT / 1.5;
-
     final subNotifier = ref.watch(subHolderProvider);
     if (subNotifier.isLoading) {
       return const LoadingWidget();
     }
-    final List<SubUser> subUsers = subNotifier.valueOrNull?.subUsers ?? [];
     final SubUser? current = subNotifier.valueOrNull?.selected;
     return PageWrap(
       actions: [
@@ -65,6 +62,10 @@ class AccountManagementScreen extends ConsumerWidget {
               width: 20,
             ),
           ]),
+          const Divider(
+            endIndent: 8.0,
+            indent: 8.0,
+          ),
           ListTile(
             dense: false,
             visualDensity: VisualDensity.comfortable,

@@ -24,8 +24,15 @@ class UserProfileButton extends ConsumerWidget {
       child: IconButton(
         padding: EdgeInsets.zero,
         onPressed: () {
-          if (selected && context.canPop()) {
-            context.pop();
+          final GoRouter router = GoRouter.of(context);
+          if (selected) {
+            while (router.location.startsWith(Routes.ACCOUNT)) {
+              if (!router.canPop()) {
+                router.pushNamed(Routes.HOME);
+                return;
+              }
+              router.pop();
+            }
           } else {
             context.pushNamed(Routes.ACCOUNT);
           }
