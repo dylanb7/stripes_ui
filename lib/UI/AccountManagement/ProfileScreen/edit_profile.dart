@@ -57,6 +57,20 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
     final bool isName =
         ref.watch(configProvider).profileType == ProfileType.name;
     final bool isSelected = widget.subUser == subNotif.valueOrNull?.selected;
+    final Widget deleteButton = TextButton(
+      onPressed: !isSelected
+          ? () {
+              _deleteUser(ref);
+            }
+          : null,
+      child: const Text('Delete Profile'),
+    );
+    final Widget deleteWithTooltip = isSelected
+        ? Tooltip(
+            message: "Cannot delete selected profile",
+            child: deleteButton,
+          )
+        : deleteButton;
     return OverlayBackdrop(
       child: SizedBox(
         width: SMALL_LAYOUT / 1.5,
@@ -174,19 +188,7 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Tooltip(
-                                    message: isSelected
-                                        ? "Cannot delete selected profile"
-                                        : null,
-                                    child: TextButton(
-                                      onPressed: !isSelected
-                                          ? () {
-                                              _deleteUser(ref);
-                                            }
-                                          : null,
-                                      child: const Text('Delete Profile'),
-                                    ),
-                                  ),
+                                  deleteWithTooltip,
                                   SizedBox(
                                     width: 150,
                                     child: GestureDetector(
