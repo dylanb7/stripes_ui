@@ -31,7 +31,12 @@ class RenderEntryGroup extends ConsumerWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
-        children: responses.map((res) => EntryDisplay(event: res)).toList(),
+        children: responses
+            .map((res) => EntryDisplay(
+                  event: res,
+                  elevated: false,
+                ))
+            .toList(),
       );
     }
     Map<String, List<Response>> byType = {};

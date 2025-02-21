@@ -60,153 +60,158 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
       child: SizedBox(
         width: SMALL_LAYOUT / 1.5,
         child: IntrinsicHeight(
-          child: Card(
-            elevation: 12,
-            shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                side: BorderSide(width: 5)),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Opacity(
-                opacity: isLoading ? 0.6 : 1,
-                child: IgnorePointer(
-                  ignoring: isLoading,
-                  child: FocusTraversalGroup(
-                    child: Form(
-                      onChanged: () {
-                        setState(() {
-                          canSave = _editsMade();
-                        });
-                      },
-                      key: _formKey,
-                      child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            const SizedBox(
-                              height: 6.0,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Edit Profile',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleLarge
-                                      ?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                          color:
-                                              Theme.of(context).primaryColor),
-                                ),
-                                IconButton(
-                                    onPressed: () {
-                                      _close(ref);
-                                    },
-                                    highlightColor: Colors.transparent,
-                                    hoverColor: Colors.transparent,
-                                    splashColor: Colors.transparent,
-                                    icon: const Icon(
-                                      Icons.close,
-                                      size: 35,
-                                    ))
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 6.0,
-                            ),
-                            if (isName) ...[
-                              TextFormField(
-                                controller: _firstName,
-                                validator: nameValidator,
-                                decoration: formFieldDecoration(
-                                    hintText: 'First Name',
-                                    controller: _firstName,
-                                    clearable: false),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Card(
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                  side: BorderSide(width: 1.0)),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Opacity(
+                  opacity: isLoading ? 0.6 : 1,
+                  child: IgnorePointer(
+                    ignoring: isLoading,
+                    child: FocusTraversalGroup(
+                      child: Form(
+                        onChanged: () {
+                          setState(() {
+                            canSave = _editsMade();
+                          });
+                        },
+                        key: _formKey,
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              const SizedBox(
+                                height: 6.0,
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Edit Profile',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge
+                                        ?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            color:
+                                                Theme.of(context).primaryColor),
+                                  ),
+                                  IconButton(
+                                      onPressed: () {
+                                        _close(ref);
+                                      },
+                                      highlightColor: Colors.transparent,
+                                      hoverColor: Colors.transparent,
+                                      splashColor: Colors.transparent,
+                                      icon: const Icon(
+                                        Icons.close,
+                                        size: 35,
+                                      ))
+                                ],
                               ),
                               const SizedBox(
                                 height: 6.0,
                               ),
-                              TextFormField(
-                                controller: _lastName,
-                                validator: nameValidator,
-                                decoration: formFieldDecoration(
-                                    hintText: 'Last Name',
-                                    controller: _lastName,
-                                    clearable: false),
-                              ),
-                              const SizedBox(
-                                height: 6.0,
-                              ),
-                              BirthYearSelector(
-                                context: context,
-                                controller: _birthYearController,
-                              ),
-                              const SizedBox(
-                                height: 6.0,
-                              ),
-                              GenderDropdown(
-                                context: context,
-                                initialValue: widget.subUser.gender,
-                                holder: _genderHolder,
-                              ),
-                            ] else ...[
-                              TextFormField(
-                                validator: (name) {
-                                  if (name == null || name.isEmpty) {
-                                    return 'Empty Field';
-                                  }
-                                  return null;
-                                },
-                                controller: _firstName,
-                                decoration: formFieldDecoration(
-                                  hintText: 'Username',
+                              if (isName) ...[
+                                TextFormField(
                                   controller: _firstName,
+                                  validator: nameValidator,
+                                  decoration: formFieldDecoration(
+                                      hintText: 'First Name',
+                                      controller: _firstName,
+                                      clearable: false),
                                 ),
-                              ),
-                            ],
-                            const SizedBox(
-                              height: 6.0,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                widget.subUser != subNotif.valueOrNull?.selected
-                                    ? TextButton(
-                                        child: const Text('Delete Profile'),
-                                        onPressed: () {
-                                          _deleteUser(ref);
-                                        },
-                                      )
-                                    : const SizedBox(
-                                        width: 8.0,
-                                      ),
-                                SizedBox(
-                                  width: 150,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      if (!canSave) {
-                                        showSnack(
-                                          context,
-                                          'Must make changes before saving',
-                                        );
-                                      }
-                                    },
-                                    child: FilledButton(
-                                      onPressed: !canSave
-                                          ? null
-                                          : () {
-                                              _editUser(ref);
-                                            },
-                                      child: const Text('Save Changes'),
-                                    ),
+                                const SizedBox(
+                                  height: 6.0,
+                                ),
+                                TextFormField(
+                                  controller: _lastName,
+                                  validator: nameValidator,
+                                  decoration: formFieldDecoration(
+                                      hintText: 'Last Name',
+                                      controller: _lastName,
+                                      clearable: false),
+                                ),
+                                const SizedBox(
+                                  height: 6.0,
+                                ),
+                                BirthYearSelector(
+                                  context: context,
+                                  controller: _birthYearController,
+                                ),
+                                const SizedBox(
+                                  height: 6.0,
+                                ),
+                                GenderDropdown(
+                                  context: context,
+                                  initialValue: widget.subUser.gender,
+                                  holder: _genderHolder,
+                                ),
+                              ] else ...[
+                                TextFormField(
+                                  validator: (name) {
+                                    if (name == null || name.isEmpty) {
+                                      return 'Empty Field';
+                                    }
+                                    return null;
+                                  },
+                                  controller: _firstName,
+                                  decoration: formFieldDecoration(
+                                    hintText: 'Username',
+                                    controller: _firstName,
                                   ),
                                 ),
                               ],
-                            ),
-                            const SizedBox(
-                              height: 12.0,
-                            ),
-                          ]),
+                              const SizedBox(
+                                height: 6.0,
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  widget.subUser !=
+                                          subNotif.valueOrNull?.selected
+                                      ? TextButton(
+                                          child: const Text('Delete Profile'),
+                                          onPressed: () {
+                                            _deleteUser(ref);
+                                          },
+                                        )
+                                      : const SizedBox(
+                                          width: 8.0,
+                                        ),
+                                  SizedBox(
+                                    width: 150,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        if (!canSave) {
+                                          showSnack(
+                                            context,
+                                            'Must make changes before saving',
+                                          );
+                                        }
+                                      },
+                                      child: FilledButton(
+                                        onPressed: !canSave
+                                            ? null
+                                            : () {
+                                                _editUser(ref);
+                                              },
+                                        child: const Text('Save Changes'),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(
+                                height: 12.0,
+                              ),
+                            ]),
+                      ),
                     ),
                   ),
                 ),
