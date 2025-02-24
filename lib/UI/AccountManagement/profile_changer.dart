@@ -19,7 +19,7 @@ class PatientChanger extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AsyncValue<SubState> state = ref.watch(subHolderProvider);
-    final config = ref.watch(configProvider);
+    final StripesConfig config = ref.watch(configProvider);
 
     if (state.isLoading) {
       return const LoadingWidget();
@@ -95,12 +95,13 @@ class UserSelect extends ConsumerWidget {
     final AsyncValue<SubState> subNotif = ref.read(subHolderProvider);
     final SubUser? current = subNotif.valueOrNull?.selected;
     final List<SubUser> subUsers = subNotif.valueOrNull?.subUsers ?? [];
+    final StripesConfig config = ref.watch(configProvider);
     final Color action = Theme.of(context).colorScheme.secondary;
     return Stack(
       children: [
         Positioned.fill(
             child: Container(
-          color: Colors.black.withOpacity(0.9),
+          color: Colors.black.withValues(alpha: 0.9),
         )),
         Positioned.fill(
           child: SafeArea(
@@ -142,12 +143,26 @@ class UserSelect extends ConsumerWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: subUsers
-                          .map((user) => Padding(
+                          .map(
+                            (user) => Padding(
                               padding:
                                   const EdgeInsets.symmetric(vertical: 5.0),
                               child: user.uid == current?.uid
-                                  ? _getSelected(ref, context, user, action)
-                                  : _getSelectible(ref, context, user)))
+                                  ? _getSelected(
+                                      ref,
+                                      context,
+                                      user,
+                                      action,
+                                      config.profileType ??
+                                          ProfileType.username)
+                                  : _getSelectible(
+                                      ref,
+                                      context,
+                                      user,
+                                      config.profileType ??
+                                          ProfileType.username),
+                            ),
+                          )
                           .toList(),
                     ),
                   ],
@@ -160,9 +175,11 @@ class UserSelect extends ConsumerWidget {
     );
   }
 
-  Widget _getSelected(
-      WidgetRef ref, BuildContext context, SubUser current, Color selected) {
-    final String firstName = current.name.split(' ')[0];
+  Widget _getSelected(WidgetRef ref, BuildContext context, SubUser current,
+      Color selected, ProfileType profileType) {
+    final String firstName = profileType == ProfileType.name
+        ? current.name.split(' ')[0]
+        : current.name;
     return InkWell(
         onTap: () {
           _close(ref);
@@ -188,8 +205,10 @@ class UserSelect extends ConsumerWidget {
         ));
   }
 
-  Widget _getSelectible(WidgetRef ref, BuildContext context, SubUser user) {
-    final String firstName = user.name.split(' ')[0];
+  Widget _getSelectible(WidgetRef ref, BuildContext context, SubUser user,
+      ProfileType profileType) {
+    final String firstName =
+        profileType == ProfileType.name ? user.name.split(' ')[0] : user.name;
     return InkWell(
       onTap: () {
         ref.read(subHolderProvider.notifier).changeCurrent(user);
