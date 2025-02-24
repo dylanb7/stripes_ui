@@ -24,25 +24,11 @@ class FilterView extends ConsumerWidget {
       children: [
         FilledButton(
           onPressed: () {
-            if (isSmall) {
-              Scaffold.of(context).showBottomSheet((context) => DecoratedBox(
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                            color: Theme.of(context).colorScheme.onSurface),
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(15.0),
-                          topRight: Radius.circular(15.0),
-                        ),
-                        color: Theme.of(context).colorScheme.surface),
-                    child: _FilterPopUp(),
-                  ));
-            } else {
-              ref.read(overlayProvider.notifier).state = CurrentOverlay(
-                widget: _PopUpStyle(
-                  child: _FilterPopUp(),
-                ),
-              );
-            }
+            ref.read(overlayProvider.notifier).state = CurrentOverlay(
+              widget: _PopUpStyle(
+                child: _FilterPopUp(),
+              ),
+            );
           },
           child: Row(
             mainAxisSize: MainAxisSize.min,
