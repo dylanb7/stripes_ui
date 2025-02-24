@@ -106,7 +106,10 @@ class _ExpandibleSymptomAreaState extends State<ExpandibleSymptomArea> {
             children: [
               widget.header,
               if (expanded)
-                ...widget.responses.map((res) => EntryDisplay(event: res)),
+                ...widget.responses.map((res) => EntryDisplay(
+                      event: res,
+                      elevated: false,
+                    )),
               TextButton.icon(
                 onPressed: () {
                   setState(() {
