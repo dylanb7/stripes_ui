@@ -5,6 +5,7 @@ import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
+import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -15,7 +16,7 @@ class FilterView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final Filters filters = ref.watch(filtersProvider);
     final String range = filters.toRange(context);
-    final bool isSmall = MediaQuery.of(context).size.width <= SMALL_LAYOUT;
+    final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.small);
     return Wrap(
       spacing: 6.0,
       runSpacing: 6.0,

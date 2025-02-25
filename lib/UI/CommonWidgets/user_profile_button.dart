@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:stripes_ui/Providers/auth_provider.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/tonal_button.dart';
+import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/entry.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
@@ -56,7 +57,7 @@ class ExitErrorPrevention extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return OverlayBackdrop(
       child: SizedBox(
-        width: SMALL_LAYOUT / 1.7,
+        width: Breakpoint.tiny.value,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.center,

@@ -13,7 +13,7 @@ import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/recordings_state.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
-import 'package:stripes_ui/Util/constants.dart';
+import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -40,7 +40,7 @@ class _BlueDyeTestScreenState extends ConsumerState<BlueDyeTestScreen> {
         padding: const EdgeInsets.only(top: 20.0, right: 20.0, left: 20.0),
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
+            constraints: BoxConstraints(maxWidth: Breakpoint.medium.value),
             child: const Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,7 +75,8 @@ class _BlueDyeTestScreenState extends ConsumerState<BlueDyeTestScreen> {
                       const EdgeInsets.only(top: 20.0, right: 20.0, left: 20.0),
                   child: Center(
                     child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
+                      constraints:
+                          BoxConstraints(maxWidth: Breakpoint.medium.value),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,

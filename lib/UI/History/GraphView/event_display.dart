@@ -3,18 +3,19 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:stripes_ui/UI/History/GraphView/event_frequency.dart';
 import 'package:stripes_ui/UI/History/GraphView/graph_widget.dart';
+import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 
 // ignore: constant_identifier_names
-const double SIDE_BY_SIDE = SMALL_LAYOUT * 1.5;
 
 class EventDisplay extends StatelessWidget {
   const EventDisplay({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final bool isLarge = getBreakpoint(context).isGreaterThan(Breakpoint.large);
     final double width = MediaQuery.of(context).size.width;
-    if (width >= SIDE_BY_SIDE) {
+    if (isLarge) {
       return const Padding(
         padding: EdgeInsets.only(left: 15.0, right: 15.0, top: 10.0),
         child: Row(
@@ -37,7 +38,7 @@ class EventDisplay extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Center(
         child: SizedBox(
-          width: min(width, SMALL_LAYOUT),
+          width: min(width, Breakpoint.small.value),
           child: const Padding(
             padding: EdgeInsets.symmetric(horizontal: 10),
             child: Center(

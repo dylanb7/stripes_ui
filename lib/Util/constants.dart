@@ -1,11 +1,5 @@
 // ignore_for_file: constant_identifier_names
 
-const String PASSWORD = 'pass';
-
-const double SMALL_LAYOUT = 1000;
-
-const double REALLY_SMALL_LAYOUT = 475;
-
 class Routes {
   static const String LANDING = '/';
   static const String SIGN_UP = '/signup';

@@ -7,6 +7,7 @@ import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/History/EventView/calendar_day.dart';
+import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -486,8 +487,7 @@ class _CalendarHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool reallySmall =
-        MediaQuery.of(context).size.width < REALLY_SMALL_LAYOUT;
+    final bool isTiny = getBreakpoint(context).isLessThan(Breakpoint.tiny);
 
     final Map<CalendarFormat, String> formats = {
       CalendarFormat.week: AppLocalizations.of(context)!.calendarVisibilityWeek,
@@ -538,7 +538,7 @@ class _CalendarHeader extends StatelessWidget {
             icon: const Icon(Icons.arrow_drop_down),
           ),*/
           const Spacer(),
-          reallySmall
+          isTiny
               ? IconButton.filled(
                   style: ButtonStyle(
                     shape: WidgetStateProperty.all(const RoundedRectangleBorder(
@@ -561,7 +561,7 @@ class _CalendarHeader extends StatelessWidget {
             onSelected: (format) {
               onFormatChange(format);
             },
-            icon: reallySmall
+            icon: isTiny
                 ? DecoratedBox(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8.0),
@@ -670,8 +670,7 @@ class _DateSelectionDisplayState extends State<DateSelectionDisplay> {
   Widget build(BuildContext context) {
     final bool singleDate = widget.listener.mode == RangeStatus.disabled;
 
-    final bool reallySmall =
-        MediaQuery.of(context).size.width < REALLY_SMALL_LAYOUT;
+    final bool isTiny = getBreakpoint(context).isLessThan(Breakpoint.tiny);
 
     final Widget rangeSelectionIcon = singleDate
         ? Icon(
@@ -688,7 +687,7 @@ class _DateSelectionDisplayState extends State<DateSelectionDisplay> {
       children: [
         PopupMenuButton<RangeStatus>(
             padding: EdgeInsets.zero,
-            icon: reallySmall
+            icon: isTiny
                 ? DecoratedBox(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8.0),

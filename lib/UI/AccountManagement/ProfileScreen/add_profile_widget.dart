@@ -5,7 +5,7 @@ import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/UI/AccountManagement/birth_year_selector.dart';
 import 'package:stripes_ui/UI/AccountManagement/gender_dropdown.dart';
-import 'package:stripes_ui/Util/constants.dart';
+import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/form_input.dart';
 
 import 'package:stripes_ui/Util/validators.dart';
@@ -46,7 +46,7 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
+    final isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);
 
     final bool isName =
         ref.watch(configProvider).profileType == ProfileType.name;

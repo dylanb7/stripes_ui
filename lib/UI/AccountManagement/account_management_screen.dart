@@ -10,6 +10,7 @@ import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
 import 'package:stripes_ui/UI/Layout/home_screen.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
+import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
@@ -144,7 +145,7 @@ class _DeleteAccountPopupState extends ConsumerState<DeleteAccountPopup> {
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: Center(
             child: SizedBox(
-              width: SMALL_LAYOUT / 1.7,
+              width: Breakpoint.small.value,
               child: Card(
                 shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(10.0))),

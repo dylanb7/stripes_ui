@@ -8,6 +8,7 @@ import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/AccountManagement/profile_changer.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
+import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
@@ -165,7 +166,7 @@ class CheckInButton extends ConsumerWidget {
     return Padding(
         padding: const EdgeInsets.symmetric(vertical: 5.0),
         child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT / 1.5),
+            constraints: BoxConstraints(maxWidth: Breakpoint.small.value),
             child: OutlinedButton(
               onPressed: () {
                 if (item.response != null) {
@@ -258,7 +259,7 @@ class RecordButton extends StatelessWidget {
     return Padding(
         padding: const EdgeInsets.symmetric(vertical: 5.0),
         child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT / 1.5),
+            constraints: BoxConstraints(maxWidth: Breakpoint.small.value),
             child: OutlinedButton(
               onPressed: () {
                 onClick(context);

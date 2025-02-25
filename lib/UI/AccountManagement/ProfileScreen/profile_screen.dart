@@ -3,19 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
-import 'package:stripes_ui/Providers/auth_provider.dart';
-import 'package:stripes_ui/Providers/overlay_provider.dart';
-import 'package:stripes_ui/Providers/route_provider.dart';
 
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
 import 'package:stripes_ui/UI/Layout/home_screen.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
+import 'package:stripes_ui/Util/breakpoint.dart';
 
 import 'package:stripes_ui/Util/constants.dart';
-import 'package:stripes_ui/Util/easy_snack.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
 
 import 'add_profile_widget.dart';
 import 'profiles_view.dart';
@@ -25,8 +21,8 @@ class PatientScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bool isSmall = MediaQuery.of(context).size.width < 1400;
-    const double itemWidth = SMALL_LAYOUT / 1.5;
+    final bool isSmall = getBreakpoint(context).isGreaterThan(Breakpoint.large);
+    final double itemWidth = Breakpoint.small.value;
 
     final subNotifier = ref.watch(subHolderProvider);
     if (subNotifier.isLoading) {
@@ -73,9 +69,9 @@ class PatientScreen extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Wrap(children: [
-                const SizedBox(
+                SizedBox(
                   width: itemWidth,
-                  child: AddUserWidget(),
+                  child: const AddUserWidget(),
                 ),
                 ...subUsers.map<Widget>(
                   (user) => SizedBox(

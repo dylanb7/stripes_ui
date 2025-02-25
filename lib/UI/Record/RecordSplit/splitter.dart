@@ -16,6 +16,7 @@ import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/question_screen.dart';
 import 'package:stripes_ui/UI/Record/submit_screen.dart';
+import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
@@ -149,7 +150,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
           : null,
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
+          constraints: BoxConstraints(maxWidth: Breakpoint.medium.value),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
             child: Column(

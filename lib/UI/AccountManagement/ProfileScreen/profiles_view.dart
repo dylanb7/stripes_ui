@@ -5,7 +5,7 @@ import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/AccountManagement/ProfileScreen/edit_profile.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
-import 'package:stripes_ui/Util/constants.dart';
+import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/config.dart';
 import 'package:stripes_ui/entry.dart';
 
@@ -20,7 +20,7 @@ class UserView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final StripesConfig config = ref.watch(configProvider);
     final bool isName = config.profileType == ProfileType.name;
-    final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
+    final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);
 
     final Widget controlRow = Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,

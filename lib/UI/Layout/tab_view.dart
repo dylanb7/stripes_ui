@@ -15,6 +15,7 @@ import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
 import 'package:stripes_ui/UI/History/EventView/filter.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
 import 'package:stripes_ui/UI/Record/record_screen.dart';
+import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 
@@ -69,7 +70,7 @@ class RecordScreenContent extends ConsumerWidget {
             controller: ScrollController(),
             child: Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
+                constraints: BoxConstraints(maxWidth: Breakpoint.medium.value),
                 child: Column(children: [
                   const SizedBox(
                     height: 20,
@@ -95,12 +96,12 @@ class HistoryScreenContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isSmall = MediaQuery.of(context).size.width < SMALL_LAYOUT;
+    final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);
     if (isSmall) {
       return AddIndicator(builder: (context, hasIndicator) {
         return Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: SMALL_LAYOUT),
+            constraints: BoxConstraints(maxWidth: Breakpoint.medium.value),
             child: RefreshWidget(
               depth: RefreshDepth.authuser,
               scrollable: CustomScrollView(
@@ -405,7 +406,7 @@ class NavTile extends StatelessWidget {
         onTap();
       },
       child: Padding(
-        padding: const EdgeInsets.all(4.0),
+        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
         child: AnimatedContainer(
           duration: Durations.short4,
           decoration: selected
