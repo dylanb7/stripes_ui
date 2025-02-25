@@ -399,41 +399,52 @@ class NavTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color selectedColor = Theme.of(context).primaryColor;
-    final Color unselectedColor =
-        Theme.of(context).colorScheme.onSurface.withOpacity(0.55);
     return InkResponse(
       containedInkWell: true,
       onTap: () {
         onTap();
       },
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Align(
-            alignment: Alignment.topCenter,
-            heightFactor: 1.0,
-            child: IconTheme(
-              data: Theme.of(context).iconTheme.copyWith(
-                    color: selected ? selectedColor : unselectedColor,
+      child: Padding(
+        padding: const EdgeInsets.all(4.0),
+        child: AnimatedContainer(
+          duration: Durations.short4,
+          decoration: selected
+              ? BoxDecoration(
+                  color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(6.0),
                   ),
-              child: selected ? activeIcon ?? icon : icon,
-            ),
-          ),
-          MediaQuery.withClampedTextScaling(
-            maxScaleFactor: 1.0,
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              heightFactor: 1.0,
-              child: Text(
-                label,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: selected ? selectedColor : unselectedColor,
-                    ),
+                )
+              : const BoxDecoration(),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Align(
+                alignment: Alignment.topCenter,
+                heightFactor: 1.0,
+                child: IconTheme(
+                  data: Theme.of(context).iconTheme.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                  child: selected ? activeIcon ?? icon : icon,
+                ),
               ),
-            ),
+              MediaQuery.withClampedTextScaling(
+                maxScaleFactor: 1.0,
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  heightFactor: 1.0,
+                  child: Text(
+                    label,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
