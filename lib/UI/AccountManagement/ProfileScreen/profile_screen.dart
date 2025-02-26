@@ -21,7 +21,7 @@ class PatientScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bool isSmall = getBreakpoint(context).isGreaterThan(Breakpoint.large);
+    final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);
     final double itemWidth = Breakpoint.small.value;
 
     final subNotifier = ref.watch(subHolderProvider);
