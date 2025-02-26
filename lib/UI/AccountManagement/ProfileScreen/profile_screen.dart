@@ -64,6 +64,13 @@ class PatientScreen extends ConsumerWidget {
               ],
             ),
             const SizedBox(
+              height: 6.0,
+            ),
+            Text(
+              "Your app account, created with your email and password, can be accessed on multiple devices. Share your account credentials with caregivers, such as nurses, school caregivers, and other parents, to allow them to access the account. You can also create profiles for multiple individuals and use the app to track symptoms for each person. To record symptoms, simply switch to the profile of the person you want to track.",
+              textAlign: TextAlign.left,
+            ),
+            const SizedBox(
               height: 12.0,
             ),
             Padding(
