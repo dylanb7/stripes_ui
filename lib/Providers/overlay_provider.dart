@@ -7,7 +7,7 @@ class CurrentOverlay {
   const CurrentOverlay({this.widget});
 }
 
-const closedQuery = CurrentOverlay();
+const closedOverlay = CurrentOverlay();
 
 class OverlayBackdrop extends ConsumerWidget {
   final Widget child;
@@ -24,7 +24,7 @@ class OverlayBackdrop extends ConsumerWidget {
         child: GestureDetector(
           onTap: () {
             if (dismissOnBackdropTouch) {
-              ref.read(overlayProvider.notifier).state = closedQuery;
+              ref.read(overlayProvider.notifier).state = closedOverlay;
             }
           },
           child: ColoredBox(
@@ -40,4 +40,4 @@ class OverlayBackdrop extends ConsumerWidget {
 }
 
 final overlayProvider =
-    StateProvider.autoDispose<CurrentOverlay>((_) => closedQuery);
+    StateProvider.autoDispose<CurrentOverlay>((_) => closedOverlay);

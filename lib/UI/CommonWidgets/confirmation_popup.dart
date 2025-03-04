@@ -102,7 +102,7 @@ class ConfirmationPopup extends ConsumerWidget {
   }
 
   _dismiss(BuildContext context, WidgetRef ref) {
-    ref.read(overlayProvider.notifier).state = closedQuery;
+    ref.read(overlayProvider.notifier).state = closedOverlay;
   }
 
   _confirm(BuildContext context, WidgetRef ref) {

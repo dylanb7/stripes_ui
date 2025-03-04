@@ -215,7 +215,7 @@ class _DeleteAccountPopupState extends ConsumerState<DeleteAccountPopup> {
   }
 
   _dismiss(BuildContext context) {
-    ref.read(overlayProvider.notifier).state = closedQuery;
+    ref.read(overlayProvider.notifier).state = closedOverlay;
   }
 
   _onDelete() async {

@@ -132,6 +132,6 @@ class ExitErrorPrevention extends ConsumerWidget {
   }
 
   _closeOverlay(WidgetRef ref) {
-    ref.read(overlayProvider.notifier).state = closedQuery;
+    ref.read(overlayProvider.notifier).state = closedOverlay;
   }
 }

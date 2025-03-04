@@ -214,7 +214,7 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
                             IconButton(
                                 onPressed: () {
                                   ref.read(overlayProvider.notifier).state =
-                                      closedQuery;
+                                      closedOverlay;
                                 },
                                 icon: const Icon(
                                   Icons.close,
@@ -283,7 +283,7 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
                                 Text(AppLocalizations.of(context)!.uploadDone),
                             onPressed: () {
                               ref.read(overlayProvider.notifier).state =
-                                  closedQuery;
+                                  closedOverlay;
                             })
                     ],
                   )),

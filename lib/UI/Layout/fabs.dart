@@ -65,7 +65,7 @@ class _QuestionTypeOverlay extends ConsumerWidget {
                       IconButton(
                           onPressed: () {
                             ref.read(overlayProvider.notifier).state =
-                                closedQuery;
+                                closedOverlay;
                           },
                           icon: const Icon(
                             Icons.close,
@@ -78,7 +78,7 @@ class _QuestionTypeOverlay extends ConsumerWidget {
                         child: Text(type),
                         onPressed: () {
                           ref.read(overlayProvider.notifier).state =
-                              closedQuery;
+                              closedOverlay;
                           context.pushNamed(
                             'recordType',
                             pathParameters: {'type': type},

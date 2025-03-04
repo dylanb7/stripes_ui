@@ -174,7 +174,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
           stampFilters: [
             ...typeFilters,
           ]);
-      ref.read(overlayProvider.notifier).state = closedQuery;
+      ref.read(overlayProvider.notifier).state = closedOverlay;
     }
 
     return Column(
@@ -194,7 +194,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
               ),
               IconButton(
                   onPressed: () {
-                    ref.read(overlayProvider.notifier).state = closedQuery;
+                    ref.read(overlayProvider.notifier).state = closedOverlay;
                   },
                   icon: const Icon(
                     Icons.close,
