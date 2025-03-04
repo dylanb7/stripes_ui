@@ -288,7 +288,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                                   ? Theme.of(context)
                                       .colorScheme
                                       .onSurface
-                                      .withOpacity(0.5)
+                                      .withValues(alpha: 0.5)
                                   : null,
                               decoration: currentIndex != step.value &&
                                       step.value <= index

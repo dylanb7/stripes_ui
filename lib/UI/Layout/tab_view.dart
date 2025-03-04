@@ -270,7 +270,7 @@ class RefreshWidgetState extends ConsumerState<RefreshWidget> {
             if (widget.depth == RefreshDepth.stamp) stampFuture(),
             Future.delayed(const Duration(seconds: 5), () => timeout),
           ]);
-          if (completed == timeout && mounted) {
+          if (completed == timeout && context.mounted) {
             showSnack(context, "Timed out");
           }
         },
@@ -411,7 +411,7 @@ class NavTile extends StatelessWidget {
           duration: Durations.short4,
           decoration: selected
               ? BoxDecoration(
-                  color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
+                  color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
                   borderRadius: const BorderRadius.all(
                     Radius.circular(6.0),
                   ),
@@ -506,9 +506,11 @@ class LargeNavButton extends ConsumerWidget {
           {required Widget child, required BuildContext context}) =>
       DecoratedBox(
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(6.0),
-            border: Border.all(
-                color: Theme.of(context).colorScheme.primary, width: 2.0)),
+          color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
+          borderRadius: const BorderRadius.all(
+            Radius.circular(6.0),
+          ),
+        ),
         child: child,
       );
 }
