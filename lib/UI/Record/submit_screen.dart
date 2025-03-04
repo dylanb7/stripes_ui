@@ -7,6 +7,7 @@ import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/date_time_entry.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/question_screen.dart';
+import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class SubmitScreen extends ConsumerStatefulWidget {
@@ -142,7 +143,9 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: LongTextEntry(textController: _descriptionController),
+          child: Center(
+            child: LongTextEntry(textController: _descriptionController),
+          ),
         ),
         const SizedBox(
           height: 18.0,
@@ -164,42 +167,39 @@ class LongTextEntry extends StatelessWidget {
       children: [
         Text(
           AppLocalizations.of(context)!.submitDescriptionTag,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: Theme.of(context)
-                    .colorScheme
-                    .onSurface
-                    .withValues(alpha: 0.85),
-              ),
           textAlign: TextAlign.center,
         ),
         const SizedBox(
           height: 5,
         ),
-        AspectRatio(
-          aspectRatio: 2.5,
-          child: TextFormField(
-            scrollPadding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom +
-                    (Theme.of(context).textTheme.bodyMedium?.fontSize ?? 20) *
-                        4),
-            controller: textController,
-            maxLines: null,
-            keyboardType: TextInputType.multiline,
-            textCapitalization: TextCapitalization.sentences,
-            textInputAction: TextInputAction.newline,
-            expands: true,
-            textAlignVertical: TextAlignVertical.top,
-            onTapOutside: (event) {
-              FocusManager.instance.primaryFocus?.unfocus();
-            },
-            decoration: InputDecoration(
-                border: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey, width: 1),
-                    borderRadius: BorderRadius.all(Radius.circular(4.0))),
-                hintText:
-                    AppLocalizations.of(context)!.submitDescriptionPlaceholder,
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 5.0)),
+        ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: Breakpoint.tiny.value),
+          child: AspectRatio(
+            aspectRatio: 2.5,
+            child: TextFormField(
+              scrollPadding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom +
+                      (Theme.of(context).textTheme.bodyMedium?.fontSize ?? 20) *
+                          4),
+              controller: textController,
+              maxLines: null,
+              keyboardType: TextInputType.multiline,
+              textCapitalization: TextCapitalization.sentences,
+              textInputAction: TextInputAction.newline,
+              expands: true,
+              textAlignVertical: TextAlignVertical.top,
+              onTapOutside: (event) {
+                FocusManager.instance.primaryFocus?.unfocus();
+              },
+              decoration: InputDecoration(
+                  border: const OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey, width: 1),
+                      borderRadius: BorderRadius.all(Radius.circular(4.0))),
+                  hintText: AppLocalizations.of(context)!
+                      .submitDescriptionPlaceholder,
+                  contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 8.0, vertical: 5.0)),
+            ),
           ),
         ),
       ],
