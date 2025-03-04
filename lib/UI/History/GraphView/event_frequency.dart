@@ -81,7 +81,7 @@ class EventFrequency extends ConsumerWidget {
                         fillColor: Theme.of(context)
                             .colorScheme
                             .secondary
-                            .withOpacity(0.9),
+                            .withValues(alpha: 0.9),
                         hasTooltip: false,
                         prompt: key),
                   );
@@ -97,7 +97,7 @@ class EventFrequency extends ConsumerWidget {
                       fillColor: Theme.of(context)
                           .colorScheme
                           .secondary
-                          .withOpacity(0.9),
+                          .withValues(alpha: 0.9),
                       hasTooltip: false,
                       prompt: key),
                   view: Padding(
@@ -121,7 +121,7 @@ class EventFrequency extends ConsumerWidget {
                                 fillColor: Theme.of(context)
                                     .colorScheme
                                     .secondary
-                                    .withOpacity(0.6),
+                                    .withValues(alpha: 0.6),
                               ),
                             );
                           }),

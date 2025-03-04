@@ -3,14 +3,12 @@ import 'package:stripes_backend_helper/QuestionModel/question.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo_base.dart';
-import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/record_period.dart';
 import 'package:stripes_backend_helper/TestingReposImpl/test_question_repo.dart';
 import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/blue_dye_entry.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/bristol_entry.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/pain_area.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/pain_numeric.dart';
-import 'package:stripes_ui/UI/Record/QuestionEntries/vertical_pain_numeric.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 import 'package:stripes_ui/repos/blue_dye_test_repo.dart';
 

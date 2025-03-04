@@ -8,7 +8,6 @@ import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/History/EventView/calendar_day.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
-import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -168,8 +167,10 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
             child: Text(
               weekdayString,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color:
-                      Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withValues(alpha: 0.6)),
             ),
           ),
         ),

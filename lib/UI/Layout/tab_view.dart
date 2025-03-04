@@ -478,6 +478,9 @@ class LargeNavButton extends ConsumerWidget {
     final String text = buttonText[tab]!;
 
     Widget button() => TextButton(
+        style: ButtonStyle(
+            shape: WidgetStateProperty.all(const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(6.0))))),
         onPressed: () {
           String route = Routes.HOME;
           if (tab == TabOption.tests) {

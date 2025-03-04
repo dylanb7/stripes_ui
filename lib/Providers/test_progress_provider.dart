@@ -20,8 +20,6 @@ final blueDyeTestProgressProvider =
           .where((test) => test.group == group)
           .toList()));
 
-  print("Blue dye progress previous responses: $testResponses");
-
   final List<TestDate> mostRecent = _getOrderedTests(testResponses);
 
   final int iterations = testResponses.length;

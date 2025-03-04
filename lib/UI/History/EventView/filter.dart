@@ -6,7 +6,6 @@ import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
-import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class FilterView extends ConsumerWidget {

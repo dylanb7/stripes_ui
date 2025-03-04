@@ -4,13 +4,12 @@ import 'package:stripes_ui/UI/CommonWidgets/scroll_assisted_list.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class BlueMealPreStudy extends StatelessWidget {
-  final ScrollController _scrollController = ScrollController();
-
   final Function onClick;
 
   final bool isLoading;
 
-  BlueMealPreStudy({required this.onClick, required this.isLoading, super.key});
+  const BlueMealPreStudy(
+      {required this.onClick, required this.isLoading, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -397,7 +396,7 @@ class BlueStudyInstructionsPartOne extends StatelessWidget {
               height: 8.0,
             ),
             ColoredBox(
-              color: Colors.yellow.withOpacity(0.5),
+              color: Colors.yellow.withValues(alpha: 0.5),
               child: Padding(
                   padding: const EdgeInsets.all(4.0),
                   child: Text(AppLocalizations.of(context)!

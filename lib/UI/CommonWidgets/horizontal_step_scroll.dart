@@ -62,19 +62,17 @@ class HorizontalStepScroll extends StatelessWidget {
 
 extension on List<Widget> {
   List<Widget> spacedBy({required double space, Axis axis = Axis.vertical}) {
-    return this
-        .expand((widget) => [
-              widget,
-              axis == Axis.horizontal
-                  ? SizedBox(
-                      width: space,
-                    )
-                  : SizedBox(
-                      height: space,
-                    )
-            ])
-        .toList()
-      ..removeLast();
+    final Iterable<Widget> expanded = expand((widget) => [
+          widget,
+          axis == Axis.horizontal
+              ? SizedBox(
+                  width: space,
+                )
+              : SizedBox(
+                  height: space,
+                )
+        ]);
+    return expanded.toList()..removeLast();
   }
 }
 

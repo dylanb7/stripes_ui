@@ -315,8 +315,6 @@ class _RecordingsState extends ConsumerState<RecordingsState> {
     final AsyncValue<BlueDyeTestProgress> progress =
         ref.watch(blueDyeTestProgressProvider);
 
-    print(progress);
-
     if (progress.isLoading) return const LoadingWidget();
 
     final BlueDyeProgression stage =

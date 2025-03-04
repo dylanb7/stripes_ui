@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 showSnack(BuildContext context, String message,

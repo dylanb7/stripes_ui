@@ -43,7 +43,7 @@ class _BlueDyeEntryState extends ConsumerState<BlueDyeEntry> {
   Widget build(BuildContext context) {
     final Color primary = Theme.of(context).colorScheme.primary;
     final Color surface =
-        Theme.of(context).colorScheme.surface.withOpacity(0.12);
+        Theme.of(context).colorScheme.surface.withValues(alpha: 0.12);
     final Color onPrimary = Theme.of(context).colorScheme.onPrimary;
     final Color onSurface = Theme.of(context).colorScheme.onSurface;
     final bool hasError = widget.listener.pending.contains(widget.question) &&

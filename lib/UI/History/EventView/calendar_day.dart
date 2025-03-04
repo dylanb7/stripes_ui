@@ -42,7 +42,7 @@ class CalendarDay extends StatelessWidget {
     final Color textColor = highlighted
         ? onPrimary
         : disabled
-            ? onSurface.withOpacity(0.4)
+            ? onSurface.withValues(alpha: 0.4)
             : onSurface;
     final Widget dayView = Padding(
       padding: EdgeInsets.only(
@@ -129,7 +129,8 @@ class CalendarDay extends StatelessWidget {
                   end: rangeEnd ? constraints.maxWidth * 0.5 : 0.0,
                   bottom: style.cellMargin.bottom),
               height: shorterSide - style.cellMargin.vertical,
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.4),
+              color:
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.4),
             ),
           );
         }),

@@ -58,7 +58,7 @@ class PatientControlSelector extends FormField<String> {
                                 .textTheme
                                 .bodyMedium
                                 ?.copyWith(
-                                    color: Colors.black.withOpacity(0.6)),
+                                    color: Colors.black.withValues(alpha: 0.6)),
                           ),
                         ),
                         icon: const Icon(

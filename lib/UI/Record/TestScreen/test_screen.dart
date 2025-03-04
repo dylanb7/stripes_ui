@@ -5,7 +5,6 @@ import 'package:stripes_backend_helper/RepositoryBase/TestBase/test_state.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
-import 'package:stripes_ui/Util/constants.dart';
 
 import 'package:stripes_ui/l10n/app_localizations.dart';
 

@@ -302,7 +302,9 @@ class Filters with EquatableMixin {
       return yearFormat.format(calendarSelection.rangeStart!);
     }
     if (calendarSelection.rangeStart == null &&
-        calendarSelection.rangeEnd == null) return '';
+        calendarSelection.rangeEnd == null) {
+      return '';
+    }
     final bool sameYear =
         calendarSelection.rangeEnd!.year == calendarSelection.rangeStart!.year;
     final bool sameMonth = sameYear &&

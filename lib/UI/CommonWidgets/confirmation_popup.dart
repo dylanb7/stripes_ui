@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/tonal_button.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
-import 'package:stripes_ui/Util/constants.dart';
 
 class ConfirmationPopup extends ConsumerWidget {
   final String confirm;

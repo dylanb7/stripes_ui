@@ -144,7 +144,7 @@ class _BarGraphState extends ConsumerState<BarGraph> {
         ? defaultData
         : widget.graphData.behaviorBarData[selected] ?? defaultData;
     Color severe = Theme.of(context).colorScheme.error;
-    Color mild = Theme.of(context).colorScheme.tertiary.withOpacity(0.5);
+    Color mild = Theme.of(context).colorScheme.tertiary.withValues(alpha: 0.5);
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -372,8 +372,8 @@ class _BarGraphState extends ConsumerState<BarGraph> {
   Color _darken(Color color, [int percent = 40]) {
     assert(1 <= percent && percent <= 100);
     final value = 1 - percent / 100;
-    return Color.fromARGB(color.alpha, (color.red * value).round(),
-        (color.green * value).round(), (color.blue * value).round());
+    return Color.fromARGB(color.a.round(), (color.r * value).round(),
+        (color.g * value).round(), (color.b * value).round());
   }
 }
 

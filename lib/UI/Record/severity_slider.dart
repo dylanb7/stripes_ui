@@ -119,7 +119,7 @@ class _StripesSliderState extends State<StripesSlider> {
                     inactiveTickMarkColor: Theme.of(context)
                         .colorScheme
                         .onPrimary
-                        .withOpacity(0.8),
+                        .withValues(alpha: 0.8),
                   ),
                   child: Slider(
                     value: value,
@@ -461,13 +461,16 @@ class _MoodSliderState extends State<MoodSlider> {
           'packages/stripes_ui/assets/svg/pain_face_$index.svg',
           colorFilter: ColorFilter.mode(
               !listener.hasInteracted
-                  ? Theme.of(context).colorScheme.onSurface.withOpacity(0.5)
+                  ? Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withValues(alpha: 0.5)
                   : isSelected
                       ? Theme.of(context).colorScheme.onSurface
                       : Theme.of(context)
                           .colorScheme
                           .onSurface
-                          .withOpacity(0.3),
+                          .withValues(alpha: 0.3),
               BlendMode.srcIn),
         ));
   }
@@ -609,8 +612,10 @@ class _PainSliderState extends State<PainSlider> {
                   tickMarkShape:
                       const LineSliderTickMarkShape(tickMarkRadius: 2.0),
                   activeTickMarkColor: Theme.of(context).colorScheme.primary,
-                  inactiveTickMarkColor:
-                      Theme.of(context).colorScheme.onPrimary.withOpacity(0.8),
+                  inactiveTickMarkColor: Theme.of(context)
+                      .colorScheme
+                      .onPrimary
+                      .withValues(alpha: 0.8),
                 ),
                 child: Slider(
                   value: value,
@@ -700,13 +705,16 @@ class _PainSliderState extends State<PainSlider> {
           'packages/stripes_ui/assets/svg/pain_face_$index.svg',
           colorFilter: ColorFilter.mode(
               !listener.hasInteracted
-                  ? Theme.of(context).colorScheme.onSurface.withOpacity(0.5)
+                  ? Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withValues(alpha: 0.5)
                   : isSelected
                       ? Theme.of(context).colorScheme.onPrimary
                       : Theme.of(context)
                           .colorScheme
                           .onPrimary
-                          .withOpacity(0.3),
+                          .withValues(alpha: 0.3),
               BlendMode.srcIn),
         ),
       ),

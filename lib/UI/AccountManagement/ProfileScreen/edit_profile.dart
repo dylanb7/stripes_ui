@@ -7,7 +7,6 @@ import 'package:stripes_ui/UI/AccountManagement/birth_year_selector.dart';
 import 'package:stripes_ui/UI/AccountManagement/control_slider.dart';
 import 'package:stripes_ui/UI/AccountManagement/gender_dropdown.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
-import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/form_input.dart';
 
