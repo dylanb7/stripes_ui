@@ -346,10 +346,11 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
       ),
     );
     return DecoratedBox(
-      decoration: const BoxDecoration(
-        borderRadius: BorderRadius.all(
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.all(
           Radius.circular(8.0),
         ),
+        border: Border.all(),
       ),
       child: Column(
         children: [
