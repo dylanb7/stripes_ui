@@ -15,6 +15,7 @@ import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class BlueDyeTestScreen extends ConsumerStatefulWidget {
@@ -186,6 +187,8 @@ class StudyOngoing extends ConsumerStatefulWidget {
 class _StudyOngoingState extends ConsumerState<StudyOngoing> {
   late int currentIndex;
 
+  late final CarouselController carouselController;
+
   final ScrollController scrollContoller = ScrollController();
 
   @override
@@ -196,6 +199,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
             ?.getProgression()
             ?.value ??
         0;
+    carouselController = CarouselController(initialItem: currentIndex);
     super.initState();
   }
 
@@ -212,6 +216,9 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
         _changePage(nextValue.index);
       }
     });
+
+    final bool shouldWrap =
+        getBreakpoint(context).isLessThan(Breakpoint.medium);
     final AsyncValue<BlueDyeTestProgress> progress =
         ref.watch(blueDyeTestProgressProvider);
 
@@ -277,8 +284,39 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
         shrinkWrap: true,
         controller: properties.scrollController,
         children: [
+          if (shouldWrap)
+            CarouselView.weighted(
+              controller: carouselController,
+              flexWeights: const [2, 6, 2],
+              enableSplash: false,
+              onTap: (value) {
+                if (value > activeStage.value) {
+                  showSnack(
+                      context,
+                      AppLocalizations.of(context)!
+                          .stepClickWarning("${index + 1}"));
+                  return;
+                }
+                if (currentIndex == index) return;
+                _changePage(index);
+              },
+              children: BlueDyeProgression.values
+                  .map(
+                    (step) =>
+                        _buildScrollStep(context, currentIndex, index, step),
+                  )
+                  .toList(),
+            ),
+          if (!shouldWrap)
+            Row(
+                children: BlueDyeProgression.values
+                    .map<Widget>(
+                      (step) =>
+                          _buildScrollStep(context, currentIndex, index, step),
+                    )
+                    .toList()),
           SizedBox(
-            height: 80.0,
+            height: 110.0,
             child: HorizontalStepScroll(
               steps: BlueDyeProgression.values
                   .map(
@@ -446,6 +484,10 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
       currentIndex = newIndex;
     });
     try {
+      if (carouselController.hasClients) {
+        carouselController.animateToWeightedPage([2, 6, 2], newIndex,
+            duration: const Duration(milliseconds: 200), curve: Curves.ease);
+      }
       if (scrollContoller.hasClients) {
         scrollContoller.jumpTo(scrollContoller.position.minScrollExtent);
       }
