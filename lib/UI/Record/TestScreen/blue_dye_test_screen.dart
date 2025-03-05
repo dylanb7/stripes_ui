@@ -363,6 +363,8 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                 children: [
                   stepCircle,
                   Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         "Step ${step.value + 1}",
