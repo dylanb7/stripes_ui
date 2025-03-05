@@ -29,19 +29,25 @@ class HorizontalStepScroll extends StatelessWidget {
     if (shouldWrap) {
       return ListView.separated(
         itemBuilder: (context, index) => index == 0 || index == steps.length + 1
-            ? SizedBox(
-                width: endPadding,
+            ? const SizedBox(
+                width: 0,
               )
             : SizedBox(
                 width: itemWidth,
                 child: _getWidget(
                     steps[index - 1], index - 1, index - 1 <= flooredProgress),
               ),
-        separatorBuilder: (context, index) => const SizedBox(
-          width: spaceBetween,
-        ),
+        separatorBuilder: (context, index) =>
+            index == 0 || index == steps.length + 1
+                ? SizedBox(
+                    width: endPadding,
+                  )
+                : const SizedBox(
+                    width: spaceBetween,
+                  ),
         controller: ScrollController(
-            initialScrollOffset: flooredProgress * (itemWidth + spaceBetween)),
+            initialScrollOffset:
+                (flooredProgress * (itemWidth + spaceBetween)) + endPadding),
         itemCount: steps.length + 2,
         scrollDirection: Axis.horizontal,
         physics: const PageScrollPhysics(),

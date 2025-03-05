@@ -61,10 +61,10 @@
     "inStudyWithdrawDesc": "You may withdraw at any time by clicking the withdrawal button below. This notifies the research team of your wish to stop participating.",
     "inStudyWithdrawButtonText": "Withdraw from study",
 
-    "studyProgessionOne": "Step 1\nEat Blue\nMeal",
-    "studyProgessionTwo": "Step 2\nTrack BM",
-    "studyProgessionThree": "Step 3\nEat Blue\nMeal",
-    "studyProgessionFour": "Step 4\nTrack BM",
+    "studyProgessionOne": "Eat Blue Meal",
+    "studyProgessionTwo": "Track BM",
+    "studyProgessionThree": "Eat Blue Meal",
+    "studyProgessionFour": "Track BM",
 
     "stepClickWarning": "{step} is not yet active",
     "@stepClickWarning": {

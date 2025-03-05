@@ -376,25 +376,25 @@ abstract class AppLocalizations {
   /// No description provided for @studyProgessionOne.
   ///
   /// In en, this message translates to:
-  /// **'Step 1\nEat Blue\nMeal'**
+  /// **'Eat Blue Meal'**
   String get studyProgessionOne;
 
   /// No description provided for @studyProgessionTwo.
   ///
   /// In en, this message translates to:
-  /// **'Step 2\nTrack BM'**
+  /// **'Track BM'**
   String get studyProgessionTwo;
 
   /// No description provided for @studyProgessionThree.
   ///
   /// In en, this message translates to:
-  /// **'Step 3\nEat Blue\nMeal'**
+  /// **'Eat Blue Meal'**
   String get studyProgessionThree;
 
   /// No description provided for @studyProgessionFour.
   ///
   /// In en, this message translates to:
-  /// **'Step 4\nTrack BM'**
+  /// **'Track BM'**
   String get studyProgessionFour;
 
   /// No description provided for @stepClickWarning.

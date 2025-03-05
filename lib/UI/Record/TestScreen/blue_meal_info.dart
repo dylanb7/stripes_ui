@@ -13,69 +13,72 @@ class BlueMealPreStudy extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        ColoredBox(
-          color: Colors.yellow.withValues(alpha: 0.5),
-          child: Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    AppLocalizations.of(context)!.preStudySeeing,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    AppLocalizations.of(context)!.preStudySeeingExp,
-                  ),
-                ],
-              )),
-        ),
-        const SizedBox(
-          height: 12.0,
-        ),
-        const BlueMealStudyInstructions(),
-        const SizedBox(
-          height: 12.0,
-        ),
-        Text(
-          AppLocalizations.of(context)!.preStudyEnrollTitle,
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium
-              ?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        Text(AppLocalizations.of(context)!.preStudyEnrollDescPartOne),
-        const SizedBox(
-          height: 12.0,
-        ),
-        Text(AppLocalizations.of(context)!.preStudyEnrollDescPartTwo),
-        const SizedBox(
-          height: 25.0,
-        ),
-        Center(
-          child: FilledButton(
-            onPressed: isLoading
-                ? null
-                : () {
-                    onClick();
-                  },
-            child: isLoading
-                ? const ButtonLoadingIndicator()
-                : Text(AppLocalizations.of(context)!.preStudyEnrollButton),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          ColoredBox(
+            color: Colors.yellow.withValues(alpha: 0.5),
+            child: Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      AppLocalizations.of(context)!.preStudySeeing,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      AppLocalizations.of(context)!.preStudySeeingExp,
+                    ),
+                  ],
+                )),
           ),
-        ),
-        const SizedBox(
-          height: 50.0,
-        ),
-      ],
+          const SizedBox(
+            height: 12.0,
+          ),
+          const BlueMealStudyInstructions(),
+          const SizedBox(
+            height: 12.0,
+          ),
+          Text(
+            AppLocalizations.of(context)!.preStudyEnrollTitle,
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          Text(AppLocalizations.of(context)!.preStudyEnrollDescPartOne),
+          const SizedBox(
+            height: 12.0,
+          ),
+          Text(AppLocalizations.of(context)!.preStudyEnrollDescPartTwo),
+          const SizedBox(
+            height: 25.0,
+          ),
+          Center(
+            child: FilledButton(
+              onPressed: isLoading
+                  ? null
+                  : () {
+                      onClick();
+                    },
+              child: isLoading
+                  ? const ButtonLoadingIndicator()
+                  : Text(AppLocalizations.of(context)!.preStudyEnrollButton),
+            ),
+          ),
+          const SizedBox(
+            height: 50.0,
+          ),
+        ],
+      ),
     );
   }
 }

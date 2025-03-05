@@ -304,7 +304,9 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
           const SizedBox(
             height: 12.0,
           ),
-          getDisplayedWidget(),
+          Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: getDisplayedWidget()),
         ],
       ),
       scrollController: scrollContoller,
@@ -352,7 +354,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
         borderRadius: const BorderRadius.all(
           Radius.circular(8.0),
         ),
-        border: Border.all(),
+        border: Border.all(width: 1, color: disabledForeground),
       ),
       child: Column(
         children: [
@@ -375,7 +377,13 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                             .headlineSmall
                             ?.copyWith(color: disabledForeground),
                       ),
-                      Text(step.getLabel(context))
+                      Text(
+                        step.getLabel(context),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.copyWith(color: disabledForeground),
+                      )
                     ],
                   )
                 ],
@@ -387,7 +395,12 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
           ),
           ColoredBox(
             color: disabledBackground,
-            child: Text(activeIndex < 2 ? "Transit Time 1" : "Transit Time 2"),
+            child: Center(
+              child: Text(
+                activeIndex < 2 ? "Transit Time 1" : "Transit Time 2",
+                textAlign: TextAlign.start,
+              ),
+            ),
           )
         ],
       ),

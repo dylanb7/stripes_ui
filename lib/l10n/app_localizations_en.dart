@@ -1,5 +1,5 @@
+// ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -149,16 +149,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get inStudyWithdrawButtonText => 'Withdraw from study';
 
   @override
-  String get studyProgessionOne => 'Step 1\nEat Blue\nMeal';
+  String get studyProgessionOne => 'Eat Blue Meal';
 
   @override
-  String get studyProgessionTwo => 'Step 2\nTrack BM';
+  String get studyProgessionTwo => 'Track BM';
 
   @override
-  String get studyProgessionThree => 'Step 3\nEat Blue\nMeal';
+  String get studyProgessionThree => 'Eat Blue Meal';
 
   @override
-  String get studyProgessionFour => 'Step 4\nTrack BM';
+  String get studyProgessionFour => 'Track BM';
 
   @override
   String stepClickWarning(String step) {
