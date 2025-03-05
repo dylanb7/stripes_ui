@@ -53,14 +53,17 @@ class HorizontalStepScroll extends StatelessWidget {
         physics: const PageScrollPhysics(),
       );
     }
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: steps
-          .mapIndexed((index, step) =>
-              _getWidget(step, index, index <= flooredProgress))
-          .toList()
-          .spacedBy(space: 12.0, axis: Axis.horizontal),
+    return SizedBox(
+      width: double.infinity,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: steps
+            .mapIndexed((index, step) =>
+                _getWidget(step, index, index <= flooredProgress))
+            .toList()
+            .spacedBy(space: 12.0, axis: Axis.horizontal),
+      ),
     );
   }
 

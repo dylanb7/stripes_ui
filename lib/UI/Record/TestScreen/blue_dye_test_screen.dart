@@ -286,8 +286,8 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
             height: 140.0,
             child: HorizontalStepScroll(
               steps: BlueDyeProgression.values
-                  .mapIndexed(
-                    (stepIndex, step) =>
+                  .map(
+                    (step) =>
                         _buildScrollStep(context, currentIndex, index, step),
                   )
                   .toList(),
@@ -338,7 +338,9 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
         child: Center(
           child: DecoratedBox(
             decoration: BoxDecoration(
-                color: disabledForeground, shape: BoxShape.circle),
+              color: disabledBackground,
+              shape: BoxShape.circle,
+            ),
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
