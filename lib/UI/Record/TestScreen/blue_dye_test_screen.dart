@@ -229,13 +229,15 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
     final bool isPrevious = currentIndex < index;
 
     double getDetailedProgress() {
-      final double base = index.toDouble();
-      if (loaded?.stage == BlueDyeTestStage.amountConsumed) return base + 0.8;
+      final double baseLevel = index.toDouble();
+      if (loaded?.stage == BlueDyeTestStage.amountConsumed) {
+        return baseLevel + 0.8;
+      }
       if (loaded?.stage == BlueDyeTestStage.initial &&
           (loaded?.testIteration ?? 0) > 0) {
-        return base + 0.99;
+        return baseLevel + 0.99;
       }
-      return base;
+      return baseLevel;
     }
 
     Widget getDisplayedWidget() {
@@ -380,7 +382,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
             child: ColoredBox(
               color: disabledBackground,
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(12.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -427,7 +429,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                   width: 6.0,
                 ),
                 Text(
-                  activeIndex < 2 ? "Transit Time 1" : "Transit Time 2",
+                  step.value < 2 ? "Transit Time 1" : "Transit Time 2",
                   textAlign: TextAlign.start,
                 ),
               ],

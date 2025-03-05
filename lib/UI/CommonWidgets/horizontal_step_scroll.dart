@@ -23,11 +23,12 @@ class HorizontalStepScroll extends StatelessWidget {
     final bool shouldWrap = getBreakpoint(context).isLessThan(Breakpoint.small);
     final int flooredProgress = progress.floor();
     final double totalWidth = MediaQuery.of(context).size.width;
-    final double itemWidth = totalWidth * 0.7;
+    final double itemWidth = totalWidth * 0.65;
     final double endPadding = (totalWidth - itemWidth) / 2;
+    final int itemsLength = steps.length + 2;
     if (shouldWrap) {
       return ListView.separated(
-        itemBuilder: (context, index) => index == 0 || index == steps.length + 1
+        itemBuilder: (context, index) => index == 0 || index == itemsLength - 1
             ? const SizedBox(
                 width: 0,
               )
@@ -37,7 +38,7 @@ class HorizontalStepScroll extends StatelessWidget {
                     steps[index - 1], index - 1, index - 1 <= flooredProgress),
               ),
         separatorBuilder: (context, index) =>
-            index == 0 || index == steps.length + 1
+            index == 0 || index == itemsLength - 1
                 ? SizedBox(
                     width: endPadding,
                   )
@@ -48,7 +49,7 @@ class HorizontalStepScroll extends StatelessWidget {
             initialScrollOffset:
                 ((flooredProgress - 1) * (itemWidth + spaceBetween)) +
                     endPadding),
-        itemCount: steps.length + 2,
+        itemCount: itemsLength,
         scrollDirection: Axis.horizontal,
         physics: const PageScrollPhysics(),
       );
