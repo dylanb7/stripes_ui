@@ -282,25 +282,27 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
         shrinkWrap: true,
         controller: properties.scrollController,
         children: [
-          HorizontalStepScroll(
-            steps: BlueDyeProgression.values
-                .mapIndexed(
-                  (stepIndex, step) =>
-                      _buildScrollStep(context, currentIndex, index, step),
-                )
-                .toList(),
-            onStepPressed: (index, isActive) {
-              if (!isActive) {
-                showSnack(
-                    context,
-                    AppLocalizations.of(context)!
-                        .stepClickWarning("${index + 1}"));
-                return;
-              }
-              if (currentIndex == index) return;
-              _changePage(index);
-            },
-            progress: getDetailedProgress(),
+          IntrinsicHeight(
+            child: HorizontalStepScroll(
+              steps: BlueDyeProgression.values
+                  .mapIndexed(
+                    (stepIndex, step) =>
+                        _buildScrollStep(context, currentIndex, index, step),
+                  )
+                  .toList(),
+              onStepPressed: (index, isActive) {
+                if (!isActive) {
+                  showSnack(
+                      context,
+                      AppLocalizations.of(context)!
+                          .stepClickWarning("${index + 1}"));
+                  return;
+                }
+                if (currentIndex == index) return;
+                _changePage(index);
+              },
+              progress: getDetailedProgress(),
+            ),
           ),
           const SizedBox(
             height: 12.0,
