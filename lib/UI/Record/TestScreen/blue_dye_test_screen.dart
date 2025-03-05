@@ -282,7 +282,8 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
         shrinkWrap: true,
         controller: properties.scrollController,
         children: [
-          IntrinsicHeight(
+          SizedBox(
+            height: 140.0,
             child: HorizontalStepScroll(
               steps: BlueDyeProgression.values
                   .mapIndexed(
@@ -337,9 +338,9 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
         child: Center(
           child: DecoratedBox(
             decoration: BoxDecoration(
-                color: disabledBackground, shape: BoxShape.circle),
+                color: disabledForeground, shape: BoxShape.circle),
             child: Padding(
-              padding: const EdgeInsets.all(6.0),
+              padding: const EdgeInsets.all(8.0),
               child: Text(
                 '${step.value + 1}',
                 style: Theme.of(context)
