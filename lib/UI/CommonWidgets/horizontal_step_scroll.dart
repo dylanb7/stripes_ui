@@ -46,7 +46,8 @@ class HorizontalStepScroll extends StatelessWidget {
                   ),
         controller: ScrollController(
             initialScrollOffset:
-                (flooredProgress * (itemWidth + spaceBetween)) + endPadding),
+                ((flooredProgress - 1) * (itemWidth + spaceBetween)) +
+                    endPadding),
         itemCount: steps.length + 2,
         scrollDirection: Axis.horizontal,
         physics: const PageScrollPhysics(),
