@@ -20,8 +20,7 @@ class HorizontalStepScroll extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const double spaceBetween = 12;
-    final bool shouldWrap =
-        getBreakpoint(context).isLessThan(Breakpoint.medium);
+    final bool shouldWrap = getBreakpoint(context).isLessThan(Breakpoint.small);
     final int flooredProgress = progress.floor();
     final double totalWidth = MediaQuery.of(context).size.width;
     final double itemWidth = totalWidth * 0.7;
