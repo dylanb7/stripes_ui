@@ -376,39 +376,41 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
       ),
       child: Column(
         children: [
-          ColoredBox(
-            color: disabledBackground,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  stepCircle,
-                  const SizedBox(
-                    width: 12.0,
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Step ${step.value + 1}",
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineSmall
-                            ?.copyWith(color: disabledForeground),
-                      ),
-                      Text(
-                        step.getLabel(context),
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyMedium
-                            ?.copyWith(color: disabledForeground),
-                      )
-                    ],
-                  )
-                ],
+          Expanded(
+            child: ColoredBox(
+              color: disabledBackground,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    stepCircle,
+                    const SizedBox(
+                      width: 12.0,
+                    ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Step ${step.value + 1}",
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall
+                              ?.copyWith(color: disabledForeground),
+                        ),
+                        Text(
+                          step.getLabel(context),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(color: disabledForeground),
+                        )
+                      ],
+                    )
+                  ],
+                ),
               ),
             ),
           ),
@@ -428,7 +430,6 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                   activeIndex < 2 ? "Transit Time 1" : "Transit Time 2",
                   textAlign: TextAlign.start,
                 ),
-                const Spacer(),
               ],
             ),
           )
