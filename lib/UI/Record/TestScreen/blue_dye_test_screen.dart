@@ -238,16 +238,9 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
       return base;
     }
 
-    final List<TestDate> orderedTests = loaded?.orderedTests ?? [];
-
-    final bool recordingsWaiting = !isPrevious &&
-        currentProgression == BlueDyeProgression.stepTwo &&
-        orderedTests.length == 1 &&
-        !(loaded?.stage.testInProgress ?? false);
-
     Widget getDisplayedWidget() {
-      final bool isStepThree = activeStage == BlueDyeProgression.stepThree;
-      if (activeStage == BlueDyeProgression.stepOne || isStepThree) {
+      final bool isStepFour = activeStage == BlueDyeProgression.stepFour;
+      if (activeStage == BlueDyeProgression.stepOne || isStepFour) {
         if (isPrevious) {
           return MealFinishedDisplay(
             next: () {
@@ -261,7 +254,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
             : const TimerWidget();
       }
 
-      if (recordingsWaiting) {
+      if (!isPrevious && activeStage == BlueDyeProgression.stepThree) {
         return const RecordingsWaiting();
       }
       if (isPrevious ||
@@ -326,6 +319,25 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
     final Color activeHighlight = Theme.of(context).primaryColor;
     final Color disabledForeground = Theme.of(context).colorScheme.onSurface;
     final Color disabledBackground = Theme.of(context).colorScheme.surface;
+    if (step == BlueDyeProgression.stepThree) {
+      return DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.all(
+            Radius.circular(8.0),
+          ),
+          border: Border.all(width: 1, color: disabledForeground),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Center(
+            child: Text(
+              step.getLabel(context),
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+          ),
+        ),
+      );
+    }
     final Widget stepCircle = DecoratedBox(
       decoration: BoxDecoration(
         shape: BoxShape.circle,

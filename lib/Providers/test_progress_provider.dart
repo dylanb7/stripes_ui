@@ -74,15 +74,17 @@ class BlueDyeTestProgress {
             stage == BlueDyeTestStage.amountConsumed)) {
       return BlueDyeProgression.stepOne;
     }
-    if (testIteration == 0 ||
-        (orderedTests.length == 1 && !stage.testInProgress)) {
+    if (testIteration == 0) {
       return BlueDyeProgression.stepTwo;
+    }
+    if (!stage.testInProgress && orderedTests.length == 1) {
+      return BlueDyeProgression.stepThree;
     }
     if (stage == BlueDyeTestStage.amountConsumed ||
         stage == BlueDyeTestStage.started) {
-      return BlueDyeProgression.stepThree;
+      return BlueDyeProgression.stepFour;
     }
-    return BlueDyeProgression.stepFour;
+    return BlueDyeProgression.stepFive;
   }
 
   const BlueDyeTestProgress.loading()
@@ -107,7 +109,8 @@ enum BlueDyeProgression {
   stepOne(0),
   stepTwo(1),
   stepThree(2),
-  stepFour(3);
+  stepFour(3),
+  stepFive(4);
 
   final int value;
 
@@ -120,8 +123,10 @@ enum BlueDyeProgression {
       case BlueDyeProgression.stepTwo:
         return AppLocalizations.of(context)!.studyProgessionTwo;
       case BlueDyeProgression.stepThree:
-        return AppLocalizations.of(context)!.studyProgessionThree;
+        return "Waiting\nTime";
       case BlueDyeProgression.stepFour:
+        return AppLocalizations.of(context)!.studyProgessionThree;
+      case BlueDyeProgression.stepFive:
         return AppLocalizations.of(context)!.studyProgessionFour;
     }
   }
