@@ -286,7 +286,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
         children: [
           if (shouldWrap)
             ConstrainedBox(
-                constraints: const BoxConstraints(maxHeight: 110.0),
+                constraints: const BoxConstraints(maxHeight: 140.0),
                 child: CarouselView.weighted(
                   controller: carouselController,
                   flexWeights: const [2, 6, 2],
@@ -310,36 +310,17 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                       .toList(),
                 )),
           if (!shouldWrap)
-            Row(
+            SizedBox(
+              width: double.infinity,
+              child: Row(
                 children: BlueDyeProgression.values
                     .map<Widget>(
                       (step) =>
                           _buildScrollStep(context, currentIndex, index, step),
                     )
-                    .toList()),
-          SizedBox(
-            height: 110.0,
-            child: HorizontalStepScroll(
-              steps: BlueDyeProgression.values
-                  .map(
-                    (step) =>
-                        _buildScrollStep(context, currentIndex, index, step),
-                  )
-                  .toList(),
-              onStepPressed: (index, isActive) {
-                if (!isActive) {
-                  showSnack(
-                      context,
-                      AppLocalizations.of(context)!
-                          .stepClickWarning("${index + 1}"));
-                  return;
-                }
-                if (currentIndex == index) return;
-                _changePage(index);
-              },
-              progress: getDetailedProgress(),
+                    .toList(),
+              ),
             ),
-          ),
           const SizedBox(
             height: 12.0,
           ),
