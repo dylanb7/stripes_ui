@@ -70,18 +70,20 @@ class _BlueDyeTestScreenState extends ConsumerState<BlueDyeTestScreen> {
               shrinkWrap: true,
               controller: properties.scrollController,
               children: [
-                Padding(
-                  padding:
-                      const EdgeInsets.only(top: 20.0, right: 20.0, left: 20.0),
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints:
-                          BoxConstraints(maxWidth: Breakpoint.medium.value),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
+                Center(
+                  child: ConstrainedBox(
+                    constraints:
+                        BoxConstraints(maxWidth: Breakpoint.medium.value),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(
+                          height: 20.0,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
@@ -98,24 +100,24 @@ class _BlueDyeTestScreenState extends ConsumerState<BlueDyeTestScreen> {
                                     ),
                             ],
                           ),
+                        ),
+                        const SizedBox(
+                          height: 12.0,
+                        ),
+                        loaded?.stage == BlueDyeTestStage.initial &&
+                                loaded!.orderedTests.isEmpty
+                            ? BlueMealPreStudy(
+                                onClick: () {
+                                  _startTest();
+                                },
+                                isLoading: isLoading,
+                              )
+                            : const StudyOngoing(),
+                        if (hasIndicator)
                           const SizedBox(
-                            height: 12.0,
+                            height: 100,
                           ),
-                          loaded?.stage == BlueDyeTestStage.initial &&
-                                  loaded!.orderedTests.isEmpty
-                              ? BlueMealPreStudy(
-                                  onClick: () {
-                                    _startTest();
-                                  },
-                                  isLoading: isLoading,
-                                )
-                              : const StudyOngoing(),
-                          if (hasIndicator)
-                            const SizedBox(
-                              height: 100,
-                            ),
-                        ],
-                      ),
+                      ],
                     ),
                   ),
                 ),
