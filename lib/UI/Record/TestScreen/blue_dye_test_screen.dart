@@ -277,7 +277,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
         controller: properties.scrollController,
         children: [
           SizedBox(
-            height: 300,
+            height: 200,
             child: HorizontalStepScroll(
               steps: BlueDyeProgression.values
                   .mapIndexed(
