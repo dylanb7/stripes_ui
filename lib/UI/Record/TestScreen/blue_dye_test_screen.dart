@@ -285,28 +285,30 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
         controller: properties.scrollController,
         children: [
           if (shouldWrap)
-            CarouselView.weighted(
-              controller: carouselController,
-              flexWeights: const [2, 6, 2],
-              enableSplash: false,
-              onTap: (value) {
-                if (value > activeStage.value) {
-                  showSnack(
-                      context,
-                      AppLocalizations.of(context)!
-                          .stepClickWarning("${index + 1}"));
-                  return;
-                }
-                if (currentIndex == index) return;
-                _changePage(index);
-              },
-              children: BlueDyeProgression.values
-                  .map(
-                    (step) =>
-                        _buildScrollStep(context, currentIndex, index, step),
-                  )
-                  .toList(),
-            ),
+            ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 110.0),
+                child: CarouselView.weighted(
+                  controller: carouselController,
+                  flexWeights: const [2, 6, 2],
+                  enableSplash: false,
+                  onTap: (value) {
+                    if (value > activeStage.value) {
+                      showSnack(
+                          context,
+                          AppLocalizations.of(context)!
+                              .stepClickWarning("${index + 1}"));
+                      return;
+                    }
+                    if (currentIndex == index) return;
+                    _changePage(index);
+                  },
+                  children: BlueDyeProgression.values
+                      .map(
+                        (step) => _buildScrollStep(
+                            context, currentIndex, index, step),
+                      )
+                      .toList(),
+                )),
           if (!shouldWrap)
             Row(
                 children: BlueDyeProgression.values
