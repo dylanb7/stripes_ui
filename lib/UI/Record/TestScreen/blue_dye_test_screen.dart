@@ -1,10 +1,10 @@
-import 'package:flex_color_scheme/flex_color_scheme.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/test_progress_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
-import 'package:stripes_ui/UI/CommonWidgets/horizontal_stepper.dart';
+import 'package:stripes_ui/UI/CommonWidgets/horizontal_step_scroll.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/CommonWidgets/scroll_assisted_list.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
@@ -204,7 +204,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
             (progress) => progress.getProgression()), (prev, next) async {
       final BlueDyeProgression? nextValue = await next;
       final BlueDyeProgression? prevValue = await next;
-      if (mounted &&
+      if (context.mounted &&
           nextValue != null &&
           (prevValue == null || nextValue.index > prevValue.index)) {
         _changePage(nextValue.index);
@@ -276,52 +276,26 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
         shrinkWrap: true,
         controller: properties.scrollController,
         children: [
-          HorizontalStepper(
-              steps: BlueDyeProgression.values
-                  .map(
-                    (step) => HorizontalStep(
-                      title: Text(
-                        step.getLabel(context),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: step.value > index
-                                  ? Theme.of(context)
-                                      .colorScheme
-                                      .onSurface
-                                      .withValues(alpha: 0.5)
-                                  : null,
-                              decoration: currentIndex != step.value &&
-                                      step.value <= index
-                                  ? TextDecoration.underline
-                                  : null,
-                            ),
-                        textAlign: TextAlign.center,
-                      ),
-                      dotContents: Text(
-                        "${step.value + 1}",
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: Theme.of(context).colorScheme.onPrimary,
-                            fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  )
-                  .toList(),
-              circleWidth: 45.0,
-              onStepPressed: (index, isActive) {
-                if (!isActive) {
-                  showSnack(
-                      context,
-                      AppLocalizations.of(context)!
-                          .stepClickWarning("${index + 1}"));
-                  return;
-                }
-                if (currentIndex == index) return;
-                _changePage(index);
-              },
-              progress: getDetailedProgress(),
-              active: Theme.of(context).colorScheme.primary,
-              inactive: Theme.of(context).dividerColor.darken()),
+          HorizontalStepScroll(
+            steps: BlueDyeProgression.values
+                .mapIndexed(
+                  (stepIndex, step) =>
+                      _buildScrollStep(context, currentIndex, index, step),
+                )
+                .toList(),
+            onStepPressed: (index, isActive) {
+              if (!isActive) {
+                showSnack(
+                    context,
+                    AppLocalizations.of(context)!
+                        .stepClickWarning("${index + 1}"));
+                return;
+              }
+              if (currentIndex == index) return;
+              _changePage(index);
+            },
+            progress: getDetailedProgress(),
+          ),
           const SizedBox(
             height: 12.0,
           ),
@@ -330,6 +304,85 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
       ),
       scrollController: scrollContoller,
       key: const PageStorageKey("BlueDyeArea"),
+    );
+  }
+
+  Widget _buildScrollStep(BuildContext context, int activeIndex,
+      int selectedIndex, BlueDyeProgression step) {
+    final bool previous = step.value < activeIndex;
+    final bool active = step.value == selectedIndex;
+    final Color activeForeground = Theme.of(context).colorScheme.onPrimary;
+    final Color activeHighlight = Theme.of(context).primaryColor;
+    final Color disabledForeground = Theme.of(context).colorScheme.onSurface;
+    final Color disabledBackground = Theme.of(context).colorScheme.surface;
+    final Widget stepCircle = DecoratedBox(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: active ? activeHighlight : disabledBackground,
+        border: Border.all(
+            color: active ? activeForeground : disabledForeground, width: 1),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(2.0),
+        child: Center(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+                color: disabledBackground, shape: BoxShape.circle),
+            child: Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Text(
+                '${step.value + 1}',
+                style: Theme.of(context)
+                    .textTheme
+                    .headlineSmall
+                    ?.copyWith(color: disabledBackground),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        borderRadius: BorderRadius.all(
+          Radius.circular(8.0),
+        ),
+      ),
+      child: Column(
+        children: [
+          Expanded(
+            child: ColoredBox(
+              color: disabledBackground,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  stepCircle,
+                  Column(
+                    children: [
+                      Text(
+                        "Step ${step.value + 1}",
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineSmall
+                            ?.copyWith(color: disabledForeground),
+                      ),
+                      Text(step.getLabel(context))
+                    ],
+                  )
+                ],
+              ),
+            ),
+          ),
+          Divider(
+            color: disabledForeground,
+          ),
+          ColoredBox(
+            color: disabledBackground,
+            child: Text(activeIndex < 2 ? "Transit Time 1" : "Transit Time 2"),
+          )
+        ],
+      ),
     );
   }
 

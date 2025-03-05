@@ -2,8 +2,10 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 
+class HorizontalStepScrollController {}
+
 class HorizontalStepScroll extends StatelessWidget {
-  final List<HorizontalScrollStep> steps;
+  final List<Widget> steps;
 
   final Function(int index, bool active) onStepPressed;
 
@@ -17,17 +19,30 @@ class HorizontalStepScroll extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const double spaceBetween = 12;
     final bool shouldWrap =
         getBreakpoint(context).isLessThan(Breakpoint.medium);
     final int flooredProgress = progress.floor();
+    final double totalWidth = MediaQuery.of(context).size.width;
+    final double itemWidth = totalWidth * 0.7;
+    final double endPadding = (totalWidth - itemWidth) / 2;
     if (shouldWrap) {
       return ListView.separated(
-        itemBuilder: (context, index) =>
-            _getWidget(steps[index], index, index <= flooredProgress),
+        itemBuilder: (context, index) => index == 0 || index == steps.length + 1
+            ? SizedBox(
+                width: endPadding,
+              )
+            : SizedBox(
+                width: itemWidth,
+                child:
+                    _getWidget(steps[index], index, index <= flooredProgress),
+              ),
         separatorBuilder: (context, index) => const SizedBox(
-          width: 12.0,
+          width: spaceBetween,
         ),
-        itemCount: steps.length,
+        controller: ScrollController(
+            initialScrollOffset: flooredProgress * (itemWidth + spaceBetween)),
+        itemCount: steps.length + 2,
         scrollDirection: Axis.horizontal,
         physics: const PageScrollPhysics(),
       );
@@ -43,20 +58,12 @@ class HorizontalStepScroll extends StatelessWidget {
     );
   }
 
-  Widget _getWidget(HorizontalScrollStep step, int index, bool isActive) {
+  Widget _getWidget(Widget step, int index, bool isActive) {
     return GestureDetector(
-      onTap: () {
-        onStepPressed(index, isActive);
-      },
-      child: DecoratedBox(
-        decoration: step.decoration,
-        child: step.bottomRow != null
-            ? Column(
-                children: [step.content, const Divider(), step.bottomRow!],
-              )
-            : step.content,
-      ),
-    );
+        onTap: () {
+          onStepPressed(index, isActive);
+        },
+        child: step);
   }
 }
 
@@ -74,14 +81,4 @@ extension on List<Widget> {
         ]);
     return expanded.toList()..removeLast();
   }
-}
-
-@immutable
-class HorizontalScrollStep {
-  final Widget content;
-  final Widget? bottomRow;
-  final BoxDecoration decoration;
-
-  const HorizontalScrollStep(
-      {required this.content, required this.decoration, this.bottomRow});
 }
