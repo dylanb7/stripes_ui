@@ -34,8 +34,8 @@ class HorizontalStepScroll extends StatelessWidget {
               )
             : SizedBox(
                 width: itemWidth,
-                child:
-                    _getWidget(steps[index], index, index <= flooredProgress),
+                child: _getWidget(
+                    steps[index - 1], index - 1, index - 1 <= flooredProgress),
               ),
         separatorBuilder: (context, index) => const SizedBox(
           width: spaceBetween,

@@ -332,13 +332,13 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
             decoration: BoxDecoration(
                 color: disabledBackground, shape: BoxShape.circle),
             child: Padding(
-              padding: const EdgeInsets.all(4.0),
+              padding: const EdgeInsets.all(6.0),
               child: Text(
                 '${step.value + 1}',
                 style: Theme.of(context)
                     .textTheme
                     .headlineSmall
-                    ?.copyWith(color: disabledBackground),
+                    ?.copyWith(color: disabledForeground),
               ),
             ),
           ),
