@@ -238,6 +238,13 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
       return base;
     }
 
+    final List<TestDate> orderedTests = loaded?.orderedTests ?? [];
+
+    final bool recordingsWaiting = !isPrevious &&
+        currentProgression == BlueDyeProgression.stepTwo &&
+        orderedTests.length == 1 &&
+        !(loaded?.stage.testInProgress ?? false);
+
     Widget getDisplayedWidget() {
       final bool isStepThree = activeStage == BlueDyeProgression.stepThree;
       if (activeStage == BlueDyeProgression.stepOne || isStepThree) {
@@ -253,11 +260,8 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
             ? const AmountConsumedEntry()
             : const TimerWidget();
       }
-      final List<TestDate> orderedTests = loaded?.orderedTests ?? [];
-      if (!isPrevious &&
-          currentProgression == BlueDyeProgression.stepTwo &&
-          orderedTests.length == 1 &&
-          !(loaded?.stage.testInProgress ?? false)) {
+
+      if (recordingsWaiting) {
         return const RecordingsWaiting();
       }
       if (isPrevious ||
@@ -278,28 +282,25 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
         shrinkWrap: true,
         controller: properties.scrollController,
         children: [
-          SizedBox(
-            height: 200,
-            child: HorizontalStepScroll(
-              steps: BlueDyeProgression.values
-                  .mapIndexed(
-                    (stepIndex, step) =>
-                        _buildScrollStep(context, currentIndex, index, step),
-                  )
-                  .toList(),
-              onStepPressed: (index, isActive) {
-                if (!isActive) {
-                  showSnack(
-                      context,
-                      AppLocalizations.of(context)!
-                          .stepClickWarning("${index + 1}"));
-                  return;
-                }
-                if (currentIndex == index) return;
-                _changePage(index);
-              },
-              progress: getDetailedProgress(),
-            ),
+          HorizontalStepScroll(
+            steps: BlueDyeProgression.values
+                .mapIndexed(
+                  (stepIndex, step) =>
+                      _buildScrollStep(context, currentIndex, index, step),
+                )
+                .toList(),
+            onStepPressed: (index, isActive) {
+              if (!isActive) {
+                showSnack(
+                    context,
+                    AppLocalizations.of(context)!
+                        .stepClickWarning("${index + 1}"));
+                return;
+              }
+              if (currentIndex == index) return;
+              _changePage(index);
+            },
+            progress: getDetailedProgress(),
           ),
           const SizedBox(
             height: 12.0,
@@ -358,14 +359,18 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
       ),
       child: Column(
         children: [
-          Expanded(
-            child: ColoredBox(
-              color: disabledBackground,
+          ColoredBox(
+            color: disabledBackground,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   stepCircle,
+                  const SizedBox(
+                    width: 12.0,
+                  ),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -395,11 +400,19 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
           ),
           ColoredBox(
             color: disabledBackground,
-            child: Center(
-              child: Text(
-                activeIndex < 2 ? "Transit Time 1" : "Transit Time 2",
-                textAlign: TextAlign.start,
-              ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                const SizedBox(
+                  width: 6.0,
+                ),
+                Text(
+                  activeIndex < 2 ? "Transit Time 1" : "Transit Time 2",
+                  textAlign: TextAlign.start,
+                ),
+                const Spacer(),
+              ],
             ),
           )
         ],
