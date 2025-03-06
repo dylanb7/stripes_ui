@@ -14,6 +14,7 @@ import 'package:stripes_ui/UI/Record/TestScreen/recordings_state.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
@@ -200,7 +201,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
             ?.value ??
         0;
     _pageController =
-        PageController(viewportFraction: 0.65, initialPage: currentIndex);
+        PageController(viewportFraction: 0.7, initialPage: currentIndex);
     super.initState();
   }
 
@@ -279,30 +280,62 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
       return const RecordingsState();
     }
 
+    final Widget pageView = PageView(
+      controller: _pageController,
+      scrollDirection: Axis.horizontal,
+      physics: const ClampingScrollPhysics(),
+      children: BlueDyeProgression.values
+          .map(
+            (step) => Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: _buildScrollStep(context, currentIndex, index, step),
+            ),
+          )
+          .toList(),
+    );
+
     return ScrollAssistedList(
       builder: (context, properties) => ListView(
         key: properties.scrollStateKey,
         shrinkWrap: true,
         controller: properties.scrollController,
         children: [
-          if (shouldWrap)
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 120.0),
-              child: PageView(
-                controller: _pageController,
-                scrollDirection: Axis.horizontal,
-                physics: const ClampingScrollPhysics(),
-                children: BlueDyeProgression.values
-                    .map(
-                      (step) => Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                        child: _buildScrollStep(
-                            context, currentIndex, index, step),
-                      ),
-                    )
-                    .toList(),
-              ),
-            ),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 120.0),
+            child: shouldWrap
+                ? kIsWeb
+                    ? Row(
+                        children: [
+                          IconButton(
+                              onPressed: () {
+                                _pageController.previousPage(
+                                    duration: const Duration(milliseconds: 200),
+                                    curve: Curves.ease);
+                              },
+                              icon: const Icon(Icons.arrow_back_ios)),
+                          Expanded(child: pageView),
+                          IconButton(
+                              onPressed: () {
+                                _pageController.nextPage(
+                                    duration: const Duration(milliseconds: 200),
+                                    curve: Curves.ease);
+                              },
+                              icon: const Icon(Icons.arrow_forward_ios)),
+                        ],
+                      )
+                    : pageView
+                : SizedBox(
+                    width: double.infinity,
+                    child: Row(
+                      children: BlueDyeProgression.values
+                          .map<Widget>(
+                            (step) => _buildScrollStep(
+                                context, currentIndex, index, step),
+                          )
+                          .toList(),
+                    ),
+                  ),
+          ),
           /*if (shouldWrap)
             ConstrainedBox(
                 constraints: const BoxConstraints(maxHeight: 120.0),
@@ -328,18 +361,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                       )
                       .toList(),
                 )),*/
-          if (!shouldWrap)
-            SizedBox(
-              width: double.infinity,
-              child: Row(
-                children: BlueDyeProgression.values
-                    .map<Widget>(
-                      (step) =>
-                          _buildScrollStep(context, currentIndex, index, step),
-                    )
-                    .toList(),
-              ),
-            ),
+
           const SizedBox(
             height: 12.0,
           ),
