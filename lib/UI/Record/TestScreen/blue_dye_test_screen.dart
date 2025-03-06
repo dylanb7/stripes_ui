@@ -17,6 +17,7 @@ import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
+import 'package:stripes_ui/Util/mouse_hover.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class BlueDyeTestScreen extends ConsumerStatefulWidget {
@@ -287,7 +288,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
       children: BlueDyeProgression.values
           .map(
             (step) => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: _buildScrollStep(context, currentIndex, index, step),
             ),
           )
@@ -312,7 +313,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                                     duration: const Duration(milliseconds: 200),
                                     curve: Curves.ease);
                               },
-                              icon: const Icon(Icons.arrow_back_ios)),
+                              icon: const Icon(Icons.keyboard_arrow_left)),
                           Expanded(child: pageView),
                           IconButton(
                               onPressed: () {
@@ -320,19 +321,22 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                                     duration: const Duration(milliseconds: 200),
                                     curve: Curves.ease);
                               },
-                              icon: const Icon(Icons.arrow_forward_ios)),
+                              icon: const Icon(Icons.keyboard_arrow_right)),
                         ],
                       )
                     : pageView
                 : SizedBox(
                     width: double.infinity,
                     child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: BlueDyeProgression.values
                           .map<Widget>(
                             (step) => _buildScrollStep(
                                 context, currentIndex, index, step),
                           )
-                          .toList(),
+                          .toList()
+                          .spacedBy(space: 12, axis: Axis.horizontal),
                     ),
                   ),
           ),
@@ -385,32 +389,47 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
     final Color disabledForeground = Theme.of(context).colorScheme.surface;
     final Color disabledBackground = Theme.of(context).disabledColor;
     final Color textColor = Theme.of(context).colorScheme.onSurface;
+    final Color completedColor =
+        Theme.of(context).primaryColor.withValues(alpha: 0.2);
+
+    const double lineThickness = 1.0;
 
     if (step == BlueDyeProgression.stepThree) {
-      return Container(
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(
-            Radius.circular(8.0),
+      return GestureDetector(
+        onTap: () {
+          if (currentIndex == step.value) return;
+          if (activeIndex == step.value) {
+            _changePage(step.value);
+          }
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.all(
+              Radius.circular(8.0),
+            ),
+            color: previous ? completedColor : disabledForeground,
+            border: Border.all(
+                width: 1, color: active ? activeHighlight : disabledForeground),
           ),
-          border: Border.all(width: 1, color: disabledForeground),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Center(
-            child: Text(
-              step.getLabel(context),
-              style: Theme.of(context).textTheme.headlineSmall,
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Center(
+              child: Text(
+                step.getLabel(context),
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
             ),
           ),
         ),
-      );
+      ).showCursorOnHover;
     }
     final Widget stepCircle = DecoratedBox(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: active ? activeHighlight : disabledBackground,
         border: Border.all(
-            color: active ? activeForeground : disabledForeground, width: 1),
+            color: active ? activeForeground : disabledForeground,
+            width: lineThickness),
       ),
       child: Padding(
         padding: const EdgeInsets.all(2.0),
@@ -421,7 +440,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
               shape: BoxShape.circle,
             ),
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(16.0),
               child: Text(
                 '${step.value + 1}',
                 style: Theme.of(context)
@@ -434,75 +453,102 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
         ),
       ),
     );
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.all(
-          Radius.circular(8.0),
+    return GestureDetector(
+      onTap: () {
+        if (currentIndex == step.value) return;
+        if (step.value > activeIndex) {
+          showSnack(
+              context,
+              AppLocalizations.of(context)!
+                  .stepClickWarning("${step.value + 1}"));
+          return;
+        }
+        _changePage(step.value);
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.all(
+            Radius.circular(8.0),
+          ),
+          border: Border.all(width: lineThickness, color: disabledForeground),
         ),
-        border: Border.all(width: 1, color: disabledForeground),
-      ),
-      child: Column(
-        children: [
-          Expanded(
-            child: ColoredBox(
-              color: disabledBackground,
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    stepCircle,
-                    const SizedBox(
-                      width: 12.0,
-                    ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Step ${step.value + 1}",
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineSmall
-                              ?.copyWith(color: disabledForeground),
-                        ),
-                        Text(
-                          step.getLabel(context),
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(color: disabledForeground),
-                        )
-                      ],
-                    )
-                  ],
+        child: Column(
+          children: [
+            Expanded(
+              child: ColoredBox(
+                color: disabledBackground,
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      stepCircle,
+                      const SizedBox(
+                        width: 12.0,
+                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Step ${step.value + 1}",
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineSmall
+                                ?.copyWith(color: disabledForeground),
+                          ),
+                          Text(
+                            activeIndex > step.value
+                                ? "Completed"
+                                : step.getLabel(context),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(color: disabledForeground),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          Divider(
-            color: disabledForeground,
-          ),
-          ColoredBox(
-            color: disabledBackground,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                const SizedBox(
-                  width: 6.0,
-                ),
-                Text(
-                  step.value < 2 ? "Transit Time 1" : "Transit Time 2",
-                  textAlign: TextAlign.start,
-                ),
-              ],
+            Divider(
+              height: 1,
+              thickness: lineThickness,
+              color: previous || active ? activeHighlight : disabledBackground,
             ),
-          )
-        ],
+            ColoredBox(
+              color: previous
+                  ? completedColor
+                  : active
+                      ? secondaryColor
+                      : disabledBackground,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const SizedBox(
+                    width: 6.0,
+                  ),
+                  Text(
+                    step.value < 2 ? "Transit Time 1" : "Transit Time 2",
+                    textAlign: TextAlign.start,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: active
+                            ? activeForeground
+                            : previous
+                                ? activeHighlight
+                                : disabledForeground),
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
       ),
-    );
+    ).showCursorOnHover;
   }
 
   _changePage(int newIndex) {

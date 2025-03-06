@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-extension on List<Widget> {
+extension Space on List<Widget> {
   List<Widget> spacedBy({required double space, Axis axis = Axis.vertical}) {
     final Iterable<Widget> expanded = expand((widget) => [
           widget,
