@@ -298,7 +298,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                   )
                   .toList(),
             ),
-          if (shouldWrap)
+          /*if (shouldWrap)
             ConstrainedBox(
                 constraints: const BoxConstraints(maxHeight: 120.0),
                 child: CarouselView.weighted(
@@ -322,7 +322,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                             context, currentIndex, index, step),
                       )
                       .toList(),
-                )),
+                )),*/
           if (!shouldWrap)
             SizedBox(
               width: double.infinity,
