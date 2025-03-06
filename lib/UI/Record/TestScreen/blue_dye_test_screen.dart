@@ -189,6 +189,8 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
 
   late final CarouselController carouselController;
 
+  late final PageController _pageController;
+
   final ScrollController scrollContoller = ScrollController();
 
   @override
@@ -199,6 +201,8 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
             ?.getProgression()
             ?.value ??
         0;
+    _pageController =
+        PageController(viewportFraction: 0.65, initialPage: currentIndex);
     carouselController = CarouselController(initialItem: currentIndex);
     super.initState();
   }
@@ -285,8 +289,18 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
         controller: properties.scrollController,
         children: [
           if (shouldWrap)
+            PageView(
+              controller: _pageController,
+              children: BlueDyeProgression.values
+                  .map(
+                    (step) =>
+                        _buildScrollStep(context, currentIndex, index, step),
+                  )
+                  .toList(),
+            ),
+          if (shouldWrap)
             ConstrainedBox(
-                constraints: const BoxConstraints(maxHeight: 140.0),
+                constraints: const BoxConstraints(maxHeight: 120.0),
                 child: CarouselView.weighted(
                   controller: carouselController,
                   flexWeights: const [2, 6, 2],
@@ -340,8 +354,11 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
     final bool active = step.value == selectedIndex;
     final Color activeForeground = Theme.of(context).colorScheme.onPrimary;
     final Color activeHighlight = Theme.of(context).primaryColor;
-    final Color disabledForeground = Theme.of(context).colorScheme.onSurface;
-    final Color disabledBackground = Theme.of(context).colorScheme.surface;
+    final Color secondaryColor = Theme.of(context).primaryColorLight;
+    final Color disabledForeground = Theme.of(context).colorScheme.surface;
+    final Color disabledBackground = Theme.of(context).disabledColor;
+    final Color textColor = Theme.of(context).colorScheme.onSurface;
+
     if (step == BlueDyeProgression.stepThree) {
       return DecoratedBox(
         decoration: BoxDecoration(
