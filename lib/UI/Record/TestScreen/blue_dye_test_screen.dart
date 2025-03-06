@@ -187,8 +187,6 @@ class StudyOngoing extends ConsumerStatefulWidget {
 class _StudyOngoingState extends ConsumerState<StudyOngoing> {
   late int currentIndex;
 
-  late final CarouselController carouselController;
-
   late final PageController _pageController;
 
   final ScrollController scrollContoller = ScrollController();
@@ -203,7 +201,6 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
         0;
     _pageController =
         PageController(viewportFraction: 0.65, initialPage: currentIndex);
-    carouselController = CarouselController(initialItem: currentIndex);
     super.initState();
   }
 
@@ -297,8 +294,11 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                 physics: const ClampingScrollPhysics(),
                 children: BlueDyeProgression.values
                     .map(
-                      (step) =>
-                          _buildScrollStep(context, currentIndex, index, step),
+                      (step) => Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                        child: _buildScrollStep(
+                            context, currentIndex, index, step),
+                      ),
                     )
                     .toList(),
               ),
@@ -365,7 +365,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
     final Color textColor = Theme.of(context).colorScheme.onSurface;
 
     if (step == BlueDyeProgression.stepThree) {
-      return DecoratedBox(
+      return Container(
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.all(
             Radius.circular(8.0),
@@ -412,7 +412,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
         ),
       ),
     );
-    return DecoratedBox(
+    return Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(
           Radius.circular(8.0),
@@ -491,10 +491,6 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
     try {
       if (_pageController.hasClients) {
         _pageController.animateToPage(newIndex,
-            duration: const Duration(milliseconds: 200), curve: Curves.ease);
-      }
-      if (carouselController.hasClients) {
-        carouselController.animateToWeightedPage([2, 6, 2], newIndex,
             duration: const Duration(milliseconds: 200), curve: Curves.ease);
       }
       if (scrollContoller.hasClients) {
