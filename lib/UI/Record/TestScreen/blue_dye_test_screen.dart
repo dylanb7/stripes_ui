@@ -289,14 +289,19 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
         controller: properties.scrollController,
         children: [
           if (shouldWrap)
-            PageView(
-              controller: _pageController,
-              children: BlueDyeProgression.values
-                  .map(
-                    (step) =>
-                        _buildScrollStep(context, currentIndex, index, step),
-                  )
-                  .toList(),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 120.0),
+              child: PageView(
+                controller: _pageController,
+                scrollDirection: Axis.horizontal,
+                physics: const ClampingScrollPhysics(),
+                children: BlueDyeProgression.values
+                    .map(
+                      (step) =>
+                          _buildScrollStep(context, currentIndex, index, step),
+                    )
+                    .toList(),
+              ),
             ),
           /*if (shouldWrap)
             ConstrainedBox(
