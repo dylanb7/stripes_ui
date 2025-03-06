@@ -484,6 +484,10 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
       currentIndex = newIndex;
     });
     try {
+      if (_pageController.hasClients) {
+        _pageController.animateToPage(newIndex,
+            duration: const Duration(milliseconds: 200), curve: Curves.ease);
+      }
       if (carouselController.hasClients) {
         carouselController.animateToWeightedPage([2, 6, 2], newIndex,
             duration: const Duration(milliseconds: 200), curve: Curves.ease);
