@@ -473,6 +473,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
           ),
           border: Border.all(width: lineThickness, color: disabledForeground),
         ),
+        clipBehavior: Clip.hardEdge,
         child: Column(
           children: [
             Expanded(
@@ -520,7 +521,8 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
               thickness: lineThickness,
               color: previous || active ? activeHighlight : disabledBackground,
             ),
-            ColoredBox(
+            Container(
+              width: double.infinity,
               color: previous
                   ? completedColor
                   : active
