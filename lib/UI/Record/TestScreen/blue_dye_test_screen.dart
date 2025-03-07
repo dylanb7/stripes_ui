@@ -383,7 +383,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
   Widget _buildScrollStep(BuildContext context, int activeIndex,
       int selectedIndex, BlueDyeProgression step) {
     final bool previous = step.value < activeIndex;
-    final bool active = step.value == selectedIndex;
+    final bool active = step.value == activeIndex;
 
     final Color primary = Theme.of(context).primaryColor;
     final Color primaryLight = Theme.of(context).primaryColorLight;
@@ -429,22 +429,22 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
         shape: BoxShape.circle,
         color: active ? primary : surface,
         border: Border.all(
-            color: active ? primary : disabledColor, width: lineThickness),
+            color: active ? surface : disabledColor, width: lineThickness),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(4.0),
+        padding: const EdgeInsets.all(6.0),
         child: Center(
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: active
-                  ? surface
-                  : previous
-                      ? primaryLight
-                      : disabledColor,
-              shape: BoxShape.circle,
-            ),
+                color: active
+                    ? surface
+                    : previous
+                        ? primaryLight
+                        : disabledColor,
+                shape: BoxShape.circle,
+                border: Border.all(width: 1.0)),
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(12.0),
               child: Text(
                 '${step.value + 1}',
                 style: Theme.of(context)
@@ -550,7 +550,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                   Text(
                     step.value < 2 ? "Transit Time 1" : "Transit Time 2",
                     textAlign: TextAlign.start,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: active || !previous ? surface : primary),
                   ),
                 ],
