@@ -220,8 +220,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
       }
     });
 
-    final bool shouldWrap =
-        getBreakpoint(context).isLessThan(Breakpoint.medium);
+    final bool shouldWrap = getBreakpoint(context).isLessThan(Breakpoint.small);
     final AsyncValue<BlueDyeTestProgress> progress =
         ref.watch(blueDyeTestProgressProvider);
 
@@ -289,7 +288,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
           .map(
             (step) => Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: _buildScrollStep(context, currentIndex, index, step),
+              child: _buildScrollStep(context, index, currentIndex, step),
             ),
           )
           .toList(),
@@ -308,6 +307,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                     ? Row(
                         children: [
                           IconButton(
+                              visualDensity: VisualDensity.compact,
                               onPressed: () {
                                 _pageController.previousPage(
                                     duration: const Duration(milliseconds: 200),
@@ -316,6 +316,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                               icon: const Icon(Icons.keyboard_arrow_left)),
                           Expanded(child: pageView),
                           IconButton(
+                              visualDensity: VisualDensity.compact,
                               onPressed: () {
                                 _pageController.nextPage(
                                     duration: const Duration(milliseconds: 200),
@@ -333,7 +334,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                       children: BlueDyeProgression.values
                           .map<Widget>(
                             (step) => _buildScrollStep(
-                                context, currentIndex, index, step),
+                                context, index, currentIndex, step),
                           )
                           .toList()
                           .spacedBy(space: 12, axis: Axis.horizontal),
