@@ -110,6 +110,8 @@
 
     "studyRecordBMButton": "Record BM",
 
+    "studyInfoButtonLabel": "Review Study Info",
+
     "studyExpTitle": "About the study", 
     "studyExpBody": "This study measures gut motility (the movement of food through the digestive system) in people with Phelan-McDermid Syndrome using a novel blue meal test. It involves eating blue muffins and tracking bowel movements to determine transit time, which is the duration it takes for food to move through the digestive system, from consumption to excretion. The study will measure transit time twice using the blue muffins and this mobile app.",
     "studyExpBodyCont": "During the study, you will be asked to report various gastrointestinal (GI) signs and symptoms using this app. While bowel movements are the primary focus of the study, we highly encourage you to track all relevant information, including:",
@@ -148,7 +150,10 @@
     "studyContactTitle": "Contact Us",
     "studyContactBody": "Questions or problems? Email [email@university.edu] with \"Blue Meal Study\" in the subject line.",
 
-     "studyStepOneExplanationTitle": "Step 1: Eat Blue Meal (Transit Time 1)",
+    "transitOneLabel": "Transit Time 1",
+    "transitTwoLabel": "Transit Time 2",
+
+    "studyStepOneExplanationTitle": "Step 1: Eat Blue Meal (Transit Time 1)",
     "studyStepOneExplanationPreReq": "Before starting, ensure that the participant has completed a 6-8 hour fast.",
     "studyStepOneExplanationPartOne": "Take two of the four blue muffins provided for the study.",
     "studyStepOneExplanationPartTwo": "Feed the two blue muffins to the participant.",

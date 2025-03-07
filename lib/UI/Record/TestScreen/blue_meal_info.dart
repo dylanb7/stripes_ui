@@ -83,6 +83,46 @@ class BlueMealPreStudy extends StatelessWidget {
   }
 }
 
+class BlueMealInfoButton extends StatelessWidget {
+  const BlueMealInfoButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return FilledButton(
+        onPressed: () {
+          toggleBottomSheet(context);
+        },
+        child: Text(AppLocalizations.of(context)!.studyInfoButtonLabel));
+  }
+
+  toggleBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+        context: context,
+        useSafeArea: true,
+        isScrollControlled: true,
+        showDragHandle: false,
+        shape: RoundedRectangleBorder(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(15.0),
+            topRight: Radius.circular(15.0),
+          ),
+          side: BorderSide(color: Theme.of(context).colorScheme.outline),
+        ),
+        builder: (context) {
+          return DraggableScrollableSheet(
+              initialChildSize: 1.0,
+              minChildSize: 1.0,
+              builder: (context, controller) {
+                return SafeArea(
+                  child: BlueMealInfoSheet(
+                    scrollController: controller,
+                  ),
+                );
+              });
+        });
+  }
+}
+
 class BlueMealInfoSheet extends StatelessWidget {
   final ScrollController scrollController;
 

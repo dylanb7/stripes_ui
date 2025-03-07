@@ -511,6 +511,12 @@ abstract class AppLocalizations {
   /// **'Record BM'**
   String get studyRecordBMButton;
 
+  /// No description provided for @studyInfoButtonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Review Study Info'**
+  String get studyInfoButtonLabel;
+
   /// No description provided for @studyExpTitle.
   ///
   /// In en, this message translates to:
@@ -733,10 +739,22 @@ abstract class AppLocalizations {
   /// **'Questions or problems? Email help@symplifysolutions.com with \"Blue Meal Study\" in the subject line.'**
   String get studyContactBody;
 
+  /// No description provided for @transitOneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Transit Time 1'**
+  String get transitOneLabel;
+
+  /// No description provided for @transitTwoLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Transit Time 2'**
+  String get transitTwoLabel;
+
   /// No description provided for @studyStepOneExplanationTitle.
   ///
   /// In en, this message translates to:
-  /// **'Step 1: Eat Blue Meal (Transit Time 1)'**
+  /// **'Step 1: Eat Blue Meal'**
   String get studyStepOneExplanationTitle;
 
   /// No description provided for @studyStepOneExplanationPreReq.
@@ -778,7 +796,7 @@ abstract class AppLocalizations {
   /// No description provided for @studyStepTwoExplanationTitle.
   ///
   /// In en, this message translates to:
-  /// **'Step 2: Record Bowel Movements (Transit Time 1)'**
+  /// **'Step 2: Record Bowel Movements'**
   String get studyStepTwoExplanationTitle;
 
   /// No description provided for @studyStepTwoExplanationDesc.
@@ -844,7 +862,7 @@ abstract class AppLocalizations {
   /// No description provided for @studyStepThreeExplanationTitle.
   ///
   /// In en, this message translates to:
-  /// **'Step 3: Eat Blue Meal (Transit Time 2)'**
+  /// **'Step 3: Eat Blue Meal'**
   String get studyStepThreeExplanationTitle;
 
   /// No description provided for @studyStepThreeExplanationPreReq.
@@ -868,7 +886,7 @@ abstract class AppLocalizations {
   /// No description provided for @studyStepFourExplanationTitle.
   ///
   /// In en, this message translates to:
-  /// **'Step 4: Record Bowel Movements (Transit Time 2)'**
+  /// **'Step 4: Record Bowel Movements'**
   String get studyStepFourExplanationTitle;
 
   /// No description provided for @studyStepFourExplanationDesc.

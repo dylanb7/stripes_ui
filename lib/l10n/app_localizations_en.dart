@@ -227,6 +227,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get studyRecordBMButton => 'Record BM';
 
   @override
+  String get studyInfoButtonLabel => 'Review Study Info';
+
+  @override
   String get studyExpTitle => 'About the study';
 
   @override
@@ -338,7 +341,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get studyContactBody => 'Questions or problems? Email help@symplifysolutions.com with \"Blue Meal Study\" in the subject line.';
 
   @override
-  String get studyStepOneExplanationTitle => 'Step 1: Eat Blue Meal (Transit Time 1)';
+  String get transitOneLabel => 'Transit Time 1';
+
+  @override
+  String get transitTwoLabel => 'Transit Time 2';
+
+  @override
+  String get studyStepOneExplanationTitle => 'Step 1: Eat Blue Meal';
 
   @override
   String get studyStepOneExplanationPreReq => 'Before starting, ensure that the participant has completed a 6-8 hour fast.';
@@ -359,7 +368,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get studyStepOneExplanationNote => 'Note: If you make a mistake while timing the participant, press the \"Reset\" button to clear the timer.';
 
   @override
-  String get studyStepTwoExplanationTitle => 'Step 2: Record Bowel Movements (Transit Time 1)';
+  String get studyStepTwoExplanationTitle => 'Step 2: Record Bowel Movements';
 
   @override
   String get studyStepTwoExplanationDesc => 'After the participant consumes the two blue muffins, track their bowel movements (BMs) using one of the following methods:';
@@ -392,7 +401,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get studyStepTwoExplanationProgress => 'After submitting, you will have completed the first half of the study. You can begin the second half in 7 days.';
 
   @override
-  String get studyStepThreeExplanationTitle => 'Step 3: Eat Blue Meal (Transit Time 2)';
+  String get studyStepThreeExplanationTitle => 'Step 3: Eat Blue Meal';
 
   @override
   String get studyStepThreeExplanationPreReq => 'Before starting, ensure that the participant has completed a 6-8 hour fast';
@@ -404,7 +413,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get studyStepThreeExplanationPartTwo => 'Record the start and end time of the meal using the timer below.';
 
   @override
-  String get studyStepFourExplanationTitle => 'Step 4: Record Bowel Movements (Transit Time 2)';
+  String get studyStepFourExplanationTitle => 'Step 4: Record Bowel Movements';
 
   @override
   String get studyStepFourExplanationDesc => 'After the participant consumes the two blue muffins, track their bowel movements (BMs) as follows:';

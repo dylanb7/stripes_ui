@@ -227,6 +227,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get studyRecordBMButton => 'Record BM';
 
   @override
+  String get studyInfoButtonLabel => 'Review Study Info';
+
+  @override
   String get studyExpTitle => 'About the study';
 
   @override
@@ -336,6 +339,12 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get studyContactBody => 'Questions or problems? Email [email@university.edu] with \"Blue Meal Study\" in the subject line.';
+
+  @override
+  String get transitOneLabel => 'Transit Time 1';
+
+  @override
+  String get transitTwoLabel => 'Transit Time 2';
 
   @override
   String get studyStepOneExplanationTitle => 'Step 1: Eat Blue Meal (Transit Time 1)';

@@ -386,7 +386,8 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
     final bool active = step.value == activeIndex;
 
     final Color primary = Theme.of(context).primaryColor;
-    final Color primaryLight = Theme.of(context).primaryColorLight;
+    final Color primaryLight =
+        Theme.of(context).primaryColorLight.withValues(alpha: 1);
     final Color surface = Theme.of(context).colorScheme.surface;
     final Color disabledColor = Theme.of(context).disabledColor;
     final Color textColor = Theme.of(context).colorScheme.onSurface;
@@ -436,13 +437,13 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
         child: Center(
           child: DecoratedBox(
             decoration: BoxDecoration(
-                color: active
-                    ? surface
-                    : previous
-                        ? primaryLight
-                        : disabledColor,
-                shape: BoxShape.circle,
-                border: Border.all(width: 1.0)),
+              color: active
+                  ? surface
+                  : previous
+                      ? primaryLight
+                      : disabledColor,
+              shape: BoxShape.circle,
+            ),
             child: Padding(
               padding: const EdgeInsets.all(12.0),
               child: Text(
@@ -474,7 +475,13 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
           borderRadius: const BorderRadius.all(
             Radius.circular(8.0),
           ),
-          border: Border.all(width: lineThickness, color: textColor),
+          border: Border.all(
+              width: lineThickness,
+              color: previous
+                  ? primary
+                  : active
+                      ? Colors.transparent
+                      : disabledColor),
         ),
         clipBehavior: Clip.hardEdge,
         child: Column(
@@ -548,7 +555,9 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                     width: 6.0,
                   ),
                   Text(
-                    step.value < 2 ? "Transit Time 1" : "Transit Time 2",
+                    step.value < 2
+                        ? AppLocalizations.of(context)!.transitOneLabel
+                        : AppLocalizations.of(context)!.transitTwoLabel,
                     textAlign: TextAlign.start,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: active || !previous ? surface : primary),

@@ -111,6 +111,7 @@
 
     "studyRecordBMButton": "Record BM",
 
+    "studyInfoButtonLabel": "Review Study Info",
 
     "studyExpTitle": "About the study", 
     "studyExpBody": "This study measures gut motility (the movement of food through the digestive system) in people with Phelan-McDermid Syndrome using a novel blue meal test. It involves eating blue muffins and tracking bowel movements to determine transit time, which is the duration it takes for food to move through the digestive system, from consumption to excretion. The study will measure transit time twice using the blue muffins and this mobile app.",
@@ -150,7 +151,10 @@
     "studyContactTitle": "Contact Us",
     "studyContactBody": "Questions or problems? Email help@symplifysolutions.com with \"Blue Meal Study\" in the subject line.",
 
-    "studyStepOneExplanationTitle": "Step 1: Eat Blue Meal (Transit Time 1)",
+    "transitOneLabel": "Transit Time 1",
+    "transitTwoLabel": "Transit Time 2",
+
+    "studyStepOneExplanationTitle": "Step 1: Eat Blue Meal",
     "studyStepOneExplanationPreReq": "Before starting, ensure that the participant has completed a 6-8 hour fast.",
     "studyStepOneExplanationPartOne": "Take two of the four blue muffins provided for the study.",
     "studyStepOneExplanationPartTwo": "Feed the two blue muffins to the participant.",
@@ -158,7 +162,7 @@
     "studyStepOneExplanationPartFour": "Once the participant has finished eating the muffins, press the \"Stop Timer\" button to stop recording the eating time.",
     "studyStepOneExplanationNote": "Note: If you make a mistake while timing the participant, press the \"Reset\" button to clear the timer.",
 
-    "studyStepTwoExplanationTitle": "Step 2: Record Bowel Movements (Transit Time 1)",
+    "studyStepTwoExplanationTitle": "Step 2: Record Bowel Movements",
     "studyStepTwoExplanationDesc": "After the participant consumes the two blue muffins, track their bowel movements (BMs) using one of the following methods:",
     "studyStepTwoExplanationPartOne": "1. On this page (Study Tab): Click \"Record BM\" button to log each BM, noting:",
     "studyStepTwoExplanationPartOneDetailOne": "Date and time",
@@ -170,12 +174,12 @@
     "studyStepTwoExplanationColorExp": "Continue recording all BMs, even if not blue-green. After the first blue-green BM, keep tracking until a non-blue BM occurs. The system will automatically complete Step 2 once you record a non-blue BM after a blue-green one.",
     "studyStepTwoExplanationProgress": "After submitting, you will have completed the first half of the study. You can begin the second half in 7 days.",
     
-    "studyStepThreeExplanationTitle": "Step 3: Eat Blue Meal (Transit Time 2)",
+    "studyStepThreeExplanationTitle": "Step 3: Eat Blue Meal",
     "studyStepThreeExplanationPreReq": "Before starting, ensure that the participant has completed a 6-8 hour fast",
     "studyStepThreeExplanationPartOne": "Feed the participant the remaining two blue muffins.",
     "studyStepThreeExplanationPartTwo": "Record the start and end time of the meal using the timer below.",
 
-    "studyStepFourExplanationTitle": "Step 4: Record Bowel Movements (Transit Time 2)",
+    "studyStepFourExplanationTitle": "Step 4: Record Bowel Movements",
     "studyStepFourExplanationDesc": "After the participant consumes the two blue muffins, track their bowel movements (BMs) as follows:",
     "studyStepFourExplanationPartOne": "Record each BM, noting the date, time, and presence or absence of blue-green color.",
     "studyStepFourExplanationPartTwo": "Continue recording all BMs until a non-blue BM occurs after a blue-green one.",

@@ -360,7 +360,7 @@ class SmallLayout extends ConsumerWidget {
               divider,
               Expanded(
                 child: NavTile(
-                    icon: const Icon(Icons.grading),
+                    icon: const Icon(Icons.history),
                     label: AppLocalizations.of(context)!.historyTab,
                     onTap: () {
                       if (customSelect != null) {
