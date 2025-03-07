@@ -384,11 +384,11 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
       int selectedIndex, BlueDyeProgression step) {
     final bool previous = step.value < activeIndex;
     final bool active = step.value == selectedIndex;
-    final Color activeForeground = Theme.of(context).colorScheme.onPrimary;
-    final Color activeHighlight = Theme.of(context).primaryColor;
-    final Color secondaryColor = Theme.of(context).primaryColorLight;
-    final Color disabledForeground = Theme.of(context).colorScheme.surface;
-    final Color disabledBackground = Theme.of(context).disabledColor;
+
+    final Color primary = Theme.of(context).primaryColor;
+    final Color primaryLight = Theme.of(context).primaryColorLight;
+    final Color surface = Theme.of(context).colorScheme.surface;
+    final Color disabledColor = Theme.of(context).disabledColor;
     final Color textColor = Theme.of(context).colorScheme.onSurface;
     final Color completedColor =
         Theme.of(context).primaryColor.withValues(alpha: 0.2);
@@ -408,9 +408,8 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
             borderRadius: const BorderRadius.all(
               Radius.circular(8.0),
             ),
-            color: previous ? completedColor : disabledForeground,
-            border: Border.all(
-                width: 1, color: active ? activeHighlight : disabledForeground),
+            color: previous ? completedColor : surface,
+            border: Border.all(width: 1, color: active ? primary : textColor),
           ),
           child: Padding(
             padding: const EdgeInsets.all(12.0),
@@ -418,6 +417,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
               child: Text(
                 step.getLabel(context),
                 style: Theme.of(context).textTheme.headlineSmall,
+                textAlign: TextAlign.center,
               ),
             ),
           ),
@@ -427,17 +427,20 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
     final Widget stepCircle = DecoratedBox(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: active ? activeHighlight : disabledBackground,
+        color: active ? primary : surface,
         border: Border.all(
-            color: active ? activeForeground : disabledForeground,
-            width: lineThickness),
+            color: active ? primary : disabledColor, width: lineThickness),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(2.0),
+        padding: const EdgeInsets.all(4.0),
         child: Center(
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: disabledBackground,
+              color: active
+                  ? surface
+                  : previous
+                      ? primaryLight
+                      : disabledColor,
               shape: BoxShape.circle,
             ),
             child: Padding(
@@ -447,7 +450,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                 style: Theme.of(context)
                     .textTheme
                     .headlineSmall
-                    ?.copyWith(color: disabledForeground),
+                    ?.copyWith(color: previous || !active ? surface : primary),
               ),
             ),
           ),
@@ -478,7 +481,11 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
           children: [
             Expanded(
               child: ColoredBox(
-                color: disabledBackground,
+                color: active
+                    ? primary
+                    : previous
+                        ? completedColor
+                        : surface,
                 child: Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Row(
@@ -498,7 +505,12 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                             style: Theme.of(context)
                                 .textTheme
                                 .headlineSmall
-                                ?.copyWith(color: disabledForeground),
+                                ?.copyWith(
+                                    color: previous
+                                        ? primary
+                                        : active
+                                            ? surface
+                                            : textColor),
                           ),
                           Text(
                             activeIndex > step.value
@@ -507,7 +519,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                             style: Theme.of(context)
                                 .textTheme
                                 .bodyMedium
-                                ?.copyWith(color: disabledForeground),
+                                ?.copyWith(color: active ? surface : textColor),
                           )
                         ],
                       )
@@ -519,14 +531,14 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
             Divider(
               height: 1,
               thickness: lineThickness,
-              color: previous || active ? activeHighlight : disabledBackground,
+              color: previous || active ? primary : disabledColor,
             ),
             ColoredBox(
-              color: previous
-                  ? completedColor
-                  : active
-                      ? secondaryColor
-                      : disabledBackground,
+              color: active
+                  ? primaryLight
+                  : previous
+                      ? completedColor
+                      : disabledColor,
               child: Row(
                 mainAxisSize: MainAxisSize.max,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -539,11 +551,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                     step.value < 2 ? "Transit Time 1" : "Transit Time 2",
                     textAlign: TextAlign.start,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: active
-                            ? activeForeground
-                            : previous
-                                ? activeHighlight
-                                : disabledForeground),
+                        color: active || !previous ? surface : primary),
                   ),
                 ],
               ),
