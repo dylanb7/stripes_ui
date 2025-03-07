@@ -471,7 +471,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
           borderRadius: const BorderRadius.all(
             Radius.circular(8.0),
           ),
-          border: Border.all(width: lineThickness, color: disabledForeground),
+          border: Border.all(width: lineThickness, color: textColor),
         ),
         clipBehavior: Clip.hardEdge,
         child: Column(
@@ -521,14 +521,14 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
               thickness: lineThickness,
               color: previous || active ? activeHighlight : disabledBackground,
             ),
-            Container(
-              width: double.infinity,
+            ColoredBox(
               color: previous
                   ? completedColor
                   : active
                       ? secondaryColor
                       : disabledBackground,
               child: Row(
+                mainAxisSize: MainAxisSize.max,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
