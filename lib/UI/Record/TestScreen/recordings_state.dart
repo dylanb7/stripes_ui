@@ -25,7 +25,7 @@ class RecordingsView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool cardLayout =
-        getBreakpoint(context).isGreaterThan(Breakpoint.small);
+        getBreakpoint(context).isGreaterThan(Breakpoint.medium);
     final AsyncValue<BlueDyeTestProgress> progress =
         ref.watch(blueDyeTestProgressProvider);
     if (progress.isLoading) return const LoadingWidget();
@@ -77,6 +77,10 @@ class RecordingsView extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      if (!cardLayout) ...[
+                        transitLabel,
+                        const Divider(),
+                      ],
                       Text(
                         AppLocalizations.of(context)!.recordingStateTitle,
                         style: Theme.of(context)
@@ -340,7 +344,7 @@ class _RecordingsState extends ConsumerState<RecordingsState> {
   @override
   Widget build(BuildContext context) {
     final bool cardLayout =
-        getBreakpoint(context).isGreaterThan(Breakpoint.small);
+        getBreakpoint(context).isGreaterThan(Breakpoint.medium);
     final Color panelColor =
         Theme.of(context).primaryColor.withValues(alpha: 0.2);
     final BlueDyeState? blueDyeState = ref.watch(testsHolderProvider
@@ -356,6 +360,8 @@ class _RecordingsState extends ConsumerState<RecordingsState> {
     if (blueDyeState == null) {
       return const LoadingWidget();
     }
+
+    final bool emptyLogs = blueDyeState.logs.isEmpty;
 
     final Widget transitLabel = Text(
       stage.value < 2
@@ -387,8 +393,7 @@ class _RecordingsState extends ConsumerState<RecordingsState> {
               height: 6,
             ),
             stage == BlueDyeProgression.stepTwo
-                ? BlueStudyInstructionsPartTwo(
-                    initiallyExpanded: blueDyeState.logs.isEmpty)
+                ? BlueStudyInstructionsPartTwo(initiallyExpanded: emptyLogs)
                 : const BlueStudyInstructionsPartFour(),
             const SizedBox(
               height: 12.0,
@@ -416,7 +421,19 @@ class _RecordingsState extends ConsumerState<RecordingsState> {
                     const SizedBox(
                       height: 8.0,
                     ),
-                    BMDisplay(logs: blueDyeState.logs),
+                    emptyLogs
+                        ? Center(
+                            child: Text(
+                              "Please add a bowel movement",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(fontVariations: [
+                                const FontVariation.italic(1.0)
+                              ]),
+                            ),
+                          )
+                        : BMDisplay(logs: blueDyeState.logs),
                     const SizedBox(
                       height: 8.0,
                     ),
