@@ -1,10 +1,8 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/test_progress_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
-import 'package:stripes_ui/UI/CommonWidgets/horizontal_step_scroll.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/CommonWidgets/scroll_assisted_list.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
@@ -84,26 +82,11 @@ class _BlueDyeTestScreenState extends ConsumerState<BlueDyeTestScreen> {
                         const SizedBox(
                           height: 20.0,
                         ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              const TestSwitcher(),
-                              (loaded?.stage != BlueDyeTestStage.initial ||
-                                      loaded!.orderedTests.isNotEmpty)
-                                  ? IconButton(
-                                      onPressed: () {
-                                        toggleBottomSheet(context);
-                                      },
-                                      icon: const Icon(Icons.info))
-                                  : SizedBox(
-                                      width: Theme.of(context).iconTheme.size,
-                                    ),
-                            ],
-                          ),
-                        ),
+                        const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 20.0),
+                            child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: TestSwitcher())),
                         const SizedBox(
                           height: 12.0,
                         ),
@@ -220,7 +203,8 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
       }
     });
 
-    final bool shouldWrap = getBreakpoint(context).isLessThan(Breakpoint.small);
+    final bool shouldWrap =
+        getBreakpoint(context).isLessThan(Breakpoint.medium);
     final AsyncValue<BlueDyeTestProgress> progress =
         ref.watch(blueDyeTestProgressProvider);
 
@@ -370,9 +354,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
           const SizedBox(
             height: 12.0,
           ),
-          Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: getDisplayedWidget()),
+          getDisplayedWidget(),
         ],
       ),
       scrollController: scrollContoller,
