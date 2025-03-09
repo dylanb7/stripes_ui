@@ -250,7 +250,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
       }
 
       if (!isPrevious && activeStage == BlueDyeProgression.stepThree) {
-        return const RecordingsWaiting();
+        return const WaitingTime();
       }
       if (isPrevious ||
           (loaded?.testIteration == 2 && !loaded!.stage.testInProgress)) {
