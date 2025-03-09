@@ -484,8 +484,14 @@ abstract class AppLocalizations {
   /// No description provided for @stepTwoCompletedSubText.
   ///
   /// In en, this message translates to:
-  /// **'You can begin Step 3 in '**
+  /// **'Start Step 3'**
   String get stepTwoCompletedSubText;
+
+  /// No description provided for @stepTwoCompletedTimeText.
+  ///
+  /// In en, this message translates to:
+  /// **'in {time}'**
+  String stepTwoCompletedTimeText(String time);
 
   /// No description provided for @stepThreeCompletedText.
   ///

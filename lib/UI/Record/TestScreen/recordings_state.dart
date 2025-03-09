@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:add_2_calendar/add_2_calendar.dart';
+import 'package:duration/duration.dart';
+import 'package:duration/locale.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -11,6 +13,7 @@ import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
+import 'package:stripes_ui/UI/Record/TestScreen/card_layout_helper.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
@@ -144,6 +147,183 @@ class RecordingsView extends ConsumerWidget {
             ]),
       ),
     );
+  }
+}
+
+class WaitingTime extends ConsumerStatefulWidget {
+  const WaitingTime({super.key});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() {
+    return _WaitingTimeState();
+  }
+}
+
+class _WaitingTimeState extends ConsumerState<WaitingTime> {
+  bool isLoading = false;
+
+  Timer? timer;
+
+  final Duration waitTime = const Duration(seconds: 30);
+
+  @override
+  Widget build(BuildContext context) {
+    final bool cardLayout =
+        getBreakpoint(context).isGreaterThan(Breakpoint.large);
+    final AsyncValue<BlueDyeTestProgress> progress =
+        ref.watch(blueDyeTestProgressProvider);
+    final List<TestDate> orderedTests =
+        progress.valueOrNull?.orderedTests ?? [];
+    if (orderedTests.isEmpty) return Container();
+    final DateTime progressDate = orderedTests[0].finishTime.add(waitTime);
+    final Duration timePassed =
+        DateTime.now().difference(orderedTests[0].finishTime);
+
+    final bool canProgress = waitTime.compareTo(timePassed) < 0;
+    final Duration timeLeft = canProgress
+        ? Duration.zero
+        : Duration(
+            milliseconds: waitTime.inMilliseconds - timePassed.inMilliseconds);
+    final Color cardColor =
+        Theme.of(context).primaryColor.withValues(alpha: 0.2);
+    if (canProgress) timer?.cancel();
+    return Column(
+      children: [
+        AdaptiveCardLayout(
+          cardColor: cardColor,
+          child: Column(
+            children: [
+              if (!cardLayout) ...[
+                Center(
+                  child: Text(
+                    AppLocalizations.of(context)!.stepTwoCompletedSubText,
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                ),
+                const SizedBox(
+                  height: 6.0,
+                ),
+                Center(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                          width: 1.0, color: Theme.of(context).primaryColor),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6.0, vertical: 4.0),
+                      child: Text(
+                        AppLocalizations.of(context)!.stepTwoCompletedTimeText(
+                          _from(timeLeft, context),
+                        ),
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
+                    ),
+                  ),
+                )
+              ],
+              if (cardLayout)
+                Container(
+                  width: double.infinity,
+                  color: Theme.of(context).colorScheme.surface,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    child: Center(
+                      child: RichText(
+                          text: TextSpan(
+                              text: AppLocalizations.of(context)!
+                                  .stepTwoCompletedSubText,
+                              style: Theme.of(context).textTheme.headlineMedium,
+                              children: [
+                            TextSpan(
+                                text: AppLocalizations.of(context)!
+                                    .stepTwoCompletedTimeText(
+                                  _from(timeLeft, context),
+                                ),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineMedium
+                                    ?.copyWith(
+                                        color: Theme.of(context).primaryColor))
+                          ])),
+                    ),
+                  ),
+                )
+            ],
+          ),
+        ),
+        const SizedBox(
+          height: 12.0,
+        ),
+        Center(
+          child: FilledButton(
+            onPressed: isLoading || !canProgress
+                ? null
+                : () {
+                    _next();
+                  },
+            child: Text(AppLocalizations.of(context)!.nextButton),
+          ),
+        ),
+        const SizedBox(
+          height: 25.0,
+        )
+      ],
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    _onDependencyChange();
+    super.didChangeDependencies();
+  }
+
+  void _onDependencyChange() async {
+    final DateTime testFinished =
+        (await ref.read(blueDyeTestProgressProvider.future))
+            .orderedTests[0]
+            .finishTime;
+    final Duration timePassed = DateTime.now().difference(testFinished);
+    final bool canProgress = waitTime.compareTo(timePassed) < 0;
+    if (!canProgress) {
+      timer = Timer.periodic(const Duration(milliseconds: 500), (_) {
+        if (mounted) setState(() {});
+      });
+    }
+  }
+
+  _next() async {
+    setState(() {
+      isLoading = true;
+    });
+    final DateTime start = DateTime.now();
+    await ref
+        .read(testsHolderProvider.notifier)
+        .getTest<Test<BlueDyeState>>()
+        .then((test) {
+      test?.setTestState(BlueDyeState(
+          startTime: start, timerStart: start, pauseTime: start, logs: []));
+    });
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  String _from(Duration duration, BuildContext context) {
+    final Locale current = Localizations.localeOf(context);
+    return prettyDuration(duration,
+        delimiter: ' ',
+        locale: DurationLocale.fromLanguageCode(current.languageCode) ??
+            const EnglishDurationLocale(),
+        abbreviated: false,
+        first: true);
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
   }
 }
 

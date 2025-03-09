@@ -104,7 +104,15 @@
 
     "stepOneCompletedText": "Step 1 - Completed",
     "stepTwoCompletedText": "Step 2 - Completed",
-    "stepTwoCompletedSubText": "You can begin Step 3 in ",
+    "stepTwoCompletedSubText": "Start Step 3",
+    "stepTwoCompletedTimeText": "in {time}",
+    "@stepTwoCompletedTimeText": {
+        "placeholders": {
+            "time": { 
+                "type": "String" 
+            }
+        }
+    },
     "stepThreeCompletedText": "Step 3 - Completed",
     "stepFourCompletedText": "Step 4 - Completed",
     "stepFourCompletedSubText": "You have completed the Blue Meal Study. Thank you for your participation!",

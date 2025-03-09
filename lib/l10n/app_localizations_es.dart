@@ -212,7 +212,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get stepTwoCompletedText => 'Step 2 - Completed';
 
   @override
-  String get stepTwoCompletedSubText => 'You can begin Step 3 in ';
+  String get stepTwoCompletedSubText => 'Start Step 3';
+
+  @override
+  String stepTwoCompletedTimeText(String time) {
+    return 'in $time';
+  }
 
   @override
   String get stepThreeCompletedText => 'Step 3 - Completed';
