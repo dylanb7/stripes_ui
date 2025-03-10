@@ -5,6 +5,7 @@ import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/test_progress_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
+import 'package:stripes_ui/UI/Record/TestScreen/card_layout_helper.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
@@ -24,6 +25,9 @@ class MealFinishedDisplay extends ConsumerWidget {
 
     final BlueDyeState? testsState = ref.watch(testsHolderProvider
         .select((holder) => holder.valueOrNull?.getTestState<BlueDyeState>()));
+
+    final Color cardColor =
+        Theme.of(context).primaryColor.withValues(alpha: 0.2);
 
     if (progress.isLoading) return const LoadingWidget();
 
@@ -47,8 +51,8 @@ class MealFinishedDisplay extends ConsumerWidget {
       if (testOngoing &&
           ((displaying == BlueDyeProgression.stepOne &&
                   progression == BlueDyeProgression.stepTwo) ||
-              (displaying == BlueDyeProgression.stepThree &&
-                  progression == BlueDyeProgression.stepFour))) {
+              (displaying == BlueDyeProgression.stepFour &&
+                  progression == BlueDyeProgression.stepFive))) {
         return BlueMealStats(
             start: testsState?.startTime,
             duration: testsState?.finishedEating,
@@ -89,15 +93,9 @@ class MealFinishedDisplay extends ConsumerWidget {
               .titleMedium
               ?.copyWith(fontWeight: FontWeight.bold),
         ),
-        DecoratedBox(
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12.0),
-              color: ElevationOverlay.applySurfaceTint(
-                  Theme.of(context).cardColor,
-                  Theme.of(context).colorScheme.surfaceTint,
-                  3),
-              border: Border.all(
-                  color: Theme.of(context).primaryColor, width: 2.0)),
+        AdaptiveCardLayout(
+          cardColor: cardColor,
+          borderColor: Theme.of(context).primaryColor,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
