@@ -151,7 +151,9 @@ class RecordingsView extends ConsumerWidget {
 }
 
 class WaitingTime extends ConsumerStatefulWidget {
-  const WaitingTime({super.key});
+  final Function next;
+
+  const WaitingTime({required this.next, super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
@@ -308,6 +310,7 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
     setState(() {
       isLoading = false;
     });
+    widget.next();
   }
 
   String _from(Duration duration, BuildContext context) {

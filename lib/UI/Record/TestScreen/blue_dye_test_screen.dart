@@ -186,7 +186,16 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
         0;
     _pageController =
         PageController(viewportFraction: 0.7, initialPage: currentIndex);
+    _setCurrentPage();
     super.initState();
+  }
+
+  _setCurrentPage() async {
+    final BlueDyeTestProgress progress =
+        await ref.read(blueDyeTestProgressProvider.future);
+    if (_pageController.hasClients) {
+      _pageController.jumpToPage(progress.getProgression()?.value ?? 0);
+    }
   }
 
   @override
@@ -198,7 +207,9 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
       final BlueDyeProgression? prevValue = await next;
       if (context.mounted &&
           nextValue != null &&
-          (prevValue == null || nextValue.index > prevValue.index)) {
+          (prevValue == null ||
+              nextValue.index > prevValue.index &&
+                  nextValue.index != currentIndex)) {
         _changePage(nextValue.index);
       }
     });
@@ -250,7 +261,11 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
       }
 
       if (!isPrevious && activeStage == BlueDyeProgression.stepThree) {
-        return const WaitingTime();
+        return WaitingTime(
+          next: () {
+            _changePage(currentIndex + 1);
+          },
+        );
       }
       if (isPrevious ||
           (loaded?.testIteration == 2 && !loaded!.stage.testInProgress)) {
