@@ -40,3 +40,19 @@ class AdaptiveCardLayout extends StatelessWidget {
     );
   }
 }
+
+class AdaptiveStepInfo extends StatelessWidget {
+  const AdaptiveStepInfo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isCard = getBreakpoint(context).isGreaterThan(Breakpoint.medium);
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: isCard ? 20.0 : 0),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+            maxWidth: isCard ? Breakpoint.small.value : double.infinity),
+      ),
+    );
+  }
+}

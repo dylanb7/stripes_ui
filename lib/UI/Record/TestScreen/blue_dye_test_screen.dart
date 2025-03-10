@@ -271,7 +271,11 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
           (loaded?.testIteration == 2 && !loaded!.stage.testInProgress)) {
         return RecordingsView(
           next: () {
-            _changePage(currentIndex + 1);
+            if (activeStage == BlueDyeProgression.stepTwo) {
+              _changePage(currentIndex + 2);
+            } else {
+              _changePage(currentIndex + 1);
+            }
           },
           clicked: activeStage,
         );

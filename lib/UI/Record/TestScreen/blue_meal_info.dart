@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
 import 'package:stripes_ui/UI/CommonWidgets/scroll_assisted_list.dart';
+import 'package:stripes_ui/UI/Record/TestScreen/card_layout_helper.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class BlueMealPreStudy extends StatelessWidget {
@@ -401,12 +402,8 @@ class BlueStudyInstructionsPartOne extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12.0),
-        color: ElevationOverlay.applySurfaceTint(Theme.of(context).cardColor,
-            Theme.of(context).colorScheme.surfaceTint, 3),
-      ),
+    return AdaptiveCardLayout(
+      cardColor: Theme.of(context).primaryColor.withValues(alpha: 0.2),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -475,12 +472,8 @@ class _BlueStudyInstructionsPartTwoState
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12.0),
-        color: ElevationOverlay.applySurfaceTint(Theme.of(context).cardColor,
-            Theme.of(context).colorScheme.surfaceTint, 3),
-      ),
+    return AdaptiveCardLayout(
+      cardColor: Theme.of(context).primaryColor.withValues(alpha: 0.2),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: AnimatedSize(
@@ -579,12 +572,8 @@ class BlueStudyInstructionsPartThree extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12.0),
-        color: ElevationOverlay.applySurfaceTint(Theme.of(context).cardColor,
-            Theme.of(context).colorScheme.surfaceTint, 3),
-      ),
+    return AdaptiveCardLayout(
+      cardColor: Theme.of(context).primaryColor.withValues(alpha: 0.2),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -623,12 +612,8 @@ class BlueStudyInstructionsPartFour extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12.0),
-        color: ElevationOverlay.applySurfaceTint(Theme.of(context).cardColor,
-            Theme.of(context).colorScheme.surfaceTint, 3),
-      ),
+    return AdaptiveCardLayout(
+      cardColor: Theme.of(context).primaryColor.withValues(alpha: 0.2),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
