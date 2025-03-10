@@ -5,6 +5,7 @@ import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/test_progress_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
+import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/card_layout_helper.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
@@ -83,15 +84,27 @@ class MealFinishedDisplay extends ConsumerWidget {
     final BlueMealStats mealStats = getMealStats();
     final double iconSize = Theme.of(context).iconTheme.size ?? 20;
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Text(
-          displaying == BlueDyeProgression.stepThree
-              ? AppLocalizations.of(context)!.studyStepThreeExplanationTitle
-              : AppLocalizations.of(context)!.studyStepOneExplanationTitle,
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium
-              ?.copyWith(fontWeight: FontWeight.bold),
+        const SizedBox(
+          height: 6.0,
+        ),
+        const Center(child: BlueMealInfoButton()),
+        const SizedBox(
+          height: 6.0,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: Text(
+            displaying == BlueDyeProgression.stepThree
+                ? AppLocalizations.of(context)!.studyStepThreeExplanationTitle
+                : AppLocalizations.of(context)!.studyStepOneExplanationTitle,
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(fontWeight: FontWeight.bold),
+          ),
         ),
         AdaptiveCardLayout(
           cardColor: cardColor,

@@ -25,8 +25,8 @@ class AdaptiveCardLayout extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: isCard ? 20.0 : 0.0),
           child: DecoratedBox(
             decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(
-                Radius.circular(20.0),
+              borderRadius: BorderRadius.all(
+                Radius.circular(isCard ? 8.0 : 0),
               ),
               border: Border.all(
                   width: 1,
