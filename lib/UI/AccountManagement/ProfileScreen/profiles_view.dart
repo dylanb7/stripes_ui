@@ -6,16 +6,16 @@ import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/AccountManagement/ProfileScreen/edit_profile.dart';
 import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
-import 'package:stripes_ui/UI/Record/RecordSplit/splitter.dart';
+
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 
-class UserView extends ConsumerWidget {
+class ProfileView extends ConsumerWidget {
   final SubUser subUser;
 
   final bool selected;
 
-  const UserView({required this.subUser, required this.selected, super.key});
+  const ProfileView({required this.subUser, required this.selected, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -144,11 +144,11 @@ class MinimalProfileView extends ConsumerWidget {
       },
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: selected ? primary : surface,
-          borderRadius: const BorderRadius.all(
-            Radius.circular(12.0),
-          ),
-        ),
+            color: selected ? primary : surface,
+            borderRadius: const BorderRadius.all(
+              Radius.circular(12.0),
+            ),
+            border: selected ? null : Border.all(width: 1.0, color: text)),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 6.0),
           child: Row(
@@ -228,8 +228,11 @@ class DeleteConfirmation extends ConsumerWidget {
             .headlineMedium
             ?.copyWith(color: Theme.of(context).primaryColor),
       ),
-      body: Text(
-          "This action is irreversable and will delete all entries associated with ${toDelete.name}"),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(
+            "This action is irreversable and will delete all entries associated with ${toDelete.name}"),
+      ),
       cancel: 'Cancel',
       confirm: 'Confirm',
       onConfirm: () async {

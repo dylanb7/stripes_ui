@@ -94,7 +94,7 @@ class PatientScreen extends ConsumerWidget {
                     child: config.profileType == ProfileType.username
                         ? MinimalProfileView(
                             subUser: user, selected: user.uid == current?.uid)
-                        : UserView(
+                        : ProfileView(
                             subUser: user,
                             selected: user.uid == current?.uid,
                           ),
