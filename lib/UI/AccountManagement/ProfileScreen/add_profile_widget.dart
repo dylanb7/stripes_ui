@@ -140,7 +140,7 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
                           },
                           controller: _firstName,
                           decoration: formFieldDecoration(
-                            hintText: 'Username',
+                            hintText: 'Enter Profile Name',
                             controller: _firstName,
                           ),
                         ),
@@ -175,7 +175,7 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
                     },
                     icon: const Icon(Icons.add),
                     label: const Text(
-                      'Add',
+                      'Create New Profile',
                     ),
                   ),
                 ),

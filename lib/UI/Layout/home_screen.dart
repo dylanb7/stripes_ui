@@ -96,47 +96,50 @@ class _PageWrapState extends ConsumerState<PageWrap> {
   Widget build(BuildContext context) {
     final CurrentOverlay overlay = ref.watch(overlayProvider);
 
-    return GestureDetector(
-      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: Stack(
-        children: [
-          Scaffold(
-            appBar: AppBar(
-              automaticallyImplyLeading: false,
-              leading: widget.leading,
-              scrolledUnderElevation: 0,
-              shape: RoundedRectangleBorder(
-                  side: BorderSide(color: Theme.of(context).dividerColor)),
-              titleSpacing: widget.leading != null ? 5.0 : null,
-              title: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4.0),
-                child: Builder(builder: (context) {
-                  return GestureDetector(
-                    onTap: () {
-                      _toggleBottomSheet(context);
-                    },
-                    child: Image.asset(
-                      'packages/stripes_ui/assets/images/StripesLogo.png',
-                      fit: BoxFit.contain,
-                      height: 35,
-                    ).showCursorOnHover,
-                  );
-                }),
+    return SafeArea(
+      child: GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: Stack(
+          children: [
+            Scaffold(
+              appBar: AppBar(
+                automaticallyImplyLeading: false,
+                leading: widget.leading,
+                scrolledUnderElevation: 0,
+                shape: RoundedRectangleBorder(
+                    side: BorderSide(color: Theme.of(context).dividerColor)),
+                titleSpacing: widget.leading != null ? 5.0 : null,
+                title: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                  child: Builder(builder: (context) {
+                    return GestureDetector(
+                      onTap: () {
+                        _toggleBottomSheet(context);
+                      },
+                      child: Image.asset(
+                        'packages/stripes_ui/assets/images/StripesLogo.png',
+                        fit: BoxFit.contain,
+                        height: 35,
+                      ).showCursorOnHover,
+                    );
+                  }),
+                ),
+                centerTitle: false,
+                actions: widget.actions != null
+                    ? [...widget.actions!, const SizedBox(width: 8)]
+                    : null,
               ),
-              centerTitle: false,
-              actions: widget.actions != null
-                  ? [...widget.actions!, const SizedBox(width: 8)]
-                  : null,
+              body: widget.child,
+              floatingActionButton: widget.fabState?.fab,
+              floatingActionButtonLocation: widget.fabState?.location,
+              floatingActionButtonAnimator:
+                  FloatingActionButtonAnimator.scaling,
+              bottomNavigationBar: widget.bottomNav,
             ),
-            body: widget.child,
-            floatingActionButton: widget.fabState?.fab,
-            floatingActionButtonLocation: widget.fabState?.location,
-            floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
-            bottomNavigationBar: widget.bottomNav,
-          ),
-          if (overlay.widget != null)
-            Material(color: Colors.transparent, child: overlay.widget!)
-        ],
+            if (overlay.widget != null)
+              Material(color: Colors.transparent, child: overlay.widget!)
+          ],
+        ),
       ),
     );
   }

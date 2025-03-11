@@ -142,7 +142,8 @@ class MinimalProfileView extends ConsumerWidget {
           _changeToCurrent(ref);
         }
       },
-      child: DecoratedBox(
+      child: AnimatedContainer(
+        duration: Durations.short4,
         decoration: BoxDecoration(
             color: selected ? primary : surface,
             borderRadius: const BorderRadius.all(
@@ -157,13 +158,16 @@ class MinimalProfileView extends ConsumerWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                child: Text(
-                  subUser.name,
-                  textAlign: TextAlign.left,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(color: selected ? surface : text),
+                child: FittedBox(
+                  fit: BoxFit.fitWidth,
+                  child: Text(
+                    subUser.name,
+                    textAlign: TextAlign.left,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleLarge
+                        ?.copyWith(color: selected ? surface : text),
+                  ),
                 ),
               ),
               const Spacer(),
@@ -176,9 +180,6 @@ class MinimalProfileView extends ConsumerWidget {
                   color: selected ? surface : text,
                 ),
               ),
-              const SizedBox(
-                width: 6.0,
-              ),
               IconButton(
                 onPressed: () {
                   _deleteProfile(ref);
@@ -189,7 +190,7 @@ class MinimalProfileView extends ConsumerWidget {
                 ),
               ),
               const SizedBox(
-                width: 6.0,
+                width: 4.0,
               ),
             ],
           ),

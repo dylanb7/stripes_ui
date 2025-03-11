@@ -84,22 +84,26 @@ class PatientScreen extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Wrap(children: [
-                SizedBox(
-                  width: itemWidth,
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: Breakpoint.small.value),
                   child: const AddUserWidget(),
                 ),
                 ...subUsers.map<Widget>(
-                  (user) => SizedBox(
-                    width: itemWidth,
-                    child: config.profileType == ProfileType.username
-                        ? MinimalProfileView(
-                            subUser: user, selected: user.uid == current?.uid)
-                        : ProfileView(
-                            subUser: user,
-                            selected: user.uid == current?.uid,
-                          ),
+                  (user) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    child: ConstrainedBox(
+                      constraints:
+                          BoxConstraints(maxWidth: Breakpoint.small.value),
+                      child: config.profileType == ProfileType.username
+                          ? MinimalProfileView(
+                              subUser: user, selected: user.uid == current?.uid)
+                          : ProfileView(
+                              subUser: user,
+                              selected: user.uid == current?.uid,
+                            ),
+                    ),
                   ),
-                )
+                ),
               ]),
             ),
           ]),
