@@ -12,6 +12,8 @@ import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 
 import 'package:stripes_ui/Util/constants.dart';
+import 'package:stripes_ui/config.dart';
+import 'package:stripes_ui/entry.dart';
 
 import 'add_profile_widget.dart';
 import 'profiles_view.dart';
@@ -23,6 +25,7 @@ class PatientScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);
     final double itemWidth = Breakpoint.small.value;
+    final StripesConfig config = ref.watch(configProvider);
 
     final subNotifier = ref.watch(subHolderProvider);
     if (subNotifier.isLoading) {
@@ -88,10 +91,13 @@ class PatientScreen extends ConsumerWidget {
                 ...subUsers.map<Widget>(
                   (user) => SizedBox(
                     width: itemWidth,
-                    child: UserView(
-                      subUser: user,
-                      selected: user.uid == current?.uid,
-                    ),
+                    child: config.profileType == ProfileType.username
+                        ? MinimalProfileView(
+                            subUser: user, selected: user.uid == current?.uid)
+                        : UserView(
+                            subUser: user,
+                            selected: user.uid == current?.uid,
+                          ),
                   ),
                 )
               ]),

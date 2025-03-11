@@ -111,8 +111,8 @@ class BlueMealInfoButton extends StatelessWidget {
         ),
         builder: (context) {
           return DraggableScrollableSheet(
-              initialChildSize: 1.0,
-              minChildSize: 1.0,
+              initialChildSize: 0.75,
+              minChildSize: 0.5,
               builder: (context, controller) {
                 return SafeArea(
                   child: BlueMealInfoSheet(

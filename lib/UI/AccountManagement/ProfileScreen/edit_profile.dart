@@ -53,30 +53,15 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final subNotif = ref.watch(subHolderProvider);
     final bool isName =
         ref.watch(configProvider).profileType == ProfileType.name;
-    final bool isSelected = widget.subUser == subNotif.valueOrNull?.selected;
-    final Widget deleteButton = TextButton(
-      onPressed: !isSelected
-          ? () {
-              _deleteUser(ref);
-            }
-          : null,
-      child: const Text('Delete Profile'),
-    );
-    final Widget deleteWithTooltip = isSelected
-        ? Tooltip(
-            message: "Cannot delete selected profile",
-            child: deleteButton,
-          )
-        : deleteButton;
+
     return OverlayBackdrop(
-      child: SizedBox(
-        width: Breakpoint.small.value,
-        child: IntrinsicHeight(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: Breakpoint.small.value),
+          child: IntrinsicHeight(
             child: Card(
               shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(12.0)),
@@ -184,33 +169,23 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
                               const SizedBox(
                                 height: 6.0,
                               ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  deleteWithTooltip,
-                                  SizedBox(
-                                    width: 150,
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        if (!canSave) {
-                                          showSnack(
-                                            context,
-                                            'Must make changes before saving',
-                                          );
-                                        }
-                                      },
-                                      child: FilledButton(
-                                        onPressed: !canSave
-                                            ? null
-                                            : () {
-                                                _editUser(ref);
-                                              },
-                                        child: const Text('Save Changes'),
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                              GestureDetector(
+                                onTap: () {
+                                  if (!canSave) {
+                                    showSnack(
+                                      context,
+                                      'Must make changes before saving',
+                                    );
+                                  }
+                                },
+                                child: FilledButton(
+                                  onPressed: !canSave
+                                      ? null
+                                      : () {
+                                          _editUser(ref);
+                                        },
+                                  child: const Text('Save Changes'),
+                                ),
                               ),
                               const SizedBox(
                                 height: 12.0,

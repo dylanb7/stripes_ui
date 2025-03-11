@@ -35,14 +35,14 @@ class ConfirmationPopup extends ConsumerWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: Center(
-            child: SizedBox(
-              width: Breakpoint.tiny.value,
-              child: Card(
-                shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10.0))),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 10.0, vertical: 12.0),
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10.0, vertical: 12.0),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: Breakpoint.small.value),
+                child: Card(
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10.0))),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
