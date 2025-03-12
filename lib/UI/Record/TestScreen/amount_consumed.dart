@@ -414,11 +414,13 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
 
   bool isLoading = false;
 
-  RestorableEnum<AmountConsumed>? amountConsumed;
+  final RestorableEnumN<AmountConsumed> amountConsumed =
+      RestorableEnumN(null, values: AmountConsumed.values);
 
-  RestorableEnum<MealTime>? mealTime;
+  final RestorableEnumN<MealTime> mealTime =
+      RestorableEnumN(null, values: MealTime.mealTimes);
 
-  RestorableBool? completedFast;
+  final RestorableBoolN completedFast = RestorableBoolN(null);
 
   @override
   Widget build(BuildContext context) {
@@ -444,47 +446,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
           child: Padding(
             padding: const EdgeInsets.all(12.0),
             child: Column(
-              children: [
-                Text(
-                  AppLocalizations.of(context)!.amountConsumedQuestion,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(color: Theme.of(context).primaryColor),
-                ),
-                const SizedBox(
-                  height: 8.0,
-                ),
-                ...amountText.keys.map<Widget>((amount) {
-                  return RadioListTile<AmountConsumed>(
-                      title: Text(amountText[amount]!),
-                      value: amount,
-                      groupValue: amountConsumed?.value,
-                      onChanged: (newValue) {
-                        if (newValue == null) return;
-                        if (newValue == amountConsumed?.value) {
-                          setState(() {
-                            amountConsumed = null;
-                          });
-                        } else {
-                          setState(() {
-                            amountConsumed ??= RestorableEnum(
-                                AmountConsumed.undetermined,
-                                values: AmountConsumed.values);
-                            amountConsumed!.value = newValue;
-                          });
-                        }
-                        if (mealTimeQuestionKey.currentContext != null) {
-                          Scrollable.ensureVisible(
-                              mealTimeQuestionKey.currentContext!,
-                              duration: Durations.medium1,
-                              alignmentPolicy:
-                                  ScrollPositionAlignmentPolicy.explicit,
-                              alignment: 30.0);
-                        }
-                      });
-                }),
-              ],
+              children: [],
             ),
           ),
         ),
@@ -514,19 +476,16 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                     return RadioListTile<MealTime>(
                         title: Text(amount.value),
                         value: amount,
-                        groupValue: mealTime?.value,
+                        groupValue: mealTime.value,
                         onChanged: (newValue) {
                           if (newValue == null) return;
-                          if (newValue == mealTime?.value) {
+                          if (newValue == mealTime.value) {
                             setState(() {
-                              mealTime = null;
+                              mealTime.value = null;
                             });
                           } else {
                             setState(() {
-                              mealTime ??= RestorableEnum(
-                                  MealTime.fifteenOrLess,
-                                  values: MealTime.mealTimes);
-                              mealTime!.value = newValue;
+                              mealTime.value = newValue;
                             });
                           }
                           if (mealAmountConsumedKey.currentContext != null) {
@@ -548,10 +507,10 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
           height: 12.0,
         ),
         IgnorePointer(
-          ignoring: mealTime == null,
+          ignoring: mealTime.value == null,
           child: AdaptiveCardLayout(
             key: mealAmountConsumedKey,
-            cardColor: mealTime == null ? disabledColor : activeCard,
+            cardColor: mealTime.value == null ? disabledColor : activeCard,
             child: Padding(
               padding: const EdgeInsets.all(12.0),
               child: Column(
@@ -570,19 +529,16 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                     return RadioListTile<AmountConsumed>(
                         title: Text(amountText[amount]!),
                         value: amount,
-                        groupValue: amountConsumed?.value,
+                        groupValue: amountConsumed.value,
                         onChanged: (newValue) {
                           if (newValue == null) return;
-                          if (newValue == amountConsumed?.value) {
+                          if (newValue == amountConsumed.value) {
                             setState(() {
-                              amountConsumed = null;
+                              amountConsumed.value = null;
                             });
                           } else {
                             setState(() {
-                              amountConsumed ??= RestorableEnum(
-                                  AmountConsumed.undetermined,
-                                  values: AmountConsumed.values);
-                              amountConsumed!.value = newValue;
+                              amountConsumed.value = newValue;
                             });
                           }
                         });
@@ -616,8 +572,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
         .read(testsHolderProvider.notifier)
         .getTest<Test<BlueDyeState>>()
         .then((test) {
-      test?.setTestState(
-          state!.copyWith(amountConsumed: amountConsumed!.value));
+      test?.setTestState(state!.copyWith(amountConsumed: amountConsumed.value));
     });
     setState(() {
       isLoading = false;
@@ -629,9 +584,9 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
 
   @override
   void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
-    if (amountConsumed != null) {
-      registerForRestoration(amountConsumed!, "amount-consumed");
-    }
+    registerForRestoration(amountConsumed, "amount-consumed-entry");
+    registerForRestoration(mealTime, "meal-time-entry");
+    registerForRestoration(completedFast, "fasted-entry");
   }
 }
 
