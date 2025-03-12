@@ -459,7 +459,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                   return RadioListTile<AmountConsumed>(
                       title: Text(amountText[amount]!),
                       value: amount,
-                      groupValue: amountConsumed!.value,
+                      groupValue: amountConsumed?.value,
                       onChanged: (newValue) {
                         if (newValue == null) return;
                         if (newValue == amountConsumed?.value) {
