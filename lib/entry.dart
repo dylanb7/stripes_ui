@@ -84,6 +84,7 @@ class StripesHome extends ConsumerWidget {
     final GoRouter router = ref.watch(routeProvider);
     return _EarlyInit(
         child: MaterialApp.router(
+      restorationScopeId: "stripes-restoration",
       locale: locale,
       debugShowCheckedModeBanner: false,
       title: 'Stripes',

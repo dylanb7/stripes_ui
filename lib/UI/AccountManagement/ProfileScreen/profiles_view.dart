@@ -143,7 +143,7 @@ class MinimalProfileView extends ConsumerWidget {
         }
       },
       child: AnimatedContainer(
-        duration: Durations.short4,
+        duration: Durations.short1,
         decoration: BoxDecoration(
             color: selected ? primary : surface,
             borderRadius: const BorderRadius.all(

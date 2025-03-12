@@ -396,3 +396,252 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
     });
   }
 }
+
+class MealStatsEntry extends ConsumerStatefulWidget {
+  const MealStatsEntry({super.key});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() {
+    return _MealStatsEntryState();
+  }
+}
+
+class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
+    with RestorationMixin {
+  final fastQuestionKey = GlobalKey();
+  final mealTimeQuestionKey = GlobalKey();
+  final mealAmountConsumedKey = GlobalKey();
+
+  bool isLoading = false;
+
+  RestorableEnum<AmountConsumed>? amountConsumed;
+
+  RestorableEnum<MealTime>? mealTime;
+
+  RestorableBool? completedFast;
+
+  @override
+  Widget build(BuildContext context) {
+    final Map<AmountConsumed, String> amountText = {
+      AmountConsumed.halfOrLess:
+          AppLocalizations.of(context)!.amountConsumedHalfOrLess,
+      AmountConsumed.half: AppLocalizations.of(context)!.amountConsumedHalf,
+      AmountConsumed.moreThanHalf:
+          AppLocalizations.of(context)!.amountConsumedHalfOrMore,
+      AmountConsumed.all: AppLocalizations.of(context)!.amountConsumedAll,
+    };
+
+    final Color activeCard =
+        Theme.of(context).primaryColor.withValues(alpha: 0.2);
+    final Color disabledColor = Theme.of(context).disabledColor;
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AdaptiveCardLayout(
+          key: fastQuestionKey,
+          cardColor: activeCard,
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.amountConsumedQuestion,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(color: Theme.of(context).primaryColor),
+                ),
+                const SizedBox(
+                  height: 8.0,
+                ),
+                ...amountText.keys.map<Widget>((amount) {
+                  return RadioListTile<AmountConsumed>(
+                      title: Text(amountText[amount]!),
+                      value: amount,
+                      groupValue: amountConsumed!.value,
+                      onChanged: (newValue) {
+                        if (newValue == null) return;
+                        if (newValue == amountConsumed?.value) {
+                          setState(() {
+                            amountConsumed = null;
+                          });
+                        } else {
+                          setState(() {
+                            amountConsumed ??= RestorableEnum(
+                                AmountConsumed.undetermined,
+                                values: AmountConsumed.values);
+                            amountConsumed!.value = newValue;
+                          });
+                        }
+                        if (mealTimeQuestionKey.currentContext != null) {
+                          Scrollable.ensureVisible(
+                              mealTimeQuestionKey.currentContext!,
+                              duration: Durations.medium1,
+                              alignmentPolicy:
+                                  ScrollPositionAlignmentPolicy.explicit,
+                              alignment: 30.0);
+                        }
+                      });
+                }),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(
+          height: 12.0,
+        ),
+        AdaptiveCardLayout(
+          key: mealTimeQuestionKey,
+          cardColor: activeCard,
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.amountConsumedQuestion,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(color: Theme.of(context).primaryColor),
+                ),
+                const SizedBox(
+                  height: 8.0,
+                ),
+                ...MealTime.mealTimes.map<Widget>((amount) {
+                  return RadioListTile<MealTime>(
+                      title: Text(amount.value),
+                      value: amount,
+                      groupValue: mealTime?.value,
+                      onChanged: (newValue) {
+                        if (newValue == null) return;
+                        if (newValue == mealTime?.value) {
+                          setState(() {
+                            mealTime = null;
+                          });
+                        } else {
+                          setState(() {
+                            mealTime ??= RestorableEnum(MealTime.fifteenOrLess,
+                                values: MealTime.mealTimes);
+                            mealTime!.value = newValue;
+                          });
+                        }
+                        if (mealAmountConsumedKey.currentContext != null) {
+                          Scrollable.ensureVisible(
+                              mealAmountConsumedKey.currentContext!,
+                              duration: Durations.medium1,
+                              alignmentPolicy:
+                                  ScrollPositionAlignmentPolicy.explicit,
+                              alignment: 30.0);
+                        }
+                      });
+                }),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(
+          height: 12.0,
+        ),
+        AdaptiveCardLayout(
+          key: mealAmountConsumedKey,
+          cardColor: activeCard,
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.amountConsumedQuestion,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(color: Theme.of(context).primaryColor),
+                ),
+                const SizedBox(
+                  height: 8.0,
+                ),
+                ...amountText.keys.map<Widget>((amount) {
+                  return RadioListTile<AmountConsumed>(
+                      title: Text(amountText[amount]!),
+                      value: amount,
+                      groupValue: amountConsumed?.value,
+                      onChanged: (newValue) {
+                        if (newValue == null) return;
+                        if (newValue == amountConsumed?.value) {
+                          setState(() {
+                            amountConsumed = null;
+                          });
+                        } else {
+                          setState(() {
+                            amountConsumed ??= RestorableEnum(
+                                AmountConsumed.undetermined,
+                                values: AmountConsumed.values);
+                            amountConsumed!.value = newValue;
+                          });
+                        }
+                      });
+                }),
+              ],
+            ),
+          ),
+        ),
+        Center(
+          child: FilledButton(
+            onPressed: () {},
+            child: Text(AppLocalizations.of(context)!.nextButton),
+          ),
+        ),
+        const SizedBox(
+          height: 25.0,
+        ),
+      ],
+    );
+  }
+
+  Future<void> _next(BlueDyeState? state) async {
+    if (state == null) {
+      showSnack(context, "Could not go next");
+    }
+    setState(() {
+      isLoading = true;
+    });
+    await ref
+        .read(testsHolderProvider.notifier)
+        .getTest<Test<BlueDyeState>>()
+        .then((test) {
+      test?.setTestState(
+          state!.copyWith(amountConsumed: amountConsumed!.value));
+    });
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  @override
+  String? get restorationId => "meal-stats-entry";
+
+  @override
+  void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
+    if (amountConsumed != null) {
+      registerForRestoration(amountConsumed!, "amount-consumed");
+    }
+  }
+}
+
+enum MealTime {
+  fifteenOrLess("15 minutes or less"),
+  fifteenToThrity("15 to 30 minutes"),
+  thirtyToHour("30 minutes to 1 hour"),
+  hourOrMore("Over 1 hour");
+
+  static List<MealTime> mealTimes = [
+    MealTime.fifteenOrLess,
+    MealTime.fifteenToThrity,
+    MealTime.thirtyToHour,
+    MealTime.hourOrMore
+  ];
+
+  final String value;
+
+  const MealTime(this.value);
+}
