@@ -255,9 +255,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
             displaying: activeStage,
           );
         }
-        return loaded?.stage == BlueDyeTestStage.amountConsumed
-            ? const AmountConsumedEntry()
-            : const TimerWidget();
+        return const MealStatsEntry();
       }
 
       if (!isPrevious && activeStage == BlueDyeProgression.stepThree) {

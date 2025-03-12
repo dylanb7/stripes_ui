@@ -491,97 +491,104 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
         const SizedBox(
           height: 12.0,
         ),
-        AdaptiveCardLayout(
-          key: mealTimeQuestionKey,
-          cardColor: activeCard,
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Column(
-              children: [
-                Text(
-                  AppLocalizations.of(context)!.amountConsumedQuestion,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(color: Theme.of(context).primaryColor),
-                ),
-                const SizedBox(
-                  height: 8.0,
-                ),
-                ...MealTime.mealTimes.map<Widget>((amount) {
-                  return RadioListTile<MealTime>(
-                      title: Text(amount.value),
-                      value: amount,
-                      groupValue: mealTime?.value,
-                      onChanged: (newValue) {
-                        if (newValue == null) return;
-                        if (newValue == mealTime?.value) {
-                          setState(() {
-                            mealTime = null;
-                          });
-                        } else {
-                          setState(() {
-                            mealTime ??= RestorableEnum(MealTime.fifteenOrLess,
-                                values: MealTime.mealTimes);
-                            mealTime!.value = newValue;
-                          });
-                        }
-                        if (mealAmountConsumedKey.currentContext != null) {
-                          Scrollable.ensureVisible(
-                              mealAmountConsumedKey.currentContext!,
-                              duration: Durations.medium1,
-                              alignmentPolicy:
-                                  ScrollPositionAlignmentPolicy.explicit,
-                              alignment: 30.0);
-                        }
-                      });
-                }),
-              ],
+        IgnorePointer(
+          ignoring: false,
+          child: AdaptiveCardLayout(
+            key: mealTimeQuestionKey,
+            cardColor: activeCard,
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                children: [
+                  Text(
+                    AppLocalizations.of(context)!.amountConsumedQuestion,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(color: Theme.of(context).primaryColor),
+                  ),
+                  const SizedBox(
+                    height: 8.0,
+                  ),
+                  ...MealTime.mealTimes.map<Widget>((amount) {
+                    return RadioListTile<MealTime>(
+                        title: Text(amount.value),
+                        value: amount,
+                        groupValue: mealTime?.value,
+                        onChanged: (newValue) {
+                          if (newValue == null) return;
+                          if (newValue == mealTime?.value) {
+                            setState(() {
+                              mealTime = null;
+                            });
+                          } else {
+                            setState(() {
+                              mealTime ??= RestorableEnum(
+                                  MealTime.fifteenOrLess,
+                                  values: MealTime.mealTimes);
+                              mealTime!.value = newValue;
+                            });
+                          }
+                          if (mealAmountConsumedKey.currentContext != null) {
+                            Scrollable.ensureVisible(
+                                mealAmountConsumedKey.currentContext!,
+                                duration: Durations.medium1,
+                                alignmentPolicy:
+                                    ScrollPositionAlignmentPolicy.explicit,
+                                alignment: 30.0);
+                          }
+                        });
+                  }),
+                ],
+              ),
             ),
           ),
         ),
         const SizedBox(
           height: 12.0,
         ),
-        AdaptiveCardLayout(
-          key: mealAmountConsumedKey,
-          cardColor: activeCard,
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Column(
-              children: [
-                Text(
-                  AppLocalizations.of(context)!.amountConsumedQuestion,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(color: Theme.of(context).primaryColor),
-                ),
-                const SizedBox(
-                  height: 8.0,
-                ),
-                ...amountText.keys.map<Widget>((amount) {
-                  return RadioListTile<AmountConsumed>(
-                      title: Text(amountText[amount]!),
-                      value: amount,
-                      groupValue: amountConsumed?.value,
-                      onChanged: (newValue) {
-                        if (newValue == null) return;
-                        if (newValue == amountConsumed?.value) {
-                          setState(() {
-                            amountConsumed = null;
-                          });
-                        } else {
-                          setState(() {
-                            amountConsumed ??= RestorableEnum(
-                                AmountConsumed.undetermined,
-                                values: AmountConsumed.values);
-                            amountConsumed!.value = newValue;
-                          });
-                        }
-                      });
-                }),
-              ],
+        IgnorePointer(
+          ignoring: mealTime == null,
+          child: AdaptiveCardLayout(
+            key: mealAmountConsumedKey,
+            cardColor: mealTime == null ? disabledColor : activeCard,
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                children: [
+                  Text(
+                    AppLocalizations.of(context)!.amountConsumedQuestion,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(color: Theme.of(context).primaryColor),
+                  ),
+                  const SizedBox(
+                    height: 8.0,
+                  ),
+                  ...amountText.keys.map<Widget>((amount) {
+                    return RadioListTile<AmountConsumed>(
+                        title: Text(amountText[amount]!),
+                        value: amount,
+                        groupValue: amountConsumed?.value,
+                        onChanged: (newValue) {
+                          if (newValue == null) return;
+                          if (newValue == amountConsumed?.value) {
+                            setState(() {
+                              amountConsumed = null;
+                            });
+                          } else {
+                            setState(() {
+                              amountConsumed ??= RestorableEnum(
+                                  AmountConsumed.undetermined,
+                                  values: AmountConsumed.values);
+                              amountConsumed!.value = newValue;
+                            });
+                          }
+                        });
+                  }),
+                ],
+              ),
             ),
           ),
         ),
