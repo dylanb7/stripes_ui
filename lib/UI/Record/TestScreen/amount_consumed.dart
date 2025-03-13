@@ -399,7 +399,9 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
 }
 
 class MealStatsEntry extends ConsumerStatefulWidget {
-  const MealStatsEntry({super.key});
+  final BlueDyeProgression clicked;
+
+  const MealStatsEntry({required this.clicked, super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
@@ -425,6 +427,15 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
 
   @override
   Widget build(BuildContext context) {
+    final Widget transitLabel = Text(
+      widget.clicked.value < 2
+          ? AppLocalizations.of(context)!.transitOneLabel
+          : AppLocalizations.of(context)!.transitTwoLabel,
+      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
+    );
+    final bool cardLayout =
+        getBreakpoint(context).isGreaterThan(Breakpoint.medium);
     final AsyncValue<BlueDyeTestProgress> progress =
         ref.watch(blueDyeTestProgressProvider);
     final BlueDyeState? testsState = ref.watch(testsHolderProvider
@@ -478,6 +489,13 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        cardLayout
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [transitLabel, const BlueMealInfoButton()],
+              )
+            : const Center(child: BlueMealInfoButton()),
         const SizedBox(
           height: 12,
         ),
@@ -490,6 +508,14 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (!cardLayout) ...[
+                  Center(
+                    child: transitLabel,
+                  ),
+                  const SizedBox(
+                    height: 8.0,
+                  ),
+                ],
                 Text(
                   AppLocalizations.of(context)!.blueMealFastHeader,
                   style: Theme.of(context)

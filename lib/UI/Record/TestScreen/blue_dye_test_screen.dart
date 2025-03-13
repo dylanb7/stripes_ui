@@ -255,7 +255,9 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
             displaying: activeStage,
           );
         }
-        return const MealStatsEntry();
+        return MealStatsEntry(
+          clicked: activeStage,
+        );
       }
 
       if (!isPrevious && activeStage == BlueDyeProgression.stepThree) {
@@ -540,7 +542,8 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
               thickness: lineThickness,
               color: previous || active ? primary : disabledColor,
             ),
-            Expanded(
+            SizedBox(
+              width: double.infinity,
               child: ColoredBox(
                 color: active
                     ? primaryLight
