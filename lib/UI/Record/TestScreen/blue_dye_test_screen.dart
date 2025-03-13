@@ -460,7 +460,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
       ),
     );
     return ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: Breakpoint.tiny.value / 2),
+        constraints: BoxConstraints(maxWidth: Breakpoint.tiny.value / 2.5),
         child: GestureDetector(
           onTap: () {
             if (currentIndex == step.value) return;

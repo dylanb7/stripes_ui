@@ -615,7 +615,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                         .blueMealFastInstructionLineThree
                   ],
                   highlight: false,
-                  mark: (index) => '${index + 1}',
+                  mark: (index) => '${index + 1}.',
                 )
               ],
             ),
