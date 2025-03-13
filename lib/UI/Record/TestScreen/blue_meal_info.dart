@@ -659,12 +659,15 @@ class LabeledList extends StatelessWidget {
 
   final bool highlight;
 
+  final double? padding;
+
   const LabeledList({
     required this.strings,
     required this.highlight,
     this.additions,
     this.title,
     this.mark,
+    this.padding = 4.0,
     super.key,
   });
 
@@ -723,7 +726,7 @@ class LabeledList extends StatelessWidget {
                     width: 2.0,
                     color: Theme.of(context).colorScheme.onPrimaryContainer)
                 : null),
-        padding: const EdgeInsets.all(4.0),
+        padding: padding != null ? EdgeInsets.all(padding!) : null,
         child: titleWidget);
   }
 }

@@ -166,17 +166,13 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
               right: 0,
               bottom: 0,
               child: Center(
-                child: SizedBox(
-                  width: 120,
-                  height: 50,
-                  child: FilledButton.icon(
-                    onPressed: () {
-                      _addUser(isName);
-                    },
-                    icon: const Icon(Icons.add),
-                    label: const Text(
-                      'Create New Profile',
-                    ),
+                child: FilledButton.icon(
+                  onPressed: () {
+                    _addUser(isName);
+                  },
+                  icon: const Icon(Icons.add),
+                  label: const Text(
+                    'Create New Profile',
                   ),
                 ),
               ),

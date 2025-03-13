@@ -165,6 +165,23 @@
     "transitOneLabel": "Transit Time 1",
     "transitTwoLabel": "Transit Time 2",
 
+    "blueMealFastHeader": "Step 1: Eat Blue Meal",
+    "blueMealFastQuestion": "Before starting, has the participant completed the required 6-8 hour fast?",
+
+    "blueMealFastInstructionLineOne": "Feed the (2) blue muffins to the participant",
+    "blueMealFastInstructionLineTwo": "Record how long it takes the participant to eat the (2) muffins",
+    "blueMealFastInstructionLineThree": "Once the participant has finished eating the (2) muffins, please record how much was eaten.",
+    "blueMealDurationTitle": "Meal Duration",
+    "blueMealDurationQuestion": "How long did the participant take to eat the (2) muffins?",
+
+    "blueMealDurationAnswerOne": "15 minutes or less",
+    "blueMealDurationAnswerTwo": "15 to 30 minutes",
+    "blueMealDurationAnswerThree": "30 minutes to 1 hour",
+    "blueMealDurationAnswerFour": "Over 1 hour",
+
+    "blueMealAmountConsumedTitle": "About the meal",
+
+
     "studyStepOneExplanationTitle": "Step 1: Eat Blue Meal (Transit Time 1)",
     "studyStepOneExplanationPreReq": "Before starting, ensure that the participant has completed a 6-8 hour fast.",
     "studyStepOneExplanationPartOne": "Take two of the four blue muffins provided for the study.",

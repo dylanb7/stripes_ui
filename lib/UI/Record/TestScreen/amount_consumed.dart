@@ -424,6 +424,16 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
 
   @override
   Widget build(BuildContext context) {
+    final AsyncValue<BlueDyeTestProgress> progress =
+        ref.watch(blueDyeTestProgressProvider);
+    final BlueDyeState? testsState = ref.watch(testsHolderProvider
+        .select((holder) => holder.valueOrNull?.getTestState<BlueDyeState>()));
+
+    if (progress.isLoading) return const LoadingWidget();
+
+    final BlueDyeProgression stage =
+        progress.valueOrNull?.getProgression() ?? BlueDyeProgression.stepOne;
+
     final Map<AmountConsumed, String> amountText = {
       AmountConsumed.halfOrLess:
           AppLocalizations.of(context)!.amountConsumedHalfOrLess,
@@ -431,22 +441,142 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
       AmountConsumed.moreThanHalf:
           AppLocalizations.of(context)!.amountConsumedHalfOrMore,
       AmountConsumed.all: AppLocalizations.of(context)!.amountConsumedAll,
+      AmountConsumed.undetermined:
+          AppLocalizations.of(context)!.amountConsumedUnable,
+    };
+
+    final Map<MealTime, String> mealTimesText = {
+      MealTime.fifteenOrLess:
+          AppLocalizations.of(context)!.blueMealDurationAnswerOne,
+      MealTime.fifteenToThrity:
+          AppLocalizations.of(context)!.blueMealDurationAnswerTwo,
+      MealTime.thirtyToHour:
+          AppLocalizations.of(context)!.blueMealDurationAnswerThree,
+      MealTime.hourOrMore:
+          AppLocalizations.of(context)!.blueMealDurationAnswerFour,
     };
 
     final Color activeCard =
         Theme.of(context).primaryColor.withValues(alpha: 0.2);
     final Color disabledColor = Theme.of(context).disabledColor;
+
+    void onFastTap(bool? state) {
+      setState(() {
+        completedFast.value = state;
+        if (mealTimeQuestionKey.currentContext != null && state != null) {
+          Scrollable.ensureVisible(
+            mealTimeQuestionKey.currentContext!,
+            duration: Durations.medium1,
+            alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+          );
+        }
+      });
+    }
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        stage == BlueDyeProgression.stepOne
+            ? const BlueStudyInstructionsPartOne()
+            : const BlueStudyInstructionsPartThree(),
+        const SizedBox(
+          height: 12,
+        ),
         AdaptiveCardLayout(
           key: fastQuestionKey,
           cardColor: activeCard,
           child: Padding(
             padding: const EdgeInsets.all(12.0),
             child: Column(
-              children: [],
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.blueMealFastHeader,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                RichText(
+                  text: TextSpan(
+                    text: ' *',
+                    style: const TextStyle(
+                      color: Colors.red,
+                    ),
+                    children: [
+                      TextSpan(
+                          text: AppLocalizations.of(context)!
+                              .blueMealFastQuestion,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(
+                                  color: Theme.of(context).primaryColor)),
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  height: 8.0,
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        onFastTap(completedFast.value == true ? null : true);
+                      },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(AppLocalizations.of(context)!.blueQuestionYes),
+                          Radio<bool>.adaptive(
+                              value: true,
+                              groupValue: completedFast.value,
+                              onChanged: (selected) {
+                                onFastTap(selected);
+                              })
+                        ],
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        onFastTap(completedFast.value == false ? null : false);
+                      },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(AppLocalizations.of(context)!.blueQuestionNo),
+                          Radio<bool>.adaptive(
+                              value: false,
+                              groupValue: completedFast.value,
+                              onChanged: (selected) {
+                                onFastTap(selected);
+                              })
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                LabeledList(
+                  strings: [
+                    AppLocalizations.of(context)!
+                        .blueMealFastInstructionLineOne,
+                    AppLocalizations.of(context)!
+                        .blueMealFastInstructionLineTwo,
+                    AppLocalizations.of(context)!
+                        .blueMealFastInstructionLineThree
+                  ],
+                  highlight: false,
+                  mark: (index) => '${index + 1}',
+                )
+              ],
             ),
           ),
         ),
@@ -463,18 +593,22 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
               child: Column(
                 children: [
                   Text(
-                    AppLocalizations.of(context)!.amountConsumedQuestion,
+                    AppLocalizations.of(context)!.blueMealDurationTitle,
                     style: Theme.of(context)
                         .textTheme
-                        .titleMedium
-                        ?.copyWith(color: Theme.of(context).primaryColor),
+                        .bodyMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    AppLocalizations.of(context)!.blueMealDurationQuestion,
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   const SizedBox(
                     height: 8.0,
                   ),
-                  ...MealTime.mealTimes.map<Widget>((amount) {
+                  ...mealTimesText.keys.map<Widget>((amount) {
                     return RadioListTile<MealTime>(
-                        title: Text(amount.value),
+                        title: Text(mealTimesText[amount]!),
                         value: amount,
                         groupValue: mealTime.value,
                         onChanged: (newValue) {
@@ -488,13 +622,14 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                               mealTime.value = newValue;
                             });
                           }
-                          if (mealAmountConsumedKey.currentContext != null) {
+                          if (mealAmountConsumedKey.currentContext != null &&
+                              mealTime.value != null) {
                             Scrollable.ensureVisible(
-                                mealAmountConsumedKey.currentContext!,
-                                duration: Durations.medium1,
-                                alignmentPolicy:
-                                    ScrollPositionAlignmentPolicy.explicit,
-                                alignment: 30.0);
+                              mealAmountConsumedKey.currentContext!,
+                              duration: Durations.medium1,
+                              alignmentPolicy: ScrollPositionAlignmentPolicy
+                                  .keepVisibleAtEnd,
+                            );
                           }
                         });
                   }),
@@ -516,11 +651,15 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
               child: Column(
                 children: [
                   Text(
-                    AppLocalizations.of(context)!.amountConsumedQuestion,
+                    AppLocalizations.of(context)!.blueMealAmountConsumedTitle,
                     style: Theme.of(context)
                         .textTheme
-                        .titleMedium
-                        ?.copyWith(color: Theme.of(context).primaryColor),
+                        .bodyMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    AppLocalizations.of(context)!.amountConsumedQuestion,
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   const SizedBox(
                     height: 8.0,
@@ -550,7 +689,11 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
         ),
         Center(
           child: FilledButton(
-            onPressed: () {},
+            onPressed: mealTime.value != null &&
+                    amountConsumed.value != null &&
+                    completedFast.value != null
+                ? () {}
+                : null,
             child: Text(AppLocalizations.of(context)!.nextButton),
           ),
         ),

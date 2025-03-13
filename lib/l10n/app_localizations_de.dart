@@ -352,6 +352,42 @@ class AppLocalizationsDe extends AppLocalizations {
   String get transitTwoLabel => 'Transit Time 2';
 
   @override
+  String get blueMealFastHeader => 'Step 1: Eat Blue Meal';
+
+  @override
+  String get blueMealFastQuestion => 'Before starting, has the participant completed the required 6-8 hour fast?';
+
+  @override
+  String get blueMealFastInstructionLineOne => 'Feed the (2) blue muffins to the participant';
+
+  @override
+  String get blueMealFastInstructionLineTwo => 'Record how long it takes the participant to eat the (2) muffins';
+
+  @override
+  String get blueMealFastInstructionLineThree => 'Once the participant has finished eating the (2) muffins, please record how much was eaten.';
+
+  @override
+  String get blueMealDurationTitle => 'Meal Duration';
+
+  @override
+  String get blueMealDurationQuestion => 'How long did the participant take to eat the (2) muffins?';
+
+  @override
+  String get blueMealDurationAnswerOne => '15 minutes or less';
+
+  @override
+  String get blueMealDurationAnswerTwo => '15 to 30 minutes';
+
+  @override
+  String get blueMealDurationAnswerThree => '30 minutes to 1 hour';
+
+  @override
+  String get blueMealDurationAnswerFour => 'Over 1 hour';
+
+  @override
+  String get blueMealAmountConsumedTitle => 'About the meal';
+
+  @override
   String get studyStepOneExplanationTitle => 'Step 1: Eat Blue Meal (Transit Time 1)';
 
   @override

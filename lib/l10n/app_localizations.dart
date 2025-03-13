@@ -757,6 +757,78 @@ abstract class AppLocalizations {
   /// **'Transit Time 2'**
   String get transitTwoLabel;
 
+  /// No description provided for @blueMealFastHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 1: Eat Blue Meal'**
+  String get blueMealFastHeader;
+
+  /// No description provided for @blueMealFastQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Before starting, has the participant completed the required 6-8 hour fast?'**
+  String get blueMealFastQuestion;
+
+  /// No description provided for @blueMealFastInstructionLineOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Feed the (2) blue muffins to the participant'**
+  String get blueMealFastInstructionLineOne;
+
+  /// No description provided for @blueMealFastInstructionLineTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'Record how long it takes the participant to eat the (2) muffins'**
+  String get blueMealFastInstructionLineTwo;
+
+  /// No description provided for @blueMealFastInstructionLineThree.
+  ///
+  /// In en, this message translates to:
+  /// **'Once the participant has finished eating the (2) muffins, please record how much was eaten.'**
+  String get blueMealFastInstructionLineThree;
+
+  /// No description provided for @blueMealDurationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Meal Duration'**
+  String get blueMealDurationTitle;
+
+  /// No description provided for @blueMealDurationQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'How long did the participant take to eat the (2) muffins?'**
+  String get blueMealDurationQuestion;
+
+  /// No description provided for @blueMealDurationAnswerOne.
+  ///
+  /// In en, this message translates to:
+  /// **'15 minutes or less'**
+  String get blueMealDurationAnswerOne;
+
+  /// No description provided for @blueMealDurationAnswerTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'15 to 30 minutes'**
+  String get blueMealDurationAnswerTwo;
+
+  /// No description provided for @blueMealDurationAnswerThree.
+  ///
+  /// In en, this message translates to:
+  /// **'30 minutes to 1 hour'**
+  String get blueMealDurationAnswerThree;
+
+  /// No description provided for @blueMealDurationAnswerFour.
+  ///
+  /// In en, this message translates to:
+  /// **'Over 1 hour'**
+  String get blueMealDurationAnswerFour;
+
+  /// No description provided for @blueMealAmountConsumedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'About the meal'**
+  String get blueMealAmountConsumedTitle;
+
   /// No description provided for @studyStepOneExplanationTitle.
   ///
   /// In en, this message translates to:
