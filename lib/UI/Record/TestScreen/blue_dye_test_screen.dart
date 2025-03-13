@@ -460,129 +460,132 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
         ),
       ),
     );
-    return GestureDetector(
-      onTap: () {
-        if (currentIndex == step.value) return;
-        if (step.value > activeIndex) {
-          showSnack(
-              context,
-              AppLocalizations.of(context)!
-                  .stepClickWarning("${step.value + 1}"));
-          return;
-        }
-        _changePage(step.value);
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(
-            Radius.circular(8.0),
-          ),
-          border: Border.all(
-              width: lineThickness,
-              color: previous
-                  ? primary
-                  : active
-                      ? Colors.transparent
-                      : disabledColor),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(8.0),
-                    topRight: Radius.circular(8.0),
-                  ),
-                  color: active
+    return ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: Breakpoint.tiny.value / 2),
+        child: GestureDetector(
+          onTap: () {
+            if (currentIndex == step.value) return;
+            if (step.value > activeIndex) {
+              showSnack(
+                  context,
+                  AppLocalizations.of(context)!
+                      .stepClickWarning("${step.value + 1}"));
+              return;
+            }
+            _changePage(step.value);
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(
+                Radius.circular(8.0),
+              ),
+              border: Border.all(
+                  width: lineThickness,
+                  color: previous
                       ? primary
-                      : previous
-                          ? completedColor
-                          : surface,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      stepCircle,
-                      const SizedBox(
-                        width: 12.0,
+                      : active
+                          ? Colors.transparent
+                          : disabledColor),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(8.0),
+                        topRight: Radius.circular(8.0),
                       ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      color: active
+                          ? primary
+                          : previous
+                              ? completedColor
+                              : surface,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Text(
-                            "Step ${step.value + 1}",
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineSmall
-                                ?.copyWith(
-                                    color: previous
-                                        ? primary
-                                        : active
-                                            ? surface
-                                            : textColor),
+                          stepCircle,
+                          const SizedBox(
+                            width: 12.0,
                           ),
-                          Text(
-                            activeIndex > step.value
-                                ? "Completed"
-                                : step.getLabel(context),
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.copyWith(color: active ? surface : textColor),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Step ${step.value + 1}",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineSmall
+                                    ?.copyWith(
+                                        color: previous
+                                            ? primary
+                                            : active
+                                                ? surface
+                                                : textColor),
+                              ),
+                              Text(
+                                activeIndex > step.value
+                                    ? "Completed"
+                                    : step.getLabel(context),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                        color: active ? surface : textColor),
+                              )
+                            ],
                           )
                         ],
-                      )
+                      ),
+                    ),
+                  ),
+                ),
+                Divider(
+                  height: 1,
+                  thickness: lineThickness,
+                  color: previous || active ? primary : disabledColor,
+                ),
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(8.0),
+                      bottomRight: Radius.circular(8.0),
+                    ),
+                    color: active
+                        ? primaryLight
+                        : previous
+                            ? completedColor
+                            : disabledColor,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      const SizedBox(
+                        width: 6.0,
+                      ),
+                      Text(
+                        step.value < 2
+                            ? AppLocalizations.of(context)!.transitOneLabel
+                            : AppLocalizations.of(context)!.transitTwoLabel,
+                        textAlign: TextAlign.start,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: active || !previous ? surface : primary),
+                      ),
                     ],
                   ),
                 ),
-              ),
+              ],
             ),
-            Divider(
-              height: 1,
-              thickness: lineThickness,
-              color: previous || active ? primary : disabledColor,
-            ),
-            DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(8.0),
-                  bottomRight: Radius.circular(8.0),
-                ),
-                color: active
-                    ? primaryLight
-                    : previous
-                        ? completedColor
-                        : disabledColor,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const SizedBox(
-                    width: 6.0,
-                  ),
-                  Text(
-                    step.value < 2
-                        ? AppLocalizations.of(context)!.transitOneLabel
-                        : AppLocalizations.of(context)!.transitTwoLabel,
-                    textAlign: TextAlign.start,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: active || !previous ? surface : primary),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    ).showCursorOnHover;
+          ),
+        ).showCursorOnHover);
   }
 
   _changePage(int newIndex) {
