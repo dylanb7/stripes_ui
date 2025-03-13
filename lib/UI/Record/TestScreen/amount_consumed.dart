@@ -8,6 +8,7 @@ import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/card_layout_helper.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
+import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -498,7 +499,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                 ),
                 RichText(
                   text: TextSpan(
-                    text: ' *',
+                    text: '* ',
                     style: const TextStyle(
                       color: Colors.red,
                     ),
@@ -517,58 +518,63 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                 const SizedBox(
                   height: 8.0,
                 ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        onFastTap(completedFast.value == true ? null : true);
-                      },
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Radio<bool>(
-                              value: true,
-                              groupValue: completedFast.value,
-                              onChanged: (selected) {
-                                onFastTap(
-                                    completedFast.value == true ? null : true);
-                              }),
-                          const SizedBox(
-                            width: 4.0,
-                          ),
-                          Text(AppLocalizations.of(context)!.blueQuestionYes),
-                        ],
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: Breakpoint.tiny.value),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          onFastTap(completedFast.value == true ? null : true);
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Radio<bool>(
+                                value: true,
+                                groupValue: completedFast.value,
+                                onChanged: (selected) {
+                                  onFastTap(completedFast.value == true
+                                      ? null
+                                      : true);
+                                }),
+                            const SizedBox(
+                              width: 2.0,
+                            ),
+                            Text(AppLocalizations.of(context)!.blueQuestionYes),
+                          ],
+                        ),
                       ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        onFastTap(completedFast.value == false ? null : false);
-                      },
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Radio<bool>(
-                              value: false,
-                              groupValue: completedFast.value,
-                              onChanged: (selected) {
-                                onFastTap(completedFast.value == false
-                                    ? null
-                                    : false);
-                              }),
-                          const SizedBox(
-                            width: 4.0,
-                          ),
-                          Text(AppLocalizations.of(context)!.blueQuestionNo),
-                        ],
+                      GestureDetector(
+                        onTap: () {
+                          onFastTap(
+                              completedFast.value == false ? null : false);
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Radio<bool>(
+                                value: false,
+                                groupValue: completedFast.value,
+                                onChanged: (selected) {
+                                  onFastTap(completedFast.value == false
+                                      ? null
+                                      : false);
+                                }),
+                            const SizedBox(
+                              width: 2.0,
+                            ),
+                            Text(AppLocalizations.of(context)!.blueQuestionNo),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 LabeledList(
                   strings: [
@@ -657,6 +663,8 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
             child: Padding(
               padding: const EdgeInsets.all(12.0),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
                     AppLocalizations.of(context)!.blueMealAmountConsumedTitle,
@@ -699,6 +707,9 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
             ),
           ),
         ),
+        const SizedBox(
+          height: 8.0,
+        ),
         Center(
           child: FilledButton(
             onPressed: mealTime.value != null &&
@@ -727,7 +738,9 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
         .read(testsHolderProvider.notifier)
         .getTest<Test<BlueDyeState>>()
         .then((test) {
-      test?.setTestState(state!.copyWith(amountConsumed: amountConsumed.value));
+      test?.setTestState(state!.copyWith(
+        amountConsumed: amountConsumed.value,
+      ));
     });
     setState(() {
       isLoading = false;

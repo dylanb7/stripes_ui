@@ -409,7 +409,8 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
               Radius.circular(8.0),
             ),
             color: previous ? completedColor : surface,
-            border: Border.all(width: 1, color: active ? primary : textColor),
+            border:
+                Border.all(width: 1, color: active ? primary : disabledColor),
           ),
           child: Padding(
             padding: const EdgeInsets.all(12.0),
@@ -539,31 +540,33 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
               thickness: lineThickness,
               color: previous || active ? primary : disabledColor,
             ),
-            ColoredBox(
-              color: active
-                  ? primaryLight
-                  : previous
-                      ? completedColor
-                      : disabledColor,
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const SizedBox(
-                    width: 6.0,
-                  ),
-                  Text(
-                    step.value < 2
-                        ? AppLocalizations.of(context)!.transitOneLabel
-                        : AppLocalizations.of(context)!.transitTwoLabel,
-                    textAlign: TextAlign.start,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: active || !previous ? surface : primary),
-                  ),
-                ],
+            Expanded(
+              child: ColoredBox(
+                color: active
+                    ? primaryLight
+                    : previous
+                        ? completedColor
+                        : disabledColor,
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const SizedBox(
+                      width: 6.0,
+                    ),
+                    Text(
+                      step.value < 2
+                          ? AppLocalizations.of(context)!.transitOneLabel
+                          : AppLocalizations.of(context)!.transitTwoLabel,
+                      textAlign: TextAlign.start,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: active || !previous ? surface : primary),
+                    ),
+                  ],
+                ),
               ),
-            )
+            ),
           ],
         ),
       ),
