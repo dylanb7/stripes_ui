@@ -534,11 +534,12 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text(AppLocalizations.of(context)!.blueQuestionYes),
-                          Radio<bool>.adaptive(
+                          Radio<bool>(
                               value: true,
                               groupValue: completedFast.value,
                               onChanged: (selected) {
-                                onFastTap(selected);
+                                onFastTap(
+                                    completedFast.value == true ? null : true);
                               })
                         ],
                       ),
@@ -553,11 +554,13 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text(AppLocalizations.of(context)!.blueQuestionNo),
-                          Radio<bool>.adaptive(
+                          Radio<bool>(
                               value: false,
                               groupValue: completedFast.value,
                               onChanged: (selected) {
-                                onFastTap(selected);
+                                onFastTap(completedFast.value == false
+                                    ? null
+                                    : false);
                               })
                         ],
                       ),
