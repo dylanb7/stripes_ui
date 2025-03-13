@@ -485,16 +485,21 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                       ? Colors.transparent
                       : disabledColor),
         ),
-        clipBehavior: Clip.hardEdge,
         child: Column(
           children: [
             Expanded(
-              child: ColoredBox(
-                color: active
-                    ? primary
-                    : previous
-                        ? completedColor
-                        : surface,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(8.0),
+                    topRight: Radius.circular(8.0),
+                  ),
+                  color: active
+                      ? primary
+                      : previous
+                          ? completedColor
+                          : surface,
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Row(
@@ -542,32 +547,35 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
               thickness: lineThickness,
               color: previous || active ? primary : disabledColor,
             ),
-            SizedBox(
-              width: double.infinity,
-              child: ColoredBox(
+            DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(8.0),
+                  bottomRight: Radius.circular(8.0),
+                ),
                 color: active
                     ? primaryLight
                     : previous
                         ? completedColor
                         : disabledColor,
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    const SizedBox(
-                      width: 6.0,
-                    ),
-                    Text(
-                      step.value < 2
-                          ? AppLocalizations.of(context)!.transitOneLabel
-                          : AppLocalizations.of(context)!.transitTwoLabel,
-                      textAlign: TextAlign.start,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: active || !previous ? surface : primary),
-                    ),
-                  ],
-                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const SizedBox(
+                    width: 6.0,
+                  ),
+                  Text(
+                    step.value < 2
+                        ? AppLocalizations.of(context)!.transitOneLabel
+                        : AppLocalizations.of(context)!.transitTwoLabel,
+                    textAlign: TextAlign.start,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: active || !previous ? surface : primary),
+                  ),
+                ],
               ),
             ),
           ],
