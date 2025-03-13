@@ -486,6 +486,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                       : disabledColor),
         ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
               child: DecoratedBox(
