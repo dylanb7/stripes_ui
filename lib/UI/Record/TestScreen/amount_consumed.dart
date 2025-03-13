@@ -477,9 +477,6 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        stage == BlueDyeProgression.stepOne
-            ? const BlueStudyInstructionsPartOne()
-            : const BlueStudyInstructionsPartThree(),
         const SizedBox(
           height: 12,
         ),
