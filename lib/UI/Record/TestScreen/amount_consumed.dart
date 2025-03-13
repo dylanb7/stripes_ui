@@ -530,14 +530,17 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Text(AppLocalizations.of(context)!.blueQuestionYes),
                           Radio<bool>(
                               value: true,
                               groupValue: completedFast.value,
                               onChanged: (selected) {
                                 onFastTap(
                                     completedFast.value == true ? null : true);
-                              })
+                              }),
+                          const SizedBox(
+                            width: 4.0,
+                          ),
+                          Text(AppLocalizations.of(context)!.blueQuestionYes),
                         ],
                       ),
                     ),
@@ -550,7 +553,6 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Text(AppLocalizations.of(context)!.blueQuestionNo),
                           Radio<bool>(
                               value: false,
                               groupValue: completedFast.value,
@@ -558,7 +560,11 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                                 onFastTap(completedFast.value == false
                                     ? null
                                     : false);
-                              })
+                              }),
+                          const SizedBox(
+                            width: 4.0,
+                          ),
+                          Text(AppLocalizations.of(context)!.blueQuestionNo),
                         ],
                       ),
                     ),
@@ -584,13 +590,15 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
           height: 12.0,
         ),
         IgnorePointer(
-          ignoring: false,
+          ignoring: completedFast.value == null,
           child: AdaptiveCardLayout(
             key: mealTimeQuestionKey,
-            cardColor: activeCard,
+            cardColor: completedFast.value == null ? disabledColor : activeCard,
             child: Padding(
               padding: const EdgeInsets.all(12.0),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
                     AppLocalizations.of(context)!.blueMealDurationTitle,
@@ -680,6 +688,10 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                               amountConsumed.value = newValue;
                             });
                           }
+                          Scrollable.ensureVisible(context,
+                              duration: Durations.medium1,
+                              alignmentPolicy: ScrollPositionAlignmentPolicy
+                                  .keepVisibleAtEnd);
                         });
                   }),
                 ],
