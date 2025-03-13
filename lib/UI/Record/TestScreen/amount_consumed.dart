@@ -490,10 +490,13 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         cardLayout
-            ? Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [transitLabel, const BlueMealInfoButton()],
+            ? Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [transitLabel, const BlueMealInfoButton()],
+                ),
               )
             : const Center(child: BlueMealInfoButton()),
         const SizedBox(

@@ -329,8 +329,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                         ],
                       )
                     : pageView
-                : SizedBox(
-                    width: double.infinity,
+                : Expanded(
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
