@@ -803,7 +803,16 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
               height: 12.0,
             ),
             AdaptiveCardLayout(
-              cardColor: Colors.yellow.withValues(alpha: 0.2),
+                cardColor: panelColor,
+                child: const Padding(
+                  padding: EdgeInsets.all(12.0),
+                  child: Column(),
+                )),
+            const SizedBox(
+              height: 12.0,
+            ),
+            AdaptiveCardLayout(
+              cardColor: Colors.yellow.withValues(alpha: 0.35),
               child: Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Text(AppLocalizations.of(context)!
@@ -862,15 +871,14 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
                                   .secondary
                                   .withValues(alpha: 0.2),
                             ),
+                            side: WidgetStateProperty.all(BorderSide(
+                                color: Theme.of(context).colorScheme.secondary,
+                                width: 2.0)),
                             shape: WidgetStateProperty.all(
-                              RoundedRectangleBorder(
-                                borderRadius: const BorderRadius.all(
+                              const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(
                                   Radius.circular(4.0),
                                 ),
-                                side: BorderSide(
-                                    color:
-                                        Theme.of(context).colorScheme.secondary,
-                                    width: 1),
                               ),
                             ),
                           ),
