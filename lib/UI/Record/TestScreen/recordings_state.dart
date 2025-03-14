@@ -120,7 +120,6 @@ class RecordingsView extends ConsumerWidget {
                               .textTheme
                               .bodyMedium
                               ?.copyWith(fontWeight: FontWeight.bold),
-                          textAlign: TextAlign.center,
                         )),
                       const SizedBox(
                         height: 12.0,

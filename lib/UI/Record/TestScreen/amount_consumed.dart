@@ -118,7 +118,6 @@ class MealFinishedDisplay extends ConsumerWidget {
                 : const Center(
                     child: BlueMealInfoButton(),
                   ),
-            const Center(child: BlueMealInfoButton()),
             const SizedBox(
               height: 6.0,
             ),

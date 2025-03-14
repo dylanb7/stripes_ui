@@ -280,7 +280,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
           clicked: activeStage,
         );
       }
-      return const RecordingsState();
+      return const RecordingsInProgress();
     }
 
     final Widget pageView = PageView(
@@ -306,7 +306,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
           ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 120.0),
             child: shouldWrap
-                ?  kIsWeb
+                ? kIsWeb
                     ? Row(
                         children: [
                           IconButton(

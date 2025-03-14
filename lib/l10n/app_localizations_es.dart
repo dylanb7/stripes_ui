@@ -122,7 +122,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get preStudySeeing => 'Why am I seeing this:';
 
   @override
-  String get preStudySeeingExp => 'If you are on this page, it\'s because you indicated that you were willing to participate in the Blue Meal Study (BMS). If you feel this is incorrect, please let us know at help@symplifysolutions.com.';
+  String get preStudySeeingExp => 'If you are on this page, it\'s because you indicated that you were willing to participate in the Blue Meal Study (BMS). If you feel this is incorrect, please let us know at BlueMeal@iu.edu.';
 
   @override
   String get preStudyEnrollTitle => 'Ready to Start?';
@@ -137,7 +137,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get preStudyEnrollButton => 'I am ready to start Step 1';
 
   @override
-  String get inStudySeeingExp => 'Note: If you are returning to this page, please make sure to complete all the steps in the study flow. If you have any questions or concerns, don\'t hesitate to contact us at help@symplifysolutions.com.';
+  String get inStudySeeingExp => 'Note: If you are returning to this page, please make sure to complete all the steps in the study flow. If you have any questions or concerns, don\'t hesitate to contact us at BlueMeal@iu.edu.';
 
   @override
   String get inStudyWithdrawTitle => 'Withdraw from Study';

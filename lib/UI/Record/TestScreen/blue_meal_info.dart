@@ -20,8 +20,13 @@ class BlueMealPreStudy extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          ColoredBox(
-            color: Colors.yellow.withValues(alpha: 0.5),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: Colors.yellow.withValues(alpha: 0.2),
+              borderRadius: const BorderRadius.all(
+                Radius.circular(4.0),
+              ),
+            ),
             child: Padding(
                 padding: const EdgeInsets.all(4.0),
                 child: Column(
@@ -293,7 +298,13 @@ class BlueMealStudyInstructions extends StatelessWidget {
           height: 12.0,
         ),
         LabeledList(
-            title: Text(AppLocalizations.of(context)!.studyFlowPrepTitle),
+            title: Text(
+              AppLocalizations.of(context)!.studyFlowPrepTitle,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.bold),
+            ),
             strings: [
               AppLocalizations.of(context)!.studyFlowPrepOne,
               AppLocalizations.of(context)!.studyFlowPrepTwo,
@@ -687,7 +698,7 @@ class LabeledList extends StatelessWidget {
             Text(marker(index.key),
                 style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(
-              width: 5,
+              width: 4.0,
             ),
             Expanded(
               child: Text(
@@ -709,7 +720,7 @@ class LabeledList extends StatelessWidget {
             children: [
               title!,
               Padding(
-                padding: const EdgeInsets.only(left: 16.0, top: 4.0),
+                padding: const EdgeInsets.only(left: 12.0, top: 4.0),
                 child: list,
               ),
               if (additions != null) ...additions!
