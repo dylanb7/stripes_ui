@@ -853,6 +853,12 @@ abstract class AppLocalizations {
   /// **'About the meal'**
   String get blueMealAmountConsumedTitle;
 
+  /// No description provided for @blueMealRecordInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'To record a Bowel Movement, go to the Study tab and tap record, or go to the record tab and select Bowel Movement.'**
+  String get blueMealRecordInstructions;
+
   /// No description provided for @studyStepOneExplanationTitle.
   ///
   /// In en, this message translates to:

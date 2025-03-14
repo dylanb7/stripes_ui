@@ -22,6 +22,8 @@ class MealFinishedDisplay extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final bool cardLayout =
+        getBreakpoint(context).isGreaterThan(Breakpoint.medium);
     final AsyncValue<BlueDyeTestProgress> progress =
         ref.watch(blueDyeTestProgressProvider);
 
@@ -46,6 +48,14 @@ class MealFinishedDisplay extends ConsumerWidget {
           AppLocalizations.of(context)!.amountConsumedHalfOrMore,
       AmountConsumed.all: AppLocalizations.of(context)!.amountConsumedAll,
     };
+
+    final Widget transitLabel = Text(
+      displaying.value < 2
+          ? AppLocalizations.of(context)!.transitOneLabel
+          : AppLocalizations.of(context)!.transitTwoLabel,
+      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
+    );
 
     BlueMealStats getMealStats() {
       final bool testOngoing = (progress.valueOrNull?.testIteration ?? 0) < 2 ||
@@ -84,135 +94,145 @@ class MealFinishedDisplay extends ConsumerWidget {
 
     final BlueMealStats mealStats = getMealStats();
     final double iconSize = Theme.of(context).iconTheme.size ?? 20;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        const SizedBox(
-          height: 6.0,
-        ),
-        const Center(child: BlueMealInfoButton()),
-        const SizedBox(
-          height: 6.0,
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 8.0),
-          child: Text(
-            displaying == BlueDyeProgression.stepThree
-                ? AppLocalizations.of(context)!.studyStepThreeExplanationTitle
-                : AppLocalizations.of(context)!.studyStepOneExplanationTitle,
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(fontWeight: FontWeight.bold),
-          ),
-        ),
-        AdaptiveCardLayout(
-          cardColor: cardColor,
-          borderColor: Theme.of(context).primaryColor,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                Text(
-                  AppLocalizations.of(context)!.mealCompleteTitle,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                if (mealStats.start != null) ...[
-                  const SizedBox(
-                    height: 8.0,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      const Icon(Icons.alarm),
-                      const SizedBox(
-                        width: 6.0,
-                      ),
-                      if (mealStats.start != null)
-                        Text(AppLocalizations.of(context)!
-                            .mealCompleteStartTime(
-                                mealStats.start!, mealStats.start!))
-                    ],
-                  ),
-                ],
-                if (mealStats.duration != null) ...[
-                  const SizedBox(
-                    height: 8.0,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      SvgPicture.asset(
-                        'packages/stripes_ui/assets/svg/muffin_icon.svg',
-                        width: iconSize,
-                        height: iconSize,
-                      ),
-                      const SizedBox(
-                        width: 6.0,
-                      ),
-                      if (mealStats.duration != null)
-                        Text(
-                            "${AppLocalizations.of(context)!.mealCompleteDuration} ${from(mealStats.duration!, context)}")
-                    ],
-                  ),
-                ],
-                if (mealStats.amountConsumed != null) ...[
-                  const SizedBox(
-                    height: 8.0,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      const Icon(Icons.blur_linear),
-                      const SizedBox(
-                        width: 6.0,
-                      ),
-                      Flexible(
-                        child: Text(
-                          "${AppLocalizations.of(context)!.mealCompleteAmountConsumed} ${amountText[mealStats.amountConsumed!]!}",
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-                const SizedBox(
-                  height: 8.0,
-                ),
-                Text(
-                  displaying == BlueDyeProgression.stepThree
-                      ? AppLocalizations.of(context)!.stepThreeCompletedText
-                      : AppLocalizations.of(context)!.stepOneCompletedText,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(
-                  height: 8.0,
-                ),
-              ],
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: cardLayout ? 20.0 : 0),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+            maxWidth: cardLayout ? Breakpoint.small.value : double.infinity),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            const SizedBox(
+              height: 6.0,
             ),
-          ),
+            cardLayout
+                ? ConstrainedBox(
+                    constraints:
+                        BoxConstraints(maxWidth: Breakpoint.medium.value),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [transitLabel, const BlueMealInfoButton()],
+                    ),
+                  )
+                : const Center(
+                    child: BlueMealInfoButton(),
+                  ),
+            const Center(child: BlueMealInfoButton()),
+            const SizedBox(
+              height: 6.0,
+            ),
+            AdaptiveCardLayout(
+              cardColor: cardColor,
+              borderColor: Theme.of(context).primaryColor,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    if (!cardLayout) ...[transitLabel, const Divider()],
+                    Text(
+                      AppLocalizations.of(context)!.mealCompleteTitle,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    if (mealStats.start != null) ...[
+                      const SizedBox(
+                        height: 8.0,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.alarm),
+                          const SizedBox(
+                            width: 6.0,
+                          ),
+                          if (mealStats.start != null)
+                            Text(AppLocalizations.of(context)!
+                                .mealCompleteStartTime(
+                                    mealStats.start!, mealStats.start!))
+                        ],
+                      ),
+                    ],
+                    if (mealStats.duration != null) ...[
+                      const SizedBox(
+                        height: 8.0,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          SvgPicture.asset(
+                            'packages/stripes_ui/assets/svg/muffin_icon.svg',
+                            width: iconSize,
+                            height: iconSize,
+                          ),
+                          const SizedBox(
+                            width: 6.0,
+                          ),
+                          if (mealStats.duration != null)
+                            Text(
+                                "${AppLocalizations.of(context)!.mealCompleteDuration} ${from(mealStats.duration!, context)}")
+                        ],
+                      ),
+                    ],
+                    if (mealStats.amountConsumed != null) ...[
+                      const SizedBox(
+                        height: 8.0,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.blur_linear),
+                          const SizedBox(
+                            width: 6.0,
+                          ),
+                          Flexible(
+                            child: Text(
+                              "${AppLocalizations.of(context)!.mealCompleteAmountConsumed} ${amountText[mealStats.amountConsumed!]!}",
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                    const SizedBox(
+                      height: 8.0,
+                    ),
+                    Text(
+                      displaying == BlueDyeProgression.stepThree
+                          ? AppLocalizations.of(context)!.stepThreeCompletedText
+                          : AppLocalizations.of(context)!.stepOneCompletedText,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(
+                      height: 8.0,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 12.0,
+            ),
+            Center(
+              child: FilledButton(
+                onPressed: () {
+                  next();
+                },
+                child: Text(AppLocalizations.of(context)!.nextButton),
+              ),
+            ),
+            const SizedBox(
+              height: 25.0,
+            ),
+          ],
         ),
-        const SizedBox(
-          height: 12.0,
-        ),
-        Center(
-          child: FilledButton(
-            onPressed: () {
-              next();
-            },
-            child: Text(AppLocalizations.of(context)!.nextButton),
-          ),
-        ),
-        const SizedBox(
-          height: 25.0,
-        ),
-      ],
+      ),
     );
   }
 }

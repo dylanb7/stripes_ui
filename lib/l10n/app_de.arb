@@ -182,6 +182,8 @@
 
     "blueMealAmountConsumedTitle": "About the meal",
 
+    "blueMealRecordInstructions": "To record a Bowel Movement, go to the Study tab and tap record, or go to the record tab and select Bowel Movement.",
+
 
     "studyStepOneExplanationTitle": "Step 1: Eat Blue Meal (Transit Time 1)",
     "studyStepOneExplanationPreReq": "Before starting, ensure that the participant has completed a 6-8 hour fast.",

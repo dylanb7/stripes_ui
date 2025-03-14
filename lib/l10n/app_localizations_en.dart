@@ -400,6 +400,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get blueMealAmountConsumedTitle => 'About the meal';
 
   @override
+  String get blueMealRecordInstructions => 'To record a Bowel Movement, go to the Study tab and tap record, or go to the record tab and select Bowel Movement.';
+
+  @override
   String get studyStepOneExplanationTitle => 'Step 1: Eat Blue Meal';
 
   @override

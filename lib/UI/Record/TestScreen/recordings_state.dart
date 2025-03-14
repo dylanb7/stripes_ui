@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:duration/duration.dart';
 import 'package:duration/locale.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -201,10 +202,13 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
           height: 6.0,
         ),
         cardLayout
-            ? Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [waitingLabel, const BlueMealInfoButton()],
+            ? ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: Breakpoint.medium.value),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [waitingLabel, const BlueMealInfoButton()],
+                ),
               )
             : const Center(child: BlueMealInfoButton()),
         const SizedBox(
@@ -248,7 +252,7 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
                 const SizedBox(
                   height: 4.0,
                 ),
-                if (!canProgress)
+                if (!canProgress && !kIsWeb)
                   RichText(
                       text: TextSpan(
                           text: AppLocalizations.of(context)!
@@ -256,6 +260,7 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
                           style: Theme.of(context).textTheme.bodyMedium,
                           children: [
                         WidgetSpan(
+                          alignment: PlaceholderAlignment.belowBaseline,
                           child: IconButton(
                               onPressed: () {
                                 Add2Calendar.addEvent2Cal(
@@ -716,6 +721,171 @@ class _RecordingsState extends ConsumerState<RecordingsState> {
                         },
                         child: Text(
                             AppLocalizations.of(context)!.studyRecordBMButton),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 12.0,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 35.0,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class RecordingsInProgress extends ConsumerStatefulWidget {
+  const RecordingsInProgress({super.key});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() {
+    return _RecordingsInProgressState();
+  }
+}
+
+class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
+  bool isLoading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final bool cardLayout =
+        getBreakpoint(context).isGreaterThan(Breakpoint.medium);
+    final Color panelColor =
+        Theme.of(context).primaryColor.withValues(alpha: 0.2);
+    final BlueDyeState? blueDyeState = ref.watch(testsHolderProvider
+        .select((holder) => holder.valueOrNull?.getTestState<BlueDyeState>()));
+    final AsyncValue<BlueDyeTestProgress> progress =
+        ref.watch(blueDyeTestProgressProvider);
+
+    if (progress.isLoading) return const LoadingWidget();
+
+    final BlueDyeProgression stage =
+        progress.valueOrNull?.getProgression() ?? BlueDyeProgression.stepOne;
+
+    if (blueDyeState == null) {
+      return const LoadingWidget();
+    }
+
+    final bool emptyLogs = blueDyeState.logs.isEmpty;
+
+    final Widget transitLabel = Text(
+      stage.value < 2
+          ? AppLocalizations.of(context)!.transitOneLabel
+          : AppLocalizations.of(context)!.transitTwoLabel,
+      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
+    );
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: cardLayout ? 20.0 : 0),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+            maxWidth: cardLayout ? Breakpoint.small.value : double.infinity),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const SizedBox(
+              height: 6,
+            ),
+            cardLayout
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [transitLabel, const BlueMealInfoButton()],
+                  )
+                : const Center(child: BlueMealInfoButton()),
+            const SizedBox(
+              height: 12.0,
+            ),
+            AdaptiveCardLayout(
+              cardColor: Colors.yellow.withValues(alpha: 0.2),
+              child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Text(AppLocalizations.of(context)!
+                      .blueMealRecordInstructions)),
+            ),
+            const SizedBox(
+              height: 12.0,
+            ),
+            AdaptiveCardLayout(
+              cardColor: panelColor,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      AppLocalizations.of(context)!.recordingStateTitle,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(
+                      height: 8.0,
+                    ),
+                    emptyLogs
+                        ? Center(
+                            child: Text(
+                              "Please add a bowel movement",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(fontStyle: FontStyle.italic),
+                            ),
+                          )
+                        : BMDisplay(logs: blueDyeState.logs),
+                    const SizedBox(
+                      height: 8.0,
+                    ),
+                    Center(
+                      child: ConstrainedBox(
+                        constraints:
+                            BoxConstraints(maxWidth: Breakpoint.tiny.value),
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            context.pushNamed(
+                              'recordType',
+                              pathParameters: {'type': Symptoms.BM},
+                            );
+                          },
+                          style: ButtonStyle(
+                            backgroundColor: WidgetStateProperty.all(
+                              Theme.of(context)
+                                  .colorScheme
+                                  .secondary
+                                  .withValues(alpha: 0.2),
+                            ),
+                            shape: WidgetStateProperty.all(
+                              RoundedRectangleBorder(
+                                borderRadius: const BorderRadius.all(
+                                  Radius.circular(4.0),
+                                ),
+                                side: BorderSide(
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
+                                    width: 1),
+                              ),
+                            ),
+                          ),
+                          iconAlignment: IconAlignment.end,
+                          icon: Icon(
+                            Icons.add,
+                            color: Theme.of(context).colorScheme.secondary,
+                          ),
+                          label: Text(
+                            AppLocalizations.of(context)!.studyRecordBMButton,
+                            style: TextStyle(
+                                color: Theme.of(context).primaryColor),
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(

@@ -112,16 +112,17 @@ class BlueDyeTest extends Test<BlueDyeState> {
           color: Theme.of(context).colorScheme.secondary.darken(),
         ),
         borderRadius: const BorderRadius.all(
-          Radius.circular(12.0),
+          Radius.circular(6.0),
         ),
         color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2),
       ),
-      child: Text(
-        AppLocalizations.of(context)!.testInProgressNotif,
-        style: Theme.of(context)
-            .textTheme
-            .bodyMedium
-            ?.copyWith(color: Theme.of(context).colorScheme.secondary.darken()),
+      child: Padding(
+        padding: const EdgeInsets.all(4.0),
+        child: Text(
+          AppLocalizations.of(context)!.testInProgressNotif,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.secondary.darken()),
+        ),
       ),
     );
   }
