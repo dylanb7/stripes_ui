@@ -742,7 +742,7 @@ abstract class AppLocalizations {
   /// No description provided for @studyContactBody.
   ///
   /// In en, this message translates to:
-  /// **'Questions or problems? Email help@symplifysolutions.com with \"Blue Meal Study\" in the subject line.'**
+  /// **'Questions or problems? Email BlueMeal@iu.edu with \"Blue Meal Study\" in the subject line.'**
   String get studyContactBody;
 
   /// No description provided for @transitOneLabel.

@@ -343,7 +343,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get studyContactTitle => 'Contact Us';
 
   @override
-  String get studyContactBody => 'Questions or problems? Email [email@university.edu] with \"Blue Meal Study\" in the subject line.';
+  String get studyContactBody => 'Questions or problems? Email BlueMeal@iu.edu with \"Blue Meal Study\" in the subject line.';
 
   @override
   String get transitOneLabel => 'Transit Time 1';

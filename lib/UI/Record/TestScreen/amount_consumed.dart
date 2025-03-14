@@ -744,7 +744,9 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
             onPressed: mealTime.value != null &&
                     amountConsumed.value != null &&
                     completedFast.value != null
-                ? () {}
+                ? () {
+                    _next(testsState);
+                  }
                 : null,
             child: Text(AppLocalizations.of(context)!.nextButton),
           ),
@@ -768,8 +770,9 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
         .getTest<Test<BlueDyeState>>()
         .then((test) {
       test?.setTestState(state!.copyWith(
-        amountConsumed: amountConsumed.value,
-      ));
+          amountConsumed: amountConsumed.value,
+          finishedEatingTime: DateTime.now(),
+          finishedEating: mealTime.value!.toDuration()));
     });
     setState(() {
       isLoading = false;
@@ -799,6 +802,35 @@ enum MealTime {
     MealTime.thirtyToHour,
     MealTime.hourOrMore
   ];
+
+  static MealTime? fromDuration(Duration duration) {
+    if (duration == const Duration(minutes: 15)) {
+      return MealTime.fifteenOrLess;
+    }
+    if (duration == const Duration(minutes: 22, seconds: 30)) {
+      return MealTime.fifteenToThrity;
+    }
+    if (duration == const Duration(minutes: 45)) {
+      return MealTime.thirtyToHour;
+    }
+    if (duration == const Duration(hours: 1)) {
+      return MealTime.hourOrMore;
+    }
+    return null;
+  }
+
+  Duration toDuration() {
+    switch (this) {
+      case MealTime.fifteenOrLess:
+        return const Duration(minutes: 15);
+      case MealTime.fifteenToThrity:
+        return const Duration(minutes: 22, seconds: 30);
+      case MealTime.thirtyToHour:
+        return const Duration(minutes: 45);
+      case MealTime.hourOrMore:
+        return const Duration(hours: 1);
+    }
+  }
 
   final String value;
 

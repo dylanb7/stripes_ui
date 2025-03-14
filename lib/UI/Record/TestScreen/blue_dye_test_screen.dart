@@ -329,18 +329,16 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                         ],
                       )
                     : pageView
-                : Expanded(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: BlueDyeProgression.values
-                          .map<Widget>(
-                            (step) => _buildScrollStep(
-                                context, index, currentIndex, step),
-                          )
-                          .toList()
-                          .spacedBy(space: 12, axis: Axis.horizontal),
-                    ),
+                : Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: BlueDyeProgression.values
+                        .map<Widget>(
+                          (step) => _buildScrollStep(
+                              context, index, currentIndex, step),
+                        )
+                        .toList()
+                        .spacedBy(space: 12, axis: Axis.horizontal),
                   ),
           ),
           /*if (shouldWrap)
