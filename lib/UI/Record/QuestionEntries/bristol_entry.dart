@@ -94,6 +94,9 @@ class _BMSliderState extends ConsumerState<BMSlider> {
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodyLarge,
         ),
+        const SizedBox(
+          height: 8.0,
+        ),
         StripesSlider(
           onChange: (p0) {},
           onSlide: (val) {
@@ -107,6 +110,9 @@ class _BMSliderState extends ConsumerState<BMSlider> {
           min: 1,
           max: 7,
           initial: value.toInt(),
+        ),
+        const SizedBox(
+          height: 4.0,
         ),
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,

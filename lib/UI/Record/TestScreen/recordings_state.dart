@@ -55,7 +55,7 @@ class RecordingsView extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(
-                height: 6,
+                height: 6.0,
               ),
               cardLayout
                   ? Row(
@@ -181,6 +181,12 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
     final Duration timePassed =
         DateTime.now().difference(orderedTests[0].finishTime);
 
+    final Widget waitingLabel = Text(
+      "Waiting Time",
+      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
+    );
+
     final bool canProgress = waitTime.compareTo(timePassed) < 0;
     final Duration timeLeft = canProgress
         ? Duration.zero
@@ -191,68 +197,130 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
     if (canProgress) timer?.cancel();
     return Column(
       children: [
+        const SizedBox(
+          height: 6.0,
+        ),
+        cardLayout
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [waitingLabel, const BlueMealInfoButton()],
+              )
+            : const Center(child: BlueMealInfoButton()),
+        const SizedBox(
+          height: 6.0,
+        ),
         AdaptiveCardLayout(
           cardColor: cardColor,
-          child: Column(
-            children: [
-              if (!cardLayout) ...[
-                Center(
-                  child: Text(
-                    AppLocalizations.of(context)!.stepTwoCompletedSubText,
-                    style: Theme.of(context).textTheme.headlineMedium,
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                if (!cardLayout) ...[
+                  Center(
+                    child: waitingLabel,
                   ),
+                  const Divider(),
+                ],
+                Text(
+                  AppLocalizations.of(context)!.blueMealWaitTimeTitle,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(
-                  height: 6.0,
+                  height: 4.0,
                 ),
-                Center(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                          width: 1.0, color: Theme.of(context).primaryColor),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 6.0, vertical: 4.0),
-                      child: Text(
-                        AppLocalizations.of(context)!.stepTwoCompletedTimeText(
-                          _from(timeLeft, context),
-                        ),
-                        style: Theme.of(context).textTheme.headlineMedium,
-                      ),
+                Text(
+                  AppLocalizations.of(context)!.blueMealWaitTimeLineOne,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(
+                  height: 4.0,
+                ),
+                Text(
+                  AppLocalizations.of(context)!.blueMealWaitTimeLineTwo,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(
+                  height: 4.0,
+                ),
+                Text(
+                  AppLocalizations.of(context)!.blueMealWaitTimeLineThree,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(
+                  height: 8.0,
+                ),
+                if (!cardLayout) ...[
+                  Center(
+                    child: Text(
+                      AppLocalizations.of(context)!.stepTwoCompletedSubText,
+                      style: Theme.of(context).textTheme.headlineMedium,
                     ),
                   ),
-                )
-              ],
-              if (cardLayout)
-                Container(
-                  width: double.infinity,
-                  color: Theme.of(context).colorScheme.surface,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4.0),
-                    child: Center(
-                      child: RichText(
-                          text: TextSpan(
-                              text: AppLocalizations.of(context)!
-                                  .stepTwoCompletedSubText,
-                              style: Theme.of(context).textTheme.headlineMedium,
-                              children: [
-                            TextSpan(
-                                text: AppLocalizations.of(context)!
+                  const SizedBox(
+                    height: 6.0,
+                  ),
+                  Center(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                            width: 1.0, color: Theme.of(context).primaryColor),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6.0, vertical: 4.0),
+                        child: canProgress
+                            ? const Icon(Icons.check, size: 40.0)
+                            : Text(
+                                AppLocalizations.of(context)!
                                     .stepTwoCompletedTimeText(
                                   _from(timeLeft, context),
                                 ),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineMedium
-                                    ?.copyWith(
-                                        color: Theme.of(context).primaryColor))
-                          ])),
+                                style:
+                                    Theme.of(context).textTheme.headlineMedium,
+                              ),
+                      ),
                     ),
-                  ),
-                )
-            ],
+                  )
+                ],
+                if (cardLayout)
+                  Container(
+                    width: double.infinity,
+                    color: Theme.of(context).colorScheme.surface,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: Center(
+                        child: RichText(
+                            text: TextSpan(
+                                text: AppLocalizations.of(context)!
+                                    .stepTwoCompletedSubText,
+                                style:
+                                    Theme.of(context).textTheme.headlineMedium,
+                                children: [
+                              canProgress
+                                  ? const WidgetSpan(
+                                      child: Icon(Icons.check, size: 40.0))
+                                  : TextSpan(
+                                      text:
+                                          ' ${AppLocalizations.of(context)!.stepTwoCompletedTimeText(_from(timeLeft, context))}',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineMedium
+                                          ?.copyWith(
+                                              color: Theme.of(context)
+                                                  .primaryColor))
+                            ])),
+                      ),
+                    ),
+                  )
+              ],
+            ),
           ),
         ),
         const SizedBox(
@@ -270,7 +338,7 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
         ),
         const SizedBox(
           height: 25.0,
-        )
+        ),
       ],
     );
   }

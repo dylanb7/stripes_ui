@@ -352,6 +352,18 @@ class AppLocalizationsDe extends AppLocalizations {
   String get transitTwoLabel => 'Transit Time 2';
 
   @override
+  String get blueMealWaitTimeTitle => 'Step 2 Completed';
+
+  @override
+  String get blueMealWaitTimeLineOne => 'You have successfully completed Step 2 by recording a bowel movement with no blue color.';
+
+  @override
+  String get blueMealWaitTimeLineTwo => 'This countdown shows how long before another Blue Dye Meal should be attempted again.';
+
+  @override
+  String get blueMealWaitTimeLineThree => 'You may add when you are eligible to begin Step 3 to your calendar.';
+
+  @override
   String get blueMealFastHeader => 'Step 1: Eat Blue Meal';
 
   @override

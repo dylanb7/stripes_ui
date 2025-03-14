@@ -515,9 +515,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                   Center(
                     child: transitLabel,
                   ),
-                  const SizedBox(
-                    height: 8.0,
-                  ),
+                  const Divider(),
                 ],
                 Text(
                   AppLocalizations.of(context)!.blueMealFastHeader,

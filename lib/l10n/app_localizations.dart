@@ -757,6 +757,30 @@ abstract class AppLocalizations {
   /// **'Transit Time 2'**
   String get transitTwoLabel;
 
+  /// No description provided for @blueMealWaitTimeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 2 Completed'**
+  String get blueMealWaitTimeTitle;
+
+  /// No description provided for @blueMealWaitTimeLineOne.
+  ///
+  /// In en, this message translates to:
+  /// **'You have successfully completed Step 2 by recording a bowel movement with no blue color.'**
+  String get blueMealWaitTimeLineOne;
+
+  /// No description provided for @blueMealWaitTimeLineTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'This countdown shows how long before another Blue Dye Meal should be attempted again.'**
+  String get blueMealWaitTimeLineTwo;
+
+  /// No description provided for @blueMealWaitTimeLineThree.
+  ///
+  /// In en, this message translates to:
+  /// **'You may add when you are eligible to begin Step 3 to your calendar.'**
+  String get blueMealWaitTimeLineThree;
+
   /// No description provided for @blueMealFastHeader.
   ///
   /// In en, this message translates to:

@@ -161,6 +161,11 @@
     "transitOneLabel": "Transit Time 1",
     "transitTwoLabel": "Transit Time 2",
 
+    "blueMealWaitTimeTitle": "Step 2 Completed",
+    "blueMealWaitTimeLineOne": "You have successfully completed Step 2 by recording a bowel movement with no blue color.",
+    "blueMealWaitTimeLineTwo": "This countdown shows how long before another Blue Dye Meal should be attempted again.",
+    "blueMealWaitTimeLineThree": "You may add when you are eligible to begin Step 3 to your calendar.",
+
     "blueMealFastHeader": "Step 1: Eat Blue Meal",
     "blueMealFastQuestion": "Before starting, has the participant completed the required 6-8 hour fast?",
 
