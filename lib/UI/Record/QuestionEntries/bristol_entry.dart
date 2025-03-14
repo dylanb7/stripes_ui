@@ -103,6 +103,7 @@ class _BMSliderState extends ConsumerState<BMSlider> {
             });
           },
           listener: listener,
+          hasLevelReminder: false,
           min: 1,
           max: 7,
           initial: value.toInt(),
