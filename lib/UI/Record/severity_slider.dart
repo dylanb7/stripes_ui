@@ -179,26 +179,27 @@ class _StripesSliderState extends State<StripesSlider> {
                   },
                 ).showCursorOnHover),
           ]),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                widget.minLabel ?? AppLocalizations.of(context)!.mildTag,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: listener.hasInteracted
-                        ? Theme.of(context).colorScheme.onPrimary
-                        : null),
-              ),
-              Text(
-                widget.maxLabel ?? AppLocalizations.of(context)!.severeTag,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: listener.hasInteracted
-                        ? Theme.of(context).colorScheme.onPrimary
-                        : null),
-              ),
-            ],
-          ),
+          if (widget.minLabel != null && widget.maxLabel != null)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  widget.minLabel ?? AppLocalizations.of(context)!.mildTag,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: listener.hasInteracted
+                          ? Theme.of(context).colorScheme.onPrimary
+                          : null),
+                ),
+                Text(
+                  widget.maxLabel ?? AppLocalizations.of(context)!.severeTag,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: listener.hasInteracted
+                          ? Theme.of(context).colorScheme.onPrimary
+                          : null),
+                ),
+              ],
+            ),
         ]),
       ),
     );

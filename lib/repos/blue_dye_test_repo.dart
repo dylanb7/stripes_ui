@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:stripes_backend_helper/TestingReposImpl/test_question_repo.dart';
@@ -104,12 +105,24 @@ class BlueDyeTest extends Test<BlueDyeState> {
         current == BlueDyeTestStage.started) {
       return null;
     }
-    return Text(
-      AppLocalizations.of(context)!.testInProgressNotif,
-      style: Theme.of(context)
-          .textTheme
-          .bodyMedium
-          ?.copyWith(color: Theme.of(context).colorScheme.secondary),
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border.all(
+          width: 1.0,
+          color: Theme.of(context).colorScheme.secondary.darken(),
+        ),
+        borderRadius: const BorderRadius.all(
+          Radius.circular(12.0),
+        ),
+        color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2),
+      ),
+      child: Text(
+        AppLocalizations.of(context)!.testInProgressNotif,
+        style: Theme.of(context)
+            .textTheme
+            .bodyMedium
+            ?.copyWith(color: Theme.of(context).colorScheme.secondary.darken()),
+      ),
     );
   }
 

@@ -43,54 +43,57 @@ class ConfirmationPopup extends ConsumerWidget {
                 child: Card(
                   shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10.0))),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const SizedBox(
-                            width: 35,
-                          ),
-                          title,
-                          IconButton(
-                            onPressed: () {
-                              _dismiss(context, ref);
-                            },
-                            icon: const Icon(Icons.close),
-                            iconSize: 35,
-                          )
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 8,
-                      ),
-                      body,
-                      const SizedBox(
-                        height: 16.0,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          FilledButton(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const SizedBox(
+                              width: 35,
+                            ),
+                            title,
+                            IconButton(
                               onPressed: () {
                                 _dismiss(context, ref);
                               },
-                              child: Text(cancel)),
-                          TonalButtonTheme(
-                            child: FilledButton.tonal(
-                              onPressed: () {
-                                _confirm(context, ref);
-                              },
-                              child: Text(confirm),
-                            ),
-                          )
-                        ],
-                      ),
-                    ],
+                              icon: const Icon(Icons.close),
+                              iconSize: 35,
+                            )
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 8,
+                        ),
+                        body,
+                        const SizedBox(
+                          height: 16.0,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            FilledButton(
+                                onPressed: () {
+                                  _dismiss(context, ref);
+                                },
+                                child: Text(cancel)),
+                            TonalButtonTheme(
+                              child: FilledButton.tonal(
+                                onPressed: () {
+                                  _confirm(context, ref);
+                                },
+                                child: Text(confirm),
+                              ),
+                            )
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

@@ -75,11 +75,24 @@ class _BMSliderState extends ConsumerState<BMSlider> {
 
   @override
   Widget build(BuildContext context) {
+    final List<String> descriptors = [
+      "Separate hard lumps, like nuts (hard to pass)",
+      "Sausage-shaped but lumpy",
+      "Like a sausage but with cracks on its surface",
+      "Like a sausage or snake, smooth and soft",
+      "Soft blobs with clear-cut edges (passed easily)",
+      "Fluffy pieces with ragged edges, a mushy stool",
+      "Liquid consistency with no solid pieces"
+    ];
     return Column(
       children: [
         Center(
             child: AspectRatio(
                 aspectRatio: 2.2, child: images[value.toInt() - 1])),
+        Text(
+          descriptors[value.toInt() - 1],
+          textAlign: TextAlign.center,
+        ),
         StripesSlider(
           onChange: (p0) {},
           onSlide: (val) {
@@ -95,6 +108,27 @@ class _BMSliderState extends ConsumerState<BMSlider> {
           maxLabel: AppLocalizations.of(context)!.softTag,
           initial: value.toInt(),
         ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Text(
+              AppLocalizations.of(context)!.hardTag,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: Theme.of(context).primaryColor),
+            ),
+            Text(
+              AppLocalizations.of(context)!.softTag,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: Theme.of(context).primaryColor),
+            ),
+          ],
+        )
       ],
     );
   }
