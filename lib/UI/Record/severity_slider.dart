@@ -19,7 +19,7 @@ class StripesSlider extends StatefulWidget {
 
   final int? initial;
 
-  final bool hasInstruction;
+  final bool hasInstruction, hasLevelReminder;
 
   final SliderListener? listener;
 
@@ -33,6 +33,7 @@ class StripesSlider extends StatefulWidget {
       this.min = 1,
       this.max = 5,
       this.hasInstruction = true,
+      this.hasLevelReminder = true,
       this.initial,
       this.minLabel,
       this.maxLabel,
@@ -210,23 +211,25 @@ class _StripesSliderState extends State<StripesSlider> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Visibility(
-          visible: !listener.hasInteracted,
-          maintainSize: true,
-          maintainAnimation: true,
-          maintainState: true,
-          child: Text(
-            AppLocalizations.of(context)!.levelReminder,
-            textAlign: TextAlign.center,
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(fontWeight: FontWeight.bold),
+        if (widget.hasLevelReminder) ...[
+          Visibility(
+            visible: !listener.hasInteracted,
+            maintainSize: true,
+            maintainAnimation: true,
+            maintainState: true,
+            child: Text(
+              AppLocalizations.of(context)!.levelReminder,
+              textAlign: TextAlign.center,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.bold),
+            ),
           ),
-        ),
-        const SizedBox(
-          height: 4.0,
-        ),
+          const SizedBox(
+            height: 4.0,
+          ),
+        ],
         sliderBox
       ],
     );

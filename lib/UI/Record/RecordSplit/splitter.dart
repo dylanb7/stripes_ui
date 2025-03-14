@@ -150,7 +150,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
           : null,
       child: Center(
         child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: Breakpoint.medium.value),
+          constraints: BoxConstraints(maxWidth: Breakpoint.small.value),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
             child: Column(

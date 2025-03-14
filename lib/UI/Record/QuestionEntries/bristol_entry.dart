@@ -92,6 +92,7 @@ class _BMSliderState extends ConsumerState<BMSlider> {
         Text(
           descriptors[value.toInt() - 1],
           textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.bodyLarge,
         ),
         StripesSlider(
           onChange: (p0) {},
@@ -104,8 +105,6 @@ class _BMSliderState extends ConsumerState<BMSlider> {
           listener: listener,
           min: 1,
           max: 7,
-          minLabel: AppLocalizations.of(context)!.hardTag,
-          maxLabel: AppLocalizations.of(context)!.softTag,
           initial: value.toInt(),
         ),
         Row(
@@ -117,14 +116,14 @@ class _BMSliderState extends ConsumerState<BMSlider> {
               AppLocalizations.of(context)!.hardTag,
               style: Theme.of(context)
                   .textTheme
-                  .bodyMedium
+                  .bodyLarge
                   ?.copyWith(color: Theme.of(context).primaryColor),
             ),
             Text(
               AppLocalizations.of(context)!.softTag,
               style: Theme.of(context)
                   .textTheme
-                  .bodyMedium
+                  .bodyLarge
                   ?.copyWith(color: Theme.of(context).primaryColor),
             ),
           ],
