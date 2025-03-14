@@ -248,48 +248,65 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
                 const SizedBox(
                   height: 4.0,
                 ),
-                Text(
-                  AppLocalizations.of(context)!.blueMealWaitTimeLineThree,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
+                RichText(
+                    text: TextSpan(
+                        text: AppLocalizations.of(context)!
+                            .blueMealWaitTimeLineThree,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                        children: [
+                      WidgetSpan(
+                        child: IconButton(
+                            onPressed: () {
+                              Add2Calendar.addEvent2Cal(
+                                Event(
+                                  title: "Blue Meal Study",
+                                  description:
+                                      "You are eligible to start the second Blue Meal today.",
+                                  startDate: progressDate,
+                                  endDate: progressDate,
+                                  allDay: true,
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.edit_calendar)),
+                      )
+                    ])),
                 const SizedBox(
                   height: 8.0,
                 ),
-                if (!cardLayout) ...[
-                  Center(
-                    child: Text(
-                      AppLocalizations.of(context)!.stepTwoCompletedSubText,
-                      style: Theme.of(context).textTheme.headlineMedium,
+                Center(
+                  child: Text(
+                    AppLocalizations.of(context)!.stepTwoCompletedSubText,
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                ),
+                const SizedBox(
+                  height: 6.0,
+                ),
+                Center(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                          width: 1.0, color: Theme.of(context).primaryColor),
                     ),
-                  ),
-                  const SizedBox(
-                    height: 6.0,
-                  ),
-                  Center(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                            width: 1.0, color: Theme.of(context).primaryColor),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6.0, vertical: 4.0),
-                        child: canProgress
-                            ? const Icon(Icons.check, size: 40.0)
-                            : Text(
-                                AppLocalizations.of(context)!
-                                    .stepTwoCompletedTimeText(
-                                  _from(timeLeft, context),
-                                ),
-                                style:
-                                    Theme.of(context).textTheme.headlineMedium,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6.0, vertical: 4.0),
+                      child: canProgress
+                          ? const Icon(Icons.check, size: 40.0)
+                          : Text(
+                              AppLocalizations.of(context)!
+                                  .stepTwoCompletedTimeText(
+                                _from(timeLeft, context),
                               ),
-                      ),
+                              style: Theme.of(context).textTheme.headlineMedium,
+                            ),
                     ),
-                  )
-                ],
-                if (cardLayout)
+                  ),
+                ),
+
+                /*if (cardLayout)
                   Container(
                     width: double.infinity,
                     color: Theme.of(context).colorScheme.surface,
@@ -318,7 +335,7 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
                             ])),
                       ),
                     ),
-                  )
+                  )*/
               ],
             ),
           ),
