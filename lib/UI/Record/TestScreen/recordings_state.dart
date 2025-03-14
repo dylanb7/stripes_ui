@@ -248,29 +248,30 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
                 const SizedBox(
                   height: 4.0,
                 ),
-                RichText(
-                    text: TextSpan(
-                        text: AppLocalizations.of(context)!
-                            .blueMealWaitTimeLineThree,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                        children: [
-                      WidgetSpan(
-                        child: IconButton(
-                            onPressed: () {
-                              Add2Calendar.addEvent2Cal(
-                                Event(
-                                  title: "Blue Meal Study",
-                                  description:
-                                      "You are eligible to start the second Blue Meal today.",
-                                  startDate: progressDate,
-                                  endDate: progressDate,
-                                  allDay: true,
-                                ),
-                              );
-                            },
-                            icon: const Icon(Icons.edit_calendar)),
-                      )
-                    ])),
+                if (!canProgress)
+                  RichText(
+                      text: TextSpan(
+                          text: AppLocalizations.of(context)!
+                              .blueMealWaitTimeLineThree,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                          children: [
+                        WidgetSpan(
+                          child: IconButton(
+                              onPressed: () {
+                                Add2Calendar.addEvent2Cal(
+                                  Event(
+                                    title: "Blue Meal Study",
+                                    description:
+                                        "You are eligible to start the second Blue Meal today.",
+                                    startDate: progressDate,
+                                    endDate: progressDate,
+                                    allDay: true,
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.edit_calendar)),
+                        )
+                      ])),
                 const SizedBox(
                   height: 8.0,
                 ),
