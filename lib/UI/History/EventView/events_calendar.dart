@@ -775,7 +775,6 @@ class _DateSelectionDisplayState extends State<DateSelectionDisplay> {
                 ),
                 RangeSelection.end: DateDispay(
                   title: "End",
-                  clear: widget.onEndClear,
                   hovered: widget.rangeSelectionController.value ==
                       RangeSelection.end,
                   selected: widget.end,
