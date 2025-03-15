@@ -874,7 +874,7 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
                               Theme.of(context)
                                   .colorScheme
                                   .secondary
-                                  .lighten(50),
+                                  .lighten(35),
                             ),
                             padding: WidgetStateProperty.all(
                                 const EdgeInsets.all(8.0)),
@@ -895,6 +895,7 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
                           iconAlignment: IconAlignment.end,
                           icon: Icon(
                             Icons.add,
+                            size: 30.0,
                             color: Theme.of(context)
                                 .colorScheme
                                 .secondary

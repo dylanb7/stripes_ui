@@ -29,7 +29,7 @@ class EventsCalendar extends ConsumerStatefulWidget {
 class EventsCalendarState extends ConsumerState<EventsCalendar> {
   DateTime focusedDay = DateTime.now();
 
-  CalendarFormat _format = CalendarFormat.month;
+  CalendarFormat _format = CalendarFormat.week;
 
   bool isHidden = false;
 
@@ -684,7 +684,7 @@ class _DateSelectionDisplayState extends State<DateSelectionDisplay> {
           );
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.baseline,
       children: [
         PopupMenuButton<RangeStatus>(
             padding: EdgeInsets.zero,
@@ -811,43 +811,44 @@ class DateDispay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool hasDate = selected != null;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            hasDate ? DateFormat.yMd().format(selected!) : "select",
-            textAlign: TextAlign.center,
-            style: hovered
-                ? Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: hasDate
-                        ? Theme.of(context).primaryColor
-                        : Theme.of(context).disabledColor)
-                : Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: !hasDate ? Theme.of(context).disabledColor : null),
-          ),
-          const SizedBox(
-            width: 2.0,
-          ),
-          clear != null
-              ? IconButton(
-                  onPressed: () {
-                    clear!();
-                  },
-                  visualDensity: VisualDensity.compact,
-                  padding: EdgeInsets.zero,
-                  iconSize: 18.0,
-                  icon: const Icon(
-                    Icons.clear,
-                  ),
-                )
-              : const SizedBox(
-                  width: 18,
+    return SizedBox(
+      width: 80.0,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              hasDate ? DateFormat.yMd().format(selected!) : "select",
+              textAlign: TextAlign.center,
+              style: hovered
+                  ? Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: hasDate
+                          ? Theme.of(context).primaryColor
+                          : Theme.of(context).disabledColor)
+                  : Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: !hasDate ? Theme.of(context).disabledColor : null),
+            ),
+            if (clear != null) ...[
+              const SizedBox(
+                width: 2.0,
+              ),
+              IconButton(
+                onPressed: () {
+                  clear!();
+                },
+                visualDensity: VisualDensity.compact,
+                padding: EdgeInsets.zero,
+                iconSize: 18.0,
+                icon: const Icon(
+                  Icons.clear,
                 ),
-        ],
+              )
+            ],
+          ],
+        ),
       ),
     );
   }
