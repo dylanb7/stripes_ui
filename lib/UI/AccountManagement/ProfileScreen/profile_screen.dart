@@ -18,13 +18,22 @@ import 'package:stripes_ui/entry.dart';
 import 'add_profile_widget.dart';
 import 'profiles_view.dart';
 
-class PatientScreen extends ConsumerWidget {
+class PatientScreen extends ConsumerStatefulWidget {
   const PatientScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConsumerStatefulWidget> createState() {
+    return _PatientScreenState();
+  }
+}
+
+class _PatientScreenState extends ConsumerState<PatientScreen> {
+  bool infoShowing = false;
+
+  @override
+  Widget build(BuildContext context) {
     final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);
-    final double itemWidth = Breakpoint.small.value;
+
     final StripesConfig config = ref.watch(configProvider);
 
     final subNotifier = ref.watch(subHolderProvider);
@@ -65,17 +74,49 @@ class PatientScreen extends ConsumerWidget {
                   textAlign: TextAlign.left,
                 ),
                 const Spacer(),
-                TextButton(onPressed: () {}, child: const Text("Info"))
+                TextButton(
+                    onPressed: () {
+                      setState(() {
+                        infoShowing = !infoShowing;
+                      });
+                    },
+                    child: const Text("Info"))
               ],
             ),
             const SizedBox(
               height: 6.0,
             ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.0),
-              child: Text(
-                "Your app account, created with your email and password, can be accessed on multiple devices. Share your account credentials with caregivers, such as nurses, school caregivers, and other parents, to allow them to access the account. You can also create profiles for multiple individuals and use the app to track symptoms for each person. To record symptoms, simply switch to the profile of the person you want to track.",
-                textAlign: TextAlign.left,
+            AnimatedSize(
+              duration: Durations.short4,
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12.0, vertical: 2.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    if (infoShowing) ...[
+                      const Text(
+                        "Your app account, created with your email and password, can be accessed on multiple devices. Share your account credentials with caregivers, such as nurses, school caregivers, and other parents, to allow them to access the account. You can also create profiles for multiple individuals and use the app to track symptoms for each person. To record symptoms, simply switch to the profile of the person you want to track.",
+                        textAlign: TextAlign.left,
+                      ),
+                      const SizedBox(
+                        height: 6.0,
+                      ),
+                      TextButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            infoShowing = false;
+                          });
+                        },
+                        label: const Text("Close"),
+                        icon: const Icon(Icons.keyboard_arrow_up),
+                        iconAlignment: IconAlignment.end,
+                      ),
+                      const Divider(),
+                    ]
+                  ],
+                ),
               ),
             ),
             const SizedBox(

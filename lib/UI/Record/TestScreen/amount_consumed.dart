@@ -642,10 +642,12 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
           height: 12.0,
         ),
         IgnorePointer(
-          ignoring: completedFast.value == null,
+          ignoring: completedFast.value == null || !completedFast.value!,
           child: AdaptiveCardLayout(
             key: mealTimeQuestionKey,
-            cardColor: completedFast.value == null ? disabledColor : activeCard,
+            cardColor: completedFast.value == null || !completedFast.value!
+                ? disabledColor
+                : activeCard,
             child: Padding(
               padding: const EdgeInsets.all(12.0),
               child: Column(

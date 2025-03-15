@@ -177,8 +177,11 @@ class BlueMealInfoSheet extends StatelessWidget {
                       key: properties.scrollStateKey,
                       controller: properties.scrollController,
                       children: [
-                        ColoredBox(
-                          color: Colors.yellow.withValues(alpha: 0.35),
+                        DecoratedBox(
+                          decoration: BoxDecoration(
+                              color: Colors.yellow.withValues(alpha: 0.35),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(4.0))),
                           child: Padding(
                             padding: const EdgeInsets.all(4.0),
                             child: Text(
@@ -447,7 +450,7 @@ class BlueStudyInstructionsPartOne extends StatelessWidget {
               height: 8.0,
             ),
             ColoredBox(
-              color: Colors.yellow.withValues(alpha: 0.5),
+              color: Colors.yellow.withValues(alpha: 0.35),
               child: Padding(
                   padding: const EdgeInsets.all(4.0),
                   child: Text(AppLocalizations.of(context)!

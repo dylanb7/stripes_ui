@@ -16,6 +16,7 @@ import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/card_layout_helper.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
+import 'package:stripes_ui/UI/Record/record_screen.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -802,12 +803,9 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
             const SizedBox(
               height: 12.0,
             ),
-            AdaptiveCardLayout(
-                cardColor: panelColor,
-                child: const Padding(
-                  padding: EdgeInsets.all(12.0),
-                  child: Column(),
-                )),
+            stage == BlueDyeProgression.stepTwo
+                ? BlueStudyInstructionsPartTwo(initiallyExpanded: emptyLogs)
+                : const BlueStudyInstructionsPartFour(),
             const SizedBox(
               height: 12.0,
             ),
@@ -854,6 +852,16 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
                       height: 8.0,
                     ),
                     Center(
+                      child: RecordButton(
+                          AppLocalizations.of(context)!.studyRecordBMButton,
+                          (context) {
+                        context.pushNamed(
+                          'recordType',
+                          pathParameters: {'type': Symptoms.BM},
+                        );
+                      }, const []),
+                    ),
+                    /*Center(
                       child: ConstrainedBox(
                         constraints:
                             BoxConstraints(maxWidth: Breakpoint.tiny.value),
@@ -868,7 +876,7 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
                             backgroundColor: WidgetStateProperty.all(
                               Theme.of(context)
                                   .colorScheme
-                                  .secondary
+                                  .primary
                                   .withValues(alpha: 0.2),
                             ),
                             side: WidgetStateProperty.all(BorderSide(
@@ -885,6 +893,7 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
                           iconAlignment: IconAlignment.end,
                           icon: Icon(
                             Icons.add,
+                            size: 40.0,
                             color: Theme.of(context).colorScheme.secondary,
                           ),
                           label: Text(
@@ -894,7 +903,7 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
                           ),
                         ),
                       ),
-                    ),
+                    ),*/
                     const SizedBox(
                       height: 12.0,
                     ),

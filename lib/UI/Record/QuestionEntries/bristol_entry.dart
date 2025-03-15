@@ -89,14 +89,16 @@ class _BMSliderState extends ConsumerState<BMSlider> {
         Center(
             child: AspectRatio(
                 aspectRatio: 2.2, child: images[value.toInt() - 1])),
-        Text(
-          descriptors[value.toInt() - 1],
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-        const SizedBox(
-          height: 8.0,
-        ),
+        if (listener.hasInteracted) ...[
+          Text(
+            descriptors[value.toInt() - 1],
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+          const SizedBox(
+            height: 8.0,
+          ),
+        ],
         StripesSlider(
           onChange: (p0) {},
           onSlide: (val) {
@@ -106,7 +108,7 @@ class _BMSliderState extends ConsumerState<BMSlider> {
             });
           },
           listener: listener,
-          hasLevelReminder: false,
+          hasLevelReminder: true,
           min: 1,
           max: 7,
           initial: value.toInt(),
