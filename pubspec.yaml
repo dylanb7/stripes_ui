@@ -9,8 +9,7 @@ publish_to: none
 #    url: https://github.com/dylanb7/stripes_backend_helper
 
 environment:
-  sdk: ">=2.17.0 <3.0.0"
-  flutter: ">=1.17.0"
+  sdk: ^3.5.3
 
 dependencies:
   flutter:

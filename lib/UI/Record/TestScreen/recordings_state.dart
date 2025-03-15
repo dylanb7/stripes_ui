@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:duration/duration.dart';
 import 'package:duration/locale.dart';
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -794,12 +795,18 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
               height: 6,
             ),
             cardLayout
-                ? Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [transitLabel, const BlueMealInfoButton()],
+                ? ConstrainedBox(
+                    constraints:
+                        BoxConstraints(maxWidth: Breakpoint.medium.value),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [transitLabel, const BlueMealInfoButton()],
+                    ),
                   )
-                : const Center(child: BlueMealInfoButton()),
+                : const Center(
+                    child: BlueMealInfoButton(),
+                  ),
             const SizedBox(
               height: 12.0,
             ),
@@ -852,16 +859,6 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
                       height: 8.0,
                     ),
                     Center(
-                      child: RecordButton(
-                          AppLocalizations.of(context)!.studyRecordBMButton,
-                          (context) {
-                        context.pushNamed(
-                          'recordType',
-                          pathParameters: {'type': Symptoms.BM},
-                        );
-                      }, const []),
-                    ),
-                    /*Center(
                       child: ConstrainedBox(
                         constraints:
                             BoxConstraints(maxWidth: Breakpoint.tiny.value),
@@ -880,7 +877,10 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
                                   .withValues(alpha: 0.2),
                             ),
                             side: WidgetStateProperty.all(BorderSide(
-                                color: Theme.of(context).colorScheme.secondary,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .secondary
+                                    .darken(20),
                                 width: 2.0)),
                             shape: WidgetStateProperty.all(
                               const RoundedRectangleBorder(
@@ -894,7 +894,10 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
                           icon: Icon(
                             Icons.add,
                             size: 40.0,
-                            color: Theme.of(context).colorScheme.secondary,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .secondary
+                                .darken(20),
                           ),
                           label: Text(
                             AppLocalizations.of(context)!.studyRecordBMButton,
@@ -903,7 +906,7 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
                           ),
                         ),
                       ),
-                    ),*/
+                    ),
                     const SizedBox(
                       height: 12.0,
                     ),

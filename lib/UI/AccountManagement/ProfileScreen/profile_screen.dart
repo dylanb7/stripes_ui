@@ -89,8 +89,7 @@ class _PatientScreenState extends ConsumerState<PatientScreen> {
             AnimatedSize(
               duration: Durations.short4,
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12.0, vertical: 2.0),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -98,7 +97,7 @@ class _PatientScreenState extends ConsumerState<PatientScreen> {
                     if (infoShowing) ...[
                       const Text(
                         "Your app account, created with your email and password, can be accessed on multiple devices. Share your account credentials with caregivers, such as nurses, school caregivers, and other parents, to allow them to access the account. You can also create profiles for multiple individuals and use the app to track symptoms for each person. To record symptoms, simply switch to the profile of the person you want to track.",
-                        textAlign: TextAlign.left,
+                        textAlign: TextAlign.justify,
                       ),
                       const SizedBox(
                         height: 6.0,

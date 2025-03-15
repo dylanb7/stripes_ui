@@ -229,7 +229,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get stepFourCompletedSubText => 'You have completed the Blue Meal Study. Thank you for your participation!';
 
   @override
-  String get studyRecordBMButton => 'Record BM';
+  String get studyRecordBMButton => 'Record a Bowel Movement';
 
   @override
   String get studyInfoButtonLabel => 'Review Study Info';

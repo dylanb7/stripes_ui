@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
 import 'package:stripes_ui/UI/CommonWidgets/scroll_assisted_list.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/card_layout_helper.dart';
+import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class BlueMealPreStudy extends StatelessWidget {
@@ -486,16 +487,27 @@ class _BlueStudyInstructionsPartTwoState
 
   @override
   Widget build(BuildContext context) {
+    final bool cardLayout =
+        getBreakpoint(context).isGreaterThan(Breakpoint.medium);
     return AdaptiveCardLayout(
       cardColor: Theme.of(context).primaryColor.withValues(alpha: 0.2),
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(12.0),
         child: AnimatedSize(
           duration: const Duration(milliseconds: 200),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (cardLayout) ...[
+                Text(
+                  AppLocalizations.of(context)!.transitOneLabel,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).primaryColor,
+                      fontWeight: FontWeight.bold),
+                ),
+                const Divider(),
+              ],
               Text(
                 AppLocalizations.of(context)!.studyStepTwoExplanationTitle,
                 style: Theme.of(context)
@@ -518,8 +530,6 @@ class _BlueStudyInstructionsPartTwoState
                         .studyStepTwoExplanationPartOneDetailOne,
                     AppLocalizations.of(context)!
                         .studyStepTwoExplanationPartOneDetailTwo,
-                    AppLocalizations.of(context)!
-                        .studyStepTwoExplanationPartOneDetailThree
                   ],
                   highlight: false),
               const SizedBox(
@@ -626,14 +636,25 @@ class BlueStudyInstructionsPartFour extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool cardLayout =
+        getBreakpoint(context).isGreaterThan(Breakpoint.medium);
     return AdaptiveCardLayout(
       cardColor: Theme.of(context).primaryColor.withValues(alpha: 0.2),
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(12.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (cardLayout) ...[
+              Text(
+                AppLocalizations.of(context)!.transitTwoLabel,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).primaryColor,
+                    fontWeight: FontWeight.bold),
+              ),
+              const Divider(),
+            ],
             Text(
               AppLocalizations.of(context)!.studyStepFourExplanationTitle,
               style: Theme.of(context)
@@ -648,7 +669,6 @@ class BlueStudyInstructionsPartFour extends StatelessWidget {
               strings: [
                 AppLocalizations.of(context)!.studyStepFourExplanationPartOne,
                 AppLocalizations.of(context)!.studyStepFourExplanationPartTwo,
-                AppLocalizations.of(context)!.studyStepFourExplanationPartThree,
               ],
               mark: (i) => "${i + 1}. ",
               title: Text(
