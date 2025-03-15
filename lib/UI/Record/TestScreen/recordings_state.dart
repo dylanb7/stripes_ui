@@ -873,14 +873,16 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
                             backgroundColor: WidgetStateProperty.all(
                               Theme.of(context)
                                   .colorScheme
-                                  .primary
-                                  .withValues(alpha: 0.2),
+                                  .secondary
+                                  .lighten(30),
                             ),
+                            padding: WidgetStateProperty.all(
+                                const EdgeInsets.all(6.0)),
                             side: WidgetStateProperty.all(BorderSide(
                                 color: Theme.of(context)
                                     .colorScheme
                                     .secondary
-                                    .darken(20),
+                                    .darken(10),
                                 width: 2.0)),
                             shape: WidgetStateProperty.all(
                               const RoundedRectangleBorder(
@@ -897,10 +899,10 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
                             color: Theme.of(context)
                                 .colorScheme
                                 .secondary
-                                .darken(20),
+                                .darken(10),
                           ),
                           label: Text(
-                            AppLocalizations.of(context)!.studyRecordBMButton,
+                            "Record a Bowel Movement",
                             style: TextStyle(
                                 color: Theme.of(context).primaryColor),
                           ),
