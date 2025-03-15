@@ -874,10 +874,10 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
                               Theme.of(context)
                                   .colorScheme
                                   .secondary
-                                  .lighten(30),
+                                  .lighten(50),
                             ),
                             padding: WidgetStateProperty.all(
-                                const EdgeInsets.all(6.0)),
+                                const EdgeInsets.all(8.0)),
                             side: WidgetStateProperty.all(BorderSide(
                                 color: Theme.of(context)
                                     .colorScheme
@@ -895,7 +895,6 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
                           iconAlignment: IconAlignment.end,
                           icon: Icon(
                             Icons.add,
-                            size: 40.0,
                             color: Theme.of(context)
                                 .colorScheme
                                 .secondary
@@ -904,7 +903,9 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
                           label: Text(
                             "Record a Bowel Movement",
                             style: TextStyle(
-                                color: Theme.of(context).primaryColor),
+                                color: Theme.of(context).primaryColor,
+                                fontWeight: FontWeight.bold,
+                                fontStyle: FontStyle.italic),
                           ),
                         ),
                       ),
