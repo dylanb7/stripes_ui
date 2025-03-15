@@ -813,7 +813,7 @@ class DateDispay extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool hasDate = selected != null;
     return SizedBox(
-      width: 80.0,
+      width: 120.0,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
