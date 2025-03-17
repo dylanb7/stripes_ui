@@ -223,9 +223,7 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 if (!cardLayout) ...[
-                  Center(
-                    child: waitingLabel,
-                  ),
+                  waitingLabel,
                   const Divider(),
                 ],
                 Text(
@@ -252,32 +250,34 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
                 const SizedBox(
                   height: 4.0,
                 ),
-                if (!canProgress && !kIsWeb)
-                  RichText(
-                      text: TextSpan(
-                          text: AppLocalizations.of(context)!
-                              .blueMealWaitTimeLineThree,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                          children: [
-                        WidgetSpan(
-                          alignment: PlaceholderAlignment.middle,
-                          baseline: TextBaseline.alphabetic,
-                          child: IconButton(
-                              onPressed: () {
-                                Add2Calendar.addEvent2Cal(
-                                  Event(
-                                    title: "Blue Meal Study",
-                                    description:
-                                        "You are eligible to start the second Blue Meal today.",
-                                    startDate: progressDate,
-                                    endDate: progressDate,
-                                    allDay: true,
-                                  ),
-                                );
-                              },
-                              icon: const Icon(Icons.edit_calendar)),
-                        )
-                      ])),
+                if (!canProgress && !kIsWeb) ...[
+                  Text(
+                    AppLocalizations.of(context)!.blueMealWaitTimeLineThree,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  const SizedBox(
+                    height: 6.0,
+                  ),
+                  Center(
+                    child: TextButton.icon(
+                      onPressed: () {
+                        Add2Calendar.addEvent2Cal(
+                          Event(
+                            title: "Blue Meal Study",
+                            description:
+                                "You are eligible to start the second Blue Meal today.",
+                            startDate: progressDate,
+                            endDate: progressDate,
+                            allDay: true,
+                          ),
+                        );
+                      },
+                      label: const Text("Add to calendar"),
+                      icon: const Icon(Icons.edit_calendar),
+                      iconAlignment: IconAlignment.end,
+                    ),
+                  )
+                ],
                 const SizedBox(
                   height: 8.0,
                 ),
