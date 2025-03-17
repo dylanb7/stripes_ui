@@ -113,15 +113,14 @@ class RecordingsView extends ConsumerWidget {
                         textAlign: TextAlign.center,
                       )),
                       if (clicked == BlueDyeProgression.stepFour)
-                        Center(
-                            child: Text(
+                        Text(
                           AppLocalizations.of(context)!
                               .studyStepFourExplanationCompletedNotice,
                           style: Theme.of(context)
                               .textTheme
                               .bodyMedium
                               ?.copyWith(fontWeight: FontWeight.bold),
-                        )),
+                        ),
                       const SizedBox(
                         height: 12.0,
                       ),
@@ -260,8 +259,8 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
                   ),
                   Center(
                     child: TextButton.icon(
-                      onPressed: () {
-                        Add2Calendar.addEvent2Cal(
+                      onPressed: () async {
+                        await Add2Calendar.addEvent2Cal(
                           Event(
                             title: "Blue Meal Study",
                             description:
