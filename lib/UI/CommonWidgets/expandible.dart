@@ -52,9 +52,9 @@ class _ExpandibleState extends State<Expandible>
   @override
   void initState() {
     _expandController = AnimationController(
-        duration: const Duration(milliseconds: 500),
+        duration: const Duration(milliseconds: 350),
         vsync: this,
-        reverseDuration: const Duration(milliseconds: 500));
+        reverseDuration: const Duration(milliseconds: 350));
     _heightFactor = _expandController.drive(CurveTween(curve: Curves.easeIn));
     _canExpand = widget.canExpand;
     _expanded = !_canExpand;

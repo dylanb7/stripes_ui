@@ -17,7 +17,6 @@ import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/card_layout_helper.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
-import 'package:stripes_ui/UI/Record/record_screen.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -168,7 +167,7 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
 
   Timer? timer;
 
-  final Duration waitTime = const Duration(seconds: 30);
+  final Duration waitTime = const Duration(days: 1);
 
   @override
   Widget build(BuildContext context) {
@@ -262,6 +261,7 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
                           children: [
                         WidgetSpan(
                           alignment: PlaceholderAlignment.belowBaseline,
+                          baseline: TextBaseline.alphabetic,
                           child: IconButton(
                               onPressed: () {
                                 Add2Calendar.addEvent2Cal(
