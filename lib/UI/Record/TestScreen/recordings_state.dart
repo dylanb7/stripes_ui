@@ -260,7 +260,7 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
                           style: Theme.of(context).textTheme.bodyMedium,
                           children: [
                         WidgetSpan(
-                          alignment: PlaceholderAlignment.belowBaseline,
+                          alignment: PlaceholderAlignment.middle,
                           baseline: TextBaseline.alphabetic,
                           child: IconButton(
                               onPressed: () {
