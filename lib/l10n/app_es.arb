@@ -188,6 +188,15 @@
 
     "blueMealRecordInstructions": "To record a Bowel Movement, go to the Study tab and tap record, or go to the record tab and select Bowel Movement.",
 
+    "blueMealRecordDescription": "After participant consumes two blue muffins, track their bowel movements (BMs). Continue recording all BMs, even if not blue-green. After the first blue-green BM, keep tracking until a non blue-green BM occurs. At this point {step} is complete.",
+    "@blueMealRecordDescription": {
+        "placeholders": {
+            "step": { 
+                "type": "String" 
+            }
+        }
+    },
+
     "studyStepOneExplanationTitle": "Step 1: Eat Blue Meal (Transit Time 1)",
     "studyStepOneExplanationPreReq": "Before starting, ensure that the participant has completed a 6-8 hour fast.",
     "studyStepOneExplanationPartOne": "Take two of the four blue muffins provided for the study.",

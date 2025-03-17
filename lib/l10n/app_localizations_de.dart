@@ -403,6 +403,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get blueMealRecordInstructions => 'To record a Bowel Movement, go to the Study tab and tap record, or go to the record tab and select Bowel Movement.';
 
   @override
+  String blueMealRecordDescription(String step) {
+    return 'After participant consumes two blue muffins, track their bowel movements (BMs). Continue recording all BMs, even if not blue-green. After the first blue-green BM, keep tracking until a non blue-green BM occurs. At this point $step is complete.';
+  }
+
+  @override
   String get studyStepOneExplanationTitle => 'Step 1: Eat Blue Meal (Transit Time 1)';
 
   @override

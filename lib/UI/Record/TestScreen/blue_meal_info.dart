@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stripes_ui/Providers/test_progress_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
 import 'package:stripes_ui/UI/CommonWidgets/scroll_assisted_list.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/card_layout_helper.dart';
@@ -499,7 +500,7 @@ class _BlueStudyInstructionsPartTwoState
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (cardLayout) ...[
+              if (!cardLayout) ...[
                 Text(
                   AppLocalizations.of(context)!.transitOneLabel,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -646,7 +647,7 @@ class BlueStudyInstructionsPartFour extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (cardLayout) ...[
+            if (!cardLayout) ...[
               Text(
                 AppLocalizations.of(context)!.transitTwoLabel,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -675,6 +676,54 @@ class BlueStudyInstructionsPartFour extends StatelessWidget {
                   AppLocalizations.of(context)!.studyStepFourExplanationDesc),
               highlight: false,
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class BlueStudyInstructionsBMLogs extends StatelessWidget {
+  final BlueDyeProgression step;
+  const BlueStudyInstructionsBMLogs({required this.step, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final bool cardLayout =
+        getBreakpoint(context).isGreaterThan(Breakpoint.medium);
+    return AdaptiveCardLayout(
+      cardColor: Theme.of(context).primaryColor.withValues(alpha: 0.2),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (!cardLayout) ...[
+              Text(
+                step.value < 2
+                    ? AppLocalizations.of(context)!.transitOneLabel
+                    : AppLocalizations.of(context)!.transitTwoLabel,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).primaryColor,
+                    fontWeight: FontWeight.bold),
+              ),
+              const Divider(),
+            ],
+            Text(
+              step.value < 2
+                  ? AppLocalizations.of(context)!.studyStepTwoExplanationTitle
+                  : AppLocalizations.of(context)!.studyStepFourExplanationTitle,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(
+              height: 8.0,
+            ),
+            Text(AppLocalizations.of(context)!.blueMealRecordDescription(
+                step.value < 2 ? "Step 2" : "Step 4")),
           ],
         ),
       ),

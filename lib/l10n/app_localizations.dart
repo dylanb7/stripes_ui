@@ -859,6 +859,12 @@ abstract class AppLocalizations {
   /// **'To record a Bowel Movement, go to the Study tab and tap record, or go to the record tab and select Bowel Movement.'**
   String get blueMealRecordInstructions;
 
+  /// No description provided for @blueMealRecordDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'After participant consumes two blue muffins, track their bowel movements (BMs). Continue recording all BMs, even if not blue-green. After the first blue-green BM, keep tracking until a non blue-green BM occurs. At this point {step} is complete.'**
+  String blueMealRecordDescription(String step);
+
   /// No description provided for @studyStepOneExplanationTitle.
   ///
   /// In en, this message translates to:
