@@ -48,6 +48,7 @@ class Options extends ConsumerWidget {
         ref.watch(checkinProvider(CheckInProps(context: context)));
     final List<String> questionTypes = recordPaths.keys.toList();
     final TestsRepo? repo = ref.watch(testProvider).valueOrNull;
+    ref.watch(testsHolderProvider);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
