@@ -810,9 +810,9 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
             const SizedBox(
               height: 12.0,
             ),
-            stage == BlueDyeProgression.stepTwo
-                ? BlueStudyInstructionsPartTwo(initiallyExpanded: emptyLogs)
-                : const BlueStudyInstructionsPartFour(),
+            BlueStudyInstructionsBMLogs(
+              step: stage,
+            ),
             const SizedBox(
               height: 12.0,
             ),
