@@ -446,7 +446,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
             child: Padding(
               padding: const EdgeInsets.all(12.0),
               child: Text(
-                '${step.value + 1}',
+                '${step.value < 2 ? step.value + 1 : step.value}',
                 style: Theme.of(context)
                     .textTheme
                     .headlineSmall
@@ -515,7 +515,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Step ${step.value + 1}",
+                                "Step ${step.value < 2 ? step.value + 1 : step.value}",
                                 style: Theme.of(context)
                                     .textTheme
                                     .headlineSmall
