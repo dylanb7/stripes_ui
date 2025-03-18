@@ -109,7 +109,7 @@ class MealFinishedDisplay extends ConsumerWidget {
             cardLayout
                 ? ConstrainedBox(
                     constraints:
-                        BoxConstraints(maxWidth: Breakpoint.medium.value),
+                        BoxConstraints(maxWidth: Breakpoint.small.value),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [transitLabel, const BlueMealInfoButton()],
@@ -173,7 +173,7 @@ class MealFinishedDisplay extends ConsumerWidget {
                           ),
                           if (mealStats.duration != null)
                             Text(
-                                "${AppLocalizations.of(context)!.mealCompleteDuration} ${from(mealStats.duration!, context)}")
+                                "${AppLocalizations.of(context)!.mealCompleteDuration} ${MealTime.fromDuration(mealStats.duration!) ?? from(mealStats.duration!, context)}")
                         ],
                       ),
                     ],
@@ -704,7 +704,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
           height: 12.0,
         ),
         IgnorePointer(
-          ignoring: mealTime.value == null,
+          ignoring: mealTime.value == null && (completedFast.value ?? false),
           child: AdaptiveCardLayout(
             key: mealAmountConsumedKey,
             cardColor: mealTime.value == null ? disabledColor : activeCard,
@@ -762,7 +762,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
           child: FilledButton(
             onPressed: mealTime.value != null &&
                     amountConsumed.value != null &&
-                    completedFast.value != null
+                    (completedFast.value ?? false)
                 ? () {
                     _next(testsState);
                   }

@@ -112,7 +112,7 @@ class RecordingsView extends ConsumerWidget {
                             ?.copyWith(fontWeight: FontWeight.bold),
                         textAlign: TextAlign.center,
                       )),
-                      if (clicked == BlueDyeProgression.stepFour)
+                      if (clicked == BlueDyeProgression.stepFive)
                         Text(
                           AppLocalizations.of(context)!
                               .studyStepFourExplanationCompletedNotice,
@@ -131,7 +131,7 @@ class RecordingsView extends ConsumerWidget {
               const SizedBox(
                 height: 12.0,
               ),
-              if (clicked != BlueDyeProgression.stepFour) ...[
+              if (clicked != BlueDyeProgression.stepFive) ...[
                 Center(
                   child: FilledButton(
                     onPressed: () {
