@@ -410,6 +410,10 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
   Filters get _filters => ref.read(filtersProvider);
 
   _onYearChange() {
+    setState(() {
+      yearSelectShowing = true;
+    });
+    /*
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -431,7 +435,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
           ),
         ),
       ),
-    );
+    );*/
   }
 
   _onFormatChange(CalendarFormat? newFormat) {
