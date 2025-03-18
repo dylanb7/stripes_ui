@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
+import 'package:stripes_ui/UI/Record/TestScreen/amount_consumed.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -65,7 +66,7 @@ class BlueDyeVisualDisplay extends StatelessWidget {
               width: 6.0,
             ),
             Text(
-                "${AppLocalizations.of(context)!.mealCompleteDuration} ${from(resp.eatingDuration, context)}")
+                "${AppLocalizations.of(context)!.mealCompleteDuration} ${MealTime.fromDuration(resp.eatingDuration) ?? from(resp.eatingDuration, context)}")
           ],
         ),
         const SizedBox(
