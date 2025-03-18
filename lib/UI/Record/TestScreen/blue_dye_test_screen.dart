@@ -445,12 +445,13 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
             ),
             child: Padding(
               padding: const EdgeInsets.all(12.0),
-              child: Text(
-                '${step.value < 2 ? step.value + 1 : step.value}',
-                style: Theme.of(context)
-                    .textTheme
-                    .headlineSmall
-                    ?.copyWith(color: previous || !active ? surface : primary),
+              child: Center(
+                child: Text(
+                  '${step.value < 2 ? step.value + 1 : step.value}',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      color: previous || !active ? surface : primary),
+                ),
               ),
             ),
           ),
