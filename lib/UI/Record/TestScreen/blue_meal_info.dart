@@ -1,6 +1,6 @@
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:stripes_ui/Providers/test_progress_provider.dart';
-import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
 import 'package:stripes_ui/UI/CommonWidgets/scroll_assisted_list.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/card_layout_helper.dart';
@@ -34,7 +34,7 @@ class _BlueMealPreStudyState extends State<BlueMealPreStudy> {
           scrollable: AddIndicator(
             builder: (context, hasIndicator) => ScrollAssistedList(
               scrollController: ScrollController(),
-              key: const PageStorageKey("BlueDyeScroll"),
+              key: const PageStorageKey("PreMealScroll"),
               builder: (context, properties) => SizedBox.expand(
                 child: SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
@@ -148,28 +148,39 @@ class _BlueMealPreStudyState extends State<BlueMealPreStudy> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Checkbox(
-                          value: read,
-                          onChanged: (newValue) {
-                            if (newValue != null) {
-                              setState(() {
-                                read = newValue;
-                              });
-                            }
-                          }),
-                      const SizedBox(
-                        width: 4.0,
-                      ),
-                      Text(
-                        "I have read and understand the Blue Meal study process. I agree to start the test",
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.onPrimary),
-                      ),
-                    ],
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Checkbox(
+                            checkColor: Theme.of(context).colorScheme.onSurface,
+                            fillColor: WidgetStateProperty.all(
+                                Theme.of(context).colorScheme.surface),
+                            side: BorderSide(
+                                color: Theme.of(context).colorScheme.onSurface),
+                            value: read,
+                            onChanged: (newValue) {
+                              if (newValue != null) {
+                                setState(() {
+                                  read = newValue;
+                                });
+                              }
+                            }),
+                        const SizedBox(
+                          width: 4.0,
+                        ),
+                        Text(
+                          "I have read and understand the Blue Meal study process. I agree to start the test",
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(
                     height: 8.0,
@@ -178,6 +189,10 @@ class _BlueMealPreStudyState extends State<BlueMealPreStudy> {
                       style: FilledButton.styleFrom(
                           foregroundColor: Theme.of(context).primaryColor,
                           backgroundColor:
+                              Theme.of(context).colorScheme.onPrimary,
+                          disabledBackgroundColor:
+                              Theme.of(context).disabledColor.darken(20),
+                          disabledForegroundColor:
                               Theme.of(context).colorScheme.onPrimary),
                       onPressed: read
                           ? () {
