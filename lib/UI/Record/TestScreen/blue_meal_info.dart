@@ -148,29 +148,29 @@ class _BlueMealPreStudyState extends State<BlueMealPreStudy> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Checkbox(
-                            checkColor: Theme.of(context).colorScheme.onSurface,
-                            fillColor: WidgetStateProperty.all(
-                                Theme.of(context).colorScheme.surface),
-                            side: BorderSide(
-                                color: Theme.of(context).colorScheme.onSurface),
-                            value: read,
-                            onChanged: (newValue) {
-                              if (newValue != null) {
-                                setState(() {
-                                  read = newValue;
-                                });
-                              }
-                            }),
-                        const SizedBox(
-                          width: 4.0,
-                        ),
-                        Text(
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Checkbox(
+                          checkColor: Theme.of(context).colorScheme.onSurface,
+                          fillColor: WidgetStateProperty.all(
+                              Theme.of(context).colorScheme.surface),
+                          side: BorderSide(
+                              color: Theme.of(context).colorScheme.onSurface),
+                          value: read,
+                          onChanged: (newValue) {
+                            if (newValue != null) {
+                              setState(() {
+                                read = newValue;
+                              });
+                            }
+                          }),
+                      const SizedBox(
+                        width: 4.0,
+                      ),
+                      Flexible(
+                        child: Text(
                           "I have read and understand the Blue Meal study process. I agree to start the test",
                           style: Theme.of(context)
                               .textTheme
@@ -179,8 +179,8 @@ class _BlueMealPreStudyState extends State<BlueMealPreStudy> {
                                   color:
                                       Theme.of(context).colorScheme.onPrimary),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                   const SizedBox(
                     height: 8.0,
