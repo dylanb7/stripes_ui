@@ -31,9 +31,11 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
 
   CalendarFormat _format = CalendarFormat.week;
 
-  bool isHidden = false;
+  bool isHidden = false, yearSelectShowing = false;
 
   PageController? _pageController;
+
+  final GlobalKey calendarHeaderKey = GlobalKey();
 
   final DateTime firstDate = DateTime(2020);
 
@@ -215,6 +217,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
               child: Column(
                 children: [
                   _CalendarHeader(
+                      key: calendarHeaderKey,
                       onYearChange: _onYearChange,
                       focusedDay: focusedDay,
                       onLeftArrowTap: () {
@@ -356,6 +359,37 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
                           ),
                         ),
                       ),
+                      AnimatedSize(
+                        duration: Durations.short4,
+                        child: yearSelectShowing
+                            ? Padding(
+                                padding: EdgeInsets.only(
+                                    top: calendarHeaderKey
+                                                .currentContext?.size !=
+                                            null
+                                        ? calendarHeaderKey
+                                            .currentContext!.size!.height
+                                        : 0.0),
+                                child: SizedBox(
+                                  width: double.infinity,
+                                  height: 300,
+                                  child: YearPicker(
+                                    currentDate: focusedDay,
+                                    firstDate: firstDate,
+                                    lastDate: DateTime.now(),
+                                    selectedDate: focusedDay,
+                                    onChanged: (val) {
+                                      setState(() {
+                                        focusedDay = DateTime(val.year,
+                                            focusedDay.month, focusedDay.day);
+                                        yearSelectShowing = false;
+                                      });
+                                    },
+                                  ),
+                                ),
+                              )
+                            : null,
+                      ),
                       if (waiting)
                         Center(
                           child: eventsValue.isLoading
@@ -484,7 +518,8 @@ class _CalendarHeader extends StatelessWidget {
       required this.selected,
       required this.onYearChange,
       required this.reset,
-      required this.onFormatChange});
+      required this.onFormatChange,
+      super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -521,7 +556,9 @@ class _CalendarHeader extends StatelessWidget {
               headerText,
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            onPressed: () {},
+            onPressed: () {
+              onYearChange();
+            },
           ),
           IconButton(
             icon: const Icon(Icons.chevron_right),
