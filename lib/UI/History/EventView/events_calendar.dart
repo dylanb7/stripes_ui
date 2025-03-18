@@ -31,7 +31,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
 
   CalendarFormat _format = CalendarFormat.week;
 
-  bool isHidden = false, yearSelectShowing = false;
+  bool isHidden = false;
 
   PageController? _pageController;
 
@@ -180,120 +180,136 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
     }
 
     return Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          DateSelectionDisplay(
-              listener: dateRangeSelectionListener,
-              onStartClear: null,
-              onEndClear: canClear
-                  ? () {
-                      final Filters filters = _filters;
-                      ref.read(filtersProvider.notifier).state =
-                          filters.copyWith(
-                        calendarSelection: CalendarSelection.range(
-                            filters.calendarSelection.rangeStart, null),
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        DateSelectionDisplay(
+            listener: dateRangeSelectionListener,
+            onStartClear: null,
+            onEndClear: canClear
+                ? () {
+                    final Filters filters = _filters;
+                    ref.read(filtersProvider.notifier).state = filters.copyWith(
+                      calendarSelection: CalendarSelection.range(
+                          filters.calendarSelection.rangeStart, null),
+                    );
+                    rangeSelection.value = RangeSelection.end;
+                  }
+                : null,
+            selectedDay: selected,
+            start: rangeStart,
+            end: rangeEnd,
+            rangeSelectionController: rangeSelection),
+        const SizedBox(
+          height: 6.0,
+        ),
+        Visibility(
+          maintainState: true,
+          visible: !isHidden,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            decoration: BoxDecoration(
+                borderRadius: const BorderRadius.all(Radius.circular(10.0)),
+                border:
+                    Border.all(color: Theme.of(context).colorScheme.onSurface)),
+            padding: const EdgeInsets.only(bottom: 4.0),
+            child: Column(
+              children: [
+                _CalendarHeader(
+                    key: calendarHeaderKey,
+                    onYearChange: _onYearChange,
+                    focusedDay: focusedDay,
+                    onLeftArrowTap: () {
+                      _pageController?.previousPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeOut,
                       );
-                      rangeSelection.value = RangeSelection.end;
-                    }
-                  : null,
-              selectedDay: selected,
-              start: rangeStart,
-              end: rangeEnd,
-              rangeSelectionController: rangeSelection),
-          const SizedBox(
-            height: 6.0,
-          ),
-          Visibility(
-            maintainState: true,
-            visible: !isHidden,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.all(Radius.circular(10.0)),
-                  border: Border.all(
-                      color: Theme.of(context).colorScheme.onSurface)),
-              padding: const EdgeInsets.only(bottom: 4.0),
-              child: Column(
-                children: [
-                  _CalendarHeader(
-                      key: calendarHeaderKey,
-                      onYearChange: _onYearChange,
-                      focusedDay: focusedDay,
-                      onLeftArrowTap: () {
-                        _pageController?.previousPage(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeOut,
-                        );
-                      },
-                      onRightArrowTap: () {
-                        _pageController?.nextPage(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeOut,
-                        );
-                      },
-                      reset: () {
-                        reset();
-                      },
-                      onFormatChange: _onFormatChange,
-                      selected: _format),
-                  Stack(
-                    children: [
-                      IgnorePointer(
-                        ignoring: waiting,
-                        child: Opacity(
-                          opacity: waiting ? 0.6 : 1.0,
-                          child: TableCalendar(
-                            locale: locale.languageCode,
-                            daysOfWeekHeight: 25.0,
-                            focusedDay: focusedDay,
-                            firstDay:
-                                firstDate /*keys.isEmpty ? DateTime(0) : keys[0]*/,
-                            lastDay: DateTime.now(),
-                            rangeSelectionMode: RangeSelectionMode.disabled,
-                            headerVisible: false,
-                            calendarFormat: _format,
-                            availableGestures:
-                                AvailableGestures.horizontalSwipe,
-                            availableCalendarFormats: formats,
-                            onFormatChanged: null,
-                            calendarStyle: calendarStyle,
-                            onCalendarCreated: (controller) {
-                              _pageController = controller;
-                              final Filters filters = _filters;
-                              Future(() {
-                                ref.read(filtersProvider.notifier).state =
-                                    filters.copyWith(
-                                        earliestRequired: DateTime(
-                                            focusedDay.year,
-                                            focusedDay.month,
-                                            1),
-                                        latestRequired:
-                                            _lastDayOfMonth(focusedDay));
-                              });
-                            },
-                            onDaySelected: (selectedDay, focusedDay) {
-                              setState(() {
-                                focusedDay = focusedDay;
+                    },
+                    onRightArrowTap: () {
+                      _pageController?.nextPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeOut,
+                      );
+                    },
+                    reset: () {
+                      reset();
+                    },
+                    onFormatChange: _onFormatChange,
+                    selected: _format),
+                Stack(
+                  children: [
+                    IgnorePointer(
+                      ignoring: waiting,
+                      child: Opacity(
+                        opacity: waiting ? 0.6 : 1.0,
+                        child: TableCalendar(
+                          locale: locale.languageCode,
+                          daysOfWeekHeight: 25.0,
+                          focusedDay: focusedDay,
+                          firstDay:
+                              firstDate /*keys.isEmpty ? DateTime(0) : keys[0]*/,
+                          lastDay: DateTime.now(),
+                          rangeSelectionMode: RangeSelectionMode.disabled,
+                          headerVisible: false,
+                          calendarFormat: _format,
+                          availableGestures: AvailableGestures.horizontalSwipe,
+                          availableCalendarFormats: formats,
+                          onFormatChanged: null,
+                          calendarStyle: calendarStyle,
+                          onCalendarCreated: (controller) {
+                            _pageController = controller;
+                            final Filters filters = _filters;
+                            Future(() {
+                              ref.read(filtersProvider.notifier).state =
+                                  filters.copyWith(
+                                      earliestRequired: DateTime(
+                                          focusedDay.year, focusedDay.month, 1),
+                                      latestRequired:
+                                          _lastDayOfMonth(focusedDay));
+                            });
+                          },
+                          onDaySelected: (selectedDay, focusedDay) {
+                            setState(() {
+                              focusedDay = focusedDay;
 
-                                if (selected != null &&
-                                    !sameDay(selectedDay, selected)) {
+                              if (selected != null &&
+                                  !sameDay(selectedDay, selected)) {
+                                ref.read(filtersProvider.notifier).state =
+                                    _filters.copyWith(
+                                  calendarSelection:
+                                      CalendarSelection.selected(selectedDay),
+                                );
+                                return;
+                              }
+                              final RangeSelection? selection =
+                                  rangeSelection.value;
+                              final Filters filters = _filters;
+                              final CalendarSelection calendarSelection =
+                                  _filters.calendarSelection;
+                              if (selection == RangeSelection.start) {
+                                if (calendarSelection.rangeEnd != null &&
+                                    calendarSelection.rangeEnd!
+                                        .isBefore(selectedDay)) {
                                   ref.read(filtersProvider.notifier).state =
-                                      _filters.copyWith(
-                                    calendarSelection:
-                                        CalendarSelection.selected(selectedDay),
+                                      filters.copyWith(
+                                    calendarSelection: CalendarSelection.range(
+                                        selectedDay, null),
                                   );
-                                  return;
+                                } else {
+                                  ref.read(filtersProvider.notifier).state =
+                                      filters.copyWith(
+                                    calendarSelection: CalendarSelection.range(
+                                        selectedDay,
+                                        calendarSelection.rangeEnd),
+                                  );
+                                  if (calendarSelection.rangeEnd == null) {
+                                    rangeSelection.value = RangeSelection.end;
+                                  }
                                 }
-                                final RangeSelection? selection =
-                                    rangeSelection.value;
-                                final Filters filters = _filters;
-                                final CalendarSelection calendarSelection =
-                                    _filters.calendarSelection;
-                                if (selection == RangeSelection.start) {
-                                  if (calendarSelection.rangeEnd != null &&
-                                      calendarSelection.rangeEnd!
-                                          .isBefore(selectedDay)) {
+                              } else if (selection == RangeSelection.end) {
+                                if (calendarSelection.rangeStart != null) {
+                                  if (selectedDay.isBefore(
+                                      calendarSelection.rangeStart!)) {
                                     ref.read(filtersProvider.notifier).state =
                                         filters.copyWith(
                                       calendarSelection:
@@ -304,116 +320,61 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
                                     ref.read(filtersProvider.notifier).state =
                                         filters.copyWith(
                                       calendarSelection:
-                                          CalendarSelection.range(selectedDay,
-                                              calendarSelection.rangeEnd),
+                                          CalendarSelection.range(
+                                              calendarSelection.rangeStart,
+                                              selectedDay),
                                     );
-                                    if (calendarSelection.rangeEnd == null) {
-                                      rangeSelection.value = RangeSelection.end;
-                                    }
-                                  }
-                                } else if (selection == RangeSelection.end) {
-                                  if (calendarSelection.rangeStart != null) {
-                                    if (selectedDay.isBefore(
-                                        calendarSelection.rangeStart!)) {
-                                      ref.read(filtersProvider.notifier).state =
-                                          filters.copyWith(
-                                        calendarSelection:
-                                            CalendarSelection.range(
-                                                selectedDay, null),
-                                      );
-                                    } else {
-                                      ref.read(filtersProvider.notifier).state =
-                                          filters.copyWith(
-                                        calendarSelection:
-                                            CalendarSelection.range(
-                                                calendarSelection.rangeStart,
-                                                selectedDay),
-                                      );
-                                    }
                                   }
                                 }
-                              });
-                            },
-                            onRangeSelected: null,
-                            onPageChanged: (newFocus) {
-                              setState(() {
-                                focusedDay = newFocus;
-                                final Filters filters = _filters;
-                                ref.read(filtersProvider.notifier).state =
-                                    filters.copyWith(
-                                        earliestRequired: DateTime(
-                                            newFocus.year, newFocus.month, 1),
-                                        latestRequired:
-                                            _lastDayOfMonth(newFocus));
-                              });
-                            },
-                            calendarBuilders: CalendarBuilders(
-                              defaultBuilder: builder,
-                              todayBuilder: builder,
-                              rangeStartBuilder: builder,
-                              rangeEndBuilder: builder,
-                              withinRangeBuilder: builder,
-                              disabledBuilder: builder,
-                              dowBuilder: dowBuilder,
-                            ),
+                              }
+                            });
+                          },
+                          onRangeSelected: null,
+                          onPageChanged: (newFocus) {
+                            setState(() {
+                              focusedDay = newFocus;
+                              final Filters filters = _filters;
+                              ref.read(filtersProvider.notifier).state =
+                                  filters.copyWith(
+                                      earliestRequired: DateTime(
+                                          newFocus.year, newFocus.month, 1),
+                                      latestRequired:
+                                          _lastDayOfMonth(newFocus));
+                            });
+                          },
+                          calendarBuilders: CalendarBuilders(
+                            defaultBuilder: builder,
+                            todayBuilder: builder,
+                            rangeStartBuilder: builder,
+                            rangeEndBuilder: builder,
+                            withinRangeBuilder: builder,
+                            disabledBuilder: builder,
+                            dowBuilder: dowBuilder,
                           ),
                         ),
                       ),
-                      AnimatedSize(
-                        duration: Durations.short4,
-                        child: yearSelectShowing
-                            ? Padding(
-                                padding: EdgeInsets.only(
-                                    top: calendarHeaderKey
-                                                .currentContext?.size !=
-                                            null
-                                        ? calendarHeaderKey
-                                            .currentContext!.size!.height
-                                        : 0.0),
-                                child: SizedBox(
-                                  width: double.infinity,
-                                  height: 300,
-                                  child: YearPicker(
-                                    currentDate: focusedDay,
-                                    firstDate: firstDate,
-                                    lastDate: DateTime.now(),
-                                    selectedDate: focusedDay,
-                                    onChanged: (val) {
-                                      setState(() {
-                                        focusedDay = DateTime(val.year,
-                                            focusedDay.month, focusedDay.day);
-                                        yearSelectShowing = false;
-                                      });
-                                    },
-                                  ),
-                                ),
-                              )
-                            : null,
+                    ),
+                    if (waiting)
+                      Center(
+                        child: eventsValue.isLoading
+                            ? const LoadingWidget()
+                            : Text(
+                                eventsValue.error.toString(),
+                              ),
                       ),
-                      if (waiting)
-                        Center(
-                          child: eventsValue.isLoading
-                              ? const LoadingWidget()
-                              : Text(
-                                  eventsValue.error.toString(),
-                                ),
-                        ),
-                    ],
-                  ),
-                ],
-              ),
+                  ],
+                ),
+              ],
             ),
           ),
-        ]);
+        ),
+      ],
+    );
   }
 
   Filters get _filters => ref.read(filtersProvider);
 
   _onYearChange() {
-    setState(() {
-      yearSelectShowing = true;
-    });
-    /*
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -435,7 +396,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
           ),
         ),
       ),
-    );*/
+    );
   }
 
   _onFormatChange(CalendarFormat? newFormat) {
