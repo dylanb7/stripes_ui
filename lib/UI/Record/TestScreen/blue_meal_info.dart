@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:stripes_ui/Providers/test_progress_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
 import 'package:stripes_ui/UI/CommonWidgets/scroll_assisted_list.dart';
+import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/card_layout_helper.dart';
+import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
-class BlueMealPreStudy extends StatelessWidget {
+class BlueMealPreStudy extends StatefulWidget {
   final Function onClick;
 
   final bool isLoading;
@@ -15,79 +17,181 @@ class BlueMealPreStudy extends StatelessWidget {
       {required this.onClick, required this.isLoading, super.key});
 
   @override
+  State<StatefulWidget> createState() {
+    return _BlueMealPreStudyState();
+  }
+}
+
+class _BlueMealPreStudyState extends State<BlueMealPreStudy> {
+  bool read = false;
+
+  @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          DecoratedBox(
-            decoration: BoxDecoration(
-              color: Colors.yellow.withValues(alpha: 0.35),
-              borderRadius: const BorderRadius.all(
-                Radius.circular(4.0),
+    return Column(children: [
+      Expanded(
+        child: RefreshWidget(
+          depth: RefreshDepth.authuser,
+          scrollable: AddIndicator(
+            builder: (context, hasIndicator) => ScrollAssistedList(
+              scrollController: ScrollController(),
+              key: const PageStorageKey("BlueDyeScroll"),
+              builder: (context, properties) => SizedBox.expand(
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  key: properties.scrollStateKey,
+                  controller: properties.scrollController,
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints:
+                          BoxConstraints(maxWidth: Breakpoint.medium.value),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(
+                            height: 20.0,
+                          ),
+                          const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 20.0),
+                              child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: TestSwitcher())),
+                          const SizedBox(
+                            height: 12.0,
+                          ),
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 20.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    color:
+                                        Colors.yellow.withValues(alpha: 0.35),
+                                    borderRadius: const BorderRadius.all(
+                                      Radius.circular(4.0),
+                                    ),
+                                  ),
+                                  child: Padding(
+                                      padding: const EdgeInsets.all(4.0),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            AppLocalizations.of(context)!
+                                                .preStudySeeing,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .titleMedium
+                                                ?.copyWith(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                          ),
+                                          Text(
+                                            AppLocalizations.of(context)!
+                                                .preStudySeeingExp,
+                                          ),
+                                        ],
+                                      )),
+                                ),
+                                const SizedBox(
+                                  height: 12.0,
+                                ),
+                                const BlueMealStudyInstructions(),
+                                const SizedBox(
+                                  height: 12.0,
+                                ),
+                                Text(
+                                  AppLocalizations.of(context)!
+                                      .preStudyEnrollTitle,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.copyWith(fontWeight: FontWeight.bold),
+                                ),
+                                Text(AppLocalizations.of(context)!
+                                    .preStudyEnrollDescPartOne),
+                                const SizedBox(
+                                  height: 12.0,
+                                ),
+                                Text(AppLocalizations.of(context)!
+                                    .preStudyEnrollDescPartTwo),
+                                const SizedBox(
+                                  height: 25.0,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
+          ),
+        ),
+      ),
+      ColoredBox(
+        color: Theme.of(context).primaryColor,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: Breakpoint.medium.value),
             child: Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      AppLocalizations.of(context)!.preStudySeeing,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      AppLocalizations.of(context)!.preStudySeeingExp,
-                    ),
-                  ],
-                )),
-          ),
-          const SizedBox(
-            height: 12.0,
-          ),
-          const BlueMealStudyInstructions(),
-          const SizedBox(
-            height: 12.0,
-          ),
-          Text(
-            AppLocalizations.of(context)!.preStudyEnrollTitle,
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          Text(AppLocalizations.of(context)!.preStudyEnrollDescPartOne),
-          const SizedBox(
-            height: 12.0,
-          ),
-          Text(AppLocalizations.of(context)!.preStudyEnrollDescPartTwo),
-          const SizedBox(
-            height: 25.0,
-          ),
-          Center(
-            child: FilledButton(
-              onPressed: isLoading
-                  ? null
-                  : () {
-                      onClick();
-                    },
-              child: isLoading
-                  ? const ButtonLoadingIndicator()
-                  : Text(AppLocalizations.of(context)!.preStudyEnrollButton),
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Checkbox(
+                          value: read,
+                          onChanged: (newValue) {
+                            if (newValue != null) {
+                              setState(() {
+                                read = newValue;
+                              });
+                            }
+                          }),
+                      const SizedBox(
+                        width: 4.0,
+                      ),
+                      Text(
+                        "I have read and understand the Blue Meal study process. I agree to start the test",
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.onPrimary),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 8.0,
+                  ),
+                  FilledButton(
+                      style: FilledButton.styleFrom(
+                          foregroundColor: Theme.of(context).primaryColor,
+                          backgroundColor:
+                              Theme.of(context).colorScheme.onPrimary),
+                      onPressed: read
+                          ? () {
+                              widget.onClick();
+                            }
+                          : null,
+                      child: const Text("Start step one"))
+                ],
+              ),
             ),
           ),
-          const SizedBox(
-            height: 50.0,
-          ),
-        ],
-      ),
-    );
+        ),
+      )
+    ]);
   }
 }
 

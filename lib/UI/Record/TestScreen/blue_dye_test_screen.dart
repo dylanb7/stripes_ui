@@ -10,7 +10,6 @@ import 'package:stripes_ui/UI/Record/TestScreen/amount_consumed.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/recordings_state.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
-import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:stripes_ui/Util/easy_snack.dart';
@@ -29,8 +28,6 @@ class BlueDyeTestScreen extends ConsumerStatefulWidget {
 
 class _BlueDyeTestScreenState extends ConsumerState<BlueDyeTestScreen> {
   bool isLoading = false;
-
-  final ScrollController scrollContoller = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -58,61 +55,16 @@ class _BlueDyeTestScreenState extends ConsumerState<BlueDyeTestScreen> {
       );
     }
     final BlueDyeTestProgress? loaded = progress.valueOrNull;
-    return RefreshWidget(
-      depth: RefreshDepth.authuser,
-      scrollable: AddIndicator(
-        builder: (context, hasIndicator) => ScrollAssistedList(
-          scrollController: scrollContoller,
-          key: const PageStorageKey("BlueDyeScroll"),
-          builder: (context, properties) => SizedBox.expand(
-            child: ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              key: properties.scrollStateKey,
-              shrinkWrap: true,
-              controller: properties.scrollController,
-              children: [
-                Center(
-                  child: ConstrainedBox(
-                    constraints:
-                        BoxConstraints(maxWidth: Breakpoint.medium.value),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(
-                          height: 20.0,
-                        ),
-                        const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 20.0),
-                            child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: TestSwitcher())),
-                        const SizedBox(
-                          height: 12.0,
-                        ),
-                        loaded?.stage == BlueDyeTestStage.initial &&
-                                loaded!.orderedTests.isEmpty
-                            ? BlueMealPreStudy(
-                                onClick: () {
-                                  _startTest();
-                                },
-                                isLoading: isLoading,
-                              )
-                            : const StudyOngoing(),
-                        if (hasIndicator)
-                          const SizedBox(
-                            height: 100,
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+    if (loaded?.stage == BlueDyeTestStage.initial &&
+        loaded!.orderedTests.isEmpty) {
+      return BlueMealPreStudy(
+        onClick: () {
+          _startTest();
+        },
+        isLoading: isLoading,
+      );
+    }
+    return const StudyOngoing();
   }
 
   Future<void> _startTest() async {
@@ -297,51 +249,79 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
           .toList(),
     );
 
-    return ScrollAssistedList(
-      builder: (context, properties) => ListView(
-        key: properties.scrollStateKey,
-        shrinkWrap: true,
-        controller: properties.scrollController,
-        children: [
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 120.0),
-            child: shouldWrap
-                ? kIsWeb
-                    ? Row(
-                        children: [
-                          IconButton(
-                              visualDensity: VisualDensity.compact,
-                              onPressed: () {
-                                _pageController.previousPage(
-                                    duration: const Duration(milliseconds: 200),
-                                    curve: Curves.ease);
-                              },
-                              icon: const Icon(Icons.keyboard_arrow_left)),
-                          Expanded(child: pageView),
-                          IconButton(
-                              visualDensity: VisualDensity.compact,
-                              onPressed: () {
-                                _pageController.nextPage(
-                                    duration: const Duration(milliseconds: 200),
-                                    curve: Curves.ease);
-                              },
-                              icon: const Icon(Icons.keyboard_arrow_right)),
-                        ],
-                      )
-                    : pageView
-                : Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: BlueDyeProgression.values
-                        .map<Widget>(
-                          (step) => _buildScrollStep(
-                              context, index, currentIndex, step),
-                        )
-                        .toList()
-                        .spacedBy(space: 12, axis: Axis.horizontal),
-                  ),
-          ),
-          /*if (shouldWrap)
+    return RefreshWidget(
+      depth: RefreshDepth.authuser,
+      scrollable: AddIndicator(
+        builder: (context, hasIndicator) => ScrollAssistedList(
+          scrollController: ScrollController(),
+          key: const PageStorageKey("BlueDyeScroll"),
+          builder: (context, properties) => SizedBox.expand(
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              key: properties.scrollStateKey,
+              controller: properties.scrollController,
+              child: Center(
+                child: ConstrainedBox(
+                  constraints:
+                      BoxConstraints(maxWidth: Breakpoint.medium.value),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(
+                        height: 20.0,
+                      ),
+                      const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: TestSwitcher())),
+                      const SizedBox(
+                        height: 12.0,
+                      ),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxHeight: 120.0),
+                        child: shouldWrap
+                            ? kIsWeb
+                                ? Row(
+                                    children: [
+                                      IconButton(
+                                          visualDensity: VisualDensity.compact,
+                                          onPressed: () {
+                                            _pageController.previousPage(
+                                                duration: const Duration(
+                                                    milliseconds: 200),
+                                                curve: Curves.ease);
+                                          },
+                                          icon: const Icon(
+                                              Icons.keyboard_arrow_left)),
+                                      Expanded(child: pageView),
+                                      IconButton(
+                                          visualDensity: VisualDensity.compact,
+                                          onPressed: () {
+                                            _pageController.nextPage(
+                                                duration: const Duration(
+                                                    milliseconds: 200),
+                                                curve: Curves.ease);
+                                          },
+                                          icon: const Icon(
+                                              Icons.keyboard_arrow_right)),
+                                    ],
+                                  )
+                                : pageView
+                            : Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: BlueDyeProgression.values
+                                    .map<Widget>(
+                                      (step) => _buildScrollStep(
+                                          context, index, currentIndex, step),
+                                    )
+                                    .toList()
+                                    .spacedBy(space: 12, axis: Axis.horizontal),
+                              ),
+                      ),
+                      /*if (shouldWrap)
             ConstrainedBox(
                 constraints: const BoxConstraints(maxHeight: 120.0),
                 child: CarouselView.weighted(
@@ -367,14 +347,22 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                       .toList(),
                 )),*/
 
-          const SizedBox(
-            height: 12.0,
+                      const SizedBox(
+                        height: 12.0,
+                      ),
+                      getDisplayedWidget(),
+                      if (hasIndicator)
+                        const SizedBox(
+                          height: 100,
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ),
-          getDisplayedWidget(),
-        ],
+        ),
       ),
-      scrollController: scrollContoller,
-      key: const PageStorageKey("BlueDyeArea"),
     );
   }
 

@@ -8,8 +8,13 @@ class ScrollAssistedList extends StatefulWidget {
 
   final ScrollBuilder builder;
 
+  final EdgeInsets? padding;
+
   const ScrollAssistedList(
-      {required this.builder, required this.scrollController, super.key});
+      {required this.builder,
+      required this.scrollController,
+      this.padding,
+      super.key});
 
   @override
   State<StatefulWidget> createState() {
@@ -73,7 +78,8 @@ class _ScrollAssistedListState extends State<ScrollAssistedList> {
           Align(
             alignment: Alignment.bottomRight,
             child: Padding(
-              padding: const EdgeInsets.only(right: 6.0, bottom: 6.0),
+              padding: widget.padding ??
+                  const EdgeInsets.only(right: 6.0, bottom: 6.0),
               child: IconButton.filled(
                 onPressed: () {
                   if (scrollsUp) {

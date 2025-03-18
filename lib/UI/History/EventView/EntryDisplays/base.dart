@@ -252,20 +252,19 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
               ),
               Row(
                 children: [
-                  TextButton(
-                      style: TextButton.styleFrom(
-                          foregroundColor:
-                              Theme.of(context).colorScheme.secondary),
-                      onPressed: isLoading
-                          ? null
-                          : () {
-                              _delete(ref);
-                            },
-                      child: Text(
-                        AppLocalizations.of(context)!.deleteAction,
-                      )),
                   const Spacer(),
                   if (button != null) button,
+                  const SizedBox(
+                    width: 4.0,
+                  ),
+                  IconButton(
+                    onPressed: isLoading
+                        ? null
+                        : () {
+                            _delete(ref);
+                          },
+                    icon: const Icon(Icons.delete),
+                  ),
                 ],
               ),
             ]
