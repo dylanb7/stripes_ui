@@ -100,8 +100,7 @@ class RecordingsView extends ConsumerWidget {
                       const SizedBox(
                         height: 8.0,
                       ),
-                      Center(
-                          child: Text(
+                      Text(
                         clicked == BlueDyeProgression.stepTwo
                             ? AppLocalizations.of(context)!.stepTwoCompletedText
                             : AppLocalizations.of(context)!
@@ -110,7 +109,7 @@ class RecordingsView extends ConsumerWidget {
                             .textTheme
                             .bodyMedium
                             ?.copyWith(fontWeight: FontWeight.bold),
-                      )),
+                      ),
                       if (clicked == BlueDyeProgression.stepFive)
                         Text(
                           AppLocalizations.of(context)!
