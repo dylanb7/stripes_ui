@@ -108,9 +108,8 @@ class RecordingsView extends ConsumerWidget {
                                 .stepFourCompletedText,
                         style: Theme.of(context)
                             .textTheme
-                            .titleMedium
+                            .bodyMedium
                             ?.copyWith(fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.center,
                       )),
                       if (clicked == BlueDyeProgression.stepFive)
                         Text(
