@@ -164,7 +164,7 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
 
   Timer? timer;
 
-  final Duration waitTime = const Duration(days: 1);
+  final Duration waitTime = const Duration(days: 7);
 
   @override
   Widget build(BuildContext context) {

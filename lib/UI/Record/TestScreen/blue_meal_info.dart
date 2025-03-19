@@ -380,8 +380,8 @@ class BlueMealInfoSheet extends ConsumerWidget {
 
   Uri webMailTo(Email email) {
     final parameterMap = {
-      'subject': email.subject,
-      'body': email.body,
+      'subject': Uri.encodeQueryComponent(email.subject),
+      'body': Uri.encodeQueryComponent(email.body),
       'cc': email.cc.join(','),
       'bcc': email.bcc.join(','),
     };

@@ -350,7 +350,9 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                       const SizedBox(
                         height: 12.0,
                       ),
-                      getDisplayedWidget(),
+                      Center(
+                        child: getDisplayedWidget(),
+                      ),
                       if (hasIndicator)
                         const SizedBox(
                           height: 100,

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:csv/csv.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
@@ -8,6 +9,7 @@ import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
+import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/config.dart';
 import 'package:stripes_ui/entry.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
@@ -58,6 +60,13 @@ class _ExportState extends ConsumerState<Export> {
 
 Future<void> fileShare(BuildContext context, List<Response> responses,
     ExportType exportType) async {
+  if (kIsWeb) {
+    if (context.mounted) {
+      showSnack(context, "Download not supported");
+    }
+    return;
+  }
+
   final RenderBox? box = context.findRenderObject() as RenderBox?;
 
   String? detailsCsv;

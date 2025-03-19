@@ -51,6 +51,9 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
         filters.calendarSelection.selectedDate != null
             ? RangeStatus.disabled
             : RangeStatus.enabled);
+    _format = getBreakpoint(context).isGreaterThan(Breakpoint.small)
+        ? CalendarFormat.month
+        : CalendarFormat.week;
     dateRangeSelectionListener.addListener(() {
       if (!mounted) return;
       final Filters filters = _filters;
