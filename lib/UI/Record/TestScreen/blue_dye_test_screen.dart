@@ -456,8 +456,8 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
             if (step.value > activeIndex) {
               showSnack(
                   context,
-                  AppLocalizations.of(context)!
-                      .stepClickWarning("${step.value + 1}"));
+                  AppLocalizations.of(context)!.stepClickWarning(
+                      '${step.value < 2 ? step.value + 1 : step.value}'));
               return;
             }
             _changePage(step.value);
