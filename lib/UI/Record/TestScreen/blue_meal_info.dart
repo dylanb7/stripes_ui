@@ -1,5 +1,9 @@
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_email_sender/flutter_email_sender.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:stripes_backend_helper/RepositoryBase/AuthBase/auth_user.dart';
+import 'package:stripes_ui/Providers/auth_provider.dart';
 import 'package:stripes_ui/Providers/test_progress_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/scroll_assisted_list.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
@@ -250,13 +254,13 @@ class BlueMealInfoButton extends StatelessWidget {
   }
 }
 
-class BlueMealInfoSheet extends StatelessWidget {
+class BlueMealInfoSheet extends ConsumerWidget {
   final ScrollController scrollController;
 
   const BlueMealInfoSheet({super.key, required this.scrollController});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -332,7 +336,17 @@ class BlueMealInfoSheet extends StatelessWidget {
                         ),
                         Center(
                             child: FilledButton(
-                                onPressed: () {},
+                                onPressed: () async {
+                                  final AuthUser user =
+                                      await ref.read(authStream.future);
+
+                                  await FlutterEmailSender.send(Email(
+                                      subject:
+                                          "Blue Meal Study withdrawl request",
+                                      recipients: ["BlueMeal@iu.edu"],
+                                      body:
+                                          "${user.attributes["mail"] ?? "{insert account email}"}"));
+                                },
                                 child: Text(AppLocalizations.of(context)!
                                     .inStudyWithdrawButtonText))),
                         const SizedBox(

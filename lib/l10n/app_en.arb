@@ -1,544 +1,500 @@
 {
-    "@@locale": "en",
-    "checkInLabel": "Check-ins",
-    "signupWithAccessCode": "Sign up with access code",
-    "loginButtonPrefix": "Already have an account? ",
-    "loginButtonText": "Login",
-    "useWithoutAccount": "Use without account",
-    "passwordText": "Password",
-    "loginText": "Login",
-    "forgotPasswordText": "Forgot password?",
-    "resetPasswordText": "Reset Password",
-    "noAccountPrefix": "Do not have an account?",
-    "noAccountText": "Create an account",
-    "sendResetEmail": "Send reset email",
-    "createAccountText": "Create account",
-
-    "viewMoreButtonText": "View More",
-    "viewLessButtonText": "View Less",
-
-    "noDateToAddTo": "No date selected",
-    "dateRangeButton": "Select Date Range",
-    "eventFilterGroupsTag": "Groups",
-
-    "calendarVisibilityWeek": "Week",
-    "calendarVisibilityMonth": "Month",
-    "calendarVisibilityHidden": "Hidden",
-
-    "stripesName": "STRiPES",
-    "aboutStripes": "About STRiPES", 
-    "aboutLineOne": "STRiPES is a symptom tracker that collects information on altered movement of food through the gut (aka motility), pain, bowel movements(BM) and reflux of patients with Phelan-McDermid Syndrome (PMS).",
-    "aboutLineTwo": "The data will then be used in studies to further our understanding on gastrointestinal issues in patients with PMS.",
-    "aboutLineThree": "If you want to learn more about the studies STRiPES is collecting data for, please click the link below:",
-    "aboutQuestionsTitle": "Questions and/or concerns?",
-    "aboutCategoriesTitle": "If at any moment you have questions regarding thing such as:",
-    "aboutDataCollection": "Data collection",
-    "aboutDataSecurity": "Data security",
-    "aboutStudyQuestions": "Study questions",
-    "aboutStudyResults": "Study results",
-    "aboutWithdraw": "How to withdraw from study",
-    "aboutETC": "Something not listed in the above about the study or app",
-    "aboutEmail": "Please contact us at: {email}",
-    "@aboutEmail": {
-        "placeholders": {
-            "email": {
-                "type": "String",
-                "example": "exampleemail@example.edu"
-            }
-        }
-    },
-    "aboutMeetTitle": "Meet the Team",
-
-    "preStudySeeing": "Why am I seeing this:",
-    "preStudySeeingExp": "If you are on this page, it's because you indicated that you were willing to participate in the Blue Meal Study (BMS). If you feel this is incorrect, please let us know at BlueMeal@iu.edu.",
-    "preStudyEnrollTitle": "Ready to Start?",
-    "preStudyEnrollDescPartOne": "If you have read and understand these instructions and are ready to begin the study, click the button below. This will take you directly to Step 1 of the study.",
-    "preStudyEnrollDescPartTwo": "You can access these instructions again at any time by pressing the icon with the \"i\" at the top of the page.",
-    "preStudyEnrollButton": "I am ready to start Step 1",
-
-    "inStudySeeingExp": "Note: If you are returning to this page, please make sure to complete all the steps in the study flow. If you have any questions or concerns, don't hesitate to contact us at BlueMeal@iu.edu.",
-    "inStudyWithdrawTitle": "Withdraw from Study",
-    "inStudyWithdrawDesc": "You may withdraw at any time by clicking the withdrawal button below. This notifies the research team of your wish to stop participating.",
-    "inStudyWithdrawButtonText": "Withdraw from study",
-
-    "studyProgessionOne": "Eat Blue Meal",
-    "studyProgessionTwo": "Track BM",
-    "studyProgessionThree": "Eat Blue Meal",
-    "studyProgessionFour": "Track BM",
-
-    "stepClickWarning": "{step} is not yet active",
-    "@stepClickWarning": {
-        "placeholders": {
-            "step" : {
-                "type": "String",
-                "example": "Step 1"
-            }
-        }
-    },
-
-    "amountConsumedQuestion": "How much of the blue meal was eaten?",
-    "amountConsumedUnable": "Unable to determine amount consumed",
-    "amountConsumedHalfOrLess": "Less than half of blue meal",
-    "amountConsumedHalf": "Half of blue meal",
-    "amountConsumedHalfOrMore": "More than half of blue meal",
-    "amountConsumedAll": "All of blue meal",
-
-   "mealCompleteTitle": "Meal Duration",
-   "mealCompleteStartTime": "Start Time: {date} {time}",
-    "@mealCompleteStartTime": {
-        "placeholders": {
-            "date": { 
-                "type": "DateTime",
-                "format": "yMMMd"
-            },
-            "time": { 
-                "type": "DateTime",
-                "format": "jm"
-            }
-        } 
-    },
-    "mealCompleteDuration": "Eating Duration:",
-    "mealCompleteAmountConsumed": "Amount Eaten:",
-
-    "recordingStateTitle": "Bowel Movement Recording",
-
-    "stepOneCompletedText": "Step 1 - Completed",
-    "stepTwoCompletedText": "Step 2 - Completed",
-    "stepTwoCompletedSubText": "Start Step 3",
-    "stepTwoCompletedTimeText": "in {time}",
-    "@stepTwoCompletedTimeText": {
-        "placeholders": {
-            "time": { 
-                "type": "String" 
-            }
-        }
-    },
-    "stepThreeCompletedText": "Step 3 - Completed",
-    "stepFourCompletedText": "Step 4 - Completed",
-    "stepFourCompletedSubText": "You have completed the Blue Meal Study. Thank you for your participation!",
-
-    "studyRecordBMButton": "Record BM",
-
-    "studyInfoButtonLabel": "Review Study Info",
-
-    "studyExpTitle": "About the study", 
-    "studyExpBody": "This study measures gut motility (the movement of food through the digestive system) in people with Phelan-McDermid Syndrome using a novel blue meal test. It involves eating blue muffins and tracking bowel movements to determine transit time, which is the duration it takes for food to move through the digestive system, from consumption to excretion. The study will measure transit time twice using the blue muffins and this mobile app.",
-    "studyExpBodyCont": "During the study, you will be asked to report various gastrointestinal (GI) signs and symptoms using this app. While bowel movements are the primary focus of the study, we highly encourage you to track all relevant information, including:",
-    "studyBodySymptomOne": "Meal times (not a symptom, but important for context)",
-    "studyBodySymptomTwo": "Pain",
-    "studyBodySymptomThree": "Reflux",
-    "studyBodySymptomFour": "Neurological behavior",
-    "studyEligibilityTitle": "Eligibility",
-    "studyEligibilityParticipants": "Participants must:",
-    "studyEligibilityOne": "Have Phelan-McDermid Syndrome",
-    "studyEligibilityTwo": "Be 4 years of age or older",
-    "studyEligibilityThree": "Live in the United States",
-    "studyEligibilityFour": "Have an English-speaking caregiver to track symptoms",
-    "studyFlowTitle": "Study Flow",
-    "studyFlowDesc": "The study consists of a pre-study phase, preparation, and two transit time measurements:",
-    "studyFlowPreStudy": "Pre-Study:",
-    "studyFlowPreStudyOne": "Complete the onboarding questionnaire",
-    "studyFlowPreStudyTwo": "Track GI symptoms, using this app, for at least 7 days before starting Step 1 (eating the blue meal).",
-    "studyFlowPrepTitle": "Preparation:",
-    "studyFlowPrepOne": "You will receive 4 blue muffins. Store them in the freezer until ready to use.",
-    "studyFlowPrepTwo": "Muffins contain gluten-free flour, protein powder, egg whites, jam, sugar, and blue food coloring.",
-    "studyFlowStepOneTitle": "Step 1: Eat Blue Meal (Transit Time 1)",
-    "studyFlowStepOnePartOne": "After a 6-8 hour overnight fast, feed the participant 2 blue muffins.",
-    "studyFlowStepOnePartTwo": "Start the in-app timer when they begin eating. Stop when they finish. This records the muffin eating time.",
-    "studyFlowStepTwoTitle": "Step 2: Record Bowel Movements (Transit Time 1)",
-    "studyFlowStepTwoPartOne": "After the blue meal, record all bowel movements (BMs).",
-    "studyFlowStepTwoPartTwo": "Note the color, consistency, and any other symptoms for each BM.",
-    "studyFlowStepTwoPartThree": "Continue until a brown BM occurs after a blue one.",
-    "studyFlowBetweenStepTwoStepThree": "Between Step 2 & Step 3:",
-    "studyFlowBetweenStepTwoStepThreeDesc": "Wait 7 days after completing steps 1 and 2 before staring Step 3.",
-    "studyFlowStepThreeTitle": "Step 3: Eat Blue Meal (Transit Time 2)",
-    "studyFlowStepThreeDesc": "As in Step 1, after a 6-8 hour overnight fast, feed the participant the remaining 2 blue muffins. Again, start the in-app timer when they begin eating and stop when they finish to record eating time.",
-    "studyFlowStepFourTitle": "Step 4: Record Bowel Movements (Transit Time 2)",
-    "studyFlowStepFourDesc": "As in Step 2, after the second blue meal, record all bowel movements (BMs). Continue to note the color, consistency, and any other symptoms for each BM. Record until a brown BM occurs following a blue one.",
-    "studyFlowComplete": "After completing Step 4, your participation is complete!",
-    "studyContactTitle": "Contact Us",
-    "studyContactBody": "Questions or problems? Email BlueMeal@iu.edu with \"Blue Meal Study\" in the subject line.",
-
-    "transitOneLabel": "Transit Time 1",
-    "transitTwoLabel": "Transit Time 2",
-
-    "blueMealWaitTimeTitle": "Step 2 Completed",
-    "blueMealWaitTimeLineOne": "You have successfully completed Step 2 by recording a bowel movement with no blue color.",
-    "blueMealWaitTimeLineTwo": "This countdown shows how long before another Blue Dye Meal should be attempted again.",
-    "blueMealWaitTimeLineThree": "You may add when you are eligible to begin Step 3 to your calendar.",
-
-    "blueMealFastHeader": "Step 1: Eat Blue Meal",
-    "blueMealFastQuestion": "Before starting, has the participant completed the required 6-8 hour fast?",
-
-    "blueMealFastInstructionLineOne": "Feed the (2) blue muffins to the participant",
-    "blueMealFastInstructionLineTwo": "Record how long it takes the participant to eat the (2) muffins",
-    "blueMealFastInstructionLineThree": "Once the participant has finished eating the (2) muffins, please record how much was eaten.",
-    "blueMealDurationTitle": "Meal Duration",
-    "blueMealDurationQuestion": "How long did the participant take to eat the (2) muffins?",
-
-    "blueMealDurationAnswerOne": "15 minutes or less",
-    "blueMealDurationAnswerTwo": "15 to 30 minutes",
-    "blueMealDurationAnswerThree": "30 minutes to 1 hour",
-    "blueMealDurationAnswerFour": "Over 1 hour",
-
-    "blueMealAmountConsumedTitle": "About the meal",
-
-    "blueMealRecordInstructions": "To record a Bowel Movement, go to the Study tab and tap record, or go to the record tab and select Bowel Movement.",
-
-    "blueMealRecordDescription": "After participant consumes two blue muffins, track their bowel movements (BMs). Continue recording all BMs, even if not blue-green. After the first blue-green BM, keep tracking until a non blue-green BM occurs. At this point {step} is complete.",
-    "@blueMealRecordDescription": {
-        "placeholders": {
-            "step": { 
-                "type": "String" 
-            }
-        }
-    },
-
-    "studyStepOneExplanationTitle": "Step 1: Eat Blue Meal",
-    "studyStepOneExplanationPreReq": "Before starting, ensure that the participant has completed a 6-8 hour fast.",
-    "studyStepOneExplanationPartOne": "Take two of the four blue muffins provided for the study.",
-    "studyStepOneExplanationPartTwo": "Feed the two blue muffins to the participant.",
-    "studyStepOneExplanationPartThree": "As soon as the participant starts eating the muffins, press the \"Start Timer\" button below to begin recording the eating time.",
-    "studyStepOneExplanationPartFour": "Once the participant has finished eating the muffins, press the \"Stop Timer\" button to stop recording the eating time.",
-    "studyStepOneExplanationNote": "Note: If you make a mistake while timing the participant, press the \"Reset\" button to clear the timer.",
-
-    "studyStepTwoExplanationTitle": "Step 2: Record Bowel Movements",
-    "studyStepTwoExplanationDesc": "After the participant consumes the two blue muffins, track their bowel movements (BMs) using one of the following methods:",
-    "studyStepTwoExplanationPartOne": "1. On this page (Study Tab): Click \"Record BM\" button to log each BM, noting:",
-    "studyStepTwoExplanationPartOneDetailOne": "Date and time",
-    "studyStepTwoExplanationPartOneDetailTwo": "Presence or absence of blue-green color",
-    "studyStepTwoExplanationPartOneDetailThree": "Other relevant details (e.g., consistency, symptoms)",
-    "studyStepTwoExplanationPartTwo": "2. On the Track Tab:",
-    "studyStepTwoExplanationPartTwoDetailOne": "Press the \"Bowel Movement\" button to record each BM",
-    "studyStepTwoExplanationPartTwoDetailTwo": "Fill in the required information, including the presence or absence of blue-green color",
-    "studyStepTwoExplanationColorExp": "Continue recording all BMs, even if not blue-green. After the first blue-green BM, keep tracking until a non-blue BM occurs. The system will automatically complete Step 2 once you record a non-blue BM after a blue-green one.",
-    "studyStepTwoExplanationProgress": "After submitting, you will have completed the first half of the study. You can begin the second half in 7 days.",
-    
-    "studyStepThreeExplanationTitle": "Step 3: Eat Blue Meal",
-    "studyStepThreeExplanationPreReq": "Before starting, ensure that the participant has completed a 6-8 hour fast",
-    "studyStepThreeExplanationPartOne": "Feed the participant the remaining two blue muffins.",
-    "studyStepThreeExplanationPartTwo": "Record the start and end time of the meal using the timer below.",
-
-    "studyStepFourExplanationTitle": "Step 4: Record Bowel Movements",
-    "studyStepFourExplanationDesc": "After the participant consumes the two blue muffins, track their bowel movements (BMs) as follows:",
-    "studyStepFourExplanationPartOne": "Record each BM, noting the date, time, and presence or absence of blue-green color.",
-    "studyStepFourExplanationPartTwo": "Continue recording all BMs until a non-blue BM occurs after a blue-green one.",
-    "studyStepFourExplanationPartThree": "The system will automatically submit your recordings once you record the first normal-colored BM after the blue one.",
-    "studyStepFourExplanationCompletedNotice": "Once the system submits your recordings, you will have completed the Blue Meal Study. Thank you for your participation!",
-
-    "studyResetLabel": "Reset",
-    "studyPlayLabel": "Start",
-    "studyPauseLabel": "Stop",    
-
-    "passwordRequirementHeader": "Password must:",
-    "passwordLength": "Be a minimum of 8 characters long",
-    "passwordLowercase": "Include a lowercase letter (a-z)",
-    "passwordUppercase": "Include an uppercase letter (A-Z)",
-    "passwordNumber": "Include a number (1-9)",
-
-    "passwordMatchError": "Passwords do not match",
-
-    "emptyFieldText": "Empty Field",
-
-    "codeError": "Invalid Code",
-    "submitCode": "Submit",
-    "accessCodePlaceholder": "Access Code",
-    "withoutCode": "Use without code",
-    "recordTitle": "Record for {username}",
-    "@recordTitle": {
-        "placeholders": {
-            "username" : {
-                "type": "String",
-                "example": "jane"
-            }
-        }
-    },
-    "recordTab": "Record",
-    "historyTitle": "{username}'s History",
-    "@historyTitle": {
-        "placeholders": {
-            "username" : {
-                "type": "String",
-                "example": "jane"
-            }
-        }
-    },
-    "testTab": "Study",
-    "historyTab": "History",
-    "noEntryText": "No Patient Entries",
-    "lastEntry": "Last Entry: {date}",
-    "@lastEntry": {
-        "placeholders": {
-            "date": {
-                "type": "DateTime",
-                "format": "yMd"
-            }
-        }
-    },
-    "categorySelect": "Select a category to record:",
-    "blueDyeButton": "Blue Dye Test",
-    "managePatientsButton": "Manage Patients",
-    "logOutButton": "Log Out",
-    "testInProgressNotif": "Blue Dye Test in Progress",
-
-    "undo": "undo",
-    "undoEntry": "Added {symptomType} on {date} at {time}",
-    "@undoEntry": {
-        "placeholders": {
-            "symptomType": {
-                "type": "String",
-                "example": "pain"
-            },
-            "date" : {
-                "type": "DateTime",
-                "format": "yMd"
-            },
-            "time" : {
-                "type": "DateTime",
-                "format": "jm"
-            }
-        }
-    },
-
-    "recordUsername": "for {username}",
-    "@recordUsername": {
-        "placeholders": {
-            "symptomType": {
-                "type": "String",
-                "example": "pain"
-            },
-            "username": {
-                "type": "String",
-                "example": "jane"
-            }
-        }
-    },
-    "recordHeader": "Recording {symptomType}",
-    "@recordHeader": {
-        "placeholders": {
-            "symptomType": {
-                "type": "String",
-                "example": "pain"
-            }
-        }
-    },
-    "nextButton": "Next",
-    "firstPageError": "No previous page",
-    "bristolLevel": "Select the stool type that most closely resembles the bowel movement.",
-    "painLocation": "Select the location (s) of the pain below",
-    "painLevel": "Select the pain level",
-    "painLevelBM": "Select the pain during the bowel movement if applicable",
-    "selectInstruction": "Select all the signs and symptoms that apply",
-    "mildTag": "Mild",
-    "severeTag": "Severe",
-    "softTag": "Soft",
-    "hardTag": "Hard",
-    "levelReminder": "Select Level",
-    "painLevelZero": "No Hurt",
-    "painLevelOne": "Hurts Little Bit",
-    "painLevelTwo": "Hurts Little More",
-    "painLevelThree": "Hurts Even More",
-    "painLevelFour": "Hurts Whole Lot",
-    "painLevelFive": "Hurts Worst",
-    "nLevelError": "{count, plural, =1{Missing entry} other{Missing entries}}",
-    "@nLevelError": {
-        "placeholders": {
-            "count": {
-                "type": "num",
-                "format": "compact"
-            }
-        }
-    },
-    "moodLowLevel": "Best Mood",
-    "moodHighLevel": "Worst Mood",
-    "submitHeader": "Enter information about the {symptomType} entry below",
-    "@submitHeader": {
-        "placeholders": {
-            "symptomType": {
-                "type": "String",
-                "example": "pain"
-            }
-        }
-    },
-    "editSubmitHeader": "Information entered about {symptomType}",
-    "@editSubmitHeader": {
-        "placeholders": {
-            "symptomType": {
-                "type": "String",
-                "example": "pain"
-            }
-        }
-    },
-    "dateChangeTitle": "Date",
-    "dateChangeEntry": "{date}",
-    "@dateChangeEntry": {
-        "placeholders": {
-            "date": { 
-                "type": "DateTime",
-                "format": "yMMMd"
-            }
-        }
-    },
-    "timeChangeTitle": "Time",
-    "timePickerErrorBoth": "Time must be between {early} and {late}",
-    "@timePickerErrorBoth": {
-        "placeholders": {
-            "early": { 
-                "type": "String"
-            },
-            "late": {
-                "type": "String"
-            }
-        }
-    },
-    "timePickerErrorEarly": "Time must be after {early}",
-    "@timePickerErrorEarly": {
-        "placeholders": {
-            "early": { 
-                "type": "String"
-            }
-        }
-    },
-    "timePickerErrorLate": "Time must be before {late}",
-    "@timePickerErrorLate": {
-        "placeholders": {
-            "late": {
-                "type": "String"
-            }
-        }
-    },
-    "submitBlueQuestion": "Did this bowel movement contain any blue color?",
-    "submitBlueQuestionError": "Must answer blue question before submitting",
-    "blueQuestionYes": "Yes",
-    "blueQuestionNo": "No",
-    "submitDescriptionTag": "Description",
-    "submitDescriptionPlaceholder": "Tap to type...",
-    "submitButtonText": "Submit Entry",
-    "editSubmitButtonText": "Save Changes",
-    "mealTimerTitle": "Time Tracking",
-    "errorPreventionTitle": "Wait!",
-    "errorPreventionLineOne": "Are you sure you want to leave this screen?",
-    "errorPreventionLineTwo": "You have unsaved information entered for this {symptomType} entry. If you leave this screen now, your changes will be discarded. Do you want to stay on this page and save your changes or leave without saving?",
-    "@errorPreventionLineTwo": {
-        "placeholders": {
-            "symptomType": {
-                "type": "String",
-                "example": "pain"
-            }
-        }
-    },
-    "errorPreventionLeave": "Discard Changes",
-    "errorPreventionStay": "Stay and Save",
-
-    "blueDyeHeader": "Blue Meal Study",
-    "blueDyeInfoHeader": "Blue Dye Test Info",
-    "blueDyeInfoLineOne": "The Blue Dye Test measures the time it takes for food to transit through the gut.",
-    "blueDyeInfoLineTwo": "To start the test, your participant(s) should eat two blue muffins in the morning after a minimum of a six hour fasting period.",
-    "blueDyeInfoLineThree": "Record bowel movements, noting whether there is a blue blue-green color.",
-    "blueDyeInfoLineFour": "Submit test after recording the first BM that lacks any blue or blue green color.",
-    "blueDyeInstructionsHeader": "Instructions",
-    "blueDyeInstructionsStepOne": "1) Eat Muffins",
-    "blueDyeInstructionsStepOneA": "When your participant starts eating muffins, select “Start Blue Meal",
-    "blueDyeInstructionsStepOneB": "When your participant is done eating select 'Finished Blue Meal'",
-    "blueDyeInstructionsStepTwo": "2) Record Bowel Movements (BMs)",
-    "blueDyeInstructionsStepTwoA": "Log BMs from the Record page and indicate whether or not the BM has any (even partial) blue or blue green color.",
-    "blueDyeInstructionsStepTwoB": "It is common for the first couple of BMs after eating the muffin to not show blue yet.",
-    "blueDyeInstructionsStepThree": "3) Submit the Test",
-    "blueDyeInstructionsStepThreeA": "Submit test after recording the first BM that lacks any blue or blue green color.",
-    "blueMuffinsInfoHeader": "Blue Muffins Info",
-    "blueMuffinsInfoLineOne": "Blue muffins will come in the mail.",
-    "blueMuffinsInfoLineTwo": "They can be stored in the refrigerator.",
-    "blueMuffinsInfoLineThree": "To get ready for the test, remove the muffins from their packaging and heat them briefly, 20-30 seconds in the microwave or a few minutes in the oven.",
-    "blueMuffinsInfoLineFour": "Muffins should be the first thing the participant eats in the morning after an overnight fast of at least 6 hours.",
-    "blueDyeCancel": "Cancel Test",
-    "blueMuffinErrorPreventionLineOne": "Are you sure you want to cancel your Blue Dye Test?",
-    "blueMuffinErrorPreventionLineTwo": "You will lose all progress",
-    "blueDyeStart": "Start Blue Meal",
-    "blueMealStartTime": "Started: {date} {time}",
-    "@blueMealStartTime": {
-        "placeholders": {
-            "date": {
-                "type": "DateTime",
-                "format": "yMMMd"
-            },
-            "time": {
-                "type": "DateTime",
-                "format": "jm"
-            }
-        }
-    },
-    "blueDyeLogsInstructionOne": "Record bowel movements from the record screen.",
-    "blueDyeLogsInstructionTwo": " Recorded bowel movements will appear below",
-    "blueDyeLogsSubmitTest": "Submit Test",
-    "blueDyeLogsSubmitTestError": "Record a normal colored bowel movement before submitting",
-    "blueMealDurationTag": "Meal Duration:",
-    "blueMealFinishedButton": "Finished Blue Meal",
-    "blueMealFinalDurationTag": "Blue Meal Duration:",
-
-    "testSubmitSuccess": "Test successfully submitted",
-
-    "eventViewButton": "Event View",
-    "eventViewDayCategoty": "Day View",
-    "eventViewMonthCategory": "Month View",
-    "eventViewAllCategory": "All Entries",
-    "addEventButton": "Add Event",
-    "addEventHeader": "Select a type to record",
-    "filterEventsButton": "Filter",
-    "eventFilterHeader": "Filters",
-    "eventFilterResults": "{count, plural, =0{No results} =1{1 result} other{{count} results}}",
-    "@eventFilterResults": {
-        "placeholders": {
-            "count": {
-                "type": "num",
-                "format": "compact"
-            }
-        }
-    },
-
-    "exportError": "Cannot export without a code",
-    "exportName": "Export",
-    "exportDialog": "Data will be sent to the study coordinators. None of your personal information is included.\nIf there are any changes in the future you may export again.",
-    "recordCount": "{count, plural, =0{No Entries} =1{1 Entry} other{{count} Entries}}",
-    "@recordCount": {
-        "placeholders": {
-            "count": {
-                "type": "num",
-                "format": "compact"
-            }
-        }
-    },
-    "uploadDone": "Upload Done",
-    "uploadFail": "Upload Failed",
-
-    "eventFilterReset": "Reset",
-    "eventFilterTypesTag": "Types:",
-    "eventFiltersFromTag": "From:",
-    "eventFiltersToTag": "To:",
-    "eventFiltersApply": "Apply Filters",
-    "noEventsText": "No events recorded",
-
-    "behaviorsLabel": "Behaviors",
-    "descriptionLabel": "Description",
-    "deleteAction": "Delete", 
-
-    "startTestEntry": "Started Test:",
-    "mealDurationEntry": "Eating Duration:",
-    "firstBlueEntry": "First Blue BM:",
-    "lastBlueEntry": "Last Blue BM:",
-    "transitDurationEntry": "Transit Duration:",
-
-    "patientProfilesHeader": "Patient Profiles",
-    "patientProfilesInstruction": "Select a patient to view their profile.",
-    "patientBirthYear": "Birth Year",
-    "patientGender": "Gender",
-    "patientRole": "Role",
-
-    "stampDeleteWarningOne": "Are you sure you want to delete?",
-    "stampDeleteWarningTwo": "You will lose all information for this entry.",
-    "stampDeleteConfirm": "Confirm",
-    "stampDeleteCancel": "Cancel",
-
-    "exitStudy": "Exit Study",
-    "exitStudyWarning": "When you exit the study all exported data will be deleted and your access code will be invalidated",
-    "passwordConfirm": "Confirm Password"
+  "@@locale": "en",
+  "checkInLabel": "Check-ins",
+  "signupWithAccessCode": "Sign up with access code",
+  "loginButtonPrefix": "Already have an account? ",
+  "loginButtonText": "Login",
+  "useWithoutAccount": "Use without account",
+  "passwordText": "Password",
+  "loginText": "Login",
+  "forgotPasswordText": "Forgot password?",
+  "resetPasswordText": "Reset Password",
+  "noAccountPrefix": "Do not have an account?",
+  "noAccountText": "Create an account",
+  "sendResetEmail": "Send reset email",
+  "createAccountText": "Create account",
+  "viewMoreButtonText": "View More",
+  "viewLessButtonText": "View Less",
+  "noDateToAddTo": "No date selected",
+  "dateRangeButton": "Select Date Range",
+  "eventFilterGroupsTag": "Groups",
+  "calendarVisibilityWeek": "Week",
+  "calendarVisibilityMonth": "Month",
+  "calendarVisibilityHidden": "Hidden",
+  "stripesName": "STRiPES",
+  "aboutStripes": "About STRiPES",
+  "aboutLineOne": "STRiPES is a symptom tracker that collects information on altered movement of food through the gut (aka motility), pain, bowel movements(BM) and reflux of patients with Phelan-McDermid Syndrome (PMS).",
+  "aboutLineTwo": "The data will then be used in studies to further our understanding on gastrointestinal issues in patients with PMS.",
+  "aboutLineThree": "If you want to learn more about the studies STRiPES is collecting data for, please click the link below:",
+  "aboutQuestionsTitle": "Questions and/or concerns?",
+  "aboutCategoriesTitle": "If at any moment you have questions regarding thing such as:",
+  "aboutDataCollection": "Data collection",
+  "aboutDataSecurity": "Data security",
+  "aboutStudyQuestions": "Study questions",
+  "aboutStudyResults": "Study results",
+  "aboutWithdraw": "How to withdraw from study",
+  "aboutETC": "Something not listed in the above about the study or app",
+  "aboutEmail": "Please contact us at: {email}",
+  "@aboutEmail": {
+    "placeholders": {
+      "email": {
+        "type": "String",
+        "example": "exampleemail@example.edu"
+      }
+    }
+  },
+  "aboutMeetTitle": "Meet the Team",
+  "preStudySeeing": "Why am I seeing this:",
+  "preStudySeeingExp": "If you are on this page, it's because you indicated that you were willing to participate in the Blue Meal Study (BMS). If you feel this is incorrect, please let us know at BlueMeal@iu.edu.",
+  "preStudyEnrollTitle": "Ready to Start?",
+  "preStudyEnrollDescPartOne": "If you have read and understand these instructions and are ready to begin the study, click the button below. This will take you directly to Step 1 of the study.",
+  "preStudyEnrollDescPartTwo": "You can access these instructions again at any time by pressing the icon with the \"i\" at the top of the page.",
+  "preStudyEnrollButton": "I am ready to start Step 1",
+  "inStudySeeingExp": "Note: If you are returning to this page, please make sure to complete all the steps in the study flow. If you have any questions or concerns, don't hesitate to contact us at BlueMeal@iu.edu.",
+  "inStudyWithdrawTitle": "Withdraw from Study",
+  "inStudyWithdrawDesc": "You may request withdrawal at any time by clicking the withdraw button below. This composes an email to the research team of your wish to stop participating.",
+  "inStudyWithdrawButtonText": "Withdraw from study",
+  "studyProgessionOne": "Eat Blue Meal",
+  "studyProgessionTwo": "Track BM",
+  "studyProgessionThree": "Eat Blue Meal",
+  "studyProgessionFour": "Track BM",
+  "stepClickWarning": "{step} is not yet active",
+  "@stepClickWarning": {
+    "placeholders": {
+      "step": {
+        "type": "String",
+        "example": "Step 1"
+      }
+    }
+  },
+  "amountConsumedQuestion": "How much of the blue meal was eaten?",
+  "amountConsumedUnable": "Unable to determine amount consumed",
+  "amountConsumedHalfOrLess": "Less than half of blue meal",
+  "amountConsumedHalf": "Half of blue meal",
+  "amountConsumedHalfOrMore": "More than half of blue meal",
+  "amountConsumedAll": "All of blue meal",
+  "mealCompleteTitle": "Meal Duration",
+  "mealCompleteStartTime": "Start Time: {date} {time}",
+  "@mealCompleteStartTime": {
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMMMd"
+      },
+      "time": {
+        "type": "DateTime",
+        "format": "jm"
+      }
+    }
+  },
+  "mealCompleteDuration": "Eating Duration:",
+  "mealCompleteAmountConsumed": "Amount Eaten:",
+  "recordingStateTitle": "Bowel Movement Recording",
+  "stepOneCompletedText": "Step 1 - Completed",
+  "stepTwoCompletedText": "Step 2 - Completed",
+  "stepTwoCompletedSubText": "Start Step 3",
+  "stepTwoCompletedTimeText": "in {time}",
+  "@stepTwoCompletedTimeText": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "stepThreeCompletedText": "Step 3 - Completed",
+  "stepFourCompletedText": "Step 4 - Completed",
+  "stepFourCompletedSubText": "You have completed the Blue Meal Study. Thank you for your participation!",
+  "studyRecordBMButton": "Record BM",
+  "studyInfoButtonLabel": "Review Study Info",
+  "studyExpTitle": "About the study",
+  "studyExpBody": "This study measures gut motility (the movement of food through the digestive system) in people with Phelan-McDermid Syndrome using a novel blue meal test. It involves eating blue muffins and tracking bowel movements to determine transit time, which is the duration it takes for food to move through the digestive system, from consumption to excretion. The study will measure transit time twice using the blue muffins and this mobile app.",
+  "studyExpBodyCont": "During the study, you will be asked to report various gastrointestinal (GI) signs and symptoms using this app. While bowel movements are the primary focus of the study, we highly encourage you to track all relevant information, including:",
+  "studyBodySymptomOne": "Meal times (not a symptom, but important for context)",
+  "studyBodySymptomTwo": "Pain",
+  "studyBodySymptomThree": "Reflux",
+  "studyBodySymptomFour": "Neurological behavior",
+  "studyEligibilityTitle": "Eligibility",
+  "studyEligibilityParticipants": "Participants must:",
+  "studyEligibilityOne": "Have Phelan-McDermid Syndrome",
+  "studyEligibilityTwo": "Be 4 years of age or older",
+  "studyEligibilityThree": "Live in the United States",
+  "studyEligibilityFour": "Have an English-speaking caregiver to track symptoms",
+  "studyFlowTitle": "Study Flow",
+  "studyFlowDesc": "The study consists of a pre-study phase, preparation, and two transit time measurements:",
+  "studyFlowPreStudy": "Pre-Study:",
+  "studyFlowPreStudyOne": "Complete the onboarding questionnaire",
+  "studyFlowPreStudyTwo": "Track GI symptoms, using this app, for at least 7 days before starting Step 1 (eating the blue meal).",
+  "studyFlowPrepTitle": "Preparation:",
+  "studyFlowPrepOne": "You will receive 4 blue muffins. Store them in the freezer until ready to use.",
+  "studyFlowPrepTwo": "Muffins contain gluten-free flour, protein powder, egg whites, jam, sugar, and blue food coloring.",
+  "studyFlowStepOneTitle": "Step 1: Eat Blue Meal (Transit Time 1)",
+  "studyFlowStepOnePartOne": "After a 6-8 hour overnight fast, feed the participant 2 blue muffins.",
+  "studyFlowStepOnePartTwo": "Start the in-app timer when they begin eating. Stop when they finish. This records the muffin eating time.",
+  "studyFlowStepTwoTitle": "Step 2: Record Bowel Movements (Transit Time 1)",
+  "studyFlowStepTwoPartOne": "After the blue meal, record all bowel movements (BMs).",
+  "studyFlowStepTwoPartTwo": "Note the color, consistency, and any other symptoms for each BM.",
+  "studyFlowStepTwoPartThree": "Continue until a brown BM occurs after a blue one.",
+  "studyFlowBetweenStepTwoStepThree": "Between Step 2 & Step 3:",
+  "studyFlowBetweenStepTwoStepThreeDesc": "Wait 7 days after completing steps 1 and 2 before staring Step 3.",
+  "studyFlowStepThreeTitle": "Step 3: Eat Blue Meal (Transit Time 2)",
+  "studyFlowStepThreeDesc": "As in Step 1, after a 6-8 hour overnight fast, feed the participant the remaining 2 blue muffins. Again, start the in-app timer when they begin eating and stop when they finish to record eating time.",
+  "studyFlowStepFourTitle": "Step 4: Record Bowel Movements (Transit Time 2)",
+  "studyFlowStepFourDesc": "As in Step 2, after the second blue meal, record all bowel movements (BMs). Continue to note the color, consistency, and any other symptoms for each BM. Record until a brown BM occurs following a blue one.",
+  "studyFlowComplete": "After completing Step 4, your participation is complete!",
+  "studyContactTitle": "Contact Us",
+  "studyContactBody": "Questions or problems? Email BlueMeal@iu.edu with \"Blue Meal Study\" in the subject line.",
+  "transitOneLabel": "Transit Time 1",
+  "transitTwoLabel": "Transit Time 2",
+  "blueMealWaitTimeTitle": "Step 2 Completed",
+  "blueMealWaitTimeLineOne": "You have successfully completed Step 2 by recording a bowel movement with no blue color.",
+  "blueMealWaitTimeLineTwo": "This countdown shows how long before another Blue Dye Meal should be attempted again.",
+  "blueMealWaitTimeLineThree": "You may add when you are eligible to begin Step 3 to your calendar.",
+  "blueMealFastHeader": "Step 1: Eat Blue Meal",
+  "blueMealFastQuestion": "Before starting, has the participant completed the required 6-8 hour fast?",
+  "blueMealFastInstructionLineOne": "Feed the (2) blue muffins to the participant",
+  "blueMealFastInstructionLineTwo": "Record how long it takes the participant to eat the (2) muffins",
+  "blueMealFastInstructionLineThree": "Once the participant has finished eating the (2) muffins, please record how much was eaten.",
+  "blueMealDurationTitle": "Meal Duration",
+  "blueMealDurationQuestion": "How long did the participant take to eat the (2) muffins?",
+  "blueMealDurationAnswerOne": "15 minutes or less",
+  "blueMealDurationAnswerTwo": "15 to 30 minutes",
+  "blueMealDurationAnswerThree": "30 minutes to 1 hour",
+  "blueMealDurationAnswerFour": "Over 1 hour",
+  "blueMealAmountConsumedTitle": "About the meal",
+  "blueMealRecordInstructions": "To record a Bowel Movement, go to the Study tab and tap record, or go to the record tab and select Bowel Movement.",
+  "blueMealRecordDescription": "After participant consumes two blue muffins, track their bowel movements (BMs). Continue recording all BMs, even if not blue-green. After the first blue-green BM, keep tracking until a non blue-green BM occurs. At this point {step} is complete.",
+  "@blueMealRecordDescription": {
+    "placeholders": {
+      "step": {
+        "type": "String"
+      }
+    }
+  },
+  "studyStepOneExplanationTitle": "Step 1: Eat Blue Meal",
+  "studyStepOneExplanationPreReq": "Before starting, ensure that the participant has completed a 6-8 hour fast.",
+  "studyStepOneExplanationPartOne": "Take two of the four blue muffins provided for the study.",
+  "studyStepOneExplanationPartTwo": "Feed the two blue muffins to the participant.",
+  "studyStepOneExplanationPartThree": "As soon as the participant starts eating the muffins, press the \"Start Timer\" button below to begin recording the eating time.",
+  "studyStepOneExplanationPartFour": "Once the participant has finished eating the muffins, press the \"Stop Timer\" button to stop recording the eating time.",
+  "studyStepOneExplanationNote": "Note: If you make a mistake while timing the participant, press the \"Reset\" button to clear the timer.",
+  "studyStepTwoExplanationTitle": "Step 2: Record Bowel Movements",
+  "studyStepTwoExplanationDesc": "After the participant consumes the two blue muffins, track their bowel movements (BMs) using one of the following methods:",
+  "studyStepTwoExplanationPartOne": "1. On this page (Study Tab): Click \"Record BM\" button to log each BM, noting:",
+  "studyStepTwoExplanationPartOneDetailOne": "Date and time",
+  "studyStepTwoExplanationPartOneDetailTwo": "Presence or absence of blue-green color",
+  "studyStepTwoExplanationPartOneDetailThree": "Other relevant details (e.g., consistency, symptoms)",
+  "studyStepTwoExplanationPartTwo": "2. On the Track Tab:",
+  "studyStepTwoExplanationPartTwoDetailOne": "Press the \"Bowel Movement\" button to record each BM",
+  "studyStepTwoExplanationPartTwoDetailTwo": "Fill in the required information, including the presence or absence of blue-green color",
+  "studyStepTwoExplanationColorExp": "Continue recording all BMs, even if not blue-green. After the first blue-green BM, keep tracking until a non-blue BM occurs. The system will automatically complete Step 2 once you record a non-blue BM after a blue-green one.",
+  "studyStepTwoExplanationProgress": "After submitting, you will have completed the first half of the study. You can begin the second half in 7 days.",
+  "studyStepThreeExplanationTitle": "Step 3: Eat Blue Meal",
+  "studyStepThreeExplanationPreReq": "Before starting, ensure that the participant has completed a 6-8 hour fast",
+  "studyStepThreeExplanationPartOne": "Feed the participant the remaining two blue muffins.",
+  "studyStepThreeExplanationPartTwo": "Record the start and end time of the meal using the timer below.",
+  "studyStepFourExplanationTitle": "Step 4: Record Bowel Movements",
+  "studyStepFourExplanationDesc": "After the participant consumes the two blue muffins, track their bowel movements (BMs) as follows:",
+  "studyStepFourExplanationPartOne": "Record each BM, noting the date, time, and presence or absence of blue-green color.",
+  "studyStepFourExplanationPartTwo": "Continue recording all BMs until a non-blue BM occurs after a blue-green one.",
+  "studyStepFourExplanationPartThree": "The system will automatically submit your recordings once you record the first normal-colored BM after the blue one.",
+  "studyStepFourExplanationCompletedNotice": "Once the system submits your recordings, you will have completed the Blue Meal Study. Thank you for your participation!",
+  "studyResetLabel": "Reset",
+  "studyPlayLabel": "Start",
+  "studyPauseLabel": "Stop",
+  "passwordRequirementHeader": "Password must:",
+  "passwordLength": "Be a minimum of 8 characters long",
+  "passwordLowercase": "Include a lowercase letter (a-z)",
+  "passwordUppercase": "Include an uppercase letter (A-Z)",
+  "passwordNumber": "Include a number (1-9)",
+  "passwordMatchError": "Passwords do not match",
+  "emptyFieldText": "Empty Field",
+  "codeError": "Invalid Code",
+  "submitCode": "Submit",
+  "accessCodePlaceholder": "Access Code",
+  "withoutCode": "Use without code",
+  "recordTitle": "Record for {username}",
+  "@recordTitle": {
+    "placeholders": {
+      "username": {
+        "type": "String",
+        "example": "jane"
+      }
+    }
+  },
+  "recordTab": "Record",
+  "historyTitle": "{username}'s History",
+  "@historyTitle": {
+    "placeholders": {
+      "username": {
+        "type": "String",
+        "example": "jane"
+      }
+    }
+  },
+  "testTab": "Study",
+  "historyTab": "History",
+  "noEntryText": "No Patient Entries",
+  "lastEntry": "Last Entry: {date}",
+  "@lastEntry": {
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMd"
+      }
+    }
+  },
+  "categorySelect": "Select a category to record:",
+  "blueDyeButton": "Blue Dye Test",
+  "managePatientsButton": "Manage Patients",
+  "logOutButton": "Log Out",
+  "testInProgressNotif": "Blue Dye Test in Progress",
+  "undo": "undo",
+  "undoEntry": "Added {symptomType} on {date} at {time}",
+  "@undoEntry": {
+    "placeholders": {
+      "symptomType": {
+        "type": "String",
+        "example": "pain"
+      },
+      "date": {
+        "type": "DateTime",
+        "format": "yMd"
+      },
+      "time": {
+        "type": "DateTime",
+        "format": "jm"
+      }
+    }
+  },
+  "recordUsername": "for {username}",
+  "@recordUsername": {
+    "placeholders": {
+      "symptomType": {
+        "type": "String",
+        "example": "pain"
+      },
+      "username": {
+        "type": "String",
+        "example": "jane"
+      }
+    }
+  },
+  "recordHeader": "Recording {symptomType}",
+  "@recordHeader": {
+    "placeholders": {
+      "symptomType": {
+        "type": "String",
+        "example": "pain"
+      }
+    }
+  },
+  "nextButton": "Next",
+  "firstPageError": "No previous page",
+  "bristolLevel": "Select the stool type that most closely resembles the bowel movement.",
+  "painLocation": "Select the location (s) of the pain below",
+  "painLevel": "Select the pain level",
+  "painLevelBM": "Select the pain during the bowel movement if applicable",
+  "selectInstruction": "Select all the signs and symptoms that apply",
+  "mildTag": "Mild",
+  "severeTag": "Severe",
+  "softTag": "Soft",
+  "hardTag": "Hard",
+  "levelReminder": "Select Level",
+  "painLevelZero": "No Hurt",
+  "painLevelOne": "Hurts Little Bit",
+  "painLevelTwo": "Hurts Little More",
+  "painLevelThree": "Hurts Even More",
+  "painLevelFour": "Hurts Whole Lot",
+  "painLevelFive": "Hurts Worst",
+  "nLevelError": "{count, plural, =1{Missing entry} other{Missing entries}}",
+  "@nLevelError": {
+    "placeholders": {
+      "count": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
+  "moodLowLevel": "Best Mood",
+  "moodHighLevel": "Worst Mood",
+  "submitHeader": "Enter information about the {symptomType} entry below",
+  "@submitHeader": {
+    "placeholders": {
+      "symptomType": {
+        "type": "String",
+        "example": "pain"
+      }
+    }
+  },
+  "editSubmitHeader": "Information entered about {symptomType}",
+  "@editSubmitHeader": {
+    "placeholders": {
+      "symptomType": {
+        "type": "String",
+        "example": "pain"
+      }
+    }
+  },
+  "dateChangeTitle": "Date",
+  "dateChangeEntry": "{date}",
+  "@dateChangeEntry": {
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMMMd"
+      }
+    }
+  },
+  "timeChangeTitle": "Time",
+  "timePickerErrorBoth": "Time must be between {early} and {late}",
+  "@timePickerErrorBoth": {
+    "placeholders": {
+      "early": {
+        "type": "String"
+      },
+      "late": {
+        "type": "String"
+      }
+    }
+  },
+  "timePickerErrorEarly": "Time must be after {early}",
+  "@timePickerErrorEarly": {
+    "placeholders": {
+      "early": {
+        "type": "String"
+      }
+    }
+  },
+  "timePickerErrorLate": "Time must be before {late}",
+  "@timePickerErrorLate": {
+    "placeholders": {
+      "late": {
+        "type": "String"
+      }
+    }
+  },
+  "submitBlueQuestion": "Did this bowel movement contain any blue color?",
+  "submitBlueQuestionError": "Must answer blue question before submitting",
+  "blueQuestionYes": "Yes",
+  "blueQuestionNo": "No",
+  "submitDescriptionTag": "Description",
+  "submitDescriptionPlaceholder": "Tap to type...",
+  "submitButtonText": "Submit Entry",
+  "editSubmitButtonText": "Save Changes",
+  "mealTimerTitle": "Time Tracking",
+  "errorPreventionTitle": "Wait!",
+  "errorPreventionLineOne": "Are you sure you want to leave this screen?",
+  "errorPreventionLineTwo": "You have unsaved information entered for this {symptomType} entry. If you leave this screen now, your changes will be discarded. Do you want to stay on this page and save your changes or leave without saving?",
+  "@errorPreventionLineTwo": {
+    "placeholders": {
+      "symptomType": {
+        "type": "String",
+        "example": "pain"
+      }
+    }
+  },
+  "errorPreventionLeave": "Discard Changes",
+  "errorPreventionStay": "Stay and Save",
+  "blueDyeHeader": "Blue Meal Study",
+  "blueDyeInfoHeader": "Blue Dye Test Info",
+  "blueDyeInfoLineOne": "The Blue Dye Test measures the time it takes for food to transit through the gut.",
+  "blueDyeInfoLineTwo": "To start the test, your participant(s) should eat two blue muffins in the morning after a minimum of a six hour fasting period.",
+  "blueDyeInfoLineThree": "Record bowel movements, noting whether there is a blue blue-green color.",
+  "blueDyeInfoLineFour": "Submit test after recording the first BM that lacks any blue or blue green color.",
+  "blueDyeInstructionsHeader": "Instructions",
+  "blueDyeInstructionsStepOne": "1) Eat Muffins",
+  "blueDyeInstructionsStepOneA": "When your participant starts eating muffins, select “Start Blue Meal",
+  "blueDyeInstructionsStepOneB": "When your participant is done eating select 'Finished Blue Meal'",
+  "blueDyeInstructionsStepTwo": "2) Record Bowel Movements (BMs)",
+  "blueDyeInstructionsStepTwoA": "Log BMs from the Record page and indicate whether or not the BM has any (even partial) blue or blue green color.",
+  "blueDyeInstructionsStepTwoB": "It is common for the first couple of BMs after eating the muffin to not show blue yet.",
+  "blueDyeInstructionsStepThree": "3) Submit the Test",
+  "blueDyeInstructionsStepThreeA": "Submit test after recording the first BM that lacks any blue or blue green color.",
+  "blueMuffinsInfoHeader": "Blue Muffins Info",
+  "blueMuffinsInfoLineOne": "Blue muffins will come in the mail.",
+  "blueMuffinsInfoLineTwo": "They can be stored in the refrigerator.",
+  "blueMuffinsInfoLineThree": "To get ready for the test, remove the muffins from their packaging and heat them briefly, 20-30 seconds in the microwave or a few minutes in the oven.",
+  "blueMuffinsInfoLineFour": "Muffins should be the first thing the participant eats in the morning after an overnight fast of at least 6 hours.",
+  "blueDyeCancel": "Cancel Test",
+  "blueMuffinErrorPreventionLineOne": "Are you sure you want to cancel your Blue Dye Test?",
+  "blueMuffinErrorPreventionLineTwo": "You will lose all progress",
+  "blueDyeStart": "Start Blue Meal",
+  "blueMealStartTime": "Started: {date} {time}",
+  "@blueMealStartTime": {
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMMMd"
+      },
+      "time": {
+        "type": "DateTime",
+        "format": "jm"
+      }
+    }
+  },
+  "blueDyeLogsInstructionOne": "Record bowel movements from the record screen.",
+  "blueDyeLogsInstructionTwo": " Recorded bowel movements will appear below",
+  "blueDyeLogsSubmitTest": "Submit Test",
+  "blueDyeLogsSubmitTestError": "Record a normal colored bowel movement before submitting",
+  "blueMealDurationTag": "Meal Duration:",
+  "blueMealFinishedButton": "Finished Blue Meal",
+  "blueMealFinalDurationTag": "Blue Meal Duration:",
+  "testSubmitSuccess": "Test successfully submitted",
+  "eventViewButton": "Event View",
+  "eventViewDayCategoty": "Day View",
+  "eventViewMonthCategory": "Month View",
+  "eventViewAllCategory": "All Entries",
+  "addEventButton": "Add Event",
+  "addEventHeader": "Select a type to record",
+  "filterEventsButton": "Filter",
+  "eventFilterHeader": "Filters",
+  "eventFilterResults": "{count, plural, =0{No results} =1{1 result} other{{count} results}}",
+  "@eventFilterResults": {
+    "placeholders": {
+      "count": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
+  "exportError": "Cannot export without a code",
+  "exportName": "Export",
+  "exportDialog": "Data will be sent to the study coordinators. None of your personal information is included.\nIf there are any changes in the future you may export again.",
+  "recordCount": "{count, plural, =0{No Entries} =1{1 Entry} other{{count} Entries}}",
+  "@recordCount": {
+    "placeholders": {
+      "count": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
+  "uploadDone": "Upload Done",
+  "uploadFail": "Upload Failed",
+  "eventFilterReset": "Reset",
+  "eventFilterTypesTag": "Types:",
+  "eventFiltersFromTag": "From:",
+  "eventFiltersToTag": "To:",
+  "eventFiltersApply": "Apply Filters",
+  "noEventsText": "No events recorded",
+  "behaviorsLabel": "Behaviors",
+  "descriptionLabel": "Description",
+  "deleteAction": "Delete",
+  "startTestEntry": "Started Test:",
+  "mealDurationEntry": "Eating Duration:",
+  "firstBlueEntry": "First Blue BM:",
+  "lastBlueEntry": "Last Blue BM:",
+  "transitDurationEntry": "Transit Duration:",
+  "patientProfilesHeader": "Patient Profiles",
+  "patientProfilesInstruction": "Select a patient to view their profile.",
+  "patientBirthYear": "Birth Year",
+  "patientGender": "Gender",
+  "patientRole": "Role",
+  "stampDeleteWarningOne": "Are you sure you want to delete?",
+  "stampDeleteWarningTwo": "You will lose all information for this entry.",
+  "stampDeleteConfirm": "Confirm",
+  "stampDeleteCancel": "Cancel",
+  "exitStudy": "Exit Study",
+  "exitStudyWarning": "When you exit the study all exported data will be deleted and your access code will be invalidated",
+  "passwordConfirm": "Confirm Password"
 }
