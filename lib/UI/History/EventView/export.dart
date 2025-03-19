@@ -51,7 +51,7 @@ class _ExportState extends ConsumerState<Export> {
       icon: const Icon(
         Icons.ios_share,
       ),
-      tooltip: 'Export',
+      tooltip: 'Download',
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flex_color_scheme/flex_color_scheme.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,7 +11,9 @@ import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/card_layout_helper.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
+import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class BlueMealPreStudy extends StatefulWidget {
   final Function onClick;
@@ -339,13 +342,29 @@ class BlueMealInfoSheet extends ConsumerWidget {
                                 onPressed: () async {
                                   final AuthUser user =
                                       await ref.read(authStream.future);
-
-                                  await FlutterEmailSender.send(Email(
+                                  final Email email = Email(
                                       subject:
                                           "Blue Meal Study withdrawl request",
                                       recipients: ["BlueMeal@iu.edu"],
                                       body:
-                                          "${user.attributes["mail"] ?? "{insert account email}"}"));
+                                          "${user.attributes["mail"] ?? "{insert account email}"}");
+
+                                  if (kIsWeb) {
+                                    final Uri mailTo = webMailTo(email);
+                                    bool launched = false;
+                                    if (await canLaunchUrl(mailTo)) {
+                                      launched = await launchUrl(mailTo);
+                                    } else {
+                                      launched = false;
+                                    }
+                                    if (!launched && context.mounted) {
+                                      showSnack(
+                                          context, "Failed to generate email");
+                                    }
+                                    return;
+                                  }
+
+                                  await FlutterEmailSender.send(email);
                                 },
                                 child: Text(AppLocalizations.of(context)!
                                     .inStudyWithdrawButtonText))),
@@ -357,6 +376,20 @@ class BlueMealInfoSheet extends ConsumerWidget {
                 scrollController: scrollController)),
       ],
     );
+  }
+
+  Uri webMailTo(Email email) {
+    final parameterMap = {
+      'subject': email.subject,
+      'body': email.body,
+      'cc': email.cc.join(','),
+      'bcc': email.bcc.join(','),
+    };
+
+    return Uri(
+        scheme: 'mailto',
+        path: "BlueMeal@iu.edu",
+        queryParameters: parameterMap);
   }
 }
 
