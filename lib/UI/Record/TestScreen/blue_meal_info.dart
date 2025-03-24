@@ -342,6 +342,7 @@ class BlueMealInfoSheet extends ConsumerWidget {
                                 onPressed: () async {
                                   final AuthUser user =
                                       await ref.read(authStream.future);
+                                  print(user.attributes);
                                   final Email email = Email(
                                       subject:
                                           "Blue Meal Study withdrawl request",
