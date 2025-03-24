@@ -350,6 +350,8 @@ class BlueMealInfoSheet extends ConsumerWidget {
                                       body:
                                           "${user.attributes["email"] ?? "{insert account email}"}");
 
+                                  print(email.toJson());
+
                                   if (kIsWeb) {
                                     final Uri mailTo = webMailTo(email);
                                     bool launched = false;
@@ -364,8 +366,14 @@ class BlueMealInfoSheet extends ConsumerWidget {
                                     }
                                     return;
                                   }
-
-                                  await FlutterEmailSender.send(email);
+                                  try {
+                                    await FlutterEmailSender.send(email);
+                                  } catch (e) {
+                                    if (context.mounted) {
+                                      showSnack(
+                                          context, "Unable to construct email");
+                                    }
+                                  }
                                 },
                                 child: Text(AppLocalizations.of(context)!
                                     .inStudyWithdrawButtonText))),
