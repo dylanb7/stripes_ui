@@ -222,13 +222,15 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
       if (isPrevious ||
           (loaded?.testIteration == 2 && !loaded!.stage.testInProgress)) {
         return RecordingsView(
-          next: () {
-            if (activeStage == BlueDyeProgression.stepTwo) {
-              _changePage(currentIndex + 2);
-            } else {
-              _changePage(currentIndex + 1);
-            }
-          },
+          next: currentProgression == BlueDyeProgression.stepThree && isPrevious
+              ? null
+              : () {
+                  if (activeStage == BlueDyeProgression.stepTwo) {
+                    _changePage(currentIndex + 2);
+                  } else {
+                    _changePage(currentIndex + 1);
+                  }
+                },
           clicked: activeStage,
         );
       }

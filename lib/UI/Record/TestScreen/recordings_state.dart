@@ -21,7 +21,7 @@ import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class RecordingsView extends ConsumerWidget {
-  final Function next;
+  final Function? next;
 
   final BlueDyeProgression clicked;
 
@@ -132,9 +132,11 @@ class RecordingsView extends ConsumerWidget {
               if (clicked != BlueDyeProgression.stepFive) ...[
                 Center(
                   child: FilledButton(
-                    onPressed: () {
-                      next();
-                    },
+                    onPressed: next == null
+                        ? null
+                        : () {
+                            next!();
+                          },
                     child: Text(AppLocalizations.of(context)!.nextButton),
                   ),
                 ),
