@@ -342,13 +342,13 @@ class BlueMealInfoSheet extends ConsumerWidget {
                                 onPressed: () async {
                                   final AuthUser user =
                                       await ref.read(authStream.future);
-                                  print(user.attributes);
+
                                   final Email email = Email(
                                       subject:
                                           "Blue Meal Study withdrawl request",
                                       recipients: ["BlueMeal@iu.edu"],
                                       body:
-                                          "${user.attributes["mail"] ?? "{insert account email}"}");
+                                          "${user.attributes["email"] ?? "{insert account email}"}");
 
                                   if (kIsWeb) {
                                     final Uri mailTo = webMailTo(email);
