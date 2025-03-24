@@ -52,9 +52,11 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
             ? RangeStatus.disabled
             : RangeStatus.enabled);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _format = getBreakpoint(context).isGreaterThan(Breakpoint.small)
-          ? CalendarFormat.month
-          : CalendarFormat.week;
+      setState(() {
+        _format = getBreakpoint(context).isGreaterThan(Breakpoint.small)
+            ? CalendarFormat.month
+            : CalendarFormat.week;
+      });
     });
 
     dateRangeSelectionListener.addListener(() {
