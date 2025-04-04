@@ -8,6 +8,7 @@ class Routes {
   static const String HISTORY = '/history';
   static const String USERS = 'profiles';
   static const String SYMPTOMS = 'symptoms';
+  static const String SYMPTOMTYPE = 'symptomtype';
   static const String BM = 'bowelmovement';
   static const String PAIN = 'pain';
   static const String REFLUX = 'reflux';
