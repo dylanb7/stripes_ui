@@ -89,6 +89,19 @@ class AccountManagementScreen extends ConsumerWidget {
                 endIndent: 8.0,
                 indent: 8.0,
               ),
+              ListTile(
+                dense: false,
+                visualDensity: VisualDensity.comfortable,
+                title: const Text("Symptoms"),
+                trailing: const Icon(Icons.keyboard_arrow_right),
+                onTap: () {
+                  context.goNamed(Routes.USERS);
+                },
+              ),
+              const Divider(
+                endIndent: 8.0,
+                indent: 8.0,
+              ),
               const SizedBox(
                 height: 12.0,
               ),

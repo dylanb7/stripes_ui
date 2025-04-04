@@ -112,7 +112,7 @@ class _PatientScreenState extends ConsumerState<PatientScreen> {
                                       .bodyMedium
                                       ?.copyWith(
                                           color: Theme.of(context).primaryColor,
-                                          decoration: TextDecoration.underline),
+                                          fontWeight: FontWeight.bold),
                                 ),
                         ],
                       ),
