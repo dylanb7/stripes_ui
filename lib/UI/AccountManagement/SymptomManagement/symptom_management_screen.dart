@@ -72,6 +72,15 @@ class SymptomManagementScreen extends ConsumerWidget {
                 return ListTile(
                   title: Text(key),
                   subtitle: Text("$symptoms symptoms"),
+                  trailing: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Switch(value: true, onChanged: (_) {}),
+                        const SizedBox(
+                          width: 4.0,
+                        ),
+                        const Icon(Icons.keyboard_arrow_right)
+                      ]),
                 );
               }).separated(
                   by: const Divider(
