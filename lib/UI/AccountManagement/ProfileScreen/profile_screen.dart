@@ -100,8 +100,11 @@ class _PatientScreenState extends ConsumerState<PatientScreen> {
                                       ". Share your account credentials with caregivers, such as nurses, school caregivers, and other parents, to allow them to access the account. You can also create profiles for multiple individuals and use the app to track symptoms for each person. To record symptoms, simply switch to the profile of the person you want to track.")
                               : WidgetSpan(
                                   alignment: PlaceholderAlignment.baseline,
-                                  baseline: TextBaseline.ideographic,
+                                  baseline: TextBaseline.alphabetic,
                                   child: TextButton(
+                                    style: ButtonStyle(
+                                        padding: WidgetStateProperty.all(
+                                            EdgeInsets.zero)),
                                     onPressed: () {
                                       setState(() {
                                         infoShowing = true;
