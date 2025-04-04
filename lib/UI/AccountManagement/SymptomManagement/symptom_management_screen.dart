@@ -69,6 +69,8 @@ class SymptomManagementScreen extends ConsumerWidget {
                     : path.pages
                         .map((page) => page.questionIds.length)
                         .reduce((value, element) => value + element);
+
+                bool locked = true;
                 return ListTile(
                     title: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -77,9 +79,11 @@ class SymptomManagementScreen extends ConsumerWidget {
                         children: [
                           Switch(
                             value: true,
-                            onChanged: (_) {},
-                            thumbIcon:
-                                WidgetStateProperty.all(const Icon(Icons.lock)),
+                            onChanged: locked ? null : (_) {},
+                            thumbIcon: locked
+                                ? WidgetStateProperty.all(
+                                    const Icon(Icons.lock))
+                                : null,
                           ),
                           const SizedBox(
                             width: 4.0,
