@@ -47,13 +47,15 @@ class SymptomManagementScreen extends ConsumerWidget {
               height: 6.0,
             ),
             const Text("Categories"),
-            ...recordPaths.keys.map(
-              (key) => ListTile(
+            ...recordPaths.keys.map((key) {
+              final RecordPath path = recordPaths[key]!;
+              final int symptoms = path.pages.isEmpty ? 0 : path.pages.map((page) => page.questionIds.length).reduce((value, element) => value + element)
+              return ListTile(
                 title: Text(key),
                 subtitle: Text(
-                    "Symptoms: ${recordPaths[key]!.pages.map((page) => page.questionIds.length).reduce((value, element) => value + element).toString()}"),
-              ),
-            ),
+                    "Symptoms: $symptoms}"),
+              );
+            }),
             /*
             ...checkin.keys.map((items) {
               items.map((item) => {
