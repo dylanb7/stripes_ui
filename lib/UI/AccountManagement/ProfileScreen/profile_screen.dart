@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -98,20 +99,20 @@ class _PatientScreenState extends ConsumerState<PatientScreen> {
                                   style: Theme.of(context).textTheme.bodyMedium,
                                   text:
                                       ". Share your account credentials with caregivers, such as nurses, school caregivers, and other parents, to allow them to access the account. You can also create profiles for multiple individuals and use the app to track symptoms for each person. To record symptoms, simply switch to the profile of the person you want to track.")
-                              : WidgetSpan(
-                                  alignment: PlaceholderAlignment.baseline,
-                                  baseline: TextBaseline.alphabetic,
-                                  child: TextButton(
-                                    style: ButtonStyle(
-                                        padding: WidgetStateProperty.all(
-                                            EdgeInsets.zero)),
-                                    onPressed: () {
+                              : TextSpan(
+                                  text: "See more...",
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
                                       setState(() {
                                         infoShowing = true;
                                       });
                                     },
-                                    child: const Text("See more..."),
-                                  ),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                          color: Theme.of(context).primaryColor,
+                                          decoration: TextDecoration.underline),
                                 ),
                         ],
                       ),
