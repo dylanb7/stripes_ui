@@ -74,13 +74,6 @@ class _PatientScreenState extends ConsumerState<PatientScreen> {
                   textAlign: TextAlign.left,
                 ),
                 const Spacer(),
-                TextButton(
-                    onPressed: () {
-                      setState(() {
-                        infoShowing = !infoShowing;
-                      });
-                    },
-                    child: const Text("Info"))
               ],
             ),
             const SizedBox(
@@ -98,9 +91,11 @@ class _PatientScreenState extends ConsumerState<PatientScreen> {
                         text: TextSpan(
                             text:
                                 "Your app account, created with your email and password, can be accessed on multiple devices ",
+                            style: Theme.of(context).textTheme.bodyMedium,
                             children: [
                           infoShowing
-                              ? const TextSpan(
+                              ? TextSpan(
+                                  style: Theme.of(context).textTheme.bodyMedium,
                                   text:
                                       ". Share your account credentials with caregivers, such as nurses, school caregivers, and other parents, to allow them to access the account. You can also create profiles for multiple individuals and use the app to track symptoms for each person. To record symptoms, simply switch to the profile of the person you want to track.")
                               : WidgetSpan(
@@ -112,38 +107,6 @@ class _PatientScreenState extends ConsumerState<PatientScreen> {
                                       },
                                       child: const Text("See more...")))
                         ])),
-                    if (infoShowing)
-                      TextButton.icon(
-                        onPressed: () {
-                          setState(() {
-                            infoShowing = false;
-                          });
-                        },
-                        label: const Text("Close"),
-                        icon: const Icon(Icons.keyboard_arrow_up),
-                        iconAlignment: IconAlignment.end,
-                      ),
-                    const Divider(),
-                    if (infoShowing) ...[
-                      const Text(
-                        "Your app account, created with your email and password, can be accessed on multiple devices. Share your account credentials with caregivers, such as nurses, school caregivers, and other parents, to allow them to access the account. You can also create profiles for multiple individuals and use the app to track symptoms for each person. To record symptoms, simply switch to the profile of the person you want to track.",
-                        textAlign: TextAlign.left,
-                      ),
-                      const SizedBox(
-                        height: 6.0,
-                      ),
-                      TextButton.icon(
-                        onPressed: () {
-                          setState(() {
-                            infoShowing = false;
-                          });
-                        },
-                        label: const Text("Close"),
-                        icon: const Icon(Icons.keyboard_arrow_up),
-                        iconAlignment: IconAlignment.end,
-                      ),
-                      const Divider(),
-                    ]
                   ],
                 ),
               ),
