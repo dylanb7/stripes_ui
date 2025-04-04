@@ -70,18 +70,24 @@ class SymptomManagementScreen extends ConsumerWidget {
                         .map((page) => page.questionIds.length)
                         .reduce((value, element) => value + element);
                 return ListTile(
-                  title: Text(key),
-                  subtitle: Text("$symptoms symptoms"),
-                  trailing: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Switch(value: true, onChanged: (_) {}),
-                        const SizedBox(
-                          width: 4.0,
-                        ),
-                        const Icon(Icons.keyboard_arrow_right)
-                      ]),
-                );
+                    title: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(key),
+                          const SizedBox(
+                            width: 4.0,
+                          ),
+                          Switch(
+                            value: true,
+                            onChanged: (_) {},
+                            thumbIcon:
+                                WidgetStateProperty.all(const Icon(Icons.lock)),
+                          )
+                        ]),
+                    subtitle: Text("$symptoms symptoms"),
+                    trailing: const Icon(Icons.keyboard_arrow_right));
               }).separated(
                   by: const Divider(
                     endIndent: 8.0,
