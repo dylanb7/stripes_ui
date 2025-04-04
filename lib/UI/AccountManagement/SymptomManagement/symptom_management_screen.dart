@@ -74,11 +74,11 @@ class SymptomManagementScreen extends ConsumerWidget {
                   subtitle: Text("$symptoms symptoms"),
                 );
               }).separated(
-                by: const Divider(
-                  endIndent: 8.0,
-                  indent: 8.0,
-                ),
-              ),
+                  by: const Divider(
+                    endIndent: 8.0,
+                    indent: 8.0,
+                  ),
+                  includeEnds: true),
               /*
             ...checkin.keys.map((items) {
               items.map((item) => {
