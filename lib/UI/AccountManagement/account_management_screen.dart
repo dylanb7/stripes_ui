@@ -95,7 +95,7 @@ class AccountManagementScreen extends ConsumerWidget {
                 title: const Text("Symptoms"),
                 trailing: const Icon(Icons.keyboard_arrow_right),
                 onTap: () {
-                  context.goNamed(Routes.USERS);
+                  context.goNamed(Routes.SYMPTOMS);
                 },
               ),
               const Divider(
