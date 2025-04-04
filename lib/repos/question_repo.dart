@@ -106,6 +106,30 @@ class Questions extends QuestionRepo {
             PainLocationDisplay(painLocation: all),
         q6: <Numeric>(context, numeric) => PainSliderDisplay(response: numeric),
       };
+
+  @override
+  Future<bool> addQuestion(Question question) {
+    // TODO: implement addQuestion
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool> addRecordPath(String category, RecordPath path) {
+    // TODO: implement addRecordPath
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool> removeQuestion(Question question) {
+    // TODO: implement removeQuestion
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool> removeRecordPath(String category) {
+    // TODO: implement removeRecordPath
+    throw UnimplementedError();
+  }
 }
 
 bool hasId(QuestionsListener listener, String id) {

@@ -75,16 +75,16 @@ class SymptomManagementScreen extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(key),
-                          const SizedBox(
-                            width: 4.0,
-                          ),
                           Switch(
                             value: true,
                             onChanged: (_) {},
                             thumbIcon:
                                 WidgetStateProperty.all(const Icon(Icons.lock)),
-                          )
+                          ),
+                          const SizedBox(
+                            width: 4.0,
+                          ),
+                          Text(key),
                         ]),
                     subtitle: Text("$symptoms symptoms"),
                     trailing: const Icon(Icons.keyboard_arrow_right));
