@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -9,6 +10,7 @@ import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 
 class SymptomManagementScreen extends ConsumerWidget {
   const SymptomManagementScreen({super.key});
@@ -69,9 +71,14 @@ class SymptomManagementScreen extends ConsumerWidget {
                         .reduce((value, element) => value + element);
                 return ListTile(
                   title: Text(key),
-                  subtitle: Text("Symptoms: $symptoms}"),
+                  subtitle: Text("$symptoms symptoms"),
                 );
-              }),
+              }).separated(
+                by: const Divider(
+                  endIndent: 8.0,
+                  indent: 8.0,
+                ),
+              ),
               /*
             ...checkin.keys.map((items) {
               items.map((item) => {

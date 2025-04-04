@@ -16,6 +16,13 @@ extension Space on List<Widget> {
   }
 }
 
+extension Separated on Iterable<Widget> {
+  List<Widget> separated({required Widget by}) {
+    final Iterable<Widget> expanded = expand((widget) => [widget, by]);
+    return expanded.toList()..removeLast();
+  }
+}
+
 extension CarouselExtensions on CarouselController {
   int? determineWeightedIndex(List<int> weights) {
     if (hasClients && position.hasViewportDimension && position.hasPixels) {
