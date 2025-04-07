@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/QuestionModel/question.dart';
-import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo_base.dart';
 import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
 import 'package:stripes_ui/UI/Layout/home_screen.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
-import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/extensions.dart';
@@ -22,7 +20,7 @@ class SymptomTypeManagement extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);
     final AsyncValue<Map<String, List<Question>>> questions =
-        ref.watch(questionsByType);
+        ref.watch(questionsByType(context));
 
     Widget loaded(Map<String, List<Question>> questions) {
       final List<Question>? ofCategory =
