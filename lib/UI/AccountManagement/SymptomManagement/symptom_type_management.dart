@@ -77,7 +77,13 @@ class SymptomTypeManagement extends ConsumerWidget {
                           label: const Text("Create"))
                     ]),
               ),
-            if (ofCategory != null)
+            if (ofCategory != null) ...[
+              const Divider(
+                endIndent: 8.0,
+                indent: 8.0,
+              ),
+              FilledButton.icon(
+                  onPressed: () {}, label: const Text("Add Category")),
               ...ofCategory
                   .map(
                     (question) => ListTile(
@@ -90,6 +96,7 @@ class SymptomTypeManagement extends ConsumerWidget {
                         indent: 8.0,
                       ),
                       includeEnds: true),
+            ],
           ]),
         ),
       );
