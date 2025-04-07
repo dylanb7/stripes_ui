@@ -90,7 +90,7 @@ class RouteNotifier extends ChangeNotifier {
 
                       return NoTransitionPage(
                         child: SymptomTypeManagement(
-                          category: '',
+                          category: type,
                         ),
                       );
                     },
