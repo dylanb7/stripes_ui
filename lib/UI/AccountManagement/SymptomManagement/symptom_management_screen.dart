@@ -45,7 +45,7 @@ class SymptomManagementScreen extends ConsumerWidget {
                 children: [
                   IconButton(
                       onPressed: () {
-                        context.goNamed(Routes.ACCOUNT);
+                        context.pushNamed(Routes.ACCOUNT);
                       },
                       icon: const Icon(Icons.keyboard_arrow_left)),
                   Text(
@@ -61,7 +61,13 @@ class SymptomManagementScreen extends ConsumerWidget {
               const SizedBox(
                 height: 6.0,
               ),
-              const Text("Categories"),
+              Padding(
+                padding: const EdgeInsets.only(left: 20),
+                child: Text(
+                  "Categories",
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
               ...recordPaths.keys.map((key) {
                 final RecordPath path = recordPaths[key]!;
                 final int symptoms = path.pages.isEmpty
@@ -72,26 +78,30 @@ class SymptomManagementScreen extends ConsumerWidget {
 
                 bool locked = true;
                 return ListTile(
-                    title: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Switch(
-                            value: true,
-                            onChanged: locked ? null : (_) {},
-                            thumbIcon: locked
-                                ? WidgetStateProperty.all(
-                                    const Icon(Icons.lock))
-                                : null,
-                          ),
-                          const SizedBox(
-                            width: 4.0,
-                          ),
-                          Text(key),
-                        ]),
-                    subtitle: Text("$symptoms symptoms"),
-                    trailing: const Icon(Icons.keyboard_arrow_right));
+                  title: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Switch(
+                          value: true,
+                          onChanged: locked ? null : (_) {},
+                          thumbIcon: locked
+                              ? WidgetStateProperty.all(const Icon(Icons.lock))
+                              : null,
+                        ),
+                        const SizedBox(
+                          width: 4.0,
+                        ),
+                        Text(key),
+                      ]),
+                  subtitle: Text("$symptoms symptoms"),
+                  trailing: const Icon(Icons.keyboard_arrow_right),
+                  onTap: () {
+                    context.pushNamed(Routes.SYMPTOMTYPE,
+                        pathParameters: {'type': key});
+                  },
+                );
               }).separated(
                   by: const Divider(
                     endIndent: 8.0,

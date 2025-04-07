@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_ui/UI/AccountManagement/SymptomManagement/symptom_management_screen.dart';
+import 'package:stripes_ui/UI/AccountManagement/SymptomManagement/symptom_type_management.dart';
 import 'package:stripes_ui/UI/AccountManagement/account_management_screen.dart';
 import 'package:stripes_ui/UI/Login/landing_page.dart';
 
@@ -82,10 +83,18 @@ class RouteNotifier extends ChangeNotifier {
                     const NoTransitionPage(child: SymptomManagementScreen()),
                 routes: [
                   GoRoute(
-                      path: ':type',
-                      name: Routes.SYMPTOMTYPE,
-                      pageBuilder: (context, state) =>
-                          NoTransitionPage(child: Container()))
+                    path: ':type',
+                    name: Routes.SYMPTOMTYPE,
+                    pageBuilder: (context, state) {
+                      final String? type = state.pathParameters['type'];
+
+                      return NoTransitionPage(
+                        child: SymptomTypeManagement(
+                          category: '',
+                        ),
+                      );
+                    },
+                  )
                 ]),
           ],
           pageBuilder: (context, state) =>

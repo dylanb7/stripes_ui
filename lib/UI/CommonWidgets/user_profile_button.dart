@@ -27,7 +27,9 @@ class UserProfileButton extends ConsumerWidget {
         onPressed: () {
           final GoRouter router = GoRouter.of(context);
           if (selected) {
+            print(router.location);
             while (router.location.startsWith(Routes.ACCOUNT)) {
+              print(router.location);
               if (!router.canPop()) {
                 router.go(Routes.HOME);
                 return;
