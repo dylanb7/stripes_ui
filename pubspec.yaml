@@ -25,7 +25,7 @@ dependencies:
   flex_color_scheme: ^7.3.1
   flutter_svg: ^2.0.10+1
   url_launcher: ^6.3.0
-
+  select_field: ^2.0.0
   custom_sliding_segmented_control: ^1.8.3
   flutter_email_sender: ^7.0.0
   add_2_calendar: ^3.0.1

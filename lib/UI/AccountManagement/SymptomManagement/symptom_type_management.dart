@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:select_field/select_field.dart';
 import 'package:stripes_backend_helper/QuestionModel/question.dart';
 import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
@@ -78,12 +79,8 @@ class SymptomTypeManagement extends ConsumerWidget {
                     ]),
               ),
             if (ofCategory != null) ...[
-              const Divider(
-                endIndent: 8.0,
-                indent: 8.0,
-              ),
-              FilledButton.icon(
-                  onPressed: () {}, label: const Text("Add Category")),
+              const Divider(),
+              const AddSymptomWidget(),
               ...ofCategory
                   .map(
                     (question) => ListTile(
@@ -117,5 +114,67 @@ class SymptomTypeManagement extends ConsumerWidget {
             error: (error) => Center(
                   child: Text("Error: ${error.error.toString()}"),
                 )));
+  }
+}
+
+class AddSymptomWidget extends ConsumerStatefulWidget {
+  const AddSymptomWidget({super.key});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() {
+    return _AddSymptomWidgetState();
+  }
+}
+
+class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
+  bool isAdding = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSize(
+      duration: Durations.medium1,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (isAdding) ...[
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Row(
+                  children: [
+                    SelectField<String>(
+                        initialOption: Option(label: "Check", value: "Check"),
+                        options: [
+                          Option(label: "Slider", value: "Slider"),
+                          Option(
+                              label: "Free Response", value: "Free Response"),
+                          Option(
+                              label: "Multiple Choice",
+                              value: "Multiple Choice"),
+                          Option(
+                              label: "All That Apply", value: "All That Apply"),
+                        ]),
+                    const Spacer(),
+                    IconButton(
+                        onPressed: () {
+                          setState(() {
+                            isAdding = false;
+                          });
+                        },
+                        icon: const Icon(Icons.close))
+                  ],
+                ))
+          ],
+          FilledButton.icon(
+            onPressed: () {
+              setState(() {
+                isAdding = true;
+              });
+            },
+            label: const Text("Add Symptom"),
+          ),
+        ],
+      ),
+    );
   }
 }
