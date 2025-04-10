@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:select_field/select_field.dart';
@@ -133,10 +134,15 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
 
   final TextEditingController prompt = TextEditingController();
 
+  final TextEditingController minValue = TextEditingController(text: "1");
+  final TextEditingController maxValue = TextEditingController(text: "5");
+
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   static const List<String> options = [
     "Check",
-    "Slider",
     "Free Response",
+    "Slider",
     "Multiple Choice",
     "All That Apply"
   ];
@@ -155,6 +161,7 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
         child: AnimatedSize(
           duration: Durations.medium1,
           child: Form(
+            key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -170,13 +177,12 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                             });
                           },
                           menuDecoration: MenuDecoration(
-                            animationDuration: Durations.medium1,
+                            animationDuration: Durations.short4,
                             height: min(buttonHeight * options.length,
                                 screenHeight / 2),
                             buttonStyle: TextButton.styleFrom(
                               fixedSize:
                                   const Size(double.infinity, buttonHeight),
-                              backgroundColor: Colors.green[100],
                               alignment: Alignment.centerLeft,
                               padding: const EdgeInsets.all(16),
                               shape: const RoundedRectangleBorder(),
@@ -208,6 +214,92 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                   TextFormField(
                     controller: prompt,
                     decoration: const InputDecoration(hintText: "Prompt"),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a prompt';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(
+                    height: 8.0,
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "Min",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                    color: Theme.of(context).disabledColor),
+                          ),
+                          TextFormField(
+                            keyboardType: TextInputType.number,
+                            controller: minValue,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter a minimum';
+                              }
+                              int? minNum = int.tryParse(value);
+                              int? maxNum = int.tryParse(maxValue.text);
+                              if (minNum == null || maxNum == null) {
+                                return "Must have a range";
+                              }
+                              if (minNum >= maxNum) return "Invalid range";
+                              return null;
+                            },
+                            inputFormatters: <TextInputFormatter>[
+                              FilteringTextInputFormatter.digitsOnly
+                            ],
+                          ),
+                        ],
+                      ),
+                      const Spacer(),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "Max",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                    color: Theme.of(context).disabledColor),
+                          ),
+                          TextFormField(
+                            keyboardType: TextInputType.number,
+                            controller: maxValue,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter a minimum';
+                              }
+                              int? minNum = int.tryParse(value);
+                              int? maxNum = int.tryParse(maxValue.text);
+                              if (minNum == null || maxNum == null) {
+                                return "Must have a range";
+                              }
+                              if (maxNum <= minNum) return "Invalid range";
+                              return null;
+                            },
+                            inputFormatters: <TextInputFormatter>[
+                              FilteringTextInputFormatter.digitsOnly
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 16.0,
                   ),
                 ],
                 FilledButton.icon(
@@ -216,7 +308,8 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                       isAdding = true;
                     });
                   },
-                  label: const Text("Add Symptom"),
+                  label:
+                      isAdding ? const Text("Add") : const Text("Add Symptom"),
                 ),
               ],
             ),
