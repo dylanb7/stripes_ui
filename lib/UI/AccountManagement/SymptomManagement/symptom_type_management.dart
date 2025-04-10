@@ -318,7 +318,7 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                 ],
                 FilledButton.icon(
                   onPressed: () {
-                    if (isAdding) {
+                    if (!isAdding) {
                       setState(() {
                         isAdding = true;
                       });
