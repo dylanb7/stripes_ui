@@ -231,74 +231,83 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                "Min",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.copyWith(
-                                        color: Theme.of(context).disabledColor),
-                              ),
-                              TextFormField(
-                                keyboardType: TextInputType.number,
-                                controller: minValue,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter a minimum';
-                                  }
-                                  int? minNum = int.tryParse(value);
-                                  int? maxNum = int.tryParse(maxValue.text);
-                                  if (minNum == null || maxNum == null) {
-                                    return "Must have a range";
-                                  }
-                                  if (minNum >= maxNum) return "Invalid range";
-                                  return null;
-                                },
-                                inputFormatters: <TextInputFormatter>[
-                                  FilteringTextInputFormatter.digitsOnly
-                                ],
-                              ),
-                            ],
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  "Min",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                          color:
+                                              Theme.of(context).disabledColor),
+                                ),
+                                TextFormField(
+                                  keyboardType: TextInputType.number,
+                                  controller: minValue,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter a minimum';
+                                    }
+                                    int? minNum = int.tryParse(value);
+                                    int? maxNum = int.tryParse(maxValue.text);
+                                    if (minNum == null || maxNum == null) {
+                                      return "Must have a range";
+                                    }
+                                    if (minNum >= maxNum)
+                                      return "Invalid range";
+                                    return null;
+                                  },
+                                  inputFormatters: <TextInputFormatter>[
+                                    FilteringTextInputFormatter.digitsOnly
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                           const Spacer(),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                "Max",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.copyWith(
-                                        color: Theme.of(context).disabledColor),
-                              ),
-                              TextFormField(
-                                keyboardType: TextInputType.number,
-                                controller: maxValue,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter a minimum';
-                                  }
-                                  int? minNum = int.tryParse(value);
-                                  int? maxNum = int.tryParse(maxValue.text);
-                                  if (minNum == null || maxNum == null) {
-                                    return "Must have a range";
-                                  }
-                                  if (maxNum <= minNum) return "Invalid range";
-                                  return null;
-                                },
-                                inputFormatters: <TextInputFormatter>[
-                                  FilteringTextInputFormatter.digitsOnly
-                                ],
-                              ),
-                            ],
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  "Max",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                          color:
+                                              Theme.of(context).disabledColor),
+                                ),
+                                TextFormField(
+                                  keyboardType: TextInputType.number,
+                                  controller: maxValue,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter a minimum';
+                                    }
+                                    int? minNum = int.tryParse(value);
+                                    int? maxNum = int.tryParse(maxValue.text);
+                                    if (minNum == null || maxNum == null) {
+                                      return "Must have a range";
+                                    }
+                                    if (maxNum <= minNum) {
+                                      return "Invalid range";
+                                    }
+                                    return null;
+                                  },
+                                  inputFormatters: <TextInputFormatter>[
+                                    FilteringTextInputFormatter.digitsOnly
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -309,9 +318,13 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                 ],
                 FilledButton.icon(
                   onPressed: () {
-                    setState(() {
-                      isAdding = true;
-                    });
+                    if (isAdding) {
+                      setState(() {
+                        isAdding = true;
+                      });
+                    } else {
+                      if (_formKey.currentState!.validate()) {}
+                    }
                   },
                   label:
                       isAdding ? const Text("Add") : const Text("Add Symptom"),
