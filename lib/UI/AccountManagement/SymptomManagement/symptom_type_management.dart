@@ -158,8 +158,6 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                             menuDecoration: MenuDecoration(
                                 animationDuration: Durations.medium1,
                                 height: 250),
-                            initialOption:
-                                Option(label: "Check", value: "Check"),
                             options: [
                               Option(label: "Check", value: "Check"),
                               Option(label: "Slider", value: "Slider"),
