@@ -132,7 +132,9 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
   final TextEditingController prompt = TextEditingController();
 
   final SelectFieldMenuController<String> menuController =
-      SelectFieldMenuController();
+      SelectFieldMenuController(
+    initalOption: Option(label: "Check", value: "Check"),
+  );
 
   @override
   Widget build(BuildContext context) {
