@@ -150,41 +150,37 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (isAdding) ...[
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: SelectField<String>(
-                            menuController: menuController,
-                            menuDecoration: MenuDecoration(
-                                animationDuration: Durations.medium1,
-                                height: 250),
-                            options: [
-                              Option(label: "Check", value: "Check"),
-                              Option(label: "Slider", value: "Slider"),
-                              Option(
-                                  label: "Free Response",
-                                  value: "Free Response"),
-                              Option(
-                                  label: "Multiple Choice",
-                                  value: "Multiple Choice"),
-                              Option(
-                                  label: "All That Apply",
-                                  value: "All That Apply"),
-                            ],
-                          ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: SelectField<String>(
+                          menuController: menuController,
+                          menuDecoration: MenuDecoration(
+                              animationDuration: Durations.medium1,
+                              height: 250),
+                          options: [
+                            Option(label: "Check", value: "Check"),
+                            Option(label: "Slider", value: "Slider"),
+                            Option(
+                                label: "Free Response", value: "Free Response"),
+                            Option(
+                                label: "Multiple Choice",
+                                value: "Multiple Choice"),
+                            Option(
+                                label: "All That Apply",
+                                value: "All That Apply"),
+                          ],
                         ),
-                        const Spacer(),
-                        IconButton(
-                            onPressed: () {
-                              setState(() {
-                                isAdding = false;
-                              });
-                            },
-                            icon: const Icon(Icons.close))
-                      ],
-                    ),
+                      ),
+                      const Spacer(),
+                      IconButton(
+                          onPressed: () {
+                            setState(() {
+                              isAdding = false;
+                            });
+                          },
+                          icon: const Icon(Icons.close))
+                    ],
                   ),
                   const SizedBox(
                     height: 8.0,
