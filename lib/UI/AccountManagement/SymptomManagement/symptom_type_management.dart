@@ -144,6 +144,8 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                   children: [
                     Expanded(
                       child: SelectField<String>(
+                        menuDecoration: MenuDecoration(
+                            animationDuration: Durations.medium1, height: 200),
                         initialOption: Option(label: "Check", value: "Check"),
                         options: [
                           Option(label: "Slider", value: "Slider"),
