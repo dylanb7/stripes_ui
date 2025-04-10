@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -131,13 +133,21 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
 
   final TextEditingController prompt = TextEditingController();
 
-  final SelectFieldMenuController<String> menuController =
-      SelectFieldMenuController(
-    initalOption: Option(label: "Check", value: "Check"),
-  );
+  static const List<String> options = [
+    "Check",
+    "Slider",
+    "Free Response",
+    "Multiple Choice",
+    "All That Apply"
+  ];
+
+  static const buttonHeight = 60.0;
+
+  String selectedQuestionType = options[0];
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: ConstrainedBox(
@@ -154,22 +164,32 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                     children: [
                       Expanded(
                         child: SelectField<String>(
-                          menuController: menuController,
+                          onOptionSelected: (option) {
+                            setState(() {
+                              selectedQuestionType = option.value;
+                            });
+                          },
                           menuDecoration: MenuDecoration(
-                              animationDuration: Durations.medium1,
-                              height: 250),
-                          options: [
-                            Option(label: "Check", value: "Check"),
-                            Option(label: "Slider", value: "Slider"),
-                            Option(
-                                label: "Free Response", value: "Free Response"),
-                            Option(
-                                label: "Multiple Choice",
-                                value: "Multiple Choice"),
-                            Option(
-                                label: "All That Apply",
-                                value: "All That Apply"),
-                          ],
+                            animationDuration: Durations.medium1,
+                            height: min(buttonHeight * options.length,
+                                screenHeight / 2),
+                            buttonStyle: TextButton.styleFrom(
+                              fixedSize:
+                                  const Size(double.infinity, buttonHeight),
+                              backgroundColor: Colors.green[100],
+                              alignment: Alignment.centerLeft,
+                              padding: const EdgeInsets.all(16),
+                              shape: const RoundedRectangleBorder(),
+                            ),
+                          ),
+                          initialOption: Option<String>(
+                            label: options[0],
+                            value: options[0],
+                          ),
+                          options: options
+                              .map((option) =>
+                                  Option(label: option, value: option))
+                              .toList(),
                         ),
                       ),
                       const Spacer(),
