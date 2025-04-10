@@ -129,25 +129,32 @@ class AddSymptomWidget extends ConsumerStatefulWidget {
 class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
   bool isAdding = false;
 
+  final TextEditingController prompt = TextEditingController();
+  final SelectFieldMenuController<String> menuController =
+      SelectFieldMenuController();
+
   @override
   Widget build(BuildContext context) {
     return AnimatedSize(
       duration: Durations.medium1,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (isAdding) ...[
-            Padding(
+      child: Form(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (isAdding) ...[
+              Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Row(
                   children: [
                     Expanded(
                       child: SelectField<String>(
+                        menuController: menuController,
                         menuDecoration: MenuDecoration(
-                            animationDuration: Durations.medium1, height: 200),
+                            animationDuration: Durations.medium1, height: 250),
                         initialOption: Option(label: "Check", value: "Check"),
                         options: [
+                          Option(label: "Check", value: "Check"),
                           Option(label: "Slider", value: "Slider"),
                           Option(
                               label: "Free Response", value: "Free Response"),
@@ -168,17 +175,26 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                         },
                         icon: const Icon(Icons.close))
                   ],
-                ))
+                ),
+              ),
+              const SizedBox(
+                height: 8.0,
+              ),
+              TextFormField(
+                controller: prompt,
+                decoration: const InputDecoration(hintText: "Prompt"),
+              ),
+            ],
+            FilledButton.icon(
+              onPressed: () {
+                setState(() {
+                  isAdding = true;
+                });
+              },
+              label: const Text("Add Symptom"),
+            ),
           ],
-          FilledButton.icon(
-            onPressed: () {
-              setState(() {
-                isAdding = true;
-              });
-            },
-            label: const Text("Add Symptom"),
-          ),
-        ],
+        ),
       ),
     );
   }
