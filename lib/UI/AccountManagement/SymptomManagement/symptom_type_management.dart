@@ -142,7 +142,8 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Row(
                   children: [
-                    SelectField<String>(
+                    Expanded(
+                      child: SelectField<String>(
                         initialOption: Option(label: "Check", value: "Check"),
                         options: [
                           Option(label: "Slider", value: "Slider"),
@@ -153,7 +154,9 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                               value: "Multiple Choice"),
                           Option(
                               label: "All That Apply", value: "All That Apply"),
-                        ]),
+                        ],
+                      ),
+                    ),
                     const Spacer(),
                     IconButton(
                         onPressed: () {
