@@ -73,6 +73,7 @@ class SymptomManagementScreen extends ConsumerWidget {
                   endIndent: 8.0,
                   indent: 8.0,
                 ),
+                const AddCategoryWidget(),
                 Center(
                   child: FilledButton.icon(
                     onPressed: () {},
@@ -129,6 +130,45 @@ class SymptomManagementScreen extends ConsumerWidget {
               return Container();
             })*/
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class AddCategoryWidget extends ConsumerStatefulWidget {
+  const AddCategoryWidget({super.key});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() {
+    return _AddCategoryWidgetState();
+  }
+}
+
+class _AddCategoryWidgetState extends ConsumerState<ConsumerStatefulWidget> {
+  bool isLoading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: Breakpoint.medium.value),
+        child: AnimatedSize(
+          duration: Durations.medium1,
+          child: Form(
+            key: formKey,
+            child: Opacity(
+              opacity: isLoading ? 0.6 : 1.0,
+              child: IgnorePointer(
+                ignoring: isLoading,
+                child: Column(
+                  children: [],
+                ),
+              ),
+            ),
           ),
         ),
       ),
