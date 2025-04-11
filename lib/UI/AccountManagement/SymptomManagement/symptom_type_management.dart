@@ -352,10 +352,14 @@ class ChoicesFormField extends FormField<List<String>> {
                   LabeledField(
                     label: "Choice",
                     child: Row(children: [
-                      TextField(
-                        controller: controller,
+                      Expanded(
+                        child: TextField(
+                          controller: controller,
+                        ),
                       ),
-                      const Spacer(),
+                      const SizedBox(
+                        width: 8.0,
+                      ),
                       IconButton(
                           onPressed: () {
                             if (controller.text.isNotEmpty) {
