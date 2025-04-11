@@ -325,8 +325,7 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                       if (_formKey.currentState!.validate()) {}
                     }
                   },
-                  label:
-                      isAdding ? const Text("Add") : const Text("Add Symptom"),
+                  label: const Text("Add Symptom"),
                 ),
               ],
             ),
@@ -352,11 +351,12 @@ class ChoicesFormField extends FormField<List<String>> {
                 if (state.value != null)
                   LabeledField(
                     label: "Choice",
-                    child: ListTile(
-                      title: TextField(
+                    child: Row(children: [
+                      TextField(
                         controller: controller,
                       ),
-                      trailing: IconButton(
+                      const Spacer(),
+                      IconButton(
                           onPressed: () {
                             if (controller.text.isNotEmpty) {
                               if (state.value != null) {
@@ -369,7 +369,7 @@ class ChoicesFormField extends FormField<List<String>> {
                             }
                           },
                           icon: const Icon(Icons.add)),
-                    ),
+                    ]),
                   ),
                 ...state.value!
                     .mapIndexed(
@@ -383,7 +383,7 @@ class ChoicesFormField extends FormField<List<String>> {
                         ),
                       ),
                     )
-                    .separated(by: const Divider(), includeEnds: true),
+                    .separated(by: const Divider()),
               ],
             );
           },
