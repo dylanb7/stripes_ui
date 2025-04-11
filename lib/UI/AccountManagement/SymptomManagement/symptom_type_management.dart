@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -129,6 +130,26 @@ class AddSymptomWidget extends ConsumerStatefulWidget {
   }
 }
 
+enum QuestionType {
+  check("c", "Check"),
+  freeResponse("f", "Free Response"),
+  slider("s", "Slider"),
+  multipleChoice("m", "Multiple Choice"),
+  allThatApply("a", "All That Apply");
+
+  final String id, value;
+
+  const QuestionType(this.id, this.value);
+
+  static const List<QuestionType> ordered = [
+    check,
+    freeResponse,
+    slider,
+    multipleChoice,
+    allThatApply
+  ];
+}
+
 class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
   bool isAdding = false;
 
@@ -139,17 +160,9 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  static const List<String> options = [
-    "Check",
-    "Free Response",
-    "Slider",
-    "Multiple Choice",
-    "All That Apply"
-  ];
-
   static const buttonHeight = 60.0;
 
-  String selectedQuestionType = options[0];
+  QuestionType selectedQuestionType = QuestionType.check;
 
   @override
   Widget build(BuildContext context) {
@@ -170,7 +183,7 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                   Row(
                     children: [
                       Expanded(
-                        child: SelectField<String>(
+                        child: SelectField<QuestionType>(
                           onOptionSelected: (option) {
                             setState(() {
                               selectedQuestionType = option.value;
@@ -178,7 +191,8 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                           },
                           menuDecoration: MenuDecoration(
                             animationDuration: Durations.short4,
-                            height: min(buttonHeight * options.length,
+                            height: min(
+                                buttonHeight * QuestionType.ordered.length,
                                 screenHeight / 2),
                             buttonStyle: TextButton.styleFrom(
                               fixedSize:
@@ -188,13 +202,13 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                               shape: const RoundedRectangleBorder(),
                             ),
                           ),
-                          initialOption: Option<String>(
-                            label: selectedQuestionType,
+                          initialOption: Option<QuestionType>(
+                            label: selectedQuestionType.value,
                             value: selectedQuestionType,
                           ),
-                          options: options
+                          options: QuestionType.ordered
                               .map((option) =>
-                                  Option(label: option, value: option))
+                                  Option(label: option.value, value: option))
                               .toList(),
                         ),
                       ),
@@ -227,70 +241,73 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                   const SizedBox(
                     height: 8.0,
                   ),
-                  if (selectedQuestionType == "Slider")
-                    SizedBox(
-                      width: double.infinity,
-                      height: 70,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: LabeledField(
-                              label: "Min",
-                              child: TextFormField(
-                                keyboardType: TextInputType.number,
-                                controller: minValue,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter a minimum';
-                                  }
-                                  int? minNum = int.tryParse(value);
-                                  int? maxNum = int.tryParse(maxValue.text);
-                                  if (minNum == null || maxNum == null) {
-                                    return "Must have a range";
-                                  }
-                                  if (minNum >= maxNum) {
-                                    return "Invalid range";
-                                  }
-                                  return null;
-                                },
-                                inputFormatters: <TextInputFormatter>[
-                                  FilteringTextInputFormatter.digitsOnly
-                                ],
-                              ),
+                  if (selectedQuestionType == QuestionType.slider)
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: LabeledField(
+                            label: "Min",
+                            child: TextFormField(
+                              keyboardType: TextInputType.number,
+                              controller: minValue,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter a minimum';
+                                }
+                                int? minNum = int.tryParse(value);
+                                int? maxNum = int.tryParse(maxValue.text);
+                                if (minNum == null || maxNum == null) {
+                                  return "Must have a range";
+                                }
+                                if (minNum >= maxNum) {
+                                  return "Invalid range";
+                                }
+                                return null;
+                              },
+                              inputFormatters: <TextInputFormatter>[
+                                FilteringTextInputFormatter.digitsOnly
+                              ],
                             ),
                           ),
-                          const SizedBox(
-                            width: 8.0,
-                          ),
-                          Expanded(
-                            child: LabeledField(
-                              label: "Max",
-                              child: TextFormField(
-                                keyboardType: TextInputType.number,
-                                controller: maxValue,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter a minimum';
-                                  }
-                                  int? minNum = int.tryParse(value);
-                                  int? maxNum = int.tryParse(maxValue.text);
-                                  if (minNum == null || maxNum == null) {
-                                    return "Must have a range";
-                                  }
-                                  if (maxNum <= minNum) {
-                                    return "Invalid range";
-                                  }
-                                  return null;
-                                },
-                                inputFormatters: <TextInputFormatter>[
-                                  FilteringTextInputFormatter.digitsOnly
-                                ],
-                              ),
+                        ),
+                        const SizedBox(
+                          width: 8.0,
+                        ),
+                        Expanded(
+                          child: LabeledField(
+                            label: "Max",
+                            child: TextFormField(
+                              keyboardType: TextInputType.number,
+                              controller: maxValue,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter a minimum';
+                                }
+                                int? minNum = int.tryParse(value);
+                                int? maxNum = int.tryParse(maxValue.text);
+                                if (minNum == null || maxNum == null) {
+                                  return "Must have a range";
+                                }
+                                if (maxNum <= minNum) {
+                                  return "Invalid range";
+                                }
+                                return null;
+                              },
+                              inputFormatters: <TextInputFormatter>[
+                                FilteringTextInputFormatter.digitsOnly
+                              ],
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
+                    ),
+                  if (selectedQuestionType == QuestionType.multipleChoice ||
+                      selectedQuestionType == QuestionType.allThatApply)
+                    ChoicesFormField(
+                      validator: (value) => value == null || value.isEmpty
+                          ? "Must have at least one option"
+                          : null,
                     ),
                   const SizedBox(
                     height: 16.0,
@@ -321,23 +338,51 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
 class ChoicesFormField extends FormField<List<String>> {
   ChoicesFormField({
     super.key,
-    required FormFieldSetter<List<String>> onSaved,
-    required FormFieldValidator<List<String>> validator,
-    List<String> initialValue = const [],
+    super.onSaved,
+    super.validator,
+    List<String> super.initialValue = const [],
   }) : super(
-            onSaved: onSaved,
-            validator: validator,
-            initialValue: initialValue,
-            builder: (FormFieldState<List<String>> state) {
-              return Column(
-                children: [],
-              );
-            });
-}
-
-enum InputType {
-  string,
-  number;
+          builder: (FormFieldState<List<String>> state) {
+            final TextEditingController controller = TextEditingController();
+            return Column(
+              children: [
+                if (state.value != null)
+                  ListTile(
+                    title: LabeledField(
+                      label: "Choice",
+                      child: TextField(
+                        controller: controller,
+                      ),
+                    ),
+                    trailing: IconButton(
+                        onPressed: () {
+                          if (controller.text.isNotEmpty) {
+                            if (state.value != null) {
+                              state.didChange(
+                                  [controller.text, ...state.value!]);
+                            } else {
+                              state.didChange([controller.text]);
+                            }
+                            controller.clear();
+                          }
+                        },
+                        icon: const Icon(Icons.add)),
+                  ),
+                ...state.value!.mapIndexed(
+                  (index, choice) => ListTile(
+                    title: Text(choice),
+                    trailing: IconButton(
+                      onPressed: () {
+                        state.didChange(state.value!..removeAt(index));
+                      },
+                      icon: const Icon(Icons.delete),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
 }
 
 class LabeledField extends StatelessWidget {
