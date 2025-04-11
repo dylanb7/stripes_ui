@@ -8,12 +8,14 @@ import 'package:go_router/go_router.dart';
 import 'package:select_field/select_field.dart';
 import 'package:stripes_backend_helper/QuestionModel/question.dart';
 import 'package:stripes_ui/Providers/questions_provider.dart';
+import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
 import 'package:stripes_ui/UI/Layout/home_screen.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
+import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 
 class SymptomTypeManagement extends ConsumerWidget {
@@ -84,7 +86,9 @@ class SymptomTypeManagement extends ConsumerWidget {
               ),
             if (ofCategory != null) ...[
               const Divider(),
-              const AddSymptomWidget(),
+              AddSymptomWidget(
+                type: category!,
+              ),
               ...ofCategory
                   .map(
                     (question) => ListTile(
@@ -122,32 +126,14 @@ class SymptomTypeManagement extends ConsumerWidget {
 }
 
 class AddSymptomWidget extends ConsumerStatefulWidget {
-  const AddSymptomWidget({super.key});
+  final String type;
+
+  const AddSymptomWidget({required this.type, super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
     return _AddSymptomWidgetState();
   }
-}
-
-enum QuestionType {
-  check("c", "Check"),
-  freeResponse("f", "Free Response"),
-  slider("s", "Slider"),
-  multipleChoice("m", "Multiple Choice"),
-  allThatApply("a", "All That Apply");
-
-  final String id, value;
-
-  const QuestionType(this.id, this.value);
-
-  static const List<QuestionType> ordered = [
-    check,
-    freeResponse,
-    slider,
-    multipleChoice,
-    allThatApply
-  ];
 }
 
 class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
@@ -157,10 +143,13 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
 
   final TextEditingController minValue = TextEditingController(text: "1");
   final TextEditingController maxValue = TextEditingController(text: "5");
+  List<String> choices = [];
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   static const buttonHeight = 60.0;
+
+  bool isLoading = false, submitSuccess = false;
 
   QuestionType selectedQuestionType = QuestionType.check;
 
@@ -181,6 +170,7 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
               children: [
                 if (isAdding) ...[
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
                         child: LabeledField(
@@ -215,7 +205,9 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                           ),
                         ),
                       ),
-                      const Spacer(),
+                      const SizedBox(
+                        width: 20,
+                      ),
                       IconButton(
                           onPressed: () {
                             setState(() {
@@ -274,7 +266,7 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                           ),
                         ),
                         const SizedBox(
-                          width: 8.0,
+                          width: 20.0,
                         ),
                         Expanded(
                           child: LabeledField(
@@ -286,8 +278,8 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                                 if (value == null || value.isEmpty) {
                                   return 'Please enter a minimum';
                                 }
-                                int? minNum = int.tryParse(value);
-                                int? maxNum = int.tryParse(maxValue.text);
+                                int? maxNum = int.tryParse(value);
+                                int? minNum = int.tryParse(minValue.text);
                                 if (minNum == null || maxNum == null) {
                                   return "Must have a range";
                                 }
@@ -310,22 +302,79 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                       validator: (value) => value == null || value.isEmpty
                           ? "Must have at least one option"
                           : null,
+                      onChanged: (value) {
+                        if (value == null) return;
+                        setState(() {
+                          choices = value;
+                        });
+                      },
+                      initialValue: choices,
                     ),
                   const SizedBox(
                     height: 16.0,
                   ),
                 ],
-                FilledButton.icon(
-                  onPressed: () {
+                FilledButton(
+                  onPressed: () async {
                     if (!isAdding) {
                       setState(() {
                         isAdding = true;
                       });
                     } else {
-                      if (_formKey.currentState!.validate()) {}
+                      if (_formKey.currentState!.validate()) {
+                        setState(() {
+                          isLoading = true;
+                        });
+                        Question question;
+                        switch (selectedQuestionType) {
+                          case QuestionType.check:
+                            question = Check(
+                                id: "", prompt: prompt.text, type: widget.type);
+                          case QuestionType.freeResponse:
+                            question = FreeResponse(
+                                id: "", prompt: prompt.text, type: widget.type);
+                          case QuestionType.slider:
+                            question = Numeric(
+                                id: "", prompt: prompt.text, type: widget.type);
+                          case QuestionType.multipleChoice:
+                            question = MultipleChoice(
+                                id: "",
+                                prompt: prompt.text,
+                                type: widget.type,
+                                choices: choices);
+                          case QuestionType.allThatApply:
+                            question = AllThatApply(
+                                id: "",
+                                prompt: prompt.text,
+                                type: widget.type,
+                                choices: choices);
+                        }
+                        final bool added =
+                            await (await ref.read(questionsProvider.future))
+                                .addQuestion(question);
+                        if (added) {
+                          setState(() {
+                            submitSuccess = true;
+                          });
+                          await Future.delayed(Durations.medium4);
+                          _formKey.currentState!.reset();
+                        } else if (context.mounted) {
+                          showSnack(context, "Failed to add question");
+                        }
+                        setState(() {
+                          setState(() {
+                            submitSuccess = false;
+                            isLoading = false;
+                          });
+                        });
+                      }
                     }
                   },
-                  label: const Text("Add Symptom"),
+                  child: submitSuccess
+                      ? const Icon(Icons.check)
+                      : isLoading
+                          ? const ButtonLoadingIndicator()
+                          : const Text("Add Symptom"),
                 ),
               ],
             ),
@@ -341,54 +390,75 @@ class ChoicesFormField extends FormField<List<String>> {
     super.key,
     super.onSaved,
     super.validator,
+    ValueChanged<List<String>?>? onChanged,
     List<String> super.initialValue = const [],
   }) : super(
           builder: (FormFieldState<List<String>> state) {
             final TextEditingController controller = TextEditingController();
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (state.value != null)
-                  LabeledField(
-                    label: "Choice",
-                    child: Row(children: [
-                      Expanded(
-                        child: TextField(
-                          controller: controller,
+
+            void onChangedHandler(List<String>? value) {
+              state.didChange(value);
+              if (onChanged != null) {
+                onChanged(value);
+              }
+            }
+
+            return UnmanagedRestorationScope(
+              bucket: state.bucket,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (state.value != null)
+                    LabeledField(
+                      label: "Choice",
+                      child: Row(children: [
+                        Expanded(
+                          child: TextField(
+                            controller: controller,
+                          ),
                         ),
-                      ),
-                      const SizedBox(
-                        width: 8.0,
-                      ),
-                      IconButton(
-                          onPressed: () {
-                            if (controller.text.isNotEmpty) {
-                              if (state.value != null) {
-                                state.didChange(
-                                    [controller.text, ...state.value!]);
-                              } else {
-                                state.didChange([controller.text]);
+                        const SizedBox(
+                          width: 8.0,
+                        ),
+                        IconButton(
+                            onPressed: () {
+                              if (controller.text.isNotEmpty) {
+                                if (state.value != null) {
+                                  onChangedHandler(
+                                      [controller.text, ...state.value!]);
+                                } else {
+                                  onChangedHandler([controller.text]);
+                                }
+                                controller.clear();
                               }
-                              controller.clear();
-                            }
-                          },
-                          icon: const Icon(Icons.add)),
-                    ]),
-                  ),
-                ...state.value!
-                    .mapIndexed(
-                      (index, choice) => ListTile(
-                        title: Text(choice),
-                        trailing: IconButton(
-                          onPressed: () {
-                            state.didChange(state.value!..removeAt(index));
-                          },
-                          icon: const Icon(Icons.delete),
+                            },
+                            icon: const Icon(Icons.add)),
+                      ]),
+                    ),
+                  ...state.value!
+                      .mapIndexed(
+                        (index, choice) => ListTile(
+                          title: Text(choice),
+                          trailing: IconButton(
+                            onPressed: () {
+                              onChangedHandler(state.value!..removeAt(index));
+                            },
+                            icon: const Icon(Icons.delete),
+                          ),
                         ),
-                      ),
-                    )
-                    .separated(by: const Divider()),
-              ],
+                      )
+                      .separated(by: const Divider()),
+                  if (state.hasError) ...[
+                    const SizedBox(
+                      height: 4.0,
+                    ),
+                    Text(
+                      state.errorText!,
+                      style: const TextStyle(fontSize: 15, color: Colors.red),
+                    ),
+                  ],
+                ],
+              ),
             );
           },
         );
@@ -423,4 +493,24 @@ class LabeledField extends StatelessWidget {
       ),
     );
   }
+}
+
+enum QuestionType {
+  check("c", "Check"),
+  freeResponse("f", "Free Response"),
+  slider("s", "Slider"),
+  multipleChoice("m", "Multiple Choice"),
+  allThatApply("a", "All That Apply");
+
+  final String id, value;
+
+  const QuestionType(this.id, this.value);
+
+  static const List<QuestionType> ordered = [
+    check,
+    freeResponse,
+    slider,
+    multipleChoice,
+    allThatApply
+  ];
 }
