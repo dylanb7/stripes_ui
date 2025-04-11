@@ -183,33 +183,36 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                   Row(
                     children: [
                       Expanded(
-                        child: SelectField<QuestionType>(
-                          onOptionSelected: (option) {
-                            setState(() {
-                              selectedQuestionType = option.value;
-                            });
-                          },
-                          menuDecoration: MenuDecoration(
-                            animationDuration: Durations.short4,
-                            height: min(
-                                buttonHeight * QuestionType.ordered.length,
-                                screenHeight / 2),
-                            buttonStyle: TextButton.styleFrom(
-                              fixedSize:
-                                  const Size(double.infinity, buttonHeight),
-                              alignment: Alignment.centerLeft,
-                              padding: const EdgeInsets.all(16),
-                              shape: const RoundedRectangleBorder(),
+                        child: LabeledField(
+                          label: "type",
+                          child: SelectField<QuestionType>(
+                            onOptionSelected: (option) {
+                              setState(() {
+                                selectedQuestionType = option.value;
+                              });
+                            },
+                            menuDecoration: MenuDecoration(
+                              animationDuration: Durations.short4,
+                              height: min(
+                                  buttonHeight * QuestionType.ordered.length,
+                                  screenHeight / 2),
+                              buttonStyle: TextButton.styleFrom(
+                                fixedSize:
+                                    const Size(double.infinity, buttonHeight),
+                                alignment: Alignment.centerLeft,
+                                padding: const EdgeInsets.all(16),
+                                shape: const RoundedRectangleBorder(),
+                              ),
                             ),
+                            initialOption: Option<QuestionType>(
+                              label: selectedQuestionType.value,
+                              value: selectedQuestionType,
+                            ),
+                            options: QuestionType.ordered
+                                .map((option) =>
+                                    Option(label: option.value, value: option))
+                                .toList(),
                           ),
-                          initialOption: Option<QuestionType>(
-                            label: selectedQuestionType.value,
-                            value: selectedQuestionType,
-                          ),
-                          options: QuestionType.ordered
-                              .map((option) =>
-                                  Option(label: option.value, value: option))
-                              .toList(),
                         ),
                       ),
                       const Spacer(),
@@ -226,10 +229,9 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                     height: 8.0,
                   ),
                   LabeledField(
-                    label: "Prompt",
+                    label: "prompt",
                     child: TextFormField(
                       controller: prompt,
-                      decoration: const InputDecoration(hintText: "Prompt"),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter a prompt';
@@ -247,7 +249,7 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                       children: [
                         Expanded(
                           child: LabeledField(
-                            label: "Min",
+                            label: "min",
                             child: TextFormField(
                               keyboardType: TextInputType.number,
                               controller: minValue,
@@ -276,7 +278,7 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                         ),
                         Expanded(
                           child: LabeledField(
-                            label: "Max",
+                            label: "max",
                             child: TextFormField(
                               keyboardType: TextInputType.number,
                               controller: maxValue,
@@ -347,38 +349,40 @@ class ChoicesFormField extends FormField<List<String>> {
             return Column(
               children: [
                 if (state.value != null)
-                  ListTile(
-                    title: LabeledField(
-                      label: "Choice",
-                      child: TextField(
+                  LabeledField(
+                    label: "Choice",
+                    child: ListTile(
+                      title: TextField(
                         controller: controller,
                       ),
-                    ),
-                    trailing: IconButton(
-                        onPressed: () {
-                          if (controller.text.isNotEmpty) {
-                            if (state.value != null) {
-                              state.didChange(
-                                  [controller.text, ...state.value!]);
-                            } else {
-                              state.didChange([controller.text]);
+                      trailing: IconButton(
+                          onPressed: () {
+                            if (controller.text.isNotEmpty) {
+                              if (state.value != null) {
+                                state.didChange(
+                                    [controller.text, ...state.value!]);
+                              } else {
+                                state.didChange([controller.text]);
+                              }
+                              controller.clear();
                             }
-                            controller.clear();
-                          }
-                        },
-                        icon: const Icon(Icons.add)),
-                  ),
-                ...state.value!.mapIndexed(
-                  (index, choice) => ListTile(
-                    title: Text(choice),
-                    trailing: IconButton(
-                      onPressed: () {
-                        state.didChange(state.value!..removeAt(index));
-                      },
-                      icon: const Icon(Icons.delete),
+                          },
+                          icon: const Icon(Icons.add)),
                     ),
                   ),
-                ),
+                ...state.value!
+                    .mapIndexed(
+                      (index, choice) => ListTile(
+                        title: Text(choice),
+                        trailing: IconButton(
+                          onPressed: () {
+                            state.didChange(state.value!..removeAt(index));
+                          },
+                          icon: const Icon(Icons.delete),
+                        ),
+                      ),
+                    )
+                    .separated(by: const Divider(), includeEnds: true),
               ],
             );
           },
@@ -405,6 +409,9 @@ class LabeledField extends StatelessWidget {
                 .textTheme
                 .bodySmall
                 ?.copyWith(color: Theme.of(context).disabledColor),
+          ),
+          const SizedBox(
+            height: 4.0,
           ),
           child
         ],
