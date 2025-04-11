@@ -18,6 +18,7 @@ extension Space on List<Widget> {
 
 extension Separated on Iterable<Widget> {
   List<Widget> separated({required Widget by, bool includeEnds = false}) {
+    if (isEmpty) return [];
     final Iterable<Widget> expanded = expand((widget) => [widget, by]);
     if (includeEnds) return [by, ...expanded];
     return expanded.toList()..removeLast();
