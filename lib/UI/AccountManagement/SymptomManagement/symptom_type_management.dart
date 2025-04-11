@@ -227,7 +227,7 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                   if (selectedQuestionType == "Slider")
                     SizedBox(
                       width: double.infinity,
-                      height: 100,
+                      height: 80,
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
@@ -258,8 +258,9 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                                     if (minNum == null || maxNum == null) {
                                       return "Must have a range";
                                     }
-                                    if (minNum >= maxNum)
+                                    if (minNum >= maxNum) {
                                       return "Invalid range";
+                                    }
                                     return null;
                                   },
                                   inputFormatters: <TextInputFormatter>[
@@ -269,7 +270,9 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                               ],
                             ),
                           ),
-                          const Spacer(),
+                          const SizedBox(
+                            width: 8.0,
+                          ),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -336,4 +339,36 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
       ),
     );
   }
+}
+
+class ChoicesFormField extends FormField<List<String>> {
+  ChoicesFormField({
+    super.key,
+    required FormFieldSetter<List<String>> onSaved,
+    required FormFieldValidator<List<String>> validator,
+    List<String> initialValue = const [],
+  }) : super(
+            onSaved: onSaved,
+            validator: validator,
+            initialValue: initialValue,
+            builder: (FormFieldState<List<String>> state) {
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  IconButton(
+                    icon: Icon(Icons.remove),
+                    onPressed: () {
+                      state.didChange([]);
+                    },
+                  ),
+                  Text(state.value.toString()),
+                  IconButton(
+                    icon: Icon(Icons.add),
+                    onPressed: () {
+                      state.didChange([]);
+                    },
+                  ),
+                ],
+              );
+            });
 }
