@@ -347,6 +347,7 @@ class ChoicesFormField extends FormField<List<String>> {
           builder: (FormFieldState<List<String>> state) {
             final TextEditingController controller = TextEditingController();
             return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (state.value != null)
                   LabeledField(
