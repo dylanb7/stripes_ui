@@ -81,12 +81,6 @@ class SymptomManagementScreen extends ConsumerWidget {
                   indent: 8.0,
                 ),
                 const AddCategoryWidget(),
-                Center(
-                  child: FilledButton.icon(
-                    onPressed: () {},
-                    label: const Text("Add Category"),
-                  ),
-                ),
                 ...recordPaths.keys.map((key) {
                   final RecordPath path = recordPaths[key]!;
                   final int symptoms = path.pages.isEmpty
@@ -212,7 +206,8 @@ class _AddCategoryWidgetState extends ConsumerState<ConsumerStatefulWidget> {
                           },
                           menuDecoration: MenuDecoration(
                             animationDuration: Durations.short4,
-                            height: min(buttonHeight * Period.values.length,
+                            height: min(
+                                buttonHeight * (Period.values.length + 1),
                                 screenHeight / 2),
                             buttonStyle: TextButton.styleFrom(
                               fixedSize:
@@ -223,7 +218,7 @@ class _AddCategoryWidgetState extends ConsumerState<ConsumerStatefulWidget> {
                             ),
                           ),
                           initialOption: Option<Period?>(
-                            label: "Event",
+                            label: "event",
                             value: null,
                           ),
                           options: Period.values
