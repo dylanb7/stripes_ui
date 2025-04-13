@@ -108,20 +108,22 @@ class SymptomTypeManagement extends ConsumerWidget {
     }
 
     return PageWrap(
-        actions: [
-          if (!isSmall)
-            ...TabOption.values.map((tab) => LargeNavButton(tab: tab)),
-          const UserProfileButton(
-            selected: true,
-          )
-        ],
-        bottomNav: isSmall ? const SmallLayout() : null,
-        child: questions.map(
-            data: (data) => loaded(data.value),
-            loading: (_) => const LoadingWidget(),
-            error: (error) => Center(
-                  child: Text("Error: ${error.error.toString()}"),
-                )));
+      actions: [
+        if (!isSmall)
+          ...TabOption.values.map((tab) => LargeNavButton(tab: tab)),
+        const UserProfileButton(
+          selected: true,
+        )
+      ],
+      bottomNav: isSmall ? const SmallLayout() : null,
+      child: questions.map(
+        data: (data) => loaded(data.value),
+        loading: (_) => const LoadingWidget(),
+        error: (error) => Center(
+          child: Text("Error: ${error.error.toString()}"),
+        ),
+      ),
+    );
   }
 }
 
@@ -157,7 +159,7 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 12.0),
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: Breakpoint.medium.value),
         child: AnimatedSize(
@@ -181,9 +183,6 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                         },
                         label: const Text("Close"),
                         icon: const Icon(Icons.keyboard_arrow_up),
-                      ),
-                      const SizedBox(
-                        height: 8.0,
                       ),
                       LabeledField(
                         label: "type",

@@ -1,15 +1,22 @@
+import 'dart:math';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:select_field/select_field.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo_base.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/record_period.dart';
+import 'package:stripes_ui/Providers/questions_provider.dart';
+import 'package:stripes_ui/UI/AccountManagement/SymptomManagement/symptom_type_management.dart';
+import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
 import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
 import 'package:stripes_ui/UI/Layout/home_screen.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
+import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 
 class SymptomManagementScreen extends ConsumerWidget {
@@ -147,13 +154,18 @@ class AddCategoryWidget extends ConsumerStatefulWidget {
 }
 
 class _AddCategoryWidgetState extends ConsumerState<ConsumerStatefulWidget> {
-  bool isLoading = false;
+  bool isLoading = false, submitSuccess = false;
+  bool isAdding = false;
+  final TextEditingController category = TextEditingController();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  Period? recordPeriod;
+  static const buttonHeight = 60.0;
 
   @override
   Widget build(BuildContext context) {
-    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+    final screenHeight = MediaQuery.of(context).size.height;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 12.0),
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: Breakpoint.medium.value),
         child: AnimatedSize(
@@ -165,7 +177,80 @@ class _AddCategoryWidgetState extends ConsumerState<ConsumerStatefulWidget> {
               child: IgnorePointer(
                 ignoring: isLoading,
                 child: Column(
-                  children: [],
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (isAdding) ...[
+                      TextButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            isAdding = false;
+                          });
+                        },
+                        label: const Text("Close"),
+                        icon: const Icon(Icons.keyboard_arrow_up),
+                      ),
+                      LabeledField(
+                        label: "type",
+                        child: TextFormField(
+                          controller: category,
+                          validator: (value) => value == null || value.isEmpty
+                              ? "Must provide a category"
+                              : null,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 8.0,
+                      ),
+                      LabeledField(
+                        label: "type",
+                        child: SelectField<Period?>(
+                          onOptionSelected: (option) {
+                            setState(() {
+                              recordPeriod = option.value;
+                            });
+                          },
+                          menuDecoration: MenuDecoration(
+                            animationDuration: Durations.short4,
+                            height: min(buttonHeight * Period.values.length,
+                                screenHeight / 2),
+                            buttonStyle: TextButton.styleFrom(
+                              fixedSize:
+                                  const Size(double.infinity, buttonHeight),
+                              alignment: Alignment.centerLeft,
+                              padding: const EdgeInsets.all(16),
+                              shape: const RoundedRectangleBorder(),
+                            ),
+                          ),
+                          initialOption: Option<Period?>(
+                            label: "Event",
+                            value: null,
+                          ),
+                          options: Period.values
+                              .map<Option<Period?>>((option) =>
+                                  Option(label: option.name, value: option))
+                              .toList()
+                            ..add(Option<Period?>(
+                              label: "Event",
+                              value: null,
+                            )),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 16.0,
+                      ),
+                    ],
+                    FilledButton(
+                      onPressed: () async {
+                        await add();
+                      },
+                      child: submitSuccess
+                          ? const Icon(Icons.check)
+                          : isLoading
+                              ? const ButtonLoadingIndicator()
+                              : const Text("Add Category"),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -173,5 +258,37 @@ class _AddCategoryWidgetState extends ConsumerState<ConsumerStatefulWidget> {
         ),
       ),
     );
+  }
+
+  Future<void> add() async {
+    if (isLoading) return;
+    if (!isAdding) {
+      setState(() {
+        isAdding = true;
+      });
+      return;
+    }
+    if (!(formKey.currentState?.validate() ?? false)) return;
+    final QuestionRepo repo = await ref.read(questionsProvider.future);
+    final bool added = await repo.addRecordPath(
+      category.text,
+      RecordPath(pages: const [], period: recordPeriod, userCreated: true),
+    );
+    if (added) {
+      setState(() {
+        submitSuccess = true;
+      });
+      await Future.delayed(Durations.long4);
+      category.clear();
+      recordPeriod = null;
+      formKey.currentState!.reset();
+    } else if (mounted) {
+      showSnack(context, "Failed to add question");
+    }
+
+    setState(() {
+      submitSuccess = false;
+      isLoading = false;
+    });
   }
 }
