@@ -44,7 +44,7 @@ class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
         question: widget.question,
         listener: widget.listener,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.stretch,
