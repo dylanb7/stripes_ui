@@ -516,6 +516,14 @@ enum QuestionType {
 
   const QuestionType(this.id, this.value);
 
+  static QuestionType from(Question question) {
+    if (question is MultipleChoice) return multipleChoice;
+    if (question is FreeResponse) return freeResponse;
+    if (question is Numeric) return slider;
+    if (question is AllThatApply) return allThatApply;
+    return check;
+  }
+
   static const List<QuestionType> ordered = [
     check,
     freeResponse,

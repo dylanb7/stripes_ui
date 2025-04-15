@@ -295,10 +295,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     setState(() {
       isLoading = true;
     });
-    final StampRepo? repo = ref.read(stampProvider).map(
-        data: (data) => data.value,
-        error: (error) => null,
-        loading: (loading) => null);
+    final StampRepo? repo = await ref.read(stampProvider.future);
     final DateTime submissionEntry =
         widget.questionListener.submitTime ?? DateTime.now();
     final int entryStamp = dateToStamp(submissionEntry);
@@ -321,9 +318,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
           ?.onResponseEdit(detailResponse, widget.type);
     } else {
       await repo?.addStamp(detailResponse);
-      await ref
-          .read(testProvider)
-          .valueOrNull
+      (await ref.read(testProvider.future))
           ?.onResponseSubmit(detailResponse, widget.type);
     }
     setState(() {
@@ -341,9 +336,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                 .undoEntry(widget.type, submissionEntry, submissionEntry),
             action: () async {
           await repo?.removeStamp(detailResponse);
-          await ref
-              .read(testProvider)
-              .valueOrNull
+          (await ref.read(testProvider.future))
               ?.onResponseDelete(detailResponse, widget.type);
         });
       }
