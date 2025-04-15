@@ -524,6 +524,14 @@ enum QuestionType {
     return check;
   }
 
+  static QuestionType from(String id) {
+    if (id == "m") return multipleChoice;
+    if (id == "f") return freeResponse;
+    if (id == "s") return slider;
+    if (id == "a") return allThatApply;
+    return check;
+  }
+
   static const List<QuestionType> ordered = [
     check,
     freeResponse,
