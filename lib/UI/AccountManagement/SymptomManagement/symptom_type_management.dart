@@ -524,7 +524,7 @@ enum QuestionType {
     return check;
   }
 
-  static QuestionType from(String id) {
+  static QuestionType fromId(String id) {
     if (id == "m") return multipleChoice;
     if (id == "f") return freeResponse;
     if (id == "s") return slider;
