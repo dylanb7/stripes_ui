@@ -23,7 +23,7 @@ final questionsByType =
   final QuestionRepo repo = await ref.watch(questionsProvider.future);
   final Map<String, List<Question>> byCategory = {};
 
-  final Map<String, Question> allQuestions = home.additons..addAll(home.all);
+  final Map<String, Question> allQuestions = home.additions..addAll(home.all);
   for (final Question val in allQuestions.values) {
     if (byCategory.containsKey(val.type)) {
       byCategory[val.type]!.add(val);
