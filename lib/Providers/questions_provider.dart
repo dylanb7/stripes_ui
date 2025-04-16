@@ -9,13 +9,21 @@ final questionsProvider = FutureProvider<QuestionRepo>((ref) async {
   return ref.watch(reposProvider).questions(user: user);
 });
 
+final questionHomeProvider = StreamProvider<QuestionHome>((ref) {
+  return ref.watch(questionsProvider).map(
+      data: (data) => data.value.questions,
+      error: (_) => const Stream.empty(),
+      loading: (_) => const Stream.empty());
+});
+
 final questionsByType =
     FutureProvider.family<Map<String, List<Question>>, BuildContext>(
         (ref, context) async {
+  final QuestionHome home = await ref.watch(questionHomeProvider.future);
   final QuestionRepo repo = await ref.watch(questionsProvider.future);
   final Map<String, List<Question>> byCategory = {};
-  final Map<String, Question> allQuestions = repo.questions.additons
-    ..addAll(repo.questions.all);
+
+  final Map<String, Question> allQuestions = home.additons..addAll(home.all);
   for (final Question val in allQuestions.values) {
     if (byCategory.containsKey(val.type)) {
       byCategory[val.type]!.add(val);

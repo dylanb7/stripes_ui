@@ -13,10 +13,11 @@ import 'package:stripes_ui/Providers/stamps_provider.dart';
 final questionSplitProvider =
     Provider.family<Map<String, List<Question>>, PageProps>((ref, props) {
   final AsyncValue<QuestionRepo> repo = ref.watch(questionsProvider);
-  if (!repo.hasValue) return {};
-  QuestionHome home = repo.value!.questions;
+  AsyncValue<QuestionHome> home = ref.watch(questionHomeProvider);
+  if (!repo.hasValue || !home.hasValue) return {};
+
   Map<String, List<Question>> questions = {};
-  for (Question question in home.all.values) {
+  for (Question question in home.value!.all.values) {
     final String type = question.type;
     if (questions.containsKey(type)) {
       questions[type]!.add(question);

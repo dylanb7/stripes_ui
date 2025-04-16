@@ -1,3 +1,4 @@
+/*
 import 'package:flutter/material.dart';
 import 'package:stripes_backend_helper/QuestionModel/question.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
@@ -180,3 +181,4 @@ class Home extends QuestionHome {
             choices: ['Yes', 'No'])
       };
 }
+*/

@@ -80,11 +80,16 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
 
     final AsyncValue<QuestionRepo> questionRepo = ref.watch(questionsProvider);
 
-    if (questionRepo.isLoading) {
+    final AsyncValue<QuestionHome> questionHome =
+        ref.watch(questionHomeProvider);
+
+    if (questionHome.isLoading) {
       return const LoadingWidget();
     }
 
-    final QuestionHome home = questionRepo.value!.questions;
+    if (questionRepo.isLoading) {
+      return const LoadingWidget();
+    }
 
     final bool isEdit = widget.questionListener.editId != null;
 
@@ -202,10 +207,14 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                         header: pages[index].header ??
                                             AppLocalizations.of(context)!
                                                 .selectInstruction,
-                                        questions: pages[index]
-                                            .questionIds
-                                            .map((id) => home.fromBank(id))
-                                            .toList(),
+                                        questions:
+                                            pages[index].questionIds.map((id) {
+                                          if (questionHome.hasValue) {
+                                            return questionHome.valueOrNull!
+                                                .fromBank(id);
+                                          }
+                                          return Question.empty();
+                                        }).toList(),
                                         questionsListener:
                                             widget.questionListener);
                                   }
