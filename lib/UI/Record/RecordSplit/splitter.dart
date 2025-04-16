@@ -209,6 +209,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                                 .selectInstruction,
                                         questions:
                                             pages[index].questionIds.map((id) {
+                                          print(questionHome.hasValue);
                                           if (questionHome.hasValue) {
                                             return questionHome.valueOrNull!
                                                 .fromBank(id);
