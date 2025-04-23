@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:select_field/select_field.dart';
 import 'package:stripes_backend_helper/QuestionModel/question.dart';
+import 'package:stripes_backend_helper/TestingReposImpl/test_question_repo.dart';
 import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
@@ -91,9 +92,7 @@ class SymptomTypeManagement extends ConsumerWidget {
               ),
               ...ofCategory
                   .map(
-                    (question) => ListTile(
-                      title: Text(question.prompt),
-                    ),
+                    (question) => SymptomDisplay(question: question),
                   )
                   .separated(
                       by: const Divider(
@@ -122,6 +121,106 @@ class SymptomTypeManagement extends ConsumerWidget {
         error: (error) => Center(
           child: Text("Error: ${error.error.toString()}"),
         ),
+      ),
+    );
+  }
+}
+
+class SymptomDisplay extends ConsumerStatefulWidget {
+  final Question question;
+
+  const SymptomDisplay({required this.question, super.key});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() {
+    return _SymptomDisplayState();
+  }
+}
+
+class _SymptomDisplayState extends ConsumerState<SymptomDisplay> {
+  @override
+  Widget build(BuildContext context) {
+    final QuestionType type = QuestionType.from(widget.question);
+
+    Iterable<Widget>? added;
+
+    if (type == QuestionType.allThatApply ||
+        type == QuestionType.multipleChoice) {
+      final List<String> choices = type == QuestionType.allThatApply
+          ? (widget.question as AllThatApply).choices
+          : (widget.question as MultipleChoice).choices;
+      added = choices.map((choice) => Text(choice)).separated(
+            by: const SizedBox(
+              height: 4.0,
+            ),
+          );
+    } else if (type == QuestionType.slider) {
+      final Numeric numeric = widget.question as Numeric;
+      final num min = numeric.min ?? 1;
+      final num max = numeric.max ?? 5;
+      added = [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            LabeledField(label: "min", child: Text("$min")),
+            LabeledField(label: "max", child: Text("$max"))
+          ],
+        ),
+      ];
+    }
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        children: [
+          RichText(
+            text: TextSpan(
+                text: widget.question.prompt,
+                style: Theme.of(context).textTheme.bodyMedium,
+                children: [
+                  if (widget.question.userCreated)
+                    TextSpan(
+                      text: " · custom",
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(color: Theme.of(context).disabledColor),
+                    )
+                ]),
+          ),
+          const SizedBox(
+            height: 4,
+          ),
+          Text(
+            type.value,
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(color: Theme.of(context).disabledColor),
+          ),
+          if (added != null) ...added,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Switch(
+                value: true,
+                onChanged: widget.question.isRequired ? null : (_) {},
+                thumbIcon: widget.question.isRequired
+                    ? WidgetStateProperty.all(const Icon(Icons.lock))
+                    : null,
+              ),
+              IconButton(
+                  onPressed: () {
+                    ref
+                        .read(questionsProvider)
+                        .valueOrNull
+                        ?.removeQuestion(widget.question);
+                  },
+                  icon: const Icon(Icons.delete))
+            ],
+          ),
+        ],
       ),
     );
   }
