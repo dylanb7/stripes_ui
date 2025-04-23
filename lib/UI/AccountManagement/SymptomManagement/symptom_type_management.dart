@@ -1,13 +1,14 @@
 import 'dart:math';
 
 import 'package:collection/collection.dart';
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:select_field/select_field.dart';
 import 'package:stripes_backend_helper/QuestionModel/question.dart';
-import 'package:stripes_backend_helper/TestingReposImpl/test_question_repo.dart';
+
 import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
@@ -138,6 +139,7 @@ class SymptomDisplay extends ConsumerStatefulWidget {
 }
 
 class _SymptomDisplayState extends ConsumerState<SymptomDisplay> {
+  bool requiredHovered = false;
   @override
   Widget build(BuildContext context) {
     final QuestionType type = QuestionType.from(widget.question);
@@ -170,21 +172,40 @@ class _SymptomDisplayState extends ConsumerState<SymptomDisplay> {
       ];
     }
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           RichText(
             text: TextSpan(
                 text: widget.question.prompt,
-                style: Theme.of(context).textTheme.bodyMedium,
+                style: Theme.of(context).textTheme.titleMedium,
                 children: [
+                  if (widget.question.isRequired)
+                    TextSpan(
+                      text: '${requiredHovered ? "required" : ""}*',
+                      onEnter: (_) {
+                        setState(() {
+                          requiredHovered = true;
+                        });
+                      },
+                      onExit: (_) async {
+                        Future.delayed(Durations.medium4).then((_) {
+                          if (mounted) {
+                            setState(() {
+                              requiredHovered = false;
+                            });
+                          }
+                        });
+                      },
+                      style: const TextStyle(color: Colors.red, fontSize: 14),
+                    ),
                   if (widget.question.userCreated)
                     TextSpan(
                       text: " · custom",
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(color: Theme.of(context).disabledColor),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).disabledColor.darken()),
                     )
                 ]),
           ),
@@ -196,7 +217,7 @@ class _SymptomDisplayState extends ConsumerState<SymptomDisplay> {
             style: Theme.of(context)
                 .textTheme
                 .bodySmall
-                ?.copyWith(color: Theme.of(context).disabledColor),
+                ?.copyWith(color: Theme.of(context).disabledColor.darken()),
           ),
           if (added != null) ...added,
           Row(
@@ -211,12 +232,14 @@ class _SymptomDisplayState extends ConsumerState<SymptomDisplay> {
                     : null,
               ),
               IconButton(
-                  onPressed: () {
-                    ref
-                        .read(questionsProvider)
-                        .valueOrNull
-                        ?.removeQuestion(widget.question);
-                  },
+                  onPressed: widget.question.userCreated
+                      ? () {
+                          ref
+                              .read(questionsProvider)
+                              .valueOrNull
+                              ?.removeQuestion(widget.question);
+                        }
+                      : null,
                   icon: const Icon(Icons.delete))
             ],
           ),
