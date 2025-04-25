@@ -25,12 +25,10 @@ final questionSplitProvider =
       questions[type] = [question];
     }
   }
-  for (final layout in repo.value!
-      .getLayouts(
-          context: props.context, questionListener: props.questionListener)
-      .entries) {
-    if (!questions.containsKey(layout.key)) {
-      questions[layout.key] = [];
+  for (final layout in repo.value!.getLayouts(
+      context: props.context, questionListener: props.questionListener)) {
+    if (!questions.containsKey(layout.name)) {
+      questions[layout.name] = [];
     }
   }
   return questions;
@@ -38,7 +36,7 @@ final questionSplitProvider =
 
 final pagePaths =
     Provider.family<Map<String, RecordPath>, PageProps>((ref, props) {
-  final Map<String, RecordPath>? pageOverrides = ref.watch(
+  final List<RecordPath>? pageOverrides = ref.watch(
     questionsProvider.select(
       (questions) => questions.valueOrNull?.getLayouts(
           context: props.context, questionListener: props.questionListener),
@@ -154,13 +152,18 @@ class PageSplit {
 }
 
 Map<String, RecordPath> getAllPaths(
-    Map<String, RecordPath>? pageOverrides,
+    List<RecordPath>? pageOverrides,
     Map<String, QuestionEntry> questionOverrides,
     Map<String, List<Question>> split) {
   final Map<String, RecordPath> recordPaths = {};
+
   for (String type in split.keys) {
-    if (pageOverrides?.containsKey(type) ?? false) {
-      recordPaths[type] = pageOverrides![type]!;
+    final RecordPath? override = pageOverrides
+        ?.where((override) => override.name == type)
+        .toList()
+        .firstOrNull;
+    if (override != null) {
+      recordPaths[type] = override;
       continue;
     }
 

@@ -32,10 +32,10 @@ final questionsByType =
     }
   }
   if (context.mounted) {
-    Map<String, RecordPath> paths = repo.getLayouts(context: context);
-    for (final String key in paths.keys) {
-      if (!byCategory.containsKey(key)) {
-        byCategory[key] = [];
+    List<RecordPath> paths = repo.getLayouts(context: context);
+    for (final RecordPath path in paths) {
+      if (!byCategory.containsKey(path.name)) {
+        byCategory[path.name] = [];
       }
     }
   }
