@@ -160,16 +160,7 @@ class _SymptomDisplayState extends ConsumerState<SymptomDisplay> {
       final Numeric numeric = widget.question as Numeric;
       final num min = numeric.min ?? 1;
       final num max = numeric.max ?? 5;
-      added = [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            LabeledField(label: "min", child: Text("$min")),
-            LabeledField(label: "max", child: Text("$max"))
-          ],
-        ),
-      ];
+      added = [Text("$min - $max")];
     }
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
@@ -199,7 +190,7 @@ class _SymptomDisplayState extends ConsumerState<SymptomDisplay> {
                           }
                         });
                       },
-                      style: const TextStyle(color: Colors.red, fontSize: 14),
+                      style: const TextStyle(color: Colors.red),
                     ),
                   if (widget.question.userCreated)
                     TextSpan(
@@ -225,7 +216,7 @@ class _SymptomDisplayState extends ConsumerState<SymptomDisplay> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Switch(
-                value: true,
+                value: widget.question.enabled,
                 onChanged: widget.question.isRequired ? null : (_) {},
                 thumbIcon: widget.question.isRequired
                     ? WidgetStateProperty.all(const Icon(Icons.lock))

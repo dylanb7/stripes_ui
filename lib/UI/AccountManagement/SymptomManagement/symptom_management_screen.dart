@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:collection/collection.dart';
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -56,7 +57,7 @@ class SymptomManagementScreen extends ConsumerWidget {
                       },
                       icon: const Icon(Icons.keyboard_arrow_left)),
                   Text(
-                    'Symptoms',
+                    'Categories',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).primaryColor),
@@ -67,13 +68,6 @@ class SymptomManagementScreen extends ConsumerWidget {
               ),
               const SizedBox(
                 height: 6.0,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 20),
-                child: Text(
-                  "Categories",
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
               ),
               ...[
                 const Divider(
@@ -133,6 +127,35 @@ class SymptomManagementScreen extends ConsumerWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class CategoryDisplay extends ConsumerWidget {
+  final RecordPath recordPath;
+
+  const CategoryDisplay({required this.recordPath, super.key});
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        children: [
+          RichText(
+            text: TextSpan(
+                text: recordPath.name,
+                style: Theme.of(context).textTheme.titleMedium,
+                children: [
+                  if (recordPath.userCreated)
+                    TextSpan(
+                      text: " · custom",
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).disabledColor.darken()),
+                    )
+                ]),
+          ),
+        ],
       ),
     );
   }
@@ -266,8 +289,11 @@ class _AddCategoryWidgetState extends ConsumerState<ConsumerStatefulWidget> {
     if (!(formKey.currentState?.validate() ?? false)) return;
     final QuestionRepo repo = await ref.read(questionsProvider.future);
     final bool added = await repo.addRecordPath(
-      category.text,
-      RecordPath(pages: const [], period: recordPeriod, userCreated: true),
+      RecordPath(
+          pages: const [],
+          period: recordPeriod,
+          userCreated: true,
+          name: category.text),
     );
     if (added) {
       setState(() {
