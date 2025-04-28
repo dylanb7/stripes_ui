@@ -617,39 +617,3 @@ class LabeledField extends StatelessWidget {
     );
   }
 }
-
-enum QuestionType {
-  check("c", "Check"),
-  freeResponse("f", "Free Response"),
-  slider("s", "Slider"),
-  multipleChoice("m", "Multiple Choice"),
-  allThatApply("a", "All That Apply");
-
-  final String id, value;
-
-  const QuestionType(this.id, this.value);
-
-  static QuestionType from(Question question) {
-    if (question is MultipleChoice) return multipleChoice;
-    if (question is FreeResponse) return freeResponse;
-    if (question is Numeric) return slider;
-    if (question is AllThatApply) return allThatApply;
-    return check;
-  }
-
-  static QuestionType fromId(String id) {
-    if (id == "m") return multipleChoice;
-    if (id == "f") return freeResponse;
-    if (id == "s") return slider;
-    if (id == "a") return allThatApply;
-    return check;
-  }
-
-  static const List<QuestionType> ordered = [
-    check,
-    freeResponse,
-    slider,
-    multipleChoice,
-    allThatApply
-  ];
-}
