@@ -63,8 +63,7 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
     if (isEdit && widget.questionsListener.submitTime != null) {
       return widget.questionsListener.submitTime!;
     }
-    final Period? period =
-        ref.read(pagePaths(PageProps(context: context)))[widget.type]?.period;
+    final Period? period = ref.read(pagePaths)[widget.type]?.period;
     final DateTime date = _dateListener.date;
     final TimeOfDay time = _timeListener.time;
     final currentTime = DateTime.now();
@@ -88,8 +87,7 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final Period? period =
-        ref.watch(pagePaths(PageProps(context: context)))[widget.type]?.period;
+    final Period? period = ref.watch(pagePaths)[widget.type]?.period;
     final List<Question> testAdditions = ref
             .watch(testProvider)
             .valueOrNull

@@ -72,10 +72,8 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
 
   @override
   Widget build(BuildContext context) {
-    final PageProps props =
-        PageProps(context: context, questionListener: widget.questionListener);
     final List<PageLayout> unfiltteredPages =
-        ref.watch(pagePaths(props))[widget.type]?.pages ?? [];
+        ref.watch(pagePaths)[widget.type]?.pages ?? [];
 
     final List<PageLayout> pages = unfiltteredPages
         .where((page) => page.dependsOn.eval(widget.questionListener))

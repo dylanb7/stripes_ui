@@ -29,7 +29,7 @@ class SymptomTypeManagement extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);
     final AsyncValue<Map<String, List<Question>>> questions =
-        ref.watch(questionsByType(context));
+        ref.watch(questionsByType);
 
     Widget loaded(Map<String, List<Question>> questions) {
       final List<Question>? ofCategory =
@@ -496,7 +496,7 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
       minValue.clear();
       maxValue.clear();
       choices.clear();
-      formKey.currentState!.reset();
+      formKey.currentState?.reset();
     } else if (mounted) {
       showSnack(context, "Failed to add question");
     }

@@ -24,8 +24,7 @@ class SymptomManagementScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final Map<String, RecordPath> recordPaths =
-        ref.watch(recordProvider(PageProps(context: context)));
+    final Map<String, RecordPath> recordPaths = ref.watch(recordProvider);
     final Map<Period, List<CheckinItem>> checkin =
         ref.watch(checkinProvider(CheckInProps(context: context)));
     final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);

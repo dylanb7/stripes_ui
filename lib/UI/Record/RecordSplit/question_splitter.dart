@@ -10,11 +10,10 @@ import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 
-final questionSplitProvider =
-    Provider.family<Map<String, List<Question>>, PageProps>((ref, props) {
-  final AsyncValue<QuestionRepo> repo = ref.watch(questionsProvider);
-  AsyncValue<QuestionHome> home = ref.watch(questionHomeProvider);
-  if (!repo.hasValue || !home.hasValue) return {};
+final questionSplitProvider = Provider<Map<String, List<Question>>>((ref) {
+  final AsyncValue<List<RecordPath>> paths = ref.watch(questionLayoutProvider);
+  final AsyncValue<QuestionHome> home = ref.watch(questionHomeProvider);
+  if (!paths.hasValue || !home.hasValue) return {};
 
   Map<String, List<Question>> questions = {};
   for (Question question in home.value!.all.values) {
@@ -25,8 +24,7 @@ final questionSplitProvider =
       questions[type] = [question];
     }
   }
-  for (final layout in repo.value!.getLayouts(
-      context: props.context, questionListener: props.questionListener)) {
+  for (final layout in paths.value ?? []) {
     if (!questions.containsKey(layout.name)) {
       questions[layout.name] = [];
     }
@@ -34,25 +32,20 @@ final questionSplitProvider =
   return questions;
 });
 
-final pagePaths =
-    Provider.family<Map<String, RecordPath>, PageProps>((ref, props) {
-  final List<RecordPath>? pageOverrides = ref.watch(
-    questionsProvider.select(
-      (questions) => questions.valueOrNull?.getLayouts(
-          context: props.context, questionListener: props.questionListener),
-    ),
-  );
+final pagePaths = Provider<Map<String, RecordPath>>((ref) {
+  final List<RecordPath> pageOverrides = ref
+      .watch(questionLayoutProvider)
+      .map(data: (data) => data.value, error: (_) => [], loading: (_) => []);
 
-  final Map<String, List<Question>> split =
-      ref.watch(questionSplitProvider(props));
+  final Map<String, List<Question>> split = ref.watch(questionSplitProvider);
   final Map<String, QuestionEntry> questionOverrides =
       ref.watch(questionsProvider).valueOrNull?.entryOverrides ?? {};
 
   return getAllPaths(pageOverrides, questionOverrides, split);
 });
 
-final _pageSplitProvider = Provider.family<PageSplit, PageProps>((ref, props) {
-  final Map<String, RecordPath> allPaths = ref.watch(pagePaths(props));
+final _pageSplitProvider = Provider<PageSplit>((ref) {
+  final Map<String, RecordPath> allPaths = ref.watch(pagePaths);
 
   final Map<String, RecordPath> recordPaths = {};
   final Map<Period, Map<String, RecordPath>> checkinPaths = {};
@@ -71,18 +64,16 @@ final _pageSplitProvider = Provider.family<PageSplit, PageProps>((ref, props) {
   return PageSplit(recordPaths: recordPaths, checkinPaths: checkinPaths);
 });
 
-final recordProvider =
-    Provider.family<Map<String, RecordPath>, PageProps>((ref, props) {
+final recordProvider = Provider<Map<String, RecordPath>>((ref) {
   final Map<String, RecordPath> recordPaths =
-      ref.watch(_pageSplitProvider(props).select((value) => value.recordPaths));
+      ref.watch(_pageSplitProvider.select((value) => value.recordPaths));
   return recordPaths;
 });
 
 final checkinProvider =
     Provider.family<Map<Period, List<CheckinItem>>, CheckInProps>((ref, props) {
-  final Map<Period, Map<String, RecordPath>> checkIns = ref.watch(
-      _pageSplitProvider(props.pageProps())
-          .select((value) => value.checkinPaths));
+  final Map<Period, Map<String, RecordPath>> checkIns =
+      ref.watch(_pageSplitProvider.select((value) => value.checkinPaths));
 
   final DateTime searchTime = props.period ?? DateTime.now();
   final List<Stamp> stamps = ref.watch(stampHolderProvider).valueOrNull ?? [];
@@ -115,22 +106,12 @@ final checkinProvider =
 });
 
 @immutable
-class PageProps {
-  final BuildContext context;
-  final QuestionsListener? questionListener;
-  const PageProps({required this.context, this.questionListener});
-}
-
-@immutable
 class CheckInProps {
   final BuildContext context;
   final QuestionsListener? questionListener;
   final DateTime? period;
   const CheckInProps(
       {required this.context, this.questionListener, this.period});
-
-  PageProps pageProps() =>
-      PageProps(context: context, questionListener: questionListener);
 }
 
 @immutable

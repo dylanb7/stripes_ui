@@ -16,28 +16,24 @@ final questionHomeProvider = StreamProvider<QuestionHome>((ref) {
       loading: (_) => const Stream.empty());
 });
 
-final questionsByType =
-    FutureProvider.family<Map<String, List<Question>>, BuildContext>(
-        (ref, context) async {
-  final QuestionHome home = await ref.watch(questionHomeProvider.future);
-  final QuestionRepo repo = await ref.watch(questionsProvider.future);
-  final Map<String, List<Question>> byCategory = {};
+final questionLayoutProvider = StreamProvider<List<RecordPath>>((ref) {
+  return ref.watch(questionsProvider).map(
+      data: (data) => data.value.layouts,
+      error: (_) => const Stream.empty(),
+      loading: (_) => const Stream.empty());
+});
 
-  final Map<String, Question> allQuestions = home.additions..addAll(home.all);
-  for (final Question val in allQuestions.values) {
-    if (byCategory.containsKey(val.type)) {
-      byCategory[val.type]!.add(val);
-    } else {
-      byCategory[val.type] = [val];
+final questionsByType =
+    FutureProvider<Map<String, List<Question>>>((ref) async {
+  final QuestionHome home = await ref.watch(questionHomeProvider.future);
+  final List<RecordPath> paths = await ref.watch(questionLayoutProvider.future);
+  final Map<String, List<Question>> byCategory = home.byType();
+
+  for (final RecordPath path in paths) {
+    if (!byCategory.containsKey(path.name)) {
+      byCategory[path.name] = [];
     }
   }
-  if (context.mounted) {
-    List<RecordPath> paths = repo.getLayouts(context: context);
-    for (final RecordPath path in paths) {
-      if (!byCategory.containsKey(path.name)) {
-        byCategory[path.name] = [];
-      }
-    }
-  }
+
   return byCategory;
 });

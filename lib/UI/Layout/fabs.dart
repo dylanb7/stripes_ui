@@ -40,10 +40,8 @@ class _QuestionTypeOverlay extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final DateTime? date = ref.watch(filtersProvider
         .select((value) => value.calendarSelection.selectedDate));
-    final List<String> questionTypes = ref
-        .watch(questionSplitProvider(PageProps(context: context)))
-        .keys
-        .toList();
+    final List<String> questionTypes =
+        ref.watch(questionSplitProvider).keys.toList();
     return OverlayBackdrop(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 350),
