@@ -300,7 +300,7 @@ class _AddCategoryWidgetState extends ConsumerState<ConsumerStatefulWidget> {
       await Future.delayed(Durations.long4);
       category.clear();
       recordPeriod = null;
-      formKey.currentState!.reset();
+      formKey.currentState?.reset();
     } else if (mounted) {
       showSnack(context, "Failed to add question");
     }
@@ -308,6 +308,7 @@ class _AddCategoryWidgetState extends ConsumerState<ConsumerStatefulWidget> {
     setState(() {
       submitSuccess = false;
       isLoading = false;
+      isAdding = false;
     });
   }
 }
