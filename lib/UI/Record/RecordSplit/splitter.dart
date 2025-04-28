@@ -74,12 +74,13 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
   Widget build(BuildContext context) {
     final PageProps props =
         PageProps(context: context, questionListener: widget.questionListener);
-    final List<PageLayout> pages = ref
-            .watch(pagePaths(props))[widget.type]
-            ?.pages
-            .where((page) => page.dependsOn.eval(widget.questionListener))
-            .toList() ??
-        [];
+    final List<PageLayout> unfiltteredPages =
+        ref.watch(pagePaths(props))[widget.type]?.pages ?? [];
+
+    final List<PageLayout> pages = unfiltteredPages
+        .where((page) => page.dependsOn.eval(widget.questionListener))
+        .toList();
+
     final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);
 
     final AsyncValue<QuestionRepo> questionRepo = ref.watch(questionsProvider);
