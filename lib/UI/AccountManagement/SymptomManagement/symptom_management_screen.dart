@@ -75,39 +75,8 @@ class SymptomManagementScreen extends ConsumerWidget {
                 const AddCategoryWidget(),
                 ...recordPaths.keys.map((key) {
                   final RecordPath path = recordPaths[key]!;
-                  final int symptoms = path.pages.isEmpty
-                      ? 0
-                      : path.pages
-                          .map((page) => page.questionIds.length)
-                          .reduce((value, element) => value + element);
 
-                  bool locked = true;
-                  return ListTile(
-                    title: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Switch(
-                            value: true,
-                            onChanged: locked ? null : (_) {},
-                            thumbIcon: locked
-                                ? WidgetStateProperty.all(
-                                    const Icon(Icons.lock))
-                                : null,
-                          ),
-                          const SizedBox(
-                            width: 4.0,
-                          ),
-                          Text(key),
-                        ]),
-                    subtitle: Text("$symptoms symptoms"),
-                    trailing: const Icon(Icons.keyboard_arrow_right),
-                    onTap: () {
-                      context.pushNamed(Routes.SYMPTOMTYPE,
-                          pathParameters: {'type': key});
-                    },
-                  );
+                  return CategoryDisplay(recordPath: path);
                 }).separated(
                     by: const Divider(
                       endIndent: 8.0,
