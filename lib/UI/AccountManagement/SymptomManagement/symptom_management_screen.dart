@@ -112,13 +112,13 @@ class CategoryDisplay extends ConsumerWidget {
             .reduce((value, element) => value + element);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
-      child: GestureDetector(
-        onTap: () {
-          context.pushNamed(Routes.SYMPTOMTYPE,
-              pathParameters: {'type': recordPath.name});
-        },
-        child: SizedBox(
-          width: double.infinity,
+      child: SizedBox(
+        width: double.infinity,
+        child: GestureDetector(
+          onTap: () {
+            context.pushNamed(Routes.SYMPTOMTYPE,
+                pathParameters: {'type': recordPath.name});
+          },
           child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
