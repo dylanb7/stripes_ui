@@ -217,18 +217,22 @@ class _SymptomDisplayState extends ConsumerState<SymptomDisplay> {
             children: [
               Switch(
                 value: widget.question.enabled,
-                onChanged: widget.question.isRequired ? null : (_) {},
+                onChanged: widget.question.isRequired
+                    ? null
+                    : (_) async {
+                        await (await ref.read(questionsProvider.future))
+                            .setQuestionEnabled(
+                                widget.question, !widget.question.enabled);
+                      },
                 thumbIcon: widget.question.isRequired
                     ? WidgetStateProperty.all(const Icon(Icons.lock))
                     : null,
               ),
               IconButton(
                   onPressed: widget.question.userCreated
-                      ? () {
-                          ref
-                              .read(questionsProvider)
-                              .valueOrNull
-                              ?.removeQuestion(widget.question);
+                      ? () async {
+                          (await ref.read(questionsProvider.future))
+                              .removeQuestion(widget.question);
                         }
                       : null,
                   icon: const Icon(Icons.delete))

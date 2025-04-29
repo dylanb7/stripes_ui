@@ -136,22 +136,66 @@ class CategoryDisplay extends ConsumerWidget {
   const CategoryDisplay({required this.recordPath, super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final int symptoms = recordPath.pages.isEmpty
+        ? 0
+        : recordPath.pages
+            .map((page) => page.questionIds.length)
+            .reduce((value, element) => value + element);
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           RichText(
             text: TextSpan(
-                text: recordPath.name,
-                style: Theme.of(context).textTheme.titleMedium,
-                children: [
-                  if (recordPath.userCreated)
-                    TextSpan(
-                      text: " · custom",
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).disabledColor.darken()),
-                    )
-                ]),
+              text: recordPath.name,
+              style: Theme.of(context).textTheme.titleMedium,
+              children: [
+                if (recordPath.userCreated)
+                  TextSpan(
+                    text: " · custom",
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).disabledColor.darken()),
+                  ),
+              ],
+            ),
+          ),
+          Text(
+            "$symptoms symptoms${recordPath.period != null ? " · ${recordPath.period!.name}" : ""}",
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(color: Theme.of(context).disabledColor.darken()),
+          ),
+          const SizedBox(
+            height: 4,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Switch(
+                value: recordPath.enabled,
+                onChanged: recordPath.isRequired
+                    ? null
+                    : (_) async {
+                        await (await ref.read(questionsProvider.future))
+                            .setEnabled(recordPath, !recordPath.enabled);
+                      },
+                thumbIcon: recordPath.isRequired
+                    ? WidgetStateProperty.all(const Icon(Icons.lock))
+                    : null,
+              ),
+              IconButton(
+                  onPressed: recordPath.userCreated
+                      ? () async {
+                          (await ref.read(questionsProvider.future))
+                              .removeRecordPath(recordPath);
+                        }
+                      : null,
+                  icon: const Icon(Icons.delete))
+            ],
           ),
         ],
       ),
@@ -293,7 +337,7 @@ class _AddCategoryWidgetState extends ConsumerState<ConsumerStatefulWidget> {
           userCreated: true,
           name: category.text),
     );
-    if (added) {
+    if (added && mounted) {
       setState(() {
         submitSuccess = true;
       });
@@ -304,11 +348,12 @@ class _AddCategoryWidgetState extends ConsumerState<ConsumerStatefulWidget> {
     } else if (mounted) {
       showSnack(context, "Failed to add question");
     }
-
-    setState(() {
-      submitSuccess = false;
-      isLoading = false;
-      isAdding = false;
-    });
+    if (mounted) {
+      setState(() {
+        submitSuccess = false;
+        isLoading = false;
+        isAdding = false;
+      });
+    }
   }
 }
