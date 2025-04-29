@@ -492,9 +492,11 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
     final bool added =
         await (await ref.read(questionsProvider.future)).addQuestion(question);
     if (added) {
-      setState(() {
-        submitSuccess = true;
-      });
+      if (mounted) {
+        setState(() {
+          submitSuccess = true;
+        });
+      }
       await Future.delayed(Durations.long4);
       prompt.clear();
       minValue.clear();
@@ -505,10 +507,12 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
       showSnack(context, "Failed to add question");
     }
 
-    setState(() {
-      submitSuccess = false;
-      isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        submitSuccess = false;
+        isLoading = false;
+      });
+    }
   }
 }
 
