@@ -111,76 +111,67 @@ class CategoryDisplay extends ConsumerWidget {
             .map((page) => page.questionIds.length)
             .reduce((value, element) => value + element);
     return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          GestureDetector(
-            onTap: () {
-              context.pushNamed(Routes.SYMPTOMTYPE,
-                  pathParameters: {'type': recordPath.name});
-            },
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                RichText(
-                  text: TextSpan(
-                    text: recordPath.name,
-                    style: Theme.of(context).textTheme.titleMedium,
-                    children: [
-                      if (recordPath.userCreated)
-                        TextSpan(
-                          text: " · custom",
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(
-                                  color:
-                                      Theme.of(context).disabledColor.darken()),
-                        ),
-                    ],
-                  ),
-                ),
-                Text(
-                  "$symptoms symptoms${recordPath.period != null ? " · ${recordPath.period!.name}" : ""}",
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).disabledColor.darken()),
-                ),
-                const SizedBox(
-                  height: 4,
-                ),
-              ],
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
+      padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
+      child: GestureDetector(
+        onTap: () {
+          context.pushNamed(Routes.SYMPTOMTYPE,
+              pathParameters: {'type': recordPath.name});
+        },
+        child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Switch(
-                value: recordPath.enabled,
-                onChanged: recordPath.isRequired
-                    ? null
-                    : (_) async {
-                        await (await ref.read(questionsProvider.future))
-                            .setEnabled(recordPath, !recordPath.enabled);
-                      },
-                thumbIcon: recordPath.isRequired
-                    ? WidgetStateProperty.all(const Icon(Icons.lock))
-                    : null,
+              RichText(
+                text: TextSpan(
+                  text: recordPath.name,
+                  style: Theme.of(context).textTheme.titleMedium,
+                  children: [
+                    if (recordPath.userCreated)
+                      TextSpan(
+                        text: " · custom",
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).disabledColor.darken()),
+                      ),
+                  ],
+                ),
               ),
-              IconButton(
-                  onPressed: recordPath.userCreated
-                      ? () async {
-                          (await ref.read(questionsProvider.future))
-                              .removeRecordPath(recordPath);
-                        }
-                      : null,
-                  icon: const Icon(Icons.delete))
-            ],
-          ),
-        ],
+              Text(
+                "$symptoms symptoms${recordPath.period != null ? " · ${recordPath.period!.name}" : ""}",
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(color: Theme.of(context).disabledColor.darken()),
+              ),
+              const SizedBox(
+                height: 4,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Switch(
+                    value: recordPath.enabled,
+                    onChanged: recordPath.isRequired
+                        ? null
+                        : (_) async {
+                            await (await ref.read(questionsProvider.future))
+                                .setEnabled(recordPath, !recordPath.enabled);
+                          },
+                    thumbIcon: recordPath.isRequired
+                        ? WidgetStateProperty.all(const Icon(Icons.lock))
+                        : null,
+                  ),
+                  IconButton(
+                      onPressed: recordPath.userCreated
+                          ? () async {
+                              (await ref.read(questionsProvider.future))
+                                  .removeRecordPath(recordPath);
+                            }
+                          : null,
+                      icon: const Icon(Icons.delete))
+                ],
+              ),
+            ]),
       ),
     );
   }
