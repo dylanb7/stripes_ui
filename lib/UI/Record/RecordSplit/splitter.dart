@@ -81,16 +81,10 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
 
     final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);
 
-    final AsyncValue<QuestionRepo> questionRepo = ref.watch(questionsProvider);
-
     final AsyncValue<QuestionHome> questionHome =
         ref.watch(questionHomeProvider);
 
     if (questionHome.isLoading) {
-      return const LoadingWidget();
-    }
-
-    if (questionRepo.isLoading) {
       return const LoadingWidget();
     }
 
@@ -213,8 +207,14 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                         questions:
                                             pages[index].questionIds.map((id) {
                                           if (questionHome.hasValue) {
-                                            return questionHome.valueOrNull!
+                                            final Question? value = questionHome
+                                                .valueOrNull!
                                                 .fromBank(id);
+                                            if (value == null) {
+                                              print(
+                                                  "Failed to fetch question ${id}");
+                                            }
+                                            return value ?? Question.empty();
                                           }
                                           return Question.empty();
                                         }).toList(),
