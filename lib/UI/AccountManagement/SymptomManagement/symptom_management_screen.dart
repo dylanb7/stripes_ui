@@ -116,29 +116,43 @@ class CategoryDisplay extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          RichText(
-            text: TextSpan(
-              text: recordPath.name,
-              style: Theme.of(context).textTheme.titleMedium,
+          GestureDetector(
+            onTap: () {
+              context.pushNamed(Routes.SYMPTOMTYPE,
+                  pathParameters: {'type': recordPath.name});
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                if (recordPath.userCreated)
-                  TextSpan(
-                    text: " · custom",
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).disabledColor.darken()),
+                RichText(
+                  text: TextSpan(
+                    text: recordPath.name,
+                    style: Theme.of(context).textTheme.titleMedium,
+                    children: [
+                      if (recordPath.userCreated)
+                        TextSpan(
+                          text: " · custom",
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(
+                                  color:
+                                      Theme.of(context).disabledColor.darken()),
+                        ),
+                    ],
                   ),
+                ),
+                Text(
+                  "$symptoms symptoms${recordPath.period != null ? " · ${recordPath.period!.name}" : ""}",
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).disabledColor.darken()),
+                ),
+                const SizedBox(
+                  height: 4,
+                ),
               ],
             ),
-          ),
-          Text(
-            "$symptoms symptoms${recordPath.period != null ? " · ${recordPath.period!.name}" : ""}",
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
-                ?.copyWith(color: Theme.of(context).disabledColor.darken()),
-          ),
-          const SizedBox(
-            height: 4,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
