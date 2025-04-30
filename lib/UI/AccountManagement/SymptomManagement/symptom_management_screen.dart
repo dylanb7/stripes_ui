@@ -130,7 +130,7 @@ class CategoryDisplay extends ConsumerWidget {
                     children: [
                       if (recordPath.userCreated)
                         TextSpan(
-                          text: " · custom",
+                          text: " · custom category",
                           style: Theme.of(context)
                               .textTheme
                               .bodySmall
@@ -237,6 +237,7 @@ class _AddCategoryWidgetState extends ConsumerState<ConsumerStatefulWidget> {
                               : null,
                         ),
                       ),
+                      /*
                       const SizedBox(
                         height: 8.0,
                       ),
@@ -274,7 +275,7 @@ class _AddCategoryWidgetState extends ConsumerState<ConsumerStatefulWidget> {
                               value: null,
                             )),
                         ),
-                      ),
+                      ),*/
                       const SizedBox(
                         height: 16.0,
                       ),

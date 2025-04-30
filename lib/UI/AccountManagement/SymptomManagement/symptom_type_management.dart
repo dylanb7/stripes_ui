@@ -194,7 +194,7 @@ class _SymptomDisplayState extends ConsumerState<SymptomDisplay> {
                     ),
                   if (widget.question.userCreated)
                     TextSpan(
-                      text: " · custom",
+                      text: " · custom symptom",
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).disabledColor.darken()),
                     )

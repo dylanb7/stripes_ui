@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/QuestionModel/question.dart';
@@ -53,9 +54,20 @@ class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
               Flexible(
                 child: Text(
                   widget.question.prompt,
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
               ),
+              if (widget.question.userCreated) ...[
+                const SizedBox(
+                  height: 4.0,
+                ),
+                Text(
+                  "custom symptom",
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).disabledColor.darken(),
+                      ),
+                ),
+              ],
               const SizedBox(
                 height: 8.0,
               ),
@@ -223,6 +235,17 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
                     widget.question.prompt,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
+                  if (widget.question.userCreated) ...[
+                    const SizedBox(
+                      height: 4.0,
+                    ),
+                    Text(
+                      "custom symptom",
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).disabledColor.darken(),
+                          ),
+                    ),
+                  ],
                   const SizedBox(
                     height: 8.0,
                   ),
@@ -353,8 +376,8 @@ class _FreeResponseEntryState extends State<FreeResponseEntry> {
               Flexible(
                 child: Text(
                   widget.question.prompt,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  textAlign: TextAlign.left,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
               ),
               const SizedBox(

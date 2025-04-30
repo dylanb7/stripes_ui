@@ -17,6 +17,7 @@ final questionSplitProvider = Provider<Map<String, List<Question>>>((ref) {
 
   Map<String, List<Question>> questions = {};
   for (Question question in home.value!.all.values) {
+    if (question.deleted || !question.enabled) continue;
     final String type = question.type;
     if (questions.containsKey(type)) {
       questions[type]!.add(question);
@@ -140,7 +141,7 @@ Map<String, RecordPath> getAllPaths(
 
   for (String type in split.keys) {
     final RecordPath? override = pageOverrides
-        ?.where((override) => override.name == type)
+        ?.where((override) => override.name == type && override.enabled)
         .toList()
         .firstOrNull;
     if (override != null) {
