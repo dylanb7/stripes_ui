@@ -27,6 +27,7 @@ class SymptomTypeManagement extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(questionHomeProvider);
     final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);
     final AsyncValue<Map<String, List<Question>>> questions =
         ref.watch(questionsByType);
