@@ -226,9 +226,13 @@ class _SymptomDisplayState extends ConsumerState<SymptomDisplay> {
                 onChanged: widget.question.isRequired
                     ? null
                     : (_) async {
-                        await (await ref.read(questionsProvider.future))
-                            .setQuestionEnabled(
-                                widget.question, !widget.question.enabled);
+                        if (!await (await ref.read(questionsProvider.future))
+                                .setQuestionEnabled(widget.question,
+                                    !widget.question.enabled) &&
+                            context.mounted) {
+                          showSnack(context,
+                              "Failed to ${!widget.question.enabled ? "enable" : "disable"} ${widget.question.prompt}");
+                        }
                       },
                 thumbIcon: widget.question.isRequired
                     ? WidgetStateProperty.all(const Icon(Icons.lock))
@@ -237,8 +241,12 @@ class _SymptomDisplayState extends ConsumerState<SymptomDisplay> {
               IconButton(
                   onPressed: widget.question.userCreated
                       ? () async {
-                          (await ref.read(questionsProvider.future))
-                              .removeQuestion(widget.question);
+                          if (!await (await ref.read(questionsProvider.future))
+                                  .removeQuestion(widget.question) &&
+                              context.mounted) {
+                            showSnack(context,
+                                "Failed to delete ${widget.question.prompt}");
+                          }
                         }
                       : null,
                   icon: const Icon(Icons.delete))

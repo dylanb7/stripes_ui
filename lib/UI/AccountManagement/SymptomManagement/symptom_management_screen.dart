@@ -161,8 +161,14 @@ class CategoryDisplay extends ConsumerWidget {
                       onChanged: recordPath.isRequired
                           ? null
                           : (_) async {
-                              await (await ref.read(questionsProvider.future))
-                                  .setEnabled(recordPath, !recordPath.enabled);
+                              if (!await (await ref
+                                          .read(questionsProvider.future))
+                                      .setEnabled(
+                                          recordPath, !recordPath.enabled) &&
+                                  context.mounted) {
+                                showSnack(context,
+                                    "Failed to ${!recordPath.enabled ? "enable" : "disable"} ${recordPath.name}");
+                              }
                             },
                       thumbIcon: recordPath.isRequired
                           ? WidgetStateProperty.all(const Icon(Icons.lock))
@@ -171,8 +177,13 @@ class CategoryDisplay extends ConsumerWidget {
                     IconButton(
                         onPressed: recordPath.userCreated
                             ? () async {
-                                (await ref.read(questionsProvider.future))
-                                    .removeRecordPath(recordPath);
+                                if (!await (await ref
+                                            .read(questionsProvider.future))
+                                        .removeRecordPath(recordPath) &&
+                                    context.mounted) {
+                                  showSnack(context,
+                                      "Failed to deleted ${recordPath.name}");
+                                }
                               }
                             : null,
                         icon: const Icon(Icons.delete))
