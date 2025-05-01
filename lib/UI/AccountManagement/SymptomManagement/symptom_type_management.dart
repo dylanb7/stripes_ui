@@ -39,6 +39,7 @@ class SymptomTypeManagement extends ConsumerWidget {
       return RefreshWidget(
         depth: RefreshDepth.subuser,
         scrollable: SingleChildScrollView(
+          key: const PageStorageKey("SymptomScreen"),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             const SizedBox(
