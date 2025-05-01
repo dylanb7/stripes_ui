@@ -38,6 +38,7 @@ final stampHolderProvider =
 class StampNotifier extends AsyncNotifier<List<Stamp>> {
   @override
   FutureOr<List<Stamp>> build() async {
+    await ref.watch(questionHomeProvider.future);
     return await ref.watch(stampsStreamProvider.future);
   }
 
