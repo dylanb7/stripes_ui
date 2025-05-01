@@ -82,7 +82,7 @@ class AccountManagementScreen extends ConsumerWidget {
                       )
                     : null,
                 onTap: () {
-                  context.goNamed(Routes.USERS);
+                  context.pushNamed(Routes.USERS);
                 },
               ),
               const Divider(
@@ -95,7 +95,7 @@ class AccountManagementScreen extends ConsumerWidget {
                 title: const Text("Symptoms"),
                 trailing: const Icon(Icons.keyboard_arrow_right),
                 onTap: () {
-                  context.goNamed(Routes.SYMPTOMS);
+                  context.pushNamed(Routes.SYMPTOMS);
                 },
               ),
               const Divider(

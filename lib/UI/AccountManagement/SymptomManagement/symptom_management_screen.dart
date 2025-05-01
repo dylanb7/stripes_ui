@@ -1,10 +1,8 @@
-import 'dart:math';
-
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:select_field/select_field.dart';
+
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo_base.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/record_period.dart';
 import 'package:stripes_ui/Providers/questions_provider.dart';
@@ -52,7 +50,11 @@ class SymptomManagementScreen extends ConsumerWidget {
                 children: [
                   IconButton(
                       onPressed: () {
-                        context.pushNamed(Routes.ACCOUNT);
+                        if (context.canPop()) {
+                          context.pop();
+                        } else {
+                          context.goNamed(Routes.ACCOUNT);
+                        }
                       },
                       icon: const Icon(Icons.keyboard_arrow_left)),
                   Text(
@@ -198,11 +200,11 @@ class _AddCategoryWidgetState extends ConsumerState<ConsumerStatefulWidget> {
   final TextEditingController category = TextEditingController();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   Period? recordPeriod;
-  static const buttonHeight = 60.0;
+  static const double buttonHeight = 60.0;
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
+    final double screenHeight = MediaQuery.of(context).size.height;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
       child: ConstrainedBox(

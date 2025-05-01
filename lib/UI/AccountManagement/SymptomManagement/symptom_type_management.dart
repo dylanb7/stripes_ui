@@ -48,7 +48,11 @@ class SymptomTypeManagement extends ConsumerWidget {
               children: [
                 IconButton(
                     onPressed: () {
-                      context.goNamed(Routes.SYMPTOMS);
+                      if (context.canPop()) {
+                        context.pop();
+                      } else {
+                        context.goNamed(Routes.SYMPTOMS);
+                      }
                     },
                     icon: const Icon(Icons.keyboard_arrow_left)),
                 category != null
