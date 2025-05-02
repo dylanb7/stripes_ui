@@ -141,7 +141,7 @@ Map<String, RecordPath> getAllPaths(
 
   for (String type in split.keys) {
     final RecordPath? override = pageOverrides
-        ?.where((override) => override.name == type && override.enabled)
+        ?.where((override) => override.name == type /* && override.enabled*/)
         .toList()
         .firstOrNull;
     if (override != null) {
