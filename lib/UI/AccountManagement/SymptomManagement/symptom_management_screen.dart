@@ -108,8 +108,6 @@ class CategoryDisplay extends ConsumerWidget {
   const CategoryDisplay({required this.recordPath, super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    print(recordPath.toJson());
-    ref.watch(questionLayoutProvider);
     final int symptoms = recordPath.pages.isEmpty
         ? 0
         : recordPath.pages
@@ -117,13 +115,14 @@ class CategoryDisplay extends ConsumerWidget {
             .reduce((value, element) => value + element);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
-      child: SizedBox(
-        width: double.infinity,
-        child: GestureDetector(
-          onTap: () {
-            context.pushNamed(Routes.SYMPTOMTYPE,
-                pathParameters: {'type': recordPath.name});
-          },
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () {
+          context.pushNamed(Routes.SYMPTOMTYPE,
+              pathParameters: {'type': recordPath.name});
+        },
+        child: SizedBox(
+          width: double.infinity,
           child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
