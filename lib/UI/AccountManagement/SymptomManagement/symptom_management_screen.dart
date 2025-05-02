@@ -114,27 +114,46 @@ class CategoryDisplay extends ConsumerWidget {
             .map((page) => page.questionIds.length)
             .reduce((value, element) => value + element);
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
-      child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: () {
-          context.pushNamed(Routes.SYMPTOMTYPE,
-              pathParameters: {'type': recordPath.name});
-        },
-        child: SizedBox(
-          width: double.infinity,
-          child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                RichText(
-                  text: TextSpan(
-                    text: recordPath.name,
-                    style: Theme.of(context).textTheme.titleMedium,
-                    children: [
-                      if (recordPath.userCreated)
-                        TextSpan(
-                          text: " · custom category",
+      padding: const EdgeInsets.only(top: 4.0, left: 16.0, right: 16.0),
+      child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () {
+                context.pushNamed(Routes.SYMPTOMTYPE,
+                    pathParameters: {'type': recordPath.name});
+              },
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  IntrinsicHeight(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        RichText(
+                          text: TextSpan(
+                            text: recordPath.name,
+                            style: Theme.of(context).textTheme.titleMedium,
+                            children: [
+                              if (recordPath.userCreated)
+                                TextSpan(
+                                  text: " · custom category",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                          color: Theme.of(context)
+                                              .disabledColor
+                                              .darken()),
+                                ),
+                            ],
+                          ),
+                        ),
+                        Text(
+                          "$symptoms symptoms${recordPath.period != null ? " · ${recordPath.period!.name}" : ""}",
                           style: Theme.of(context)
                               .textTheme
                               .bodySmall
@@ -142,57 +161,57 @@ class CategoryDisplay extends ConsumerWidget {
                                   color:
                                       Theme.of(context).disabledColor.darken()),
                         ),
-                    ],
-                  ),
-                ),
-                Text(
-                  "$symptoms symptoms${recordPath.period != null ? " · ${recordPath.period!.name}" : ""}",
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).disabledColor.darken()),
-                ),
-                const SizedBox(
-                  height: 4,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Switch(
-                      value: recordPath.enabled,
-                      onChanged: recordPath.isRequired
-                          ? null
-                          : (_) async {
-                              if (!await (await ref
-                                          .read(questionsProvider.future))
-                                      .setEnabled(
-                                          recordPath, !recordPath.enabled) &&
-                                  context.mounted) {
-                                showSnack(context,
-                                    "Failed to ${!recordPath.enabled ? "enable" : "disable"} ${recordPath.name}");
-                              }
-                            },
-                      thumbIcon: recordPath.isRequired
-                          ? WidgetStateProperty.all(const Icon(Icons.lock))
-                          : null,
+                      ],
                     ),
-                    IconButton(
-                        onPressed: recordPath.userCreated
-                            ? () async {
-                                if (!await (await ref
-                                            .read(questionsProvider.future))
-                                        .removeRecordPath(recordPath) &&
-                                    context.mounted) {
-                                  showSnack(context,
-                                      "Failed to deleted ${recordPath.name}");
-                                }
-                              }
-                            : null,
-                        icon: const Icon(Icons.delete))
-                  ],
+                  ),
+                  const SizedBox(
+                    width: 4.0,
+                  ),
+                  const Icon(Icons.keyboard_arrow_right),
+                  const Spacer()
+                ],
+              ),
+            ),
+            const SizedBox(
+              height: 4,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Switch(
+                  value: recordPath.enabled,
+                  onChanged: recordPath.isRequired
+                      ? null
+                      : (_) async {
+                          if (!await (await ref.read(questionsProvider.future))
+                                  .setEnabled(
+                                      recordPath, !recordPath.enabled) &&
+                              context.mounted) {
+                            showSnack(context,
+                                "Failed to ${!recordPath.enabled ? "enable" : "disable"} ${recordPath.name}");
+                          }
+                        },
+                  thumbIcon: recordPath.isRequired
+                      ? WidgetStateProperty.all(const Icon(Icons.lock))
+                      : null,
                 ),
-              ]),
-        ),
-      ),
+                IconButton(
+                    onPressed: recordPath.userCreated
+                        ? () async {
+                            if (!await (await ref
+                                        .read(questionsProvider.future))
+                                    .removeRecordPath(recordPath) &&
+                                context.mounted) {
+                              showSnack(context,
+                                  "Failed to deleted ${recordPath.name}");
+                            }
+                          }
+                        : null,
+                    icon: const Icon(Icons.delete))
+              ],
+            ),
+          ]),
     );
   }
 }
