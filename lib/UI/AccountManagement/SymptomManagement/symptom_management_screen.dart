@@ -108,6 +108,7 @@ class CategoryDisplay extends ConsumerWidget {
   const CategoryDisplay({required this.recordPath, super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    print(recordPath.toJson());
     ref.watch(questionLayoutProvider);
     final int symptoms = recordPath.pages.isEmpty
         ? 0
