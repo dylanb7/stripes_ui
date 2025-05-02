@@ -161,7 +161,6 @@ class CategoryDisplay extends ConsumerWidget {
                       onChanged: recordPath.isRequired
                           ? null
                           : (_) async {
-                              print(recordPath.toJson());
                               if (!await (await ref
                                           .read(questionsProvider.future))
                                       .setEnabled(
