@@ -8,10 +8,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:select_field/select_field.dart';
 import 'package:stripes_backend_helper/QuestionModel/question.dart';
+import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo_base.dart';
 
 import 'package:stripes_ui/Providers/questions_provider.dart';
+import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
 import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
-import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
 import 'package:stripes_ui/UI/Layout/home_screen.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
@@ -20,123 +21,172 @@ import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 
-class SymptomTypeManagement extends ConsumerWidget {
+class SymptomTypeManagement extends ConsumerStatefulWidget {
   final String? category;
 
   const SymptomTypeManagement({required this.category, super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(questionHomeProvider);
+  ConsumerState<ConsumerStatefulWidget> createState() {
+    return _SymptomTypeManagementState();
+  }
+}
+
+class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
+  bool editing = false;
+
+  @override
+  Widget build(BuildContext context) {
     final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);
-    final AsyncValue<Map<String, List<Question>>> questions =
-        ref.watch(questionsByType);
 
-    Widget loaded(Map<String, List<Question>> questions) {
-      final List<Question>? ofCategory =
-          category != null ? questions[category] : null;
+    final AsyncValue<List<LoadedPageLayout>?> layouts =
+        ref.watch(pagesByPath(PagesByPathProps(pathName: widget.category)));
 
-      return RefreshWidget(
-        depth: RefreshDepth.subuser,
-        scrollable: SingleChildScrollView(
-          key: const PageStorageKey("SymptomScreen"),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            const SizedBox(
-              height: 20.0,
-            ),
-            Row(
-              children: [
-                IconButton(
-                    onPressed: () {
-                      if (context.canPop()) {
-                        context.pop();
-                      } else {
-                        context.goNamed(Routes.SYMPTOMS);
-                      }
-                    },
-                    icon: const Icon(Icons.keyboard_arrow_left)),
-                category != null
-                    ? Text(
-                        category!,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).primaryColor),
-                        textAlign: TextAlign.left,
-                      )
-                    : Text(
-                        "No Category Provided",
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).primaryColor),
-                        textAlign: TextAlign.left,
-                      ),
-                const Spacer(),
-              ],
-            ),
-            const SizedBox(
-              height: 6.0,
-            ),
-            if (ofCategory == null)
-              Center(
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Text("Category not created"),
-                      const SizedBox(
-                        height: 8.0,
-                      ),
-                      FilledButton.icon(
-                          icon: const Icon(Icons.add),
-                          onPressed: () {},
-                          label: const Text("Create"))
-                    ]),
-              ),
-            if (ofCategory != null) ...[
-              const Divider(),
-              AddSymptomWidget(
-                type: category!,
-              ),
-              ...ofCategory
-                  .map(
-                    (question) => SymptomDisplay(question: question),
-                  )
-                  .separated(
-                      by: const Divider(
-                        endIndent: 8.0,
-                        indent: 8.0,
-                      ),
-                      includeEnds: true),
-            ],
-          ]),
-        ),
+    Widget topRow() {
+      return Row(
+        children: [
+          IconButton(
+              onPressed: () {
+                if (context.canPop()) {
+                  context.pop();
+                } else {
+                  context.goNamed(Routes.SYMPTOMS);
+                }
+              },
+              icon: const Icon(Icons.keyboard_arrow_left)),
+          widget.category != null
+              ? Text(
+                  widget.category!,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).primaryColor),
+                  textAlign: TextAlign.left,
+                )
+              : Text(
+                  "No Category Provided",
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).primaryColor),
+                  textAlign: TextAlign.left,
+                ),
+          const Spacer(),
+          TextButton.icon(
+            onPressed: () {
+              setState(() {
+                editing = true;
+              });
+            },
+            label: const Text("Edit Layout"),
+            icon: const Icon(Icons.edit),
+          )
+        ],
+      );
+    }
+
+    Widget createNewCategory() {
+      return Center(
+        child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+          const Text("Category not created"),
+          const SizedBox(
+            height: 8.0,
+          ),
+          FilledButton.icon(
+              icon: const Icon(Icons.add),
+              onPressed: () async {
+                final QuestionRepo repo =
+                    await ref.read(questionsProvider.future);
+                final bool added = await repo.addRecordPath(
+                  RecordPath(
+                      pages: const [],
+                      period: null,
+                      userCreated: true,
+                      name: widget.category!),
+                );
+                if (!added && context.mounted) {
+                  showSnack(context, "Failed to add ${widget.category}");
+                }
+              },
+              label: const Text("Create"))
+        ]),
       );
     }
 
     return PageWrap(
-      actions: [
-        if (!isSmall)
-          ...TabOption.values.map((tab) => LargeNavButton(tab: tab)),
-        const UserProfileButton(
-          selected: true,
-        )
-      ],
-      bottomNav: isSmall ? const SmallLayout() : null,
-      child: questions.map(
-        data: (data) => loaded(data.value),
-        loading: (_) => const LoadingWidget(),
-        error: (error) => Center(
-          child: Text("Error: ${error.error.toString()}"),
-        ),
-      ),
-    );
+        actions: [
+          if (!isSmall)
+            ...TabOption.values.map((tab) => LargeNavButton(tab: tab)),
+          const UserProfileButton(
+            selected: true,
+          )
+        ],
+        bottomNav: isSmall ? const SmallLayout() : null,
+        child: AsyncValueDefaults(
+            value: layouts,
+            onData: (loadedLayouts) {
+              return RefreshWidget(
+                depth: RefreshDepth.subuser,
+                scrollable: SingleChildScrollView(
+                  key: const PageStorageKey("SymptomScreen"),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const SizedBox(
+                          height: 20.0,
+                        ),
+                        topRow(),
+                        const SizedBox(
+                          height: 6.0,
+                        ),
+                        if (loadedLayouts == null && widget.category != null)
+                          createNewCategory(),
+                        if (loadedLayouts != null) ...[
+                          const Divider(),
+                          AddSymptomWidget(
+                            type: widget.category!,
+                          ),
+                          ...loadedLayouts.mapIndexed((index, page) {
+                            return IntrinsicHeight(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  if (editing)
+                                    Text(
+                                      "Page ${index + 1}",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium,
+                                    ),
+                                  ...page.questions.map(
+                                    (question) => SymptomDisplay(
+                                      question: question,
+                                      editing: editing,
+                                    ),
+                                  )
+                                ],
+                              ),
+                            );
+                          }).separated(
+                              by: const Divider(
+                                endIndent: 8.0,
+                                indent: 8.0,
+                              ),
+                              includeEnds: true),
+                        ],
+                      ]),
+                ),
+              );
+            }));
   }
 }
 
 class SymptomDisplay extends ConsumerStatefulWidget {
   final Question question;
 
-  const SymptomDisplay({required this.question, super.key});
+  final bool editing;
+
+  const SymptomDisplay(
+      {required this.question, required this.editing, super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
@@ -216,42 +266,44 @@ class _SymptomDisplayState extends ConsumerState<SymptomDisplay> {
                 .bodySmall
                 ?.copyWith(color: Theme.of(context).disabledColor.darken()),
           ),
-          if (added != null) ...added,
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Switch(
-                value: widget.question.enabled,
-                onChanged: widget.question.isRequired
-                    ? null
-                    : (_) async {
-                        if (!await (await ref.read(questionsProvider.future))
-                                .setQuestionEnabled(widget.question,
-                                    !widget.question.enabled) &&
-                            context.mounted) {
-                          showSnack(context,
-                              "Failed to ${!widget.question.enabled ? "enable" : "disable"} ${widget.question.prompt}");
-                        }
-                      },
-                thumbIcon: widget.question.isRequired
-                    ? WidgetStateProperty.all(const Icon(Icons.lock))
-                    : null,
-              ),
-              IconButton(
-                  onPressed: widget.question.userCreated
-                      ? () async {
+          if (added != null && !widget.editing) ...added,
+          if (!widget.editing)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Switch(
+                  value: widget.question.enabled,
+                  onChanged: widget.question.isRequired
+                      ? null
+                      : (_) async {
                           if (!await (await ref.read(questionsProvider.future))
-                                  .removeQuestion(widget.question) &&
+                                  .setQuestionEnabled(widget.question,
+                                      !widget.question.enabled) &&
                               context.mounted) {
                             showSnack(context,
-                                "Failed to delete ${widget.question.prompt}");
+                                "Failed to ${!widget.question.enabled ? "enable" : "disable"} ${widget.question.prompt}");
                           }
-                        }
+                        },
+                  thumbIcon: widget.question.isRequired
+                      ? WidgetStateProperty.all(const Icon(Icons.lock))
                       : null,
-                  icon: const Icon(Icons.delete))
-            ],
-          ),
+                ),
+                IconButton(
+                    onPressed: widget.question.userCreated
+                        ? () async {
+                            if (!await (await ref
+                                        .read(questionsProvider.future))
+                                    .removeQuestion(widget.question) &&
+                                context.mounted) {
+                              showSnack(context,
+                                  "Failed to delete ${widget.question.prompt}");
+                            }
+                          }
+                        : null,
+                    icon: const Icon(Icons.delete))
+              ],
+            ),
         ],
       ),
     );

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/auth_provider.dart';
@@ -35,4 +36,45 @@ final questionsByType =
   }
 
   return byCategory;
+});
+
+@immutable
+class PagesByPathProps {
+  final String? pathName;
+  final bool filterEnabled;
+  const PagesByPathProps({required this.pathName, this.filterEnabled = false});
+}
+
+final pagesByPath =
+    FutureProvider.family<List<LoadedPageLayout>?, PagesByPathProps>(
+        (ref, props) async {
+  final QuestionHome home = await ref.watch(questionHomeProvider.future);
+  final List<RecordPath> paths = await ref.watch(questionLayoutProvider.future);
+  final Iterable<RecordPath> withName =
+      paths.where((path) => path.name == props.pathName);
+  final RecordPath? matching = withName.isEmpty ? null : withName.first;
+  if (matching == null) return null;
+  List<LoadedPageLayout> loadedLayouts = [];
+  for (final PageLayout layout in matching.pages) {
+    List<Question> questions = [];
+    for (final String qid in layout.questionIds) {
+      Question? question = home.fromBank(qid);
+      if (question == null || (props.filterEnabled && !question.enabled)) {
+        continue;
+      }
+      questions.add(question);
+    }
+    if (questions.isEmpty) continue;
+    loadedLayouts.add(LoadedPageLayout(
+        questions: questions,
+        dependsOn: layout.dependsOn,
+        header: layout.header));
+  }
+  return loadedLayouts;
+});
+
+final enabledRecordPaths = FutureProvider<List<RecordPath>>((ref) async {
+  final List<RecordPath> layouts =
+      await ref.watch(questionLayoutProvider.future);
+  return layouts.where((layout) => layout.enabled).toList();
 });

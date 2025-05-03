@@ -7,11 +7,11 @@ import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/record_period.dart';
 import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/UI/AccountManagement/SymptomManagement/symptom_type_management.dart';
+import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
 import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
 import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
 import 'package:stripes_ui/UI/Layout/home_screen.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
-import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
@@ -22,10 +22,9 @@ class SymptomManagementScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(questionLayoutProvider);
-    final Map<String, RecordPath> recordPaths = ref.watch(recordProvider);
-    final Map<Period, List<CheckinItem>> checkin =
-        ref.watch(checkinProvider(CheckInProps(context: context)));
+    final AsyncValue<List<RecordPath>> asyncRecordPaths =
+        ref.watch(questionLayoutProvider);
+
     final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);
 
     return PageWrap(
@@ -39,64 +38,69 @@ class SymptomManagementScreen extends ConsumerWidget {
       bottomNav: isSmall ? const SmallLayout() : null,
       child: RefreshWidget(
         depth: RefreshDepth.subuser,
-        scrollable: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(
-                height: 20.0,
-              ),
-              Row(
-                children: [
-                  IconButton(
-                      onPressed: () {
-                        if (context.canPop()) {
-                          context.pop();
-                        } else {
-                          context.goNamed(Routes.ACCOUNT);
-                        }
-                      },
-                      icon: const Icon(Icons.keyboard_arrow_left)),
-                  Text(
-                    'Categories',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).primaryColor),
-                    textAlign: TextAlign.left,
-                  ),
-                  const Spacer(),
-                ],
-              ),
-              const SizedBox(
-                height: 6.0,
-              ),
-              ...[
-                const Divider(
-                  endIndent: 8.0,
-                  indent: 8.0,
-                ),
-                const AddCategoryWidget(),
-                ...recordPaths.keys.map((key) {
-                  final RecordPath path = recordPaths[key]!;
-
-                  return CategoryDisplay(recordPath: path);
-                }).separated(
-                    by: const Divider(
-                      endIndent: 8.0,
-                      indent: 8.0,
+        scrollable: AsyncValueDefaults(
+            value: asyncRecordPaths,
+            onData: (recordPaths) {
+              return SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(
+                      height: 20.0,
                     ),
-                    includeEnds: true),
-              ],
-              /*
+                    Row(
+                      children: [
+                        IconButton(
+                            onPressed: () {
+                              if (context.canPop()) {
+                                context.pop();
+                              } else {
+                                context.goNamed(Routes.ACCOUNT);
+                              }
+                            },
+                            icon: const Icon(Icons.keyboard_arrow_left)),
+                        Text(
+                          'Categories',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleLarge
+                              ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).primaryColor),
+                          textAlign: TextAlign.left,
+                        ),
+                        const Spacer(),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 6.0,
+                    ),
+                    ...[
+                      const Divider(
+                        endIndent: 8.0,
+                        indent: 8.0,
+                      ),
+                      const AddCategoryWidget(),
+                      ...recordPaths.map((path) {
+                        return CategoryDisplay(recordPath: path);
+                      }).separated(
+                          by: const Divider(
+                            endIndent: 8.0,
+                            indent: 8.0,
+                          ),
+                          includeEnds: true),
+                    ],
+                    /*
             ...checkin.keys.map((items) {
               items.map((item) => {
                 item.
               });
               return Container();
             })*/
-            ],
-          ),
-        ),
+                  ],
+                ),
+              );
+            }),
       ),
     );
   }
@@ -167,8 +171,8 @@ class CategoryDisplay extends ConsumerWidget {
                   const SizedBox(
                     width: 4.0,
                   ),
+                  const Spacer(),
                   const Icon(Icons.keyboard_arrow_right),
-                  const Spacer()
                 ],
               ),
             ),
@@ -181,7 +185,7 @@ class CategoryDisplay extends ConsumerWidget {
               children: [
                 Switch(
                   value: recordPath.enabled,
-                  onChanged: recordPath.isRequired
+                  onChanged: recordPath.locked
                       ? null
                       : (_) async {
                           if (!await (await ref.read(questionsProvider.future))
@@ -192,7 +196,7 @@ class CategoryDisplay extends ConsumerWidget {
                                 "Failed to ${!recordPath.enabled ? "enable" : "disable"} ${recordPath.name}");
                           }
                         },
-                  thumbIcon: recordPath.isRequired
+                  thumbIcon: recordPath.locked
                       ? WidgetStateProperty.all(const Icon(Icons.lock))
                       : null,
                 ),
@@ -353,10 +357,10 @@ class _AddCategoryWidgetState extends ConsumerState<ConsumerStatefulWidget> {
     );
     if (added && mounted) {
       setState(() {
+        category.clear();
         submitSuccess = true;
       });
       await Future.delayed(Durations.long4);
-      category.clear();
       recordPeriod = null;
       formKey.currentState?.reset();
     } else if (mounted) {
