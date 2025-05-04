@@ -42,6 +42,8 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
     final AsyncValue<List<LoadedPageLayout>?> layouts =
         ref.watch(pagesByPath(PagesByPathProps(pathName: widget.category)));
 
+    print(layouts);
+
     Widget topRow() {
       return Row(
         children: [
