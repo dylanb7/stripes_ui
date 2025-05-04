@@ -39,8 +39,9 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
   Widget build(BuildContext context) {
     final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);
 
-    final AsyncValue<List<LoadedPageLayout>?> layouts =
-        ref.watch(pagesByPath(PagesByPathProps(pathName: widget.category)));
+    /*final AsyncValue<List<LoadedPageLayout>?> layouts =
+        ref.watch(pagesByPath(PagesByPathProps(pathName: widget.category)));*/
+    final AsyncLoading<List<LoadedPageLayout>?> layouts = AsyncLoading();
 
     print(layouts);
 
@@ -114,71 +115,72 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
     }
 
     return PageWrap(
-        actions: [
-          if (!isSmall)
-            ...TabOption.values.map((tab) => LargeNavButton(tab: tab)),
-          const UserProfileButton(
-            selected: true,
-          )
-        ],
-        bottomNav: isSmall ? const SmallLayout() : null,
-        child: AsyncValueDefaults(
-            value: layouts,
-            onData: (loadedLayouts) {
-              return RefreshWidget(
-                depth: RefreshDepth.subuser,
-                scrollable: SingleChildScrollView(
-                  key: const PageStorageKey("SymptomScreen"),
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const SizedBox(
-                          height: 20.0,
-                        ),
-                        topRow(),
-                        const SizedBox(
-                          height: 6.0,
-                        ),
-                        if (loadedLayouts == null && widget.category != null)
-                          createNewCategory(),
-                        if (loadedLayouts != null) ...[
-                          const Divider(),
-                          AddSymptomWidget(
-                            type: widget.category!,
+      actions: [
+        if (!isSmall)
+          ...TabOption.values.map((tab) => LargeNavButton(tab: tab)),
+        const UserProfileButton(
+          selected: true,
+        )
+      ],
+      bottomNav: isSmall ? const SmallLayout() : null,
+      child: RefreshWidget(
+        depth: RefreshDepth.subuser,
+        scrollable: AsyncValueDefaults(
+          value: layouts,
+          onData: (loadedLayouts) {
+            return SingleChildScrollView(
+              key: const PageStorageKey("SymptomScreen"),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(
+                      height: 20.0,
+                    ),
+                    topRow(),
+                    const SizedBox(
+                      height: 6.0,
+                    ),
+                    if (loadedLayouts == null && widget.category != null)
+                      createNewCategory(),
+                    if (loadedLayouts != null) ...[
+                      const Divider(),
+                      AddSymptomWidget(
+                        type: widget.category!,
+                      ),
+                      ...loadedLayouts.mapIndexed((index, page) {
+                        return IntrinsicHeight(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              if (editing)
+                                Text(
+                                  "Page ${index + 1}",
+                                  style:
+                                      Theme.of(context).textTheme.titleMedium,
+                                ),
+                              ...page.questions.map(
+                                (question) => SymptomDisplay(
+                                  question: question,
+                                  editing: editing,
+                                ),
+                              )
+                            ],
                           ),
-                          ...loadedLayouts.mapIndexed((index, page) {
-                            return IntrinsicHeight(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  if (editing)
-                                    Text(
-                                      "Page ${index + 1}",
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleMedium,
-                                    ),
-                                  ...page.questions.map(
-                                    (question) => SymptomDisplay(
-                                      question: question,
-                                      editing: editing,
-                                    ),
-                                  )
-                                ],
-                              ),
-                            );
-                          }).separated(
-                              by: const Divider(
-                                endIndent: 8.0,
-                                indent: 8.0,
-                              ),
-                              includeEnds: true),
-                        ],
-                      ]),
-                ),
-              );
-            }));
+                        );
+                      }).separated(
+                          by: const Divider(
+                            endIndent: 8.0,
+                            indent: 8.0,
+                          ),
+                          includeEnds: true),
+                    ],
+                  ]),
+            );
+          },
+        ),
+      ),
+    );
   }
 }
 
