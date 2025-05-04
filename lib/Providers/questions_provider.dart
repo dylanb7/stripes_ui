@@ -49,14 +49,26 @@ class PagesByPathProps extends Equatable {
   List<Object?> get props => [pathName, filterEnabled];
 }
 
+@immutable
+class PagesData extends Equatable {
+  final List<LoadedPageLayout>? loadedLayouts;
+
+  final RecordPath? path;
+
+  const PagesData({this.path, this.loadedLayouts});
+
+  @override
+  List<Object?> get props => [path, loadedLayouts];
+}
+
 final pagesByPath = FutureProvider.autoDispose
-    .family<List<LoadedPageLayout>?, PagesByPathProps>((ref, props) async {
+    .family<PagesData, PagesByPathProps>((ref, props) async {
   final QuestionHome home = await ref.watch(questionHomeProvider.future);
   final List<RecordPath> paths = await ref.watch(questionLayoutProvider.future);
   final Iterable<RecordPath> withName =
       paths.where((path) => path.name == props.pathName);
   final RecordPath? matching = withName.isEmpty ? null : withName.first;
-  if (matching == null) return null;
+  if (matching == null) return const PagesData();
   List<LoadedPageLayout> loadedLayouts = [];
   for (final PageLayout layout in matching.pages) {
     List<Question> questions = [];
@@ -73,7 +85,7 @@ final pagesByPath = FutureProvider.autoDispose
         dependsOn: layout.dependsOn,
         header: layout.header));
   }
-  return loadedLayouts;
+  return PagesData(path: matching, loadedLayouts: loadedLayouts);
 });
 
 final enabledRecordPaths = FutureProvider<List<RecordPath>>((ref) async {

@@ -40,7 +40,7 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
   Widget build(BuildContext context) {
     final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);
 
-    final AsyncValue<List<LoadedPageLayout>?> layouts =
+    final AsyncValue<PagesData> pagesData =
         ref.watch(pagesByPath(PagesByPathProps(pathName: widget.category)));
 
     Widget topRow() {
@@ -124,60 +124,108 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
       child: RefreshWidget(
         depth: RefreshDepth.subuser,
         scrollable: AsyncValueDefaults(
-          value: layouts,
-          onData: (loadedLayouts) {
+          value: pagesData,
+          onData: (loadedPagesData) {
             return SingleChildScrollView(
               key: const PageStorageKey("SymptomScreen"),
               child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const SizedBox(
-                      height: 20.0,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(
+                    height: 20.0,
+                  ),
+                  topRow(),
+                  if (loadedPagesData.loadedLayouts == null &&
+                      widget.category != null)
+                    createNewCategory(),
+                  if (loadedPagesData.loadedLayouts != null &&
+                      widget.category != null)
+                    Expanded(
+                      child: editing
+                          ? EditingMode(
+                              pagesData: loadedPagesData,
+                            )
+                          : ViewingMode(
+                              type: widget.category!,
+                              pages: loadedPagesData.loadedLayouts!,
+                            ),
                     ),
-                    topRow(),
-                    const SizedBox(
-                      height: 6.0,
-                    ),
-                    if (loadedLayouts == null && widget.category != null)
-                      createNewCategory(),
-                    if (loadedLayouts != null) ...[
-                      const Divider(),
-                      if (!editing)
-                        AddSymptomWidget(
-                          type: widget.category!,
-                        ),
-                      ...loadedLayouts.mapIndexed((index, page) {
-                        return IntrinsicHeight(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              if (editing)
-                                Text(
-                                  "Page ${index + 1}",
-                                  style:
-                                      Theme.of(context).textTheme.titleMedium,
-                                ),
-                              ...page.questions.map(
-                                (question) => SymptomDisplay(
-                                  question: question,
-                                  editing: editing,
-                                ),
-                              )
-                            ],
-                          ),
-                        );
-                      }).separated(
-                          by: const Divider(
-                            endIndent: 8.0,
-                            indent: 8.0,
-                          ),
-                          includeEnds: true),
-                    ],
-                  ]),
+                ],
+              ),
             );
           },
         ),
+      ),
+    );
+  }
+}
+
+class EditingMode extends ConsumerStatefulWidget {
+  final PagesData pagesData;
+
+  const EditingMode({required this.pagesData, super.key});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() {
+    return _EditingModeState();
+  }
+}
+
+class _EditingModeState extends ConsumerState<EditingMode> {
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    throw UnimplementedError();
+  }
+}
+
+class ViewingMode extends StatelessWidget {
+  final String type;
+
+  final List<LoadedPageLayout> pages;
+
+  const ViewingMode({required this.type, required this.pages, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    Iterable<Widget> questionDisplays() {
+      List<Widget> displays = [];
+      for (final LoadedPageLayout page in pages) {
+        displays.addAll(
+          page.questions
+              .map((question) =>
+                  SymptomDisplay(question: question, editing: false))
+              .separated(
+                by: Divider(
+                  endIndent: 16.0,
+                  indent: 16.0,
+                  color: Theme.of(context).disabledColor,
+                ),
+              ),
+        );
+      }
+      return displays.separated(
+          by: const Divider(
+            endIndent: 8.0,
+            indent: 8.0,
+          ),
+          includeEnds: true);
+    }
+
+    return SingleChildScrollView(
+      key: const PageStorageKey("SymptomScreen"),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const SizedBox(
+            height: 6.0,
+          ),
+          const Divider(),
+          AddSymptomWidget(
+            type: type,
+          ),
+          ...questionDisplays(),
+        ],
       ),
     );
   }
@@ -221,9 +269,9 @@ class _SymptomDisplayState extends ConsumerState<SymptomDisplay> {
       final num max = numeric.max ?? 5;
       added = [Text("$min - $max")];
     }
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
-      child: Column(
+
+    Widget symptomInfo() {
+      return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
@@ -269,47 +317,84 @@ class _SymptomDisplayState extends ConsumerState<SymptomDisplay> {
                 .bodySmall
                 ?.copyWith(color: Theme.of(context).disabledColor.darken()),
           ),
-          if (added != null && !widget.editing) ...added,
-          if (!widget.editing)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Switch(
-                  value: widget.question.enabled,
-                  onChanged: widget.question.isRequired
-                      ? null
-                      : (_) async {
-                          if (!await (await ref.read(questionsProvider.future))
-                                  .setQuestionEnabled(widget.question,
-                                      !widget.question.enabled) &&
-                              context.mounted) {
-                            showSnack(context,
-                                "Failed to ${!widget.question.enabled ? "enable" : "disable"} ${widget.question.prompt}");
-                          }
-                        },
-                  thumbIcon: widget.question.isRequired
-                      ? WidgetStateProperty.all(const Icon(Icons.lock))
-                      : null,
-                ),
-                IconButton(
-                    onPressed: widget.question.userCreated
-                        ? () async {
-                            if (!await (await ref
-                                        .read(questionsProvider.future))
-                                    .removeQuestion(widget.question) &&
-                                context.mounted) {
-                              showSnack(context,
-                                  "Failed to delete ${widget.question.prompt}");
-                            }
-                          }
-                        : null,
-                    icon: const Icon(Icons.delete))
-              ],
-            ),
+        ],
+      );
+    }
+
+    Widget editsRow() {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Switch(
+            value: widget.question.enabled,
+            onChanged: widget.question.isRequired
+                ? null
+                : (_) async {
+                    if (!await (await ref.read(questionsProvider.future))
+                            .setQuestionEnabled(
+                                widget.question, !widget.question.enabled) &&
+                        context.mounted) {
+                      showSnack(context,
+                          "Failed to ${!widget.question.enabled ? "enable" : "disable"} ${widget.question.prompt}");
+                    }
+                  },
+            thumbIcon: widget.question.isRequired
+                ? WidgetStateProperty.all(const Icon(Icons.lock))
+                : null,
+          ),
+          IconButton(
+              onPressed: widget.question.userCreated
+                  ? () async {
+                      if (!await (await ref.read(questionsProvider.future))
+                              .removeQuestion(widget.question) &&
+                          context.mounted) {
+                        showSnack(context,
+                            "Failed to delete ${widget.question.prompt}");
+                      }
+                    }
+                  : null,
+              icon: const Icon(Icons.delete))
+        ],
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          widget.editing
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: symptomInfo(),
+                    ),
+                    const SizedBox(
+                      width: 4.0,
+                    ),
+                    const Icon(Icons.drag_handle),
+                  ],
+                )
+              : symptomInfo(),
+          if (!widget.editing) ...[
+            if (added != null) ...added,
+            editsRow(),
+          ]
         ],
       ),
     );
+  }
+}
+
+class SymptomInfoDisplay extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    throw UnimplementedError();
   }
 }
 

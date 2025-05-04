@@ -189,7 +189,7 @@ class CategoryDisplay extends ConsumerWidget {
                       ? null
                       : (_) async {
                           if (!await (await ref.read(questionsProvider.future))
-                                  .setEnabled(
+                                  .setPathEnabled(
                                       recordPath, !recordPath.enabled) &&
                               context.mounted) {
                             showSnack(context,
