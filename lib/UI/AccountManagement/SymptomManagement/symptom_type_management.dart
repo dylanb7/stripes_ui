@@ -41,7 +41,7 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
     final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);
 
     final AsyncValue<List<LoadedPageLayout>?> layouts =
-        ref.watch(pagesByPath(const PagesByPathProps(pathName: Symptoms.BM)));
+        ref.watch(pagesByPath(PagesByPathProps(pathName: widget.category)));
 
     Widget topRow() {
       return Row(

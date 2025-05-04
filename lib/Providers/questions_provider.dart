@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
@@ -39,22 +40,23 @@ final questionsByType =
 });
 
 @immutable
-class PagesByPathProps {
+class PagesByPathProps extends Equatable {
   final String? pathName;
   final bool filterEnabled;
   const PagesByPathProps({required this.pathName, this.filterEnabled = false});
+
+  @override
+  List<Object?> get props => [pathName, filterEnabled];
 }
 
-final pagesByPath =
-    FutureProvider.family<List<LoadedPageLayout>?, PagesByPathProps>(
-        (ref, props) async {
+final pagesByPath = FutureProvider.autoDispose
+    .family<List<LoadedPageLayout>?, PagesByPathProps>((ref, props) async {
   final QuestionHome home = await ref.watch(questionHomeProvider.future);
   final List<RecordPath> paths = await ref.watch(questionLayoutProvider.future);
   final Iterable<RecordPath> withName =
       paths.where((path) => path.name == props.pathName);
   final RecordPath? matching = withName.isEmpty ? null : withName.first;
   if (matching == null) return null;
-  print(matching.toJson());
   List<LoadedPageLayout> loadedLayouts = [];
   for (final PageLayout layout in matching.pages) {
     List<Question> questions = [];
@@ -70,11 +72,6 @@ final pagesByPath =
         questions: questions,
         dependsOn: layout.dependsOn,
         header: layout.header));
-  }
-  for (final layout in loadedLayouts) {
-    for (Question question in layout.questions) {
-      print(question);
-    }
   }
   return loadedLayouts;
 });
