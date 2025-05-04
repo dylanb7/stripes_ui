@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:select_field/select_field.dart';
 import 'package:stripes_backend_helper/QuestionModel/question.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo_base.dart';
+import 'package:stripes_backend_helper/TestingReposImpl/test_question_repo.dart';
 
 import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
@@ -40,9 +41,7 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
     final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);
 
     final AsyncValue<List<LoadedPageLayout>?> layouts =
-        ref.watch(pagesByPath(PagesByPathProps(pathName: widget.category)));
-
-    print(layouts);
+        ref.watch(pagesByPath(const PagesByPathProps(pathName: Symptoms.BM)));
 
     Widget topRow() {
       return Row(

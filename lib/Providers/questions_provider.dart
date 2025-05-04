@@ -71,7 +71,11 @@ final pagesByPath =
         dependsOn: layout.dependsOn,
         header: layout.header));
   }
-  print(loadedLayouts);
+  for (final layout in loadedLayouts) {
+    for (Question question in layout.questions) {
+      print(question);
+    }
+  }
   return loadedLayouts;
 });
 
