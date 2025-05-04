@@ -39,9 +39,8 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
   Widget build(BuildContext context) {
     final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);
 
-    /*final AsyncValue<List<LoadedPageLayout>?> layouts =
-        ref.watch(pagesByPath(PagesByPathProps(pathName: widget.category)));*/
-    final AsyncData<List<LoadedPageLayout>?> layouts = AsyncData([]);
+    final AsyncValue<List<LoadedPageLayout>?> layouts =
+        ref.watch(pagesByPath(PagesByPathProps(pathName: widget.category)));
 
     print(layouts);
 
@@ -144,9 +143,10 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
                       createNewCategory(),
                     if (loadedLayouts != null) ...[
                       const Divider(),
-                      AddSymptomWidget(
-                        type: widget.category!,
-                      ),
+                      if (!editing)
+                        AddSymptomWidget(
+                          type: widget.category!,
+                        ),
                       ...loadedLayouts.mapIndexed((index, page) {
                         return IntrinsicHeight(
                           child: Column(

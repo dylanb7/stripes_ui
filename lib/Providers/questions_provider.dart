@@ -54,6 +54,7 @@ final pagesByPath =
       paths.where((path) => path.name == props.pathName);
   final RecordPath? matching = withName.isEmpty ? null : withName.first;
   if (matching == null) return null;
+  print(matching.toJson());
   List<LoadedPageLayout> loadedLayouts = [];
   for (final PageLayout layout in matching.pages) {
     List<Question> questions = [];
@@ -70,6 +71,7 @@ final pagesByPath =
         dependsOn: layout.dependsOn,
         header: layout.header));
   }
+  print(loadedLayouts);
   return loadedLayouts;
 });
 
