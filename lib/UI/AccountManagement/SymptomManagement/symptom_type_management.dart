@@ -74,7 +74,7 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
           TextButton.icon(
             onPressed: () {
               setState(() {
-                editing = true;
+                editing = !editing;
               });
             },
             label: const Text("Edit Layout"),
