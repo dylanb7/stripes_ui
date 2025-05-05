@@ -284,17 +284,18 @@ class _EditingModeState extends ConsumerState<EditingMode>
           .questions
           .map((question) => _buildSymptom(question))
           .separated(
-        by: DragTarget<Question>(
-          builder: (context, List<Question?> candidates, rejects) {
-            return candidates.isNotEmpty
-                ? _buildDropPreview(context, candidates[0])
-                : const Divider(
-                    endIndent: 16.0,
-                    indent: 16.0,
-                  );
-          },
-        ),
-      );
+              by: DragTarget<Question>(
+                builder: (context, List<Question?> candidates, rejects) {
+                  return candidates.isNotEmpty
+                      ? _buildDropPreview(context, candidates[0])
+                      : const Divider(
+                          height: 8.0,
+                          endIndent: 16.0,
+                          indent: 16.0,
+                        );
+                },
+              ),
+              includeEnds: true);
 
       widgets.addAll(pageQuestions);
 
@@ -375,8 +376,7 @@ class _EditingModeState extends ConsumerState<EditingMode>
       axis: Axis.vertical,
       hitTestBehavior: HitTestBehavior.translucent,
       feedback: SizedBox(
-        height: 65,
-        width: double.infinity,
+        width: MediaQuery.of(context).size.width,
         child: Container(
           decoration: BoxDecoration(
             border: Border.symmetric(
