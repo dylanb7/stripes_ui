@@ -239,23 +239,27 @@ class _EditingModeState extends ConsumerState<EditingMode>
 
   _moveUp() {
     final double height = (listHeight ?? 400);
-    final double distanceToTravel = max(scrollController.offset - height,
+    final double endpoint = max(scrollController.offset - height,
         scrollController.position.minScrollExtent);
     final int travelInMillis =
-        ((distanceToTravel / height) * Durations.long1.inMilliseconds).round();
-    if (distanceToTravel == 0 || travelInMillis == 0) return;
-    scrollController.animateTo(distanceToTravel,
+        (((endpoint - scrollController.offset).abs() / height) *
+                Durations.long1.inMilliseconds)
+            .round();
+    if (travelInMillis == 0) return;
+    scrollController.animateTo(endpoint,
         curve: Curves.linear, duration: Duration(milliseconds: travelInMillis));
   }
 
   _moveDown() {
     final double height = (listHeight ?? 400);
-    final double distanceToTravel = min(scrollController.offset + height,
+    final double endpoint = min(scrollController.offset + height,
         scrollController.position.maxScrollExtent);
     final int travelInMillis =
-        ((distanceToTravel / height) * Durations.long1.inMilliseconds).round();
-    if (distanceToTravel == 0 || travelInMillis == 0) return;
-    scrollController.animateTo(distanceToTravel,
+        (((endpoint - scrollController.offset).abs() / height) *
+                Durations.long1.inMilliseconds)
+            .round();
+    if (travelInMillis == 0) return;
+    scrollController.animateTo(endpoint,
         curve: Curves.linear, duration: Duration(milliseconds: travelInMillis));
   }
 
@@ -397,7 +401,7 @@ class _EditingModeState extends ConsumerState<EditingMode>
             ),
           ],
           const SizedBox(
-            height: 40,
+            height: 100,
           ),
         ],
       );
