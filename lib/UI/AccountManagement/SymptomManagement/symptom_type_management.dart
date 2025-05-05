@@ -120,45 +120,42 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
         )
       ],
       bottomNav: isSmall ? const SmallLayout() : null,
-      child: RefreshWidget(
-        depth: RefreshDepth.subuser,
-        scrollable: AsyncValueDefaults(
-          value: pagesData,
-          onData: (loadedPagesData) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(
-                  height: 20.0,
+      child: AsyncValueDefaults(
+        value: pagesData,
+        onData: (loadedPagesData) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(
+                height: 20.0,
+              ),
+              topRow(),
+              const Divider(),
+              if (loadedPagesData.loadedLayouts == null &&
+                  widget.category != null)
+                createNewCategory(),
+              if (loadedPagesData.loadedLayouts != null &&
+                  widget.category != null)
+                Expanded(
+                  child: editing
+                      ? EditingMode(
+                          pagesData: loadedPagesData,
+                          setNotEditing: () {
+                            if (mounted) {
+                              setState(() {
+                                editing = false;
+                              });
+                            }
+                          },
+                        )
+                      : ViewingMode(
+                          type: widget.category!,
+                          pages: loadedPagesData.loadedLayouts!,
+                        ),
                 ),
-                topRow(),
-                const Divider(),
-                if (loadedPagesData.loadedLayouts == null &&
-                    widget.category != null)
-                  createNewCategory(),
-                if (loadedPagesData.loadedLayouts != null &&
-                    widget.category != null)
-                  Expanded(
-                    child: editing
-                        ? EditingMode(
-                            pagesData: loadedPagesData,
-                            setNotEditing: () {
-                              if (mounted) {
-                                setState(() {
-                                  editing = false;
-                                });
-                              }
-                            },
-                          )
-                        : ViewingMode(
-                            type: widget.category!,
-                            pages: loadedPagesData.loadedLayouts!,
-                          ),
-                  ),
-              ],
-            );
-          },
-        ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -242,7 +239,7 @@ class _EditingModeState extends ConsumerState<EditingMode>
 
   _moveUp() {
     final double height = (listHeight ?? 400);
-    final double distanceToTravel = min(scrollController.offset - height,
+    final double distanceToTravel = max(scrollController.offset - height,
         scrollController.position.minScrollExtent);
     final int travelInMillis =
         ((distanceToTravel / height) * Durations.long1.inMilliseconds).round();
@@ -253,7 +250,7 @@ class _EditingModeState extends ConsumerState<EditingMode>
 
   _moveDown() {
     final double height = (listHeight ?? 400);
-    final double distanceToTravel = max(scrollController.offset + height,
+    final double distanceToTravel = min(scrollController.offset + height,
         scrollController.position.maxScrollExtent);
     final int travelInMillis =
         ((distanceToTravel / height) * Durations.long1.inMilliseconds).round();
@@ -517,6 +514,7 @@ class ViewingMode extends StatelessWidget {
           AddSymptomWidget(
             type: type,
           ),
+          const Divider(),
           ...questionDisplays(),
         ],
       ),
