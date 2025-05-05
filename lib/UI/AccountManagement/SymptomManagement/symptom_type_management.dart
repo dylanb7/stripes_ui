@@ -376,8 +376,21 @@ class _EditingModeState extends ConsumerState<EditingMode>
         opacity: 0.7,
         child: display(),
       ),
-      childWhenDragging: display(),
-      child: Opacity(opacity: 0.7, child: display()),
+      onDragStarted: () {
+        setState(() {
+          isDragging = true;
+        });
+      },
+      onDragEnd: (_) {
+        setState(() {
+          isDragging = false;
+        });
+      },
+      childWhenDragging: Card(
+        elevation: 4.0,
+        child: display(),
+      ),
+      child: display(),
     );
   }
 
