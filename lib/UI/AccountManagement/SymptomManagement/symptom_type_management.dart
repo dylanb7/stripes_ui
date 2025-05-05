@@ -9,8 +9,6 @@ import 'package:go_router/go_router.dart';
 import 'package:select_field/select_field.dart';
 import 'package:stripes_backend_helper/QuestionModel/question.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo_base.dart';
-import 'package:stripes_backend_helper/TestingReposImpl/test_question_repo.dart';
-
 import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
 import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
@@ -71,15 +69,16 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
                   textAlign: TextAlign.left,
                 ),
           const Spacer(),
-          TextButton.icon(
-            onPressed: () {
-              setState(() {
-                editing = !editing;
-              });
-            },
-            label: const Text("Edit Layout"),
-            icon: const Icon(Icons.edit),
-          )
+          if (!editing)
+            TextButton.icon(
+              onPressed: () {
+                setState(() {
+                  editing = !editing;
+                });
+              },
+              label: const Text("Edit Layout"),
+              icon: const Icon(Icons.edit),
+            )
         ],
       );
     }
@@ -126,32 +125,29 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
         scrollable: AsyncValueDefaults(
           value: pagesData,
           onData: (loadedPagesData) {
-            return SingleChildScrollView(
-              key: const PageStorageKey("SymptomScreen"),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(
-                    height: 20.0,
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(
+                  height: 20.0,
+                ),
+                topRow(),
+                if (loadedPagesData.loadedLayouts == null &&
+                    widget.category != null)
+                  createNewCategory(),
+                if (loadedPagesData.loadedLayouts != null &&
+                    widget.category != null)
+                  Expanded(
+                    child: editing
+                        ? EditingMode(
+                            pagesData: loadedPagesData,
+                          )
+                        : ViewingMode(
+                            type: widget.category!,
+                            pages: loadedPagesData.loadedLayouts!,
+                          ),
                   ),
-                  topRow(),
-                  if (loadedPagesData.loadedLayouts == null &&
-                      widget.category != null)
-                    createNewCategory(),
-                  if (loadedPagesData.loadedLayouts != null &&
-                      widget.category != null)
-                    Expanded(
-                      child: editing
-                          ? EditingMode(
-                              pagesData: loadedPagesData,
-                            )
-                          : ViewingMode(
-                              type: widget.category!,
-                              pages: loadedPagesData.loadedLayouts!,
-                            ),
-                    ),
-                ],
-              ),
+              ],
             );
           },
         ),
