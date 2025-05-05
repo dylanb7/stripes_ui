@@ -277,7 +277,10 @@ class _EditingModeState extends ConsumerState<EditingMode>
       widgets.add(
         Padding(
           padding: const EdgeInsets.only(left: 16.0, bottom: 4.0),
-          child: Text("Page ${i + 1}"),
+          child: Text(
+            "Page ${i + 1}",
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
         ),
       );
 
@@ -292,7 +295,10 @@ class _EditingModeState extends ConsumerState<EditingMode>
         final Question question = pageQuestions[j];
         bool isNeighbor(Question candidate) {
           if (candidate == question) return true;
-          if (j != 0 && pageQuestions[j - 1] == question) return true;
+          if (j + 1 < pageQuestions.length &&
+              pageQuestions[j + 1] == question) {
+            return true;
+          }
           return false;
         }
 
@@ -320,25 +326,6 @@ class _EditingModeState extends ConsumerState<EditingMode>
           },
         ),
       );
-      /*List<Widget> pageQuestions = layouts[i]
-          .questions
-          .map((question) => _buildSymptom(question))
-          .separated(
-              by: DragTarget<Question>(
-                builder: (context, List<Question?> candidates, rejects) {
-                  return candidates.isNotEmpty
-                      ? _buildDropPreview(context, candidates[0])
-                      : const Divider(
-                          height: 8.0,
-                          endIndent: 16.0,
-                          indent: 16.0,
-                        );
-                },
-              ),
-              includeEnds: true);
-
-      widgets.addAll(pageQuestions);
-      */
 
       widgets.add(const Divider());
     }
@@ -387,6 +374,32 @@ class _EditingModeState extends ConsumerState<EditingMode>
             thickness: 1,
           ),
           ...widgets,
+          if (isDragging) ...[
+            Padding(
+              padding: const EdgeInsets.only(left: 16.0, bottom: 4.0),
+              child: Text(
+                "Page ${layouts.length + 1}",
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withValues(alpha: 0.6),
+                    ),
+              ),
+            ),
+            DragTarget<Question>(
+              builder: (context, List<Question?> candidates, rejects) {
+                if (candidates.isEmpty || candidates[0] == null) {
+                  return const SizedBox();
+                }
+                final Question candidate = candidates[0]!;
+                return _buildDropPreview(context, candidate);
+              },
+            ),
+          ],
+          const SizedBox(
+            height: 40,
+          ),
         ],
       );
     });
