@@ -321,8 +321,9 @@ class _EditingModeState extends ConsumerState<EditingMode>
                   ),
                 ),
               ),
-              const VerticalDivider(
+              VerticalDivider(
                 width: 1,
+                color: Theme.of(context).dividerColor,
                 thickness: 1,
               ),
               Expanded(
@@ -356,7 +357,8 @@ class _EditingModeState extends ConsumerState<EditingMode>
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Expanded(
+          Flexible(
+            fit: FlexFit.loose,
             child: SymptomInfoDisplay(question: question),
           ),
           const SizedBox(width: 4),
@@ -372,14 +374,18 @@ class _EditingModeState extends ConsumerState<EditingMode>
       data: question,
       axis: Axis.vertical,
       hitTestBehavior: HitTestBehavior.translucent,
-      feedback: Container(
-        decoration: BoxDecoration(
-          border: Border.symmetric(
-            horizontal:
-                BorderSide(width: 2.0, color: Theme.of(context).primaryColor),
+      feedback: SizedBox(
+        height: 65,
+        width: double.infinity,
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.symmetric(
+              horizontal:
+                  BorderSide(width: 2.0, color: Theme.of(context).primaryColor),
+            ),
           ),
+          child: _symptomDisplay(question: question),
         ),
-        child: _symptomDisplay(question: question),
       ),
       onDragStarted: () {
         setState(() {
