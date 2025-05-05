@@ -387,7 +387,9 @@ class _EditingModeState extends ConsumerState<EditingMode>
             DragTarget<Question>(
               builder: (context, List<Question?> candidates, rejects) {
                 if (candidates.isEmpty || candidates[0] == null) {
-                  return const SizedBox();
+                  return const SizedBox(
+                    height: 10,
+                  );
                 }
                 final Question candidate = candidates[0]!;
                 return _buildDropPreview(context, candidate);
@@ -431,6 +433,12 @@ class _EditingModeState extends ConsumerState<EditingMode>
         child: Container(
           decoration: BoxDecoration(
             color: Theme.of(context).canvasColor,
+            boxShadow: [
+              BoxShadow(
+                  color: Theme.of(context).primaryColor,
+                  blurRadius: 2.0,
+                  spreadRadius: 2.0)
+            ],
             border: Border.symmetric(
               horizontal:
                   BorderSide(width: 3.0, color: Theme.of(context).primaryColor),
@@ -449,10 +457,7 @@ class _EditingModeState extends ConsumerState<EditingMode>
           isDragging = false;
         });
       },
-      childWhenDragging: Opacity(
-        opacity: 0.4,
-        child: _symptomDisplay(question: question),
-      ),
+      childWhenDragging: const SizedBox(),
       child: _symptomDisplay(question: question),
     );
   }
