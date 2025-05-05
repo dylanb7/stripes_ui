@@ -132,6 +132,7 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
                   height: 20.0,
                 ),
                 topRow(),
+                const Divider(),
                 if (loadedPagesData.loadedLayouts == null &&
                     widget.category != null)
                   createNewCategory(),
@@ -141,6 +142,13 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
                     child: editing
                         ? EditingMode(
                             pagesData: loadedPagesData,
+                            setNotEditing: () {
+                              if (mounted) {
+                                setState(() {
+                                  editing = false;
+                                });
+                              }
+                            },
                           )
                         : ViewingMode(
                             type: widget.category!,
@@ -159,7 +167,10 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
 class EditingMode extends ConsumerStatefulWidget {
   final PagesData pagesData;
 
-  const EditingMode({required this.pagesData, super.key});
+  final Function setNotEditing;
+
+  const EditingMode(
+      {required this.pagesData, required this.setNotEditing, super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
@@ -167,11 +178,221 @@ class EditingMode extends ConsumerStatefulWidget {
   }
 }
 
-class _EditingModeState extends ConsumerState<EditingMode> {
+class _EditingModeState extends ConsumerState<EditingMode>
+    with SingleTickerProviderStateMixin {
+  late List<LoadedPageLayout> layouts;
+
+  late final ScrollController scrollController;
+
+  bool isDragging = false;
+
+  double? listHeight;
+
+  @override
+  void initState() {
+    scrollController = ScrollController();
+    layouts = widget.pagesData.loadedLayouts!;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    throw UnimplementedError();
+    return Stack(
+      children: [
+        _buildList(),
+        !isDragging
+            ? const SizedBox()
+            : Align(
+                alignment: Alignment.topCenter,
+                child: DragTarget<Question>(
+                  builder:
+                      (context, List<Question?> candidateData, rejectedData) =>
+                          Container(
+                    height: 40.0,
+                    width: double.infinity,
+                    color: Colors.transparent,
+                  ),
+                  onWillAcceptWithDetails: (_) {
+                    _moveUp();
+                    return false;
+                  },
+                ),
+              ),
+        !isDragging
+            ? const SizedBox()
+            : Align(
+                alignment: Alignment.bottomCenter,
+                child: DragTarget<Question>(
+                  builder:
+                      (context, List<Question?> candidateData, rejectedData) =>
+                          Container(
+                    height: 20.0,
+                    width: double.infinity,
+                    color: Colors.transparent,
+                  ),
+                  onWillAcceptWithDetails: (_) {
+                    _moveDown();
+                    return false;
+                  },
+                ),
+              ),
+      ],
+    );
+  }
+
+  _moveUp() {
+    final double height = (listHeight ?? 400);
+    final double distanceToTravel = min(scrollController.offset - height,
+        scrollController.position.minScrollExtent);
+    if (distanceToTravel == 0) return;
+    final int travelInMillis =
+        ((distanceToTravel / height) * Durations.long1.inMilliseconds).round();
+    scrollController.animateTo(scrollController.offset - (listHeight ?? 400),
+        curve: Curves.linear, duration: Duration(milliseconds: travelInMillis));
+  }
+
+  _moveDown() {
+    final double height = (listHeight ?? 400);
+    final double distanceToTravel = min(scrollController.offset - height,
+        scrollController.position.minScrollExtent);
+    if (distanceToTravel == 0) return;
+    final int travelInMillis =
+        ((distanceToTravel / height) * Durations.long1.inMilliseconds).round();
+    scrollController.animateTo(scrollController.offset - (listHeight ?? 400),
+        curve: Curves.linear, duration: Duration(milliseconds: travelInMillis));
+  }
+
+  Widget _buildDropPreview(BuildContext context, Question? value) {
+    return Card(
+      color: Colors.lightBlue[200],
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(
+          value?.prompt ?? "",
+          style: const TextStyle(fontSize: 20),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildList() {
+    List<Widget> widgets = [];
+    for (int i = 0; i < layouts.length; i++) {
+      widgets.add(
+        Padding(
+          padding: const EdgeInsets.only(left: 16.0, bottom: 4.0),
+          child: Text("Page ${i + 1}"),
+        ),
+      );
+      List<Widget> pageQuestions = layouts[i]
+          .questions
+          .map((question) => _buildSymptom(question))
+          .separated(
+        by: DragTarget<Question>(
+          builder: (context, List<Question?> candidates, rejects) {
+            return candidates.isNotEmpty
+                ? _buildDropPreview(context, candidates[0])
+                : const Divider(
+                    endIndent: 16.0,
+                    indent: 16.0,
+                  );
+          },
+        ),
+      );
+
+      widgets.addAll(pageQuestions);
+
+      widgets.add(const Divider());
+    }
+
+    return LayoutBuilder(builder: (context, constraints) {
+      listHeight = constraints.maxHeight;
+      return ListView(
+        controller: scrollController,
+        physics: const ClampingScrollPhysics(),
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: TextButton(
+                  onPressed: () {
+                    widget.setNotEditing();
+                  },
+                  child: Text(
+                    "Cancel",
+                    style:
+                        TextStyle(color: Theme.of(context).colorScheme.error),
+                  ),
+                ),
+              ),
+              const VerticalDivider(
+                width: 1,
+                thickness: 1,
+              ),
+              Expanded(
+                child: TextButton(
+                  onPressed: () async {
+                    if (await _save()) {
+                      widget.setNotEditing();
+                    } else if (context.mounted) {
+                      showSnack(context, "Failed to edit layouts");
+                    }
+                  },
+                  child: const Text("Save"),
+                ),
+              ),
+            ],
+          ),
+          const Divider(
+            height: 1,
+            thickness: 1,
+          ),
+          ...widgets,
+        ],
+      );
+    });
+  }
+
+  Widget _buildSymptom(Question question) {
+    Widget display() {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SymptomInfoDisplay(question: question),
+            const Icon(Icons.drag_handle)
+          ],
+        ),
+      );
+    }
+
+    return Draggable<Question>(
+      maxSimultaneousDrags: 1,
+      data: question,
+      axis: Axis.vertical,
+      feedback: Opacity(
+        opacity: 0.7,
+        child: display(),
+      ),
+      childWhenDragging: display(),
+      child: Opacity(opacity: 0.7, child: display()),
+    );
+  }
+
+  Future<bool> _save() async {
+    final RecordPath path = widget.pagesData.path!;
+    final List<PageLayout> newPages =
+        layouts.map((layout) => layout.toPageLayout()).toList();
+    final QuestionRepo repo = await ref.read(questionsProvider.future);
+    return await repo.updateRecordPath(path.copyWith(pages: newPages));
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
   }
 }
 
@@ -187,10 +408,9 @@ class ViewingMode extends StatelessWidget {
     Iterable<Widget> questionDisplays() {
       List<Widget> displays = [];
       for (final LoadedPageLayout page in pages) {
-        displays.addAll(
-          page.questions
-              .map((question) =>
-                  SymptomDisplay(question: question, editing: false))
+        displays.addAll([
+          ...page.questions
+              .map((question) => SymptomDisplay(question: question))
               .separated(
                 by: Divider(
                   endIndent: 16.0,
@@ -198,14 +418,13 @@ class ViewingMode extends StatelessWidget {
                   color: Theme.of(context).disabledColor,
                 ),
               ),
-        );
-      }
-      return displays.separated(
-          by: const Divider(
+          const Divider(
             endIndent: 8.0,
             indent: 8.0,
           ),
-          includeEnds: true);
+        ]);
+      }
+      return displays..removeLast();
     }
 
     return SingleChildScrollView(
@@ -216,7 +435,6 @@ class ViewingMode extends StatelessWidget {
           const SizedBox(
             height: 6.0,
           ),
-          const Divider(),
           AddSymptomWidget(
             type: type,
           ),
@@ -227,94 +445,32 @@ class ViewingMode extends StatelessWidget {
   }
 }
 
-class SymptomDisplay extends ConsumerStatefulWidget {
+class SymptomDisplay extends ConsumerWidget {
   final Question question;
 
-  final bool editing;
-
-  const SymptomDisplay(
-      {required this.question, required this.editing, super.key});
+  const SymptomDisplay({required this.question, super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() {
-    return _SymptomDisplayState();
-  }
-}
-
-class _SymptomDisplayState extends ConsumerState<SymptomDisplay> {
-  bool requiredHovered = false;
-  @override
-  Widget build(BuildContext context) {
-    final QuestionType type = QuestionType.from(widget.question);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final QuestionType type = QuestionType.from(question);
 
     Iterable<Widget>? added;
 
     if (type == QuestionType.allThatApply ||
         type == QuestionType.multipleChoice) {
       final List<String> choices = type == QuestionType.allThatApply
-          ? (widget.question as AllThatApply).choices
-          : (widget.question as MultipleChoice).choices;
+          ? (question as AllThatApply).choices
+          : (question as MultipleChoice).choices;
       added = choices.map((choice) => Text(choice)).separated(
             by: const SizedBox(
               height: 4.0,
             ),
           );
     } else if (type == QuestionType.slider) {
-      final Numeric numeric = widget.question as Numeric;
+      final Numeric numeric = question as Numeric;
       final num min = numeric.min ?? 1;
       final num max = numeric.max ?? 5;
       added = [Text("$min - $max")];
-    }
-
-    Widget symptomInfo() {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          RichText(
-            text: TextSpan(
-                text: widget.question.prompt,
-                style: Theme.of(context).textTheme.titleMedium,
-                children: [
-                  if (widget.question.isRequired)
-                    TextSpan(
-                      text: '${requiredHovered ? "required" : ""}*',
-                      onEnter: (_) {
-                        setState(() {
-                          requiredHovered = true;
-                        });
-                      },
-                      onExit: (_) async {
-                        Future.delayed(Durations.medium4).then((_) {
-                          if (mounted) {
-                            setState(() {
-                              requiredHovered = false;
-                            });
-                          }
-                        });
-                      },
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                  if (widget.question.userCreated)
-                    TextSpan(
-                      text: " · custom symptom",
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).disabledColor.darken()),
-                    )
-                ]),
-          ),
-          const SizedBox(
-            height: 4,
-          ),
-          Text(
-            type.value,
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
-                ?.copyWith(color: Theme.of(context).disabledColor.darken()),
-          ),
-        ],
-      );
     }
 
     Widget editsRow() {
@@ -323,30 +479,29 @@ class _SymptomDisplayState extends ConsumerState<SymptomDisplay> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Switch(
-            value: widget.question.enabled,
-            onChanged: widget.question.isRequired
+            value: question.enabled,
+            onChanged: question.locked
                 ? null
                 : (_) async {
                     if (!await (await ref.read(questionsProvider.future))
-                            .setQuestionEnabled(
-                                widget.question, !widget.question.enabled) &&
+                            .setQuestionEnabled(question, !question.enabled) &&
                         context.mounted) {
                       showSnack(context,
-                          "Failed to ${!widget.question.enabled ? "enable" : "disable"} ${widget.question.prompt}");
+                          "Failed to ${!question.enabled ? "enable" : "disable"} ${question.prompt}");
                     }
                   },
-            thumbIcon: widget.question.isRequired
+            thumbIcon: question.locked
                 ? WidgetStateProperty.all(const Icon(Icons.lock))
                 : null,
           ),
           IconButton(
-              onPressed: widget.question.userCreated
+              onPressed: question.userCreated
                   ? () async {
                       if (!await (await ref.read(questionsProvider.future))
-                              .removeQuestion(widget.question) &&
+                              .removeQuestion(question) &&
                           context.mounted) {
-                        showSnack(context,
-                            "Failed to delete ${widget.question.prompt}");
+                        showSnack(
+                            context, "Failed to delete ${question.prompt}");
                       }
                     }
                   : null,
@@ -361,25 +516,9 @@ class _SymptomDisplayState extends ConsumerState<SymptomDisplay> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          widget.editing
-              ? Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: symptomInfo(),
-                    ),
-                    const SizedBox(
-                      width: 4.0,
-                    ),
-                    const Icon(Icons.drag_handle),
-                  ],
-                )
-              : symptomInfo(),
-          if (!widget.editing) ...[
-            if (added != null) ...added,
-            editsRow(),
-          ]
+          SymptomInfoDisplay(question: question),
+          if (added != null) ...added,
+          editsRow(),
         ],
       ),
     );
@@ -387,10 +526,46 @@ class _SymptomDisplayState extends ConsumerState<SymptomDisplay> {
 }
 
 class SymptomInfoDisplay extends StatelessWidget {
+  final Question question;
+  const SymptomInfoDisplay({required this.question, super.key});
+
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    throw UnimplementedError();
+    final QuestionType type = QuestionType.from(question);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        RichText(
+          text: TextSpan(
+              text: question.prompt,
+              style: Theme.of(context).textTheme.titleMedium,
+              children: [
+                if (question.isRequired)
+                  const TextSpan(
+                    text: '*',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                if (question.userCreated)
+                  TextSpan(
+                    text: " · custom symptom",
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).disabledColor.darken()),
+                  )
+              ]),
+        ),
+        const SizedBox(
+          height: 4,
+        ),
+        Text(
+          type.value,
+          style: Theme.of(context)
+              .textTheme
+              .bodySmall
+              ?.copyWith(color: Theme.of(context).disabledColor.darken()),
+        ),
+      ],
+    );
   }
 }
 

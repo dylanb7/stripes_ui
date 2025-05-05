@@ -172,7 +172,6 @@ class CategoryDisplay extends ConsumerWidget {
                     width: 4.0,
                   ),
                   const Spacer(),
-                  const Icon(Icons.keyboard_arrow_right),
                 ],
               ),
             ),
