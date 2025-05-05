@@ -247,18 +247,18 @@ class _EditingModeState extends ConsumerState<EditingMode>
     if (distanceToTravel == 0) return;
     final int travelInMillis =
         ((distanceToTravel / height) * Durations.long1.inMilliseconds).round();
-    scrollController.animateTo(scrollController.offset - (listHeight ?? 400),
+    scrollController.animateTo(distanceToTravel,
         curve: Curves.linear, duration: Duration(milliseconds: travelInMillis));
   }
 
   _moveDown() {
     final double height = (listHeight ?? 400);
-    final double distanceToTravel = min(scrollController.offset - height,
-        scrollController.position.minScrollExtent);
+    final double distanceToTravel = max(scrollController.offset + height,
+        scrollController.position.maxScrollExtent);
     if (distanceToTravel == 0) return;
     final int travelInMillis =
         ((distanceToTravel / height) * Durations.long1.inMilliseconds).round();
-    scrollController.animateTo(scrollController.offset - (listHeight ?? 400),
+    scrollController.animateTo(distanceToTravel,
         curve: Curves.linear, duration: Duration(milliseconds: travelInMillis));
   }
 
