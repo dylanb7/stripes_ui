@@ -263,16 +263,12 @@ class _EditingModeState extends ConsumerState<EditingMode>
   }
 
   Widget _buildDropPreview(BuildContext context, Question? value) {
-    return Card(
-      color: Colors.lightBlue[200],
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Text(
-          value?.prompt ?? "",
-          style: const TextStyle(fontSize: 20),
-        ),
-      ),
-    );
+    return SizedBox(
+        height: 60,
+        child: Container(
+          decoration: BoxDecoration(
+              color: Theme.of(context).disabledColor.withValues(alpha: 0.4)),
+        ));
   }
 
   Widget _buildList() {
@@ -353,28 +349,37 @@ class _EditingModeState extends ConsumerState<EditingMode>
     });
   }
 
-  Widget _buildSymptom(Question question) {
-    Widget display() {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SymptomInfoDisplay(question: question),
-            const Icon(Icons.drag_handle)
-          ],
-        ),
-      );
-    }
+  Widget _symptomDisplay({required Question question}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: SymptomInfoDisplay(question: question),
+          ),
+          const SizedBox(width: 4),
+          const Icon(Icons.drag_handle)
+        ],
+      ),
+    );
+  }
 
+  Widget _buildSymptom(Question question) {
     return Draggable<Question>(
       maxSimultaneousDrags: 1,
       data: question,
       axis: Axis.vertical,
-      feedback: Opacity(
-        opacity: 0.7,
-        child: display(),
+      hitTestBehavior: HitTestBehavior.translucent,
+      feedback: Container(
+        decoration: BoxDecoration(
+          border: Border.symmetric(
+            horizontal:
+                BorderSide(width: 2.0, color: Theme.of(context).primaryColor),
+          ),
+        ),
+        child: _symptomDisplay(question: question),
       ),
       onDragStarted: () {
         setState(() {
@@ -386,11 +391,11 @@ class _EditingModeState extends ConsumerState<EditingMode>
           isDragging = false;
         });
       },
-      childWhenDragging: Card(
-        elevation: 4.0,
-        child: display(),
+      childWhenDragging: Opacity(
+        opacity: 0.5,
+        child: _symptomDisplay(question: question),
       ),
-      child: display(),
+      child: _symptomDisplay(question: question),
     );
   }
 
