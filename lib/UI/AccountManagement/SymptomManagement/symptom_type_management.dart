@@ -244,9 +244,9 @@ class _EditingModeState extends ConsumerState<EditingMode>
     final double height = (listHeight ?? 400);
     final double distanceToTravel = min(scrollController.offset - height,
         scrollController.position.minScrollExtent);
-    if (distanceToTravel == 0) return;
     final int travelInMillis =
         ((distanceToTravel / height) * Durations.long1.inMilliseconds).round();
+    if (distanceToTravel == 0 || travelInMillis == 0) return;
     scrollController.animateTo(distanceToTravel,
         curve: Curves.linear, duration: Duration(milliseconds: travelInMillis));
   }
@@ -255,9 +255,9 @@ class _EditingModeState extends ConsumerState<EditingMode>
     final double height = (listHeight ?? 400);
     final double distanceToTravel = max(scrollController.offset + height,
         scrollController.position.maxScrollExtent);
-    if (distanceToTravel == 0) return;
     final int travelInMillis =
         ((distanceToTravel / height) * Durations.long1.inMilliseconds).round();
+    if (distanceToTravel == 0 || travelInMillis == 0) return;
     scrollController.animateTo(distanceToTravel,
         curve: Curves.linear, duration: Duration(milliseconds: travelInMillis));
   }
@@ -280,7 +280,47 @@ class _EditingModeState extends ConsumerState<EditingMode>
           child: Text("Page ${i + 1}"),
         ),
       );
-      List<Widget> pageQuestions = layouts[i]
+
+      const Widget sep = Divider(
+        height: 8.0,
+        endIndent: 16.0,
+        indent: 16.0,
+      );
+
+      final List<Question> pageQuestions = layouts[i].questions;
+      for (int j = 0; j < pageQuestions.length; j++) {
+        final Question question = pageQuestions[j];
+        bool isNeighbor(Question candidate) {
+          if (candidate == question) return true;
+          if (j != 0 && pageQuestions[j - 1] == question) return true;
+          return false;
+        }
+
+        widgets.add(
+          DragTarget<Question>(
+            builder: (context, List<Question?> candidates, rejects) {
+              if (candidates.isEmpty || candidates[0] == null) return sep;
+              final Question candidate = candidates[0]!;
+              return !isNeighbor(candidate)
+                  ? _buildDropPreview(context, candidates[0])
+                  : sep;
+            },
+          ),
+        );
+        widgets.add(_buildSymptom(question));
+      }
+      widgets.add(
+        DragTarget<Question>(
+          builder: (context, List<Question?> candidates, rejects) {
+            if (candidates.isEmpty || candidates[0] == null) return sep;
+            final Question candidate = candidates[0]!;
+            return pageQuestions.isEmpty || candidate != pageQuestions.last
+                ? _buildDropPreview(context, candidates[0])
+                : sep;
+          },
+        ),
+      );
+      /*List<Widget> pageQuestions = layouts[i]
           .questions
           .map((question) => _buildSymptom(question))
           .separated(
@@ -298,6 +338,7 @@ class _EditingModeState extends ConsumerState<EditingMode>
               includeEnds: true);
 
       widgets.addAll(pageQuestions);
+      */
 
       widgets.add(const Divider());
     }
@@ -323,9 +364,9 @@ class _EditingModeState extends ConsumerState<EditingMode>
                 ),
               ),
               VerticalDivider(
-                width: 1,
+                width: 2.0,
                 color: Theme.of(context).dividerColor,
-                thickness: 1,
+                thickness: 1.5,
               ),
               Expanded(
                 child: TextButton(
@@ -379,9 +420,10 @@ class _EditingModeState extends ConsumerState<EditingMode>
         width: MediaQuery.of(context).size.width,
         child: Container(
           decoration: BoxDecoration(
+            color: Theme.of(context).canvasColor,
             border: Border.symmetric(
               horizontal:
-                  BorderSide(width: 2.0, color: Theme.of(context).primaryColor),
+                  BorderSide(width: 3.0, color: Theme.of(context).primaryColor),
             ),
           ),
           child: _symptomDisplay(question: question),
@@ -398,7 +440,7 @@ class _EditingModeState extends ConsumerState<EditingMode>
         });
       },
       childWhenDragging: Opacity(
-        opacity: 0.5,
+        opacity: 0.4,
         child: _symptomDisplay(question: question),
       ),
       child: _symptomDisplay(question: question),
