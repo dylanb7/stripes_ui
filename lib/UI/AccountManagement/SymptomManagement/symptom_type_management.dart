@@ -403,6 +403,7 @@ class _EditingModeState extends ConsumerState<EditingMode>
               ),
               Container(
                 width: 1.0,
+                height: Theme.of(context).buttonTheme.height,
                 color: Theme.of(context).dividerColor,
               ),
               Expanded(
