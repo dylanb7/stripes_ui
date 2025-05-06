@@ -130,7 +130,13 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
                 height: 20.0,
               ),
               topRow(),
-              const Divider(),
+              const SizedBox(
+                height: 12.0,
+              ),
+              const Divider(
+                height: 1,
+                thickness: 1,
+              ),
               if (loadedPagesData.loadedLayouts == null &&
                   widget.category != null)
                 createNewCategory(),
@@ -277,9 +283,9 @@ class _EditingModeState extends ConsumerState<EditingMode>
     for (int i = 0; i < layouts.length; i++) {
       widgets.add(
         Padding(
-          padding: const EdgeInsets.only(left: 16.0, bottom: 4.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
           child: Text(
-            "Page ${i + 1}",
+            "Page ${i + 1} ${layouts[i].dependsOn}",
             style: Theme.of(context).textTheme.titleLarge,
           ),
         ),
@@ -304,7 +310,7 @@ class _EditingModeState extends ConsumerState<EditingMode>
           final LoadedPageLayout pageLayout = layouts[i];
           for (int j = 0; j < pageLayout.questions.length; j++) {
             if (pageLayout.questions[j] == details.data) {
-              if (page == pageLayout && j > insertIndex) {
+              if (page == pageLayout && insertIndex > j) {
                 wasInSameLayout = true;
               }
               final List<Question> newQuestions = pageLayout.questions
@@ -573,9 +579,9 @@ class ViewingMode extends StatelessWidget {
               .map((question) => SymptomDisplay(question: question))
               .separated(
                 by: Divider(
-                  endIndent: 16.0,
-                  indent: 16.0,
-                  color: Theme.of(context).disabledColor,
+                  endIndent: 32.0,
+                  indent: 32.0,
+                  color: Theme.of(context).dividerColor.withValues(alpha: 0.5),
                 ),
               ),
           const Divider(
@@ -584,7 +590,8 @@ class ViewingMode extends StatelessWidget {
           ),
         ]);
       }
-      return displays..removeLast();
+      return displays.isEmpty ? [] : displays
+        ..removeLast();
     }
 
     return SingleChildScrollView(
@@ -710,8 +717,10 @@ class SymptomInfoDisplay extends StatelessWidget {
                 if (question.userCreated)
                   TextSpan(
                     text: " · custom symptom",
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).disabledColor.darken()),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(color: Theme.of(context).disabledColor),
                   )
               ]),
         ),
@@ -720,10 +729,11 @@ class SymptomInfoDisplay extends StatelessWidget {
         ),
         Text(
           type.value,
-          style: Theme.of(context)
-              .textTheme
-              .bodySmall
-              ?.copyWith(color: Theme.of(context).disabledColor.darken()),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface
+                  .withValues(alpha: 0.75)),
         ),
       ],
     );

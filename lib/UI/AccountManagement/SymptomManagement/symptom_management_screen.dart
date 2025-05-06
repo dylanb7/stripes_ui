@@ -162,8 +162,10 @@ class CategoryDisplay extends ConsumerWidget {
                               .textTheme
                               .bodySmall
                               ?.copyWith(
-                                  color:
-                                      Theme.of(context).disabledColor.darken()),
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withValues(alpha: 0.75)),
                         ),
                       ],
                     ),
