@@ -285,15 +285,43 @@ class _EditingModeState extends ConsumerState<EditingMode>
         ),
       );
 
+      const double sepHeight = 12.0;
+
       const Widget sep = Divider(
-        height: 8.0,
+        height: sepHeight,
         endIndent: 16.0,
         indent: 16.0,
       );
 
       final List<Question> pageQuestions = layouts[i].questions;
+
+      void onAccept(DragTargetDetails<Question> details, int insertIndex) {
+        bool found = false;
+        for (int i = 0; i < layouts.length; i++) {
+          final LoadedPageLayout pageLayout = layouts[i];
+          for (int j = 0; j < pageLayout.questions.length; j++) {
+            if (pageLayout.questions[j] == details.data) {
+              final List<Question> newQuestions = pageLayout.questions
+                ..removeAt(j);
+              if (newQuestions.isEmpty) {
+                layouts.removeAt(i);
+              } else {
+                layouts[i] = pageLayout.copyWith(questions: newQuestions);
+              }
+              found = true;
+              break;
+            }
+          }
+          if (found) break;
+        }
+
+        pageQuestions.insert(insertIndex, details.data);
+        setState(() {});
+      }
+
       for (int j = 0; j < pageQuestions.length; j++) {
         final Question question = pageQuestions[j];
+
         bool isNeighbor(Question candidate) {
           if (candidate == question) return true;
           if (j + 1 < pageQuestions.length &&
@@ -310,7 +338,15 @@ class _EditingModeState extends ConsumerState<EditingMode>
               final Question candidate = candidates[0]!;
               return !isNeighbor(candidate)
                   ? _buildDropPreview(context, candidates[0])
-                  : sep;
+                  : j == 0
+                      ? const SizedBox(
+                          height: sepHeight,
+                        )
+                      : sep;
+            },
+            onWillAcceptWithDetails: (details) => !isNeighbor(details.data),
+            onAcceptWithDetails: (details) {
+              onAccept(details, j);
             },
           ),
         );
@@ -318,12 +354,19 @@ class _EditingModeState extends ConsumerState<EditingMode>
       }
       widgets.add(
         DragTarget<Question>(
+          onWillAcceptWithDetails: (details) =>
+              details.data != pageQuestions[pageQuestions.length - 1],
+          onAcceptWithDetails: (details) {
+            onAccept(details, pageQuestions.length);
+          },
           builder: (context, List<Question?> candidates, rejects) {
             if (candidates.isEmpty || candidates[0] == null) return sep;
             final Question candidate = candidates[0]!;
             return pageQuestions.isEmpty || candidate != pageQuestions.last
                 ? _buildDropPreview(context, candidates[0])
-                : sep;
+                : const SizedBox(
+                    height: sepHeight,
+                  );
           },
         ),
       );
@@ -351,10 +394,10 @@ class _EditingModeState extends ConsumerState<EditingMode>
                   ),
                 ),
               ),
-              VerticalDivider(
-                width: 2.0,
+              Container(
+                width: 1.0,
                 color: Theme.of(context).dividerColor,
-                thickness: 1.5,
+                height: double.infinity,
               ),
               Expanded(
                 child: TextButton(
@@ -373,6 +416,9 @@ class _EditingModeState extends ConsumerState<EditingMode>
           const Divider(
             height: 1,
             thickness: 1,
+          ),
+          const SizedBox(
+            height: 8.0,
           ),
           ...widgets,
           if (isDragging) ...[
@@ -397,6 +443,31 @@ class _EditingModeState extends ConsumerState<EditingMode>
                 }
                 final Question candidate = candidates[0]!;
                 return _buildDropPreview(context, candidate);
+              },
+              onAcceptWithDetails: (details) {
+                bool found = false;
+                for (int i = 0; i < layouts.length; i++) {
+                  final LoadedPageLayout pageLayout = layouts[i];
+                  for (int j = 0; j < pageLayout.questions.length; j++) {
+                    if (pageLayout.questions[j] == details.data) {
+                      final List<Question> newQuestions = pageLayout.questions
+                        ..removeAt(j);
+                      if (newQuestions.isEmpty) {
+                        layouts.removeAt(i);
+                      } else {
+                        layouts[i] =
+                            pageLayout.copyWith(questions: newQuestions);
+                      }
+                      found = true;
+                      break;
+                    }
+                  }
+                  if (found) break;
+                }
+                layouts.add(LoadedPageLayout(
+                    questions: [details.data],
+                    dependsOn: const DependsOn.nothing()));
+                setState(() {});
               },
             ),
           ],
@@ -443,10 +514,6 @@ class _EditingModeState extends ConsumerState<EditingMode>
                   blurRadius: 2.0,
                   spreadRadius: 2.0)
             ],
-            border: Border.symmetric(
-              horizontal:
-                  BorderSide(width: 3.0, color: Theme.of(context).primaryColor),
-            ),
           ),
           child: _symptomDisplay(question: question),
         ),
