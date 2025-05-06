@@ -397,7 +397,6 @@ class _EditingModeState extends ConsumerState<EditingMode>
               Container(
                 width: 1.0,
                 color: Theme.of(context).dividerColor,
-                height: double.infinity,
               ),
               Expanded(
                 child: TextButton(
