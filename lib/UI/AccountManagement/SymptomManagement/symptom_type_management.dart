@@ -285,7 +285,7 @@ class _EditingModeState extends ConsumerState<EditingMode>
         ),
       );
 
-      const double sepHeight = 12.0;
+      const double sepHeight = 24.0;
 
       const Widget sep = Divider(
         height: sepHeight,
@@ -304,7 +304,7 @@ class _EditingModeState extends ConsumerState<EditingMode>
           final LoadedPageLayout pageLayout = layouts[i];
           for (int j = 0; j < pageLayout.questions.length; j++) {
             if (pageLayout.questions[j] == details.data) {
-              if (page == pageLayout) {
+              if (page == pageLayout && j > insertIndex) {
                 wasInSameLayout = true;
               }
               final List<Question> newQuestions = pageLayout.questions
@@ -444,7 +444,7 @@ class _EditingModeState extends ConsumerState<EditingMode>
               builder: (context, List<Question?> candidates, rejects) {
                 if (candidates.isEmpty || candidates[0] == null) {
                   return const SizedBox(
-                    height: 12.0,
+                    height: 24.0,
                   );
                 }
                 final Question candidate = candidates[0]!;
@@ -505,10 +505,11 @@ class _EditingModeState extends ConsumerState<EditingMode>
 
   Widget _buildSymptom(Question question) {
     return Draggable<Question>(
+      affinity: Axis.vertical,
       maxSimultaneousDrags: 1,
       data: question,
       axis: Axis.vertical,
-      hitTestBehavior: HitTestBehavior.translucent,
+      hitTestBehavior: HitTestBehavior.deferToChild,
       feedback: SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Container(
