@@ -293,14 +293,20 @@ class _EditingModeState extends ConsumerState<EditingMode>
         indent: 16.0,
       );
 
-      final List<Question> pageQuestions = layouts[i].questions;
+      final LoadedPageLayout page = layouts[i];
+
+      final List<Question> pageQuestions = page.questions;
 
       void onAccept(DragTargetDetails<Question> details, int insertIndex) {
         bool found = false;
+        bool wasInSameLayout = false;
         for (int i = 0; i < layouts.length; i++) {
           final LoadedPageLayout pageLayout = layouts[i];
           for (int j = 0; j < pageLayout.questions.length; j++) {
             if (pageLayout.questions[j] == details.data) {
+              if (page == pageLayout) {
+                wasInSameLayout = true;
+              }
               final List<Question> newQuestions = pageLayout.questions
                 ..removeAt(j);
               if (newQuestions.isEmpty) {
@@ -315,7 +321,8 @@ class _EditingModeState extends ConsumerState<EditingMode>
           if (found) break;
         }
 
-        pageQuestions.insert(insertIndex, details.data);
+        pageQuestions.insert(
+            wasInSameLayout ? insertIndex - 1 : insertIndex, details.data);
         setState(() {});
       }
 
@@ -437,7 +444,7 @@ class _EditingModeState extends ConsumerState<EditingMode>
               builder: (context, List<Question?> candidates, rejects) {
                 if (candidates.isEmpty || candidates[0] == null) {
                   return const SizedBox(
-                    height: 10,
+                    height: 12.0,
                   );
                 }
                 final Question candidate = candidates[0]!;
