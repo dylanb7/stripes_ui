@@ -311,7 +311,7 @@ class _EditingModeState extends ConsumerState<EditingMode>
       String dependentTooltipText() {
         String message = "";
         for (final op in page.dependsOn.operations) {
-          message += "${op.op.value}: \n";
+          if (op.relations.length >= 2) message += "${op.op.value}: \n";
           for (final Relation rel in op.relations) {
             final Iterable<Question> questionMatch = layouts
                 .map((layout) => layout.questions)
@@ -322,6 +322,7 @@ class _EditingModeState extends ConsumerState<EditingMode>
             message +=
                 "  - ${rel.type == CheckType.exists ? questionText : "$questionText = ${rel.response}}"}\n";
           }
+          message += "\n";
         }
         return message;
       }
