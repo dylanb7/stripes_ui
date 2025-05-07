@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:collection/collection.dart';
-import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -185,6 +184,8 @@ class _EditingModeState extends ConsumerState<EditingMode>
     with SingleTickerProviderStateMixin {
   late List<LoadedPageLayout> layouts;
 
+  late List<LoadedPageLayout> dependentLayouts;
+
   late final ScrollController scrollController;
 
   bool isDragging = false;
@@ -195,6 +196,9 @@ class _EditingModeState extends ConsumerState<EditingMode>
   void initState() {
     scrollController = ScrollController();
     layouts = widget.pagesData.loadedLayouts!;
+    dependentLayouts = layouts
+        .where((layout) => layout.dependsOn != const DependsOn.nothing())
+        .toList();
     super.initState();
   }
 
@@ -271,7 +275,7 @@ class _EditingModeState extends ConsumerState<EditingMode>
 
   Widget _buildDropPreview(BuildContext context, Question? value) {
     return SizedBox(
-        height: 60,
+        height: 80,
         child: Container(
           decoration: BoxDecoration(
               color: Theme.of(context).disabledColor.withValues(alpha: 0.4)),
@@ -279,14 +283,79 @@ class _EditingModeState extends ConsumerState<EditingMode>
   }
 
   Widget _buildList() {
+    LoadedPageLayout? existsInDependency(Question question) {
+      for (final LoadedPageLayout dependentLayout in dependentLayouts) {
+        for (final RelationOp op in dependentLayout.dependsOn.operations) {
+          for (final Relation rel in op.relations) {
+            if (question.id == rel.qid) return dependentLayout;
+          }
+        }
+      }
+      return null;
+    }
+
+    bool existsInPreviousDependency(int pageIndex, Question question) {
+      final LoadedPageLayout? dependency = existsInDependency(question);
+      if (dependency == null) return false;
+      final int index = layouts.indexOf(dependency);
+      return index < pageIndex;
+    }
+
     List<Widget> widgets = [];
+
     for (int i = 0; i < layouts.length; i++) {
+      final LoadedPageLayout page = layouts[i];
+
+      final bool isDependentPage = page.dependsOn != const DependsOn.nothing();
+
+      String dependentTooltipText() {
+        String message = "";
+        for (final op in page.dependsOn.operations) {
+          message += "${op.op.value}: \n";
+          for (final Relation rel in op.relations) {
+            final Iterable<Question> questionMatch = layouts
+                .map((layout) => layout.questions)
+                .flattenedToList
+                .where((question) => question.id == rel.qid);
+            if (questionMatch.isEmpty) continue;
+            final String questionText = questionMatch.first.prompt;
+            message +=
+                "  - ${rel.type == CheckType.exists ? questionText : "$questionText = ${rel.response}}"}\n";
+          }
+        }
+        //page.dependsOn.operations.map((op) => "${op.op.value}: ${op.relations.map((rel) => rel.type == CheckType.equals ? "" :)}").join(" ")
+        return message;
+      }
+
       widgets.add(
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
-          child: Text(
-            "Page ${i + 1} ${layouts[i].dependsOn}",
-            style: Theme.of(context).textTheme.titleLarge,
+          child: Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Text(
+                "Page ${i + 1} ${layouts[i].dependsOn}",
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              if (isDependentPage)
+                Tooltip(
+                  message: dependentTooltipText(),
+                  child: Container(
+                    decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(6.0),
+                        ),
+                        color: Theme.of(context).primaryColor),
+                    child: Center(
+                      child: Text(
+                        "Conditional",
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onPrimary),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
       );
@@ -298,8 +367,6 @@ class _EditingModeState extends ConsumerState<EditingMode>
         endIndent: 16.0,
         indent: 16.0,
       );
-
-      final LoadedPageLayout page = layouts[i];
 
       final List<Question> pageQuestions = page.questions;
 
@@ -344,47 +411,62 @@ class _EditingModeState extends ConsumerState<EditingMode>
           return false;
         }
 
+        Widget separator = j == 0
+            ? const SizedBox(
+                height: sepHeight,
+              )
+            : sep;
+
         widgets.add(
-          DragTarget<Question>(
-            builder: (context, List<Question?> candidates, rejects) {
-              if (candidates.isEmpty || candidates[0] == null) return sep;
-              final Question candidate = candidates[0]!;
-              return !isNeighbor(candidate)
-                  ? _buildDropPreview(context, candidates[0])
-                  : j == 0
-                      ? const SizedBox(
-                          height: sepHeight,
-                        )
-                      : sep;
-            },
-            onWillAcceptWithDetails: (details) => !isNeighbor(details.data),
-            onAcceptWithDetails: (details) {
-              onAccept(details, j);
-            },
-          ),
+          isDependentPage
+              ? separator
+              : DragTarget<Question>(
+                  builder: (context, List<Question?> candidates, rejects) {
+                    if (candidates.isEmpty || candidates[0] == null) return sep;
+                    final Question candidate = candidates[0]!;
+                    return !isNeighbor(candidate)
+                        ? _buildDropPreview(context, candidates[0])
+                        : separator;
+                  },
+                  onWillAcceptWithDetails: (details) {
+                    return !isNeighbor(details.data) ||
+                        !existsInPreviousDependency(i, question);
+                  },
+                  onAcceptWithDetails: (details) {
+                    onAccept(details, j);
+                  },
+                ),
         );
-        widgets.add(_buildSymptom(question));
+        widgets.add(isDependentPage
+            ? _symptomDisplay(question: question, enabled: true)
+            : _buildSymptom(question));
       }
       widgets.add(
-        DragTarget<Question>(
-          onWillAcceptWithDetails: (details) =>
-              details.data != pageQuestions[pageQuestions.length - 1],
-          onAcceptWithDetails: (details) {
-            onAccept(details, pageQuestions.length);
-          },
-          builder: (context, List<Question?> candidates, rejects) {
-            if (candidates.isEmpty || candidates[0] == null) return sep;
-            final Question candidate = candidates[0]!;
-            return pageQuestions.isEmpty || candidate != pageQuestions.last
-                ? _buildDropPreview(context, candidates[0])
-                : const SizedBox(
-                    height: sepHeight,
-                  );
-          },
-        ),
+        isDependentPage
+            ? const SizedBox(
+                height: sepHeight,
+              )
+            : DragTarget<Question>(
+                onWillAcceptWithDetails: (details) {
+                  if (existsInPreviousDependency(i, details.data)) return false;
+                  return details.data !=
+                      pageQuestions[pageQuestions.length - 1];
+                },
+                onAcceptWithDetails: (details) {
+                  onAccept(details, pageQuestions.length);
+                },
+                builder: (context, List<Question?> candidates, rejects) {
+                  if (candidates.isEmpty || candidates[0] == null) return sep;
+                  final Question candidate = candidates[0]!;
+                  return pageQuestions.isEmpty ||
+                          candidate != pageQuestions.last
+                      ? _buildDropPreview(context, candidates[0])
+                      : const SizedBox(
+                          height: sepHeight,
+                        );
+                },
+              ),
       );
-
-      widgets.add(const Divider());
     }
 
     return LayoutBuilder(builder: (context, constraints) {
@@ -448,7 +530,8 @@ class _EditingModeState extends ConsumerState<EditingMode>
               ),
             ),
             DragTarget<Question>(
-              builder: (context, List<Question?> candidates, rejects) {
+              builder:
+                  (context, List<Question?> candidates, List<dynamic> rejects) {
                 if (candidates.isEmpty || candidates[0] == null) {
                   return const SizedBox(
                     height: 24.0,
@@ -456,6 +539,9 @@ class _EditingModeState extends ConsumerState<EditingMode>
                 }
                 final Question candidate = candidates[0]!;
                 return _buildDropPreview(context, candidate);
+              },
+              onWillAcceptWithDetails: (details) {
+                return existsInDependency(details.data) == null;
               },
               onAcceptWithDetails: (details) {
                 bool found = false;
@@ -492,7 +578,7 @@ class _EditingModeState extends ConsumerState<EditingMode>
     });
   }
 
-  Widget _symptomDisplay({required Question question}) {
+  Widget _symptomDisplay({required Question question, bool enabled = true}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
       child: Row(
@@ -504,7 +590,10 @@ class _EditingModeState extends ConsumerState<EditingMode>
             child: SymptomInfoDisplay(question: question),
           ),
           const SizedBox(width: 4),
-          const Icon(Icons.drag_handle)
+          Icon(
+            Icons.drag_handle,
+            color: enabled ? null : Theme.of(context).disabledColor,
+          )
         ],
       ),
     );
@@ -581,7 +670,7 @@ class ViewingMode extends StatelessWidget {
                 by: Divider(
                   endIndent: 32.0,
                   indent: 32.0,
-                  color: Theme.of(context).dividerColor.withValues(alpha: 0.5),
+                  color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
                 ),
               ),
           const Divider(
@@ -607,6 +696,9 @@ class ViewingMode extends StatelessWidget {
           ),
           const Divider(),
           ...questionDisplays(),
+          const SizedBox(
+            height: 100,
+          ),
         ],
       ),
     );

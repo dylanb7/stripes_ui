@@ -268,7 +268,7 @@ class _AddCategoryWidgetState extends ConsumerState<ConsumerStatefulWidget> {
                         icon: const Icon(Icons.keyboard_arrow_up),
                       ),
                       LabeledField(
-                        label: "type",
+                        label: "category",
                         child: TextFormField(
                           controller: category,
                           validator: (value) => value == null || value.isEmpty
