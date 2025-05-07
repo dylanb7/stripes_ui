@@ -298,8 +298,7 @@ class _EditingModeState extends ConsumerState<EditingMode>
       final LoadedPageLayout? dependency = existsInDependency(question);
       if (dependency == null) return false;
       final int index = layouts.indexOf(dependency);
-      print("$index $pageIndex");
-      return index < pageIndex;
+      return pageIndex < index;
     }
 
     List<Widget> widgets = [];
