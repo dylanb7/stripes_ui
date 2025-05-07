@@ -351,13 +351,14 @@ class _EditingModeState extends ConsumerState<EditingMode>
                         ),
                         color: Theme.of(context).primaryColor),
                     child: Padding(
-                      padding: Theme.of(context).buttonTheme.padding,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 6.0, horizontal: 10.0),
                       child: Center(
                         child: Text(
                           "Conditional",
                           style: Theme.of(context)
                               .textTheme
-                              .bodySmall
+                              .bodyMedium
                               ?.copyWith(
                                   color:
                                       Theme.of(context).colorScheme.onPrimary),
@@ -449,7 +450,7 @@ class _EditingModeState extends ConsumerState<EditingMode>
                 ),
         );
         widgets.add(isDependentPage
-            ? _symptomDisplay(question: question, enabled: true)
+            ? _symptomDisplay(question: question, enabled: false)
             : _buildSymptom(question));
       }
       widgets.add(
@@ -602,9 +603,8 @@ class _EditingModeState extends ConsumerState<EditingMode>
           ),
           const SizedBox(width: 4),
           if (enabled)
-            Icon(
+            const Icon(
               Icons.drag_handle,
-              color: Theme.of(context).disabledColor,
             )
         ],
       ),
