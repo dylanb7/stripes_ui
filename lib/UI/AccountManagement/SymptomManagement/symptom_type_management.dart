@@ -323,7 +323,6 @@ class _EditingModeState extends ConsumerState<EditingMode>
                 "  - ${rel.type == CheckType.exists ? questionText : "$questionText = ${rel.response}}"}\n";
           }
         }
-        //page.dependsOn.operations.map((op) => "${op.op.value}: ${op.relations.map((rel) => rel.type == CheckType.equals ? "" :)}").join(" ")
         return message;
       }
 
@@ -334,7 +333,7 @@ class _EditingModeState extends ConsumerState<EditingMode>
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               Text(
-                "Page ${i + 1} ${layouts[i].dependsOn}",
+                "Page ${i + 1}",
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               if (isDependentPage)
@@ -346,11 +345,18 @@ class _EditingModeState extends ConsumerState<EditingMode>
                           Radius.circular(6.0),
                         ),
                         color: Theme.of(context).primaryColor),
-                    child: Center(
-                      child: Text(
-                        "Conditional",
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.onPrimary),
+                    child: Padding(
+                      padding: Theme.of(context).buttonTheme.padding,
+                      child: Center(
+                        child: Text(
+                          "Conditional",
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary),
+                        ),
                       ),
                     ),
                   ),
