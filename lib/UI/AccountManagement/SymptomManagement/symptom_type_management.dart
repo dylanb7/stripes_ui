@@ -298,6 +298,7 @@ class _EditingModeState extends ConsumerState<EditingMode>
       final LoadedPageLayout? dependency = existsInDependency(question);
       if (dependency == null) return false;
       final int index = layouts.indexOf(dependency);
+      print(index);
       return index < pageIndex;
     }
 
@@ -326,14 +327,11 @@ class _EditingModeState extends ConsumerState<EditingMode>
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 "Page ${i + 1}",
                 style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(
-                width: 8.0,
               ),
               if (isDependentPage)
                 Tooltip(
