@@ -309,22 +309,16 @@ class _EditingModeState extends ConsumerState<EditingMode>
       final bool isDependentPage = page.dependsOn != const DependsOn.nothing();
 
       String dependentTooltipText() {
-        String message = "";
-        for (final op in page.dependsOn.operations) {
-          if (op.relations.length >= 2) message += "${op.op.value}: \n";
-          for (final Relation rel in op.relations) {
-            final Iterable<Question> questionMatch = layouts
-                .map((layout) => layout.questions)
-                .flattenedToList
-                .where((question) => question.id == rel.qid);
-            if (questionMatch.isEmpty) continue;
-            final String questionText = questionMatch.first.prompt;
-            message +=
-                "  - ${rel.type == CheckType.exists ? questionText : "$questionText = ${rel.response}}"}\n";
-          }
-          message += "\n";
+        String? promptProvider(String qid) {
+          final Iterable<Question> questionMatch = layouts
+              .map((layout) => layout.questions)
+              .flattenedToList
+              .where((question) => question.id == qid);
+          if (questionMatch.isEmpty) return null;
+          return questionMatch.first.prompt;
         }
-        return message;
+
+        return page.dependsOn.toReadableString(promptProvider: promptProvider);
       }
 
       widgets.add(
@@ -339,7 +333,7 @@ class _EditingModeState extends ConsumerState<EditingMode>
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(
-                width: 4.0,
+                width: 8.0,
               ),
               if (isDependentPage)
                 Tooltip(
