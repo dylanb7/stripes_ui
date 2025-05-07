@@ -329,12 +329,16 @@ class _EditingModeState extends ConsumerState<EditingMode>
       widgets.add(
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
-          child: Wrap(
-            crossAxisAlignment: WrapCrossAlignment.center,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Text(
                 "Page ${i + 1}",
                 style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(
+                width: 4.0,
               ),
               if (isDependentPage)
                 Tooltip(
