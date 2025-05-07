@@ -601,10 +601,11 @@ class _EditingModeState extends ConsumerState<EditingMode>
             child: SymptomInfoDisplay(question: question),
           ),
           const SizedBox(width: 4),
-          Icon(
-            Icons.drag_handle,
-            color: enabled ? null : Theme.of(context).disabledColor,
-          )
+          if (enabled)
+            Icon(
+              Icons.drag_handle,
+              color: Theme.of(context).disabledColor,
+            )
         ],
       ),
     );
