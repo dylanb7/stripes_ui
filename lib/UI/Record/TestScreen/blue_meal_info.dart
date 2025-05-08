@@ -35,7 +35,7 @@ class _BlueMealPreStudyState extends State<BlueMealPreStudy> {
 
   @override
   Widget build(BuildContext context) {
-    return appTosRead
+    return !appTosRead
         ? AppTos(onContinue: () {
             setState(() {
               appTosRead = true;
