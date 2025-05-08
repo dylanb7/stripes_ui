@@ -157,7 +157,7 @@ class CategoryDisplay extends ConsumerWidget {
                           ),
                         ),
                         Text(
-                          "$symptoms symptoms${recordPath.period != null ? " · ${recordPath.period!.name}" : ""}",
+                          "$symptoms symptom${symptoms == 1 ? "" : "s"}${recordPath.period != null ? " · ${recordPath.period!.name}" : ""}",
                           style: Theme.of(context)
                               .textTheme
                               .bodySmall

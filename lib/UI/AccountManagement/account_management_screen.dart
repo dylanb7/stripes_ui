@@ -13,6 +13,8 @@ import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
+import 'package:stripes_ui/config.dart';
+import 'package:stripes_ui/entry.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class AccountManagementScreen extends ConsumerWidget {
@@ -21,6 +23,7 @@ class AccountManagementScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool isSmall = MediaQuery.of(context).size.width < 1400;
+    final StripesConfig config = ref.watch(configProvider);
     final subNotifier = ref.watch(subHolderProvider);
     if (subNotifier.isLoading) {
       return const LoadingWidget();
@@ -89,19 +92,21 @@ class AccountManagementScreen extends ConsumerWidget {
                 endIndent: 8.0,
                 indent: 8.0,
               ),
-              ListTile(
-                dense: false,
-                visualDensity: VisualDensity.comfortable,
-                title: const Text("Symptoms"),
-                trailing: const Icon(Icons.keyboard_arrow_right),
-                onTap: () {
-                  context.pushNamed(Routes.SYMPTOMS);
-                },
-              ),
-              const Divider(
-                endIndent: 8.0,
-                indent: 8.0,
-              ),
+              if (config.hasSymptomEditing) ...[
+                ListTile(
+                  dense: false,
+                  visualDensity: VisualDensity.comfortable,
+                  title: const Text("Symptoms"),
+                  trailing: const Icon(Icons.keyboard_arrow_right),
+                  onTap: () {
+                    context.pushNamed(Routes.SYMPTOMS);
+                  },
+                ),
+                const Divider(
+                  endIndent: 8.0,
+                  indent: 8.0,
+                ),
+              ],
               const SizedBox(
                 height: 12.0,
               ),

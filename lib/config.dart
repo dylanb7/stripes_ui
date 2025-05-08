@@ -28,7 +28,7 @@ typedef ExportAction = Future<void> Function(
 
 @immutable
 class StripesConfig {
-  final bool hasGraphing, hasLogging;
+  final bool hasGraphing, hasLogging, hasSymptomEditing;
 
   final ExportAction? export;
 
@@ -52,6 +52,7 @@ class StripesConfig {
       {required this.profileType,
       required this.hasGraphing,
       required this.hasLogging,
+      this.hasSymptomEditing = true,
       this.locale,
       this.authStrategy,
       this.exportType,
@@ -64,6 +65,7 @@ class StripesConfig {
   const StripesConfig.sandbox()
       : hasGraphing = true,
         hasLogging = true,
+        hasSymptomEditing = true,
         profileType = ProfileType.username,
         export = fileShare,
         builder = null,

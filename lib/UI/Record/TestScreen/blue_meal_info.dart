@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:markdown_widget/widget/markdown_block.dart';
 import 'package:stripes_backend_helper/RepositoryBase/AuthBase/auth_user.dart';
 import 'package:stripes_ui/Providers/auth_provider.dart';
 import 'package:stripes_ui/Providers/test_progress_provider.dart';
@@ -30,6 +31,32 @@ class BlueMealPreStudy extends StatefulWidget {
 }
 
 class _BlueMealPreStudyState extends State<BlueMealPreStudy> {
+  bool appTosRead = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return appTosRead
+        ? AppTos(onContinue: () {
+            setState(() {
+              appTosRead = true;
+            });
+          })
+        : PreStudyInfo(onClick: widget.onClick());
+  }
+}
+
+class PreStudyInfo extends StatefulWidget {
+  final void Function() onClick;
+
+  const PreStudyInfo({required this.onClick, super.key});
+
+  @override
+  State<StatefulWidget> createState() {
+    return _PreStudyInfoState();
+  }
+}
+
+class _PreStudyInfoState extends State<PreStudyInfo> {
   bool read = false;
 
   @override
@@ -144,75 +171,29 @@ class _BlueMealPreStudyState extends State<BlueMealPreStudy> {
           ),
         ),
       ),
-      ColoredBox(
-        color: Theme.of(context).primaryColor,
-        child: Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: Breakpoint.medium.value),
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Checkbox(
-                          checkColor: Theme.of(context).colorScheme.onSurface,
-                          fillColor: WidgetStateProperty.all(
-                              Theme.of(context).colorScheme.surface),
-                          side: BorderSide(
-                              color: Theme.of(context).colorScheme.onSurface),
-                          value: read,
-                          onChanged: (newValue) {
-                            if (newValue != null) {
-                              setState(() {
-                                read = newValue;
-                              });
-                            }
-                          }),
-                      const SizedBox(
-                        width: 4.0,
-                      ),
-                      Flexible(
-                        child: Text(
-                          "I have read and understand the Blue Meal study process. I agree to start the test",
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(
-                                  color:
-                                      Theme.of(context).colorScheme.onPrimary),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 8.0,
-                  ),
-                  FilledButton(
-                      style: FilledButton.styleFrom(
-                          foregroundColor: Theme.of(context).primaryColor,
-                          backgroundColor:
-                              Theme.of(context).colorScheme.onPrimary,
-                          disabledBackgroundColor:
-                              Theme.of(context).disabledColor.darken(20),
-                          disabledForegroundColor:
-                              Theme.of(context).colorScheme.onPrimary),
-                      onPressed: read
-                          ? () {
-                              widget.onClick();
-                            }
-                          : null,
-                      child: const Text("Start step one"))
-                ],
-              ),
-            ),
+      ReadConfirmation(
+          onChange: (value) {
+            setState(() {
+              read = value;
+            });
+          },
+          button: FilledButton(
+            style: FilledButton.styleFrom(
+                foregroundColor: Theme.of(context).primaryColor,
+                backgroundColor: Theme.of(context).colorScheme.onPrimary,
+                disabledBackgroundColor:
+                    Theme.of(context).disabledColor.darken(20),
+                disabledForegroundColor:
+                    Theme.of(context).colorScheme.onPrimary),
+            onPressed: read
+                ? () {
+                    widget.onClick();
+                  }
+                : null,
+            child: const Text("Start step one"),
           ),
-        ),
-      )
+          text:
+              "I have read and understand the Blue Meal study process. I agree to start the test"),
     ]);
   }
 }
@@ -254,6 +235,674 @@ class BlueMealInfoButton extends StatelessWidget {
                 );
               });
         });
+  }
+}
+
+class AppTos extends StatefulWidget {
+  final void Function() onContinue;
+
+  const AppTos({required this.onContinue, super.key});
+
+  @override
+  State<StatefulWidget> createState() {
+    return _AppTosState();
+  }
+}
+
+class _AppTosState extends State<AppTos> {
+  bool read = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Expanded(
+          child: RefreshWidget(
+            depth: RefreshDepth.authuser,
+            scrollable: AddIndicator(
+              builder: (context, hasIndicator) => ScrollAssistedList(
+                scrollController: ScrollController(),
+                key: const PageStorageKey("PreMealTOSScroll"),
+                builder: (context, properties) => SizedBox.expand(
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    key: properties.scrollStateKey,
+                    controller: properties.scrollController,
+                    child: Center(
+                        child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                                maxWidth: Breakpoint.medium.value),
+                            child: const MarkdownBlock(
+                                data: '''# Terms of Service for Stripes 
+**Last Updated:** March 31, 2025
+
+**Welcome to Stripes!** Thanks for using our tool to track rare disease symptoms. By using our app, you agree to these terms. Please read them carefully.
+
+## 1. The App
+
+- **What it is:** Stripes helps you monitor and record symptoms. It's designed for awareness, not diagnosis.
+- **Account Needed:** You must create an account to use the app. Keep your login details safe. You're responsible for your account.
+
+## 2. Basic Use
+
+- **Track Your Symptoms:** Use the app's core features anytime. Log your experiences. Stay informed about your health journey.
+- **Your Data (Basic Use):** Data you enter in basic mode stays within the app according to our Privacy Policy.
+
+## 3. Study Mode - For Invited Participants
+
+- **Participation via Foundations:** Stripes includes a special \"Study Mode.\" Access is limited to users specifically recruited and invited to participate in research studies by partner foundations. You cannot opt-in directly through the app.
+- **Study Protocols:** If you are invited and agree to participate, you'll follow specific study protocols. This may include using materials like a Blue Muffin Kit.
+- **Tracking for Research:** During the study period, you will use Stripes to record specific information, including symptoms and potentially bowel movements/transit time, as required by the study.
+- **Data Sharing with Indiana University (IU):** This is critical. For users participating in Study Mode, **all symptoms and related data** recorded in the Stripes app **during the official study period** are shared. We securely transmit this data to a dedicated research team at Indiana University.
+- **Why Share?** Your participation and data help researchers understand rare diseases better. You contribute directly to important scientific work.
+- **IU's Oversight & Consent:** This data sharing follows strict rules. It's governed by an Indiana University Institutional Review Board (IRB) protocol. Before participating, you will receive detailed information and must provide specific informed consent via your recruiting foundation, outlining exactly how your data is collected, used, shared, and protected by IU.
+
+## 4. User Accounts
+
+- To use certain features of the App, you may be required to create a user account.
+
+- You agree to:
+
+  - Provide accurate and complete information when creating your account
+  - Maintain the security of your account credentials
+  - Promptly notify us of any unauthorized use of your account
+  - Take responsibility for all activities that occur under your account
+
+- We reserve the right to:
+
+  - Suspend or terminate accounts that violate these Terms
+  - Delete accounts that remain inactive for extended periods
+  - Refuse service to anyone for any reason at our discretion
+
+- You may delete your account at any time through the App's settings. Upon deletion, some information may be retained as required by law or for legitimate business purposes.
+
+## 5. Privacy is Key
+
+- We care about your privacy. How we handle _all_ your data is detailed in our **Privacy Policy**: [https://symplifysolutions.com/privacy/stripes](https://symplifysolutions.com/privacy/stripes). Please read it.
+
+## 6. Important Disclaimers
+
+- **Not Medical Advice:** Stripes is an informational tool. It does **not** provide medical advice, diagnosis, or treatment.
+- **Consult Professionals:** Always talk to your doctor or qualified health provider about your health concerns. Never ignore professional advice because of something you read or tracked in this app.
+
+## 7. Your Responsibilities
+
+- Use the app lawfully.
+- Provide accurate information. This is especially crucial if participating in Study Mode.
+- Don't misuse the app or try to break it.
+
+## 8. Our Rights
+
+- **App Ownership:** The Stripes app, its content, and features are owned and operated by **Symplify LLC**.
+- **Changes:** We might update the app or these terms. We'll aim to notify you of major changes. Continuing to use the app after changes means you accept them.
+- **Termination:** We can suspend or terminate your account if you violate these terms. You can stop using the app anytime.
+
+## 9. Limitation of Liability
+
+- The Stripes app is provided "as is." Symplify LLC isn't liable for any damages arising from your use of the app. Use it at your own risk.
+
+## 10. Governing Law
+
+- These terms are governed by the laws of Delaware
+
+## 11. Contact Us
+
+- **General App Support:** Questions about using Stripes? Reach out at **help@symplifysolutions.com**.
+- **Active Study Support:** If you are **currently participating** in an active research study using Study Mode and need study-specific assistance, contact **BlueMeal@iu.edu**.
+
+---''') /*Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(
+                                height: 20.0,
+                              ),
+                              Text(
+                                "Terms of Service for Stripes",
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              const SizedBox(
+                                height: 6.0,
+                              ),
+                              RichText(
+                                text: TextSpan(
+                                    text: "Last Updated:",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                    children: [
+                                      TextSpan(
+                                          text: " March 31, 2025",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium)
+                                    ]),
+                              ),
+                              RichText(
+                                text: TextSpan(
+                                    text: "Welcome to Stripes!",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                    children: [
+                                      TextSpan(
+                                          text:
+                                              " Thanks for using our tool to track rare disease symptoms. By using our app, you agree to these terms. Please read them carefully.",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium)
+                                    ]),
+                              ),
+                              const SizedBox(
+                                height: 6.0,
+                              ),
+                              Text(
+                                "1. The App",
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              const SizedBox(
+                                height: 6.0,
+                              ),
+                              LabeledWidgets(widgets: [
+                                RichText(
+                                  text: TextSpan(
+                                    text: "What it is:",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                    children: [
+                                      TextSpan(
+                                          text:
+                                              " Stripes helps you monitor and record symptoms. It's designed for awareness, not diagnosis.",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium)
+                                    ],
+                                  ),
+                                ),
+                                RichText(
+                                  text: TextSpan(
+                                    text: "Account Needed:",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                    children: [
+                                      TextSpan(
+                                          text:
+                                              " You must create an account to use the app. Keep your login details safe. You're responsible for your account.",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium)
+                                    ],
+                                  ),
+                                ),
+                              ], highlight: false),
+                              const SizedBox(
+                                height: 6.0,
+                              ),
+                              Text(
+                                "2. Basic Use",
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              const SizedBox(
+                                height: 6.0,
+                              ),
+                              LabeledWidgets(widgets: [
+                                RichText(
+                                  text: TextSpan(
+                                    text: "Track Your Symptoms:",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                    children: [
+                                      TextSpan(
+                                          text:
+                                              " Use the app's core features anytime. Log your experiences. Stay informed about your health journey.",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium)
+                                    ],
+                                  ),
+                                ),
+                                RichText(
+                                  text: TextSpan(
+                                    text: "Your Data (Basic Use):",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                    children: [
+                                      TextSpan(
+                                          text:
+                                              " Data you enter in basic mode stays within the app according to our Privacy Policy.",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium)
+                                    ],
+                                  ),
+                                ),
+                              ], highlight: false),
+                              const SizedBox(
+                                height: 6.0,
+                              ),
+                              Text(
+                                "4. User Accounts",
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              const SizedBox(
+                                height: 6.0,
+                              ),
+                              LabeledWidgets(widgets: [
+                                RichText(
+                                  text: TextSpan(
+                                    text: "Participation via Foundations:",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                    children: [
+                                      TextSpan(
+                                          text:
+                                              " Stripes includes a special \"Study Mode.\" Access is limited to users specifically recruited and invited to participate in research studies by partner foundations. You cannot opt-in directly through the app.",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium)
+                                    ],
+                                  ),
+                                ),
+                                RichText(
+                                  text: TextSpan(
+                                    text: "Study Protocols:",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                    children: [
+                                      TextSpan(
+                                          text:
+                                              " If you are invited and agree to participate, you'll follow specific study protocols. This may include using materials like a Blue Muffin Kit.",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium)
+                                    ],
+                                  ),
+                                ),
+                                RichText(
+                                  text: TextSpan(
+                                    text: "Tracking for Research:",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                    children: [
+                                      TextSpan(
+                                          text:
+                                              " During the study period, you will use Stripes to record specific information, including symptoms and potentially bowel movements/transit time, as required by the study.",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium)
+                                    ],
+                                  ),
+                                ),
+                                RichText(
+                                  text: TextSpan(
+                                    text:
+                                        "Data Sharing with Indiana University (IU):",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                    children: [
+                                      TextSpan(
+                                          text:
+                                              " This is critical. For users participating in Study Mode, **all symptoms and related data** recorded in the Stripes app **during the official study period** are shared. We securely transmit this data to a dedicated research team at Indiana University.",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium)
+                                    ],
+                                  ),
+                                ),
+                                RichText(
+                                  text: TextSpan(
+                                    text: "Why Share?",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                    children: [
+                                      TextSpan(
+                                          text:
+                                              " Your participation and data help researchers understand rare diseases better. You contribute directly to important scientific work.",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium)
+                                    ],
+                                  ),
+                                ),
+                                RichText(
+                                  text: TextSpan(
+                                    text: "IU's Oversight & Consent:",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                    children: [
+                                      TextSpan(
+                                          text:
+                                              " This data sharing follows strict rules. It's governed by an Indiana University Institutional Review Board (IRB) protocol. Before participating, you will receive detailed information and must provide specific informed consent via your recruiting foundation, outlining exactly how your data is collected, used, shared, and protected by IU.",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium)
+                                    ],
+                                  ),
+                                ),
+                              ], highlight: false),
+                              Text(
+                                "3. Study Mode - For Invited Participants",
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              const SizedBox(
+                                height: 6.0,
+                              ),
+                              LabeledWidgets(widgets: [
+                                RichText(
+                                  text: TextSpan(
+                                    text: "Participation via Foundations:",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                    children: [
+                                      TextSpan(
+                                          text:
+                                              " Stripes includes a special \"Study Mode.\" Access is limited to users specifically recruited and invited to participate in research studies by partner foundations. You cannot opt-in directly through the app.",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium)
+                                    ],
+                                  ),
+                                ),
+                                RichText(
+                                  text: TextSpan(
+                                    text: "Study Protocols:",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                    children: [
+                                      TextSpan(
+                                          text:
+                                              " If you are invited and agree to participate, you'll follow specific study protocols. This may include using materials like a Blue Muffin Kit.",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium)
+                                    ],
+                                  ),
+                                ),
+                                RichText(
+                                  text: TextSpan(
+                                    text: "Tracking for Research:",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                    children: [
+                                      TextSpan(
+                                          text:
+                                              " During the study period, you will use Stripes to record specific information, including symptoms and potentially bowel movements/transit time, as required by the study.",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium)
+                                    ],
+                                  ),
+                                ),
+                                RichText(
+                                  text: TextSpan(
+                                    text:
+                                        "Data Sharing with Indiana University (IU):",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                    children: [
+                                      TextSpan(
+                                          text:
+                                              " This is critical. For users participating in Study Mode, **all symptoms and related data** recorded in the Stripes app **during the official study period** are shared. We securely transmit this data to a dedicated research team at Indiana University.",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium)
+                                    ],
+                                  ),
+                                ),
+                                RichText(
+                                  text: TextSpan(
+                                    text: "Why Share?",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                    children: [
+                                      TextSpan(
+                                          text:
+                                              " Your participation and data help researchers understand rare diseases better. You contribute directly to important scientific work.",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium)
+                                    ],
+                                  ),
+                                ),
+                                RichText(
+                                  text: TextSpan(
+                                    text: "IU's Oversight & Consent:",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                    children: [
+                                      TextSpan(
+                                          text:
+                                              " This data sharing follows strict rules. It's governed by an Indiana University Institutional Review Board (IRB) protocol. Before participating, you will receive detailed information and must provide specific informed consent via your recruiting foundation, outlining exactly how your data is collected, used, shared, and protected by IU.",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium)
+                                    ],
+                                  ),
+                                ),
+                              ], highlight: false),
+                              const SizedBox(
+                                height: 6.0,
+                              ),
+                              Text(
+                                "4. User Accounts",
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              const SizedBox(
+                                height: 6.0,
+                              ),
+                              Text(
+                                  "To use certain features of the App, you may be required to create a user account.",
+                                  style:
+                                      Theme.of(context).textTheme.bodyMedium),
+                              const SizedBox(
+                                height: 6.0,
+                              ),
+                              LabeledWidgets(
+                                  title: Text(
+                                    "You agree to: ",
+                                    style:
+                                        Theme.of(context).textTheme.bodyMedium,
+                                  ),
+                                  widgets: [
+                                    "Provide accurate and complete information when creating your account",
+                                    "Maintain the security of your account credentials",
+                                    "Promptly notify us of any unauthorized use of your account",
+                                    "Take responsibility for all activities that occur under your account"
+                                  ]
+                                      .map(
+                                        (val) => Text(
+                                          val,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium,
+                                        ),
+                                      )
+                                      .toList(),
+                                  highlight: false),
+                              LabeledWidgets(
+                                  title: Text(
+                                    "We reserve the right to: ",
+                                    style:
+                                        Theme.of(context).textTheme.bodyMedium,
+                                  ),
+                                  widgets: [
+                                    "Suspend or terminate accounts that violate these Terms",
+                                    "Delete accounts that remain inactive for extended periods",
+                                    "Refuse service to anyone for any reason at our discretion",
+                                  ]
+                                      .map(
+                                        (val) => Text(
+                                          val,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium,
+                                        ),
+                                      )
+                                      .toList(),
+                                  highlight: false),
+                              const SizedBox(
+                                height: 6.0,
+                              ),
+                              Text(
+                                  "You may delete your account at any time through the App's settings. Upon deletion, some information may be retained as required by law or for legitimate business purposes.",
+                                  style:
+                                      Theme.of(context).textTheme.bodyMedium),
+                              const SizedBox(
+                                height: 6.0,
+                              ),
+                              Text(
+                                "5. Privacy is Key",
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              
+                              Text(
+                                  "You may delete your account at any time through the App's settings. Upon deletion, some information may be retained as required by law or for legitimate business purposes.",
+                                  style:
+                                      Theme.of(context).textTheme.bodyMedium),
+                              /*4. Privacy is Key
+
+- We care about your privacy. How we handle _all_ your data is detailed in our **Privacy Policy**: [https://symplifysolutions.com/privacy/stripes](https://symplifysolutions.com/privacy/stripes). Please read it. */
+                            ]),*/
+                            )),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        ReadConfirmation(
+            onChange: (value) {
+              setState(() {
+                read = value;
+              });
+            },
+            button: FilledButton(
+              style: FilledButton.styleFrom(
+                  foregroundColor: Theme.of(context).primaryColor,
+                  backgroundColor: Theme.of(context).colorScheme.onPrimary,
+                  disabledBackgroundColor:
+                      Theme.of(context).disabledColor.darken(20),
+                  disabledForegroundColor:
+                      Theme.of(context).colorScheme.onPrimary),
+              onPressed: read
+                  ? () {
+                      widget.onContinue();
+                    }
+                  : null,
+              child: const Text("Continue"),
+            ),
+            text: "I have read the Stripes terms of service.")
+      ],
+    );
+  }
+}
+
+class ReadConfirmation extends StatefulWidget {
+  final void Function(bool) onChange;
+  final String text;
+  final Widget button;
+  const ReadConfirmation(
+      {required this.onChange,
+      required this.button,
+      required this.text,
+      super.key});
+
+  @override
+  State<StatefulWidget> createState() {
+    return _ReadConfirmationState();
+  }
+}
+
+class _ReadConfirmationState extends State<ReadConfirmation> {
+  bool read = false;
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: Theme.of(context).primaryColor,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: Breakpoint.medium.value),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Checkbox(
+                        checkColor: Theme.of(context).colorScheme.onSurface,
+                        fillColor: WidgetStateProperty.all(
+                            Theme.of(context).colorScheme.surface),
+                        side: BorderSide(
+                            color: Theme.of(context).colorScheme.onSurface),
+                        value: read,
+                        onChanged: (newValue) {
+                          if (newValue != null) {
+                            setState(() {
+                              read = newValue;
+                              widget.onChange(read);
+                            });
+                          }
+                        }),
+                    const SizedBox(
+                      width: 4.0,
+                    ),
+                    Flexible(
+                      child: Text(
+                        widget.text,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.onPrimary),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 8.0,
+                ),
+                widget.button,
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -955,6 +1604,82 @@ class LabeledList extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ),
+          ]),
+        );
+      }).toList(),
+    );
+
+    final Widget titleWidget = title != null
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              title!,
+              Padding(
+                padding: const EdgeInsets.only(left: 12.0, top: 4.0),
+                child: list,
+              ),
+              if (additions != null) ...additions!
+            ],
+          )
+        : list;
+
+    return Container(
+        alignment: Alignment.centerLeft,
+        decoration: BoxDecoration(
+            borderRadius: const BorderRadius.all(Radius.circular(6.0)),
+            border: highlight
+                ? Border.all(
+                    width: 2.0,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer)
+                : null),
+        padding: padding != null ? EdgeInsets.all(padding!) : null,
+        child: titleWidget);
+  }
+}
+
+class LabeledWidgets extends StatelessWidget {
+  final List<Widget> widgets;
+
+  final String Function(int)? mark;
+
+  final Widget? title;
+
+  final List<Widget>? additions;
+
+  final bool highlight;
+
+  final double? padding;
+
+  const LabeledWidgets({
+    required this.widgets,
+    required this.highlight,
+    this.additions,
+    this.title,
+    this.mark,
+    this.padding = 4.0,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final String Function(int) marker =
+        mark ?? (_) => String.fromCharCode(0x2022);
+
+    final Widget list = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: widgets.asMap().entries.map((index) {
+        final bool isLast = index.key == widgets.length - 1;
+        return Padding(
+          padding: EdgeInsets.only(bottom: isLast ? 0 : 6.0),
+          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(marker(index.key),
+                style: Theme.of(context).textTheme.bodyMedium),
+            const SizedBox(
+              width: 4.0,
+            ),
+            Expanded(child: index.value),
           ]),
         );
       }).toList(),
