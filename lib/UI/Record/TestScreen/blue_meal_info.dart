@@ -41,7 +41,9 @@ class _BlueMealPreStudyState extends State<BlueMealPreStudy> {
               appTosRead = true;
             });
           })
-        : PreStudyInfo(onClick: widget.onClick());
+        : PreStudyInfo(onClick: () {
+            widget.onClick();
+          });
   }
 }
 
