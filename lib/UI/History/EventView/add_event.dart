@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
+import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo_base.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
+import 'package:stripes_ui/Providers/questions_provider.dart';
+import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
 import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
 
-import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
 import 'package:stripes_ui/Util/date_helper.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -17,7 +19,7 @@ class AddEvent extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     openEventOverlay(WidgetRef ref, DateTime addTime) {
       ref.read(overlayProvider.notifier).state =
-          CurrentOverlay(widget: _QuestionTypeOverlay(date: addTime));
+          CurrentOverlay(widget: QuestionTypeOverlay(date: addTime));
     }
 
     final CalendarSelection calendarSelection = ref
@@ -51,15 +53,16 @@ class AddEvent extends ConsumerWidget {
   }
 }
 
-class _QuestionTypeOverlay extends ConsumerWidget {
+class QuestionTypeOverlay extends ConsumerWidget {
   final DateTime date;
 
-  const _QuestionTypeOverlay({required this.date});
+  const QuestionTypeOverlay({super.key, required this.date});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final List<String> questionTypes =
-        ref.watch(questionSplitProvider).keys.toList();
+    final AsyncValue<List<RecordPath>> paths = ref.watch(recordPaths(
+        const RecordPathProps(
+            filterEnabled: true, type: PathProviderType.both)));
     return OverlayBackdrop(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 350),
@@ -88,21 +91,32 @@ class _QuestionTypeOverlay extends ConsumerWidget {
                             size: 30,
                           )),
                     ]),
-                ...questionTypes.map((type) => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 5.0),
-                      child: FilledButton(
-                        child: Text(type),
-                        onPressed: () {
-                          ref.read(overlayProvider.notifier).state =
-                              closedOverlay;
-                          context.pushNamed(
-                            'recordType',
-                            pathParameters: {'type': type},
-                            extra: QuestionsListener(submitTime: date),
-                          );
-                        },
-                      ),
-                    ))
+                AsyncValueDefaults(
+                    value: paths,
+                    onData: (recordPaths) {
+                      return Column(
+                        children: [
+                          ...recordPaths.map(
+                            (path) => Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 5.0),
+                              child: FilledButton(
+                                child: Text(path.name),
+                                onPressed: () {
+                                  ref.read(overlayProvider.notifier).state =
+                                      closedOverlay;
+                                  context.pushNamed(
+                                    'recordType',
+                                    pathParameters: {'type': path.name},
+                                    extra: QuestionsListener(submitTime: date),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    })
               ],
             ),
           ),

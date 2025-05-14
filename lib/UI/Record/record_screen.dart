@@ -1,14 +1,18 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/record_period.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
+import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/AccountManagement/profile_changer.dart';
+import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -43,11 +47,13 @@ class Options extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(testsHolderProvider);
-    final Map<String, RecordPath> recordPaths = ref.watch(recordProvider);
-    final Map<Period, List<CheckinItem>> checkin =
-        ref.watch(checkinProvider(CheckInProps(context: context)));
-    final List<String> questionTypes = recordPaths.keys.toList();
-    final TestsRepo? repo = ref.watch(testProvider).valueOrNull;
+    final AsyncValue<List<RecordPath>> paths = ref.watch(recordPaths(
+        const RecordPathProps(
+            filterEnabled: true, type: PathProviderType.record)));
+    final AsyncValue<List<CheckinItem>> checkins =
+        ref.watch(checkInPaths(null));
+
+    final AsyncValue<TestsRepo?> repo = ref.watch(testProvider);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -56,55 +62,120 @@ class Options extends ConsumerWidget {
           const SizedBox(
             height: 20.0,
           ),
-          if (checkin.isNotEmpty)
-            Text(
-              AppLocalizations.of(context)!.checkInLabel,
-              style: Theme.of(context).textTheme.titleMedium,
-              textAlign: TextAlign.left,
-            ),
-          ...checkin.keys.map((period) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  period.getRangeString(DateTime.now(), context),
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                ...checkin[period]!.map((checkin) => CheckInButton(
-                      item: checkin,
-                      additions:
-                          repo?.getPathAdditions(context, checkin.type) ?? [],
+          AsyncValueDefaults(
+              value: paths,
+              onLoading: (p0) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      AppLocalizations.of(context)!.categorySelect,
+                      style: Theme.of(context).textTheme.titleMedium,
+                      textAlign: TextAlign.left,
+                    ),
+                    ...List.generate(
+                      4,
+                      (_) => Container(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).disabledColor,
+                        ),
+                        height: 85.0,
+                      ),
+                    ).separated(
+                        by: const SizedBox(
+                      height: 10,
                     ))
-              ],
-            );
-          }),
-          if (checkin.isNotEmpty)
-            const Divider(
-              height: 20,
-              indent: 15,
-              endIndent: 15,
-              thickness: 2,
-            ),
-          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(
-              AppLocalizations.of(context)!.categorySelect,
-              style: Theme.of(context).textTheme.titleMedium,
-              textAlign: TextAlign.left,
-            ),
-            ...questionTypes.map((key) {
-              final List<Widget> additions =
-                  repo?.getPathAdditions(context, key) ?? [];
+                  ],
+                );
+              },
+              onData: (loadedPaths) {
+                return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!.categorySelect,
+                        style: Theme.of(context).textTheme.titleMedium,
+                        textAlign: TextAlign.left,
+                      ),
+                      ...loadedPaths.map((path) {
+                        final List<Widget> additions = repo.valueOrNull
+                                ?.getPathAdditions(context, path.name) ??
+                            [];
 
-              return RecordButton(key, (context) {
-                context.pushNamed('recordType', pathParameters: {'type': key});
-              }, additions);
-            }),
-          ]),
+                        return RecordButton(path.name, (context) {
+                          context.pushNamed('recordType',
+                              pathParameters: {'type': path.name});
+                        }, additions);
+                      }),
+                    ]);
+              }),
+          AsyncValueDefaults(
+              value: checkins,
+              onData: (loadedCheckins) {
+                if (loadedCheckins.isEmpty) return const SizedBox();
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Divider(
+                      height: 20,
+                      indent: 15,
+                      endIndent: 15,
+                      thickness: 2,
+                    ),
+                    Text(
+                      AppLocalizations.of(context)!.checkInLabel,
+                      style: Theme.of(context).textTheme.titleMedium,
+                      textAlign: TextAlign.left,
+                    ),
+                    ...loadedCheckins.map((item) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item.path.period!
+                                .getRangeString(DateTime.now(), context),
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                          CheckInButton(
+                            item: item,
+                            additions: repo.valueOrNull
+                                    ?.getPathAdditions(context, item.type) ??
+                                [],
+                          )
+                        ],
+                      );
+                    }),
+                  ],
+                );
+              }),
           const SizedBox(
             height: 20.0,
           ),
         ],
       ),
+    );
+  }
+}
+
+class CheckinsPageView extends StatefulWidget {
+  final List<CheckinItem> checkins;
+
+  const CheckinsPageView({super.key, required this.checkins});
+
+  @override
+  State<StatefulWidget> createState() {
+    return _CheckinsPageViewState();
+  }
+}
+
+class _CheckinsPageViewState extends State<CheckinsPageView> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        PageView.builder(
+            scrollDirection: Axis.horizontal, itemBuilder: (context, index) {}),
+      ],
     );
   }
 }

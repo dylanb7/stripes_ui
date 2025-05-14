@@ -58,9 +58,27 @@ class RenderEntryGroup extends ConsumerWidget {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 6.0),
             child: ExpandibleSymptomArea(
-                header: Text(
-                  "$type (${AppLocalizations.of(context)!.eventFilterResults(forType.length)})",
-                  style: Theme.of(context).textTheme.titleMedium,
+                header: RichText(
+                  text: TextSpan(
+                      text: type,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                      children: [
+                        TextSpan(
+                          text:
+                              " · ${AppLocalizations.of(context)!.eventFilterResults(forType.length)}",
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withValues(alpha: 0.75)),
+                        )
+                      ]),
                   textAlign: TextAlign.left,
                 ),
                 responses: forType),

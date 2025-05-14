@@ -68,13 +68,25 @@ class EventGrid extends ConsumerWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "${headerFormat.format(dateGroup)} (${AppLocalizations.of(context)!.eventFilterResults(daySymptoms.length)})",
+              RichText(
+                text: TextSpan(
+                    text: headerFormat.format(dateGroup),
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                    children: [
+                      TextSpan(
+                        text:
+                            " · ${AppLocalizations.of(context)!.eventFilterResults(daySymptoms.length)}",
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withValues(alpha: 0.75)),
+                      )
+                    ]),
                 textAlign: TextAlign.left,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(fontWeight: FontWeight.bold),
               ),
             ],
           ),

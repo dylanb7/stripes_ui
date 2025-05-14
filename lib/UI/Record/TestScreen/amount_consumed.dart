@@ -173,7 +173,7 @@ class MealFinishedDisplay extends ConsumerWidget {
                           ),
                           if (mealStats.duration != null)
                             Text(
-                                "${AppLocalizations.of(context)!.mealCompleteDuration} ${MealTime.fromDuration(mealStats.duration!) ?? from(mealStats.duration!, context)}")
+                                "${AppLocalizations.of(context)!.mealCompleteDuration} ${MealTime.fromDuration(mealStats.duration!)?.value ?? from(mealStats.duration!, context)}")
                         ],
                       ),
                     ],

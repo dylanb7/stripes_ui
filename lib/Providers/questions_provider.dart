@@ -1,8 +1,12 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/record_period.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/auth_provider.dart';
+import 'package:stripes_ui/Providers/stamps_provider.dart';
+import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
 import 'package:stripes_ui/entry.dart';
 
 final questionsProvider = FutureProvider<QuestionRepo>((ref) async {
@@ -30,6 +34,7 @@ final questionsByType =
   final List<RecordPath> paths = await ref.watch(questionLayoutProvider.future);
   final Map<String, List<Question>> byCategory = home.byType();
 
+  //add in empty paths
   for (final RecordPath path in paths) {
     if (!byCategory.containsKey(path.name)) {
       byCategory[path.name] = [];
@@ -88,8 +93,81 @@ final pagesByPath = FutureProvider.autoDispose
   return PagesData(path: matching, loadedLayouts: loadedLayouts);
 });
 
-final enabledRecordPaths = FutureProvider<List<RecordPath>>((ref) async {
+enum PathProviderType {
+  checkin,
+  record,
+  both;
+}
+
+@immutable
+class RecordPathProps extends Equatable {
+  final bool filterEnabled;
+  final PathProviderType type;
+  const RecordPathProps({required this.filterEnabled, required this.type});
+  @override
+  List<Object?> get props => [filterEnabled, type];
+}
+
+final recordPaths = FutureProvider.family<List<RecordPath>, RecordPathProps>(
+    (ref, props) async {
   final List<RecordPath> layouts =
       await ref.watch(questionLayoutProvider.future);
-  return layouts.where((layout) => layout.enabled).toList();
+
+  return layouts.where((layout) {
+    if (props.filterEnabled && !layout.enabled) return false;
+    if (props.type == PathProviderType.checkin && layout.period == null) {
+      return false;
+    }
+    if (props.type == PathProviderType.record && layout.period != null) {
+      return false;
+    }
+    return true;
+  }).toList();
+});
+
+@immutable
+class CheckinItem {
+  final RecordPath path;
+  final String type;
+  final DetailResponse? response;
+
+  const CheckinItem(
+      {required this.path, required this.type, required this.response});
+}
+
+final checkInPaths = FutureProvider.family<List<CheckinItem>, DateTime?>(
+    (ref, searchDate) async {
+  List<CheckinItem> checkins = [];
+  final DateTime date = searchDate ?? DateTime.now();
+  final List<Stamp> stamps = await ref.watch(stampHolderProvider.future);
+
+  const pathProps =
+      RecordPathProps(filterEnabled: true, type: PathProviderType.checkin);
+
+  final List<RecordPath> paths = await ref.watch(recordPaths(pathProps).future);
+
+  for (final RecordPath recordPath in paths) {
+    final DateTimeRange range = recordPath.period!.getRange(date);
+
+    final String searchType = recordPath.name;
+
+    final List<Stamp> valid = stamps.where((element) {
+      final DateTime stampTime = dateFromStamp(element.stamp);
+      return element.type == searchType &&
+          (stampTime.isBefore(range.end) || stampTime.isBefore(range.end)) &&
+          (stampTime.isAfter(range.start) ||
+              stampTime.isAtSameMomentAs(range.start));
+    }).toList();
+
+    checkins.add(CheckinItem(
+        path: recordPath,
+        type: searchType,
+        response: valid.isEmpty ? null : valid.first as DetailResponse));
+  }
+  return checkins
+    ..sort((first, second) => first.response == null
+        ? -1
+        : second.response == null
+            ? 1
+            : 0);
 });

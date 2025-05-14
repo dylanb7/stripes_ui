@@ -1,3 +1,5 @@
+
+/*
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/QuestionModel/question.dart';
@@ -109,10 +111,8 @@ final checkinProvider =
 @immutable
 class CheckInProps {
   final BuildContext context;
-  final QuestionsListener? questionListener;
   final DateTime? period;
-  const CheckInProps(
-      {required this.context, this.questionListener, this.period});
+  const CheckInProps({required this.context, this.period});
 }
 
 @immutable
@@ -171,3 +171,4 @@ Map<String, RecordPath> getAllPaths(
   }
   return recordPaths;
 }
+*/

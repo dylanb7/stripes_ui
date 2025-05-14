@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/record_period.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
+import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/date_time_entry.dart';
-import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/question_screen.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
@@ -63,7 +63,11 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
     if (isEdit && widget.questionsListener.submitTime != null) {
       return widget.questionsListener.submitTime!;
     }
-    final Period? period = ref.read(pagePaths)[widget.type]?.period;
+    final Period? period = ref
+        .read(pagesByPath(PagesByPathProps(pathName: widget.type)))
+        .valueOrNull
+        ?.path
+        ?.period;
     final DateTime date = _dateListener.date;
     final TimeOfDay time = _timeListener.time;
     final currentTime = DateTime.now();
@@ -87,7 +91,11 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final Period? period = ref.watch(pagePaths)[widget.type]?.period;
+    final Period? period = ref
+        .watch(pagesByPath(PagesByPathProps(pathName: widget.type)))
+        .valueOrNull
+        ?.path
+        ?.period;
     final List<Question> testAdditions = ref
             .watch(testProvider)
             .valueOrNull
