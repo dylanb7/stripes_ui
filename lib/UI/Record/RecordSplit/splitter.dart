@@ -190,6 +190,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                                     currentIndex = value;
                                   });
                                 },
+                                physics: const NeverScrollableScrollPhysics(),
                                 itemBuilder: (context, index) => _buildContent(
                                     context, index, evaluatedPages),
                                 itemCount: evaluatedPages.length + 1,

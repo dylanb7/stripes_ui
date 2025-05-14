@@ -29,7 +29,7 @@ enum Area {
   bottomleft,
   bottomright;
 
-  Area fromValue(int value) {
+  static Area fromValue(int value) {
     switch (value) {
       case 0:
         return Area.none;
@@ -128,7 +128,7 @@ class _PainAreaWidgetState extends ConsumerState<PainAreaWidget> {
     Response? res = widget.questionsListener.fromQuestion(widget.question);
     if (res == null) return null;
     List<int> index = (res as AllResponse).responses;
-    return index.map((value) => Area.none.fromValue(value)).toList();
+    return index.map((value) => Area.fromValue(value)).toList();
   }
 
   @override
@@ -178,8 +178,7 @@ class _PainAreaWidgetState extends ConsumerState<PainAreaWidget> {
                                 children: [
                                   ...List.generate(3, (rowIndex) {
                                     final int index = (colIndex * 3) + rowIndex;
-                                    final Area area =
-                                        Area.none.fromValue(index + 1);
+                                    final Area area = Area.fromValue(index + 1);
                                     return Expanded(
                                       child: SelectableTile(
                                           row: rowIndex,
@@ -305,7 +304,7 @@ class SelectableTile extends StatelessWidget {
     final filledBorder =
         BorderSide(color: Theme.of(context).colorScheme.onSurface);
     const blankBorder = BorderSide(color: Colors.transparent);
-    final Area value = Area.none.fromValue(index + 1);
+    final Area value = Area.fromValue(index + 1);
     final bool isSelected = value == selected;
     return GestureDetector(
       onTap: () {

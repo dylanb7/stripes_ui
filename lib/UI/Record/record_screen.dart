@@ -1,16 +1,13 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
-import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/record_period.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/AccountManagement/profile_changer.dart';
 import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
-import 'package:stripes_ui/UI/Record/RecordSplit/question_splitter.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';

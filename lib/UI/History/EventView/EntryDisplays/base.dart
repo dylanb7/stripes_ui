@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
@@ -114,7 +115,7 @@ class _ExpandibleSymptomAreaState extends State<ExpandibleSymptomArea> {
             Theme.of(context).colorScheme.surfaceTint, 3),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(6.0),
         child: AnimatedSize(
           duration: const Duration(milliseconds: 200),
           alignment: Alignment.topLeft,
@@ -162,14 +163,15 @@ class _ExpandibleSymptomAreaState extends State<ExpandibleSymptomArea> {
 class EntryDisplay extends ConsumerStatefulWidget {
   final Response event;
 
-  final bool hasControls, hasConstraints, elevated;
+  final bool hasControls, hasConstraints, elevated, includeFullDate;
 
   const EntryDisplay(
       {super.key,
       required this.event,
       this.hasControls = true,
       this.hasConstraints = true,
-      this.elevated = true});
+      this.elevated = true,
+      this.includeFullDate = false});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => EntryDisplayState();
@@ -251,7 +253,9 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
                       ?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  timeString(date, context),
+                  widget.includeFullDate
+                      ? "${(date.year == DateTime.now().year ? DateFormat.MMMd() : DateFormat.yMMMd()).format(date)} ${timeString(date, context)}"
+                      : timeString(date, context),
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ],
@@ -756,7 +760,7 @@ class PainLocationDisplay extends StatelessWidget {
             width: 4,
           ),
           if (painLocation.responses.isNotEmpty &&
-              Area.none.fromValue(painLocation.responses[0]) != Area.none)
+              Area.fromValue(painLocation.responses[0]) != Area.none)
             ConstrainedBox(
               constraints: const BoxConstraints(maxHeight: 100, maxWidth: 400),
               child: Stack(children: [
@@ -797,7 +801,7 @@ class PainLocationDisplay extends StatelessWidget {
                                         .contains(index + 1);
                                     return Expanded(
                                       child: Container(
-                                        padding: const EdgeInsets.all(4.0),
+                                        padding: const EdgeInsets.all(2.0),
                                         width: double.infinity,
                                         height: double.infinity,
                                         decoration: BoxDecoration(
@@ -818,8 +822,8 @@ class PainLocationDisplay extends StatelessWidget {
                                         child: Stack(children: [
                                           Positioned.fill(
                                             child: FractionallySizedBox(
-                                              widthFactor: 0.8,
-                                              heightFactor: 0.8,
+                                              widthFactor: 0.9,
+                                              heightFactor: 0.9,
                                               child: Container(
                                                 decoration: BoxDecoration(
                                                   shape: BoxShape.circle,

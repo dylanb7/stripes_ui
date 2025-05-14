@@ -57,11 +57,14 @@ class EventGrid extends ConsumerWidget {
         questionsByDay[day] = [response];
       }
     }
-    final DateFormat headerFormat = DateFormat.yMMMd();
+
     final List<DateTime> keys = questionsByDay.keys.toList();
     List<Widget> components = [];
     for (int i = 0; i < keys.length; i++) {
       final DateTime dateGroup = keys[i];
+      final DateFormat headerFormat = dateGroup.year == DateTime.now().year
+          ? DateFormat.MMMd()
+          : DateFormat.yMMMd();
       final List<Response> daySymptoms = questionsByDay[dateGroup]!;
       if (keys.length > 1) {
         components.add(
