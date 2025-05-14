@@ -18,7 +18,7 @@ import 'package:stripes_ui/UI/Record/submit_screen.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 import 'package:uuid/uuid.dart';
 
 class RecordSplitter extends ConsumerStatefulWidget {
@@ -134,7 +134,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                       if (pendingCount != 0 && !isLoading) {
                         showSnack(
                             context,
-                            AppLocalizations.of(context)!.nLevelError(
+                            context.translate.nLevelError(
                                 widget.questionListener.pending.length));
                       }
                     },
@@ -151,10 +151,8 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                           : isLoading
                               ? const ButtonLoadingIndicator()
                               : Text(isEdit
-                                  ? AppLocalizations.of(context)!
-                                      .editSubmitButtonText
-                                  : AppLocalizations.of(context)!
-                                      .submitButtonText),
+                                  ? context.translate.editSubmitButtonText
+                                  : context.translate.submitButtonText),
                     ),
                   );
                 }
@@ -236,8 +234,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
       );
     } else {
       content = QuestionScreen(
-          header: layouts[index].header ??
-              AppLocalizations.of(context)!.selectInstruction,
+          header: layouts[index].header ?? context.translate.selectInstruction,
           questions: layouts[index].questions,
           questionsListener: widget.questionListener);
     }
@@ -282,7 +279,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
       widget.questionListener.tried = true;
       showSnack(
           context,
-          AppLocalizations.of(context)!
+          context.translate
               .nLevelError(widget.questionListener.pending.length));
       return;
     }
@@ -327,7 +324,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
       if (!isEdit) {
         showSnack(
             context,
-            AppLocalizations.of(context)!
+            context.translate
                 .undoEntry(widget.type, submissionEntry, submissionEntry),
             action: () async {
           await repo?.removeStamp(detailResponse);
@@ -378,7 +375,7 @@ class RecordFooter extends StatelessWidget {
               children: [
                 if (questionListener.tried && pendingCount != 0) ...[
                   Text(
-                    AppLocalizations.of(context)!.nLevelError(pendingCount),
+                    context.translate.nLevelError(pendingCount),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: Theme.of(context).colorScheme.error,
                         fontWeight: FontWeight.bold),
@@ -409,7 +406,7 @@ class RecordFooter extends StatelessWidget {
                                     curve: Curves.linear);
                               }
                             : null,
-                        child: Text(AppLocalizations.of(context)!.nextButton)),
+                        child: Text(context.translate.nextButton)),
                   ),
               ]);
         },
@@ -470,7 +467,7 @@ class RecordHeader extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  AppLocalizations.of(context)!.recordHeader(type),
+                  context.translate.recordHeader(type),
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w700,
                       color: Theme.of(context).colorScheme.primary),
@@ -478,7 +475,7 @@ class RecordHeader extends ConsumerWidget {
                 ),
                 if (name != null && name.isNotEmpty) ...[
                   Text(
-                    AppLocalizations.of(context)!.recordUsername(type, name),
+                    context.translate.recordUsername(type, name),
                     style: Theme.of(context)
                         .textTheme
                         .titleSmall
@@ -509,7 +506,7 @@ class ErrorPrevention extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ConfirmationPopup(
         title: Text(
-          AppLocalizations.of(context)!.errorPreventionTitle,
+          context.translate.errorPreventionTitle,
           style: Theme.of(context).textTheme.headlineMedium,
           textAlign: TextAlign.center,
         ),
@@ -518,7 +515,7 @@ class ErrorPrevention extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              AppLocalizations.of(context)!.errorPreventionLineOne,
+              context.translate.errorPreventionLineOne,
               style: Theme.of(context).textTheme.bodyMedium,
               textAlign: TextAlign.center,
             ),
@@ -526,8 +523,7 @@ class ErrorPrevention extends ConsumerWidget {
               height: 8.0,
             ),
             Text(
-              AppLocalizations.of(context)!
-                  .errorPreventionLineTwo(type.toLowerCase()),
+              context.translate.errorPreventionLineTwo(type.toLowerCase()),
               style: Theme.of(context).textTheme.bodyMedium,
               textAlign: TextAlign.center,
             ),
@@ -540,8 +536,8 @@ class ErrorPrevention extends ConsumerWidget {
             context.go(route!);
           }
         },
-        cancel: AppLocalizations.of(context)!.errorPreventionStay,
-        confirm: AppLocalizations.of(context)!.errorPreventionLeave);
+        cancel: context.translate.errorPreventionStay,
+        confirm: context.translate.errorPreventionLeave);
   }
 }
 

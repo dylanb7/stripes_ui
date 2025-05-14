@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/QuestionModel/question.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 
 class BlueDyeEntry extends ConsumerStatefulWidget {
   final QuestionsListener listener;
@@ -61,7 +61,7 @@ class _BlueDyeEntryState extends ConsumerState<BlueDyeEntry> {
         child: Column(
           children: [
             Text(
-              AppLocalizations.of(context)!.submitBlueQuestion,
+              context.translate.submitBlueQuestion,
               style: Theme.of(context).textTheme.bodyLarge,
               textAlign: TextAlign.center,
             ),
@@ -76,8 +76,7 @@ class _BlueDyeEntryState extends ConsumerState<BlueDyeEntry> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     ChoiceChip(
-                      label:
-                          Text(AppLocalizations.of(context)!.blueQuestionYes),
+                      label: Text(context.translate.blueQuestionYes),
                       selected: toggleState[0],
                       selectedColor: primary,
                       backgroundColor: surface,
@@ -100,7 +99,7 @@ class _BlueDyeEntryState extends ConsumerState<BlueDyeEntry> {
                       },
                     ),
                     ChoiceChip(
-                      label: Text(AppLocalizations.of(context)!.blueQuestionNo),
+                      label: Text(context.translate.blueQuestionNo),
                       selected: toggleState[1],
                       selectedColor: primary,
                       backgroundColor: surface,
@@ -131,7 +130,7 @@ class _BlueDyeEntryState extends ConsumerState<BlueDyeEntry> {
                 height: 8.0,
               ),
               Text(
-                AppLocalizations.of(context)!.submitBlueQuestionError,
+                context.translate.submitBlueQuestionError,
                 style: Theme.of(context)
                     .textTheme
                     .bodyMedium

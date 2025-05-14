@@ -34,17 +34,17 @@ class _InstructionsState extends ConsumerState<Instructions> {
     final BlueDyeTestStage state =
         blueDye == null ? BlueDyeTestStage.initial : stateFromTestOBJ(blueDye);
     final String stage = state == BlueDyeTestStage.started
-        ? AppLocalizations.of(context)!.blueDyeInstructionsStepOne
+        ? context.translate.blueDyeInstructionsStepOne
         : state == BlueDyeTestStage.logs
-            ? AppLocalizations.of(context)!.blueDyeInstructionsStepTwo
-            : AppLocalizations.of(context)!.blueDyeInstructionsStepThree;
+            ? context.translate.blueDyeInstructionsStepTwo
+            : context.translate.blueDyeInstructionsStepThree;
     final Widget header = Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppLocalizations.of(context)!.blueDyeInstructionsHeader,
+            context.translate.blueDyeInstructionsHeader,
             style: Theme.of(context).textTheme.bodyLarge,
             textAlign: TextAlign.left,
           ),
@@ -72,7 +72,7 @@ class _InstructionsState extends ConsumerState<Instructions> {
           children: [
             LabeledList(
                 title: Text(
-                  AppLocalizations.of(context)!.blueDyeInstructionsStepOne,
+                  context.translate.blueDyeInstructionsStepOne,
                   textAlign: TextAlign.left,
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
@@ -81,7 +81,7 @@ class _InstructionsState extends ConsumerState<Instructions> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        AppLocalizations.of(context)!
+                        context.translate
                             .blueDyeInstructionsStepOne,
                         textAlign: TextAlign.left,
                         style: lightBackgroundHeaderStyle,
@@ -106,8 +106,8 @@ class _InstructionsState extends ConsumerState<Instructions> {
                       ),
                     ]),*/
                 strings: [
-                  AppLocalizations.of(context)!.blueDyeInstructionsStepOneA,
-                  AppLocalizations.of(context)!.blueDyeInstructionsStepOneB
+                  context.translate.blueDyeInstructionsStepOneA,
+                  context.translate.blueDyeInstructionsStepOneB
                 ],
                 mark: (index) => ['a.', 'b.'][index],
                 highlight: state == BlueDyeTestStage.started),
@@ -116,12 +116,12 @@ class _InstructionsState extends ConsumerState<Instructions> {
             ),
             LabeledList(
                 title: Text(
-                  AppLocalizations.of(context)!.blueDyeInstructionsStepTwo,
+                  context.translate.blueDyeInstructionsStepTwo,
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 strings: [
-                  AppLocalizations.of(context)!.blueDyeInstructionsStepTwoA,
-                  AppLocalizations.of(context)!.blueDyeInstructionsStepTwoB
+                  context.translate.blueDyeInstructionsStepTwoA,
+                  context.translate.blueDyeInstructionsStepTwoB
                 ],
                 mark: (index) => ['a.', 'b.'][index],
                 highlight: state == BlueDyeTestStage.logs),
@@ -130,11 +130,11 @@ class _InstructionsState extends ConsumerState<Instructions> {
             ),
             LabeledList(
                 title: Text(
-                  AppLocalizations.of(context)!.blueDyeInstructionsStepThree,
+                  context.translate.blueDyeInstructionsStepThree,
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 strings: [
-                  AppLocalizations.of(context)!.blueDyeInstructionsStepThreeA
+                  context.translate.blueDyeInstructionsStepThreeA
                 ],
                 mark: (_) => 'a.',
                 highlight: state == BlueDyeTestStage.logsSubmit),
@@ -184,7 +184,7 @@ class _InstructionsState extends ConsumerState<Instructions> {
         context: context,
         builder: (context) => SimpleDialog(
               title: Text(
-                AppLocalizations.of(context)!.blueMuffinsInfoHeader,
+                context.translate.blueMuffinsInfoHeader,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
@@ -194,10 +194,10 @@ class _InstructionsState extends ConsumerState<Instructions> {
                   borderRadius: BorderRadius.all(Radius.circular(16.0))),
               children: [
                 LabeledList(strings: [
-                  AppLocalizations.of(context)!.blueMuffinsInfoLineOne,
-                  AppLocalizations.of(context)!.blueMuffinsInfoLineTwo,
-                  AppLocalizations.of(context)!.blueMuffinsInfoLineThree,
-                  AppLocalizations.of(context)!.blueMuffinsInfoLineFour,
+                  context.translate.blueMuffinsInfoLineOne,
+                  context.translate.blueMuffinsInfoLineTwo,
+                  context.translate.blueMuffinsInfoLineThree,
+                  context.translate.blueMuffinsInfoLineFour,
                 ], highlight: false),
               ],
             ));

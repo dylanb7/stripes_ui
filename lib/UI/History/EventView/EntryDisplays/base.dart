@@ -17,7 +17,7 @@ import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/UI/History/EventView/EntryDisplays/blue_dye.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/pain_area.dart';
 import 'package:stripes_ui/Util/date_helper.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/repos/blue_dye_test_repo.dart';
 
 class RenderEntryGroup extends ConsumerWidget {
@@ -69,7 +69,7 @@ class RenderEntryGroup extends ConsumerWidget {
                       children: [
                         TextSpan(
                           text:
-                              " · ${AppLocalizations.of(context)!.eventFilterResults(forType.length)}",
+                              " · ${context.translate.eventFilterResults(forType.length)}",
                           style: Theme.of(context)
                               .textTheme
                               .bodySmall
@@ -137,8 +137,8 @@ class _ExpandibleSymptomAreaState extends State<ExpandibleSymptomArea> {
                 },
                 label: Text(
                   expanded
-                      ? AppLocalizations.of(context)!.viewLessButtonText
-                      : AppLocalizations.of(context)!.viewMoreButtonText,
+                      ? context.translate.viewLessButtonText
+                      : context.translate.viewMoreButtonText,
                   style: Theme.of(context)
                       .textTheme
                       .bodyMedium
@@ -357,7 +357,7 @@ class DetailDisplay extends StatelessWidget {
       children: [
         if (detail.description != null && detail.description!.isNotEmpty) ...[
           Text(
-            AppLocalizations.of(context)!.descriptionLabel,
+            context.translate.descriptionLabel,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: Theme.of(context)
                     .colorScheme
@@ -380,7 +380,7 @@ class DetailDisplay extends StatelessWidget {
         ],
         if (detail.responses.isNotEmpty) ...[
           Text(
-            AppLocalizations.of(context)!.behaviorsLabel,
+            context.translate.behaviorsLabel,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: Theme.of(context)
                       .colorScheme
@@ -460,7 +460,7 @@ class BlueDyeDisplay extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          AppLocalizations.of(context)!.startTestEntry,
+          context.translate.startTestEntry,
           textAlign: TextAlign.left, //
           style: Theme.of(context).textTheme.bodyLarge,
         ),
@@ -476,7 +476,7 @@ class BlueDyeDisplay extends StatelessWidget {
           height: 3.0,
         ),
         Text(
-          AppLocalizations.of(context)!.mealDurationEntry,
+          context.translate.mealDurationEntry,
           textAlign: TextAlign.left,
           style: Theme.of(context).textTheme.bodyLarge,
         ),
@@ -498,7 +498,7 @@ class BlueDyeDisplay extends StatelessWidget {
         ),
         if (resp.firstBlue != resp.lastBlue) ...[
           Text(
-            AppLocalizations.of(context)!.firstBlueEntry,
+            context.translate.firstBlueEntry,
             textAlign: TextAlign.left,
             style: Theme.of(context).textTheme.bodyLarge,
           ),
@@ -515,7 +515,7 @@ class BlueDyeDisplay extends StatelessWidget {
           ),
         ],
         Text(
-          AppLocalizations.of(context)!.lastBlueEntry,
+          context.translate.lastBlueEntry,
           textAlign: TextAlign.left,
           style: Theme.of(context).textTheme.bodyLarge,
         ),
@@ -531,7 +531,7 @@ class BlueDyeDisplay extends StatelessWidget {
           height: 3.0,
         ),
         Text(
-          AppLocalizations.of(context)!.transitDurationEntry,
+          context.translate.transitDurationEntry,
           textAlign: TextAlign.left,
           style: Theme.of(context).textTheme.bodyLarge,
         ),
@@ -567,19 +567,19 @@ class DeleteErrorPrevention extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ConfirmationPopup(
       title: Text(
-        AppLocalizations.of(context)!.errorPreventionTitle,
+        context.translate.errorPreventionTitle,
         style: Theme.of(context).textTheme.bodyLarge,
         textAlign: TextAlign.center,
       ),
-      cancel: AppLocalizations.of(context)!.stampDeleteCancel,
-      confirm: AppLocalizations.of(context)!.stampDeleteConfirm,
+      cancel: context.translate.stampDeleteCancel,
+      confirm: context.translate.stampDeleteConfirm,
       onConfirm: () => _confirm(ref),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
-            AppLocalizations.of(context)!.stampDeleteWarningOne,
+            context.translate.stampDeleteWarningOne,
             style: Theme.of(context).textTheme.bodyMedium,
             textAlign: TextAlign.center,
           ),
@@ -587,7 +587,7 @@ class DeleteErrorPrevention extends ConsumerWidget {
             height: 8.0,
           ),
           Text(
-            AppLocalizations.of(context)!.stampDeleteWarningTwo,
+            context.translate.stampDeleteWarningTwo,
             style: Theme.of(context).textTheme.bodyMedium,
             textAlign: TextAlign.center,
           ),
@@ -646,12 +646,12 @@ class PainSliderDisplay extends StatelessWidget {
   Widget build(BuildContext context) {
     final int res = response.response.toInt();
     final List<String> hurtLevels = [
-      AppLocalizations.of(context)!.painLevelZero,
-      AppLocalizations.of(context)!.painLevelOne,
-      AppLocalizations.of(context)!.painLevelTwo,
-      AppLocalizations.of(context)!.painLevelThree,
-      AppLocalizations.of(context)!.painLevelFour,
-      AppLocalizations.of(context)!.painLevelFive,
+      context.translate.painLevelZero,
+      context.translate.painLevelOne,
+      context.translate.painLevelTwo,
+      context.translate.painLevelThree,
+      context.translate.painLevelFour,
+      context.translate.painLevelFive,
     ];
     final int selectedIndex = (res.toDouble() / 2).floor();
     return Row(crossAxisAlignment: CrossAxisAlignment.center, children: [

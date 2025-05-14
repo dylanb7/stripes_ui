@@ -7,9 +7,9 @@ import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/config.dart';
 import 'package:stripes_ui/entry.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class PatientChanger extends ConsumerWidget {
   final TabOption tab;
@@ -31,20 +31,20 @@ class PatientChanger extends ConsumerWidget {
     String getTitle() {
       if (isMarker) {
         return tab == TabOption.record
-            ? AppLocalizations.of(context)!.recordTab
+            ? context.translate.recordTab
             : tab == TabOption.tests
-                ? AppLocalizations.of(context)!.testTab
-                : AppLocalizations.of(context)!.historyTab;
+                ? context.translate.testTab
+                : context.translate.historyTab;
       }
       String firstName = config.profileType == ProfileType.username
           ? current?.name ?? ''
           : (current?.name.split(' ')[0]) ?? '';
       firstName = firstName.substring(0, min(firstName.length, 11));
       return tab == TabOption.record
-          ? AppLocalizations.of(context)!.recordTitle(firstName)
+          ? context.translate.recordTitle(firstName)
           : tab == TabOption.tests
-              ? AppLocalizations.of(context)!.testTab
-              : AppLocalizations.of(context)!.historyTitle(firstName);
+              ? context.translate.testTab
+              : context.translate.historyTitle(firstName);
     }
 
     return Row(

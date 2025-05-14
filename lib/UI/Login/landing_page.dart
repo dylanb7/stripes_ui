@@ -6,10 +6,10 @@ import 'package:stripes_ui/Providers/access_provider.dart';
 import 'package:stripes_ui/Providers/auth_provider.dart';
 
 import 'package:stripes_ui/Util/constants.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/form_input.dart';
 import 'package:stripes_ui/config.dart';
 import 'package:stripes_ui/entry.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class LandingPage extends ConsumerWidget {
   const LandingPage({super.key});
@@ -56,15 +56,14 @@ class SignUpLogin extends ConsumerWidget {
                   onPressed: () {
                     context.go(Routes.SIGN_UP);
                   },
-                  child: Text(
-                      AppLocalizations.of(context)!.signupWithAccessCode))),
+                  child: Text(context.translate.signupWithAccessCode))),
           const SizedBox(height: 8.0),
           TextButton(
             child: RichText(
                 text: TextSpan(children: [
-              TextSpan(text: AppLocalizations.of(context)!.loginButtonPrefix),
+              TextSpan(text: context.translate.loginButtonPrefix),
               TextSpan(
-                  text: AppLocalizations.of(context)!.loginButtonText,
+                  text: context.translate.loginButtonText,
                   style: const TextStyle(decoration: TextDecoration.underline))
             ])),
             onPressed: () {
@@ -84,7 +83,7 @@ class SignUpLogin extends ConsumerWidget {
             height: 4.0,
           ),
           TextButton(
-            child: Text(AppLocalizations.of(context)!.useWithoutAccount),
+            child: Text(context.translate.useWithoutAccount),
             onPressed: () {
               ref.read(authProvider).logIn({});
             },
@@ -136,8 +135,7 @@ class AccessLoginState extends ConsumerState<AccessLogin> {
               TextField(
                 controller: controller,
                 decoration: formFieldDecoration(
-                    hintText:
-                        AppLocalizations.of(context)!.accessCodePlaceholder,
+                    hintText: context.translate.accessCodePlaceholder,
                     controller: controller),
               ),
             if (loading)
@@ -157,14 +155,14 @@ class AccessLoginState extends ConsumerState<AccessLogin> {
               ),
             const SizedBox(height: 6.0),
             FilledButton(
-              child: Text(AppLocalizations.of(context)!.submitCode),
+              child: Text(context.translate.submitCode),
               onPressed: () {
                 if (!controller.text.isNotEmpty) _submitCode(context);
               },
             ),
             const SizedBox(height: 8.0),
             TextButton(
-              child: Text(AppLocalizations.of(context)!.withoutCode),
+              child: Text(context.translate.withoutCode),
               onPressed: () {
                 ref.read(authProvider).logIn({localAccessKey: 'temp'});
               },
@@ -187,7 +185,7 @@ class AccessLoginState extends ConsumerState<AccessLogin> {
       controller.clear();
       setState(() {
         loading = false;
-        accessError = AppLocalizations.of(context)!.codeError;
+        accessError = context.translate.codeError;
       });
     }
   }

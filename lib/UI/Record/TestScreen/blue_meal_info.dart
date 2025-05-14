@@ -13,7 +13,7 @@ import 'package:stripes_ui/UI/Record/TestScreen/card_layout_helper.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class BlueMealPreStudy extends StatefulWidget {
@@ -119,8 +119,7 @@ class _PreStudyInfoState extends State<PreStudyInfo> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            AppLocalizations.of(context)!
-                                                .preStudySeeing,
+                                            context.translate.preStudySeeing,
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .titleMedium
@@ -129,8 +128,7 @@ class _PreStudyInfoState extends State<PreStudyInfo> {
                                                         FontWeight.bold),
                                           ),
                                           Text(
-                                            AppLocalizations.of(context)!
-                                                .preStudySeeingExp,
+                                            context.translate.preStudySeeingExp,
                                           ),
                                         ],
                                       )),
@@ -143,20 +141,19 @@ class _PreStudyInfoState extends State<PreStudyInfo> {
                                   height: 12.0,
                                 ),
                                 Text(
-                                  AppLocalizations.of(context)!
-                                      .preStudyEnrollTitle,
+                                  context.translate.preStudyEnrollTitle,
                                   style: Theme.of(context)
                                       .textTheme
                                       .titleMedium
                                       ?.copyWith(fontWeight: FontWeight.bold),
                                 ),
-                                Text(AppLocalizations.of(context)!
-                                    .preStudyEnrollDescPartOne),
+                                Text(context
+                                    .translate.preStudyEnrollDescPartOne),
                                 const SizedBox(
                                   height: 12.0,
                                 ),
-                                Text(AppLocalizations.of(context)!
-                                    .preStudyEnrollDescPartTwo),
+                                Text(context
+                                    .translate.preStudyEnrollDescPartTwo),
                                 const SizedBox(
                                   height: 25.0,
                                 ),
@@ -209,7 +206,7 @@ class BlueMealInfoButton extends StatelessWidget {
         onPressed: () {
           toggleBottomSheet(context);
         },
-        child: Text(AppLocalizations.of(context)!.studyInfoButtonLabel));
+        child: Text(context.translate.studyInfoButtonLabel));
   }
 
   toggleBottomSheet(BuildContext context) {
@@ -294,7 +291,7 @@ class _AppTosState extends State<AppTos> {
 
 ## 3. Study Mode - For Invited Participants
 
-- **Participation via Foundations:** Stripes includes a special \"Study Mode.\" Access is limited to users specifically recruited and invited to participate in research studies by partner foundations. You cannot opt-in directly through the app.
+- **Participation via Foundations:** Stripes includes a special "Study Mode." Access is limited to users specifically recruited and invited to participate in research studies by partner foundations. You cannot opt-in directly through the app.
 - **Study Protocols:** If you are invited and agree to participate, you'll follow specific study protocols. This may include using materials like a Blue Muffin Kit.
 - **Tracking for Research:** During the study period, you will use Stripes to record specific information, including symptoms and potentially bowel movements/transit time, as required by the study.
 - **Data Sharing with Indiana University (IU):** This is critical. For users participating in Study Mode, **all symptoms and related data** recorded in the Stripes app **during the official study period** are shared. We securely transmit this data to a dedicated research team at Indiana University.
@@ -488,7 +485,7 @@ class BlueMealInfoSheet extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                AppLocalizations.of(context)!.blueDyeHeader,
+                context.translate.blueDyeHeader,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     color: Theme.of(context).primaryColor,
                     fontWeight: FontWeight.bold),
@@ -522,7 +519,7 @@ class BlueMealInfoSheet extends ConsumerWidget {
                           child: Padding(
                             padding: const EdgeInsets.all(4.0),
                             child: Text(
-                              AppLocalizations.of(context)!.inStudySeeingExp,
+                              context.translate.inStudySeeingExp,
                             ),
                           ),
                         ),
@@ -534,14 +531,14 @@ class BlueMealInfoSheet extends ConsumerWidget {
                           height: 12.0,
                         ),
                         Text(
-                          AppLocalizations.of(context)!.inStudyWithdrawTitle,
+                          context.translate.inStudyWithdrawTitle,
                           style: Theme.of(context)
                               .textTheme
                               .titleMedium
                               ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          AppLocalizations.of(context)!.inStudyWithdrawDesc,
+                          context.translate.inStudyWithdrawDesc,
                         ),
                         const SizedBox(
                           height: 12.0,
@@ -584,8 +581,8 @@ class BlueMealInfoSheet extends ConsumerWidget {
                                     }
                                   }
                                 },
-                                child: Text(AppLocalizations.of(context)!
-                                    .inStudyWithdrawButtonText))),
+                                child: Text(context
+                                    .translate.inStudyWithdrawButtonText))),
                         const SizedBox(
                           height: 25.0,
                         ),
@@ -621,7 +618,7 @@ class BlueMealStudyInstructions extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          AppLocalizations.of(context)!.studyExpTitle,
+          context.translate.studyExpTitle,
           style: Theme.of(context)
               .textTheme
               .titleMedium
@@ -630,56 +627,56 @@ class BlueMealStudyInstructions extends StatelessWidget {
         const SizedBox(
           height: 6.0,
         ),
-        Text(AppLocalizations.of(context)!.studyExpBody),
+        Text(context.translate.studyExpBody),
         const SizedBox(
           height: 6.0,
         ),
-        Text(AppLocalizations.of(context)!.studyExpBodyCont),
+        Text(context.translate.studyExpBodyCont),
         LabeledList(strings: [
-          AppLocalizations.of(context)!.studyBodySymptomOne,
-          AppLocalizations.of(context)!.studyBodySymptomTwo,
-          AppLocalizations.of(context)!.studyBodySymptomThree,
-          AppLocalizations.of(context)!.studyBodySymptomFour,
+          context.translate.studyBodySymptomOne,
+          context.translate.studyBodySymptomTwo,
+          context.translate.studyBodySymptomThree,
+          context.translate.studyBodySymptomFour,
         ], highlight: false),
         const SizedBox(
           height: 12.0,
         ),
         Text(
-          AppLocalizations.of(context)!.studyEligibilityTitle,
+          context.translate.studyEligibilityTitle,
           style: Theme.of(context)
               .textTheme
               .titleMedium
               ?.copyWith(fontWeight: FontWeight.bold),
         ),
-        Text(AppLocalizations.of(context)!.studyEligibilityParticipants),
+        Text(context.translate.studyEligibilityParticipants),
         const SizedBox(
           height: 6.0,
         ),
         LabeledList(strings: [
-          AppLocalizations.of(context)!.studyEligibilityOne,
-          AppLocalizations.of(context)!.studyEligibilityTwo,
-          AppLocalizations.of(context)!.studyEligibilityThree,
-          AppLocalizations.of(context)!.studyEligibilityFour,
+          context.translate.studyEligibilityOne,
+          context.translate.studyEligibilityTwo,
+          context.translate.studyEligibilityThree,
+          context.translate.studyEligibilityFour,
         ], highlight: false),
         const SizedBox(
           height: 12.0,
         ),
         Text(
-          AppLocalizations.of(context)!.studyFlowTitle,
+          context.translate.studyFlowTitle,
           style: Theme.of(context)
               .textTheme
               .titleMedium
               ?.copyWith(fontWeight: FontWeight.bold),
         ),
-        Text(AppLocalizations.of(context)!.studyFlowDesc),
+        Text(context.translate.studyFlowDesc),
         const SizedBox(
           height: 12.0,
         ),
         LabeledList(
-            title: Text(AppLocalizations.of(context)!.studyFlowPreStudy),
+            title: Text(context.translate.studyFlowPreStudy),
             strings: [
-              AppLocalizations.of(context)!.studyFlowPreStudyOne,
-              AppLocalizations.of(context)!.studyFlowPreStudyTwo
+              context.translate.studyFlowPreStudyOne,
+              context.translate.studyFlowPreStudyTwo
             ],
             mark: (index) => "${index + 1}.",
             highlight: false),
@@ -688,15 +685,15 @@ class BlueMealStudyInstructions extends StatelessWidget {
         ),
         LabeledList(
             title: Text(
-              AppLocalizations.of(context)!.studyFlowPrepTitle,
+              context.translate.studyFlowPrepTitle,
               style: Theme.of(context)
                   .textTheme
                   .titleMedium
                   ?.copyWith(fontWeight: FontWeight.bold),
             ),
             strings: [
-              AppLocalizations.of(context)!.studyFlowPrepOne,
-              AppLocalizations.of(context)!.studyFlowPrepTwo,
+              context.translate.studyFlowPrepOne,
+              context.translate.studyFlowPrepTwo,
             ],
             highlight: false),
         const SizedBox(
@@ -704,29 +701,29 @@ class BlueMealStudyInstructions extends StatelessWidget {
         ),
         LabeledList(
             title: Text(
-              AppLocalizations.of(context)!.studyFlowStepOneTitle,
+              context.translate.studyFlowStepOneTitle,
               style: Theme.of(context)
                   .textTheme
                   .titleMedium
                   ?.copyWith(fontWeight: FontWeight.bold),
             ),
             strings: [
-              AppLocalizations.of(context)!.studyFlowStepOnePartOne,
-              AppLocalizations.of(context)!.studyFlowStepOnePartTwo
+              context.translate.studyFlowStepOnePartOne,
+              context.translate.studyFlowStepOnePartTwo
             ],
             mark: (index) => "${index + 1}.",
             highlight: false),
         LabeledList(
             title: Text(
-              AppLocalizations.of(context)!.studyFlowStepTwoTitle,
+              context.translate.studyFlowStepTwoTitle,
               style: Theme.of(context)
                   .textTheme
                   .titleMedium
                   ?.copyWith(fontWeight: FontWeight.bold),
             ),
             strings: [
-              AppLocalizations.of(context)!.studyFlowStepTwoPartOne,
-              AppLocalizations.of(context)!.studyFlowStepTwoPartTwo
+              context.translate.studyFlowStepTwoPartOne,
+              context.translate.studyFlowStepTwoPartTwo
             ],
             mark: (index) => "${index + 1}.",
             highlight: false),
@@ -734,46 +731,46 @@ class BlueMealStudyInstructions extends StatelessWidget {
           height: 12.0,
         ),
         Text(
-          AppLocalizations.of(context)!.studyFlowBetweenStepTwoStepThree,
+          context.translate.studyFlowBetweenStepTwoStepThree,
           style: Theme.of(context)
               .textTheme
               .titleMedium
               ?.copyWith(fontWeight: FontWeight.bold),
         ),
         Text(
-          AppLocalizations.of(context)!.studyFlowBetweenStepTwoStepThreeDesc,
+          context.translate.studyFlowBetweenStepTwoStepThreeDesc,
         ),
         const SizedBox(
           height: 12.0,
         ),
         Text(
-          AppLocalizations.of(context)!.studyFlowStepThreeTitle,
+          context.translate.studyFlowStepThreeTitle,
           style: Theme.of(context)
               .textTheme
               .titleMedium
               ?.copyWith(fontWeight: FontWeight.bold),
         ),
         Text(
-          AppLocalizations.of(context)!.studyFlowStepThreeDesc,
+          context.translate.studyFlowStepThreeDesc,
         ),
         const SizedBox(
           height: 12.0,
         ),
         Text(
-          AppLocalizations.of(context)!.studyFlowStepFourTitle,
+          context.translate.studyFlowStepFourTitle,
           style: Theme.of(context)
               .textTheme
               .titleMedium
               ?.copyWith(fontWeight: FontWeight.bold),
         ),
         Text(
-          AppLocalizations.of(context)!.studyFlowStepFourDesc,
+          context.translate.studyFlowStepFourDesc,
         ),
         const SizedBox(
           height: 12.0,
         ),
         Text(
-          AppLocalizations.of(context)!.studyFlowComplete,
+          context.translate.studyFlowComplete,
           style: Theme.of(context)
               .textTheme
               .titleMedium
@@ -783,14 +780,14 @@ class BlueMealStudyInstructions extends StatelessWidget {
           height: 12.0,
         ),
         Text(
-          AppLocalizations.of(context)!.studyContactTitle,
+          context.translate.studyContactTitle,
           style: Theme.of(context)
               .textTheme
               .titleMedium
               ?.copyWith(fontWeight: FontWeight.bold),
         ),
         Text(
-          AppLocalizations.of(context)!.studyContactBody,
+          context.translate.studyContactBody,
         ),
       ],
     );
@@ -811,7 +808,7 @@ class BlueStudyInstructionsPartOne extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              AppLocalizations.of(context)!.studyStepOneExplanationTitle,
+              context.translate.studyStepOneExplanationTitle,
               style: Theme.of(context)
                   .textTheme
                   .titleMedium
@@ -822,14 +819,13 @@ class BlueStudyInstructionsPartOne extends StatelessWidget {
             ),
             LabeledList(
               strings: [
-                AppLocalizations.of(context)!.studyStepOneExplanationPartOne,
-                AppLocalizations.of(context)!.studyStepOneExplanationPartTwo,
-                AppLocalizations.of(context)!.studyStepOneExplanationPartThree,
-                AppLocalizations.of(context)!.studyStepOneExplanationPartFour
+                context.translate.studyStepOneExplanationPartOne,
+                context.translate.studyStepOneExplanationPartTwo,
+                context.translate.studyStepOneExplanationPartThree,
+                context.translate.studyStepOneExplanationPartFour
               ],
               mark: (i) => "${i + 1}. ",
-              title: Text(
-                  AppLocalizations.of(context)!.studyStepOneExplanationPreReq),
+              title: Text(context.translate.studyStepOneExplanationPreReq),
               highlight: false,
             ),
             const SizedBox(
@@ -839,8 +835,7 @@ class BlueStudyInstructionsPartOne extends StatelessWidget {
               color: Colors.yellow.withValues(alpha: 0.35),
               child: Padding(
                   padding: const EdgeInsets.all(4.0),
-                  child: Text(AppLocalizations.of(context)!
-                      .studyStepOneExplanationNote)),
+                  child: Text(context.translate.studyStepOneExplanationNote)),
             ),
           ],
         ),
@@ -886,7 +881,7 @@ class _BlueStudyInstructionsPartTwoState
             children: [
               if (!cardLayout) ...[
                 Text(
-                  AppLocalizations.of(context)!.transitOneLabel,
+                  context.translate.transitOneLabel,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).primaryColor,
                       fontWeight: FontWeight.bold),
@@ -894,7 +889,7 @@ class _BlueStudyInstructionsPartTwoState
                 const Divider(),
               ],
               Text(
-                AppLocalizations.of(context)!.studyStepTwoExplanationTitle,
+                context.translate.studyStepTwoExplanationTitle,
                 style: Theme.of(context)
                     .textTheme
                     .titleMedium
@@ -903,18 +898,15 @@ class _BlueStudyInstructionsPartTwoState
               const SizedBox(
                 height: 8.0,
               ),
-              Text(AppLocalizations.of(context)!.studyStepTwoExplanationDesc),
+              Text(context.translate.studyStepTwoExplanationDesc),
               const SizedBox(
                 height: 8.0,
               ),
               LabeledList(
-                  title: Text(AppLocalizations.of(context)!
-                      .studyStepTwoExplanationPartOne),
+                  title: Text(context.translate.studyStepTwoExplanationPartOne),
                   strings: [
-                    AppLocalizations.of(context)!
-                        .studyStepTwoExplanationPartOneDetailOne,
-                    AppLocalizations.of(context)!
-                        .studyStepTwoExplanationPartOneDetailTwo,
+                    context.translate.studyStepTwoExplanationPartOneDetailOne,
+                    context.translate.studyStepTwoExplanationPartOneDetailTwo,
                   ],
                   highlight: false),
               const SizedBox(
@@ -926,20 +918,19 @@ class _BlueStudyInstructionsPartTwoState
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     LabeledList(
-                        title: Text(AppLocalizations.of(context)!
-                            .studyStepTwoExplanationPartTwo),
+                        title: Text(
+                            context.translate.studyStepTwoExplanationPartTwo),
                         strings: [
-                          AppLocalizations.of(context)!
+                          context.translate
                               .studyStepTwoExplanationPartTwoDetailOne,
-                          AppLocalizations.of(context)!
+                          context.translate
                               .studyStepTwoExplanationPartTwoDetailTwo,
                         ],
                         highlight: false),
                     const SizedBox(
                       height: 8.0,
                     ),
-                    Text(AppLocalizations.of(context)!
-                        .studyStepTwoExplanationColorExp),
+                    Text(context.translate.studyStepTwoExplanationColorExp),
                     const SizedBox(
                       height: 8.0,
                     ),
@@ -953,8 +944,8 @@ class _BlueStudyInstructionsPartTwoState
                 },
                 label: Text(
                   expanded
-                      ? AppLocalizations.of(context)!.viewLessButtonText
-                      : AppLocalizations.of(context)!.viewMoreButtonText,
+                      ? context.translate.viewLessButtonText
+                      : context.translate.viewMoreButtonText,
                   style: Theme.of(context)
                       .textTheme
                       .bodyMedium
@@ -990,7 +981,7 @@ class BlueStudyInstructionsPartThree extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              AppLocalizations.of(context)!.studyStepThreeExplanationTitle,
+              context.translate.studyStepThreeExplanationTitle,
               style: Theme.of(context)
                   .textTheme
                   .titleMedium
@@ -1001,12 +992,11 @@ class BlueStudyInstructionsPartThree extends StatelessWidget {
             ),
             LabeledList(
               strings: [
-                AppLocalizations.of(context)!.studyStepThreeExplanationPartOne,
-                AppLocalizations.of(context)!.studyStepThreeExplanationPartTwo,
+                context.translate.studyStepThreeExplanationPartOne,
+                context.translate.studyStepThreeExplanationPartTwo,
               ],
               mark: (i) => "${i + 1}. ",
-              title: Text(AppLocalizations.of(context)!
-                  .studyStepThreeExplanationPreReq),
+              title: Text(context.translate.studyStepThreeExplanationPreReq),
               highlight: false,
             ),
           ],
@@ -1033,7 +1023,7 @@ class BlueStudyInstructionsPartFour extends StatelessWidget {
           children: [
             if (!cardLayout) ...[
               Text(
-                AppLocalizations.of(context)!.transitTwoLabel,
+                context.translate.transitTwoLabel,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).primaryColor,
                     fontWeight: FontWeight.bold),
@@ -1041,7 +1031,7 @@ class BlueStudyInstructionsPartFour extends StatelessWidget {
               const Divider(),
             ],
             Text(
-              AppLocalizations.of(context)!.studyStepFourExplanationTitle,
+              context.translate.studyStepFourExplanationTitle,
               style: Theme.of(context)
                   .textTheme
                   .titleMedium
@@ -1052,12 +1042,11 @@ class BlueStudyInstructionsPartFour extends StatelessWidget {
             ),
             LabeledList(
               strings: [
-                AppLocalizations.of(context)!.studyStepFourExplanationPartOne,
-                AppLocalizations.of(context)!.studyStepFourExplanationPartTwo,
+                context.translate.studyStepFourExplanationPartOne,
+                context.translate.studyStepFourExplanationPartTwo,
               ],
               mark: (i) => "${i + 1}. ",
-              title: Text(
-                  AppLocalizations.of(context)!.studyStepFourExplanationDesc),
+              title: Text(context.translate.studyStepFourExplanationDesc),
               highlight: false,
             ),
           ],
@@ -1086,8 +1075,8 @@ class BlueStudyInstructionsBMLogs extends StatelessWidget {
             if (!cardLayout) ...[
               Text(
                 step.value < 2
-                    ? AppLocalizations.of(context)!.transitOneLabel
-                    : AppLocalizations.of(context)!.transitTwoLabel,
+                    ? context.translate.transitOneLabel
+                    : context.translate.transitTwoLabel,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).primaryColor,
                     fontWeight: FontWeight.bold),
@@ -1096,8 +1085,8 @@ class BlueStudyInstructionsBMLogs extends StatelessWidget {
             ],
             Text(
               step.value < 2
-                  ? AppLocalizations.of(context)!.studyStepTwoExplanationTitle
-                  : AppLocalizations.of(context)!.studyStepFourExplanationTitle,
+                  ? context.translate.studyStepTwoExplanationTitle
+                  : context.translate.studyStepFourExplanationTitle,
               style: Theme.of(context)
                   .textTheme
                   .titleMedium
@@ -1106,7 +1095,7 @@ class BlueStudyInstructionsBMLogs extends StatelessWidget {
             const SizedBox(
               height: 8.0,
             ),
-            Text(AppLocalizations.of(context)!.blueMealRecordDescription(
+            Text(context.translate.blueMealRecordDescription(
                 step.value < 2 ? "Step 2" : "Step 4")),
           ],
         ),

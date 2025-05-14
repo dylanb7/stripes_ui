@@ -10,9 +10,9 @@ import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/config.dart';
 import 'package:stripes_ui/entry.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
 import 'package:path_provider/path_provider.dart';
 
 class Export extends ConsumerStatefulWidget {
@@ -217,7 +217,7 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              AppLocalizations.of(context)!.exportName,
+                              context.translate.exportName,
                               style: Theme.of(context).textTheme.titleLarge,
                             ),
                             IconButton(
@@ -234,7 +234,7 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
                         height: 8,
                       ),
                       Text(
-                        AppLocalizations.of(context)!.exportDialog,
+                        context.translate.exportDialog,
                         style: Theme.of(context).textTheme.bodyMedium,
                         textAlign: TextAlign.center,
                       ),
@@ -256,7 +256,7 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
                       ],
                       if (!loading && !done)
                         FilledButton(
-                            child: Text(AppLocalizations.of(context)!
+                            child: Text(context.translate
                                 .recordCount(widget.responses.length)),
                             onPressed: () async {
                               setState(() {
@@ -270,8 +270,7 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
                               } catch (e) {
                                 if (mounted) {
                                   setState(() {
-                                    errorMessage = AppLocalizations.of(context)!
-                                        .uploadFail;
+                                    errorMessage = context.translate.uploadFail;
                                     loading = false;
                                   });
                                 }
@@ -288,8 +287,7 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
                       if (loading) const LoadingWidget(),
                       if (done)
                         FilledButton(
-                            child:
-                                Text(AppLocalizations.of(context)!.uploadDone),
+                            child: Text(context.translate.uploadDone),
                             onPressed: () {
                               ref.read(overlayProvider.notifier).state =
                                   closedOverlay;

@@ -10,7 +10,7 @@ import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
 import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
 
 import 'package:stripes_ui/Util/date_helper.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 
 class AddEvent extends ConsumerWidget {
   const AddEvent({super.key});
@@ -34,7 +34,7 @@ class AddEvent extends ConsumerWidget {
 
     return Tooltip(
       message: calendarSelection.selectedDate == null
-          ? AppLocalizations.of(context)!.noDateToAddTo
+          ? context.translate.noDateToAddTo
           : dateToMDY(calendarSelection.selectedDate!, context),
       child: IconButton(
         icon: const Icon(Icons.add),
@@ -78,7 +78,7 @@ class QuestionTypeOverlay extends ConsumerWidget {
                     children: [
                       const SizedBox(width: 30),
                       Text(
-                        AppLocalizations.of(context)!.addEventHeader,
+                        context.translate.addEventHeader,
                         style: Theme.of(context).textTheme.bodyLarge,
                       ),
                       IconButton(

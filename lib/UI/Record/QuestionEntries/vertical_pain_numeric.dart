@@ -5,8 +5,8 @@ import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_list
 import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/base.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/question_screen.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class VerticalPainFaces extends StatefulWidget {
   final QuestionsListener questionsListener;
@@ -122,7 +122,7 @@ class _VerticalPainFacesState extends State<VerticalPainFaces> {
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 10.0),
                           child: Text(
-                            AppLocalizations.of(context)!.painLevelZero,
+                            context.translate.painLevelZero,
                             style: Theme.of(context)
                                 .textTheme
                                 .bodyLarge
@@ -134,7 +134,7 @@ class _VerticalPainFacesState extends State<VerticalPainFaces> {
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 10.0),
                           child: Text(
-                            AppLocalizations.of(context)!.painLevelFive,
+                            context.translate.painLevelFive,
                             style: Theme.of(context)
                                 .textTheme
                                 .bodyLarge

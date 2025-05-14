@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stripes_ui/l10n/app_localizations.dart';
 
 extension Space on List<Widget> {
   List<Widget> spacedBy({required double space, Axis axis = Axis.vertical}) {
@@ -60,4 +61,8 @@ extension CarouselExtensions on CarouselController {
     final pixels = relevantDimension * index;
     return pixels;
   }
+}
+
+extension Translate on BuildContext {
+  AppLocalizations get translate => AppLocalizations.of(this)!;
 }

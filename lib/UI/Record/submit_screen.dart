@@ -8,7 +8,7 @@ import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/date_time_entry.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/question_screen.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 
 class SubmitScreen extends ConsumerStatefulWidget {
   final String type;
@@ -108,8 +108,8 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
         ),
         Text(
           isEdit
-              ? AppLocalizations.of(context)!.editSubmitHeader(widget.type)
-              : AppLocalizations.of(context)!.submitHeader(widget.type),
+              ? context.translate.editSubmitHeader(widget.type)
+              : context.translate.submitHeader(widget.type),
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
               color: Theme.of(context).colorScheme.primary,
               fontWeight: FontWeight.bold),
@@ -172,7 +172,7 @@ class LongTextEntry extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          AppLocalizations.of(context)!.submitDescriptionTag,
+          context.translate.submitDescriptionTag,
           textAlign: TextAlign.center,
         ),
         const SizedBox(
@@ -201,8 +201,7 @@ class LongTextEntry extends StatelessWidget {
                   border: const OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.grey, width: 1),
                       borderRadius: BorderRadius.all(Radius.circular(4.0))),
-                  hintText: AppLocalizations.of(context)!
-                      .submitDescriptionPlaceholder,
+                  hintText: context.translate.submitDescriptionPlaceholder,
                   contentPadding: const EdgeInsets.symmetric(
                       horizontal: 8.0, vertical: 5.0)),
             ),

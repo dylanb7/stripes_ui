@@ -29,7 +29,7 @@ class BlueRecordings<T extends Test> extends ConsumerWidget {
         SizedBox(
           width: double.infinity,
           child: Text(
-            '${AppLocalizations.of(context)!.blueDyeLogsInstructionOne}${logs.isEmpty ? AppLocalizations.of(context)!.blueDyeLogsInstructionTwo : ''}',
+            '${context.translate.blueDyeLogsInstructionOne}${logs.isEmpty ? context.translate.blueDyeLogsInstructionTwo : ''}',
             textAlign: TextAlign.left,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
@@ -37,7 +37,7 @@ class BlueRecordings<T extends Test> extends ConsumerWidget {
         ...logs.map((e) => LogRow(log: e, ref: ref)),
         const SizedBox(height: 12.0),
         Text(
-          AppLocalizations.of(context)!.blueDyeInstructionsStepThreeA,
+          context.translate.blueDyeInstructionsStepThreeA,
           textAlign: TextAlign.left,
           style: Theme.of(context).textTheme.bodyMedium,
         ),
@@ -52,7 +52,7 @@ class BlueRecordings<T extends Test> extends ConsumerWidget {
                   if (state != TestState.logsSubmit && !isLoading) {
                     showSnack(
                       context,
-                      AppLocalizations.of(context)!.blueDyeLogsSubmitTestError,
+                      context.translate.blueDyeLogsSubmitTestError,
                     );
                   }
                 },
@@ -68,14 +68,14 @@ class BlueRecordings<T extends Test> extends ConsumerWidget {
                           if (context.mounted) {
                             showSnack(
                                 context,
-                                AppLocalizations.of(context)!
+                                context.translate
                                     .testSubmitSuccess);
                           }
                         },
                   child: isLoading
                       ? const ButtonLoadingIndicator()
                       : Text(
-                          AppLocalizations.of(context)!.blueDyeLogsSubmitTest),
+                          context.translate.blueDyeLogsSubmitTest),
                 )),
           ),
         ),
@@ -100,7 +100,7 @@ class LogRow extends ConsumerWidget {
       ),
       if (event.description != null && event.description!.isNotEmpty) ...[
         Text(
-          AppLocalizations.of(context)!.descriptionLabel,
+          context.translate.descriptionLabel,
           style: Theme.of(context).textTheme.bodyLarge,
         ),
         Text(
@@ -110,7 +110,7 @@ class LogRow extends ConsumerWidget {
         )
       ],
       Text(
-        AppLocalizations.of(context)!.behaviorsLabel,
+        context.translate.behaviorsLabel,
         style: Theme.of(context).textTheme.bodyLarge,
       ),
       ...event.responses.map(

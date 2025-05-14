@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/config.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
 
 import 'add_event.dart';
 import 'export.dart';
@@ -21,7 +21,7 @@ class ActionRow extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              AppLocalizations.of(context)!.eventFilterResults(results),
+              context.translate.eventFilterResults(results),
               style: Theme.of(context)
                   .textTheme
                   .titleLarge

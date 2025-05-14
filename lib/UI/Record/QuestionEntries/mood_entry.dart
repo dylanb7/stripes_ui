@@ -4,7 +4,7 @@ import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/UI/Record/severity_slider.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 
 class MoodScreenWidget extends StatefulWidget {
   final QuestionsListener listener;
@@ -69,8 +69,8 @@ class MoodScreenWidgetState extends State<MoodScreenWidget> {
           listener: listener,
           min: 0,
           max: 10,
-          minLabel: AppLocalizations.of(context)!.moodLowLevel,
-          maxLabel: AppLocalizations.of(context)!.moodHighLevel,
+          minLabel: context.translate.moodLowLevel,
+          maxLabel: context.translate.moodHighLevel,
           initial: value.toInt(),
         ),
       ],

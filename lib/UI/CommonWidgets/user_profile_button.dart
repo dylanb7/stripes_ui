@@ -6,8 +6,8 @@ import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/tonal_button.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/entry.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class UserProfileButton extends ConsumerWidget {
   final bool selected;
@@ -73,7 +73,7 @@ class ExitErrorPrevention extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      AppLocalizations.of(context)!.errorPreventionTitle,
+                      context.translate.errorPreventionTitle,
                       style: Theme.of(context).textTheme.bodyLarge,
                       textAlign: TextAlign.center,
                     ),
@@ -81,7 +81,7 @@ class ExitErrorPrevention extends ConsumerWidget {
                       height: 8.0,
                     ),
                     Text(
-                      AppLocalizations.of(context)!.exitStudyWarning,
+                      context.translate.exitStudyWarning,
                       style: Theme.of(context).textTheme.bodyMedium,
                       textAlign: TextAlign.center,
                     ),
@@ -102,15 +102,13 @@ class ExitErrorPrevention extends ConsumerWidget {
                     onPressed: () {
                       _closeOverlay(ref);
                     },
-                    child:
-                        Text(AppLocalizations.of(context)!.stampDeleteCancel)),
+                    child: Text(context.translate.stampDeleteCancel)),
                 TonalButtonTheme(
                   child: FilledButton.tonal(
                     onPressed: () {
                       _confirm(ref);
                     },
-                    child:
-                        Text(AppLocalizations.of(context)!.stampDeleteConfirm),
+                    child: Text(context.translate.stampDeleteConfirm),
                   ),
                 ),
               ],

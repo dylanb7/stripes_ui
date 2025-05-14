@@ -18,7 +18,7 @@ import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/card_layout_helper.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 
 class RecordingsView extends ConsumerWidget {
   final Function? next;
@@ -42,8 +42,8 @@ class RecordingsView extends ConsumerWidget {
         : progress.valueOrNull?.orderedTests[0].test.logs ?? [];
     final Widget transitLabel = Text(
       clicked.value < 2
-          ? AppLocalizations.of(context)!.transitOneLabel
-          : AppLocalizations.of(context)!.transitTwoLabel,
+          ? context.translate.transitOneLabel
+          : context.translate.transitTwoLabel,
       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
           fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
     );
@@ -87,7 +87,7 @@ class RecordingsView extends ConsumerWidget {
                         const Divider(),
                       ],
                       Text(
-                        AppLocalizations.of(context)!.recordingStateTitle,
+                        context.translate.recordingStateTitle,
                         style: Theme.of(context)
                             .textTheme
                             .bodyMedium
@@ -102,9 +102,8 @@ class RecordingsView extends ConsumerWidget {
                       ),
                       Text(
                         clicked == BlueDyeProgression.stepTwo
-                            ? AppLocalizations.of(context)!.stepTwoCompletedText
-                            : AppLocalizations.of(context)!
-                                .stepFourCompletedText,
+                            ? context.translate.stepTwoCompletedText
+                            : context.translate.stepFourCompletedText,
                         style: Theme.of(context)
                             .textTheme
                             .bodyMedium
@@ -112,7 +111,7 @@ class RecordingsView extends ConsumerWidget {
                       ),
                       if (clicked == BlueDyeProgression.stepFive)
                         Text(
-                          AppLocalizations.of(context)!
+                          context.translate
                               .studyStepFourExplanationCompletedNotice,
                           style: Theme.of(context)
                               .textTheme
@@ -137,7 +136,7 @@ class RecordingsView extends ConsumerWidget {
                         : () {
                             next!();
                           },
-                    child: Text(AppLocalizations.of(context)!.nextButton),
+                    child: Text(context.translate.nextButton),
                   ),
                 ),
                 const SizedBox(
@@ -226,7 +225,7 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
                   const Divider(),
                 ],
                 Text(
-                  AppLocalizations.of(context)!.blueMealWaitTimeTitle,
+                  context.translate.blueMealWaitTimeTitle,
                   style: Theme.of(context)
                       .textTheme
                       .bodyMedium
@@ -236,14 +235,14 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
                   height: 4.0,
                 ),
                 Text(
-                  AppLocalizations.of(context)!.blueMealWaitTimeLineOne,
+                  context.translate.blueMealWaitTimeLineOne,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 const SizedBox(
                   height: 4.0,
                 ),
                 Text(
-                  AppLocalizations.of(context)!.blueMealWaitTimeLineTwo,
+                  context.translate.blueMealWaitTimeLineTwo,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 const SizedBox(
@@ -251,7 +250,7 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
                 ),
                 if (!canProgress && !kIsWeb) ...[
                   Text(
-                    AppLocalizations.of(context)!.blueMealWaitTimeLineThree,
+                    context.translate.blueMealWaitTimeLineThree,
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   const SizedBox(
@@ -282,7 +281,7 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
                 ),
                 Center(
                   child: Text(
-                    AppLocalizations.of(context)!.stepTwoCompletedSubText,
+                    context.translate.stepTwoCompletedSubText,
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                 ),
@@ -302,8 +301,7 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
                       child: canProgress
                           ? const Icon(Icons.check, size: 40.0)
                           : Text(
-                              AppLocalizations.of(context)!
-                                  .stepTwoCompletedTimeText(
+                              context.translate.stepTwoCompletedTimeText(
                                 _from(timeLeft, context),
                               ),
                               style: Theme.of(context).textTheme.headlineMedium,
@@ -321,7 +319,7 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
                       child: Center(
                         child: RichText(
                             text: TextSpan(
-                                text: AppLocalizations.of(context)!
+                                text: context.translate
                                     .stepTwoCompletedSubText,
                                 style:
                                     Theme.of(context).textTheme.headlineMedium,
@@ -331,7 +329,7 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
                                       child: Icon(Icons.check, size: 40.0))
                                   : TextSpan(
                                       text:
-                                          ' ${AppLocalizations.of(context)!.stepTwoCompletedTimeText(_from(timeLeft, context))}',
+                                          ' ${context.translate.stepTwoCompletedTimeText(_from(timeLeft, context))}',
                                       style: Theme.of(context)
                                           .textTheme
                                           .headlineMedium
@@ -356,7 +354,7 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
                 : () {
                     _next();
                   },
-            child: Text(AppLocalizations.of(context)!.nextButton),
+            child: Text(context.translate.nextButton),
           ),
         ),
         const SizedBox(
@@ -497,7 +495,7 @@ class _RecordingsWaitingState extends ConsumerState<RecordingsWaiting> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    AppLocalizations.of(context)!.recordingStateTitle,
+                    context.translate.recordingStateTitle,
                     style: Theme.of(context)
                         .textTheme
                         .bodyMedium
@@ -512,7 +510,7 @@ class _RecordingsWaitingState extends ConsumerState<RecordingsWaiting> {
                   ),
                   Center(
                       child: Text(
-                    AppLocalizations.of(context)!.stepTwoCompletedText,
+                    context.translate.stepTwoCompletedText,
                     style: Theme.of(context)
                         .textTheme
                         .titleMedium
@@ -522,7 +520,7 @@ class _RecordingsWaitingState extends ConsumerState<RecordingsWaiting> {
                   if (!canProgress) ...[
                     Center(
                         child: Text(
-                      "${AppLocalizations.of(context)!.stepTwoCompletedSubText}${from(timeLeft, context)}",
+                      "${context.translate.stepTwoCompletedSubText}${from(timeLeft, context)}",
                       style: Theme.of(context)
                           .textTheme
                           .headlineSmall
@@ -569,7 +567,7 @@ class _RecordingsWaitingState extends ConsumerState<RecordingsWaiting> {
                     : () {
                         _next();
                       },
-                child: Text(AppLocalizations.of(context)!.nextButton),
+                child: Text(context.translate.nextButton),
               ),
             ),
             const SizedBox(
@@ -639,8 +637,8 @@ class _RecordingsState extends ConsumerState<RecordingsState> {
 
     final Widget transitLabel = Text(
       stage.value < 2
-          ? AppLocalizations.of(context)!.transitOneLabel
-          : AppLocalizations.of(context)!.transitTwoLabel,
+          ? context.translate.transitOneLabel
+          : context.translate.transitTwoLabel,
       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
           fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
     );
@@ -686,7 +684,7 @@ class _RecordingsState extends ConsumerState<RecordingsState> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      AppLocalizations.of(context)!.recordingStateTitle,
+                      context.translate.recordingStateTitle,
                       style: Theme.of(context)
                           .textTheme
                           .bodyMedium
@@ -719,8 +717,7 @@ class _RecordingsState extends ConsumerState<RecordingsState> {
                             pathParameters: {'type': Symptoms.BM},
                           );
                         },
-                        child: Text(
-                            AppLocalizations.of(context)!.studyRecordBMButton),
+                        child: Text(context.translate.studyRecordBMButton),
                       ),
                     ),
                     const SizedBox(
@@ -776,8 +773,8 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
 
     final Widget transitLabel = Text(
       stage.value < 2
-          ? AppLocalizations.of(context)!.transitOneLabel
-          : AppLocalizations.of(context)!.transitTwoLabel,
+          ? context.translate.transitOneLabel
+          : context.translate.transitTwoLabel,
       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
           fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
     );
@@ -819,8 +816,7 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
               cardColor: Colors.yellow.withValues(alpha: 0.35),
               child: Padding(
                   padding: const EdgeInsets.all(12.0),
-                  child: Text(AppLocalizations.of(context)!
-                      .blueMealRecordInstructions)),
+                  child: Text(context.translate.blueMealRecordInstructions)),
             ),
             const SizedBox(
               height: 12.0,
@@ -834,7 +830,7 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      AppLocalizations.of(context)!.recordingStateTitle,
+                      context.translate.recordingStateTitle,
                       style: Theme.of(context)
                           .textTheme
                           .bodyMedium

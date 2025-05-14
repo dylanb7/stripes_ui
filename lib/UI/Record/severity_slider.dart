@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class SliderListener extends ChangeNotifier {
   bool hasInteracted = false;
@@ -186,14 +186,14 @@ class _StripesSliderState extends State<StripesSlider> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  widget.minLabel ?? AppLocalizations.of(context)!.mildTag,
+                  widget.minLabel ?? context.translate.mildTag,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: listener.hasInteracted
                           ? Theme.of(context).colorScheme.onPrimary
                           : null),
                 ),
                 Text(
-                  widget.maxLabel ?? AppLocalizations.of(context)!.severeTag,
+                  widget.maxLabel ?? context.translate.severeTag,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: listener.hasInteracted
                           ? Theme.of(context).colorScheme.onPrimary
@@ -218,7 +218,7 @@ class _StripesSliderState extends State<StripesSlider> {
             maintainAnimation: true,
             maintainState: true,
             child: Text(
-              AppLocalizations.of(context)!.levelReminder,
+              context.translate.levelReminder,
               textAlign: TextAlign.center,
               style: Theme.of(context)
                   .textTheme
@@ -300,7 +300,7 @@ class _MoodSliderState extends State<MoodSlider> {
           maintainState: true,
           maintainAnimation: true,
           child: Text(
-            AppLocalizations.of(context)!.levelReminder,
+            context.translate.levelReminder,
             textAlign: TextAlign.center,
             style: Theme.of(context)
                 .textTheme
@@ -535,12 +535,12 @@ class _PainSliderState extends State<PainSlider> {
     final Color disabled = Theme.of(context).disabledColor;
     final Color onPrimary = Theme.of(context).colorScheme.onPrimary;
     final List<String> hurtLevels = [
-      AppLocalizations.of(context)!.painLevelZero,
-      AppLocalizations.of(context)!.painLevelOne,
-      AppLocalizations.of(context)!.painLevelTwo,
-      AppLocalizations.of(context)!.painLevelThree,
-      AppLocalizations.of(context)!.painLevelFour,
-      AppLocalizations.of(context)!.painLevelFive,
+      context.translate.painLevelZero,
+      context.translate.painLevelOne,
+      context.translate.painLevelTwo,
+      context.translate.painLevelThree,
+      context.translate.painLevelFour,
+      context.translate.painLevelFive,
     ];
     final int selectedIndex = (value / 2).floor();
     return DecoratedBox(
@@ -554,7 +554,7 @@ class _PainSliderState extends State<PainSlider> {
           Text(
             listener.hasInteracted
                 ? hurtLevels[selectedIndex]
-                : AppLocalizations.of(context)!.levelReminder,
+                : context.translate.levelReminder,
             style: Theme.of(context)
                 .textTheme
                 .titleMedium

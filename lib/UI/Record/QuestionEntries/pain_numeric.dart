@@ -7,7 +7,7 @@ import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/base.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/question_screen.dart';
 import 'package:stripes_ui/UI/Record/severity_slider.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 
 class PainFacesWidget extends ConsumerStatefulWidget {
   final QuestionsListener questionsListener;
@@ -170,8 +170,8 @@ class PainNumericWidgetState extends State<PainNumericWidget> {
           listener: listener,
           min: 0,
           max: 10,
-          minLabel: AppLocalizations.of(context)!.painLevelZero,
-          maxLabel: AppLocalizations.of(context)!.painLevelFive,
+          minLabel: context.translate.painLevelZero,
+          maxLabel: context.translate.painLevelFive,
           initial: value.toInt(),
         ),
       ],

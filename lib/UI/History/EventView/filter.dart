@@ -5,8 +5,7 @@ import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
-import 'package:stripes_ui/Util/breakpoint.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 
 class FilterView extends ConsumerWidget {
   const FilterView({super.key});
@@ -15,7 +14,6 @@ class FilterView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final Filters filters = ref.watch(filtersProvider);
     final String range = filters.toRange(context);
-    final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.small);
     return Wrap(
       spacing: 6.0,
       runSpacing: 6.0,
@@ -34,7 +32,7 @@ class FilterView extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                AppLocalizations.of(context)!.filterEventsButton,
+                context.translate.filterEventsButton,
               ),
               const SizedBox(
                 width: 4.0,
@@ -189,7 +187,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                 width: 35,
               ),
               Text(
-                AppLocalizations.of(context)!.eventFilterHeader,
+                context.translate.eventFilterHeader,
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               IconButton(
@@ -207,7 +205,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
           ),
           if (availibleTypes.length > 1) ...[
             Text(
-              AppLocalizations.of(context)!.eventFilterTypesTag,
+              context.translate.eventFilterTypesTag,
               style: Theme.of(context).textTheme.bodyLarge,
               textAlign: TextAlign.left,
             ),
@@ -312,7 +310,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                       });
                     },
                     child: Text(
-                      AppLocalizations.of(context)!.eventFilterReset,
+                      context.translate.eventFilterReset,
                     ),
                   ),
                 ),
@@ -321,8 +319,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                 ),
                 Expanded(
                   child: FilledButton(
-                    child:
-                        Text(AppLocalizations.of(context)!.eventFiltersApply),
+                    child: Text(context.translate.eventFiltersApply),
                     onPressed: () {
                       apply();
                     },

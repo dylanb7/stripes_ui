@@ -251,10 +251,6 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
       _close(ref);
     }
   }
-
-  _deleteUser(WidgetRef ref) {
-    ref.read(subProvider).valueOrNull?.deleteSubUser(widget.subUser);
-  }
 }
 
 subEquals(SubUser user1, SubUser user2) =>

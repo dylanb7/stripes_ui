@@ -5,7 +5,7 @@ import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/auth_provider.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 
 final blueDyeTestProgressProvider =
     FutureProvider<BlueDyeTestProgress>((ref) async {
@@ -119,15 +119,15 @@ enum BlueDyeProgression {
   String getLabel(BuildContext context) {
     switch (this) {
       case BlueDyeProgression.stepOne:
-        return AppLocalizations.of(context)!.studyProgessionOne;
+        return context.translate.studyProgessionOne;
       case BlueDyeProgression.stepTwo:
-        return AppLocalizations.of(context)!.studyProgessionTwo;
+        return context.translate.studyProgessionTwo;
       case BlueDyeProgression.stepThree:
         return "Waiting\nTime";
       case BlueDyeProgression.stepFour:
-        return AppLocalizations.of(context)!.studyProgessionThree;
+        return context.translate.studyProgessionThree;
       case BlueDyeProgression.stepFive:
-        return AppLocalizations.of(context)!.studyProgessionFour;
+        return context.translate.studyProgessionFour;
     }
   }
 }

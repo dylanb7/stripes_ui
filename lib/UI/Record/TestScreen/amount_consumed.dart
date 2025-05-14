@@ -10,7 +10,7 @@ import 'package:stripes_ui/UI/Record/TestScreen/card_layout_helper.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 
 class MealFinishedDisplay extends ConsumerWidget {
   final Function next;
@@ -39,20 +39,17 @@ class MealFinishedDisplay extends ConsumerWidget {
         progress.valueOrNull?.getProgression() ?? BlueDyeProgression.stepOne;
 
     final Map<AmountConsumed, String> amountText = {
-      AmountConsumed.undetermined:
-          AppLocalizations.of(context)!.amountConsumedUnable,
-      AmountConsumed.halfOrLess:
-          AppLocalizations.of(context)!.amountConsumedHalfOrLess,
-      AmountConsumed.half: AppLocalizations.of(context)!.amountConsumedHalf,
-      AmountConsumed.moreThanHalf:
-          AppLocalizations.of(context)!.amountConsumedHalfOrMore,
-      AmountConsumed.all: AppLocalizations.of(context)!.amountConsumedAll,
+      AmountConsumed.undetermined: context.translate.amountConsumedUnable,
+      AmountConsumed.halfOrLess: context.translate.amountConsumedHalfOrLess,
+      AmountConsumed.half: context.translate.amountConsumedHalf,
+      AmountConsumed.moreThanHalf: context.translate.amountConsumedHalfOrMore,
+      AmountConsumed.all: context.translate.amountConsumedAll,
     };
 
     final Widget transitLabel = Text(
       displaying.value < 2
-          ? AppLocalizations.of(context)!.transitOneLabel
-          : AppLocalizations.of(context)!.transitTwoLabel,
+          ? context.translate.transitOneLabel
+          : context.translate.transitTwoLabel,
       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
           fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
     );
@@ -132,7 +129,7 @@ class MealFinishedDisplay extends ConsumerWidget {
                   children: [
                     if (!cardLayout) ...[transitLabel, const Divider()],
                     Text(
-                      AppLocalizations.of(context)!.mealCompleteTitle,
+                      context.translate.mealCompleteTitle,
                       style: Theme.of(context)
                           .textTheme
                           .bodyMedium
@@ -150,9 +147,8 @@ class MealFinishedDisplay extends ConsumerWidget {
                             width: 6.0,
                           ),
                           if (mealStats.start != null)
-                            Text(AppLocalizations.of(context)!
-                                .mealCompleteStartTime(
-                                    mealStats.start!, mealStats.start!))
+                            Text(context.translate.mealCompleteStartTime(
+                                mealStats.start!, mealStats.start!))
                         ],
                       ),
                     ],
@@ -173,7 +169,7 @@ class MealFinishedDisplay extends ConsumerWidget {
                           ),
                           if (mealStats.duration != null)
                             Text(
-                                "${AppLocalizations.of(context)!.mealCompleteDuration} ${MealTime.fromDuration(mealStats.duration!)?.value ?? from(mealStats.duration!, context)}")
+                                "${context.translate.mealCompleteDuration} ${MealTime.fromDuration(mealStats.duration!)?.value ?? from(mealStats.duration!, context)}")
                         ],
                       ),
                     ],
@@ -190,7 +186,7 @@ class MealFinishedDisplay extends ConsumerWidget {
                           ),
                           Flexible(
                             child: Text(
-                              "${AppLocalizations.of(context)!.mealCompleteAmountConsumed} ${amountText[mealStats.amountConsumed!]!}",
+                              "${context.translate.mealCompleteAmountConsumed} ${amountText[mealStats.amountConsumed!]!}",
                             ),
                           ),
                         ],
@@ -201,8 +197,8 @@ class MealFinishedDisplay extends ConsumerWidget {
                     ),
                     Text(
                       displaying == BlueDyeProgression.stepThree
-                          ? AppLocalizations.of(context)!.stepThreeCompletedText
-                          : AppLocalizations.of(context)!.stepOneCompletedText,
+                          ? context.translate.stepThreeCompletedText
+                          : context.translate.stepOneCompletedText,
                       style: Theme.of(context)
                           .textTheme
                           .bodyMedium
@@ -223,7 +219,7 @@ class MealFinishedDisplay extends ConsumerWidget {
                 onPressed: () {
                   next();
                 },
-                child: Text(AppLocalizations.of(context)!.nextButton),
+                child: Text(context.translate.nextButton),
               ),
             ),
             const SizedBox(
@@ -275,20 +271,18 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
         progress.valueOrNull?.getProgression() ?? BlueDyeProgression.stepOne;
 
     final Map<AmountConsumed, String> amountText = {
-      AmountConsumed.halfOrLess:
-          AppLocalizations.of(context)!.amountConsumedHalfOrLess,
-      AmountConsumed.half: AppLocalizations.of(context)!.amountConsumedHalf,
-      AmountConsumed.moreThanHalf:
-          AppLocalizations.of(context)!.amountConsumedHalfOrMore,
-      AmountConsumed.all: AppLocalizations.of(context)!.amountConsumedAll,
+      AmountConsumed.halfOrLess: context.translate.amountConsumedHalfOrLess,
+      AmountConsumed.half: context.translate.amountConsumedHalf,
+      AmountConsumed.moreThanHalf: context.translate.amountConsumedHalfOrMore,
+      AmountConsumed.all: context.translate.amountConsumedAll,
     };
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
           stage == BlueDyeProgression.stepOne
-              ? AppLocalizations.of(context)!.studyStepOneExplanationTitle
-              : AppLocalizations.of(context)!.studyStepThreeExplanationTitle,
+              ? context.translate.studyStepOneExplanationTitle
+              : context.translate.studyStepThreeExplanationTitle,
           style: Theme.of(context)
               .textTheme
               .titleMedium
@@ -317,7 +311,7 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
                     child: Column(
                       children: [
                         Text(
-                          AppLocalizations.of(context)!.amountConsumedQuestion,
+                          context.translate.amountConsumedQuestion,
                           style: Theme.of(context)
                               .textTheme
                               .titleMedium
@@ -362,7 +356,7 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
                             }
                           },
                           title: Text(
-                            AppLocalizations.of(context)!.amountConsumedUnable,
+                            context.translate.amountConsumedUnable,
                             style: Theme.of(context)
                                 .textTheme
                                 .titleMedium
@@ -388,7 +382,7 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
                     _next(testsState);
                   }
                 : null,
-            child: Text(AppLocalizations.of(context)!.nextButton),
+            child: Text(context.translate.nextButton),
           ),
         ),
         const SizedBox(
@@ -448,8 +442,8 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
   Widget build(BuildContext context) {
     final Widget transitLabel = Text(
       widget.clicked.value < 2
-          ? AppLocalizations.of(context)!.transitOneLabel
-          : AppLocalizations.of(context)!.transitTwoLabel,
+          ? context.translate.transitOneLabel
+          : context.translate.transitTwoLabel,
       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
           fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
     );
@@ -466,25 +460,18 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
         progress.valueOrNull?.getProgression() ?? BlueDyeProgression.stepOne;
 
     final Map<AmountConsumed, String> amountText = {
-      AmountConsumed.halfOrLess:
-          AppLocalizations.of(context)!.amountConsumedHalfOrLess,
-      AmountConsumed.half: AppLocalizations.of(context)!.amountConsumedHalf,
-      AmountConsumed.moreThanHalf:
-          AppLocalizations.of(context)!.amountConsumedHalfOrMore,
-      AmountConsumed.all: AppLocalizations.of(context)!.amountConsumedAll,
-      AmountConsumed.undetermined:
-          AppLocalizations.of(context)!.amountConsumedUnable,
+      AmountConsumed.halfOrLess: context.translate.amountConsumedHalfOrLess,
+      AmountConsumed.half: context.translate.amountConsumedHalf,
+      AmountConsumed.moreThanHalf: context.translate.amountConsumedHalfOrMore,
+      AmountConsumed.all: context.translate.amountConsumedAll,
+      AmountConsumed.undetermined: context.translate.amountConsumedUnable,
     };
 
     final Map<MealTime, String> mealTimesText = {
-      MealTime.fifteenOrLess:
-          AppLocalizations.of(context)!.blueMealDurationAnswerOne,
-      MealTime.fifteenToThrity:
-          AppLocalizations.of(context)!.blueMealDurationAnswerTwo,
-      MealTime.thirtyToHour:
-          AppLocalizations.of(context)!.blueMealDurationAnswerThree,
-      MealTime.hourOrMore:
-          AppLocalizations.of(context)!.blueMealDurationAnswerFour,
+      MealTime.fifteenOrLess: context.translate.blueMealDurationAnswerOne,
+      MealTime.fifteenToThrity: context.translate.blueMealDurationAnswerTwo,
+      MealTime.thirtyToHour: context.translate.blueMealDurationAnswerThree,
+      MealTime.hourOrMore: context.translate.blueMealDurationAnswerFour,
     };
 
     final Color activeCard =
@@ -537,7 +524,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                   const Divider(),
                 ],
                 Text(
-                  AppLocalizations.of(context)!.blueMealFastHeader,
+                  context.translate.blueMealFastHeader,
                   style: Theme.of(context)
                       .textTheme
                       .bodyMedium
@@ -551,8 +538,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                     ),
                     children: [
                       TextSpan(
-                          text: AppLocalizations.of(context)!
-                              .blueMealFastQuestion,
+                          text: context.translate.blueMealFastQuestion,
                           style: Theme.of(context)
                               .textTheme
                               .bodyMedium
@@ -590,7 +576,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                             const SizedBox(
                               width: 2.0,
                             ),
-                            Text(AppLocalizations.of(context)!.blueQuestionYes),
+                            Text(context.translate.blueQuestionYes),
                           ],
                         ),
                       ),
@@ -615,7 +601,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                             const SizedBox(
                               width: 2.0,
                             ),
-                            Text(AppLocalizations.of(context)!.blueQuestionNo),
+                            Text(context.translate.blueQuestionNo),
                           ],
                         ),
                       ),
@@ -624,12 +610,9 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                 ),
                 LabeledList(
                   strings: [
-                    AppLocalizations.of(context)!
-                        .blueMealFastInstructionLineOne,
-                    AppLocalizations.of(context)!
-                        .blueMealFastInstructionLineTwo,
-                    AppLocalizations.of(context)!
-                        .blueMealFastInstructionLineThree
+                    context.translate.blueMealFastInstructionLineOne,
+                    context.translate.blueMealFastInstructionLineTwo,
+                    context.translate.blueMealFastInstructionLineThree
                   ],
                   highlight: false,
                   mark: (index) => '${index + 1}.',
@@ -655,14 +638,14 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
-                    AppLocalizations.of(context)!.blueMealDurationTitle,
+                    context.translate.blueMealDurationTitle,
                     style: Theme.of(context)
                         .textTheme
                         .bodyMedium
                         ?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    AppLocalizations.of(context)!.blueMealDurationQuestion,
+                    context.translate.blueMealDurationQuestion,
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   const SizedBox(
@@ -715,14 +698,14 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
-                    AppLocalizations.of(context)!.blueMealAmountConsumedTitle,
+                    context.translate.blueMealAmountConsumedTitle,
                     style: Theme.of(context)
                         .textTheme
                         .bodyMedium
                         ?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    AppLocalizations.of(context)!.amountConsumedQuestion,
+                    context.translate.amountConsumedQuestion,
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   const SizedBox(
@@ -767,7 +750,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                     _next(testsState);
                   }
                 : null,
-            child: Text(AppLocalizations.of(context)!.nextButton),
+            child: Text(context.translate.nextButton),
           ),
         ),
         const SizedBox(

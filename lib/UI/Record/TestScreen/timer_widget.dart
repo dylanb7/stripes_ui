@@ -10,6 +10,7 @@ import 'package:stripes_ui/Providers/test_progress_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class TimerWidget extends ConsumerWidget {
@@ -76,7 +77,7 @@ class _TimerPortionState extends ConsumerState<TimerPortion> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Text(
-                  AppLocalizations.of(context)!.mealTimerTitle,
+                  context.translate.mealTimerTitle,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: Theme.of(context).colorScheme.onPrimary),
                 ),
@@ -116,8 +117,7 @@ class _TimerPortionState extends ConsumerState<TimerPortion> {
                                 backgroundColor: WidgetStateProperty.all(
                                     Theme.of(context).colorScheme.surface),
                               ),
-                      label:
-                          Text(AppLocalizations.of(context)!.studyResetLabel),
+                      label: Text(context.translate.studyResetLabel),
                       icon: const Icon(Icons.restart_alt_rounded),
                     ),
                     ElevatedButton.icon(
@@ -136,8 +136,8 @@ class _TimerPortionState extends ConsumerState<TimerPortion> {
                                     Theme.of(context).colorScheme.surface),
                               ),
                       label: Text(paused
-                          ? AppLocalizations.of(context)!.studyPlayLabel
-                          : AppLocalizations.of(context)!.studyPauseLabel),
+                          ? context.translate.studyPlayLabel
+                          : context.translate.studyPauseLabel),
                       icon: Icon(paused ? Icons.play_arrow : Icons.pause),
                     ),
                   ],
@@ -156,7 +156,7 @@ class _TimerPortionState extends ConsumerState<TimerPortion> {
                     _next(blueDyeState);
                   }
                 : null,
-            child: Text(AppLocalizations.of(context)!.nextButton),
+            child: Text(context.translate.nextButton),
           ),
         ),
         const SizedBox(

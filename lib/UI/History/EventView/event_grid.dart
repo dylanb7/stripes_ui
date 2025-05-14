@@ -5,7 +5,7 @@ import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 
 class EventGrid extends ConsumerWidget {
   final bool daysSeparated;
@@ -81,7 +81,7 @@ class EventGrid extends ConsumerWidget {
                     children: [
                       TextSpan(
                         text:
-                            " · ${AppLocalizations.of(context)!.eventFilterResults(daySymptoms.length)}",
+                            " · ${context.translate.eventFilterResults(daySymptoms.length)}",
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Theme.of(context)
                                 .colorScheme

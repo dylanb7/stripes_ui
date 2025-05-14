@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 
 showSnack(BuildContext context, String message,
     {Function? action, String? actionMessage}) {
@@ -10,7 +10,7 @@ showSnack(BuildContext context, String message,
     margin: const EdgeInsets.only(left: 6.0, right: 6.0, bottom: 6.0),
     action: action != null
         ? SnackBarAction(
-            label: actionMessage ?? AppLocalizations.of(context)!.undo,
+            label: actionMessage ?? context.translate.undo,
             onPressed: () {
               action();
             })

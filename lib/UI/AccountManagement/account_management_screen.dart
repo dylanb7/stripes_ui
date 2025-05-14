@@ -13,9 +13,9 @@ import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/config.dart';
 import 'package:stripes_ui/entry.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class AccountManagementScreen extends ConsumerWidget {
   const AccountManagementScreen({super.key});
@@ -64,7 +64,7 @@ class AccountManagementScreen extends ConsumerWidget {
                       await ref.read(authProvider).logOut();
                       ref.invalidate(routeProvider);
                     },
-                    child: Text(AppLocalizations.of(context)!.logOutButton)),
+                    child: Text(context.translate.logOutButton)),
                 const SizedBox(
                   width: 20,
                 ),

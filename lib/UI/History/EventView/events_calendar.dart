@@ -8,7 +8,7 @@ import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/History/EventView/calendar_day.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class EventsCalendar extends ConsumerStatefulWidget {
@@ -105,9 +105,8 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
     );
 
     final Map<CalendarFormat, String> formats = {
-      CalendarFormat.week: AppLocalizations.of(context)!.calendarVisibilityWeek,
-      CalendarFormat.month:
-          AppLocalizations.of(context)!.calendarVisibilityMonth
+      CalendarFormat.week: context.translate.calendarVisibilityWeek,
+      CalendarFormat.month: context.translate.calendarVisibilityMonth
     };
 
     final bool canClear = rangeStart != null && rangeEnd != null;
@@ -499,9 +498,8 @@ class _CalendarHeader extends StatelessWidget {
     final bool isTiny = getBreakpoint(context).isLessThan(Breakpoint.tiny);
 
     final Map<CalendarFormat, String> formats = {
-      CalendarFormat.week: AppLocalizations.of(context)!.calendarVisibilityWeek,
-      CalendarFormat.month:
-          AppLocalizations.of(context)!.calendarVisibilityMonth
+      CalendarFormat.week: context.translate.calendarVisibilityWeek,
+      CalendarFormat.month: context.translate.calendarVisibilityMonth
     };
     final String headerText = DateFormat.yMMM().format(focusedDay);
 
@@ -563,7 +561,7 @@ class _CalendarHeader extends StatelessWidget {
                   onPressed: () {
                     reset();
                   },
-                  label: Text(AppLocalizations.of(context)!.eventFilterReset),
+                  label: Text(context.translate.eventFilterReset),
                   icon: const Icon(Icons.restart_alt),
                 ),
           const SizedBox(width: 6.0),

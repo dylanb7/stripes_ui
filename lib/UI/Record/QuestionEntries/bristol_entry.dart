@@ -5,7 +5,7 @@ import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/UI/Record/severity_slider.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 
 class BMSlider extends ConsumerStatefulWidget {
   final QuestionsListener listener;
@@ -123,14 +123,14 @@ class _BMSliderState extends ConsumerState<BMSlider> {
           mainAxisSize: MainAxisSize.max,
           children: [
             Text(
-              AppLocalizations.of(context)!.hardTag,
+              context.translate.hardTag,
               style: Theme.of(context)
                   .textTheme
                   .bodyLarge
                   ?.copyWith(color: Theme.of(context).primaryColor),
             ),
             Text(
-              AppLocalizations.of(context)!.softTag,
+              context.translate.softTag,
               style: Theme.of(context)
                   .textTheme
                   .bodyLarge

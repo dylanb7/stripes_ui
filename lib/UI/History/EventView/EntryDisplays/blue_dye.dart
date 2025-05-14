@@ -4,7 +4,7 @@ import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/amount_consumed.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 
 class BlueDyeVisualDisplay extends StatelessWidget {
   final BlueDyeResp resp;
@@ -16,14 +16,11 @@ class BlueDyeVisualDisplay extends StatelessWidget {
     final double iconSize = Theme.of(context).iconTheme.size ?? 20;
 
     final Map<AmountConsumed, String> amountText = {
-      AmountConsumed.undetermined:
-          AppLocalizations.of(context)!.amountConsumedUnable,
-      AmountConsumed.halfOrLess:
-          AppLocalizations.of(context)!.amountConsumedHalfOrLess,
-      AmountConsumed.half: AppLocalizations.of(context)!.amountConsumedHalf,
-      AmountConsumed.moreThanHalf:
-          AppLocalizations.of(context)!.amountConsumedHalfOrMore,
-      AmountConsumed.all: AppLocalizations.of(context)!.amountConsumedAll,
+      AmountConsumed.undetermined: context.translate.amountConsumedUnable,
+      AmountConsumed.halfOrLess: context.translate.amountConsumedHalfOrLess,
+      AmountConsumed.half: context.translate.amountConsumedHalf,
+      AmountConsumed.moreThanHalf: context.translate.amountConsumedHalfOrMore,
+      AmountConsumed.all: context.translate.amountConsumedAll,
     };
 
     return Column(
@@ -31,7 +28,7 @@ class BlueDyeVisualDisplay extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          AppLocalizations.of(context)!.mealCompleteTitle,
+          context.translate.mealCompleteTitle,
           style: Theme.of(context)
               .textTheme
               .bodyMedium
@@ -47,7 +44,7 @@ class BlueDyeVisualDisplay extends StatelessWidget {
             const SizedBox(
               width: 6.0,
             ),
-            Text(AppLocalizations.of(context)!
+            Text(context.translate
                 .mealCompleteStartTime(resp.startEating, resp.startEating))
           ],
         ),
@@ -66,7 +63,7 @@ class BlueDyeVisualDisplay extends StatelessWidget {
               width: 6.0,
             ),
             Text(
-                "${AppLocalizations.of(context)!.mealCompleteDuration} ${MealTime.fromDuration(resp.eatingDuration) ?? from(resp.eatingDuration, context)}")
+                "${context.translate.mealCompleteDuration} ${MealTime.fromDuration(resp.eatingDuration) ?? from(resp.eatingDuration, context)}")
           ],
         ),
         const SizedBox(
@@ -81,7 +78,7 @@ class BlueDyeVisualDisplay extends StatelessWidget {
             ),
             Flexible(
               child: Text(
-                "${AppLocalizations.of(context)!.mealCompleteAmountConsumed} ${amountText[resp.amountConsumed]!}",
+                "${context.translate.mealCompleteAmountConsumed} ${amountText[resp.amountConsumed]!}",
               ),
             ),
           ],
@@ -90,7 +87,7 @@ class BlueDyeVisualDisplay extends StatelessWidget {
           height: 12.0,
         ),
         Text(
-          AppLocalizations.of(context)!.recordingStateTitle,
+          context.translate.recordingStateTitle,
           style: Theme.of(context)
               .textTheme
               .bodyMedium

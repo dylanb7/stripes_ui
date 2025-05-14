@@ -41,7 +41,7 @@ class TestContentState<T extends Test> extends ConsumerState<TestContent> {
             children: [
               if (state.testInProgress)
                 Text(
-                  AppLocalizations.of(context)!.blueMealStartTime(
+                  context.translate.blueMealStartTime(
                       blueDyeObj!.startTime!, blueDyeObj.startTime!),
                   textAlign: TextAlign.left,
                   style: Theme.of(context).textTheme.bodyMedium,
@@ -60,7 +60,7 @@ class TestContentState<T extends Test> extends ConsumerState<TestContent> {
                           : () {
                               _cancelTest(context, ref);
                             },
-                      child: Text(AppLocalizations.of(context)!.blueDyeCancel),
+                      child: Text(context.translate.blueDyeCancel),
                     ),
                   ),
                 ),
@@ -120,7 +120,7 @@ class TimerDisplay<T extends Test> extends ConsumerWidget {
                   height: 8.0,
                 ),
                 Text(
-                  AppLocalizations.of(context)!.blueMealDurationTag,
+                  context.translate.blueMealDurationTag,
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 Visibility(
@@ -147,7 +147,7 @@ class TimerDisplay<T extends Test> extends ConsumerWidget {
                             },
                       child: isLoading
                           ? const ButtonLoadingIndicator()
-                          : Text(AppLocalizations.of(context)!
+                          : Text(context.translate
                               .blueMealFinishedButton),
                     ),
                   ),
@@ -165,7 +165,7 @@ class TimerDisplay<T extends Test> extends ConsumerWidget {
             textAlign: TextAlign.left,
             text: TextSpan(children: [
               TextSpan(
-                text: AppLocalizations.of(context)!.blueMealFinalDurationTag,
+                text: context.translate.blueMealFinalDurationTag,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onPrimaryContainer),
               ),

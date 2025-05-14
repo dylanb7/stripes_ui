@@ -5,6 +5,7 @@ import 'package:stripes_backend_helper/RepositoryBase/TestBase/test_state.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -121,7 +122,7 @@ class TestErrorPrevention<T extends Test> extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ConfirmationPopup(
         title: Text(
-          AppLocalizations.of(context)!.errorPreventionTitle,
+          context.translate.errorPreventionTitle,
           style: Theme.of(context).textTheme.headlineMedium,
           textAlign: TextAlign.center,
         ),
@@ -130,7 +131,7 @@ class TestErrorPrevention<T extends Test> extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              AppLocalizations.of(context)!.blueMuffinErrorPreventionLineOne,
+              context.translate.blueMuffinErrorPreventionLineOne,
               style: Theme.of(context).textTheme.bodyMedium,
               textAlign: TextAlign.center,
             ),
@@ -138,7 +139,7 @@ class TestErrorPrevention<T extends Test> extends ConsumerWidget {
               height: 8.0,
             ),
             Text(
-              AppLocalizations.of(context)!.blueMuffinErrorPreventionLineTwo,
+              context.translate.blueMuffinErrorPreventionLineTwo,
               style: Theme.of(context).textTheme.bodyMedium,
               textAlign: TextAlign.center,
             ),
@@ -147,7 +148,7 @@ class TestErrorPrevention<T extends Test> extends ConsumerWidget {
         onConfirm: () async {
           (await ref.read(testsHolderProvider.notifier).getTest<T>())?.cancel();
         },
-        cancel: AppLocalizations.of(context)!.errorPreventionStay,
-        confirm: AppLocalizations.of(context)!.errorPreventionLeave);
+        cancel: context.translate.errorPreventionStay,
+        confirm: context.translate.errorPreventionLeave);
   }
 }

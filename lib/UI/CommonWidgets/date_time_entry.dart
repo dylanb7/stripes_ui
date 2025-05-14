@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
 import 'package:stripes_ui/UI/History/EventView/sig_dates.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 
 import 'package:stripes_ui/Util/mouse_hover.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class DateListener extends ChangeNotifier {
   DateTime date = DateTime.now();
@@ -39,7 +39,7 @@ class DateWidget extends ConsumerWidget {
       builder: (context, child) {
         final DateTime date = dateListener.date;
         final text = Text(
-          AppLocalizations.of(context)!.dateChangeEntry(date),
+          context.translate.dateChangeEntry(date),
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 decoration: enabled ? TextDecoration.underline : null,
@@ -58,7 +58,7 @@ class DateWidget extends ConsumerWidget {
             : text;
 
         return DateTimeHolder(
-          text: AppLocalizations.of(context)!.dateChangeTitle,
+          text: context.translate.dateChangeTitle,
           hasHeader: hasHeader,
           onClick: enabled
               ? () {
@@ -135,7 +135,7 @@ class TimeWidget extends ConsumerWidget {
               : text;
 
           return DateTimeHolder(
-            text: AppLocalizations.of(context)!.timeChangeTitle,
+            text: context.translate.timeChangeTitle,
             hasHeader: hasHeader,
             onClick: enabled
                 ? () {
@@ -168,14 +168,11 @@ class TimeWidget extends ConsumerWidget {
     final String? latestErr = latest?.format(context);
     String selectionError = "";
     if (early != null && latestErr != null) {
-      selectionError =
-          AppLocalizations.of(context)!.timePickerErrorBoth(early, latestErr);
+      selectionError = context.translate.timePickerErrorBoth(early, latestErr);
     } else if (early != null) {
-      selectionError =
-          AppLocalizations.of(context)!.timePickerErrorEarly(early);
+      selectionError = context.translate.timePickerErrorEarly(early);
     } else if (latestErr != null) {
-      selectionError =
-          AppLocalizations.of(context)!.timePickerErrorLate(latestErr);
+      selectionError = context.translate.timePickerErrorLate(latestErr);
     }
     TimeOfDay? res = await showTimePicker(
       context: context,
@@ -278,7 +275,7 @@ class DateRangePicker extends StatelessWidget {
   Widget build(BuildContext context) {
     String toRange() {
       if (initialStart == null || initialEnd == null) {
-        return AppLocalizations.of(context)!.dateRangeButton;
+        return context.translate.dateRangeButton;
       }
       String locale = Localizations.localeOf(context).languageCode;
 

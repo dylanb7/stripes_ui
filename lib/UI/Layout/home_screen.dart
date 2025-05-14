@@ -8,8 +8,8 @@ import 'package:stripes_ui/UI/Layout/fabs.dart';
 import 'package:stripes_ui/UI/AccountManagement/add_first_profile.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../Providers/overlay_provider.dart';
@@ -182,15 +182,15 @@ class StripesInfoSheet extends StatelessWidget {
     final ScrollController scroll = scrollController ?? ScrollController();
     final List<Widget> infoItems = [
       Text(
-        AppLocalizations.of(context)!.aboutStripes,
+        context.translate.aboutStripes,
         style: Theme.of(context)
             .textTheme
             .titleMedium
             ?.copyWith(fontWeight: FontWeight.bold),
       ),
-      Text(AppLocalizations.of(context)!.aboutLineOne),
-      Text(AppLocalizations.of(context)!.aboutLineTwo),
-      Text(AppLocalizations.of(context)!.aboutLineThree),
+      Text(context.translate.aboutLineOne),
+      Text(context.translate.aboutLineTwo),
+      Text(context.translate.aboutLineThree),
       InkWell(
         onTap: () => launchUrl(Uri.parse('https://www.bluepoop.info')),
         child: const Text(
@@ -199,7 +199,7 @@ class StripesInfoSheet extends StatelessWidget {
         ),
       ),
       Text(
-        AppLocalizations.of(context)!.aboutQuestionsTitle,
+        context.translate.aboutQuestionsTitle,
         style: Theme.of(context)
             .textTheme
             .titleMedium
@@ -207,15 +207,15 @@ class StripesInfoSheet extends StatelessWidget {
       ),
       LabeledList(
           title: Text(
-            AppLocalizations.of(context)!.aboutCategoriesTitle,
+            context.translate.aboutCategoriesTitle,
           ),
           strings: [
-            AppLocalizations.of(context)!.aboutDataCollection,
-            AppLocalizations.of(context)!.aboutDataSecurity,
-            AppLocalizations.of(context)!.aboutStudyQuestions,
-            AppLocalizations.of(context)!.aboutStudyResults,
-            AppLocalizations.of(context)!.aboutWithdraw,
-            AppLocalizations.of(context)!.aboutETC
+            context.translate.aboutDataCollection,
+            context.translate.aboutDataSecurity,
+            context.translate.aboutStudyQuestions,
+            context.translate.aboutStudyResults,
+            context.translate.aboutWithdraw,
+            context.translate.aboutETC
           ],
           highlight: false),
     ];
@@ -238,7 +238,7 @@ class StripesInfoSheet extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: Text(
-                      AppLocalizations.of(context)!.stripesName,
+                      context.translate.stripesName,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           color: Theme.of(context).primaryColor,
                           fontWeight: FontWeight.bold),

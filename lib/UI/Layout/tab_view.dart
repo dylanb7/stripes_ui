@@ -18,10 +18,9 @@ import 'package:stripes_ui/UI/Record/record_screen.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 
 import 'package:stripes_ui/entry.dart';
-
-import 'package:stripes_ui/l10n/app_localizations.dart';
 
 enum TabOption {
   record('Record'),
@@ -331,7 +330,7 @@ class SmallLayout extends ConsumerWidget {
               Expanded(
                 child: NavTile(
                     icon: const Icon(Icons.add),
-                    label: AppLocalizations.of(context)!.recordTab,
+                    label: context.translate.recordTab,
                     onTap: () {
                       if (customSelect != null) {
                         customSelect!(Routes.HOME);
@@ -346,7 +345,7 @@ class SmallLayout extends ConsumerWidget {
                 Expanded(
                   child: NavTile(
                       icon: const Icon(Icons.checklist_outlined),
-                      label: AppLocalizations.of(context)!.testTab,
+                      label: context.translate.testTab,
                       onTap: () {
                         if (customSelect != null) {
                           customSelect!(Routes.TEST);
@@ -361,7 +360,7 @@ class SmallLayout extends ConsumerWidget {
               Expanded(
                 child: NavTile(
                     icon: const Icon(Icons.history),
-                    label: AppLocalizations.of(context)!.historyTab,
+                    label: context.translate.historyTab,
                     onTap: () {
                       if (customSelect != null) {
                         customSelect!(Routes.HISTORY);
@@ -470,9 +469,9 @@ class LargeNavButton extends ConsumerWidget {
     if (tab == TabOption.tests && !hasTests) return Container();
 
     Map<TabOption, String> buttonText = {
-      TabOption.record: AppLocalizations.of(context)!.recordTab,
-      TabOption.tests: AppLocalizations.of(context)!.testTab,
-      TabOption.history: AppLocalizations.of(context)!.historyTab,
+      TabOption.record: context.translate.recordTab,
+      TabOption.tests: context.translate.testTab,
+      TabOption.history: context.translate.historyTab,
     };
 
     final String text = buttonText[tab]!;

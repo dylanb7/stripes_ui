@@ -6,7 +6,7 @@ import 'package:rxdart/subjects.dart';
 import 'package:stripes_backend_helper/TestingReposImpl/test_question_repo.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_dye_test_screen.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 
 final Map<SubUser, BlueDyeState?> _repo = {};
 
@@ -38,7 +38,7 @@ class BlueDyeTest extends Test<BlueDyeState> {
 
   @override
   String getName(BuildContext context) {
-    return AppLocalizations.of(context)!.blueDyeHeader;
+    return context.translate.blueDyeHeader;
   }
 
   @override
@@ -119,7 +119,7 @@ class BlueDyeTest extends Test<BlueDyeState> {
       child: Padding(
         padding: const EdgeInsets.all(4.0),
         child: Text(
-          AppLocalizations.of(context)!.testInProgressNotif,
+          context.translate.testInProgressNotif,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(context).colorScheme.secondary.darken()),
         ),
@@ -136,11 +136,11 @@ class BlueDyeTest extends Test<BlueDyeState> {
         MultipleChoice(
             id: blueQuestionId,
             isRequired: true,
-            prompt: AppLocalizations.of(context)!.submitBlueQuestion,
+            prompt: context.translate.submitBlueQuestion,
             type: type,
             choices: [
-              AppLocalizations.of(context)!.blueQuestionYes,
-              AppLocalizations.of(context)!.blueQuestionNo
+              context.translate.blueQuestionYes,
+              context.translate.blueQuestionNo
             ])
     ];
   }

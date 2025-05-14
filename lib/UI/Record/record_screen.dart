@@ -11,7 +11,6 @@ import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class Footer extends StatelessWidget {
   const Footer({super.key});
@@ -66,7 +65,7 @@ class Options extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      AppLocalizations.of(context)!.categorySelect,
+                      context.translate.categorySelect,
                       style: Theme.of(context).textTheme.titleMedium,
                       textAlign: TextAlign.left,
                     ),
@@ -90,7 +89,7 @@ class Options extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        AppLocalizations.of(context)!.categorySelect,
+                        context.translate.categorySelect,
                         style: Theme.of(context).textTheme.titleMedium,
                         textAlign: TextAlign.left,
                       ),
@@ -120,7 +119,7 @@ class Options extends ConsumerWidget {
                       thickness: 2,
                     ),
                     Text(
-                      AppLocalizations.of(context)!.checkInLabel,
+                      context.translate.checkInLabel,
                       style: Theme.of(context).textTheme.titleMedium,
                       textAlign: TextAlign.left,
                     ),
@@ -205,8 +204,8 @@ class LastEntryText extends ConsumerWidget {
     return stamps.map(
         data: (data) {
           final String lastEntry = data.value.isEmpty
-              ? AppLocalizations.of(context)!.noEntryText
-              : AppLocalizations.of(context)!
+              ? context.translate.noEntryText
+              : context.translate
                   .lastEntry(dateFromStamp(data.value.first.stamp));
           return Text(
             lastEntry,

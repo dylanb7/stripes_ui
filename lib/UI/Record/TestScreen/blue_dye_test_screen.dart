@@ -15,7 +15,6 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
-import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class BlueDyeTestScreen extends ConsumerStatefulWidget {
   const BlueDyeTestScreen({super.key});
@@ -334,7 +333,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                     if (value > activeStage.value) {
                       showSnack(
                           context,
-                          AppLocalizations.of(context)!
+                          context.translate
                               .stepClickWarning("${index + 1}"));
                       return;
                     }
@@ -458,7 +457,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
             if (step.value > activeIndex) {
               showSnack(
                   context,
-                  AppLocalizations.of(context)!.stepClickWarning(
+                  context.translate.stepClickWarning(
                       '${step.value < 2 ? step.value + 1 : step.value}'));
               return;
             }
@@ -563,8 +562,8 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                       ),
                       Text(
                         step.value < 2
-                            ? AppLocalizations.of(context)!.transitOneLabel
-                            : AppLocalizations.of(context)!.transitTwoLabel,
+                            ? context.translate.transitOneLabel
+                            : context.translate.transitTwoLabel,
                         textAlign: TextAlign.start,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                             color: active || !previous ? surface : primary),
