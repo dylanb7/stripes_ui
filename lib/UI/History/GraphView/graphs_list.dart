@@ -49,123 +49,126 @@ class GraphsList extends ConsumerWidget {
                   depth: RefreshDepth.authuser,
                   scrollable: AsyncValueDefaults(
                     value: graphs,
-                    onData: (data) => ListView(
-                        padding:
-                            const EdgeInsets.only(top: 20, left: 20, right: 20),
-                        children: [
-                          Row(
-                            children: [
-                              const Expanded(child: PatientChanger()),
-                              const SizedBox(
-                                width: 4.0,
-                              ),
-                              IconButton(
+                    onData: (data) {
+                      return ListView(
+                          padding: const EdgeInsets.only(
+                              top: 20, left: 20, right: 20),
+                          children: [
+                            Row(
+                              children: [
+                                const Expanded(child: PatientChanger()),
+                                const SizedBox(
+                                  width: 4.0,
+                                ),
+                                IconButton(
+                                    onPressed: () {
+                                      context.pushNamed(Routes.HISTORY);
+                                    },
+                                    icon: const Icon(Icons.calendar_month))
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 6.0,
+                            ),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                IconButton(
                                   onPressed: () {
-                                    context.pushNamed(Routes.HISTORY);
-                                  },
-                                  icon: const Icon(Icons.calendar_month))
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 6.0,
-                          ),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              IconButton(
-                                onPressed: () {
-                                  ref
-                                      .read(graphSettingsProvider.notifier)
-                                      .state = settings.shift(false);
-                                },
-                                icon: const Icon(Icons.keyboard_arrow_left),
-                              ),
-                              Text(
-                                settings.getRangeString(context),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(fontWeight: FontWeight.bold),
-                              ),
-                              IconButton(
-                                onPressed: () {
-                                  ref
-                                      .read(graphSettingsProvider.notifier)
-                                      .state = settings.shift(true);
-                                },
-                                icon: const Icon(Icons.keyboard_arrow_right),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              DropdownMenu<GraphSpan>(
-                                  initialSelection: settings.span,
-                                  onSelected: (value) {
-                                    if (value == null) return;
-                                    ref
-                                            .read(graphSettingsProvider.notifier)
-                                            .state =
-                                        GraphSettings.from(
-                                            span: value, axis: settings.axis);
-                                  },
-                                  dropdownMenuEntries: GraphSpan.values
-                                      .map(
-                                        (value) => DropdownMenuEntry(
-                                            value: value, label: value.value),
-                                      )
-                                      .toList()),
-                              DropdownMenu<GraphYAxis>(
-                                  initialSelection: settings.axis,
-                                  onSelected: (value) {
-                                    if (value == null) return;
                                     ref
                                         .read(graphSettingsProvider.notifier)
-                                        .state = settings.copyWith(axis: value);
+                                        .state = settings.shift(false);
                                   },
-                                  dropdownMenuEntries: GraphYAxis.values
-                                      .map(
-                                        (value) => DropdownMenuEntry(
-                                            value: value, label: value.value),
-                                      )
-                                      .toList()),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 6.0,
-                          ),
-                          ...data.keys
-                              .map(
-                                (title) => Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Expanded(
-                                      child: Text(title),
-                                    ),
-                                    Container(
-                                      width: 150.0,
-                                      height: 100.0,
-                                      decoration: BoxDecoration(
-                                          color: Theme.of(context)
-                                              .primaryColor
-                                              .withValues(alpha: 0.2),
-                                          borderRadius: const BorderRadius.all(
-                                              Radius.circular(6.0))),
-                                      child: GraphSymptom(
-                                          responses: [data[title]!],
-                                          settings: settings,
-                                          isDetailed: false),
-                                    ),
-                                  ],
+                                  icon: const Icon(Icons.keyboard_arrow_left),
                                 ),
-                              )
-                              .separated(by: const Divider()),
-                        ]),
+                                Text(
+                                  settings.getRangeString(context),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(fontWeight: FontWeight.bold),
+                                ),
+                                IconButton(
+                                  onPressed: () {
+                                    ref
+                                        .read(graphSettingsProvider.notifier)
+                                        .state = settings.shift(true);
+                                  },
+                                  icon: const Icon(Icons.keyboard_arrow_right),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                DropdownMenu<GraphSpan>(
+                                    initialSelection: settings.span,
+                                    onSelected: (value) {
+                                      if (value == null) return;
+                                      ref
+                                              .read(graphSettingsProvider.notifier)
+                                              .state =
+                                          GraphSettings.from(
+                                              span: value, axis: settings.axis);
+                                    },
+                                    dropdownMenuEntries: GraphSpan.values
+                                        .map(
+                                          (value) => DropdownMenuEntry(
+                                              value: value, label: value.value),
+                                        )
+                                        .toList()),
+                                DropdownMenu<GraphYAxis>(
+                                    initialSelection: settings.axis,
+                                    onSelected: (value) {
+                                      if (value == null) return;
+                                      ref
+                                          .read(graphSettingsProvider.notifier)
+                                          .state = settings.copyWith(axis: value);
+                                    },
+                                    dropdownMenuEntries: GraphYAxis.values
+                                        .map(
+                                          (value) => DropdownMenuEntry(
+                                              value: value, label: value.value),
+                                        )
+                                        .toList()),
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 6.0,
+                            ),
+                            ...data.keys
+                                .map(
+                                  (title) => Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Expanded(
+                                        child: Text(title),
+                                      ),
+                                      Container(
+                                        height: 100.0,
+                                        decoration: BoxDecoration(
+                                            color: Theme.of(context)
+                                                .primaryColor
+                                                .withValues(alpha: 0.2),
+                                            borderRadius:
+                                                const BorderRadius.all(
+                                                    Radius.circular(6.0))),
+                                        child: GraphSymptom(
+                                            responses: [data[title]!],
+                                            settings: settings,
+                                            isDetailed: false),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                                .separated(by: const Divider()),
+                          ]);
+                    },
                     onLoading: (_) => ListView(
                       children: List.generate(
                         5,
