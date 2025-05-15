@@ -217,7 +217,10 @@ final graphStampsProvider =
     if (!settings.range.contains(dateFromStamp(wrappedResponse.stamp))) {
       continue;
     }
-    final List<Response> flattened = _flattenedResponse(wrappedResponse);
+    List<Response> flattened = _flattenedResponse(wrappedResponse);
+    if (settings.axis == GraphYAxis.severity) {
+      flattened = flattened.whereType<NumericResponse>().toList();
+    }
     for (final Response response in flattened) {
       if (byQuestion.containsKey(response.question.prompt)) {
         byQuestion[response.question.prompt]!.add(response);

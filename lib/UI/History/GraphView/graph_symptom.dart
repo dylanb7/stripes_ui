@@ -30,13 +30,14 @@ class _GraphSymptomState extends State<GraphSymptom> {
   void initState() {
     List<List<List<Stamp>>> sets = [];
     for (List<Response> dataset in widget.responses) {
-      sets.add(
-        bucketEvents(
-          dataset,
-          widget.settings.range,
-          widget.settings.span.getBuckets(widget.settings.range.start),
-        ),
+      final List<List<Stamp>>? setValue = bucketEvents(
+        dataset,
+        widget.settings.range,
+        widget.settings.span.getBuckets(widget.settings.range.start),
       );
+      if (setValue != null) {
+        sets.add(setValue);
+      }
     }
 
     dataSet = widget.settings.axis == GraphYAxis.entrytime
@@ -61,7 +62,18 @@ class _GraphSymptomState extends State<GraphSymptom> {
     final AxisTitles bottomTitles = AxisTitles(sideTitles: SideTitles());
 
     final FlTitlesData titlesData = widget.isDetailed
-        ? FlTitlesData(bottomTitles: bottomTitles)
+        ? FlTitlesData(
+            bottomTitles: bottomTitles,
+            leftTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+          )
         : const FlTitlesData(show: false);
     if (widget.settings.axis == GraphYAxis.entrytime) {
       return ScatterChart(
@@ -79,6 +91,8 @@ class _GraphSymptomState extends State<GraphSymptom> {
     }
     return BarChart(
       BarChartData(
+        alignment: BarChartAlignment.center,
+        groupsSpace: 0.0,
         barGroups: dataSet.data as List<BarChartGroupData>,
         maxY: dataSet.maxY,
         minY: dataSet.minY,
@@ -112,9 +126,20 @@ class _GraphSymptomState extends State<GraphSymptom> {
       List<List<List<Stamp>>> sets) {
     if (sets.isEmpty) return const GraphDataSet.empty();
 
+    final int yAxisTicks = widget.isDetailed ? 5 : 3;
+
     List<BarChartGroupData> barChartGroups = [];
 
-    double maxY = double.negativeInfinity;
+    double maxY = double.negativeInfinity, minY = double.infinity;
+
+    void adjustBounds(double value) {
+      if (value > maxY) {
+        maxY = value;
+      }
+      if (value < minY) {
+        minY = value;
+      }
+    }
 
     for (int i = 0; i < sets.length; i++) {
       final List<List<Stamp>> graphSet = sets[i];
@@ -122,38 +147,37 @@ class _GraphSymptomState extends State<GraphSymptom> {
       for (final List<Stamp> point in graphSet) {
         if (widget.settings.axis == GraphYAxis.frequency) {
           final double rodY = point.length.toDouble();
-          if (rodY > maxY) {
-            maxY = rodY;
-          }
+          adjustBounds(rodY);
           rods.add(BarChartRodData(toY: rodY));
         } else if (widget.settings.axis == GraphYAxis.severity) {
           final Iterable<NumericResponse> numerics =
               point.whereType<NumericResponse>();
           if (numerics.isEmpty) {
-            if (0 > maxY) {
-              maxY = 0;
-            }
+            adjustBounds(0);
             rods.add(BarChartRodData(toY: 0));
+            continue;
           }
           double total = 0.0;
           for (final NumericResponse numeric in numerics) {
             total += numeric.response;
           }
           final double average = total / numerics.length;
-          if (average > maxY) {
-            maxY = average;
-          }
+          adjustBounds(average);
           rods.add(BarChartRodData(toY: average));
         }
       }
       barChartGroups.add(BarChartGroupData(x: i, barRods: rods));
     }
+
+    final YAxisRange range =
+        YAxisRange.rangeFromMax(ticks: yAxisTicks, max: maxY, min: minY);
+
     return GraphDataSet<BarChartGroupData>(
         data: barChartGroups,
-        minX: 0,
+        minX: range.lowerBound,
         maxX: barChartGroups.length.toDouble(),
         minY: 0,
-        maxY: maxY);
+        maxY: range.upperBound);
   }
 
   GraphDataSet<ScatterSpot> getSpotSet(List<List<List<Stamp>>> sets) {
@@ -215,7 +239,8 @@ class YAxisRange {
       required this.upperBound,
       required this.tickSize});
 
-  YAxisRange rangeFrom({required int ticks, required List<num> values}) {
+  factory YAxisRange.rangeFrom(
+      {required int ticks, required List<num> values}) {
     if (values.isEmpty) {
       return const YAxisRange(lowerBound: 0, upperBound: 10, tickSize: 0);
     }
@@ -227,10 +252,11 @@ class YAxisRange {
         max = value;
       }
     }
-    return rangeFromMax(ticks: ticks, min: min, max: max);
+    return YAxisRange.rangeFromMax(ticks: ticks, min: min, max: max);
   }
 
-  YAxisRange rangeFromMax({required int ticks, required num max, num min = 0}) {
+  factory YAxisRange.rangeFromMax(
+      {required int ticks, required num max, num min = 0}) {
     if (min == max) {
       return YAxisRange(
           lowerBound: 0,
@@ -249,9 +275,9 @@ class YAxisRange {
   }
 }
 
-List<List<Stamp>> bucketEvents(
+List<List<Stamp>>? bucketEvents(
     List<Stamp> events, DateTimeRange range, int buckets) {
-  if (events.isEmpty) return List.generate(buckets, (_) => []);
+  if (events.isEmpty) return null;
   List<List<Stamp>> eventLists = [];
   final double startValue = range.start.millisecondsSinceEpoch.toDouble();
   final double endValue = range.end.millisecondsSinceEpoch.toDouble();

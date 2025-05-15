@@ -13,7 +13,6 @@ import 'package:stripes_ui/UI/History/EventView/action_row.dart';
 import 'package:stripes_ui/UI/History/EventView/event_grid.dart';
 import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
 import 'package:stripes_ui/UI/History/EventView/filter.dart';
-import 'package:stripes_ui/UI/History/GraphView/graphs_list.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
 import 'package:stripes_ui/UI/Record/record_screen.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';

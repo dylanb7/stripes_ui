@@ -71,6 +71,7 @@ class GraphsList extends ConsumerWidget {
                           ),
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               IconButton(
                                 onPressed: () {
@@ -82,8 +83,10 @@ class GraphsList extends ConsumerWidget {
                               ),
                               Text(
                                 settings.getRangeString(context),
-                                style:
-                                    Theme.of(context).textTheme.headlineMedium,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(fontWeight: FontWeight.bold),
                               ),
                               IconButton(
                                 onPressed: () {
@@ -149,7 +152,7 @@ class GraphsList extends ConsumerWidget {
                                       height: 100.0,
                                       decoration: BoxDecoration(
                                           color: Theme.of(context)
-                                              .dividerColor
+                                              .primaryColor
                                               .withValues(alpha: 0.2),
                                           borderRadius: const BorderRadius.all(
                                               Radius.circular(6.0))),
