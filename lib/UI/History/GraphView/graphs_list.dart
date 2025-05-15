@@ -93,7 +93,12 @@ class GraphsList extends ConsumerWidget {
                                 },
                                 icon: const Icon(Icons.keyboard_arrow_right),
                               ),
-                              const Spacer(),
+                            ],
+                          ),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
                               DropdownMenu<GraphSpan>(
                                   initialSelection: settings.span,
                                   onSelected: (value) {
@@ -136,7 +141,9 @@ class GraphsList extends ConsumerWidget {
                                       MainAxisAlignment.spaceBetween,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    Text(title),
+                                    Expanded(
+                                      child: Text(title),
+                                    ),
                                     Container(
                                       width: 100.0,
                                       height: 120.0,
