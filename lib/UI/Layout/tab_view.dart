@@ -106,55 +106,52 @@ class HistoryScreenContent extends ConsumerWidget {
             constraints: BoxConstraints(maxWidth: Breakpoint.medium.value),
             child: RefreshWidget(
               depth: RefreshDepth.authuser,
-              scrollable: CustomScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
+              scrollable: ListView(
                 key: scrollkey,
                 controller: ScrollController(),
-                slivers: [
-                  SliverPadding(
+                children: [
+                  Padding(
                     padding:
                         const EdgeInsets.only(left: 20, right: 20, top: 20),
-                    sliver: SliverToBoxAdapter(
-                      child: Column(children: [
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Expanded(
-                                child: PatientChanger(
-                                  tab: TabOption.history,
-                                ),
+                    child: Column(children: [
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Expanded(
+                              child: PatientChanger(
+                                tab: TabOption.history,
                               ),
-                              if (config.hasGraphing) ...[
-                                IconButton(
-                                  onPressed: () {
-                                    context.pushNamed(Routes.TRENDS);
-                                  },
-                                  icon: const Icon(Icons.trending_up),
-                                ),
-                              ]
-                            ]),
-                        const SizedBox(
-                          height: 12.0,
+                            ),
+                            if (config.hasGraphing) ...[
+                              IconButton(
+                                onPressed: () {
+                                  context.pushNamed(Routes.TRENDS);
+                                },
+                                icon: const Icon(Icons.trending_up),
+                              ),
+                            ]
+                          ]),
+                      const SizedBox(
+                        height: 12.0,
+                      ),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 800),
+                        child: const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            FilterView(),
+                            SizedBox(
+                              height: 8.0,
+                            ),
+                            EventsCalendar(),
+                            SizedBox(
+                              height: 16.0,
+                            ),
+                            ActionRow()
+                          ],
                         ),
-                        ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 800),
-                          child: const Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              FilterView(),
-                              SizedBox(
-                                height: 8.0,
-                              ),
-                              EventsCalendar(),
-                              SizedBox(
-                                height: 16.0,
-                              ),
-                              ActionRow()
-                            ],
-                          ),
-                        ),
-                      ]),
-                    ),
+                      ),
+                    ]),
                   ),
                   const EventGrid(),
                 ],
@@ -210,16 +207,14 @@ class HistoryScreenContent extends ConsumerWidget {
                 Expanded(
                   child: RefreshWidget(
                     depth: RefreshDepth.authuser,
-                    scrollable: CustomScrollView(
+                    scrollable: SingleChildScrollView(
                       physics: const AlwaysScrollableScrollPhysics(),
                       key: scrollkey,
                       controller: ScrollController(),
-                      slivers: const [
-                        SliverPadding(
-                          padding: EdgeInsets.only(top: 8.0),
-                          sliver: EventGrid(),
-                        )
-                      ],
+                      child: const Padding(
+                        padding: EdgeInsets.only(top: 8.0),
+                        child: EventGrid(),
+                      ),
                     ),
                   ),
                 ),
