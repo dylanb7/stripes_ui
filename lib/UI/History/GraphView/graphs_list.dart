@@ -77,8 +77,6 @@ class GraphsList extends ConsumerWidget {
                                   ref
                                       .read(graphSettingsProvider.notifier)
                                       .state = settings.shift(false);
-
-                                  print(settings.shift(false));
                                 },
                                 icon: const Icon(Icons.keyboard_arrow_left),
                               ),
@@ -147,12 +145,12 @@ class GraphsList extends ConsumerWidget {
                                       child: Text(title),
                                     ),
                                     Container(
-                                      width: 100.0,
-                                      height: 120.0,
+                                      width: 150.0,
+                                      height: 100.0,
                                       decoration: BoxDecoration(
                                           color: Theme.of(context)
                                               .dividerColor
-                                              .withValues(alpha: 0.5),
+                                              .withValues(alpha: 0.2),
                                           borderRadius: const BorderRadius.all(
                                               Radius.circular(6.0))),
                                       child: GraphSymptom(

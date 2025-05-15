@@ -84,7 +84,8 @@ class GraphSettings extends Equatable {
             span: span,
             axis: axis);
       case GraphSpan.week:
-        final DateTime start = previous(now, DateTime.monday);
+        final DateTime start =
+            previous(DateTime(now.year, now.month, now.day), DateTime.monday);
         return GraphSettings(
             range: DateTimeRange(
                 start: start, end: start.add((const Duration(days: 7)))),
@@ -192,6 +193,7 @@ class GraphSettings extends Equatable {
 
   GraphSettings shift(bool forward) {
     DateTimeRange newRange = _calculateNewRange(forward);
+    print(newRange);
     if (!_canShift(forward, newRange)) return this;
     return copyWith(range: newRange);
   }
