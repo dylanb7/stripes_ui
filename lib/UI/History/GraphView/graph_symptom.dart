@@ -60,8 +60,9 @@ class _GraphSymptomState extends State<GraphSymptom> {
 
     final AxisTitles bottomTitles = AxisTitles(sideTitles: SideTitles());
 
-    final FlTitlesData? titlesData =
-        widget.isDetailed ? FlTitlesData(bottomTitles: bottomTitles) : null;
+    final FlTitlesData titlesData = widget.isDetailed
+        ? FlTitlesData(bottomTitles: bottomTitles)
+        : const FlTitlesData(show: false);
     if (widget.settings.axis == GraphYAxis.entrytime) {
       return ScatterChart(
         ScatterChartData(
