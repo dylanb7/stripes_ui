@@ -119,7 +119,8 @@ class RouteNotifier extends ChangeNotifier {
           ),
         ),
         GoRoute(
-          path: Routes.HOME,
+          name: Routes.TRENDS,
+          path: Routes.TRENDS,
           pageBuilder: (context, state) => const NoTransitionPage(
             child: GraphsList(),
           ),
