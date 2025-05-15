@@ -147,21 +147,25 @@ class GraphsList extends ConsumerWidget {
                                         CrossAxisAlignment.center,
                                     children: [
                                       Expanded(
+                                        flex: 2,
                                         child: Text(title),
                                       ),
-                                      Container(
-                                        height: 100.0,
-                                        decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .primaryColor
-                                                .withValues(alpha: 0.2),
-                                            borderRadius:
-                                                const BorderRadius.all(
-                                                    Radius.circular(6.0))),
-                                        child: GraphSymptom(
-                                            responses: [data[title]!],
-                                            settings: settings,
-                                            isDetailed: false),
+                                      Expanded(
+                                        flex: 1,
+                                        child: Container(
+                                          height: 100.0,
+                                          decoration: BoxDecoration(
+                                              color: Theme.of(context)
+                                                  .primaryColor
+                                                  .withValues(alpha: 0.2),
+                                              borderRadius:
+                                                  const BorderRadius.all(
+                                                      Radius.circular(6.0))),
+                                          child: GraphSymptom(
+                                              responses: [data[title]!],
+                                              settings: settings,
+                                              isDetailed: false),
+                                        ),
                                       ),
                                     ],
                                   ),
