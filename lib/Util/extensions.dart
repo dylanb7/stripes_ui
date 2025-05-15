@@ -66,3 +66,12 @@ extension CarouselExtensions on CarouselController {
 extension Translate on BuildContext {
   AppLocalizations get translate => AppLocalizations.of(this)!;
 }
+
+extension Contains on DateTimeRange {
+  bool contains(DateTime dateTime) {
+    return start.isBefore(dateTime) ||
+        start.isAtSameMomentAs(dateTime) ||
+        end.isAfter(dateTime) ||
+        end.isAtSameMomentAs(dateTime);
+  }
+}

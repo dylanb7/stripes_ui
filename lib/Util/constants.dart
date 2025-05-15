@@ -6,6 +6,7 @@ class Routes {
   static const String LOGIN = '/login';
   static const String HOME = '/record';
   static const String HISTORY = '/history';
+  static const String TRENDS = '/trends';
   static const String USERS = 'profiles';
   static const String SYMPTOMS = 'symptoms';
   static const String SYMPTOMTYPE = 'symptomtype';

@@ -8,6 +8,7 @@ import 'package:stripes_ui/UI/Layout/fabs.dart';
 import 'package:stripes_ui/UI/AccountManagement/add_first_profile.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
+import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -29,7 +30,7 @@ class Home extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AsyncValue<SubState> subNotif = ref.watch(subHolderProvider);
-    final bool isSmall = MediaQuery.of(context).size.width < 1400;
+    final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);
 
     if (subNotif.isLoading) {
       return const LoadingWidget();

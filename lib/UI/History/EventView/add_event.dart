@@ -76,10 +76,10 @@ class QuestionTypeOverlay extends ConsumerWidget {
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const SizedBox(width: 30),
+                      SizedBox(width: Theme.of(context).iconTheme.size),
                       Text(
                         context.translate.addEventHeader,
-                        style: Theme.of(context).textTheme.bodyLarge,
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
                       IconButton(
                           onPressed: () {
@@ -88,33 +88,38 @@ class QuestionTypeOverlay extends ConsumerWidget {
                           },
                           icon: const Icon(
                             Icons.close,
-                            size: 30,
                           )),
                     ]),
                 AsyncValueDefaults(
                     value: paths,
                     onData: (recordPaths) {
-                      return Column(
-                        children: [
-                          ...recordPaths.map(
-                            (path) => Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 5.0),
-                              child: FilledButton(
-                                child: Text(path.name),
-                                onPressed: () {
-                                  ref.read(overlayProvider.notifier).state =
-                                      closedOverlay;
-                                  context.pushNamed(
-                                    'recordType',
-                                    pathParameters: {'type': path.name},
-                                    extra: QuestionsListener(submitTime: date),
-                                  );
-                                },
+                      return Expanded(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              ...recordPaths.map(
+                                (path) => Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 2.0),
+                                  child: FilledButton(
+                                    child: Text(path.name),
+                                    onPressed: () {
+                                      ref.read(overlayProvider.notifier).state =
+                                          closedOverlay;
+                                      context.pushNamed(
+                                        'recordType',
+                                        pathParameters: {'type': path.name},
+                                        extra:
+                                            QuestionsListener(submitTime: date),
+                                      );
+                                    },
+                                  ),
+                                ),
                               ),
-                            ),
+                            ],
                           ),
-                        ],
+                        ),
                       );
                     })
               ],

@@ -13,12 +13,14 @@ import 'package:stripes_ui/UI/History/EventView/action_row.dart';
 import 'package:stripes_ui/UI/History/EventView/event_grid.dart';
 import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
 import 'package:stripes_ui/UI/History/EventView/filter.dart';
+import 'package:stripes_ui/UI/History/GraphView/graphs_list.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
 import 'package:stripes_ui/UI/Record/record_screen.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
+import 'package:stripes_ui/config.dart';
 
 import 'package:stripes_ui/entry.dart';
 
@@ -90,11 +92,12 @@ class RecordScreenContent extends ConsumerWidget {
   }
 }
 
-class HistoryScreenContent extends StatelessWidget {
+class HistoryScreenContent extends ConsumerWidget {
   const HistoryScreenContent({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final StripesConfig config = ref.watch(configProvider);
     final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);
     if (isSmall) {
       return AddIndicator(builder: (context, hasIndicator) {
@@ -113,14 +116,22 @@ class HistoryScreenContent extends StatelessWidget {
                         const EdgeInsets.only(left: 20, right: 20, top: 20),
                     sliver: SliverToBoxAdapter(
                       child: Column(children: [
-                        const Row(
+                        Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Expanded(
+                              const Expanded(
                                 child: PatientChanger(
                                   tab: TabOption.history,
                                 ),
                               ),
+                              if (config.hasGraphing) ...[
+                                IconButton(
+                                  onPressed: () {
+                                    context.pushNamed(Routes.TRENDS);
+                                  },
+                                  icon: const Icon(Icons.trending_up),
+                                ),
+                              ]
                             ]),
                         const SizedBox(
                           height: 12.0,

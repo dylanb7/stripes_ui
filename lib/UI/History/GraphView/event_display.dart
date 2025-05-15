@@ -6,7 +6,7 @@ import 'package:stripes_ui/UI/History/GraphView/graph_widget.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 
 // ignore: constant_identifier_names
-
+/*
 class EventDisplay extends StatelessWidget {
   const EventDisplay({super.key});
 
@@ -52,4 +52,4 @@ class EventDisplay extends StatelessWidget {
       ),
     );
   }
-}
+}*/
