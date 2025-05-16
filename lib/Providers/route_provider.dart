@@ -133,7 +133,9 @@ class RouteNotifier extends ChangeNotifier {
                     if (state.extra is! GraphKey) {
                       return const NoTransitionPage(child: GraphsList());
                     }
-                    return NoTransitionPage(
+
+                    return FadeIn(
+                      state: state,
                       child: GraphViewScreen(
                         graphKey: state.extra as GraphKey,
                       ),

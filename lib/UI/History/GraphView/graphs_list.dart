@@ -167,11 +167,24 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
             ),
           ),
         ),
+        const SizedBox(
+          height: 12.0,
+        ),
+        Text(
+          "displaying",
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.6),
+              ),
+        ),
         ...[widget.graphKey, ...additions].map(
           (key) {
             return Padding(
-              padding:
-                  const EdgeInsets.only(left: 20.0, right: 20.0, top: 10.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20.0,
+              ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -214,10 +227,11 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
                   if (key != widget.graphKey)
                     IconButton(
                       onPressed: () {
-                        additions.remove(key);
-                        setState(() {});
+                        setState(() {
+                          additions.remove(key);
+                        });
                       },
-                      icon: const Icon(Icons.remove),
+                      icon: const Icon(Icons.remove_circle),
                     ),
                 ],
               ),
