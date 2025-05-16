@@ -92,7 +92,7 @@ class GraphsList extends ConsumerWidget {
               return SliverFillRemaining(
                 child: Center(
                   child: Text(
-                    "No symptoms recorded",
+                    "No symptoms ${settings.axis == GraphYAxis.average ? "with number entries " : ""}recorded",
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ),

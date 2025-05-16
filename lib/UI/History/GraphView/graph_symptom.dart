@@ -76,50 +76,74 @@ class _GraphSymptomState extends State<GraphSymptom> {
           )
         : const FlTitlesData(show: false);
     if (widget.settings.axis == GraphYAxis.entrytime) {
-      return ScatterChart(
-        ScatterChartData(
-          scatterSpots: dataSet.data as List<ScatterSpot>,
-          minX: dataSet.minX,
-          maxX: dataSet.maxX,
-          minY: dataSet.minY,
+      return LayoutBuilder(builder: (context, constraints) {
+        return ScatterChart(
+          ScatterChartData(
+            scatterSpots: dataSet.data as List<ScatterSpot>,
+            minX: dataSet.minX,
+            maxX: dataSet.maxX,
+            minY: dataSet.minY,
+            maxY: dataSet.maxY,
+            gridData: gridData,
+            borderData: borderData,
+            titlesData: titlesData,
+          ),
+        );
+      });
+    }
+    return LayoutBuilder(builder: (context, constraints) {
+      final List<BarChartGroupData> barData =
+          dataSet.data as List<BarChartGroupData>;
+      final double barWidth =
+          constraints.biggest.width / barData[0].barRods.length;
+      final List<BarChartGroupData> fixedWidth = barData.map((data) {
+        return data.copyWith(
+            barRods: data.barRods
+                .map(
+                  (rod) => rod.copyWith(
+                    width: barWidth,
+                    color: Theme.of(context).primaryColorDark,
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(barWidth / 3.0),
+                        topRight: Radius.circular(barWidth / 3.0)),
+                  ),
+                )
+                .toList(),
+            groupVertically: true,
+            barsSpace: 0.0);
+      }).toList();
+      return BarChart(
+        BarChartData(
+          alignment: BarChartAlignment.center,
+          groupsSpace: 0.0,
+          barGroups: fixedWidth,
           maxY: dataSet.maxY,
+          minY: dataSet.minY,
           gridData: gridData,
           borderData: borderData,
+          barTouchData: widget.isDetailed
+              ? BarTouchData(
+                  touchTooltipData: BarTouchTooltipData(
+                    getTooltipItem: _getTooltipItem,
+                  ),
+                  touchCallback:
+                      (FlTouchEvent event, BarTouchResponse? response) {
+                    setState(() {
+                      if (!event.isInterestedForInteractions ||
+                          response == null ||
+                          response.spot == null) {
+                        touchedIndex = -1;
+                        return;
+                      }
+                      touchedIndex = response.spot!.touchedBarGroupIndex;
+                    });
+                  },
+                )
+              : null,
           titlesData: titlesData,
         ),
       );
-    }
-    return BarChart(
-      BarChartData(
-        alignment: BarChartAlignment.center,
-        groupsSpace: 0.0,
-        barGroups: dataSet.data as List<BarChartGroupData>,
-        maxY: dataSet.maxY,
-        minY: dataSet.minY,
-        gridData: gridData,
-        borderData: borderData,
-        barTouchData: widget.isDetailed
-            ? BarTouchData(
-                touchTooltipData: BarTouchTooltipData(
-                  getTooltipItem: _getTooltipItem,
-                ),
-                touchCallback:
-                    (FlTouchEvent event, BarTouchResponse? response) {
-                  setState(() {
-                    if (!event.isInterestedForInteractions ||
-                        response == null ||
-                        response.spot == null) {
-                      touchedIndex = -1;
-                      return;
-                    }
-                    touchedIndex = response.spot!.touchedBarGroupIndex;
-                  });
-                },
-              )
-            : null,
-        titlesData: titlesData,
-      ),
-    );
+    });
   }
 
   GraphDataSet<BarChartGroupData> getBarChartDataSet(
@@ -174,9 +198,9 @@ class _GraphSymptomState extends State<GraphSymptom> {
 
     return GraphDataSet<BarChartGroupData>(
         data: barChartGroups,
-        minX: range.lowerBound,
-        maxX: barChartGroups.length.toDouble(),
-        minY: 0,
+        minX: 0,
+        maxX: (barChartGroups.length - 1).toDouble(),
+        minY: range.lowerBound,
         maxY: range.upperBound);
   }
 
