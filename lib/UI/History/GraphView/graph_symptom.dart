@@ -101,12 +101,10 @@ class _GraphSymptomState extends State<GraphSymptom> {
             barRods: data.barRods
                 .map(
                   (rod) => rod.copyWith(
-                    width: barWidth,
-                    color: Theme.of(context).primaryColorDark,
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(barWidth / 3.0),
-                        topRight: Radius.circular(barWidth / 3.0)),
-                  ),
+                      width: barWidth,
+                      color: Theme.of(context).primaryColor,
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(0.0))),
                 )
                 .toList(),
             groupVertically: true,
@@ -152,7 +150,8 @@ class _GraphSymptomState extends State<GraphSymptom> {
 
     final int yAxisTicks = widget.isDetailed ? 5 : 3;
 
-    List<BarChartGroupData> barChartGroups = [];
+    List<BarChartGroupData> barChartGroups =
+        List.generate(sets[0].length, (index) => BarChartGroupData(x: index));
 
     double maxY = double.negativeInfinity, minY = double.infinity;
 
@@ -167,18 +166,18 @@ class _GraphSymptomState extends State<GraphSymptom> {
 
     for (int i = 0; i < sets.length; i++) {
       final List<List<Stamp>> graphSet = sets[i];
-      List<BarChartRodData> rods = [];
+      BarChartRodData? rod;
       for (final List<Stamp> point in graphSet) {
         if (widget.settings.axis == GraphYAxis.frequency) {
           final double rodY = point.length.toDouble();
           adjustBounds(rodY);
-          rods.add(BarChartRodData(toY: rodY));
+          rod = BarChartRodData(toY: rodY);
         } else if (widget.settings.axis == GraphYAxis.average) {
           final Iterable<NumericResponse> numerics =
               point.whereType<NumericResponse>();
           if (numerics.isEmpty) {
             adjustBounds(0);
-            rods.add(BarChartRodData(toY: 0));
+            rod = BarChartRodData(toY: 0);
             continue;
           }
           double total = 0.0;
@@ -187,10 +186,12 @@ class _GraphSymptomState extends State<GraphSymptom> {
           }
           final double average = total / numerics.length;
           adjustBounds(average);
-          rods.add(BarChartRodData(toY: average));
+          rod = BarChartRodData(toY: average);
         }
       }
-      barChartGroups.add(BarChartGroupData(x: i, barRods: rods));
+      if (rod == null) continue;
+      final BarChartGroupData toEdit = barChartGroups[i];
+      barChartGroups[i] = toEdit.copyWith(barRods: toEdit.barRods..add(rod));
     }
 
     final YAxisRange range =
