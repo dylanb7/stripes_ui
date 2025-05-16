@@ -64,7 +64,10 @@ class GraphsList extends ConsumerWidget {
           sliver: SliverToBoxAdapter(
             child: Row(
               children: [
-                const Expanded(child: PatientChanger()),
+                const Expanded(
+                    child: PatientChanger(
+                  tab: TabOption.history,
+                )),
                 const SizedBox(
                   width: 4.0,
                 ),
@@ -79,10 +82,7 @@ class GraphsList extends ConsumerWidget {
         ),
         const SliverPadding(padding: EdgeInsets.only(top: 6.0)),
         const SliverFloatingHeader(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20.0),
-            child: GraphControlArea(),
-          ),
+          child: GraphControlArea(),
         ),
         AsyncValueDefaults(
           value: graphs,
@@ -209,67 +209,72 @@ class GraphControlArea extends ConsumerWidget {
 
     return Container(
       constraints: BoxConstraints(maxWidth: Breakpoint.tiny.value),
-      color: Theme.of(context).colorScheme.surface,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                onPressed: () {
-                  ref.read(graphSettingsProvider.notifier).state =
-                      settings.shift(false);
-                },
-                icon: const Icon(Icons.keyboard_arrow_left),
-              ),
-              Text(
-                settings.getRangeString(context),
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              IconButton(
-                onPressed: () {
-                  ref.read(graphSettingsProvider.notifier).state =
-                      settings.shift(true);
-                },
-                icon: const Icon(Icons.keyboard_arrow_right),
-              ),
-            ],
-          ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              DropdownMenu<GraphSpan>(
-                  initialSelection: settings.span,
-                  onSelected: (value) {
-                    if (value == null) return;
+      decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          border: const Border(bottom: BorderSide())),
+      child: Padding(
+        padding: const EdgeInsets.only(left: 20.0, right: 20.0, bottom: 4.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  onPressed: () {
                     ref.read(graphSettingsProvider.notifier).state =
-                        GraphSettings.from(span: value, axis: settings.axis);
+                        settings.shift(false);
                   },
-                  dropdownMenuEntries: GraphSpan.values
-                      .map(
-                        (value) =>
-                            DropdownMenuEntry(value: value, label: value.value),
-                      )
-                      .toList()),
-              DropdownMenu<GraphYAxis>(
-                  initialSelection: settings.axis,
-                  onSelected: (value) {
-                    if (value == null) return;
+                  icon: const Icon(Icons.keyboard_arrow_left),
+                ),
+                Text(
+                  settings.getRangeString(context),
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                IconButton(
+                  onPressed: () {
                     ref.read(graphSettingsProvider.notifier).state =
-                        settings.copyWith(axis: value);
+                        settings.shift(true);
                   },
-                  dropdownMenuEntries: GraphYAxis.values
-                      .map(
-                        (value) =>
-                            DropdownMenuEntry(value: value, label: value.value),
-                      )
-                      .toList()),
-            ],
-          ),
-        ],
+                  icon: const Icon(Icons.keyboard_arrow_right),
+                ),
+              ],
+            ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                DropdownMenu<GraphSpan>(
+                    initialSelection: settings.span,
+                    onSelected: (value) {
+                      if (value == null) return;
+                      ref.read(graphSettingsProvider.notifier).state =
+                          GraphSettings.from(span: value, axis: settings.axis);
+                    },
+                    dropdownMenuEntries: GraphSpan.values
+                        .map(
+                          (value) => DropdownMenuEntry(
+                              value: value, label: value.value),
+                        )
+                        .toList()),
+                DropdownMenu<GraphYAxis>(
+                    initialSelection: settings.axis,
+                    onSelected: (value) {
+                      if (value == null) return;
+                      ref.read(graphSettingsProvider.notifier).state =
+                          settings.copyWith(axis: value);
+                    },
+                    dropdownMenuEntries: GraphYAxis.values
+                        .map(
+                          (value) => DropdownMenuEntry(
+                              value: value, label: value.value),
+                        )
+                        .toList()),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
