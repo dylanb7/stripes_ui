@@ -198,6 +198,7 @@ class _GraphSymptomState extends State<GraphSymptom> {
     final YAxisRange range =
         YAxisRange.rangeFromMax(ticks: yAxisTicks, max: maxY, min: minY);
 
+    print(barChartGroups);
     return GraphDataSet<BarChartGroupData>(
         data: barChartGroups,
         minX: 0,
