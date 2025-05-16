@@ -102,7 +102,7 @@ class _GraphSymptomState extends State<GraphSymptom> {
             barRods: data.barRods
                 .map(
                   (rod) => rod.copyWith(
-                      width: barWidth,
+                      width: 8,
                       color: Theme.of(context).primaryColor,
                       borderRadius:
                           const BorderRadius.all(Radius.circular(0.0))),
