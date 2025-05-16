@@ -38,6 +38,7 @@ class _GraphSymptomState extends State<GraphSymptom> {
       if (setValue != null) {
         sets.add(setValue);
       }
+      print(widget.responses);
       print(sets);
     }
 
