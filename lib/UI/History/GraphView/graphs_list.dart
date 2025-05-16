@@ -21,13 +21,7 @@ class GraphsList extends ConsumerWidget {
     return GraphScreenWrap(
       scrollable: ListSection(
         onSelect: (GraphKey key) {
-          Navigator.of(context).push(
-            MaterialPageRoute<void>(builder: (context) {
-              return GraphViewScreen(
-                graphKey: key,
-              );
-            }),
-          );
+          context.pushNamed(Routes.SYMPTOMTREND, extra: key);
         },
       ),
     );
@@ -71,7 +65,7 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
             children: [
               IconButton(
                   onPressed: () {
-                    Navigator.of(context).pop();
+                    context.pop();
                   },
                   icon: const Icon(Icons.keyboard_arrow_left)),
               const Expanded(
@@ -94,7 +88,7 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
           hasDivider: false,
         ),
         Padding(
-          padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 20.0),
+          padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 6.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -131,7 +125,7 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 20.0),
+          padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 6.0),
           child: AspectRatio(
             aspectRatio: 2.0,
             child: Hero(
@@ -139,15 +133,28 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
               child: AsyncValueDefaults(
                 value: graphData,
                 onData: (loadedData) {
-                  if (!loadedData.containsKey(widget.graphKey)) {
-                    return Container();
-                  }
-                  return GraphSymptom(responses: [
-                    loadedData[widget.graphKey]!,
+                  final List<List<Response>> forGraph = [
+                    if (loadedData.containsKey(widget.graphKey))
+                      loadedData[widget.graphKey]!,
                     ...additions
                         .map((addition) => loadedData[addition])
                         .whereType<List<Response>>()
-                  ], settings: settings, isDetailed: true);
+                  ];
+                  if (forGraph.isEmpty) {
+                    return DecoratedBox(
+                      decoration: BoxDecoration(
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(6.0)),
+                        color: Theme.of(context)
+                            .primaryColor
+                            .withValues(alpha: 0.2),
+                      ),
+                    );
+                  }
+                  return GraphSymptom(
+                      responses: forGraph,
+                      settings: settings,
+                      isDetailed: true);
                 },
                 onLoading: (_) {
                   return DecoratedBox(
@@ -160,6 +167,63 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
             ),
           ),
         ),
+        ...[widget.graphKey, ...additions].map(
+          (key) {
+            return Padding(
+              padding:
+                  const EdgeInsets.only(left: 20.0, right: 20.0, top: 10.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: AsyncValueDefaults(
+                      value: graphData,
+                      onData: (loadedData) {
+                        final bool hasData = loadedData.containsKey(key);
+                        return Text(
+                          key.toString(),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: hasData
+                                      ? null
+                                      : Theme.of(context).disabledColor),
+                        );
+                      },
+                      onError: (_) => Text(
+                        key.toString(),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.copyWith(fontWeight: FontWeight.w600),
+                      ),
+                      onLoading: (_) => Text(
+                        key.toString(),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.copyWith(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 6.0,
+                  ),
+                  if (key != widget.graphKey)
+                    IconButton(
+                      onPressed: () {
+                        additions.remove(key);
+                        setState(() {});
+                      },
+                      icon: const Icon(Icons.remove),
+                    ),
+                ],
+              ),
+            );
+          },
+        ).separated(by: const Divider()),
       ],
     ));
   }
@@ -218,29 +282,31 @@ class ListSection extends ConsumerWidget {
         ref.watch(graphStampsProvider);
 
     return CustomScrollView(
+      physics: includesControls ? null : const ClampingScrollPhysics(),
       scrollDirection: Axis.vertical,
       slivers: [
-        SliverPadding(
-          padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 20.0),
-          sliver: SliverToBoxAdapter(
-            child: Row(
-              children: [
-                const Expanded(
-                    child: PatientChanger(
-                  tab: TabOption.history,
-                )),
-                const SizedBox(
-                  width: 4.0,
-                ),
-                IconButton(
-                    onPressed: () {
-                      context.pushNamed(Routes.HISTORY);
-                    },
-                    icon: const Icon(Icons.calendar_month))
-              ],
+        if (includesControls)
+          SliverPadding(
+            padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 20.0),
+            sliver: SliverToBoxAdapter(
+              child: Row(
+                children: [
+                  const Expanded(
+                      child: PatientChanger(
+                    tab: TabOption.history,
+                  )),
+                  const SizedBox(
+                    width: 4.0,
+                  ),
+                  IconButton(
+                      onPressed: () {
+                        context.pushNamed(Routes.HISTORY);
+                      },
+                      icon: const Icon(Icons.calendar_month))
+                ],
+              ),
             ),
           ),
-        ),
         includesControls
             ? const SliverFloatingHeader(
                 child: GraphControlArea(),
@@ -250,8 +316,8 @@ class ListSection extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
-                      maxWidth: Breakpoint.tiny.value,
-                    ),
+                        maxWidth: Breakpoint.tiny.value,
+                        minHeight: Theme.of(context).iconTheme.size ?? 40.0),
                     child: Center(
                       child: DecoratedBox(
                         decoration: BoxDecoration(

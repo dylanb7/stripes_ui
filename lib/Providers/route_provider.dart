@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
+import 'package:stripes_ui/Providers/graph_packets.dart';
 import 'package:stripes_ui/UI/AccountManagement/SymptomManagement/symptom_management_screen.dart';
 import 'package:stripes_ui/UI/AccountManagement/SymptomManagement/symptom_type_management.dart';
 import 'package:stripes_ui/UI/AccountManagement/account_management_screen.dart';
@@ -119,12 +120,26 @@ class RouteNotifier extends ChangeNotifier {
           ),
         ),
         GoRoute(
-          name: Routes.TRENDS,
-          path: Routes.TRENDS,
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: GraphsList(),
-          ),
-        ),
+            name: Routes.TRENDS,
+            path: Routes.TRENDS,
+            pageBuilder: (context, state) => const NoTransitionPage(
+                  child: GraphsList(),
+                ),
+            routes: [
+              GoRoute(
+                  name: Routes.SYMPTOMTREND,
+                  path: Routes.SYMPTOMTREND,
+                  pageBuilder: (context, state) {
+                    if (state.extra is! GraphKey) {
+                      return const NoTransitionPage(child: GraphsList());
+                    }
+                    return NoTransitionPage(
+                      child: GraphViewScreen(
+                        graphKey: state.extra as GraphKey,
+                      ),
+                    );
+                  }),
+            ]),
         GoRoute(
           name: Routes.TEST,
           path: Routes.TEST,
