@@ -164,10 +164,10 @@ class _GraphSymptomState extends State<GraphSymptom> {
       }
     }
 
-    for (int i = 0; i < sets.length; i++) {
-      final List<List<Stamp>> graphSet = sets[i];
-      BarChartRodData? rod;
-      for (final List<Stamp> point in graphSet) {
+    for (List<List<Stamp>> graphSet in sets) {
+      for (int i = 0; i < graphSet.length; i++) {
+        final List<Stamp> point = graphSet[i];
+        BarChartRodData? rod;
         if (widget.settings.axis == GraphYAxis.frequency) {
           final double rodY = point.length.toDouble();
           adjustBounds(rodY);
@@ -188,10 +188,10 @@ class _GraphSymptomState extends State<GraphSymptom> {
           adjustBounds(average);
           rod = BarChartRodData(toY: average);
         }
+        if (rod == null) continue;
+        final BarChartGroupData toEdit = barChartGroups[i];
+        barChartGroups[i] = toEdit.copyWith(barRods: toEdit.barRods..add(rod));
       }
-      if (rod == null) continue;
-      final BarChartGroupData toEdit = barChartGroups[i];
-      barChartGroups[i] = toEdit.copyWith(barRods: toEdit.barRods..add(rod));
     }
 
     final YAxisRange range =
@@ -213,8 +213,12 @@ class _GraphSymptomState extends State<GraphSymptom> {
         final List<Stamp> atPoint = graphSet[i];
         for (final Stamp value in atPoint) {
           final DateTime spotDate = dateFromStamp(value.stamp);
-          spots.add(ScatterSpot(
-              i.toDouble(), (spotDate.hour + (spotDate.minute / 60))));
+          spots.add(
+            ScatterSpot(
+              i.toDouble(),
+              (spotDate.hour + (spotDate.minute / 60)),
+            ),
+          );
         }
       }
     }
