@@ -185,15 +185,16 @@ class GraphSettings extends Equatable {
     }
   }
 
-  bool _canShift(bool forward, DateTimeRange range) {
+  bool canShift({required bool forward, DateTimeRange? range}) {
+    DateTimeRange newRange = range ?? _calculateNewRange(forward);
     final DateTime minDate = SigDates.minDate;
-    if (forward) return range.end.isAfter(minDate);
-    return range.start.isBefore(DateTime.now());
+    if (forward) return newRange.start.isBefore(DateTime.now());
+    return newRange.end.isAfter(minDate);
   }
 
   GraphSettings shift(bool forward) {
-    DateTimeRange newRange = _calculateNewRange(forward);
-    if (!_canShift(forward, newRange)) return this;
+    final DateTimeRange newRange = _calculateNewRange(forward);
+    if (!canShift(forward: forward, range: newRange)) return this;
     return copyWith(range: newRange);
   }
 

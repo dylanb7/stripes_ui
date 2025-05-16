@@ -261,10 +261,12 @@ class GraphControlArea extends ConsumerWidget {
                 ),
                 child: GestureDetector(
                   onHorizontalDragUpdate: (details) {
-                    if (details.delta.dx > 8) {
+                    if (details.delta.dx > 8 &&
+                        settings.canShift(forward: false)) {
                       ref.read(graphSettingsProvider.notifier).state =
                           settings.shift(false);
-                    } else if (details.delta.dx < -8) {
+                    } else if (details.delta.dx < -8 &&
+                        settings.canShift(forward: true)) {
                       ref.read(graphSettingsProvider.notifier).state =
                           settings.shift(true);
                     }
@@ -274,10 +276,12 @@ class GraphControlArea extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       IconButton(
-                        onPressed: () {
-                          ref.read(graphSettingsProvider.notifier).state =
-                              settings.shift(false);
-                        },
+                        onPressed: settings.canShift(forward: false)
+                            ? () {
+                                ref.read(graphSettingsProvider.notifier).state =
+                                    settings.shift(false);
+                              }
+                            : null,
                         icon: const Icon(Icons.keyboard_arrow_left),
                       ),
                       Text(
@@ -285,10 +289,12 @@ class GraphControlArea extends ConsumerWidget {
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       IconButton(
-                        onPressed: () {
-                          ref.read(graphSettingsProvider.notifier).state =
-                              settings.shift(true);
-                        },
+                        onPressed: settings.canShift(forward: true)
+                            ? () {
+                                ref.read(graphSettingsProvider.notifier).state =
+                                    settings.shift(true);
+                              }
+                            : null,
                         icon: const Icon(Icons.keyboard_arrow_right),
                       ),
                     ],
@@ -300,9 +306,17 @@ class GraphControlArea extends ConsumerWidget {
           const SizedBox(
             height: 6.0,
           ),
-          Text(
-            "span",
-            style: Theme.of(context).textTheme.bodySmall,
+          Padding(
+            padding: const EdgeInsets.only(left: 20.0),
+            child: Text(
+              "span",
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.6),
+                  ),
+            ),
           ),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -337,7 +351,18 @@ class GraphControlArea extends ConsumerWidget {
           const SizedBox(
             height: 6.0,
           ),
-          Text("showing", style: Theme.of(context).textTheme.bodySmall),
+          Padding(
+            padding: const EdgeInsets.only(left: 20.0),
+            child: Text(
+              "showing",
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.6),
+                  ),
+            ),
+          ),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
