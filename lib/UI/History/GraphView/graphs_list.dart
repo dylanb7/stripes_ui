@@ -59,24 +59,30 @@ class GraphsList extends ConsumerWidget {
         child: CustomScrollView(
       scrollDirection: Axis.vertical,
       slivers: [
-        SliverToBoxAdapter(
-          child: Row(
-            children: [
-              const Expanded(child: PatientChanger()),
-              const SizedBox(
-                width: 4.0,
-              ),
-              IconButton(
-                  onPressed: () {
-                    context.pushNamed(Routes.HISTORY);
-                  },
-                  icon: const Icon(Icons.calendar_month))
-            ],
+        SliverPadding(
+          padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 20.0),
+          sliver: SliverToBoxAdapter(
+            child: Row(
+              children: [
+                const Expanded(child: PatientChanger()),
+                const SizedBox(
+                  width: 4.0,
+                ),
+                IconButton(
+                    onPressed: () {
+                      context.pushNamed(Routes.HISTORY);
+                    },
+                    icon: const Icon(Icons.calendar_month))
+              ],
+            ),
           ),
         ),
         const SliverPadding(padding: EdgeInsets.only(top: 6.0)),
         const SliverFloatingHeader(
-          child: GraphControlArea(),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20.0),
+            child: GraphControlArea(),
+          ),
         ),
         AsyncValueDefaults(
           value: graphs,
@@ -84,52 +90,60 @@ class GraphsList extends ConsumerWidget {
             return SliverList.separated(
               itemBuilder: (context, index) {
                 final String key = data.keys.elementAt(index);
-                return GraphSymptomRow(
-                    responses: data[key]!, title: key, settings: settings);
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: GraphSymptomRow(
+                      responses: data[key]!, title: key, settings: settings),
+                );
               },
               separatorBuilder: (context, index) => const Divider(),
               itemCount: data.keys.length,
             );
           },
           onError: (error) => SliverToBoxAdapter(
-            child: Text(
-              error.error.toString(),
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(color: Theme.of(context).colorScheme.error),
+            child: Center(
+              child: Text(
+                error.error.toString(),
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(color: Theme.of(context).colorScheme.error),
+              ),
             ),
           ),
           onLoading: (_) => SliverList.separated(
             itemBuilder: (context, index) {
-              return Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(
-                    flex: 4,
-                    child: Container(
-                      height: 24,
-                      color: Theme.of(context)
-                          .disabledColor
-                          .withValues(alpha: 0.3),
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      flex: 4,
+                      child: Container(
+                        height: 24,
+                        color: Theme.of(context)
+                            .disabledColor
+                            .withValues(alpha: 0.3),
+                      ),
                     ),
-                  ),
-                  const SizedBox(
-                    width: 4.0,
-                  ),
-                  Expanded(
-                    flex: 3,
-                    child: Container(
-                      height: 80.0,
-                      decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .disabledColor
-                              .withValues(alpha: 0.3),
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(6.0))),
+                    const SizedBox(
+                      width: 4.0,
                     ),
-                  ),
-                ],
+                    Expanded(
+                      flex: 3,
+                      child: Container(
+                        height: 80.0,
+                        decoration: BoxDecoration(
+                            color: Theme.of(context)
+                                .disabledColor
+                                .withValues(alpha: 0.3),
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(6.0))),
+                      ),
+                    ),
+                  ],
+                ),
               );
             },
             separatorBuilder: (context, index) => const Divider(),
@@ -192,8 +206,10 @@ class GraphControlArea extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final GraphSettings settings = ref.watch(graphSettingsProvider);
-    return ConstrainedBox(
+
+    return Container(
       constraints: BoxConstraints(maxWidth: Breakpoint.tiny.value),
+      color: Theme.of(context).colorScheme.surface,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
