@@ -11,6 +11,7 @@ import 'package:stripes_ui/UI/Layout/home_screen.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 
 class GraphsList extends ConsumerWidget {
   const GraphsList({super.key});
@@ -84,9 +85,20 @@ class GraphsList extends ConsumerWidget {
         const SliverFloatingHeader(
           child: GraphControlArea(),
         ),
+        const SliverPadding(padding: EdgeInsets.only(top: 6.0)),
         AsyncValueDefaults(
           value: graphs,
           onData: (data) {
+            if (data.isEmpty) {
+              return SliverFillRemaining(
+                child: Center(
+                  child: Text(
+                    "No symptoms recorded",
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+              );
+            }
             return SliverList.separated(
               itemBuilder: (context, index) {
                 final String key = data.keys.elementAt(index);
@@ -128,7 +140,7 @@ class GraphsList extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(
-                      width: 4.0,
+                      width: 6.0,
                     ),
                     Expanded(
                       flex: 3,
@@ -150,6 +162,7 @@ class GraphsList extends ConsumerWidget {
             itemCount: 5,
           ),
         ),
+        const SliverPadding(padding: EdgeInsets.only(top: 40.0)),
       ],
     ));
   }
@@ -178,11 +191,14 @@ class GraphSymptomRow extends StatelessWidget {
           flex: 4,
           child: Text(
             title,
-            style: Theme.of(context).textTheme.bodyMedium,
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.copyWith(fontWeight: FontWeight.w600),
           ),
         ),
         const SizedBox(
-          width: 4.0,
+          width: 6.0,
         ),
         Expanded(
           flex: 3,
@@ -207,74 +223,187 @@ class GraphControlArea extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final GraphSettings settings = ref.watch(graphSettingsProvider);
 
-    return Container(
-      constraints: BoxConstraints(maxWidth: Breakpoint.tiny.value),
+    Widget constrain({required Widget child}) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: Breakpoint.tiny.value,
+          ),
+          child: child,
+        ),
+      );
+    }
+
+    return DecoratedBox(
       decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          border: const Border(bottom: BorderSide())),
-      child: Padding(
-        padding: const EdgeInsets.only(left: 20.0, right: 20.0, bottom: 4.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  onPressed: () {
+        color: Theme.of(context).colorScheme.surface,
+        border: Border(
+          bottom: BorderSide(
+            color: Theme.of(context).dividerColor.withValues(alpha: 0.4),
+          ),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          constrain(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.all(
+                  Radius.circular(6.0),
+                ),
+                color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
+              ),
+              child: GestureDetector(
+                onHorizontalDragUpdate: (details) {
+                  if (details.delta.dx > 8) {
                     ref.read(graphSettingsProvider.notifier).state =
                         settings.shift(false);
-                  },
-                  icon: const Icon(Icons.keyboard_arrow_left),
-                ),
-                Text(
-                  settings.getRangeString(context),
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                IconButton(
-                  onPressed: () {
+                  } else if (details.delta.dx < -8) {
                     ref.read(graphSettingsProvider.notifier).state =
                         settings.shift(true);
-                  },
-                  icon: const Icon(Icons.keyboard_arrow_right),
+                  }
+                },
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        ref.read(graphSettingsProvider.notifier).state =
+                            settings.shift(false);
+                      },
+                      icon: const Icon(Icons.keyboard_arrow_left),
+                    ),
+                    Text(
+                      settings.getRangeString(context),
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        ref.read(graphSettingsProvider.notifier).state =
+                            settings.shift(true);
+                      },
+                      icon: const Icon(Icons.keyboard_arrow_right),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-            Row(
+          ),
+          const SizedBox(
+            height: 6.0,
+          ),
+          Text(
+            "span",
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(color: Theme.of(context).disabledColor),
+          ),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                DropdownMenu<GraphSpan>(
-                    initialSelection: settings.span,
-                    onSelected: (value) {
-                      if (value == null) return;
-                      ref.read(graphSettingsProvider.notifier).state =
-                          GraphSettings.from(span: value, axis: settings.axis);
-                    },
-                    dropdownMenuEntries: GraphSpan.values
-                        .map(
-                          (value) => DropdownMenuEntry(
-                              value: value, label: value.value),
-                        )
-                        .toList()),
-                DropdownMenu<GraphYAxis>(
-                    initialSelection: settings.axis,
-                    onSelected: (value) {
-                      if (value == null) return;
-                      ref.read(graphSettingsProvider.notifier).state =
-                          settings.copyWith(axis: value);
-                    },
-                    dropdownMenuEntries: GraphYAxis.values
-                        .map(
-                          (value) => DropdownMenuEntry(
-                              value: value, label: value.value),
-                        )
-                        .toList()),
+                const SizedBox(
+                  width: 20,
+                ),
+                ...GraphSpan.values
+                    .map(
+                      (span) => FilterChip(
+                        label: Text(span.value),
+                        selected: span == settings.span,
+                        onSelected: (value) {
+                          if (!value) return;
+                          ref.read(graphSettingsProvider.notifier).state =
+                              GraphSettings.from(
+                                  span: span, axis: settings.axis);
+                        },
+                        showCheckmark: false,
+                      ),
+                    )
+                    .separated(
+                        by: const SizedBox(
+                      width: 5.0,
+                    )),
               ],
             ),
-          ],
-        ),
+          ),
+          const SizedBox(
+            height: 6.0,
+          ),
+          Text(
+            "showing",
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(color: Theme.of(context).disabledColor),
+          ),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                const SizedBox(
+                  width: 20,
+                ),
+                ...GraphYAxis.values
+                    .map(
+                      (axis) => FilterChip(
+                        label: Text(axis.value),
+                        selected: axis == settings.axis,
+                        onSelected: (value) {
+                          if (!value) return;
+                          ref.read(graphSettingsProvider.notifier).state =
+                              settings.copyWith(axis: axis);
+                        },
+                        showCheckmark: false,
+                      ),
+                    )
+                    .separated(
+                        by: const SizedBox(
+                      width: 5.0,
+                    )),
+              ],
+            ),
+          ),
+          /*Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              DropdownMenu<GraphSpan>(
+                  initialSelection: settings.span,
+                  onSelected: (value) {
+                    if (value == null) return;
+                    ref.read(graphSettingsProvider.notifier).state =
+                        GraphSettings.from(span: value, axis: settings.axis);
+                  },
+                  dropdownMenuEntries: GraphSpan.values
+                      .map(
+                        (value) =>
+                            DropdownMenuEntry(value: value, label: value.value),
+                      )
+                      .toList()),
+              DropdownMenu<GraphYAxis>(
+                  initialSelection: settings.axis,
+                  onSelected: (value) {
+                    if (value == null) return;
+                    ref.read(graphSettingsProvider.notifier).state =
+                        settings.copyWith(axis: value);
+                  },
+                  dropdownMenuEntries: GraphYAxis.values
+                      .map(
+                        (value) =>
+                            DropdownMenuEntry(value: value, label: value.value),
+                      )
+                      .toList()),
+            ],
+          ),*/
+        ],
       ),
     );
   }

@@ -11,7 +11,7 @@ import 'package:stripes_ui/Util/extensions.dart';
 
 enum GraphYAxis {
   frequency("Frequency"),
-  severity("Severity"),
+  average("Average"),
   entrytime("Time");
 
   final String value;
@@ -218,7 +218,7 @@ final graphStampsProvider =
       continue;
     }
     List<Response> flattened = _flattenedResponse(wrappedResponse);
-    if (settings.axis == GraphYAxis.severity) {
+    if (settings.axis == GraphYAxis.average) {
       flattened = flattened.whereType<NumericResponse>().toList();
     }
     for (final Response response in flattened) {

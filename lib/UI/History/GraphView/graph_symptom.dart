@@ -153,7 +153,7 @@ class _GraphSymptomState extends State<GraphSymptom> {
           final double rodY = point.length.toDouble();
           adjustBounds(rodY);
           rods.add(BarChartRodData(toY: rodY));
-        } else if (widget.settings.axis == GraphYAxis.severity) {
+        } else if (widget.settings.axis == GraphYAxis.average) {
           final Iterable<NumericResponse> numerics =
               point.whereType<NumericResponse>();
           if (numerics.isEmpty) {
