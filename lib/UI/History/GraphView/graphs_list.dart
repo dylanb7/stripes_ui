@@ -89,43 +89,6 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
         ),
         Padding(
           padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 6.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              AsyncValueDefaults(
-                value: graphData,
-                onData: (loadedData) {
-                  final Iterable<GraphKey> keys = loadedData.keys;
-                  final bool hasValuesToAdd = keys
-                      .where((element) =>
-                          ![...additions, widget.graphKey].contains(element))
-                      .isNotEmpty;
-                  if (!hasValuesToAdd) return addLayerButton();
-                  return addLayerButton(
-                    onPressed: () async {
-                      final GraphKey? result = await toggleKeySelect(context);
-                      if (result != null) {
-                        setState(() {
-                          additions.add(result);
-                        });
-                      }
-                    },
-                  );
-                },
-                onLoading: (_) => addLayerButton(),
-                onError: (_) => addLayerButton(),
-              ),
-              FilledButton.icon(
-                onPressed: () {},
-                label: const Text("Share"),
-                icon: const Icon(Icons.upload),
-              ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 6.0),
           child: AspectRatio(
             aspectRatio: 2.0,
             child: Hero(
@@ -171,6 +134,46 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
           height: 12.0,
         ),
         Padding(
+          padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 6.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              AsyncValueDefaults(
+                value: graphData,
+                onData: (loadedData) {
+                  final Iterable<GraphKey> keys = loadedData.keys;
+                  final bool hasValuesToAdd = keys
+                      .where((element) =>
+                          ![...additions, widget.graphKey].contains(element))
+                      .isNotEmpty;
+                  if (!hasValuesToAdd) return addLayerButton();
+                  return addLayerButton(
+                    onPressed: () async {
+                      final GraphKey? result = await toggleKeySelect(context);
+                      if (result != null) {
+                        setState(() {
+                          additions.add(result);
+                        });
+                      }
+                    },
+                  );
+                },
+                onLoading: (_) => addLayerButton(),
+                onError: (_) => addLayerButton(),
+              ),
+              FilledButton.icon(
+                onPressed: () {},
+                label: const Text("Share"),
+                icon: const Icon(Icons.upload),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(
+          height: 12.0,
+        ),
+        Padding(
           padding: const EdgeInsets.only(left: 20.0),
           child: Text(
             "displaying",
@@ -195,6 +198,7 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
                     child: AsyncValueDefaults(
                       value: graphData,
                       onData: (loadedData) {
+                        print(loadedData);
                         final bool hasData = loadedData.containsKey(key);
                         return Text(
                           key.toString(),
@@ -240,7 +244,10 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
               ),
             );
           },
-        ).separated(by: const Divider()),
+        ).separated(by: const Divider(), includeEnds: true),
+        const SizedBox(
+          height: 40.0,
+        )
       ],
     ));
   }
@@ -259,9 +266,7 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
         ),
         builder: (context) {
           return DraggableScrollableSheet(
-              initialChildSize: 0.5,
               maxChildSize: 0.8,
-              minChildSize: 0.25,
               expand: false,
               snap: true,
               builder: (context, controller) {
