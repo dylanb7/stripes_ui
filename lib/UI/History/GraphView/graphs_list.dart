@@ -231,15 +231,19 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
                   const SizedBox(
                     width: 6.0,
                   ),
-                  if (key != widget.graphKey)
-                    IconButton(
-                      onPressed: () {
-                        setState(() {
-                          additions.remove(key);
-                        });
-                      },
-                      icon: const Icon(Icons.remove_circle),
-                    ),
+                  key != widget.graphKey
+                      ? IconButton(
+                          onPressed: () {
+                            setState(() {
+                              additions.remove(key);
+                            });
+                          },
+                          icon: const Icon(Icons.remove_circle),
+                        )
+                      : SizedBox(
+                          height:
+                              (Theme.of(context).iconTheme.size ?? 24) + 16.0,
+                        ),
                 ],
               ),
             );
