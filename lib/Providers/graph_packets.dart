@@ -205,18 +205,35 @@ class GraphSettings extends Equatable {
   List<Object?> get props => [range, span, axis];
 }
 
+@immutable
+class GraphKey extends Equatable {
+  final bool isCategory;
+  final String title;
+  final String? qid;
+
+  const GraphKey({required this.title, required this.isCategory, this.qid});
+
+  @override
+  String toString() {
+    return "${isCategory ? "Category · " : ""} $title";
+  }
+
+  @override
+  List<Object?> get props => [isCategory, title, qid];
+}
+
 final graphSettingsProvider = StateProvider.autoDispose<GraphSettings>(
   (ref) => GraphSettings.from(span: GraphSpan.week, axis: GraphYAxis.frequency),
 );
 
 final graphStampsProvider =
-    FutureProvider.autoDispose<Map<String, List<Response>>>((ref) async {
+    FutureProvider.autoDispose<Map<GraphKey, List<Response>>>((ref) async {
   final GraphSettings settings = ref.watch(graphSettingsProvider);
   final List<Response> responses = (await ref.watch(stampHolderProvider.future))
       .whereType<Response>()
       .toList();
-  final Map<String, List<Response>> byType = {};
-  final Map<String, List<Response>> byQuestion = {};
+  final Map<GraphKey, List<Response>> byType = {};
+  final Map<GraphKey, List<Response>> byQuestion = {};
   for (final Response wrappedResponse in responses) {
     if (!settings.range.contains(dateFromStamp(wrappedResponse.stamp))) {
       continue;
@@ -226,15 +243,23 @@ final graphStampsProvider =
       flattened = flattened.whereType<NumericResponse>().toList();
     }
     for (final Response response in flattened) {
-      if (byQuestion.containsKey(response.question.prompt)) {
-        byQuestion[response.question.prompt]!.add(response);
+      final GraphKey key = GraphKey(
+          title: response.question.prompt,
+          isCategory: false,
+          qid: response.question.id);
+      if (byQuestion.containsKey(key)) {
+        byQuestion[key]!.add(response);
       } else {
-        byQuestion[response.question.prompt] = [response];
+        byQuestion[key] = [response];
       }
-      if (byType.containsKey(response.type)) {
-        byType[response.type]!.add(response);
+      final GraphKey categoryKey = GraphKey(
+        title: response.type,
+        isCategory: true,
+      );
+      if (byType.containsKey(categoryKey)) {
+        byType[categoryKey]!.add(response);
       } else {
-        byType[response.type] = [response];
+        byType[categoryKey] = [response];
       }
     }
     /*if (flattened.isEmpty) {

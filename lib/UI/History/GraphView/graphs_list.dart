@@ -18,46 +18,206 @@ class GraphsList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    return GraphScreenWrap(
+      scrollable: ListSection(
+        onSelect: (GraphKey key) {
+          Navigator.of(context).push(
+            MaterialPageRoute<void>(builder: (context) {
+              return GraphViewScreen(
+                graphKey: key,
+              );
+            }),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class GraphViewScreen extends ConsumerStatefulWidget {
+  final GraphKey graphKey;
+
+  const GraphViewScreen({required this.graphKey, super.key});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() {
+    return _GraphViewScreenState();
+  }
+}
+
+class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
+  List<GraphKey> additions = [];
+
+  @override
+  Widget build(BuildContext context) {
     final GraphSettings settings = ref.watch(graphSettingsProvider);
-
-    final AsyncValue<Map<String, List<Response>>> graphs =
+    final AsyncValue<Map<GraphKey, List<Response>>> graphData =
         ref.watch(graphStampsProvider);
-    final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);
 
-    Widget wrap({required Widget child}) {
-      return PageWrap(
-        actions: [
-          if (!isSmall)
-            ...TabOption.values.map((tab) => LargeNavButton(
-                  tab: tab,
-                  selected: TabOption.history,
-                )),
-          const SizedBox(
-            width: 8.0,
-          ),
-          const UserProfileButton()
-        ],
-        bottomNav: isSmall
-            ? const SmallLayout(
-                selected: TabOption.history,
-              )
-            : null,
-        child: AddIndicator(
-          builder: (context, hasIndicator) {
-            return Center(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: Breakpoint.medium.value),
-                child: RefreshWidget(
-                    depth: RefreshDepth.authuser, scrollable: child),
-              ),
-            );
-          },
-        ),
+    Widget addLayerButton({void Function()? onPressed}) {
+      return FilledButton.icon(
+        onPressed: onPressed,
+        label: const Text("Add Layer"),
+        icon: const Icon(Icons.add),
       );
     }
 
-    return wrap(
-        child: CustomScrollView(
+    return GraphScreenWrap(
+        scrollable: ListView(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 20.0),
+          child: Row(
+            children: [
+              IconButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  icon: const Icon(Icons.keyboard_arrow_left)),
+              const Expanded(
+                  child: PatientChanger(
+                tab: TabOption.history,
+              )),
+              const SizedBox(
+                width: 4.0,
+              ),
+              IconButton(
+                  onPressed: () {
+                    context.pushNamed(Routes.HISTORY);
+                  },
+                  icon: const Icon(Icons.calendar_month))
+            ],
+          ),
+        ),
+        const GraphControlArea(
+          showsYAxis: false,
+          hasDivider: false,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 20.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              AsyncValueDefaults(
+                value: graphData,
+                onData: (loadedData) {
+                  final Iterable<GraphKey> keys = loadedData.keys;
+                  final bool hasValuesToAdd = keys
+                      .where((element) =>
+                          ![...additions, widget.graphKey].contains(element))
+                      .isNotEmpty;
+                  if (!hasValuesToAdd) return addLayerButton();
+                  return addLayerButton(
+                    onPressed: () async {
+                      final GraphKey? result = await toggleKeySelect(context);
+                      if (result != null) {
+                        setState(() {
+                          additions.add(result);
+                        });
+                      }
+                    },
+                  );
+                },
+                onLoading: (_) => addLayerButton(),
+                onError: (_) => addLayerButton(),
+              ),
+              FilledButton.icon(
+                onPressed: () {},
+                label: const Text("Share"),
+                icon: const Icon(Icons.upload),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 20.0),
+          child: AspectRatio(
+            aspectRatio: 2.0,
+            child: Hero(
+              tag: widget.graphKey,
+              child: AsyncValueDefaults(
+                value: graphData,
+                onData: (loadedData) {
+                  if (!loadedData.containsKey(widget.graphKey)) {
+                    return Container();
+                  }
+                  return GraphSymptom(responses: [
+                    loadedData[widget.graphKey]!,
+                    ...additions
+                        .map((addition) => loadedData[addition])
+                        .whereType<List<Response>>()
+                  ], settings: settings, isDetailed: true);
+                },
+                onLoading: (_) {
+                  return DecoratedBox(
+                      decoration: BoxDecoration(
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(6.0)),
+                          color: Theme.of(context).disabledColor));
+                },
+              ),
+            ),
+          ),
+        ),
+      ],
+    ));
+  }
+
+  Future<GraphKey?> toggleKeySelect(BuildContext context) {
+    return showModalBottomSheet<GraphKey?>(
+        context: context,
+        useSafeArea: true,
+        isScrollControlled: true,
+        showDragHandle: true,
+        shape: RoundedRectangleBorder(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(10.0),
+            topRight: Radius.circular(10.0),
+          ),
+          side: BorderSide(color: Theme.of(context).colorScheme.outline),
+        ),
+        builder: (context) {
+          return DraggableScrollableSheet(
+              initialChildSize: 0.5,
+              maxChildSize: 0.8,
+              minChildSize: 0.25,
+              expand: false,
+              snap: true,
+              builder: (context, controller) {
+                return ListSection(
+                  onSelect: (key) {
+                    Navigator.pop(context, key);
+                  },
+                  includesControls: false,
+                  excludedKeys: [widget.graphKey, ...additions],
+                );
+              });
+        });
+  }
+}
+
+class ListSection extends ConsumerWidget {
+  final bool includesControls;
+
+  final List<GraphKey> excludedKeys;
+
+  final Function(GraphKey) onSelect;
+
+  const ListSection(
+      {required this.onSelect,
+      this.includesControls = true,
+      this.excludedKeys = const [],
+      super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final GraphSettings settings = ref.watch(graphSettingsProvider);
+
+    final AsyncValue<Map<GraphKey, List<Response>>> graphs =
+        ref.watch(graphStampsProvider);
+
+    return CustomScrollView(
       scrollDirection: Axis.vertical,
       slivers: [
         SliverPadding(
@@ -81,13 +241,44 @@ class GraphsList extends ConsumerWidget {
             ),
           ),
         ),
-        const SliverFloatingHeader(
-          child: GraphControlArea(),
-        ),
+        includesControls
+            ? const SliverFloatingHeader(
+                child: GraphControlArea(),
+              )
+            : SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: Breakpoint.tiny.value,
+                    ),
+                    child: Center(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(6.0),
+                          ),
+                          color: Theme.of(context)
+                              .primaryColor
+                              .withValues(alpha: 0.2),
+                        ),
+                        child: Center(
+                          child: Text(
+                            settings.getRangeString(context),
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
         const SliverPadding(padding: EdgeInsets.only(top: 6.0)),
         AsyncValueDefaults(
           value: graphs,
           onData: (data) {
+            final Map<GraphKey, List<Response>> withKeysRemoved = data
+              ..removeWhere((key, value) => excludedKeys.contains(key));
             if (data.isEmpty) {
               return SliverFillRemaining(
                 child: Center(
@@ -100,15 +291,23 @@ class GraphsList extends ConsumerWidget {
             }
             return SliverList.separated(
               itemBuilder: (context, index) {
-                final String key = data.keys.elementAt(index);
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: GraphSymptomRow(
-                      responses: data[key]!, title: key, settings: settings),
+                final GraphKey key = withKeysRemoved.keys.elementAt(index);
+                return GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: () {
+                    onSelect(key);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: GraphSymptomRow(
+                        responses: withKeysRemoved[key]!,
+                        graphKey: key,
+                        settings: settings),
+                  ),
                 );
               },
               separatorBuilder: (context, index) => const Divider(),
-              itemCount: data.keys.length,
+              itemCount: withKeysRemoved.keys.length,
             );
           },
           onError: (error) => SliverToBoxAdapter(
@@ -163,21 +362,24 @@ class GraphsList extends ConsumerWidget {
         ),
         const SliverPadding(padding: EdgeInsets.only(top: 40.0)),
       ],
-    ));
+    );
   }
 }
 
 class GraphSymptomRow extends StatelessWidget {
   final List<Response> responses;
 
-  final String title;
+  final GraphKey graphKey;
 
   final GraphSettings settings;
 
+  final bool hasHero;
+
   const GraphSymptomRow(
       {required this.responses,
-      required this.title,
+      required this.graphKey,
       required this.settings,
+      this.hasHero = true,
       super.key});
 
   @override
@@ -189,7 +391,7 @@ class GraphSymptomRow extends StatelessWidget {
         Expanded(
           flex: 4,
           child: Text(
-            title,
+            graphKey.toString(),
             style: Theme.of(context)
                 .textTheme
                 .bodyMedium
@@ -204,10 +406,23 @@ class GraphSymptomRow extends StatelessWidget {
           child: Container(
             height: 80.0,
             decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
-                borderRadius: const BorderRadius.all(Radius.circular(6.0))),
-            child: GraphSymptom(
-                responses: [responses], settings: settings, isDetailed: false),
+              color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
+              borderRadius: const BorderRadius.all(
+                Radius.circular(6.0),
+              ),
+            ),
+            child: hasHero
+                ? Hero(
+                    tag: graphKey,
+                    child: GraphSymptom(
+                        responses: [responses],
+                        settings: settings,
+                        isDetailed: false),
+                  )
+                : GraphSymptom(
+                    responses: [responses],
+                    settings: settings,
+                    isDetailed: false),
           ),
         ),
         const Icon(
@@ -219,11 +434,27 @@ class GraphSymptomRow extends StatelessWidget {
   }
 }
 
-class GraphControlArea extends ConsumerWidget {
-  const GraphControlArea({super.key});
+class GraphControlArea extends ConsumerStatefulWidget {
+  final bool showsSpan, showsYAxis, showsDateChange, hasDivider;
+
+  const GraphControlArea(
+      {this.showsDateChange = true,
+      this.showsSpan = true,
+      this.showsYAxis = true,
+      this.hasDivider = true,
+      super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConsumerStatefulWidget> createState() {
+    return _GraphControlAreaState();
+  }
+}
+
+class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
+  bool acceptedSwipe = false;
+
+  @override
+  Widget build(BuildContext context) {
     final GraphSettings settings = ref.watch(graphSettingsProvider);
 
     Widget constrain({required Widget child}) {
@@ -241,161 +472,185 @@ class GraphControlArea extends ConsumerWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        border: Border(
-          bottom: BorderSide(
-            color: Theme.of(context).dividerColor.withValues(alpha: 0.4),
-          ),
-        ),
+        border: widget.hasDivider
+            ? Border(
+                bottom: BorderSide(
+                  color: Theme.of(context).dividerColor.withValues(alpha: 0.4),
+                ),
+              )
+            : null,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          const SizedBox(
-            height: 6.0,
-          ),
-          constrain(
-            child: Center(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(6.0),
+          if (widget.showsDateChange) ...[
+            const SizedBox(
+              height: 6.0,
+            ),
+            constrain(
+              child: Center(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(6.0),
+                    ),
+                    color:
+                        Theme.of(context).primaryColor.withValues(alpha: 0.2),
                   ),
-                  color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
-                ),
-                child: GestureDetector(
-                  onHorizontalDragUpdate: (details) {
-                    if (details.delta.dx > 8 &&
-                        settings.canShift(forward: false)) {
-                      ref.read(graphSettingsProvider.notifier).state =
-                          settings.shift(false);
-                    } else if (details.delta.dx < -8 &&
-                        settings.canShift(forward: true)) {
-                      ref.read(graphSettingsProvider.notifier).state =
-                          settings.shift(true);
-                    }
-                  },
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        onPressed: settings.canShift(forward: false)
-                            ? () {
-                                ref.read(graphSettingsProvider.notifier).state =
-                                    settings.shift(false);
-                              }
-                            : null,
-                        icon: const Icon(Icons.keyboard_arrow_left),
-                      ),
-                      Text(
-                        settings.getRangeString(context),
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      IconButton(
-                        onPressed: settings.canShift(forward: true)
-                            ? () {
-                                ref.read(graphSettingsProvider.notifier).state =
-                                    settings.shift(true);
-                              }
-                            : null,
-                        icon: const Icon(Icons.keyboard_arrow_right),
-                      ),
-                    ],
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onHorizontalDragEnd: (details) {
+                      if (acceptedSwipe) {
+                        setState(() {
+                          acceptedSwipe = false;
+                        });
+                      }
+                    },
+                    onHorizontalDragUpdate: (details) {
+                      if (acceptedSwipe) return;
+                      const dragSpeed = 4;
+                      if (details.delta.dx > dragSpeed &&
+                          settings.canShift(forward: false)) {
+                        ref.read(graphSettingsProvider.notifier).state =
+                            settings.shift(false);
+                      } else if (details.delta.dx < -dragSpeed &&
+                          settings.canShift(forward: true)) {
+                        ref.read(graphSettingsProvider.notifier).state =
+                            settings.shift(true);
+                      }
+                      setState(() {
+                        acceptedSwipe = true;
+                      });
+                    },
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          onPressed: settings.canShift(forward: false)
+                              ? () {
+                                  ref
+                                      .read(graphSettingsProvider.notifier)
+                                      .state = settings.shift(false);
+                                }
+                              : null,
+                          icon: const Icon(Icons.keyboard_arrow_left),
+                        ),
+                        Text(
+                          settings.getRangeString(context),
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        IconButton(
+                          onPressed: settings.canShift(forward: true)
+                              ? () {
+                                  ref
+                                      .read(graphSettingsProvider.notifier)
+                                      .state = settings.shift(true);
+                                }
+                              : null,
+                          icon: const Icon(Icons.keyboard_arrow_right),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(
-            height: 6.0,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 20.0),
-            child: Text(
-              "span",
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withValues(alpha: 0.6),
+          ],
+          if (widget.showsSpan) ...[
+            const SizedBox(
+              height: 6.0,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 20.0),
+              child: Text(
+                "span",
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withValues(alpha: 0.6),
+                    ),
+              ),
+            ),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const SizedBox(
+                    width: 20,
                   ),
+                  ...GraphSpan.values
+                      .map(
+                        (span) => FilterChip(
+                          label: Text(span.value),
+                          selected: span == settings.span,
+                          onSelected: (value) {
+                            if (!value) return;
+                            ref.read(graphSettingsProvider.notifier).state =
+                                GraphSettings.from(
+                                    span: span, axis: settings.axis);
+                          },
+                          showCheckmark: false,
+                        ),
+                      )
+                      .separated(
+                          by: const SizedBox(
+                        width: 5.0,
+                      )),
+                ],
+              ),
             ),
-          ),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                const SizedBox(
-                  width: 20,
-                ),
-                ...GraphSpan.values
-                    .map(
-                      (span) => FilterChip(
-                        label: Text(span.value),
-                        selected: span == settings.span,
-                        onSelected: (value) {
-                          if (!value) return;
-                          ref.read(graphSettingsProvider.notifier).state =
-                              GraphSettings.from(
-                                  span: span, axis: settings.axis);
-                        },
-                        showCheckmark: false,
-                      ),
-                    )
-                    .separated(
-                        by: const SizedBox(
-                      width: 5.0,
-                    )),
-              ],
+          ],
+          if (widget.showsYAxis) ...[
+            const SizedBox(
+              height: 6.0,
             ),
-          ),
-          const SizedBox(
-            height: 6.0,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 20.0),
-            child: Text(
-              "showing",
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withValues(alpha: 0.6),
+            Padding(
+              padding: const EdgeInsets.only(left: 20.0),
+              child: Text(
+                "showing",
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withValues(alpha: 0.6),
+                    ),
+              ),
+            ),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const SizedBox(
+                    width: 20,
                   ),
+                  ...GraphYAxis.values
+                      .map(
+                        (axis) => FilterChip(
+                          label: Text(axis.value),
+                          selected: axis == settings.axis,
+                          onSelected: (value) {
+                            if (!value) return;
+                            ref.read(graphSettingsProvider.notifier).state =
+                                settings.copyWith(axis: axis);
+                          },
+                          showCheckmark: false,
+                        ),
+                      )
+                      .separated(
+                          by: const SizedBox(
+                        width: 5.0,
+                      )),
+                ],
+              ),
             ),
-          ),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                const SizedBox(
-                  width: 20,
-                ),
-                ...GraphYAxis.values
-                    .map(
-                      (axis) => FilterChip(
-                        label: Text(axis.value),
-                        selected: axis == settings.axis,
-                        onSelected: (value) {
-                          if (!value) return;
-                          ref.read(graphSettingsProvider.notifier).state =
-                              settings.copyWith(axis: axis);
-                        },
-                        showCheckmark: false,
-                      ),
-                    )
-                    .separated(
-                        by: const SizedBox(
-                      width: 5.0,
-                    )),
-              ],
-            ),
-          ),
+          ]
           /*Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -429,6 +684,47 @@ class GraphControlArea extends ConsumerWidget {
             ],
           ),*/
         ],
+      ),
+    );
+  }
+}
+
+class GraphScreenWrap extends StatelessWidget {
+  final Widget scrollable;
+
+  const GraphScreenWrap({required this.scrollable, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);
+
+    return PageWrap(
+      actions: [
+        if (!isSmall)
+          ...TabOption.values.map((tab) => LargeNavButton(
+                tab: tab,
+                selected: TabOption.history,
+              )),
+        const SizedBox(
+          width: 8.0,
+        ),
+        const UserProfileButton()
+      ],
+      bottomNav: isSmall
+          ? const SmallLayout(
+              selected: TabOption.history,
+            )
+          : null,
+      child: AddIndicator(
+        builder: (context, hasIndicator) {
+          return Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: Breakpoint.medium.value),
+              child: RefreshWidget(
+                  depth: RefreshDepth.subuser, scrollable: scrollable),
+            ),
+          );
+        },
       ),
     );
   }
