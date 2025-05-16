@@ -81,7 +81,6 @@ class GraphsList extends ConsumerWidget {
             ),
           ),
         ),
-        const SliverPadding(padding: EdgeInsets.only(top: 6.0)),
         const SliverFloatingHeader(
           child: GraphControlArea(),
         ),
@@ -245,49 +244,55 @@ class GraphControlArea extends ConsumerWidget {
         ),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
+          const SizedBox(
+            height: 6.0,
+          ),
           constrain(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(
-                  Radius.circular(6.0),
+            child: Center(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(6.0),
+                  ),
+                  color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
                 ),
-                color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
-              ),
-              child: GestureDetector(
-                onHorizontalDragUpdate: (details) {
-                  if (details.delta.dx > 8) {
-                    ref.read(graphSettingsProvider.notifier).state =
-                        settings.shift(false);
-                  } else if (details.delta.dx < -8) {
-                    ref.read(graphSettingsProvider.notifier).state =
-                        settings.shift(true);
-                  }
-                },
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        ref.read(graphSettingsProvider.notifier).state =
-                            settings.shift(false);
-                      },
-                      icon: const Icon(Icons.keyboard_arrow_left),
-                    ),
-                    Text(
-                      settings.getRangeString(context),
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        ref.read(graphSettingsProvider.notifier).state =
-                            settings.shift(true);
-                      },
-                      icon: const Icon(Icons.keyboard_arrow_right),
-                    ),
-                  ],
+                child: GestureDetector(
+                  onHorizontalDragUpdate: (details) {
+                    if (details.delta.dx > 8) {
+                      ref.read(graphSettingsProvider.notifier).state =
+                          settings.shift(false);
+                    } else if (details.delta.dx < -8) {
+                      ref.read(graphSettingsProvider.notifier).state =
+                          settings.shift(true);
+                    }
+                  },
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          ref.read(graphSettingsProvider.notifier).state =
+                              settings.shift(false);
+                        },
+                        icon: const Icon(Icons.keyboard_arrow_left),
+                      ),
+                      Text(
+                        settings.getRangeString(context),
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          ref.read(graphSettingsProvider.notifier).state =
+                              settings.shift(true);
+                        },
+                        icon: const Icon(Icons.keyboard_arrow_right),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
