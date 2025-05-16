@@ -39,7 +39,7 @@ class _GraphSymptomState extends State<GraphSymptom> {
         sets.add(setValue);
       }
       print(widget.responses
-          .map((val) => val.map((s) => dateFromStamp(s.stamp)))
+          .map((val) => val.map((s) => dateFromStamp(s.stamp)).join(", "))
           .join("_"));
       print(sets);
     }

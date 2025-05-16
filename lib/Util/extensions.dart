@@ -69,9 +69,7 @@ extension Translate on BuildContext {
 
 extension Contains on DateTimeRange {
   bool contains(DateTime dateTime) {
-    return start.isBefore(dateTime) ||
-        start.isAtSameMomentAs(dateTime) ||
-        end.isAfter(dateTime) ||
-        end.isAtSameMomentAs(dateTime);
+    return (start.isBefore(dateTime) || start.isAtSameMomentAs(dateTime)) &&
+        (end.isAfter(dateTime) || end.isAtSameMomentAs(dateTime));
   }
 }
