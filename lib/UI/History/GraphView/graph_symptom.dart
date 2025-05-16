@@ -38,7 +38,9 @@ class _GraphSymptomState extends State<GraphSymptom> {
       if (setValue != null) {
         sets.add(setValue);
       }
-      print(widget.responses);
+      print(widget.responses
+          .map((val) => val.map((s) => dateFromStamp(s.stamp)))
+          .join("_"));
       print(sets);
     }
 
