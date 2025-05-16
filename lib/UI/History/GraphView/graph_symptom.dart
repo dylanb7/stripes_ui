@@ -94,15 +94,12 @@ class _GraphSymptomState extends State<GraphSymptom> {
     return LayoutBuilder(builder: (context, constraints) {
       final List<BarChartGroupData> barData =
           dataSet.data as List<BarChartGroupData>;
-      print(barData);
-      final double barWidth =
-          constraints.biggest.width / barData[0].barRods.length;
-      final List<BarChartGroupData> fixedWidth = barData.map((data) {
+
+      final List<BarChartGroupData> styled = barData.map((data) {
         return data.copyWith(
             barRods: data.barRods
                 .map(
                   (rod) => rod.copyWith(
-                      width: 8,
                       color: Theme.of(context).primaryColor,
                       borderRadius:
                           const BorderRadius.all(Radius.circular(0.0))),
@@ -114,8 +111,8 @@ class _GraphSymptomState extends State<GraphSymptom> {
       return BarChart(
         BarChartData(
           alignment: BarChartAlignment.center,
-          groupsSpace: 0.0,
-          barGroups: fixedWidth,
+          groupsSpace: 1.0,
+          barGroups: styled,
           maxY: dataSet.maxY,
           minY: dataSet.minY,
           gridData: gridData,
@@ -198,7 +195,6 @@ class _GraphSymptomState extends State<GraphSymptom> {
     final YAxisRange range =
         YAxisRange.rangeFromMax(ticks: yAxisTicks, max: maxY, min: minY);
 
-    print(barChartGroups);
     return GraphDataSet<BarChartGroupData>(
         data: barChartGroups,
         minX: 0,

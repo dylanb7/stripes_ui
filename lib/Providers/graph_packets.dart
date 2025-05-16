@@ -153,9 +153,12 @@ class GraphSettings extends Equatable {
           ),
         );
       case GraphSpan.year:
+        final DateTime newStart = forward
+            ? DateTime(range.start.year + 1)
+            : DateTime(range.start.year - 1);
         return DateTimeRange(
-          start: range.start.copyWith(year: range.start.year - 1),
-          end: range.end.copyWith(year: range.end.year - 1),
+          start: newStart,
+          end: newStart.copyWith(year: newStart.year + 1),
         );
     }
   }

@@ -210,6 +210,10 @@ class GraphSymptomRow extends StatelessWidget {
                 responses: [responses], settings: settings, isDetailed: false),
           ),
         ),
+        const Icon(
+          Icons.keyboard_arrow_right,
+          size: 32.0,
+        )
       ],
     );
   }
