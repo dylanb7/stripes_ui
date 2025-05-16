@@ -94,6 +94,7 @@ class _GraphSymptomState extends State<GraphSymptom> {
     return LayoutBuilder(builder: (context, constraints) {
       final List<BarChartGroupData> barData =
           dataSet.data as List<BarChartGroupData>;
+      print(barData);
       final double barWidth =
           constraints.biggest.width / barData[0].barRods.length;
       final List<BarChartGroupData> fixedWidth = barData.map((data) {
