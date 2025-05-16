@@ -190,7 +190,7 @@ class _GraphSymptomState extends State<GraphSymptom> {
         }
         if (rod == null) continue;
         final BarChartGroupData toEdit = barChartGroups[i];
-        barChartGroups[i] = toEdit.copyWith(barRods: toEdit.barRods..add(rod));
+        barChartGroups[i] = toEdit.copyWith(barRods: [...toEdit.barRods, rod]);
       }
     }
 
