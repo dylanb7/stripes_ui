@@ -170,14 +170,17 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
         const SizedBox(
           height: 12.0,
         ),
-        Text(
-          "displaying",
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context)
-                    .colorScheme
-                    .onSurface
-                    .withValues(alpha: 0.6),
-              ),
+        Padding(
+          padding: const EdgeInsets.only(left: 20.0),
+          child: Text(
+            "displaying",
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withValues(alpha: 0.6),
+                ),
+          ),
         ),
         ...[widget.graphKey, ...additions].map(
           (key) {
@@ -246,7 +249,6 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
     return showModalBottomSheet<GraphKey?>(
         context: context,
         useSafeArea: true,
-        isScrollControlled: true,
         showDragHandle: true,
         shape: RoundedRectangleBorder(
           borderRadius: const BorderRadius.only(
@@ -321,38 +323,10 @@ class ListSection extends ConsumerWidget {
               ),
             ),
           ),
-        includesControls
-            ? const SliverFloatingHeader(
-                child: GraphControlArea(),
-              )
-            : SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                        maxWidth: Breakpoint.tiny.value,
-                        minHeight: Theme.of(context).iconTheme.size ?? 40.0),
-                    child: Center(
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          borderRadius: const BorderRadius.all(
-                            Radius.circular(6.0),
-                          ),
-                          color: Theme.of(context)
-                              .primaryColor
-                              .withValues(alpha: 0.2),
-                        ),
-                        child: Center(
-                          child: Text(
-                            settings.getRangeString(context),
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+        if (includesControls)
+          const SliverFloatingHeader(
+            child: GraphControlArea(),
+          ),
         const SliverPadding(padding: EdgeInsets.only(top: 6.0)),
         AsyncValueDefaults(
           value: graphs,
@@ -568,8 +542,8 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
             const SizedBox(
               height: 6.0,
             ),
-            constrain(
-              child: Center(
+            Center(
+              child: constrain(
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     borderRadius: const BorderRadius.all(
