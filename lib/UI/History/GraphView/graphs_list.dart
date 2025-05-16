@@ -302,10 +302,7 @@ class GraphControlArea extends ConsumerWidget {
           ),
           Text(
             "span",
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
-                ?.copyWith(color: Theme.of(context).disabledColor),
+            style: Theme.of(context).textTheme.bodySmall,
           ),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -340,13 +337,7 @@ class GraphControlArea extends ConsumerWidget {
           const SizedBox(
             height: 6.0,
           ),
-          Text(
-            "showing",
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
-                ?.copyWith(color: Theme.of(context).disabledColor),
-          ),
+          Text("showing", style: Theme.of(context).textTheme.bodySmall),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
