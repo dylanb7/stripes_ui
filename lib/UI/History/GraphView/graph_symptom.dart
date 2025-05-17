@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:stripes_backend_helper/TestingReposImpl/test_question_repo.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/graph_packets.dart';
 
@@ -29,7 +30,7 @@ class _GraphSymptomState extends State<GraphSymptom> {
   @override
   void initState() {
     List<List<List<Stamp>>> sets = [];
-    for (List<Response> dataset in widget.responses) {
+    for (List<Stamp> dataset in widget.responses) {
       final List<List<Stamp>>? setValue = bucketEvents(
         dataset,
         widget.settings.range,
@@ -165,17 +166,19 @@ class _GraphSymptomState extends State<GraphSymptom> {
     for (List<List<Stamp>> graphSet in sets) {
       for (int i = 0; i < graphSet.length; i++) {
         final List<Stamp> point = graphSet[i];
+
         BarChartRodData? rod;
+        Color? barColor = point.isEmpty ? null : _estimateColorFor(point[0]);
         if (widget.settings.axis == GraphYAxis.frequency) {
           final double rodY = point.length.toDouble();
           adjustBounds(rodY);
-          rod = BarChartRodData(toY: rodY);
+          rod = BarChartRodData(toY: rodY, color: barColor);
         } else if (widget.settings.axis == GraphYAxis.average) {
           final Iterable<NumericResponse> numerics =
               point.whereType<NumericResponse>();
           if (numerics.isEmpty) {
             adjustBounds(0);
-            rod = BarChartRodData(toY: 0);
+            rod = BarChartRodData(toY: 0, color: barColor);
             continue;
           }
           double total = 0.0;
@@ -184,7 +187,7 @@ class _GraphSymptomState extends State<GraphSymptom> {
           }
           final double average = total / numerics.length;
           adjustBounds(average);
-          rod = BarChartRodData(toY: average);
+          rod = BarChartRodData(toY: average, color: barColor);
         }
         if (rod == null) continue;
         final BarChartGroupData toEdit = barChartGroups[i];
@@ -227,6 +230,17 @@ class _GraphSymptomState extends State<GraphSymptom> {
         minX: 0,
         maxX: (widget.settings.span.getBuckets(widget.settings.range.start) - 1)
             .toDouble());
+  }
+
+  Color _estimateColorFor(Stamp stamp) {
+    Map<String, Color> setTypes = {
+      Symptoms.BM: Colors.brown,
+      Symptoms.REFLUX: Colors.orange,
+      Symptoms.PAIN: Colors.red,
+      Symptoms.NB: Colors.purple,
+    };
+
+    return setTypes[stamp.type] ?? Theme.of(context).primaryColor;
   }
 
   BarTooltipItem? _getTooltipItem(BarChartGroupData group, int groupIndex,
