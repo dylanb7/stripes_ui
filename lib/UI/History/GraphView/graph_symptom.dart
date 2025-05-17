@@ -213,12 +213,11 @@ class _GraphSymptomState extends State<GraphSymptom> {
       for (int i = 0; i < graphSet.length; i++) {
         final List<Stamp> atPoint = graphSet[i];
         for (final Stamp value in atPoint) {
+          final Color color = _estimateColorFor(value);
           final DateTime spotDate = dateFromStamp(value.stamp);
           spots.add(
-            ScatterSpot(
-              i.toDouble(),
-              (spotDate.hour + (spotDate.minute / 60)),
-            ),
+            ScatterSpot(i.toDouble(), (spotDate.hour + (spotDate.minute / 60)),
+                dotPainter: FlDotCirclePainter(color: color)),
           );
         }
       }
