@@ -96,13 +96,13 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
               child: AsyncValueDefaults(
                 value: graphData,
                 onData: (loadedData) {
-                  final List<List<Response>> forGraph = [
-                    if (loadedData.containsKey(widget.graphKey))
-                      loadedData[widget.graphKey]!,
-                    ...additions
-                        .map((addition) => loadedData[addition])
-                        .whereType<List<Response>>()
-                  ];
+                  final Map<GraphKey, List<Response>> forGraph =
+                      Map.fromEntries([widget.graphKey, ...additions]
+                          .map((key) => loadedData.containsKey(key)
+                              ? MapEntry(key, loadedData[key])
+                              : null)
+                          .whereType<MapEntry<GraphKey, List<Response>>>());
+
                   if (forGraph.isEmpty) {
                     return DecoratedBox(
                       decoration: BoxDecoration(
@@ -194,11 +194,15 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  Container(
+                    width: 30.0,
+                    height: 30.0,
+                    color: estimateColorFor(key),
+                  ),
                   Expanded(
                     child: AsyncValueDefaults(
                       value: graphData,
                       onData: (loadedData) {
-                        print(loadedData);
                         final bool hasData = loadedData.containsKey(key);
                         return Text(
                           key.toString(),
@@ -478,12 +482,12 @@ class GraphSymptomRow extends StatelessWidget {
                 ? Hero(
                     tag: graphKey,
                     child: GraphSymptom(
-                        responses: [responses],
+                        responses: {graphKey: responses},
                         settings: settings,
                         isDetailed: false),
                   )
                 : GraphSymptom(
-                    responses: [responses],
+                    responses: {graphKey: responses},
                     settings: settings,
                     isDetailed: false),
           ),

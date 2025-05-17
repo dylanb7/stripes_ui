@@ -7,7 +7,7 @@ import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/graph_packets.dart';
 
 class GraphSymptom extends StatefulWidget {
-  final List<List<Response>> responses;
+  final Map<GraphKey, List<Response>> responses;
   final GraphSettings settings;
   final bool isDetailed;
   const GraphSymptom(
@@ -25,30 +25,24 @@ class GraphSymptom extends StatefulWidget {
 class _GraphSymptomState extends State<GraphSymptom> {
   int touchedIndex = -1;
 
-  late GraphDataSet dataSet;
-
   @override
-  void initState() {
-    List<List<List<Stamp>>> sets = [];
-    for (List<Stamp> dataset in widget.responses) {
+  Widget build(BuildContext context) {
+    Map<GraphKey, List<List<Stamp>>> sets = {};
+    for (GraphKey datasetKey in widget.responses.keys) {
       final List<List<Stamp>>? setValue = bucketEvents(
-        dataset,
+        widget.responses[datasetKey]!,
         widget.settings.range,
         widget.settings.span.getBuckets(widget.settings.range.start),
       );
       if (setValue != null) {
-        sets.add(setValue);
+        sets[datasetKey] = setValue;
       }
     }
 
-    dataSet = widget.settings.axis == GraphYAxis.entrytime
+    GraphDataSet dataSet = widget.settings.axis == GraphYAxis.entrytime
         ? getSpotSet(sets)
         : getBarChartDataSet(sets);
-    super.initState();
-  }
 
-  @override
-  Widget build(BuildContext context) {
     final FlGridData gridData = FlGridData(
       show: widget.isDetailed,
       getDrawingVerticalLine: (value) => const FlLine(dashArray: [4, 8]),
@@ -144,13 +138,15 @@ class _GraphSymptomState extends State<GraphSymptom> {
   }
 
   GraphDataSet<BarChartGroupData> getBarChartDataSet(
-      List<List<List<Stamp>>> sets) {
+      Map<GraphKey, List<List<Stamp>>> sets) {
     if (sets.isEmpty) return const GraphDataSet.empty();
 
     final int yAxisTicks = widget.isDetailed ? 5 : 3;
 
-    List<BarChartGroupData> barChartGroups =
-        List.generate(sets[0].length, (index) => BarChartGroupData(x: index));
+    List<BarChartGroupData> barChartGroups = List.generate(
+      sets.values.first.length,
+      (index) => BarChartGroupData(x: index),
+    );
 
     double maxY = double.negativeInfinity, minY = double.infinity;
 
@@ -163,12 +159,14 @@ class _GraphSymptomState extends State<GraphSymptom> {
       }
     }
 
-    for (List<List<Stamp>> graphSet in sets) {
+    for (final GraphKey graphKey in sets.keys) {
+      final List<List<Stamp>> graphSet = sets[graphKey]!;
       for (int i = 0; i < graphSet.length; i++) {
         final List<Stamp> point = graphSet[i];
 
         BarChartRodData? rod;
-        Color? barColor = point.isEmpty ? null : _estimateColorFor(point[0]);
+        Color? barColor =
+            point.isEmpty ? null : estimateColorFor(graphKey, context);
         if (widget.settings.axis == GraphYAxis.frequency) {
           final double rodY = point.length.toDouble();
           adjustBounds(rodY);
@@ -206,14 +204,15 @@ class _GraphSymptomState extends State<GraphSymptom> {
         maxY: range.upperBound);
   }
 
-  GraphDataSet<ScatterSpot> getSpotSet(List<List<List<Stamp>>> sets) {
+  GraphDataSet<ScatterSpot> getSpotSet(Map<GraphKey, List<List<Stamp>>> sets) {
     List<ScatterSpot> spots = [];
 
-    for (final List<List<Stamp>> graphSet in sets) {
+    for (final GraphKey graphKey in sets.keys) {
+      final List<List<Stamp>> graphSet = sets[graphKey]!;
       for (int i = 0; i < graphSet.length; i++) {
         final List<Stamp> atPoint = graphSet[i];
         for (final Stamp value in atPoint) {
-          final Color color = _estimateColorFor(value);
+          final Color color = estimateColorFor(graphKey, context);
           final DateTime spotDate = dateFromStamp(value.stamp);
           spots.add(
             ScatterSpot(i.toDouble(), (spotDate.hour + (spotDate.minute / 60)),
@@ -231,25 +230,17 @@ class _GraphSymptomState extends State<GraphSymptom> {
             .toDouble());
   }
 
-  Color _estimateColorFor(Stamp stamp) {
-    Map<String, Color> setTypes = {
-      Symptoms.BM: Colors.brown,
-      Symptoms.REFLUX: Colors.orange,
-      Symptoms.PAIN: Colors.red,
-      Symptoms.NB: Colors.purple,
-    };
-
-    return setTypes[stamp.type] ?? Theme.of(context).primaryColor;
-  }
-
   BarTooltipItem? _getTooltipItem(BarChartGroupData group, int groupIndex,
       BarChartRodData rod, int rodIndex) {
     return BarTooltipItem(
-      'hi',
+      "${rod.toY}",
       Theme.of(context).textTheme.bodySmall ?? const TextStyle(),
-      children: [TextSpan(text: "hi")],
     );
   }
+}
+
+Color estimateColorFor(GraphKey key, BuildContext context) {
+  return Colors.primaries[Random().nextInt(Colors.primaries.length)];
 }
 
 class GraphDataSet<T> {
