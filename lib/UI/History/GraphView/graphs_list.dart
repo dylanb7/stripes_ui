@@ -475,26 +475,29 @@ class GraphSymptomRow extends StatelessWidget {
         ),
         Expanded(
           flex: 3,
-          child: Container(
-            height: 80.0,
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
-              borderRadius: const BorderRadius.all(
-                Radius.circular(6.0),
+          child: AspectRatio(
+            aspectRatio: 2.0,
+            child: Container(
+              height: 80.0,
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
+                borderRadius: const BorderRadius.all(
+                  Radius.circular(6.0),
+                ),
               ),
+              child: hasHero
+                  ? Hero(
+                      tag: graphKey,
+                      child: GraphSymptom(
+                          responses: {graphKey: responses},
+                          settings: settings,
+                          isDetailed: false),
+                    )
+                  : GraphSymptom(
+                      responses: {graphKey: responses},
+                      settings: settings,
+                      isDetailed: false),
             ),
-            child: hasHero
-                ? Hero(
-                    tag: graphKey,
-                    child: GraphSymptom(
-                        responses: {graphKey: responses},
-                        settings: settings,
-                        isDetailed: false),
-                  )
-                : GraphSymptom(
-                    responses: {graphKey: responses},
-                    settings: settings,
-                    isDetailed: false),
           ),
         ),
         const Icon(
