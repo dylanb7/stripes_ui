@@ -34,7 +34,7 @@ enum GraphSpan {
       case GraphSpan.day:
         return DateFormat.j();
       case GraphSpan.week:
-        return DateFormat.d();
+        return DateFormat.E();
       case GraphSpan.month:
         return DateFormat.d();
       case GraphSpan.year:
@@ -45,7 +45,7 @@ enum GraphSpan {
   int getBuckets(DateTime current) {
     switch (this) {
       case GraphSpan.day:
-        return 4;
+        return 8;
       case GraphSpan.week:
         return 7;
       case GraphSpan.month:
