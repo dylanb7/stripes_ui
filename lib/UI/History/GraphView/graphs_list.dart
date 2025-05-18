@@ -96,16 +96,12 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
               child: AsyncValueDefaults(
                 value: graphData,
                 onData: (loadedData) {
-                  final Map<GraphKey, List<Response>> forGraph =
-                      Map.fromEntries(
-                    [widget.graphKey, ...additions]
-                        .map((key) => loadedData.containsKey(key)
-                            ? MapEntry(key, loadedData[key])
-                            : null)
-                        .whereType<MapEntry<GraphKey, List<Response>>>(),
-                  );
-
-                  print("$forGraph");
+                  Map<GraphKey, List<Response>> forGraph = {};
+                  for (final GraphKey key in [widget.graphKey, ...additions]) {
+                    if (loadedData.containsKey(key)) {
+                      forGraph[key] = loadedData[key]!;
+                    }
+                  }
 
                   return DecoratedBox(
                     decoration: BoxDecoration(
