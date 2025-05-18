@@ -44,16 +44,31 @@ class _GraphSymptomState extends State<GraphSymptom> {
 
     final FlGridData gridData = FlGridData(
       show: widget.isDetailed,
-      getDrawingVerticalLine: (value) => const FlLine(dashArray: [4, 8]),
-      getDrawingHorizontalLine: (value) => const FlLine(dashArray: [4, 8]),
     );
 
-    final FlBorderData borderData = FlBorderData(
-        show: widget.isDetailed,
-        border: const Border(
-            bottom: BorderSide(width: 1.0), right: BorderSide(width: 1.0)));
+    final FlBorderData borderData = FlBorderData(show: false);
 
-    final AxisTitles bottomTitles = AxisTitles(sideTitles: SideTitles());
+    final Duration span = widget.settings.range.duration;
+    final int stepSize = (span.inMilliseconds / dataSet.data.length).round();
+
+    final AxisTitles bottomTitles = AxisTitles(
+      sideTitles: SideTitles(
+        getTitlesWidget: (value, meta) {
+          if (value == value.ceilToDouble()) {
+            final DateTime forPoint = widget.settings.range.start.add(
+              Duration(
+                milliseconds: (stepSize * value).ceil(),
+              ),
+            );
+            return Text(
+              widget.settings.span.getFormat().format(forPoint),
+              style: Theme.of(context).textTheme.bodySmall,
+            );
+          }
+          return const SizedBox();
+        },
+      ),
+    );
 
     final FlTitlesData titlesData = widget.isDetailed
         ? FlTitlesData(
