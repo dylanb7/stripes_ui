@@ -191,20 +191,7 @@ class _GraphSymptomState extends State<GraphSymptom> {
         );
       });
     }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        chart,
-        Text(
-          widget.settings.getRangeString(context),
-          style: Theme.of(context)
-              .textTheme
-              .bodySmall
-              ?.copyWith(fontWeight: FontWeight.w500),
-        ),
-      ],
-    );
+    return chart;
   }
 
   GraphDataSet<BarChartGroupData> getBarChartDataSet(
