@@ -54,6 +54,13 @@ class _GraphSymptomState extends State<GraphSymptom> {
         .round();
 
     final AxisTitles bottomTitles = AxisTitles(
+      axisNameWidget: Text(
+        widget.settings.getRangeString(context),
+        style: Theme.of(context)
+            .textTheme
+            .bodySmall
+            ?.copyWith(fontWeight: FontWeight.w500),
+      ),
       sideTitles: SideTitles(
         showTitles: widget.isDetailed,
         getTitlesWidget: (value, meta) {
@@ -81,7 +88,7 @@ class _GraphSymptomState extends State<GraphSymptom> {
     final AxisTitles leftTitles = AxisTitles(
       sideTitles: SideTitles(
         showTitles: true,
-        interval: range.tickSize,
+        interval: range.tickSize == 0 ? null : range.tickSize,
         getTitlesWidget: (value, meta) {
           return Text(
             "${value.toInt()}",
@@ -280,7 +287,7 @@ class _GraphSymptomState extends State<GraphSymptom> {
   BarTooltipItem? _getTooltipItem(BarChartGroupData group, int groupIndex,
       BarChartRodData rod, int rodIndex) {
     return BarTooltipItem(
-      "${rod.toY}",
+      "${widget.settings.axis == GraphYAxis.average ? rod.toY : rod.toY.toInt()}",
       Theme.of(context).textTheme.bodySmall ?? const TextStyle(),
     );
   }
