@@ -118,8 +118,9 @@ class _GraphSymptomState extends State<GraphSymptom> {
     final FlTitlesData titlesData = FlTitlesData(
       bottomTitles: bottomTitles,
       leftTitles: leftTitles,
-      rightTitles: const AxisTitles(
-        sideTitles: SideTitles(showTitles: false),
+      rightTitles: AxisTitles(
+        sideTitles: SideTitles(
+            showTitles: widget.isDetailed, reservedSize: reservedLeftTilesSize),
       ),
       topTitles: const AxisTitles(
         sideTitles: SideTitles(showTitles: false),
@@ -152,6 +153,7 @@ class _GraphSymptomState extends State<GraphSymptom> {
         return ScatterChart(
           ScatterChartData(
             scatterSpots: scaledSpots,
+            clipData: const FlClipData.all(),
             minX: dataSet.minX,
             maxX: dataSet.maxX,
             minY: dataSet.minY,
@@ -186,7 +188,7 @@ class _GraphSymptomState extends State<GraphSymptom> {
         }).toList();
         return BarChart(
           BarChartData(
-            groupsSpace: 1.0,
+            groupsSpace: 0.0,
             barGroups: styled,
             maxY: dataSet.maxY,
             minY: dataSet.minY,
@@ -373,9 +375,7 @@ class YAxisRange {
       {required int ticks, required num max, num min = 0}) {
     if (min == max) {
       return YAxisRange(
-          lowerBound: 0,
-          upperBound: (min + (min.toDouble() / 2)),
-          tickSize: min.toDouble());
+          lowerBound: 0, upperBound: (min * 2), tickSize: min.toDouble());
     }
     final num range = max - min;
     final double unroundedTickSize = range.toDouble() / ticks;
