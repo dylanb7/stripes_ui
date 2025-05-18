@@ -54,12 +54,16 @@ class _GraphSymptomState extends State<GraphSymptom> {
             widget.settings.span.getBuckets(widget.settings.range.start))
         .round();
 
+    final double intervalSize =
+        (widget.settings.span.getBuckets(widget.settings.range.start) /
+                widget.settings.span.getTitles())
+            .floorToDouble();
+
+    print(intervalSize);
+
     final AxisTitles bottomTitles = AxisTitles(
       sideTitles: SideTitles(
-        interval:
-            (widget.settings.span.getBuckets(widget.settings.range.start) /
-                    widget.settings.span.getTitles())
-                .floorToDouble(),
+        interval: intervalSize,
         showTitles: widget.isDetailed,
         getTitlesWidget: (value, meta) {
           if (value == value.ceilToDouble()) {
@@ -82,17 +86,22 @@ class _GraphSymptomState extends State<GraphSymptom> {
       ),
     );
 
-    final int yAxisTicks = widget.isDetailed ? 5 : 3;
+    final bool smallY = dataSet.maxY < 5;
+
+    final int yAxisTicks = smallY ? 2 : 5;
 
     final YAxisRange range = YAxisRange.rangeFromMax(
         ticks: yAxisTicks, max: dataSet.maxY, min: dataSet.minY);
 
+    const double reservedLeftTilesSize = 22.0;
+
     final AxisTitles leftTitles = AxisTitles(
       sideTitles: SideTitles(
-        showTitles: true,
-        minIncluded: false,
-        maxIncluded: false,
-        interval: range.tickSize == 0 ? 1 : range.tickSize,
+        showTitles: widget.isDetailed,
+        minIncluded: smallY,
+        maxIncluded: smallY,
+        reservedSize: reservedLeftTilesSize,
+        interval: range.tickSize == 0 ? null : range.tickSize,
         getTitlesWidget: (value, meta) {
           return Text(
             NumberFormat.compact().format(value.toInt()),
@@ -128,7 +137,7 @@ class _GraphSymptomState extends State<GraphSymptom> {
                         .getBuckets(widget.settings.range.start) /
                     2) *
                 0.85,
-            24.0);
+            10.0);
 
         final List<ScatterSpot> scaledSpots = spots
             .map(
@@ -158,11 +167,16 @@ class _GraphSymptomState extends State<GraphSymptom> {
         final List<BarChartGroupData> barData =
             dataSet.data as List<BarChartGroupData>;
 
+        const double barPadding = 1.0;
+
         final List<BarChartGroupData> styled = barData.map((data) {
           return data.copyWith(
               barRods: data.barRods
                   .map(
                     (rod) => rod.copyWith(
+                        width: ((constraints.maxWidth - reservedLeftTilesSize) /
+                                barData.length) -
+                            barPadding,
                         borderRadius:
                             const BorderRadius.all(Radius.circular(0.0))),
                   )
