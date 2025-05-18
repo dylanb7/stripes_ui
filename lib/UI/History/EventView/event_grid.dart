@@ -104,9 +104,8 @@ class EventGrid extends ConsumerWidget {
 
     return Padding(
       padding: const EdgeInsets.only(left: 20.0, right: 20.0, bottom: 20.0),
-      child: ListView.builder(
-        itemBuilder: (context, index) => components[index],
-        itemCount: components.length,
+      child: Column(
+        children: components,
       ),
     );
   }
