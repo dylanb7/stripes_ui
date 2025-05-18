@@ -88,7 +88,7 @@ class _GraphSymptomState extends State<GraphSymptom> {
 
     final bool smallY = dataSet.maxY < 5;
 
-    final int yAxisTicks = smallY ? 2 : 5;
+    final int yAxisTicks = smallY ? 1 : 5;
 
     final YAxisRange range = YAxisRange.rangeFromMax(
         ticks: yAxisTicks, max: dataSet.maxY, min: dataSet.minY);
@@ -99,7 +99,7 @@ class _GraphSymptomState extends State<GraphSymptom> {
       sideTitles: SideTitles(
         showTitles: widget.isDetailed,
         minIncluded: smallY,
-        maxIncluded: smallY,
+        maxIncluded: smallY || widget.settings.axis == GraphYAxis.entrytime,
         reservedSize: reservedLeftTilesSize,
         interval: range.tickSize == 0 ? null : range.tickSize,
         getTitlesWidget: (value, meta) {
@@ -120,7 +120,9 @@ class _GraphSymptomState extends State<GraphSymptom> {
       leftTitles: leftTitles,
       rightTitles: AxisTitles(
         sideTitles: SideTitles(
-            showTitles: widget.isDetailed, reservedSize: reservedLeftTilesSize),
+            showTitles: widget.isDetailed,
+            reservedSize: reservedLeftTilesSize,
+            getTitlesWidget: (value, meta) => const SizedBox()),
       ),
       topTitles: const AxisTitles(
         sideTitles: SideTitles(showTitles: false),
