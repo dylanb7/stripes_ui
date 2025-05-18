@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:stripes_backend_helper/TestingReposImpl/test_question_repo.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/graph_packets.dart';
 
@@ -239,7 +238,8 @@ class _GraphSymptomState extends State<GraphSymptom> {
 }
 
 Color estimateColorFor(GraphKey key, BuildContext context) {
-  return Colors.primaries[key.hashCode % (Colors.primaries.length - 1)];
+  final List<Color> allColors = Colors.primaries..addAll(Colors.primaries);
+  return allColors[key.hashCode % (allColors.length - 1)];
 }
 
 class GraphDataSet<T> {

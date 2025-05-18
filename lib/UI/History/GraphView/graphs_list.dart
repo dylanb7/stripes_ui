@@ -97,27 +97,28 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
                 value: graphData,
                 onData: (loadedData) {
                   final Map<GraphKey, List<Response>> forGraph =
-                      Map.fromEntries([widget.graphKey, ...additions]
-                          .map((key) => loadedData.containsKey(key)
-                              ? MapEntry(key, loadedData[key])
-                              : null)
-                          .whereType<MapEntry<GraphKey, List<Response>>>());
+                      Map.fromEntries(
+                    [widget.graphKey, ...additions]
+                        .map((key) => loadedData.containsKey(key)
+                            ? MapEntry(key, loadedData[key])
+                            : null)
+                        .whereType<MapEntry<GraphKey, List<Response>>>(),
+                  );
 
-                  if (forGraph.isEmpty) {
-                    return DecoratedBox(
-                      decoration: BoxDecoration(
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(6.0)),
-                        color: Theme.of(context)
-                            .primaryColor
-                            .withValues(alpha: 0.2),
-                      ),
-                    );
-                  }
-                  return GraphSymptom(
-                      responses: forGraph,
-                      settings: settings,
-                      isDetailed: true);
+                  print("$forGraph");
+
+                  return DecoratedBox(
+                    decoration: BoxDecoration(
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(6.0)),
+                      color:
+                          Theme.of(context).primaryColor.withValues(alpha: 0.2),
+                    ),
+                    child: GraphSymptom(
+                        responses: forGraph,
+                        settings: settings,
+                        isDetailed: true),
+                  );
                 },
                 onLoading: (_) {
                   return DecoratedBox(
@@ -202,7 +203,7 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
                         shape: BoxShape.circle),
                   ),
                   const SizedBox(
-                    width: 4.0,
+                    width: 6.0,
                   ),
                   Expanded(
                     child: AsyncValueDefaults(
