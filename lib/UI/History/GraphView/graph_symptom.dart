@@ -49,10 +49,13 @@ class _GraphSymptomState extends State<GraphSymptom> {
     final FlBorderData borderData = FlBorderData(show: false);
 
     final Duration span = widget.settings.range.duration;
-    final int stepSize = (span.inMilliseconds / dataSet.data.length).round();
+    final int stepSize = (span.inMilliseconds /
+            widget.settings.span.getBuckets(widget.settings.range.start))
+        .round();
 
     final AxisTitles bottomTitles = AxisTitles(
       sideTitles: SideTitles(
+        showTitles: widget.isDetailed,
         getTitlesWidget: (value, meta) {
           if (value == value.ceilToDouble()) {
             final DateTime forPoint = widget.settings.range.start.add(
@@ -70,12 +73,28 @@ class _GraphSymptomState extends State<GraphSymptom> {
       ),
     );
 
+    final int yAxisTicks = widget.isDetailed ? 5 : 3;
+
+    final YAxisRange range = YAxisRange.rangeFromMax(
+        ticks: yAxisTicks, max: dataSet.maxY, min: dataSet.minY);
+
+    final AxisTitles leftTitles = AxisTitles(
+      sideTitles: SideTitles(
+        showTitles: true,
+        interval: range.tickSize,
+        getTitlesWidget: (value, meta) {
+          return Text(
+            "${value.toInt()}",
+            style: Theme.of(context).textTheme.bodySmall,
+          );
+        },
+      ),
+    );
+
     final FlTitlesData titlesData = widget.isDetailed
         ? FlTitlesData(
             bottomTitles: bottomTitles,
-            leftTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
+            leftTitles: leftTitles,
             rightTitles: const AxisTitles(
               sideTitles: SideTitles(showTitles: false),
             ),
@@ -86,9 +105,24 @@ class _GraphSymptomState extends State<GraphSymptom> {
         : const FlTitlesData(show: false);
     if (widget.settings.axis == GraphYAxis.entrytime) {
       return LayoutBuilder(builder: (context, constraints) {
+        final List<ScatterSpot> spots = dataSet.data as List<ScatterSpot>;
+        final List<ScatterSpot> scaledSpots = spots
+            .map(
+              (spot) => spot.copyWith(
+                dotPainter: FlDotCirclePainter(
+                  color: spot.dotPainter.mainColor,
+                  radius: ((constraints.maxWidth /
+                          widget.settings.span
+                              .getBuckets(widget.settings.range.start) /
+                          2) *
+                      0.85),
+                ),
+              ),
+            )
+            .toList();
         return ScatterChart(
           ScatterChartData(
-            scatterSpots: dataSet.data as List<ScatterSpot>,
+            scatterSpots: scaledSpots,
             minX: dataSet.minX,
             maxX: dataSet.maxX,
             minY: dataSet.minY,
