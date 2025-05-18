@@ -171,14 +171,17 @@ class _GraphSymptomState extends State<GraphSymptom> {
 
         const double barPadding = 1.0;
 
+        final double barWidth = ((constraints.maxWidth -
+                    (widget.isDetailed ? reservedLeftTilesSize * 2 : 0)) /
+                barData.length) -
+            barPadding;
+
         final List<BarChartGroupData> styled = barData.map((data) {
           return data.copyWith(
               barRods: data.barRods
                   .map(
                     (rod) => rod.copyWith(
-                        width: ((constraints.maxWidth - reservedLeftTilesSize) /
-                                barData.length) -
-                            barPadding,
+                        width: barWidth,
                         borderRadius:
                             const BorderRadius.all(Radius.circular(0.0))),
                   )
