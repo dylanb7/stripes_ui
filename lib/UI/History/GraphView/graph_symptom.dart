@@ -93,14 +93,15 @@ class _GraphSymptomState extends State<GraphSymptom> {
     final YAxisRange range = YAxisRange.rangeFromMax(
         ticks: yAxisTicks, max: dataSet.maxY, min: dataSet.minY);
 
-    const double reservedLeftTilesSize = 22.0;
+    const double reservedHorizontalTitlesSize = 22.0;
+    const double reservedVerticalTitlesSize = 12.0;
 
     final AxisTitles leftTitles = AxisTitles(
       sideTitles: SideTitles(
         showTitles: widget.isDetailed,
         minIncluded: smallY,
         maxIncluded: smallY || widget.settings.axis == GraphYAxis.entrytime,
-        reservedSize: reservedLeftTilesSize,
+        reservedSize: reservedHorizontalTitlesSize,
         interval: range.tickSize == 0 ? null : range.tickSize,
         getTitlesWidget: (value, meta) {
           return Text(
@@ -121,11 +122,14 @@ class _GraphSymptomState extends State<GraphSymptom> {
       rightTitles: AxisTitles(
         sideTitles: SideTitles(
             showTitles: widget.isDetailed,
-            reservedSize: reservedLeftTilesSize,
+            reservedSize: reservedHorizontalTitlesSize,
             getTitlesWidget: (value, meta) => const SizedBox()),
       ),
-      topTitles: const AxisTitles(
-        sideTitles: SideTitles(showTitles: false),
+      topTitles: AxisTitles(
+        sideTitles: SideTitles(
+            showTitles: widget.isDetailed,
+            reservedSize: reservedVerticalTitlesSize,
+            getTitlesWidget: (value, meta) => const SizedBox()),
       ),
     );
 
@@ -174,7 +178,9 @@ class _GraphSymptomState extends State<GraphSymptom> {
         const double barPadding = 1.0;
 
         final double barWidth = ((constraints.maxWidth -
-                    (widget.isDetailed ? reservedLeftTilesSize * 2 : 0)) /
+                    (widget.isDetailed
+                        ? reservedHorizontalTitlesSize * 2
+                        : 0)) /
                 barData.length) -
             barPadding;
 
