@@ -28,7 +28,7 @@ class _GraphSymptomState extends State<GraphSymptom> {
   @override
   Widget build(BuildContext context) {
     Map<GraphKey, List<List<Stamp>>> sets = {};
-    for (GraphKey datasetKey in widget.responses.keys) {
+    for (final GraphKey datasetKey in widget.responses.keys) {
       final List<List<Stamp>>? setValue = bucketEvents(
         widget.responses[datasetKey]!,
         widget.settings.range,
@@ -56,6 +56,10 @@ class _GraphSymptomState extends State<GraphSymptom> {
 
     final AxisTitles bottomTitles = AxisTitles(
       sideTitles: SideTitles(
+        interval:
+            (widget.settings.span.getBuckets(widget.settings.range.start) /
+                    widget.settings.span.getTitles())
+                .floorToDouble(),
         showTitles: widget.isDetailed,
         getTitlesWidget: (value, meta) {
           if (value == value.ceilToDouble()) {
@@ -82,6 +86,7 @@ class _GraphSymptomState extends State<GraphSymptom> {
     final AxisTitles leftTitles = AxisTitles(
       sideTitles: SideTitles(
         showTitles: true,
+        minIncluded: false,
         interval: range.tickSize == 0 ? null : range.tickSize,
         getTitlesWidget: (value, meta) {
           return Text(
@@ -92,31 +97,29 @@ class _GraphSymptomState extends State<GraphSymptom> {
       ),
     );
 
-    final FlTitlesData titlesData = widget.isDetailed
-        ? FlTitlesData(
-            bottomTitles: bottomTitles,
-            leftTitles: leftTitles,
-            rightTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            topTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-          )
-        : const FlTitlesData(show: false);
+    final FlTitlesData titlesData = FlTitlesData(
+      bottomTitles: bottomTitles,
+      leftTitles: leftTitles,
+      rightTitles: const AxisTitles(
+        sideTitles: SideTitles(showTitles: false),
+      ),
+      topTitles: const AxisTitles(
+        sideTitles: SideTitles(showTitles: false),
+      ),
+    );
 
     Widget chart;
 
     if (widget.settings.axis == GraphYAxis.entrytime) {
       chart = LayoutBuilder(builder: (context, constraints) {
         final List<ScatterSpot> spots = dataSet.data as List<ScatterSpot>;
-        double spotRadius = widget.settings.span == GraphSpan.week
-            ? constraints.maxWidth / 14
-            : ((constraints.maxWidth /
+        double spotRadius = min(
+            (constraints.maxWidth /
                     widget.settings.span
                         .getBuckets(widget.settings.range.start) /
                     2) *
-                0.85);
+                0.85,
+            24.0);
 
         final List<ScatterSpot> scaledSpots = spots
             .map(
