@@ -95,7 +95,6 @@ class _GraphSymptomState extends State<GraphSymptom> {
             barRods: data.barRods
                 .map(
                   (rod) => rod.copyWith(
-                      color: Theme.of(context).primaryColor,
                       borderRadius:
                           const BorderRadius.all(Radius.circular(0.0))),
                 )
@@ -240,7 +239,7 @@ class _GraphSymptomState extends State<GraphSymptom> {
 }
 
 Color estimateColorFor(GraphKey key, BuildContext context) {
-  return Colors.primaries[Random().nextInt(Colors.primaries.length)];
+  return Colors.primaries[key.hashCode % (Colors.primaries.length - 1)];
 }
 
 class GraphDataSet<T> {

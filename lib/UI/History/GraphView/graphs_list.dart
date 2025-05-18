@@ -197,7 +197,9 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
                   Container(
                     width: 30.0,
                     height: 30.0,
-                    color: estimateColorFor(key, context),
+                    decoration: BoxDecoration(
+                        color: estimateColorFor(key, context),
+                        shape: BoxShape.circle),
                   ),
                   Expanded(
                     child: AsyncValueDefaults(
