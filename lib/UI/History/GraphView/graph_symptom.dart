@@ -72,16 +72,24 @@ class _GraphSymptomState extends State<GraphSymptom> {
                 milliseconds: (stepSize * value).ceil(),
               ),
             );
-            return Text(
-              widget.settings.span.getFormat().format(forPoint),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurface
-                      .withValues(alpha: 0.65)),
+            return SideTitleWidget(
+              meta: meta,
+              fitInside: SideTitleFitInsideData.fromTitleMeta(meta),
+              child: Text(
+                widget.settings.span.getFormat().format(forPoint),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.65)),
+              ),
             );
           }
-          return const SizedBox();
+          return SideTitleWidget(
+            meta: meta,
+            fitInside: SideTitleFitInsideData.fromTitleMeta(meta),
+            child: const SizedBox(),
+          );
         },
       ),
     );
@@ -104,13 +112,43 @@ class _GraphSymptomState extends State<GraphSymptom> {
         reservedSize: reservedHorizontalTitlesSize,
         interval: range.tickSize == 0 ? null : range.tickSize,
         getTitlesWidget: (value, meta) {
-          return Text(
-            NumberFormat.compact().format(value.toInt()),
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context)
-                    .colorScheme
-                    .onSurface
-                    .withValues(alpha: 0.65)),
+          return SideTitleWidget(
+            meta: meta,
+            fitInside: SideTitleFitInsideData.fromTitleMeta(meta),
+            child: Text(
+              NumberFormat.compact().format(value.toInt()),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.65),
+                  ),
+            ),
+          );
+        },
+      ),
+    );
+
+    final AxisTitles spotLeftTiles = AxisTitles(
+      sideTitles: SideTitles(
+        showTitles: widget.isDetailed,
+        minIncluded: smallY,
+        maxIncluded: smallY || widget.settings.axis == GraphYAxis.entrytime,
+        reservedSize: reservedHorizontalTitlesSize,
+        interval: range.tickSize == 0 ? null : range.tickSize,
+        getTitlesWidget: (value, meta) {
+          return SideTitleWidget(
+            meta: meta,
+            fitInside: SideTitleFitInsideData.fromTitleMeta(meta),
+            child: Text(
+              NumberFormat.compact().format(value.toInt()),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.65),
+                  ),
+            ),
           );
         },
       ),
@@ -177,10 +215,12 @@ class _GraphSymptomState extends State<GraphSymptom> {
 
         const double barPadding = 1.0;
 
-        final double barWidth = ((constraints.maxWidth -
+        final double barWidth = ((constraints
+                    .maxWidth /*-
                     (widget.isDetailed
                         ? reservedHorizontalTitlesSize * 2
-                        : 0)) /
+                        : 0)*/
+                ) /
                 barData.length) -
             barPadding;
 
@@ -200,6 +240,7 @@ class _GraphSymptomState extends State<GraphSymptom> {
         return BarChart(
           BarChartData(
             groupsSpace: 0.0,
+            alignment: BarChartAlignment.spaceEvenly,
             barGroups: styled,
             maxY: dataSet.maxY,
             minY: dataSet.minY,
