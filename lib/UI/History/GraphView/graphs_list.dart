@@ -195,11 +195,14 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
-                    width: 30.0,
-                    height: 30.0,
+                    width: 24.0,
+                    height: 24.0,
                     decoration: BoxDecoration(
                         color: estimateColorFor(key, context),
                         shape: BoxShape.circle),
+                  ),
+                  const SizedBox(
+                    width: 4.0,
                   ),
                   Expanded(
                     child: AsyncValueDefaults(
