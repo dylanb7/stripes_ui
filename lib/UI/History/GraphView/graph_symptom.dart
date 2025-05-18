@@ -87,7 +87,8 @@ class _GraphSymptomState extends State<GraphSymptom> {
       sideTitles: SideTitles(
         showTitles: true,
         minIncluded: false,
-        interval: range.tickSize == 0 ? null : range.tickSize,
+        maxIncluded: false,
+        interval: range.tickSize == 0 ? 1 : range.tickSize,
         getTitlesWidget: (value, meta) {
           return Text(
             NumberFormat.compact().format(value.toInt()),
@@ -163,7 +164,6 @@ class _GraphSymptomState extends State<GraphSymptom> {
         }).toList();
         return BarChart(
           BarChartData(
-            alignment: BarChartAlignment.center,
             groupsSpace: 1.0,
             barGroups: styled,
             maxY: dataSet.maxY,
