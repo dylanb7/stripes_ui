@@ -106,7 +106,6 @@ class HistoryScreenContent extends ConsumerWidget {
             child: RefreshWidget(
               depth: RefreshDepth.authuser,
               scrollable: ListView(
-                key: scrollkey,
                 controller: ScrollController(),
                 children: [
                   Padding(

@@ -70,7 +70,11 @@ class _GraphSymptomState extends State<GraphSymptom> {
             );
             return Text(
               widget.settings.span.getFormat().format(forPoint),
-              style: Theme.of(context).textTheme.bodySmall,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withValues(alpha: 0.65)),
             );
           }
           return const SizedBox();
@@ -92,7 +96,11 @@ class _GraphSymptomState extends State<GraphSymptom> {
         getTitlesWidget: (value, meta) {
           return Text(
             NumberFormat.compact().format(value.toInt()),
-            style: Theme.of(context).textTheme.bodySmall,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.65)),
           );
         },
       ),
