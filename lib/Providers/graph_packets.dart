@@ -54,6 +54,19 @@ enum GraphSpan {
         return 12;
     }
   }
+
+  int getTitles() {
+    switch (this) {
+      case GraphSpan.day:
+        return 4;
+      case GraphSpan.week:
+        return 7;
+      case GraphSpan.month:
+        return 6;
+      case GraphSpan.year:
+        return 12;
+    }
+  }
 }
 
 @immutable
@@ -120,12 +133,12 @@ class GraphSettings extends Equatable {
         );
       case GraphSpan.week:
         final DateTime newStart = forward
-            ? range.start.add(const Duration(days: 7))
-            : range.start.subtract(const Duration(days: 7));
+            ? range.start.add(const Duration(days: 6))
+            : range.start.subtract(const Duration(days: 6));
         return DateTimeRange(
           start: newStart,
           end: newStart.add(
-            const Duration(days: 7),
+            const Duration(days: 6),
           ),
         );
       case GraphSpan.month:

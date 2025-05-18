@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/graph_packets.dart';
 
@@ -54,13 +55,6 @@ class _GraphSymptomState extends State<GraphSymptom> {
         .round();
 
     final AxisTitles bottomTitles = AxisTitles(
-      axisNameWidget: Text(
-        widget.settings.getRangeString(context),
-        style: Theme.of(context)
-            .textTheme
-            .bodySmall
-            ?.copyWith(fontWeight: FontWeight.w500),
-      ),
       sideTitles: SideTitles(
         showTitles: widget.isDetailed,
         getTitlesWidget: (value, meta) {
@@ -91,7 +85,7 @@ class _GraphSymptomState extends State<GraphSymptom> {
         interval: range.tickSize == 0 ? null : range.tickSize,
         getTitlesWidget: (value, meta) {
           return Text(
-            "${value.toInt()}",
+            NumberFormat.compact().format(value.toInt()),
             style: Theme.of(context).textTheme.bodySmall,
           );
         },
@@ -110,19 +104,26 @@ class _GraphSymptomState extends State<GraphSymptom> {
             ),
           )
         : const FlTitlesData(show: false);
+
+    Widget chart;
+
     if (widget.settings.axis == GraphYAxis.entrytime) {
-      return LayoutBuilder(builder: (context, constraints) {
+      chart = LayoutBuilder(builder: (context, constraints) {
         final List<ScatterSpot> spots = dataSet.data as List<ScatterSpot>;
+        double spotRadius = widget.settings.span == GraphSpan.week
+            ? constraints.maxWidth / 14
+            : ((constraints.maxWidth /
+                    widget.settings.span
+                        .getBuckets(widget.settings.range.start) /
+                    2) *
+                0.85);
+
         final List<ScatterSpot> scaledSpots = spots
             .map(
               (spot) => spot.copyWith(
                 dotPainter: FlDotCirclePainter(
                   color: spot.dotPainter.mainColor,
-                  radius: ((constraints.maxWidth /
-                          widget.settings.span
-                              .getBuckets(widget.settings.range.start) /
-                          2) *
-                      0.85),
+                  radius: spotRadius,
                 ),
               ),
             )
@@ -140,55 +141,70 @@ class _GraphSymptomState extends State<GraphSymptom> {
           ),
         );
       });
-    }
-    return LayoutBuilder(builder: (context, constraints) {
-      final List<BarChartGroupData> barData =
-          dataSet.data as List<BarChartGroupData>;
+    } else {
+      chart = LayoutBuilder(builder: (context, constraints) {
+        final List<BarChartGroupData> barData =
+            dataSet.data as List<BarChartGroupData>;
 
-      final List<BarChartGroupData> styled = barData.map((data) {
-        return data.copyWith(
-            barRods: data.barRods
-                .map(
-                  (rod) => rod.copyWith(
-                      borderRadius:
-                          const BorderRadius.all(Radius.circular(0.0))),
-                )
-                .toList(),
-            groupVertically: true,
-            barsSpace: 0.0);
-      }).toList();
-      return BarChart(
-        BarChartData(
-          alignment: BarChartAlignment.center,
-          groupsSpace: 1.0,
-          barGroups: styled,
-          maxY: dataSet.maxY,
-          minY: dataSet.minY,
-          gridData: gridData,
-          borderData: borderData,
-          barTouchData: widget.isDetailed
-              ? BarTouchData(
-                  touchTooltipData: BarTouchTooltipData(
-                    getTooltipItem: _getTooltipItem,
-                  ),
-                  touchCallback:
-                      (FlTouchEvent event, BarTouchResponse? response) {
-                    setState(() {
-                      if (!event.isInterestedForInteractions ||
-                          response == null ||
-                          response.spot == null) {
-                        touchedIndex = -1;
-                        return;
-                      }
-                      touchedIndex = response.spot!.touchedBarGroupIndex;
-                    });
-                  },
-                )
-              : null,
-          titlesData: titlesData,
+        final List<BarChartGroupData> styled = barData.map((data) {
+          return data.copyWith(
+              barRods: data.barRods
+                  .map(
+                    (rod) => rod.copyWith(
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(0.0))),
+                  )
+                  .toList(),
+              groupVertically: true,
+              barsSpace: 0.0);
+        }).toList();
+        return BarChart(
+          BarChartData(
+            alignment: BarChartAlignment.center,
+            groupsSpace: 1.0,
+            barGroups: styled,
+            maxY: dataSet.maxY,
+            minY: dataSet.minY,
+            gridData: gridData,
+            borderData: borderData,
+            barTouchData: widget.isDetailed
+                ? BarTouchData(
+                    touchTooltipData: BarTouchTooltipData(
+                      getTooltipItem: _getTooltipItem,
+                    ),
+                    touchCallback:
+                        (FlTouchEvent event, BarTouchResponse? response) {
+                      setState(() {
+                        if (!event.isInterestedForInteractions ||
+                            response == null ||
+                            response.spot == null) {
+                          touchedIndex = -1;
+                          return;
+                        }
+                        touchedIndex = response.spot!.touchedBarGroupIndex;
+                      });
+                    },
+                  )
+                : null,
+            titlesData: titlesData,
+          ),
+        );
+      });
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        chart,
+        Text(
+          widget.settings.getRangeString(context),
+          style: Theme.of(context)
+              .textTheme
+              .bodySmall
+              ?.copyWith(fontWeight: FontWeight.w500),
         ),
-      );
-    });
+      ],
+    );
   }
 
   GraphDataSet<BarChartGroupData> getBarChartDataSet(

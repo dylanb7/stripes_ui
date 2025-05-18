@@ -280,7 +280,7 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
         builder: (context) {
           return DraggableScrollableSheet(
               maxChildSize: 0.8,
-              expand: true,
+              expand: false,
               snap: true,
               builder: (context, controller) {
                 return ListSection(
@@ -483,21 +483,18 @@ class GraphSymptomRow extends StatelessWidget {
                 Radius.circular(6.0),
               ),
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(6.0),
-              child: hasHero
-                  ? Hero(
-                      tag: graphKey,
-                      child: GraphSymptom(
-                          responses: {graphKey: responses},
-                          settings: settings,
-                          isDetailed: false),
-                    )
-                  : GraphSymptom(
-                      responses: {graphKey: responses},
-                      settings: settings,
-                      isDetailed: false),
-            ),
+            child: hasHero
+                ? Hero(
+                    tag: graphKey,
+                    child: GraphSymptom(
+                        responses: {graphKey: responses},
+                        settings: settings,
+                        isDetailed: false),
+                  )
+                : GraphSymptom(
+                    responses: {graphKey: responses},
+                    settings: settings,
+                    isDetailed: false),
           ),
         ),
         const Icon(
