@@ -238,7 +238,7 @@ class _GraphSymptomState extends State<GraphSymptom> {
 }
 
 Color estimateColorFor(GraphKey key, BuildContext context) {
-  final List<Color> allColors = Colors.primaries..addAll(Colors.primaries);
+  final List<Color> allColors = [...Colors.primaries, ...Colors.primaries];
   return allColors[key.hashCode % (allColors.length - 1)];
 }
 
