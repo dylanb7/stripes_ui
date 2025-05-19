@@ -133,12 +133,12 @@ class GraphSettings extends Equatable {
         );
       case GraphSpan.week:
         final DateTime newStart = forward
-            ? range.start.add(const Duration(days: 6))
-            : range.start.subtract(const Duration(days: 6));
+            ? range.start.add(const Duration(days: 7))
+            : range.start.subtract(const Duration(days: 7));
         return DateTimeRange(
           start: newStart,
           end: newStart.add(
-            const Duration(days: 6),
+            const Duration(days: 7),
           ),
         );
       case GraphSpan.month:

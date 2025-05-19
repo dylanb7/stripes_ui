@@ -12,6 +12,7 @@ import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/extensions.dart';
+import 'package:stripes_ui/Util/palette.dart';
 
 class GraphsList extends ConsumerWidget {
   const GraphsList({super.key});
@@ -198,8 +199,7 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
                     width: 24.0,
                     height: 24.0,
                     decoration: BoxDecoration(
-                        color: estimateColorFor(key, context),
-                        shape: BoxShape.circle),
+                        color: forGraphKey(key), shape: BoxShape.circle),
                   ),
                   const SizedBox(
                     width: 6.0,

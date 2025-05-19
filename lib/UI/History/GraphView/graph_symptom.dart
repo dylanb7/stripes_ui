@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/graph_packets.dart';
+import 'package:stripes_ui/Util/palette.dart';
 
 class GraphSymptom extends StatefulWidget {
   final Map<GraphKey, List<Response>> responses;
@@ -135,13 +136,14 @@ class _GraphSymptomState extends State<GraphSymptom> {
         minIncluded: smallY,
         maxIncluded: smallY || widget.settings.axis == GraphYAxis.entrytime,
         reservedSize: reservedHorizontalTitlesSize,
-        interval: range.tickSize == 0 ? null : range.tickSize,
+        interval: 6,
         getTitlesWidget: (value, meta) {
           return SideTitleWidget(
             meta: meta,
             fitInside: SideTitleFitInsideData.fromTitleMeta(meta),
             child: Text(
-              NumberFormat.compact().format(value.toInt()),
+              DateFormat.j()
+                  .format(DateTime.now().copyWith(hour: value.toInt())),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context)
                         .colorScheme
@@ -156,7 +158,9 @@ class _GraphSymptomState extends State<GraphSymptom> {
 
     final FlTitlesData titlesData = FlTitlesData(
       bottomTitles: bottomTitles,
-      leftTitles: leftTitles,
+      leftTitles: widget.settings.axis == GraphYAxis.entrytime
+          ? spotLeftTiles
+          : leftTitles,
       rightTitles: AxisTitles(
         sideTitles: SideTitles(
             showTitles: widget.isDetailed,
@@ -213,14 +217,12 @@ class _GraphSymptomState extends State<GraphSymptom> {
         final List<BarChartGroupData> barData =
             dataSet.data as List<BarChartGroupData>;
 
-        const double barPadding = 1.0;
+        const double barPadding = 2.0;
 
-        final double barWidth = ((constraints
-                    .maxWidth /*-
+        final double barWidth = ((constraints.maxWidth -
                     (widget.isDetailed
                         ? reservedHorizontalTitlesSize * 2
-                        : 0)*/
-                ) /
+                        : 0)) /
                 barData.length) -
             barPadding;
 
@@ -301,8 +303,7 @@ class _GraphSymptomState extends State<GraphSymptom> {
         final List<Stamp> point = graphSet[i];
 
         BarChartRodData? rod;
-        Color? barColor =
-            point.isEmpty ? null : estimateColorFor(graphKey, context);
+        Color? barColor = point.isEmpty ? null : forGraphKey(graphKey);
         if (widget.settings.axis == GraphYAxis.frequency) {
           final double rodY = point.length.toDouble();
           adjustBounds(rodY);
@@ -348,7 +349,7 @@ class _GraphSymptomState extends State<GraphSymptom> {
       for (int i = 0; i < graphSet.length; i++) {
         final List<Stamp> atPoint = graphSet[i];
         for (final Stamp value in atPoint) {
-          final Color color = estimateColorFor(graphKey, context);
+          final Color color = forGraphKey(graphKey);
           final DateTime spotDate = dateFromStamp(value.stamp);
           spots.add(
             ScatterSpot(i.toDouble(), (spotDate.hour + (spotDate.minute / 60)),
@@ -373,11 +374,6 @@ class _GraphSymptomState extends State<GraphSymptom> {
       Theme.of(context).textTheme.bodySmall ?? const TextStyle(),
     );
   }
-}
-
-Color estimateColorFor(GraphKey key, BuildContext context) {
-  final List<Color> allColors = [...Colors.primaries, ...Colors.primaries];
-  return allColors[key.hashCode % (allColors.length - 1)];
 }
 
 class GraphDataSet<T> {
