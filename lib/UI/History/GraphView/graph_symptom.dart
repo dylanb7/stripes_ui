@@ -60,13 +60,13 @@ class _GraphSymptomState extends State<GraphSymptom> {
                 widget.settings.span.getTitles())
             .floorToDouble();
 
-    print(intervalSize);
+    print(span);
 
     final AxisTitles bottomTitles = AxisTitles(
       sideTitles: SideTitles(
         showTitles: widget.isDetailed,
         getTitlesWidget: (value, meta) {
-          if (value.toInt() % intervalSize == 0) {
+          if (value % intervalSize == 0) {
             final DateTime forPoint = widget.settings.range.start.add(
               Duration(
                 milliseconds: (stepSize * value).ceil(),
@@ -139,7 +139,7 @@ class _GraphSymptomState extends State<GraphSymptom> {
         showTitles: widget.isDetailed,
         minIncluded: smallY,
         maxIncluded: smallY || widget.settings.axis == GraphYAxis.entrytime,
-        reservedSize: reservedHorizontalTitlesSize,
+        reservedSize: 44.0,
         interval: 6,
         getTitlesWidget: (value, meta) {
           return SideTitleWidget(
