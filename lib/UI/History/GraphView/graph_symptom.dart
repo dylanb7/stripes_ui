@@ -64,10 +64,9 @@ class _GraphSymptomState extends State<GraphSymptom> {
 
     final AxisTitles bottomTitles = AxisTitles(
       sideTitles: SideTitles(
-        interval: intervalSize,
         showTitles: widget.isDetailed,
         getTitlesWidget: (value, meta) {
-          if (value == value.ceilToDouble()) {
+          if (value.toInt() % intervalSize == 0) {
             final DateTime forPoint = widget.settings.range.start.add(
               Duration(
                 milliseconds: (stepSize * value).ceil(),
@@ -75,7 +74,6 @@ class _GraphSymptomState extends State<GraphSymptom> {
             );
             return SideTitleWidget(
               meta: meta,
-              fitInside: SideTitleFitInsideData.fromTitleMeta(meta),
               child: Text(
                 widget.settings.span.getFormat().format(forPoint),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -88,7 +86,6 @@ class _GraphSymptomState extends State<GraphSymptom> {
           }
           return SideTitleWidget(
             meta: meta,
-            fitInside: SideTitleFitInsideData.fromTitleMeta(meta),
             child: const SizedBox(),
           );
         },
