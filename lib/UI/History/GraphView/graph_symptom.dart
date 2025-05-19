@@ -110,6 +110,13 @@ class _GraphSymptomState extends State<GraphSymptom> {
         reservedSize: reservedHorizontalTitlesSize,
         interval: range.tickSize == 0 ? null : range.tickSize,
         getTitlesWidget: (value, meta) {
+          if (dataSet.maxY == 0.0) {
+            return SideTitleWidget(
+              meta: meta,
+              fitInside: SideTitleFitInsideData.fromTitleMeta(meta),
+              child: const SizedBox(),
+            );
+          }
           return SideTitleWidget(
             meta: meta,
             fitInside: SideTitleFitInsideData.fromTitleMeta(meta),
@@ -429,7 +436,7 @@ class YAxisRange {
     final double roundedTick = (unroundedTickSize / pow10x).ceil() * pow10x;
     return YAxisRange(
         lowerBound: (min.toDouble() / roundedTick).round() * roundedTick,
-        upperBound: (max.toDouble() / roundedTick).round() * roundedTick,
+        upperBound: (max.toDouble() / roundedTick).ceil() * roundedTick,
         tickSize: roundedTick);
   }
 }
