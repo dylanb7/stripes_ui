@@ -154,6 +154,7 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
                       final GraphKey? result = await toggleKeySelect(context);
                       if (result != null) {
                         setState(() {
+                          ref.invalidate(graphStampsProvider);
                           additions.add(result);
                         });
                       }
@@ -209,6 +210,10 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
                       value: graphData,
                       onData: (loadedData) {
                         final bool hasData = loadedData.containsKey(key);
+                        if (!hasData) {
+                          print(loadedData.values
+                              .map((values) => values.join(", ")));
+                        }
                         return Text(
                           key.toString(),
                           style: Theme.of(context)
@@ -281,9 +286,10 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
           return DraggableScrollableSheet(
               maxChildSize: 0.8,
               expand: false,
-              snap: true,
+              snap: false,
               builder: (context, controller) {
                 return ListSection(
+                  controller: controller,
                   onSelect: (key) {
                     Navigator.pop(context, key);
                   },
@@ -302,10 +308,13 @@ class ListSection extends ConsumerWidget {
 
   final Function(GraphKey) onSelect;
 
+  final ScrollController? controller;
+
   const ListSection(
       {required this.onSelect,
       this.includesControls = true,
       this.excludedKeys = const [],
+      this.controller,
       super.key});
 
   @override
@@ -316,6 +325,7 @@ class ListSection extends ConsumerWidget {
         ref.watch(graphStampsProvider);
 
     return CustomScrollView(
+      controller: controller,
       physics: includesControls ? null : const ClampingScrollPhysics(),
       scrollDirection: Axis.vertical,
       slivers: [
