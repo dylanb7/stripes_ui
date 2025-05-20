@@ -105,51 +105,49 @@ class HistoryScreenContent extends ConsumerWidget {
             constraints: BoxConstraints(maxWidth: Breakpoint.medium.value),
             child: RefreshWidget(
               depth: RefreshDepth.authuser,
-              scrollable: ListView(
-                controller: ScrollController(),
-                children: [
-                  Padding(
-                    padding:
-                        const EdgeInsets.only(left: 20, right: 20, top: 20),
-                    child: Column(children: [
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Expanded(
-                              child: PatientChanger(
-                                tab: TabOption.history,
-                              ),
+              scrollable: CustomScrollView(
+                slivers: [
+                  SliverPadding(
+                    padding: const EdgeInsets.only(
+                        left: 20, right: 20, top: 20, bottom: 12.0),
+                    sliver: SliverToBoxAdapter(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Expanded(
+                            child: PatientChanger(
+                              tab: TabOption.history,
                             ),
-                            if (config.hasGraphing) ...[
-                              IconButton(
-                                onPressed: () {
-                                  context.pushNamed(Routes.TRENDS);
-                                },
-                                icon: const Icon(Icons.trending_up),
-                              ),
-                            ]
-                          ]),
-                      const SizedBox(
-                        height: 12.0,
-                      ),
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 800),
-                        child: const Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            FilterView(),
-                            SizedBox(
-                              height: 8.0,
+                          ),
+                          if (config.hasGraphing) ...[
+                            IconButton(
+                              onPressed: () {
+                                context.pushNamed(Routes.TRENDS);
+                              },
+                              icon: const Icon(Icons.trending_up),
                             ),
-                            EventsCalendar(),
-                            SizedBox(
-                              height: 16.0,
-                            ),
-                            ActionRow()
                           ],
-                        ),
+                        ],
                       ),
-                    ]),
+                    ),
+                  ),
+                  SliverConstrainedCrossAxis(
+                    maxExtent: Breakpoint.small.value,
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate(
+                        const [
+                          FilterView(),
+                          SizedBox(
+                            height: 8.0,
+                          ),
+                          EventsCalendar(),
+                          SizedBox(
+                            height: 16.0,
+                          ),
+                          ActionRow()
+                        ],
+                      ),
+                    ),
                   ),
                   const EventGrid(),
                 ],
@@ -192,17 +190,19 @@ class HistoryScreenContent extends ConsumerWidget {
             ),
           ),
           const VerticalDivider(),
-          Expanded(
+          const Expanded(
               child: RefreshWidget(
             depth: RefreshDepth.authuser,
             scrollable: CustomScrollView(
               slivers: [
                 SliverPadding(
-                  padding: EdgeInsets.only(top: 8.0, left: 12.0, right: 12.0),
+                  padding: EdgeInsets.only(
+                      top: 8.0, left: 12.0, right: 12.0, bottom: 8.0),
                   sliver: SliverToBoxAdapter(
                     child: ActionRow(),
                   ),
                 ),
+                EventGrid(),
               ],
             ),
           )
