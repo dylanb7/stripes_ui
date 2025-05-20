@@ -214,9 +214,9 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
             ),
             Wrap(
               direction: Axis.horizontal,
-              alignment: WrapAlignment.center,
+              alignment: WrapAlignment.start,
+              crossAxisAlignment: WrapCrossAlignment.start,
               spacing: 5.0,
-              runSpacing: 5.0,
               children: availibleTypes.map((type) {
                 final bool selected = selectedTypes.contains(type);
                 return ChoiceChip(
@@ -224,6 +224,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                   label: Text(
                     type,
                   ),
+                  showCheckmark: false,
                   selected: selected,
                   onSelected: (value) {
                     setState(() {
@@ -251,9 +252,9 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
               ),
               Wrap(
                 direction: Axis.horizontal,
-                alignment: WrapAlignment.center,
+                alignment: WrapAlignment.start,
+                crossAxisAlignment: WrapCrossAlignment.start,
                 spacing: 5.0,
-                runSpacing: 5.0,
                 children: availibleGroups.map((type) {
                   final bool selected = selectedTypes.contains(type);
                   return ChoiceChip(
@@ -261,6 +262,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                     label: Text(
                       type,
                     ),
+                    showCheckmark: false,
                     selected: selected,
                     onSelected: (value) {
                       setState(() {
@@ -273,9 +275,6 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                     },
                   );
                 }).toList(),
-              ),
-              const SizedBox(
-                height: 12.0,
               ),
             ],
             /*

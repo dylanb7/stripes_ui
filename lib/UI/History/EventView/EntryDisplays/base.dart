@@ -90,6 +90,69 @@ class RenderEntryGroup extends ConsumerWidget {
   }
 }
 
+class RenderEntryGroupSliver extends ConsumerWidget {
+  final bool grouped;
+  final List<Response> responses;
+  const RenderEntryGroupSliver(
+      {required this.responses, required this.grouped, super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (!grouped) {
+      return SliverList.builder(
+        itemBuilder: (context, index) => EntryDisplay(
+          event: responses[index],
+          elevated: false,
+        ),
+        itemCount: responses.length,
+      );
+    }
+    Map<String, List<Response>> byType = {};
+    for (final Response response in responses) {
+      if (byType.containsKey(response.type)) {
+        byType[response.type]!.add(response);
+      } else {
+        byType[response.type] = [response];
+      }
+    }
+
+    final List<String> typeKeys = byType.keys.toList();
+
+    return SliverList.separated(
+      separatorBuilder: (context, index) => const SizedBox(
+        height: 6.0,
+      ),
+      itemBuilder: (context, index) {
+        final List<Response> forType = byType[typeKeys[index]]!;
+
+        return ExpandibleSymptomArea(
+            header: RichText(
+              text: TextSpan(
+                  text: typeKeys[index],
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(fontWeight: FontWeight.bold),
+                  children: [
+                    TextSpan(
+                      text:
+                          " · ${context.translate.eventFilterResults(forType.length)}",
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.75)),
+                    )
+                  ]),
+              textAlign: TextAlign.left,
+            ),
+            responses: forType);
+      },
+      itemCount: typeKeys.length,
+    );
+  }
+}
+
 class ExpandibleSymptomArea extends StatefulWidget {
   final List<Response> responses;
 

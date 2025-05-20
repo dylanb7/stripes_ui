@@ -22,12 +22,12 @@ class EventGrid extends ConsumerWidget {
             : const AsyncLoading<List<Response>>()));
 
     if (available.isLoading) {
-      return const LoadingWidget();
+      return const SliverFillRemaining(child: LoadingWidget());
     }
 
     if (available.valueOrNull!.isEmpty) {
-      return const SizedBox(
-        height: 25.0,
+      return const SliverPadding(
+        padding: EdgeInsets.only(top: 25),
       );
     }
 
@@ -35,9 +35,9 @@ class EventGrid extends ConsumerWidget {
         (available.valueOrNull ?? []).reversed.toList();
 
     if (!daysSeparated) {
-      return Padding(
+      return SliverPadding(
         padding: const EdgeInsets.only(left: 20.0, right: 20.0, bottom: 20.0),
-        child: RenderEntryGroup(
+        sliver: RenderEntryGroupSliver(
             responses: availableStamps, grouped: symptomsGrouping),
       );
     }
@@ -102,10 +102,11 @@ class EventGrid extends ConsumerWidget {
       }
     }
 
-    return Padding(
+    return SliverPadding(
       padding: const EdgeInsets.only(left: 20.0, right: 20.0, bottom: 20.0),
-      child: Column(
-        children: components,
+      sliver: SliverList.builder(
+        itemBuilder: (context, index) => components[index],
+        itemCount: components.length,
       ),
     );
   }

@@ -193,7 +193,21 @@ class HistoryScreenContent extends ConsumerWidget {
           ),
           const VerticalDivider(),
           Expanded(
-            child: Column(
+              child: RefreshWidget(
+            depth: RefreshDepth.authuser,
+            scrollable: CustomScrollView(
+              slivers: [
+                SliverPadding(
+                  padding: EdgeInsets.only(top: 8.0, left: 12.0, right: 12.0),
+                  sliver: SliverToBoxAdapter(
+                    child: ActionRow(),
+                  ),
+                ),
+              ],
+            ),
+          )
+
+              /*Column(
               children: [
                 const SizedBox(
                   height: 8.0,
@@ -217,8 +231,8 @@ class HistoryScreenContent extends ConsumerWidget {
                   ),
                 ),
               ],
-            ),
-          )
+            ),*/
+              )
         ],
       );
     });

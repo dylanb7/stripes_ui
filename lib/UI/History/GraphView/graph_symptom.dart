@@ -120,7 +120,6 @@ class _GraphSymptomState extends State<GraphSymptom> {
           }
           return SideTitleWidget(
             meta: meta,
-            fitInside: SideTitleFitInsideData.fromTitleMeta(meta),
             child: Text(
               NumberFormat.compact().format(value.toInt()),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -145,7 +144,6 @@ class _GraphSymptomState extends State<GraphSymptom> {
         getTitlesWidget: (value, meta) {
           return SideTitleWidget(
             meta: meta,
-            fitInside: SideTitleFitInsideData.fromTitleMeta(meta),
             child: Text(
               DateFormat.j()
                   .format(DateTime.now().copyWith(hour: value.toInt())),
