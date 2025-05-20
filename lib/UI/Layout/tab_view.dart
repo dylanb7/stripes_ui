@@ -133,19 +133,22 @@ class HistoryScreenContent extends ConsumerWidget {
                   ),
                   SliverConstrainedCrossAxis(
                     maxExtent: Breakpoint.small.value,
-                    sliver: SliverList(
-                      delegate: SliverChildListDelegate(
-                        const [
-                          FilterView(),
-                          SizedBox(
-                            height: 8.0,
-                          ),
-                          EventsCalendar(),
-                          SizedBox(
-                            height: 16.0,
-                          ),
-                          ActionRow()
-                        ],
+                    sliver: SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      sliver: SliverList(
+                        delegate: SliverChildListDelegate(
+                          const [
+                            FilterView(),
+                            SizedBox(
+                              height: 8.0,
+                            ),
+                            EventsCalendar(),
+                            SizedBox(
+                              height: 16.0,
+                            ),
+                            ActionRow()
+                          ],
+                        ),
                       ),
                     ),
                   ),
