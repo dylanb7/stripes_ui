@@ -142,7 +142,9 @@ class HistoryScreenContent extends ConsumerWidget {
                             SizedBox(
                               height: 8.0,
                             ),
-                            EventsCalendar(),
+                            AutomaticKeepAlive(
+                              child: EventsCalendar(),
+                            ),
                             SizedBox(
                               height: 16.0,
                             ),

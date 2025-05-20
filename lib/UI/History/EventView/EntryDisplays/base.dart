@@ -169,6 +169,7 @@ class ExpandibleSymptomArea extends StatefulWidget {
 
 class _ExpandibleSymptomAreaState extends State<ExpandibleSymptomArea> {
   bool expanded = false;
+
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
