@@ -60,7 +60,7 @@ class Options extends ConsumerWidget {
           ),
           AsyncValueDefaults(
               value: paths,
-              onLoading: (p0) {
+              onLoading: (_) {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -71,11 +71,20 @@ class Options extends ConsumerWidget {
                     ),
                     ...List.generate(
                       4,
-                      (_) => Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).disabledColor,
+                      (_) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 5.0),
+                        child: ConstrainedBox(
+                          constraints:
+                              BoxConstraints(maxWidth: Breakpoint.small.value),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(8.0)),
+                              color: Theme.of(context).disabledColor,
+                            ),
+                            height: 85.0,
+                          ),
                         ),
-                        height: 85.0,
                       ),
                     ).separated(
                         by: const SizedBox(

@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -139,7 +140,7 @@ class _GraphSymptomState extends State<GraphSymptom> {
         showTitles: widget.isDetailed,
         minIncluded: smallY,
         maxIncluded: smallY || widget.settings.axis == GraphYAxis.entrytime,
-        reservedSize: 44.0,
+        reservedSize: 52.0,
         interval: 6,
         getTitlesWidget: (value, meta) {
           return SideTitleWidget(
@@ -328,7 +329,8 @@ class _GraphSymptomState extends State<GraphSymptom> {
           adjustBounds(average);
           rod = BarChartRodData(toY: average, color: barColor);
         }
-        if (rod == null) continue;
+        rod ??= BarChartRodData(toY: 0.0);
+
         final BarChartGroupData toEdit = barChartGroups[i];
         barChartGroups[i] = toEdit.copyWith(barRods: [...toEdit.barRods, rod]);
       }
@@ -338,7 +340,12 @@ class _GraphSymptomState extends State<GraphSymptom> {
         YAxisRange.rangeFromMax(ticks: yAxisTicks, max: maxY, min: minY);
 
     return GraphDataSet<BarChartGroupData>(
-        data: barChartGroups,
+        data: barChartGroups
+            .map((chartGroup) => chartGroup.copyWith(
+                barRods: chartGroup.barRods
+                    .sorted((rod1, rod2) => rod1.toY.compareTo(rod2.toY))
+                    .toList()))
+            .toList(),
         minX: 0,
         maxX: (barChartGroups.length - 1).toDouble(),
         minY: range.lowerBound,

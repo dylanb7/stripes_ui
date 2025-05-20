@@ -210,10 +210,7 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
                       value: graphData,
                       onData: (loadedData) {
                         final bool hasData = loadedData.containsKey(key);
-                        if (!hasData) {
-                          print(loadedData.values
-                              .map((values) => values.join(", ")));
-                        }
+
                         return Text(
                           key.toString(),
                           style: Theme.of(context)
@@ -250,6 +247,7 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
                           onPressed: () {
                             setState(() {
                               additions.remove(key);
+                              ref.invalidate(graphStampsProvider);
                             });
                           },
                           icon: const Icon(Icons.remove_circle),
@@ -285,6 +283,8 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
         builder: (context) {
           return DraggableScrollableSheet(
               maxChildSize: 0.8,
+              minChildSize: 0.35,
+              initialChildSize: 0.6,
               expand: false,
               snap: false,
               builder: (context, controller) {
