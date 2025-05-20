@@ -341,10 +341,13 @@ class _GraphSymptomState extends State<GraphSymptom> {
 
     return GraphDataSet<BarChartGroupData>(
         data: barChartGroups
-            .map((chartGroup) => chartGroup.copyWith(
+            .map(
+              (chartGroup) => chartGroup.copyWith(
                 barRods: chartGroup.barRods
-                    .sorted((rod1, rod2) => rod1.toY.compareTo(rod2.toY))
-                    .toList()))
+                    .sorted((rod1, rod2) => rod2.toY.compareTo(rod1.toY))
+                    .toList(),
+              ),
+            )
             .toList(),
         minX: 0,
         maxX: (barChartGroups.length - 1).toDouble(),

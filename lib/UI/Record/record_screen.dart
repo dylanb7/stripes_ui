@@ -82,7 +82,7 @@ class Options extends ConsumerWidget {
                                   const BorderRadius.all(Radius.circular(8.0)),
                               color: Theme.of(context).disabledColor,
                             ),
-                            height: 85.0,
+                            height: 65.0,
                           ),
                         ),
                       ),
