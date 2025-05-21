@@ -61,8 +61,6 @@ class _GraphSymptomState extends State<GraphSymptom> {
                 widget.settings.span.getTitles())
             .floorToDouble();
 
-    print(span);
-
     final AxisTitles bottomTitles = AxisTitles(
       sideTitles: SideTitles(
         showTitles: widget.isDetailed,
@@ -114,7 +112,6 @@ class _GraphSymptomState extends State<GraphSymptom> {
           if (dataSet.maxY == 0.0) {
             return SideTitleWidget(
               meta: meta,
-              fitInside: SideTitleFitInsideData.fromTitleMeta(meta),
               child: const SizedBox(),
             );
           }

@@ -246,6 +246,8 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
 
   bool? isBlue;
 
+  ExpansibleController controller = ExpansibleController();
+
   @override
   Widget build(BuildContext context) {
     final Map<String, DisplayBuilder> overrides =
@@ -281,80 +283,78 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
       constraints: widget.hasConstraints
           ? const BoxConstraints(maxWidth: 380)
           : const BoxConstraints(),
-      child: Expandible(
-        elevated: widget.elevated,
-        highlightColor:
-            widget.elevated ? null : Theme.of(context).colorScheme.onSurface,
-        highlightWidth: widget.elevated ? null : 1.0,
-        highlightOnShrink: true,
-        header: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            if (isBlue != null) ...[
-              SizedBox(
-                width: 30.0,
-                height: 30.0,
-                child: isBlue!
-                    ? Image.asset(
-                        'packages/stripes_ui/assets/images/Blue_Poop.png')
-                    : Image.asset(
-                        'packages/stripes_ui/assets/images/Brown_Poop.png'),
-              ),
-              const SizedBox(
-                width: 8.0,
-              ),
-            ],
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.event.type,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyLarge
-                      ?.copyWith(fontWeight: FontWeight.bold),
+      child: GestureDetector(
+        child: Expansible(
+          key: Key(widget.event.id ?? "${widget.event.stamp}"),
+          headerBuilder: (context, animation) => Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              if (isBlue != null) ...[
+                SizedBox(
+                  width: 30.0,
+                  height: 30.0,
+                  child: isBlue!
+                      ? Image.asset(
+                          'packages/stripes_ui/assets/images/Blue_Poop.png')
+                      : Image.asset(
+                          'packages/stripes_ui/assets/images/Brown_Poop.png'),
                 ),
-                Text(
-                  widget.includeFullDate
-                      ? "${(date.year == DateTime.now().year ? DateFormat.MMMd() : DateFormat.yMMMd()).format(date)} ${timeString(date, context)}"
-                      : timeString(date, context),
-                  style: Theme.of(context).textTheme.bodyMedium,
+                const SizedBox(
+                  width: 8.0,
                 ),
               ],
-            ),
-          ],
-        ),
-        iconSize: 35,
-        view: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            content,
-            if (widget.hasControls) ...[
-              const SizedBox(
-                height: 3,
-              ),
-              Row(
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Spacer(),
-                  if (button != null) button,
-                  const SizedBox(
-                    width: 4.0,
+                  Text(
+                    widget.event.type,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyLarge
+                        ?.copyWith(fontWeight: FontWeight.bold),
                   ),
-                  IconButton(
-                    onPressed: isLoading
-                        ? null
-                        : () {
-                            _delete(ref);
-                          },
-                    icon: const Icon(Icons.delete),
+                  Text(
+                    widget.includeFullDate
+                        ? "${(date.year == DateTime.now().year ? DateFormat.MMMd() : DateFormat.yMMMd()).format(date)} ${timeString(date, context)}"
+                        : timeString(date, context),
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ],
               ),
-            ]
-          ],
+            ],
+          ),
+          bodyBuilder: (context, animation) => Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              content ?? const SizedBox(),
+              if (widget.hasControls) ...[
+                const SizedBox(
+                  height: 3,
+                ),
+                Row(
+                  children: [
+                    const Spacer(),
+                    if (button != null) button,
+                    const SizedBox(
+                      width: 4.0,
+                    ),
+                    IconButton(
+                      onPressed: isLoading
+                          ? null
+                          : () {
+                              _delete(ref);
+                            },
+                      icon: const Icon(Icons.delete),
+                    ),
+                  ],
+                ),
+              ]
+            ],
+          ),
+          controller: controller,
         ),
       ),
     );
