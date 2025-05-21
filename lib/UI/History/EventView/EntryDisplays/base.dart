@@ -283,78 +283,100 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
       constraints: widget.hasConstraints
           ? const BoxConstraints(maxWidth: 380)
           : const BoxConstraints(),
-      child: GestureDetector(
-        child: Expansible(
-          key: Key(widget.event.id ?? "${widget.event.stamp}"),
-          headerBuilder: (context, animation) => Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              if (isBlue != null) ...[
-                SizedBox(
-                  width: 30.0,
-                  height: 30.0,
-                  child: isBlue!
-                      ? Image.asset(
-                          'packages/stripes_ui/assets/images/Blue_Poop.png')
-                      : Image.asset(
-                          'packages/stripes_ui/assets/images/Brown_Poop.png'),
-                ),
-                const SizedBox(
-                  width: 8.0,
-                ),
-              ],
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.event.type,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyLarge
-                        ?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    widget.includeFullDate
-                        ? "${(date.year == DateTime.now().year ? DateFormat.MMMd() : DateFormat.yMMMd()).format(date)} ${timeString(date, context)}"
-                        : timeString(date, context),
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                ],
-              ),
-            ],
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          border: Border.all(),
+          borderRadius: const BorderRadius.all(
+            Radius.circular(6.0),
           ),
-          bodyBuilder: (context, animation) => Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              content ?? const SizedBox(),
-              if (widget.hasControls) ...[
-                const SizedBox(
-                  height: 3,
-                ),
-                Row(
-                  children: [
-                    const Spacer(),
-                    if (button != null) button,
-                    const SizedBox(
-                      width: 4.0,
+        ),
+        child: Padding(
+          padding: const EdgeInsetsGeometry.all(4.0),
+          child: Expansible(
+            key: Key(widget.event.id ?? "${widget.event.stamp}"),
+            headerBuilder: (context, animation) => GestureDetector(
+              onTap: () {
+                if (controller.isExpanded) {
+                  controller.collapse();
+                } else {
+                  controller.expand();
+                }
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  if (isBlue != null) ...[
+                    SizedBox(
+                      width: 30.0,
+                      height: 30.0,
+                      child: isBlue!
+                          ? Image.asset(
+                              'packages/stripes_ui/assets/images/Blue_Poop.png')
+                          : Image.asset(
+                              'packages/stripes_ui/assets/images/Brown_Poop.png'),
                     ),
-                    IconButton(
-                      onPressed: isLoading
-                          ? null
-                          : () {
-                              _delete(ref);
-                            },
-                      icon: const Icon(Icons.delete),
+                    const SizedBox(
+                      width: 8.0,
                     ),
                   ],
-                ),
-              ]
-            ],
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.event.type,
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyLarge
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        widget.includeFullDate
+                            ? "${(date.year == DateTime.now().year ? DateFormat.MMMd() : DateFormat.yMMMd()).format(date)} ${timeString(date, context)}"
+                            : timeString(date, context),
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ],
+                  ),
+                  const Spacer(),
+                  Icon(controller.isExpanded
+                      ? Icons.keyboard_arrow_up
+                      : Icons.keyboard_arrow_down),
+                ],
+              ),
+            ),
+            bodyBuilder: (context, animation) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                content ?? const SizedBox(),
+                if (widget.hasControls) ...[
+                  const SizedBox(
+                    height: 3,
+                  ),
+                  Row(
+                    children: [
+                      const Spacer(),
+                      if (button != null) button,
+                      const SizedBox(
+                        width: 4.0,
+                      ),
+                      IconButton(
+                        onPressed: isLoading
+                            ? null
+                            : () {
+                                _delete(ref);
+                              },
+                        icon: const Icon(Icons.delete),
+                      ),
+                    ],
+                  ),
+                ]
+              ],
+            ),
+            controller: controller,
           ),
-          controller: controller,
         ),
       ),
     );
