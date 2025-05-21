@@ -63,9 +63,12 @@ class QuestionTypeOverlay extends ConsumerWidget {
     final AsyncValue<List<RecordPath>> paths = ref.watch(recordPaths(
         const RecordPathProps(
             filterEnabled: true, type: PathProviderType.both)));
+
+    final double screenHeight = MediaQuery.of(context).size.height;
+
     return OverlayBackdrop(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 350),
+        constraints: BoxConstraints(maxWidth: 350, maxHeight: screenHeight / 2),
         child: Card(
           child: Padding(
             padding: const EdgeInsets.all(10.0),

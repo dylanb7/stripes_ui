@@ -932,7 +932,6 @@ class BMDisplay extends StatelessWidget {
     return Column(
       children: logs.map((log) {
         return EntryDisplay(
-          elevated: false,
           event: log.response,
           hasControls: false,
           hasConstraints: false,
@@ -958,7 +957,10 @@ class BMDisplay extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
             ]);*/
-      }).toList(),
+      }).separated(
+          by: const SizedBox(
+        height: 8.0,
+      )),
     );
   }
 }

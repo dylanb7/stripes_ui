@@ -13,7 +13,6 @@ import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
-import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/UI/History/EventView/EntryDisplays/blue_dye.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/pain_area.dart';
 import 'package:stripes_ui/Util/date_helper.dart';
@@ -36,7 +35,6 @@ class RenderEntryGroup extends ConsumerWidget {
             .map(
               (res) => EntryDisplay(
                 event: res,
-                elevated: false,
               ),
             )
             .separated(
@@ -107,7 +105,6 @@ class RenderEntryGroupSliver extends ConsumerWidget {
       return SliverList.builder(
         itemBuilder: (context, index) => EntryDisplay(
           event: responses[index],
-          elevated: false,
         ),
         itemCount: responses.length,
       );
@@ -198,7 +195,6 @@ class _ExpandibleSymptomAreaState extends State<ExpandibleSymptomArea> {
                     .map(
                       (res) => EntryDisplay(
                         event: res,
-                        elevated: false,
                       ),
                     )
                     .separated(
@@ -239,14 +235,13 @@ class _ExpandibleSymptomAreaState extends State<ExpandibleSymptomArea> {
 class EntryDisplay extends ConsumerStatefulWidget {
   final Response event;
 
-  final bool hasControls, hasConstraints, elevated, includeFullDate;
+  final bool hasControls, hasConstraints, includeFullDate;
 
   const EntryDisplay(
       {super.key,
       required this.event,
       this.hasControls = true,
       this.hasConstraints = true,
-      this.elevated = true,
       this.includeFullDate = false});
 
   @override
@@ -297,11 +292,11 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
           : const BoxConstraints(),
       child: DecoratedBox(
         decoration: BoxDecoration(
-          border: Border.all(),
-          borderRadius: const BorderRadius.all(
-            Radius.circular(8.0),
-          ),
-        ),
+            border: Border.all(),
+            borderRadius: const BorderRadius.all(
+              Radius.circular(8.0),
+            ),
+            color: Theme.of(context).colorScheme.surface),
         child: Padding(
           padding: const EdgeInsetsGeometry.all(8.0),
           child: Expansible(

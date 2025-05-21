@@ -98,7 +98,6 @@ class BlueDyeVisualDisplay extends StatelessWidget {
         ),
         ...resp.logs.map(
           (log) => EntryDisplay(
-            elevated: false,
             event: log.response,
             hasConstraints: false,
             hasControls: false,
