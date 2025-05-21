@@ -33,11 +33,16 @@ class RenderEntryGroup extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: responses
-            .map((res) => EntryDisplay(
-                  event: res,
-                  elevated: false,
-                ))
-            .toList(),
+            .map(
+              (res) => EntryDisplay(
+                event: res,
+                elevated: false,
+              ),
+            )
+            .separated(
+                by: const SizedBox(
+              height: 4.0,
+            )),
       );
     }
     Map<String, List<Response>> byType = {};
@@ -189,9 +194,16 @@ class _ExpandibleSymptomAreaState extends State<ExpandibleSymptomArea> {
             children: [
               widget.header,
               if (expanded)
-                ...widget.responses.map((res) => EntryDisplay(
-                      event: res,
-                      elevated: false,
+                ...widget.responses
+                    .map(
+                      (res) => EntryDisplay(
+                        event: res,
+                        elevated: false,
+                      ),
+                    )
+                    .separated(
+                        by: const SizedBox(
+                      height: 4.0,
                     )),
               TextButton.icon(
                 onPressed: () {
