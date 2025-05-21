@@ -254,84 +254,78 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
           .toList(),
     );
 
-    return PageStorage(
-      bucket: bucket,
-      child: RefreshWidget(
-        depth: RefreshDepth.authuser,
-        scrollable: AddIndicator(
-          builder: (context, hasIndicator) => ScrollAssistedList(
-            scrollController: ScrollController(),
-            key: blueDyeScrollKey,
-            builder: (context, properties) => SizedBox.expand(
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                key: properties.scrollStateKey,
-                controller: properties.scrollController,
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints:
-                        BoxConstraints(maxWidth: Breakpoint.medium.value),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(
-                          height: 20.0,
-                        ),
-                        const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 20.0),
-                            child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: TestSwitcher())),
-                        const SizedBox(
-                          height: 12.0,
-                        ),
-                        ConstrainedBox(
-                          constraints: const BoxConstraints(maxHeight: 120.0),
-                          child: shouldWrap
-                              ? kIsWeb
-                                  ? Row(
-                                      children: [
-                                        IconButton(
-                                            visualDensity:
-                                                VisualDensity.compact,
-                                            onPressed: () {
-                                              _pageController.previousPage(
-                                                  duration: const Duration(
-                                                      milliseconds: 200),
-                                                  curve: Curves.ease);
-                                            },
-                                            icon: const Icon(
-                                                Icons.keyboard_arrow_left)),
-                                        Expanded(child: pageView),
-                                        IconButton(
-                                            visualDensity:
-                                                VisualDensity.compact,
-                                            onPressed: () {
-                                              _pageController.nextPage(
-                                                  duration: const Duration(
-                                                      milliseconds: 200),
-                                                  curve: Curves.ease);
-                                            },
-                                            icon: const Icon(
-                                                Icons.keyboard_arrow_right)),
-                                      ],
+    return RefreshWidget(
+      depth: RefreshDepth.authuser,
+      scrollable: AddIndicator(
+        builder: (context, hasIndicator) => ScrollAssistedList(
+          scrollController: ScrollController(),
+          builder: (context, properties) => SizedBox.expand(
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              key: properties.scrollStateKey,
+              controller: properties.scrollController,
+              child: Center(
+                child: ConstrainedBox(
+                  constraints:
+                      BoxConstraints(maxWidth: Breakpoint.medium.value),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(
+                        height: 20.0,
+                      ),
+                      const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: TestSwitcher())),
+                      const SizedBox(
+                        height: 12.0,
+                      ),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxHeight: 120.0),
+                        child: shouldWrap
+                            ? kIsWeb
+                                ? Row(
+                                    children: [
+                                      IconButton(
+                                          visualDensity: VisualDensity.compact,
+                                          onPressed: () {
+                                            _pageController.previousPage(
+                                                duration: const Duration(
+                                                    milliseconds: 200),
+                                                curve: Curves.ease);
+                                          },
+                                          icon: const Icon(
+                                              Icons.keyboard_arrow_left)),
+                                      Expanded(child: pageView),
+                                      IconButton(
+                                          visualDensity: VisualDensity.compact,
+                                          onPressed: () {
+                                            _pageController.nextPage(
+                                                duration: const Duration(
+                                                    milliseconds: 200),
+                                                curve: Curves.ease);
+                                          },
+                                          icon: const Icon(
+                                              Icons.keyboard_arrow_right)),
+                                    ],
+                                  )
+                                : pageView
+                            : Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: BlueDyeProgression.values
+                                    .map<Widget>(
+                                      (step) => _buildScrollStep(
+                                          context, index, currentIndex, step),
                                     )
-                                  : pageView
-                              : Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: BlueDyeProgression.values
-                                      .map<Widget>(
-                                        (step) => _buildScrollStep(
-                                            context, index, currentIndex, step),
-                                      )
-                                      .toList()
-                                      .spacedBy(
-                                          space: 12, axis: Axis.horizontal),
-                                ),
-                        ),
-                        /*if (shouldWrap)
+                                    .toList()
+                                    .spacedBy(space: 12, axis: Axis.horizontal),
+                              ),
+                      ),
+                      /*if (shouldWrap)
             ConstrainedBox(
                 constraints: const BoxConstraints(maxHeight: 120.0),
                 child: CarouselView.weighted(
@@ -357,18 +351,17 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                       .toList(),
                 )),*/
 
+                      const SizedBox(
+                        height: 12.0,
+                      ),
+                      Center(
+                        child: getDisplayedWidget(),
+                      ),
+                      if (hasIndicator)
                         const SizedBox(
-                          height: 12.0,
+                          height: 100,
                         ),
-                        Center(
-                          child: getDisplayedWidget(),
-                        ),
-                        if (hasIndicator)
-                          const SizedBox(
-                            height: 100,
-                          ),
-                      ],
-                    ),
+                    ],
                   ),
                 ),
               ),
