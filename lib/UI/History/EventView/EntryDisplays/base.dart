@@ -363,6 +363,9 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
+                const SizedBox(
+                  height: 4.0,
+                ),
                 content ?? const SizedBox(),
                 if (widget.hasControls) ...[
                   const SizedBox(
