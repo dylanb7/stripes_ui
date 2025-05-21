@@ -7,8 +7,6 @@ import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 
-import 'package:stripes_ui/l10n/app_localizations.dart';
-
 class TestScreen extends ConsumerStatefulWidget {
   const TestScreen({super.key});
 
