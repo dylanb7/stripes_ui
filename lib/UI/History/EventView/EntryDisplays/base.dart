@@ -41,7 +41,7 @@ class RenderEntryGroup extends ConsumerWidget {
             )
             .separated(
                 by: const SizedBox(
-              height: 4.0,
+              height: 8.0,
             )),
       );
     }
@@ -203,7 +203,7 @@ class _ExpandibleSymptomAreaState extends State<ExpandibleSymptomArea> {
                     )
                     .separated(
                         by: const SizedBox(
-                      height: 4.0,
+                      height: 8.0,
                     )),
               TextButton.icon(
                 onPressed: () {
@@ -299,11 +299,11 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
         decoration: BoxDecoration(
           border: Border.all(),
           borderRadius: const BorderRadius.all(
-            Radius.circular(6.0),
+            Radius.circular(8.0),
           ),
         ),
         child: Padding(
-          padding: const EdgeInsetsGeometry.all(4.0),
+          padding: const EdgeInsetsGeometry.all(6.0),
           child: Expansible(
             key: Key(widget.event.id ?? "${widget.event.stamp}"),
             headerBuilder: (context, animation) => GestureDetector(
