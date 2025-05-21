@@ -39,7 +39,7 @@ final ThemeData light = FlexThemeData.light(
   subThemesData: const FlexSubThemesData(
     blendOnLevel: 6,
     blendOnColors: false,
-    useTextTheme: true,
+    useMaterial3Typography: true,
     useM2StyleDividerInM3: true,
     adaptiveRemoveElevationTint: FlexAdaptive.excludeWebAndroidFuchsia(),
     adaptiveElevationShadowsBack: FlexAdaptive.excludeWebAndroidFuchsia(),
@@ -120,7 +120,7 @@ final ThemeData dark = FlexThemeData.dark(
   bottomAppBarElevation: 2.0,
   subThemesData: const FlexSubThemesData(
     blendOnLevel: 8,
-    useTextTheme: true,
+    useMaterial3Typography: true,
     useM2StyleDividerInM3: true,
     adaptiveElevationShadowsBack: FlexAdaptive.all(),
     adaptiveAppBarScrollUnderOff: FlexAdaptive.excludeWebAndroidFuchsia(),

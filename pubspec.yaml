@@ -23,7 +23,7 @@ dependencies:
       url: https://github.com/dylanb7/stripes_backend_helper
       branch: master
   markdown_widget: ^2.3.2+8
-  flex_color_scheme: ^7.3.1
+  flex_color_scheme: ^8.2.0
   flutter_svg: ^2.0.10+1
   url_launcher: ^6.3.0
   select_field: ^2.0.0
