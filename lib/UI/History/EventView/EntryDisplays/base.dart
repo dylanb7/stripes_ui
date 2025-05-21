@@ -307,6 +307,7 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
           child: Expansible(
             key: Key(widget.event.id ?? "${widget.event.stamp}"),
             headerBuilder: (context, animation) => GestureDetector(
+              behavior: HitTestBehavior.opaque,
               onTap: () {
                 if (controller.isExpanded) {
                   controller.collapse();
