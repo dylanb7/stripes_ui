@@ -96,13 +96,19 @@ class BlueDyeVisualDisplay extends StatelessWidget {
         const SizedBox(
           height: 8.0,
         ),
-        ...resp.logs.map(
-          (log) => EntryDisplay(
-            event: log.response,
-            hasConstraints: false,
-            hasControls: false,
-          ),
-        ),
+        ...resp.logs
+            .map(
+              (log) => EntryDisplay(
+                event: log.response,
+                hasConstraints: false,
+                hasControls: false,
+              ),
+            )
+            .separated(
+              by: const SizedBox(
+                height: 8.0,
+              ),
+            ),
         const SizedBox(
           height: 4.0,
         ),

@@ -64,30 +64,28 @@ class EventGrid extends ConsumerWidget {
       final List<Response> daySymptoms = questionsByDay[dateGroup]!;
       if (keys.length > 1) {
         components.add(
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              RichText(
-                text: TextSpan(
-                    text: headerFormat.format(dateGroup),
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold),
-                    children: [
-                      TextSpan(
-                        text:
-                            " · ${context.translate.eventFilterResults(daySymptoms.length)}",
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withValues(alpha: 0.75)),
-                      )
-                    ]),
-                textAlign: TextAlign.left,
-              ),
-            ],
+          Padding(
+            padding: const EdgeInsetsGeometry.only(bottom: 4.0),
+            child: RichText(
+              text: TextSpan(
+                  text: headerFormat.format(dateGroup),
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(fontWeight: FontWeight.bold),
+                  children: [
+                    TextSpan(
+                      text:
+                          " · ${context.translate.eventFilterResults(daySymptoms.length)}",
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.75)),
+                    )
+                  ]),
+              textAlign: TextAlign.left,
+            ),
           ),
         );
       }
