@@ -304,13 +304,11 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
 
     if (isEdit) {
       await repo?.updateStamp(detailResponse);
-      await ref
-          .read(testProvider)
-          .valueOrNull
-          ?.onResponseEdit(detailResponse, widget.type);
+      await ((await ref.read(testProvider.future))
+          ?.onResponseEdit(detailResponse, widget.type));
     } else {
       await repo?.addStamp(detailResponse);
-      (await ref.read(testProvider.future))
+      await (await ref.read(testProvider.future))
           ?.onResponseSubmit(detailResponse, widget.type);
     }
     setState(() {
@@ -328,7 +326,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                 .undoEntry(widget.type, submissionEntry, submissionEntry),
             action: () async {
           await repo?.removeStamp(detailResponse);
-          (await ref.read(testProvider.future))
+          await (await ref.read(testProvider.future))
               ?.onResponseDelete(detailResponse, widget.type);
         });
       }
