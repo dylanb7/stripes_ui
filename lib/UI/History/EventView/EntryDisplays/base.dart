@@ -300,7 +300,7 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
         child: Padding(
           padding: const EdgeInsetsGeometry.all(8.0),
           child: Expansible(
-            key: Key(widget.event.id ?? "${widget.event.stamp}"),
+            key: ValueKey(widget.event.id ?? "${widget.event.stamp}"),
             headerBuilder: (context, animation) => GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () {
