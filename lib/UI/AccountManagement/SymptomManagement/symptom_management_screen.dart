@@ -43,7 +43,7 @@ class SymptomManagementScreen extends ConsumerWidget {
             onData: (recordPaths) {
               return SingleChildScrollView(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(
                       height: 20.0,

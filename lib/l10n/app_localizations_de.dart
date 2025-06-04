@@ -1,5 +1,5 @@
+// ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -78,19 +78,23 @@ class AppLocalizationsDe extends AppLocalizations {
   String get aboutStripes => 'About STRiPES';
 
   @override
-  String get aboutLineOne => 'STRiPES is a symptom tracker that collects information on altered movement of food through the gut (aka motility), pain, bowel movements(BM) and reflux of patients with Phelan-McDermid Syndrome (PMS).';
+  String get aboutLineOne =>
+      'STRiPES is a symptom tracker that collects information on altered movement of food through the gut (aka motility), pain, bowel movements(BM) and reflux of patients with Phelan-McDermid Syndrome (PMS).';
 
   @override
-  String get aboutLineTwo => 'The data will then be used in studies to further our understanding on gastrointestinal issues in patients with PMS.';
+  String get aboutLineTwo =>
+      'The data will then be used in studies to further our understanding on gastrointestinal issues in patients with PMS.';
 
   @override
-  String get aboutLineThree => 'If you want to learn more about the studies STRiPES is collecting data for, please click the link below:';
+  String get aboutLineThree =>
+      'If you want to learn more about the studies STRiPES is collecting data for, please click the link below:';
 
   @override
   String get aboutQuestionsTitle => 'Questions and/or concerns?';
 
   @override
-  String get aboutCategoriesTitle => 'If at any moment you have questions regarding thing such as:';
+  String get aboutCategoriesTitle =>
+      'If at any moment you have questions regarding thing such as:';
 
   @override
   String get aboutDataCollection => 'Data collection';
@@ -108,7 +112,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get aboutWithdraw => 'How to withdraw from study';
 
   @override
-  String get aboutETC => 'Something not listed in the above about the study or app';
+  String get aboutETC =>
+      'Something not listed in the above about the study or app';
 
   @override
   String aboutEmail(String email) {
@@ -122,28 +127,33 @@ class AppLocalizationsDe extends AppLocalizations {
   String get preStudySeeing => 'Why am I seeing this:';
 
   @override
-  String get preStudySeeingExp => 'If you are on this page, it\'s because you indicated that you were willing to participate in the Blue Meal Study (BMS). If you feel this is incorrect, please let us know at BlueMeal@iu.edu.';
+  String get preStudySeeingExp =>
+      'If you are on this page, it\'s because you indicated that you were willing to participate in the Blue Meal Study (BMS). If you feel this is incorrect, please let us know at BlueMeal@iu.edu.';
 
   @override
   String get preStudyEnrollTitle => 'Ready to Start?';
 
   @override
-  String get preStudyEnrollDescPartOne => 'If you have read and understand these instructions and are ready to begin the study, click the button below. This will take you directly to Step 1 of the study.';
+  String get preStudyEnrollDescPartOne =>
+      'If you have read and understand these instructions and are ready to begin the study, click the button below. This will take you directly to Step 1 of the study.';
 
   @override
-  String get preStudyEnrollDescPartTwo => 'You can access these instructions again at any time by pressing the icon with the \"i\" at the top of the page.';
+  String get preStudyEnrollDescPartTwo =>
+      'You can access these instructions again at any time by pressing the icon with the \"i\" at the top of the page.';
 
   @override
   String get preStudyEnrollButton => 'I am ready to start Step 1';
 
   @override
-  String get inStudySeeingExp => 'Note: If you are returning to this page, please make sure to complete all the steps in the study flow. If you have any questions or concerns, don\'t hesitate to contact us at BlueMeal@iu.edu.';
+  String get inStudySeeingExp =>
+      'Note: If you are returning to this page, please make sure to complete all the steps in the study flow. If you have any questions or concerns, don\'t hesitate to contact us at BlueMeal@iu.edu.';
 
   @override
   String get inStudyWithdrawTitle => 'Withdraw from Study';
 
   @override
-  String get inStudyWithdrawDesc => 'You may withdraw at any time by clicking the withdrawal button below. This notifies the research team of your wish to stop participating.';
+  String get inStudyWithdrawDesc =>
+      'You may withdraw at any time by clicking the withdrawal button below. This notifies the research team of your wish to stop participating.';
 
   @override
   String get inStudyWithdrawButtonText => 'Withdraw from study';
@@ -226,7 +236,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get stepFourCompletedText => 'Step 4 - Completed';
 
   @override
-  String get stepFourCompletedSubText => 'You have completed the Blue Meal Study. Thank you for your participation!';
+  String get stepFourCompletedSubText =>
+      'You have completed the Blue Meal Study. Thank you for your participation!';
 
   @override
   String get studyRecordBMButton => 'Record a Bowel Movement';
@@ -238,13 +249,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String get studyExpTitle => 'About the study';
 
   @override
-  String get studyExpBody => 'This study measures gut motility (the movement of food through the digestive system) in people with Phelan-McDermid Syndrome using a novel blue meal test. It involves eating blue muffins and tracking bowel movements to determine transit time, which is the duration it takes for food to move through the digestive system, from consumption to excretion. The study will measure transit time twice using the blue muffins and this mobile app.';
+  String get studyExpBody =>
+      'This study measures gut motility (the movement of food through the digestive system) in people with Phelan-McDermid Syndrome using a novel blue meal test. It involves eating blue muffins and tracking bowel movements to determine transit time, which is the duration it takes for food to move through the digestive system, from consumption to excretion. The study will measure transit time twice using the blue muffins and this mobile app.';
 
   @override
-  String get studyExpBodyCont => 'During the study, you will be asked to report various gastrointestinal (GI) signs and symptoms using this app. While bowel movements are the primary focus of the study, we highly encourage you to track all relevant information, including:';
+  String get studyExpBodyCont =>
+      'During the study, you will be asked to report various gastrointestinal (GI) signs and symptoms using this app. While bowel movements are the primary focus of the study, we highly encourage you to track all relevant information, including:';
 
   @override
-  String get studyBodySymptomOne => 'Meal times (not a symptom, but important for context)';
+  String get studyBodySymptomOne =>
+      'Meal times (not a symptom, but important for context)';
 
   @override
   String get studyBodySymptomTwo => 'Pain';
@@ -271,13 +285,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get studyEligibilityThree => 'Live in the United States';
 
   @override
-  String get studyEligibilityFour => 'Have an English-speaking caregiver to track symptoms';
+  String get studyEligibilityFour =>
+      'Have an English-speaking caregiver to track symptoms';
 
   @override
   String get studyFlowTitle => 'Study Flow';
 
   @override
-  String get studyFlowDesc => 'The study consists of a pre-study phase, preparation, and two transit time measurements:';
+  String get studyFlowDesc =>
+      'The study consists of a pre-study phase, preparation, and two transit time measurements:';
 
   @override
   String get studyFlowPreStudy => 'Pre-Study:';
@@ -286,64 +302,80 @@ class AppLocalizationsDe extends AppLocalizations {
   String get studyFlowPreStudyOne => 'Complete the onboarding questionnaire';
 
   @override
-  String get studyFlowPreStudyTwo => 'Track GI symptoms, using this app, for at least 7 days before starting Step 1 (eating the blue meal).';
+  String get studyFlowPreStudyTwo =>
+      'Track GI symptoms, using this app, for at least 7 days before starting Step 1 (eating the blue meal).';
 
   @override
   String get studyFlowPrepTitle => 'Preparation:';
 
   @override
-  String get studyFlowPrepOne => 'You will receive 4 blue muffins. Store them in the freezer until ready to use.';
+  String get studyFlowPrepOne =>
+      'You will receive 4 blue muffins. Store them in the freezer until ready to use.';
 
   @override
-  String get studyFlowPrepTwo => 'Muffins contain gluten-free flour, protein powder, egg whites, jam, sugar, and blue food coloring.';
+  String get studyFlowPrepTwo =>
+      'Muffins contain gluten-free flour, protein powder, egg whites, jam, sugar, and blue food coloring.';
 
   @override
   String get studyFlowStepOneTitle => 'Step 1: Eat Blue Meal (Transit Time 1)';
 
   @override
-  String get studyFlowStepOnePartOne => 'After a 6-8 hour overnight fast, feed the participant 2 blue muffins.';
+  String get studyFlowStepOnePartOne =>
+      'After a 6-8 hour overnight fast, feed the participant 2 blue muffins.';
 
   @override
-  String get studyFlowStepOnePartTwo => 'Start the in-app timer when they begin eating. Stop when they finish. This records the muffin eating time.';
+  String get studyFlowStepOnePartTwo =>
+      'Start the in-app timer when they begin eating. Stop when they finish. This records the muffin eating time.';
 
   @override
-  String get studyFlowStepTwoTitle => 'Step 2: Record Bowel Movements (Transit Time 1)';
+  String get studyFlowStepTwoTitle =>
+      'Step 2: Record Bowel Movements (Transit Time 1)';
 
   @override
-  String get studyFlowStepTwoPartOne => 'After the blue meal, record all bowel movements (BMs).';
+  String get studyFlowStepTwoPartOne =>
+      'After the blue meal, record all bowel movements (BMs).';
 
   @override
-  String get studyFlowStepTwoPartTwo => 'Note the color, consistency, and any other symptoms for each BM.';
+  String get studyFlowStepTwoPartTwo =>
+      'Note the color, consistency, and any other symptoms for each BM.';
 
   @override
-  String get studyFlowStepTwoPartThree => 'Continue until a brown BM occurs after a blue one.';
+  String get studyFlowStepTwoPartThree =>
+      'Continue until a brown BM occurs after a blue one.';
 
   @override
   String get studyFlowBetweenStepTwoStepThree => 'Between Step 2 & Step 3:';
 
   @override
-  String get studyFlowBetweenStepTwoStepThreeDesc => 'Wait 7 days after completing steps 1 and 2 before staring Step 3.';
+  String get studyFlowBetweenStepTwoStepThreeDesc =>
+      'Wait 7 days after completing steps 1 and 2 before staring Step 3.';
 
   @override
-  String get studyFlowStepThreeTitle => 'Step 3: Eat Blue Meal (Transit Time 2)';
+  String get studyFlowStepThreeTitle =>
+      'Step 3: Eat Blue Meal (Transit Time 2)';
 
   @override
-  String get studyFlowStepThreeDesc => 'As in Step 1, after a 6-8 hour overnight fast, feed the participant the remaining 2 blue muffins. Again, start the in-app timer when they begin eating and stop when they finish to record eating time.';
+  String get studyFlowStepThreeDesc =>
+      'As in Step 1, after a 6-8 hour overnight fast, feed the participant the remaining 2 blue muffins. Again, start the in-app timer when they begin eating and stop when they finish to record eating time.';
 
   @override
-  String get studyFlowStepFourTitle => 'Step 4: Record Bowel Movements (Transit Time 2)';
+  String get studyFlowStepFourTitle =>
+      'Step 4: Record Bowel Movements (Transit Time 2)';
 
   @override
-  String get studyFlowStepFourDesc => 'As in Step 2, after the second blue meal, record all bowel movements (BMs). Continue to note the color, consistency, and any other symptoms for each BM. Record until a brown BM occurs following a blue one.';
+  String get studyFlowStepFourDesc =>
+      'As in Step 2, after the second blue meal, record all bowel movements (BMs). Continue to note the color, consistency, and any other symptoms for each BM. Record until a brown BM occurs following a blue one.';
 
   @override
-  String get studyFlowComplete => 'After completing Step 4, your participation is complete!';
+  String get studyFlowComplete =>
+      'After completing Step 4, your participation is complete!';
 
   @override
   String get studyContactTitle => 'Contact Us';
 
   @override
-  String get studyContactBody => 'Questions or problems? Email [email@university.edu] with \"Blue Meal Study\" in the subject line.';
+  String get studyContactBody =>
+      'Questions or problems? Email [email@university.edu] with \"Blue Meal Study\" in the subject line.';
 
   @override
   String get transitOneLabel => 'Transit Time 1';
@@ -355,34 +387,42 @@ class AppLocalizationsDe extends AppLocalizations {
   String get blueMealWaitTimeTitle => 'Step 2 Completed';
 
   @override
-  String get blueMealWaitTimeLineOne => 'You have successfully completed Step 2 by recording a bowel movement with no blue color.';
+  String get blueMealWaitTimeLineOne =>
+      'You have successfully completed Step 2 by recording a bowel movement with no blue color.';
 
   @override
-  String get blueMealWaitTimeLineTwo => 'This countdown shows how long before another Blue Dye Meal should be attempted again.';
+  String get blueMealWaitTimeLineTwo =>
+      'This countdown shows how long before another Blue Dye Meal should be attempted again.';
 
   @override
-  String get blueMealWaitTimeLineThree => 'You may add when you are eligible to begin Step 3 to your calendar.';
+  String get blueMealWaitTimeLineThree =>
+      'You may add when you are eligible to begin Step 3 to your calendar.';
 
   @override
   String get blueMealFastHeader => 'Step 1: Eat Blue Meal';
 
   @override
-  String get blueMealFastQuestion => 'Before starting, has the participant completed the required 6-8 hour fast?';
+  String get blueMealFastQuestion =>
+      'Before starting, has the participant completed the required 6-8 hour fast?';
 
   @override
-  String get blueMealFastInstructionLineOne => 'Feed the (2) blue muffins to the participant';
+  String get blueMealFastInstructionLineOne =>
+      'Feed the (2) blue muffins to the participant';
 
   @override
-  String get blueMealFastInstructionLineTwo => 'Record how long it takes the participant to eat the (2) muffins';
+  String get blueMealFastInstructionLineTwo =>
+      'Record how long it takes the participant to eat the (2) muffins';
 
   @override
-  String get blueMealFastInstructionLineThree => 'Once the participant has finished eating the (2) muffins, please record how much was eaten.';
+  String get blueMealFastInstructionLineThree =>
+      'Once the participant has finished eating the (2) muffins, please record how much was eaten.';
 
   @override
   String get blueMealDurationTitle => 'Meal Duration';
 
   @override
-  String get blueMealDurationQuestion => 'How long did the participant take to eat the (2) muffins?';
+  String get blueMealDurationQuestion =>
+      'How long did the participant take to eat the (2) muffins?';
 
   @override
   String get blueMealDurationAnswerOne => '15 minutes or less';
@@ -400,7 +440,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get blueMealAmountConsumedTitle => 'About the meal';
 
   @override
-  String get blueMealRecordInstructions => 'To record a Bowel Movement, go to the Study tab and tap record, or go to the record tab and select Bowel Movement.';
+  String get blueMealRecordInstructions =>
+      'To record a Bowel Movement, go to the Study tab and tap record, or go to the record tab and select Bowel Movement.';
 
   @override
   String blueMealRecordDescription(String step) {
@@ -408,88 +449,114 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get studyStepOneExplanationTitle => 'Step 1: Eat Blue Meal (Transit Time 1)';
+  String get studyStepOneExplanationTitle =>
+      'Step 1: Eat Blue Meal (Transit Time 1)';
 
   @override
-  String get studyStepOneExplanationPreReq => 'Before starting, ensure that the participant has completed a 6-8 hour fast.';
+  String get studyStepOneExplanationPreReq =>
+      'Before starting, ensure that the participant has completed a 6-8 hour fast.';
 
   @override
-  String get studyStepOneExplanationPartOne => 'Take two of the four blue muffins provided for the study.';
+  String get studyStepOneExplanationPartOne =>
+      'Take two of the four blue muffins provided for the study.';
 
   @override
-  String get studyStepOneExplanationPartTwo => 'Feed the two blue muffins to the participant.';
+  String get studyStepOneExplanationPartTwo =>
+      'Feed the two blue muffins to the participant.';
 
   @override
-  String get studyStepOneExplanationPartThree => 'As soon as the participant starts eating the muffins, press the \"Start Timer\" button below to begin recording the eating time.';
+  String get studyStepOneExplanationPartThree =>
+      'As soon as the participant starts eating the muffins, press the \"Start Timer\" button below to begin recording the eating time.';
 
   @override
-  String get studyStepOneExplanationPartFour => 'Once the participant has finished eating the muffins, press the \"Stop Timer\" button to stop recording the eating time.';
+  String get studyStepOneExplanationPartFour =>
+      'Once the participant has finished eating the muffins, press the \"Stop Timer\" button to stop recording the eating time.';
 
   @override
-  String get studyStepOneExplanationNote => 'Note: If you make a mistake while timing the participant, press the \"Reset\" button to clear the timer.';
+  String get studyStepOneExplanationNote =>
+      'Note: If you make a mistake while timing the participant, press the \"Reset\" button to clear the timer.';
 
   @override
-  String get studyStepTwoExplanationTitle => 'Step 2: Record Bowel Movements (Transit Time 1)';
+  String get studyStepTwoExplanationTitle =>
+      'Step 2: Record Bowel Movements (Transit Time 1)';
 
   @override
-  String get studyStepTwoExplanationDesc => 'After the participant consumes the two blue muffins, track their bowel movements (BMs) using one of the following methods:';
+  String get studyStepTwoExplanationDesc =>
+      'After the participant consumes the two blue muffins, track their bowel movements (BMs) using one of the following methods:';
 
   @override
-  String get studyStepTwoExplanationPartOne => '1. On this page (Study Tab): Click \"Record BM\" button to log each BM, noting:';
+  String get studyStepTwoExplanationPartOne =>
+      '1. On this page (Study Tab): Click \"Record BM\" button to log each BM, noting:';
 
   @override
   String get studyStepTwoExplanationPartOneDetailOne => 'Date and time';
 
   @override
-  String get studyStepTwoExplanationPartOneDetailTwo => 'Presence or absence of blue-green color';
+  String get studyStepTwoExplanationPartOneDetailTwo =>
+      'Presence or absence of blue-green color';
 
   @override
-  String get studyStepTwoExplanationPartOneDetailThree => 'Other relevant details (e.g., consistency, symptoms)';
+  String get studyStepTwoExplanationPartOneDetailThree =>
+      'Other relevant details (e.g., consistency, symptoms)';
 
   @override
   String get studyStepTwoExplanationPartTwo => '2. On the Track Tab:';
 
   @override
-  String get studyStepTwoExplanationPartTwoDetailOne => 'Press the \"Bowel Movement\" button to record each BM';
+  String get studyStepTwoExplanationPartTwoDetailOne =>
+      'Press the \"Bowel Movement\" button to record each BM';
 
   @override
-  String get studyStepTwoExplanationPartTwoDetailTwo => 'Fill in the required information, including the presence or absence of blue-green color';
+  String get studyStepTwoExplanationPartTwoDetailTwo =>
+      'Fill in the required information, including the presence or absence of blue-green color';
 
   @override
-  String get studyStepTwoExplanationColorExp => 'Continue recording all BMs, even if not blue-green. After the first blue-green BM, keep tracking until a non-blue BM occurs. The system will automatically complete Step 2 once you record a non-blue BM after a blue-green one.';
+  String get studyStepTwoExplanationColorExp =>
+      'Continue recording all BMs, even if not blue-green. After the first blue-green BM, keep tracking until a non-blue BM occurs. The system will automatically complete Step 2 once you record a non-blue BM after a blue-green one.';
 
   @override
-  String get studyStepTwoExplanationProgress => 'After submitting, you will have completed the first half of the study. You can begin the second half in 7 days.';
+  String get studyStepTwoExplanationProgress =>
+      'After submitting, you will have completed the first half of the study. You can begin the second half in 7 days.';
 
   @override
-  String get studyStepThreeExplanationTitle => 'Step 3: Eat Blue Meal (Transit Time 2)';
+  String get studyStepThreeExplanationTitle =>
+      'Step 3: Eat Blue Meal (Transit Time 2)';
 
   @override
-  String get studyStepThreeExplanationPreReq => 'Before starting, ensure that the participant has completed a 6-8 hour fast';
+  String get studyStepThreeExplanationPreReq =>
+      'Before starting, ensure that the participant has completed a 6-8 hour fast';
 
   @override
-  String get studyStepThreeExplanationPartOne => 'Feed the participant the remaining two blue muffins.';
+  String get studyStepThreeExplanationPartOne =>
+      'Feed the participant the remaining two blue muffins.';
 
   @override
-  String get studyStepThreeExplanationPartTwo => 'Record the start and end time of the meal using the timer below.';
+  String get studyStepThreeExplanationPartTwo =>
+      'Record the start and end time of the meal using the timer below.';
 
   @override
-  String get studyStepFourExplanationTitle => 'Step 4: Record Bowel Movements (Transit Time 2)';
+  String get studyStepFourExplanationTitle =>
+      'Step 4: Record Bowel Movements (Transit Time 2)';
 
   @override
-  String get studyStepFourExplanationDesc => 'After the participant consumes the two blue muffins, track their bowel movements (BMs) as follows:';
+  String get studyStepFourExplanationDesc =>
+      'After the participant consumes the two blue muffins, track their bowel movements (BMs) as follows:';
 
   @override
-  String get studyStepFourExplanationPartOne => 'Record each BM, noting the date, time, and presence or absence of blue-green color.';
+  String get studyStepFourExplanationPartOne =>
+      'Record each BM, noting the date, time, and presence or absence of blue-green color.';
 
   @override
-  String get studyStepFourExplanationPartTwo => 'Continue recording all BMs until a non-blue BM occurs after a blue-green one.';
+  String get studyStepFourExplanationPartTwo =>
+      'Continue recording all BMs until a non-blue BM occurs after a blue-green one.';
 
   @override
-  String get studyStepFourExplanationPartThree => 'The system will automatically submit your recordings once you record the first normal-colored BM after the blue one.';
+  String get studyStepFourExplanationPartThree =>
+      'The system will automatically submit your recordings once you record the first normal-colored BM after the blue one.';
 
   @override
-  String get studyStepFourExplanationCompletedNotice => 'Once the system submits your recordings, you will have completed the Blue Meal Study. Thank you for your participation!';
+  String get studyStepFourExplanationCompletedNotice =>
+      'Once the system submits your recordings, you will have completed the Blue Meal Study. Thank you for your participation!';
 
   @override
   String get studyResetLabel => 'Reset';
@@ -608,7 +675,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get firstPageError => 'No previous page';
 
   @override
-  String get bristolLevel => 'Select the stool type that most closely resembles the bowel movement.';
+  String get bristolLevel =>
+      'Select the stool type that most closely resembles the bowel movement.';
 
   @override
   String get painLocation => 'Select the location (s) of the pain below';
@@ -617,10 +685,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get painLevel => 'Select the pain level';
 
   @override
-  String get painLevelBM => 'Select the pain during the bowel movement if applicable';
+  String get painLevelBM =>
+      'Select the pain during the bowel movement if applicable';
 
   @override
-  String get selectInstruction => 'Wählen Sie alle Verhaltensweisen aus, die angewendet werden';
+  String get selectInstruction =>
+      'Wählen Sie alle Verhaltensweisen aus, die angewendet werden';
 
   @override
   String get mildTag => 'Mild';
@@ -659,7 +729,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String nLevelError(num count) {
     final intl.NumberFormat countNumberFormat = intl.NumberFormat.compact(
       locale: localeName,
-      
     );
     final String countString = countNumberFormat.format(count);
 
@@ -721,7 +790,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get submitBlueQuestion => 'War der Stuhl blau (blaugrün) gefärbt?';
 
   @override
-  String get submitBlueQuestionError => 'Muss vor dem Absenden die blaue Frage beantworten';
+  String get submitBlueQuestionError =>
+      'Muss vor dem Absenden die blaue Frage beantworten';
 
   @override
   String get blueQuestionYes => 'Ja';
@@ -748,7 +818,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get errorPreventionTitle => 'Moment!';
 
   @override
-  String get errorPreventionLineOne => 'Sind Sie sicher, dass Sie diese Anwendung verlassen wollen?';
+  String get errorPreventionLineOne =>
+      'Sind Sie sicher, dass Sie diese Anwendung verlassen wollen?';
 
   @override
   String errorPreventionLineTwo(String symptomType) {
@@ -768,16 +839,20 @@ class AppLocalizationsDe extends AppLocalizations {
   String get blueDyeInfoHeader => 'Blue Dye Test Info';
 
   @override
-  String get blueDyeInfoLineOne => 'The Blue Dye Test measures the time it takes for food to transit through the gut.';
+  String get blueDyeInfoLineOne =>
+      'The Blue Dye Test measures the time it takes for food to transit through the gut.';
 
   @override
-  String get blueDyeInfoLineTwo => 'To start the test, your participant(s) should eat two blue muffins in the morning after a minimum of a six hour fasting period.';
+  String get blueDyeInfoLineTwo =>
+      'To start the test, your participant(s) should eat two blue muffins in the morning after a minimum of a six hour fasting period.';
 
   @override
-  String get blueDyeInfoLineThree => 'Record bowel movements, noting whether there is a blue blue-green color.';
+  String get blueDyeInfoLineThree =>
+      'Record bowel movements, noting whether there is a blue blue-green color.';
 
   @override
-  String get blueDyeInfoLineFour => 'Submit test after recording the first BM that lacks any blue or blue green color.';
+  String get blueDyeInfoLineFour =>
+      'Submit test after recording the first BM that lacks any blue or blue green color.';
 
   @override
   String get blueDyeInstructionsHeader => 'Anweisungen';
@@ -786,25 +861,30 @@ class AppLocalizationsDe extends AppLocalizations {
   String get blueDyeInstructionsStepOne => '1) Muffin-Essen';
 
   @override
-  String get blueDyeInstructionsStepOneA => 'Sobald Sie beginnen den blauen Muffin zu essen, drücken Sie bitte auf „Blaue Mahlzeit Start“';
+  String get blueDyeInstructionsStepOneA =>
+      'Sobald Sie beginnen den blauen Muffin zu essen, drücken Sie bitte auf „Blaue Mahlzeit Start“';
 
   @override
-  String get blueDyeInstructionsStepOneB => 'Sobald Sie den Muffin vollständig verzehrt haben, drücken Sie bitte auf „Blaue Mahlzeit Ende“';
+  String get blueDyeInstructionsStepOneB =>
+      'Sobald Sie den Muffin vollständig verzehrt haben, drücken Sie bitte auf „Blaue Mahlzeit Ende“';
 
   @override
   String get blueDyeInstructionsStepTwo => '2) Dokumentation zu Hause';
 
   @override
-  String get blueDyeInstructionsStepTwoA => 'Dokumentieren Sie bitte daheim nach Verzehr des Blauen Muffins jeden Stuhlgang unter „Poop Dokumentation“ und geben Sie an, ob dieser (teilweise) blau/blau-grün gefärbt war.';
+  String get blueDyeInstructionsStepTwoA =>
+      'Dokumentieren Sie bitte daheim nach Verzehr des Blauen Muffins jeden Stuhlgang unter „Poop Dokumentation“ und geben Sie an, ob dieser (teilweise) blau/blau-grün gefärbt war.';
 
   @override
-  String get blueDyeInstructionsStepTwoB => 'Es ist normal, dass einige Tage vergehen, bis die blaue Farbe erscheint.';
+  String get blueDyeInstructionsStepTwoB =>
+      'Es ist normal, dass einige Tage vergehen, bis die blaue Farbe erscheint.';
 
   @override
   String get blueDyeInstructionsStepThree => '3) Einreichen des Tests';
 
   @override
-  String get blueDyeInstructionsStepThreeA => 'Sobald Ihr Stuhlgang keinerlei blaue/blau-grüne Farbe mehr zeigt, drücken Sie bitte auf „Test einreichen“. So können wir Ihre gastrointestinale Passagezeit genau nachverfolgen.';
+  String get blueDyeInstructionsStepThreeA =>
+      'Sobald Ihr Stuhlgang keinerlei blaue/blau-grüne Farbe mehr zeigt, drücken Sie bitte auf „Test einreichen“. So können wir Ihre gastrointestinale Passagezeit genau nachverfolgen.';
 
   @override
   String get blueMuffinsInfoHeader => 'Blue Muffins Info';
@@ -813,22 +893,27 @@ class AppLocalizationsDe extends AppLocalizations {
   String get blueMuffinsInfoLineOne => 'Blue muffins will come in the mail.';
 
   @override
-  String get blueMuffinsInfoLineTwo => 'They can be stored in the refrigerator.';
+  String get blueMuffinsInfoLineTwo =>
+      'They can be stored in the refrigerator.';
 
   @override
-  String get blueMuffinsInfoLineThree => 'To get ready for the test, remove the muffins from their packaging and heat them briefly, 20-30 seconds in the microwave or a few minutes in the oven.';
+  String get blueMuffinsInfoLineThree =>
+      'To get ready for the test, remove the muffins from their packaging and heat them briefly, 20-30 seconds in the microwave or a few minutes in the oven.';
 
   @override
-  String get blueMuffinsInfoLineFour => 'Muffins should be the first thing the participant eats in the morning after an overnight fast of at least 6 hours.';
+  String get blueMuffinsInfoLineFour =>
+      'Muffins should be the first thing the participant eats in the morning after an overnight fast of at least 6 hours.';
 
   @override
   String get blueDyeCancel => 'Test abbrechen';
 
   @override
-  String get blueMuffinErrorPreventionLineOne => 'Sind Sie sicher, dass Sie diese Anwendung verlassen wollen?';
+  String get blueMuffinErrorPreventionLineOne =>
+      'Sind Sie sicher, dass Sie diese Anwendung verlassen wollen?';
 
   @override
-  String get blueMuffinErrorPreventionLineTwo => 'So gehen alle eingetragenen Informationen verloren.';
+  String get blueMuffinErrorPreventionLineTwo =>
+      'So gehen alle eingetragenen Informationen verloren.';
 
   @override
   String get blueDyeStart => 'Blaue Mahlzeit Start';
@@ -844,16 +929,19 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get blueDyeLogsInstructionOne => 'Zeichnen Sie den Stuhlgang auf dem Aufnahmebildschirm auf.';
+  String get blueDyeLogsInstructionOne =>
+      'Zeichnen Sie den Stuhlgang auf dem Aufnahmebildschirm auf.';
 
   @override
-  String get blueDyeLogsInstructionTwo => ' Aufgezeichneter Stuhlgang wird unten angezeigt';
+  String get blueDyeLogsInstructionTwo =>
+      ' Aufgezeichneter Stuhlgang wird unten angezeigt';
 
   @override
   String get blueDyeLogsSubmitTest => 'Test einreichen';
 
   @override
-  String get blueDyeLogsSubmitTestError => 'Zeichnen Sie vor dem Absenden einen normal gefärbten Stuhlgang auf';
+  String get blueDyeLogsSubmitTestError =>
+      'Zeichnen Sie vor dem Absenden einen normal gefärbten Stuhlgang auf';
 
   @override
   String get blueMealDurationTag => 'Mahlzeitdauer:';
@@ -895,7 +983,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String eventFilterResults(num count) {
     final intl.NumberFormat countNumberFormat = intl.NumberFormat.compact(
       locale: localeName,
-      
     );
     final String countString = countNumberFormat.format(count);
 
@@ -916,13 +1003,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get exportName => 'Datenexport';
 
   @override
-  String get exportDialog => 'Die Daten werden an die Studienkoordinatoren gesendet. Es sind keine Ihrer persönlichen Daten enthalten. Wenn sich in Zukunft Änderungen ergeben, können Sie erneut exportieren.';
+  String get exportDialog =>
+      'Die Daten werden an die Studienkoordinatoren gesendet. Es sind keine Ihrer persönlichen Daten enthalten. Wenn sich in Zukunft Änderungen ergeben, können Sie erneut exportieren.';
 
   @override
   String recordCount(num count) {
     final intl.NumberFormat countNumberFormat = intl.NumberFormat.compact(
       locale: localeName,
-      
     );
     final String countString = countNumberFormat.format(count);
 
@@ -988,7 +1075,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get patientProfilesHeader => 'Patient Profiles';
 
   @override
-  String get patientProfilesInstruction => 'Select a patient to view their profile.';
+  String get patientProfilesInstruction =>
+      'Select a patient to view their profile.';
 
   @override
   String get patientBirthYear => 'Birth Year';
@@ -1000,10 +1088,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get patientRole => 'Role';
 
   @override
-  String get stampDeleteWarningOne => 'Sind Sie sicher, dass Sie löschen möchten?';
+  String get stampDeleteWarningOne =>
+      'Sind Sie sicher, dass Sie löschen möchten?';
 
   @override
-  String get stampDeleteWarningTwo => 'Sie verlieren alle Informationen für diesen Eintrag.';
+  String get stampDeleteWarningTwo =>
+      'Sie verlieren alle Informationen für diesen Eintrag.';
 
   @override
   String get stampDeleteConfirm => 'Bestätigen';
@@ -1015,7 +1105,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get exitStudy => 'Exit-Studie';
 
   @override
-  String get exitStudyWarning => 'Wenn Sie die Studie verlassen, werden alle exportierten Daten gelöscht und Ihr Zugangscode wird ungültig.';
+  String get exitStudyWarning =>
+      'Wenn Sie die Studie verlassen, werden alle exportierten Daten gelöscht und Ihr Zugangscode wird ungültig.';
 
   @override
   String get passwordConfirm => 'Passwort bestätigen';

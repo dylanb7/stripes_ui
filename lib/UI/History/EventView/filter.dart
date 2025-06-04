@@ -217,6 +217,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
               alignment: WrapAlignment.start,
               crossAxisAlignment: WrapCrossAlignment.start,
               spacing: 5.0,
+              runSpacing: 5.0,
               children: availibleTypes.map((type) {
                 final bool selected = selectedTypes.contains(type);
                 return ChoiceChip(
@@ -255,6 +256,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                 alignment: WrapAlignment.start,
                 crossAxisAlignment: WrapCrossAlignment.start,
                 spacing: 5.0,
+                runSpacing: 5.0,
                 children: availibleGroups.map((type) {
                   final bool selected = selectedTypes.contains(type);
                   return ChoiceChip(

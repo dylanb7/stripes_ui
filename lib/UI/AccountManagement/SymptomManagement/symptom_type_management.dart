@@ -1142,7 +1142,7 @@ class ChoicesFormField extends FormField<List<String>> {
                         const SizedBox(
                           width: 8.0,
                         ),
-                        IconButton(
+                        IconButton.filled(
                             onPressed: () {
                               if (controller.text.isNotEmpty) {
                                 if (state.value != null) {
@@ -1176,7 +1176,9 @@ class ChoicesFormField extends FormField<List<String>> {
                     ),
                     Text(
                       state.errorText!,
-                      style: const TextStyle(fontSize: 15, color: Colors.red),
+                      style: TextStyle(
+                          fontSize: 12.0,
+                          color: Theme.of(state.context).colorScheme.error),
                     ),
                   ],
                 ],
