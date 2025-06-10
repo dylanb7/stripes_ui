@@ -328,11 +328,24 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
                             children: [
                               if (isBlue != null)
                                 WidgetSpan(
-                                  child: isBlue!
-                                      ? Image.asset(
-                                          'packages/stripes_ui/assets/images/Blue_Poop.png')
-                                      : Image.asset(
-                                          'packages/stripes_ui/assets/images/Brown_Poop.png'),
+                                  alignment: PlaceholderAlignment.middle,
+                                  child: SizedBox(
+                                    width: Theme.of(context)
+                                            .textTheme
+                                            .bodyLarge
+                                            ?.fontSize ??
+                                        20,
+                                    height: Theme.of(context)
+                                            .textTheme
+                                            .bodyLarge
+                                            ?.fontSize ??
+                                        20,
+                                    child: isBlue!
+                                        ? Image.asset(
+                                            'packages/stripes_ui/assets/images/Blue_Poop.png')
+                                        : Image.asset(
+                                            'packages/stripes_ui/assets/images/Brown_Poop.png'),
+                                  ),
                                 ),
                             ]),
                       ),
