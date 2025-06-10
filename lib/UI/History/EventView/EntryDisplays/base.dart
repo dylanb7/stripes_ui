@@ -329,7 +329,8 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
                               if (isBlue != null)
                                 WidgetSpan(
                                   alignment: PlaceholderAlignment.middle,
-                                  child: SizedBox(
+                                  child: Container(
+                                    padding: const EdgeInsets.only(left: 4.0),
                                     width: Theme.of(context)
                                             .textTheme
                                             .bodyLarge
