@@ -359,9 +359,13 @@ class ListSection extends ConsumerWidget {
         AsyncValueDefaults(
           value: graphs,
           onData: (data) {
-            final Map<GraphKey, List<Response>> withKeysRemoved = data
-              ..removeWhere((key, value) => excludedKeys.contains(key));
-            if (data.isEmpty) {
+            final Map<GraphKey, List<Response>> withKeysRemoved =
+                Map.fromEntries(
+              data.keys.where((key) => !excludedKeys.contains(key)).map(
+                    (key) => MapEntry(key, data[key]!),
+                  ),
+            );
+            if (withKeysRemoved.isEmpty) {
               return SliverFillRemaining(
                 child: Center(
                   child: Text(

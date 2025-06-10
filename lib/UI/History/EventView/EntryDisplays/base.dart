@@ -214,14 +214,14 @@ class _ExpandibleSymptomAreaState extends State<ExpandibleSymptomArea> {
                   style: Theme.of(context)
                       .textTheme
                       .bodyMedium
-                      ?.copyWith(color: Colors.blue),
+                      ?.copyWith(color: Theme.of(context).primaryColor),
                 ),
                 iconAlignment: IconAlignment.end,
                 icon: Icon(
                   expanded
                       ? Icons.keyboard_arrow_up
                       : Icons.keyboard_arrow_down,
-                  color: Colors.blue,
+                  color: Theme.of(context).primaryColor,
                 ),
               ),
             ],
@@ -314,30 +314,27 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  if (isBlue != null) ...[
-                    SizedBox(
-                      width: 30.0,
-                      height: 30.0,
-                      child: isBlue!
-                          ? Image.asset(
-                              'packages/stripes_ui/assets/images/Blue_Poop.png')
-                          : Image.asset(
-                              'packages/stripes_ui/assets/images/Brown_Poop.png'),
-                    ),
-                    const SizedBox(
-                      width: 8.0,
-                    ),
-                  ],
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        widget.event.type,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyLarge
-                            ?.copyWith(fontWeight: FontWeight.bold),
+                      Text.rich(
+                        TextSpan(
+                            text: widget.event.type,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                            children: [
+                              if (isBlue != null)
+                                WidgetSpan(
+                                  child: isBlue!
+                                      ? Image.asset(
+                                          'packages/stripes_ui/assets/images/Blue_Poop.png')
+                                      : Image.asset(
+                                          'packages/stripes_ui/assets/images/Brown_Poop.png'),
+                                ),
+                            ]),
                       ),
                       Text(
                         widget.includeFullDate
