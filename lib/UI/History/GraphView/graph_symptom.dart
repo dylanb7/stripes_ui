@@ -27,9 +27,25 @@ class GraphSymptom extends StatefulWidget {
 class _GraphSymptomState extends State<GraphSymptom> {
   int touchedIndex = -1;
 
+  late GraphDataSet _dataSet;
+  late Map<GraphKey, List<List<Stamp>>> _processedSets;
+
   @override
-  Widget build(BuildContext context) {
-    Map<GraphKey, List<List<Stamp>>> sets = {};
+  initState() {
+    super.initState();
+    _processData();
+  }
+
+  @override
+  void didUpdateWidget(covariant GraphSymptom oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if(widget.responses != oldWidget.responses || widget.settings != oldWidget.settings) {
+      _processData();
+    }
+  }
+
+  _processData() {
+    _processedSets = {};
     for (final GraphKey datasetKey in widget.responses.keys) {
       final List<List<Stamp>>? setValue = bucketEvents(
         widget.responses[datasetKey]!,
@@ -37,13 +53,16 @@ class _GraphSymptomState extends State<GraphSymptom> {
         widget.settings.span.getBuckets(widget.settings.range.start),
       );
       if (setValue != null) {
-        sets[datasetKey] = setValue;
+        _processedSets[datasetKey] = setValue;
       }
     }
+    _dataSet = widget.settings.axis == GraphYAxis.entrytime
+        ? getSpotSet(_processedSets)
+        : getBarChartDataSet(_processedSets);
+  }
 
-    GraphDataSet dataSet = widget.settings.axis == GraphYAxis.entrytime
-        ? getSpotSet(sets)
-        : getBarChartDataSet(sets);
+  @override
+  Widget build(BuildContext context) {
 
     final FlGridData gridData = FlGridData(
       show: widget.isDetailed,
@@ -91,12 +110,12 @@ class _GraphSymptomState extends State<GraphSymptom> {
       ),
     );
 
-    final bool smallY = dataSet.maxY < 5;
+    final bool smallY = _dataSet.maxY < 5;
 
     final int yAxisTicks = smallY ? 1 : 5;
 
     final YAxisRange range = YAxisRange.rangeFromMax(
-        ticks: yAxisTicks, max: dataSet.maxY, min: dataSet.minY);
+        ticks: yAxisTicks, max: _dataSet.maxY, min: _dataSet.minY);
 
     const double reservedHorizontalTitlesSize = 22.0;
     const double reservedVerticalTitlesSize = 12.0;
@@ -109,7 +128,7 @@ class _GraphSymptomState extends State<GraphSymptom> {
         reservedSize: reservedHorizontalTitlesSize,
         interval: range.tickSize == 0 ? null : range.tickSize,
         getTitlesWidget: (value, meta) {
-          if (dataSet.maxY == 0.0) {
+          if (_dataSet.maxY == 0.0) {
             return SideTitleWidget(
               meta: meta,
               child: const SizedBox(),
@@ -179,7 +198,7 @@ class _GraphSymptomState extends State<GraphSymptom> {
 
     if (widget.settings.axis == GraphYAxis.entrytime) {
       chart = LayoutBuilder(builder: (context, constraints) {
-        final List<ScatterSpot> spots = dataSet.data as List<ScatterSpot>;
+        final List<ScatterSpot> spots = _dataSet.data as List<ScatterSpot>;
         double spotRadius = min(
             (constraints.maxWidth /
                     widget.settings.span
@@ -202,10 +221,10 @@ class _GraphSymptomState extends State<GraphSymptom> {
           ScatterChartData(
             scatterSpots: scaledSpots,
             clipData: const FlClipData.all(),
-            minX: dataSet.minX,
-            maxX: dataSet.maxX,
-            minY: dataSet.minY,
-            maxY: dataSet.maxY,
+            minX: _dataSet.minX,
+            maxX: _dataSet.maxX,
+            minY: _dataSet.minY,
+            maxY: _dataSet.maxY,
             gridData: gridData,
             borderData: borderData,
             titlesData: titlesData,
@@ -215,7 +234,7 @@ class _GraphSymptomState extends State<GraphSymptom> {
     } else {
       chart = LayoutBuilder(builder: (context, constraints) {
         final List<BarChartGroupData> barData =
-            dataSet.data as List<BarChartGroupData>;
+            _dataSet.data as List<BarChartGroupData>;
 
         const double barPadding = 2.0;
 
@@ -244,8 +263,8 @@ class _GraphSymptomState extends State<GraphSymptom> {
             groupsSpace: 0.0,
             alignment: BarChartAlignment.spaceEvenly,
             barGroups: styled,
-            maxY: dataSet.maxY,
-            minY: dataSet.minY,
+            maxY: _dataSet.maxY,
+            minY: _dataSet.minY,
             gridData: gridData,
             borderData: borderData,
             barTouchData: widget.isDetailed
@@ -383,6 +402,34 @@ class _GraphSymptomState extends State<GraphSymptom> {
       Theme.of(context).textTheme.bodySmall ?? const TextStyle(),
     );
   }
+
+  List<List<Stamp>>? bucketEvents(
+      List<Stamp> events, DateTimeRange range, int buckets) {
+    if (events.isEmpty) return null;
+    List<List<Stamp>> eventLists = [];
+    final double startValue = range.start.millisecondsSinceEpoch.toDouble();
+    final double endValue = range.end.millisecondsSinceEpoch.toDouble();
+    final double totalRange = endValue - startValue;
+    final double stepSize = totalRange / buckets.toDouble();
+
+    events.sort((first, second) => first.stamp.compareTo(second.stamp));
+    int furthestReach = 0;
+    for (double start = startValue; start <= endValue; start += stepSize) {
+      final double end = start + stepSize;
+      List<Stamp> valuesInRange = [];
+      while (furthestReach < events.length) {
+        final Stamp current = events[furthestReach];
+        if (current.stamp < start.floor() || current.stamp > end.ceil()) {
+          break;
+        }
+        valuesInRange.add(current);
+        furthestReach++;
+      }
+      eventLists.add(valuesInRange);
+    }
+    return eventLists;
+  }
+
 }
 
 class GraphDataSet<T> {
@@ -446,29 +493,3 @@ class YAxisRange {
   }
 }
 
-List<List<Stamp>>? bucketEvents(
-    List<Stamp> events, DateTimeRange range, int buckets) {
-  if (events.isEmpty) return null;
-  List<List<Stamp>> eventLists = [];
-  final double startValue = range.start.millisecondsSinceEpoch.toDouble();
-  final double endValue = range.end.millisecondsSinceEpoch.toDouble();
-  final double totalRange = endValue - startValue;
-  final double stepSize = totalRange / buckets.toDouble();
-
-  events.sort((first, second) => first.stamp.compareTo(second.stamp));
-  int furthestReach = 0;
-  for (double start = startValue; start <= endValue; start += stepSize) {
-    final double end = start + stepSize;
-    List<Stamp> valuesInRange = [];
-    while (furthestReach < events.length) {
-      final Stamp current = events[furthestReach];
-      if (current.stamp < start.floor() || current.stamp > end.ceil()) {
-        break;
-      }
-      valuesInRange.add(current);
-      furthestReach++;
-    }
-    eventLists.add(valuesInRange);
-  }
-  return eventLists;
-}

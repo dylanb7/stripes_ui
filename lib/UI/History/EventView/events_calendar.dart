@@ -11,6 +11,8 @@ import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import '../../../Util/paddings.dart';
+
 class EventsCalendar extends ConsumerStatefulWidget {
   final bool sixWeeks;
 
@@ -45,42 +47,58 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
 
   @override
   void initState() {
-    final Filters filters = _filters;
-    rangeSelection = CustomSegmentedController(value: RangeSelection.end);
-    dateRangeSelectionListener = DateRangeSelectionListener(
-        filters.calendarSelection.selectedDate != null
-            ? RangeStatus.disabled
-            : RangeStatus.enabled);
+    _initializeRangeSelection();
+    _initializeFormat();
+    dateRangeSelectionListener.addListener(_handleDateRangeChange);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    dateRangeSelectionListener.removeListener(_handleDateRangeChange);
+    super.dispose();
+  }
+
+  _initializeFormat() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if(!mounted) return;
       setState(() {
         _format = getBreakpoint(context).isGreaterThan(Breakpoint.small)
             ? CalendarFormat.month
             : CalendarFormat.week;
       });
     });
+  }
 
-    dateRangeSelectionListener.addListener(() {
-      if (!mounted) return;
-      final Filters filters = _filters;
-      if (dateRangeSelectionListener.selectingRange) {
-        rangeSelection.value = RangeSelection.end;
+  _initializeRangeSelection() {
+    final Filters filters = ref.read(filtersProvider);
+    rangeSelection = CustomSegmentedController(value: RangeSelection.end);
+    dateRangeSelectionListener = DateRangeSelectionListener(filters.calendarSelection.selectedDate != null
+        ? RangeStatus.disabled
+        : RangeStatus.enabled);
+  }
 
-        ref.read(filtersProvider.notifier).state = filters.copyWith(
-            calendarSelection: CalendarSelection.range(
-                filters.calendarSelection.selectedDate, null),
-            earliestRequired: DateTime(focusedDay.year, focusedDay.month, 1),
-            latestRequired: _lastDayOfMonth(focusedDay));
-      } else {
-        ref.read(filtersProvider.notifier).state = filters.copyWith(
-            calendarSelection: CalendarSelection.selected(
-                filters.calendarSelection.rangeStart ??
-                    filters.calendarSelection.rangeEnd ??
-                    DateTime.now()),
-            earliestRequired: DateTime(focusedDay.year, focusedDay.month, 1),
-            latestRequired: _lastDayOfMonth(focusedDay));
-      }
-    });
-    super.initState();
+  _handleDateRangeChange() {
+    if (!mounted) return;
+    final Filters currentFilters = ref.read(filtersProvider);
+    final newCalendarSelection = dateRangeSelectionListener.selectingRange
+        ? CalendarSelection.range(
+        currentFilters.calendarSelection.selectedDate, null)
+        : CalendarSelection.selected(
+        currentFilters.calendarSelection.rangeStart ??
+            currentFilters.calendarSelection.rangeEnd ??
+            DateTime.now());
+
+    final newFilters = currentFilters.copyWith(
+        calendarSelection: newCalendarSelection,
+        earliestRequired: DateTime(focusedDay.year, focusedDay.month, 1),
+        latestRequired: _lastDayOfMonth(focusedDay));
+
+    if (dateRangeSelectionListener.selectingRange) {
+      rangeSelection.value = RangeSelection.end;
+    }
+
+    ref.read(filtersProvider.notifier).state = newFilters;
   }
 
   @override
@@ -113,7 +131,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
 
     reset() {
       setState(() {
-        final Filters filters = _filters;
+        final Filters filters = ref.read(filtersProvider);
         dateRangeSelectionListener.setMode(selectingRange: false);
         focusedDay = DateTime.now();
         ref.read(filtersProvider.notifier).state = Filters(
@@ -170,7 +188,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
       final weekdayString = DateFormat.E(locale.languageCode).format(day);
 
       return Padding(
-        padding: const EdgeInsets.only(bottom: 6.0),
+        padding: const EdgeInsets.only(bottom: AppPaddings.small),
         child: Center(
           child: ExcludeSemantics(
             child: Text(
@@ -195,7 +213,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
             onStartClear: null,
             onEndClear: canClear
                 ? () {
-                    final Filters filters = _filters;
+                    final Filters filters = ref.read(filtersProvider);
                     ref.read(filtersProvider.notifier).state = filters.copyWith(
                       calendarSelection: CalendarSelection.range(
                           filters.calendarSelection.rangeStart, null),
@@ -264,90 +282,16 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
                           onFormatChanged: null,
                           calendarStyle: calendarStyle,
                           onCalendarCreated: (controller) {
-                            _pageController = controller;
-                            final Filters filters = _filters;
-                            Future(() {
-                              ref.read(filtersProvider.notifier).state =
-                                  filters.copyWith(
-                                      earliestRequired: DateTime(
-                                          focusedDay.year, focusedDay.month, 1),
-                                      latestRequired:
-                                          _lastDayOfMonth(focusedDay));
-                            });
+                            _onCalendarCreated(controller);
                           },
                           onDaySelected: (selectedDay, focusedDay) {
                             setState(() {
-                              focusedDay = focusedDay;
-
-                              if (selected != null &&
-                                  !sameDay(selectedDay, selected)) {
-                                ref.read(filtersProvider.notifier).state =
-                                    _filters.copyWith(
-                                  calendarSelection:
-                                      CalendarSelection.selected(selectedDay),
-                                );
-                                return;
-                              }
-                              final RangeSelection? selection =
-                                  rangeSelection.value;
-                              final Filters filters = _filters;
-                              final CalendarSelection calendarSelection =
-                                  _filters.calendarSelection;
-                              if (selection == RangeSelection.start) {
-                                if (calendarSelection.rangeEnd != null &&
-                                    calendarSelection.rangeEnd!
-                                        .isBefore(selectedDay)) {
-                                  ref.read(filtersProvider.notifier).state =
-                                      filters.copyWith(
-                                    calendarSelection: CalendarSelection.range(
-                                        selectedDay, null),
-                                  );
-                                } else {
-                                  ref.read(filtersProvider.notifier).state =
-                                      filters.copyWith(
-                                    calendarSelection: CalendarSelection.range(
-                                        selectedDay,
-                                        calendarSelection.rangeEnd),
-                                  );
-                                  if (calendarSelection.rangeEnd == null) {
-                                    rangeSelection.value = RangeSelection.end;
-                                  }
-                                }
-                              } else if (selection == RangeSelection.end) {
-                                if (calendarSelection.rangeStart != null) {
-                                  if (selectedDay.isBefore(
-                                      calendarSelection.rangeStart!)) {
-                                    ref.read(filtersProvider.notifier).state =
-                                        filters.copyWith(
-                                      calendarSelection:
-                                          CalendarSelection.range(
-                                              selectedDay, null),
-                                    );
-                                  } else {
-                                    ref.read(filtersProvider.notifier).state =
-                                        filters.copyWith(
-                                      calendarSelection:
-                                          CalendarSelection.range(
-                                              calendarSelection.rangeStart,
-                                              selectedDay),
-                                    );
-                                  }
-                                }
-                              }
+                              _onDaySelected(selectedDay, focusedDay);
                             });
                           },
                           onRangeSelected: null,
                           onPageChanged: (newFocus) {
-                            setState(() {
-                              focusedDay = newFocus;
-                              final Filters filters = _filters;
-                              ref.read(filtersProvider.notifier).state =
-                                  filters.copyWith(
-                                      earliestRequired: DateTime(
-                                          newFocus.year, newFocus.month, 1),
-                                      latestRequired:
-                                          _lastDayOfMonth(newFocus));
-                            });
+                            _onPageChange(newFocus);
                           },
                           calendarBuilders: CalendarBuilders(
                             defaultBuilder: builder,
@@ -379,9 +323,100 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
     );
   }
 
-  Filters get _filters => ref.read(filtersProvider);
+  void _onPageChange(DateTime newFocus) {
+    focusedDay = newFocus;
+    final Filters filters = ref.read(filtersProvider);
+    ref.read(filtersProvider.notifier).state =
+        filters.copyWith(
+            earliestRequired: DateTime(
+                newFocus.year, newFocus.month, 1),
+            latestRequired:
+            _lastDayOfMonth(newFocus));
+    setState(() {});
+  }
 
-  _onYearChange() {
+  void _onCalendarCreated(PageController controller) {
+    _pageController = controller;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if(!mounted) return;
+      final Filters filters = ref.read(filtersProvider);
+
+      ref.read(filtersProvider.notifier).state =
+            filters.copyWith(
+                earliestRequired: DateTime(
+                    focusedDay.year, focusedDay.month, 1),
+                latestRequired:
+                _lastDayOfMonth(focusedDay));
+
+    });
+
+  }
+
+  void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
+    focusedDay = focusedDay;
+
+    final Filters filters = ref.read(filtersProvider);
+
+    final DateTime? selected = filters.calendarSelection.selectedDate;
+
+    if (selected != null &&
+        !sameDay(selectedDay, selected)) {
+      ref.read(filtersProvider.notifier).state =
+          filters.copyWith(
+            calendarSelection:
+            CalendarSelection.selected(selectedDay),
+          );
+      return;
+    }
+    final RangeSelection? selection =
+        rangeSelection.value;
+
+    final CalendarSelection calendarSelection =
+        filters.calendarSelection;
+    if (selection == RangeSelection.start) {
+      if (calendarSelection.rangeEnd != null &&
+          calendarSelection.rangeEnd!
+              .isBefore(selectedDay)) {
+        ref.read(filtersProvider.notifier).state =
+            filters.copyWith(
+              calendarSelection: CalendarSelection.range(
+                  selectedDay, null),
+            );
+      } else {
+        ref.read(filtersProvider.notifier).state =
+            filters.copyWith(
+              calendarSelection: CalendarSelection.range(
+                  selectedDay,
+                  calendarSelection.rangeEnd),
+            );
+        if (calendarSelection.rangeEnd == null) {
+          rangeSelection.value = RangeSelection.end;
+        }
+      }
+    } else if (selection == RangeSelection.end) {
+      if (calendarSelection.rangeStart != null) {
+        if (selectedDay.isBefore(
+            calendarSelection.rangeStart!)) {
+          ref.read(filtersProvider.notifier).state =
+              filters.copyWith(
+                calendarSelection:
+                CalendarSelection.range(
+                    selectedDay, null),
+              );
+        } else {
+          ref.read(filtersProvider.notifier).state =
+              filters.copyWith(
+                calendarSelection:
+                CalendarSelection.range(
+                    calendarSelection.rangeStart,
+                    selectedDay),
+              );
+        }
+      }
+    }
+  }
+
+  void _onYearChange() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -406,7 +441,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
     );
   }
 
-  _onFormatChange(CalendarFormat? newFormat) {
+  void _onFormatChange(CalendarFormat? newFormat) {
     if (newFormat != null) {
       setState(() {
         if (_format != newFormat) _format = newFormat;

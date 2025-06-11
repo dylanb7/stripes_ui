@@ -14,6 +14,8 @@ import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/palette.dart';
 
+import '../../../Util/paddings.dart';
+
 class GraphsList extends ConsumerWidget {
   const GraphsList({super.key});
 
@@ -61,7 +63,7 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
         scrollable: ListView(
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 20.0),
+          padding: const EdgeInsets.only(left: AppPaddings.large, right: AppPaddings.large, top: AppPaddings.large),
           child: Row(
             children: [
               IconButton(
@@ -74,7 +76,7 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
                 tab: TabOption.history,
               )),
               const SizedBox(
-                width: 4.0,
+                width: AppPaddings.tiny,
               ),
               IconButton(
                   onPressed: () {
@@ -89,7 +91,7 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
           hasDivider: false,
         ),
         Padding(
-          padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 6.0),
+          padding: const EdgeInsets.only(left: AppPaddings.large, right: AppPaddings.large, top: AppPaddings.small),
           child: AspectRatio(
             aspectRatio: 2.0,
             child: Hero(
@@ -112,7 +114,7 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
                           Theme.of(context).primaryColor.withValues(alpha: 0.2),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(6.0),
+                      padding: const EdgeInsets.all(AppPaddings.tiny),
                       child: GraphSymptom(
                           responses: forGraph,
                           settings: settings,
@@ -135,7 +137,7 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
           height: 12.0,
         ),
         Padding(
-          padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 6.0),
+          padding: const EdgeInsets.only(left: AppPaddings.large, right: AppPaddings.large, top: AppPaddings.small),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -154,7 +156,6 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
                       final GraphKey? result = await toggleKeySelect(context);
                       if (result != null) {
                         setState(() {
-                          ref.invalidate(graphStampsProvider);
                           additions.add(result);
                         });
                       }
@@ -173,10 +174,10 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
           ),
         ),
         const SizedBox(
-          height: 12.0,
+          height: AppPaddings.medium,
         ),
         Padding(
-          padding: const EdgeInsets.only(left: 20.0),
+          padding: const EdgeInsets.only(left: AppPaddings.large, right: AppPaddings.large),
           child: Text(
             "displaying",
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -191,7 +192,7 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
           (key) {
             return Padding(
               padding: const EdgeInsets.symmetric(
-                horizontal: 20.0,
+                horizontal: AppPaddings.large,
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -203,7 +204,7 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
                         color: forGraphKey(key), shape: BoxShape.circle),
                   ),
                   const SizedBox(
-                    width: 6.0,
+                    width: AppPaddings.medium,
                   ),
                   Expanded(
                     child: AsyncValueDefaults(
@@ -240,14 +241,13 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
                     ),
                   ),
                   const SizedBox(
-                    width: 6.0,
+                    width: AppPaddings.medium,
                   ),
                   key != widget.graphKey
                       ? IconButton(
                           onPressed: () {
                             setState(() {
                               additions.remove(key);
-                              ref.invalidate(graphStampsProvider);
                             });
                           },
                           icon: const Icon(Icons.remove_circle),
@@ -331,7 +331,7 @@ class ListSection extends ConsumerWidget {
       slivers: [
         if (includesControls)
           SliverPadding(
-            padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 20.0),
+            padding: const EdgeInsets.only(left: AppPaddings.large, right: AppPaddings.large, top: AppPaddings.large),
             sliver: SliverToBoxAdapter(
               child: Row(
                 children: [
@@ -575,7 +575,7 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
         children: [
           if (widget.showsDateChange) ...[
             const SizedBox(
-              height: 6.0,
+              height: AppPaddings.small,
             ),
             Center(
               child: constrain(
@@ -612,7 +612,7 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
                         acceptedSwipe = true;
                       });
                     },
-                    child: Row(
+                    child: SizedBox.expand(child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -641,7 +641,7 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
                           icon: const Icon(Icons.keyboard_arrow_right),
                         ),
                       ],
-                    ),
+                    ),),
                   ),
                 ),
               ),
@@ -649,10 +649,10 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
           ],
           if (widget.showsSpan) ...[
             const SizedBox(
-              height: 6.0,
+              height: AppPaddings.small,
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 20.0),
+              padding: const EdgeInsets.only(left: AppPaddings.large),
               child: Text(
                 "span",
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -670,7 +670,7 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const SizedBox(
-                    width: 20,
+                    width: AppPaddings.large,
                   ),
                   ...GraphSpan.values
                       .map(
@@ -696,10 +696,10 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
           ],
           if (widget.showsYAxis) ...[
             const SizedBox(
-              height: 6.0,
+              height: AppPaddings.small,
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 20.0),
+              padding: const EdgeInsets.only(left: AppPaddings.large),
               child: Text(
                 "showing",
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -717,7 +717,7 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const SizedBox(
-                    width: 20,
+                    width: AppPaddings.large,
                   ),
                   ...GraphYAxis.values
                       .map(
@@ -739,7 +739,7 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
                 ],
               ),
             ),
-          ]
+          ],
           /*Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -772,6 +772,7 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
                       .toList()),
             ],
           ),*/
+          const SizedBox(height: AppPaddings.tiny,),
         ],
       ),
     );
