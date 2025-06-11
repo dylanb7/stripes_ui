@@ -414,7 +414,7 @@ class _GraphSymptomState extends State<GraphSymptom> {
 
     events.sort((first, second) => first.stamp.compareTo(second.stamp));
     int furthestReach = 0;
-    for (double start = startValue; start <= endValue; start += stepSize) {
+    for (double start = startValue; start < endValue; start += stepSize) {
       final double end = start + stepSize;
       List<Stamp> valuesInRange = [];
       while (furthestReach < events.length) {
