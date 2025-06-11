@@ -63,7 +63,10 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
         scrollable: ListView(
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: AppPaddings.large, right: AppPaddings.large, top: AppPaddings.large),
+          padding: const EdgeInsets.only(
+              left: AppPaddings.large,
+              right: AppPaddings.large,
+              top: AppPaddings.large),
           child: Row(
             children: [
               IconButton(
@@ -91,7 +94,10 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
           hasDivider: false,
         ),
         Padding(
-          padding: const EdgeInsets.only(left: AppPaddings.large, right: AppPaddings.large, top: AppPaddings.small),
+          padding: const EdgeInsets.only(
+              left: AppPaddings.large,
+              right: AppPaddings.large,
+              top: AppPaddings.small),
           child: AspectRatio(
             aspectRatio: 2.0,
             child: Hero(
@@ -137,7 +143,10 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
           height: 12.0,
         ),
         Padding(
-          padding: const EdgeInsets.only(left: AppPaddings.large, right: AppPaddings.large, top: AppPaddings.small),
+          padding: const EdgeInsets.only(
+              left: AppPaddings.large,
+              right: AppPaddings.large,
+              top: AppPaddings.small),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -177,7 +186,8 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
           height: AppPaddings.medium,
         ),
         Padding(
-          padding: const EdgeInsets.only(left: AppPaddings.large, right: AppPaddings.large),
+          padding: const EdgeInsets.only(
+              left: AppPaddings.large, right: AppPaddings.large),
           child: Text(
             "displaying",
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -331,7 +341,10 @@ class ListSection extends ConsumerWidget {
       slivers: [
         if (includesControls)
           SliverPadding(
-            padding: const EdgeInsets.only(left: AppPaddings.large, right: AppPaddings.large, top: AppPaddings.large),
+            padding: const EdgeInsets.only(
+                left: AppPaddings.large,
+                right: AppPaddings.large,
+                top: AppPaddings.large),
             sliver: SliverToBoxAdapter(
               child: Row(
                 children: [
@@ -612,7 +625,7 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
                         acceptedSwipe = true;
                       });
                     },
-                    child: SizedBox.expand(child: Row(
+                    child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -641,7 +654,7 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
                           icon: const Icon(Icons.keyboard_arrow_right),
                         ),
                       ],
-                    ),),
+                    ),
                   ),
                 ),
               ),
@@ -772,7 +785,9 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
                       .toList()),
             ],
           ),*/
-          const SizedBox(height: AppPaddings.tiny,),
+          const SizedBox(
+            height: AppPaddings.tiny,
+          ),
         ],
       ),
     );
