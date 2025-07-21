@@ -78,7 +78,10 @@ class InvitedIndicatorState extends ConsumerState<AccountNotification>
                 top: BorderSide(
                     color: Theme.of(context).primaryColor, width: 1.5),
               )
-            : null;
+            : Border.all(
+                color: Theme.of(context).primaryColor,
+                width: 0,
+              );
 
     Widget iconRow = Row(
       crossAxisAlignment:
