@@ -36,12 +36,6 @@ class AccountNotificationState extends ConsumerState<AccountNotification>
   RestorableBool collapsed = RestorableBool(false);
 
   @override
-  void dispose() {
-    collapsed.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.small);
     final bool hasBorder = !isSmall && !collapsed.value;
