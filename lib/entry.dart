@@ -92,7 +92,10 @@ class StripesHome extends ConsumerWidget {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       theme: ThemeData.from(
-          colorScheme: ColorScheme.fromSeed(seedColor: Color(0xff1460a5))),
+          colorScheme: ColorScheme.fromSeed(
+              brightness: Brightness.dark,
+              contrastLevel: 0.65,
+              seedColor: Color(0xff1460a5))),
       routeInformationProvider: router.routeInformationProvider,
       routeInformationParser: router.routeInformationParser,
       routerDelegate: router.routerDelegate,
