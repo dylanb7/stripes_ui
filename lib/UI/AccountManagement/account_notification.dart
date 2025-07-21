@@ -25,11 +25,11 @@ class AccountNotification extends ConsumerStatefulWidget {
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
-    return InvitedIndicatorState();
+    return AccountNotificationState();
   }
 }
 
-class InvitedIndicatorState extends ConsumerState<AccountNotification>
+class AccountNotificationState extends ConsumerState<AccountNotification>
     with RestorationMixin {
   bool updating = false;
 
@@ -71,18 +71,6 @@ class InvitedIndicatorState extends ConsumerState<AccountNotification>
       ),
     );
 
-    Border? containerBorder = hasBorder
-        ? Border.all(color: Theme.of(context).primaryColor, width: 1.5)
-        : collapsed.value
-            ? Border(
-                top: BorderSide(
-                    color: Theme.of(context).primaryColor, width: 1.5),
-              )
-            : Border.all(
-                color: Theme.of(context).primaryColor,
-                width: 0,
-              );
-
     Widget iconRow = Row(
       crossAxisAlignment:
           isSmall ? CrossAxisAlignment.center : CrossAxisAlignment.start,
@@ -90,8 +78,9 @@ class InvitedIndicatorState extends ConsumerState<AccountNotification>
         if (isSmall && !collapsed.value) const Spacer(),
         Expanded(
           child: AnimatedAlign(
-            alignment:
-                collapsed.value ? Alignment.centerLeft : Alignment.center,
+            alignment: isSmall && !collapsed.value
+                ? Alignment.center
+                : Alignment.centerLeft,
             duration: widget.duration,
             curve: widget.curve,
             child: statusIcon,
@@ -139,7 +128,6 @@ class InvitedIndicatorState extends ConsumerState<AccountNotification>
               maxWidth: hasBorder ? Breakpoint.small.value : double.maxFinite),
           child: AnimatedContainer(
             decoration: BoxDecoration(
-              border: containerBorder,
               borderRadius:
                   hasBorder ? BorderRadius.circular(12.0) : BorderRadius.zero,
               color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
