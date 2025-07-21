@@ -255,6 +255,7 @@ class AddIndicator extends ConsumerWidget {
     final Widget? addition = user != null ? indicator?.call(user) : null;
     return addition != null
         ? Stack(
+            key: GlobalKey(),
             children: [
               builder(context, true),
               addition,
