@@ -44,7 +44,7 @@ class InvitedIndicatorState extends ConsumerState<AccountNotification>
   @override
   Widget build(BuildContext context) {
     final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.small);
-    final bool shrinks = !isSmall && !collapsed.value;
+    final bool hasBorder = !isSmall && !collapsed.value;
 
     const collapsedIconSize = 24.0, fullIconSize = 36.0;
 
@@ -71,7 +71,7 @@ class InvitedIndicatorState extends ConsumerState<AccountNotification>
       ),
     );
 
-    Border? containerBorder = shrinks
+    Border? containerBorder = hasBorder
         ? Border.all(color: Theme.of(context).primaryColor, width: 1.5)
         : collapsed.value
             ? Border(
@@ -94,7 +94,7 @@ class InvitedIndicatorState extends ConsumerState<AccountNotification>
             child: statusIcon,
           ),
         ),
-        if (shrinks) Expanded(flex: 4, child: widget.content),
+        if (hasBorder) Expanded(flex: 4, child: widget.content),
         if (collapsed.value) Expanded(flex: 4, child: widget.collapsedContent),
         Expanded(
           child: Align(
@@ -128,24 +128,24 @@ class InvitedIndicatorState extends ConsumerState<AccountNotification>
       duration: Durations.medium1,
       curve: Curves.easeInOut,
       bottom: collapsed.value ? 0.0 : 16.0,
-      left: isSmall ? 0.0 : 16.0,
-      right: isSmall ? 0.0 : 16.0,
+      left: isSmall || collapsed.value ? 0.0 : 16.0,
+      right: isSmall || collapsed.value ? 0.0 : 16.0,
       child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(
-              maxWidth: shrinks ? double.maxFinite : Breakpoint.small.value),
+              maxWidth: hasBorder ? Breakpoint.small.value : double.maxFinite),
           child: AnimatedContainer(
             decoration: BoxDecoration(
               border: containerBorder,
               borderRadius:
-                  shrinks ? BorderRadius.circular(12.0) : BorderRadius.zero,
+                  hasBorder ? BorderRadius.circular(12.0) : BorderRadius.zero,
               color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
             ),
             duration: Durations.medium1,
             curve: Curves.easeInOut,
             child: ClipRRect(
               borderRadius:
-                  shrinks ? BorderRadius.circular(12.0) : BorderRadius.zero,
+                  hasBorder ? BorderRadius.circular(12.0) : BorderRadius.zero,
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 2.0, sigmaY: 2.0),
                 child: Padding(
