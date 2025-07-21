@@ -155,7 +155,7 @@ class InvitedIndicatorState extends ConsumerState<AccountNotification>
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        if (isSmall || collapsed.value) iconRow,
+                        iconRow,
                         if (isSmall && !collapsed.value) widget.content
                       ]),
                 ),
