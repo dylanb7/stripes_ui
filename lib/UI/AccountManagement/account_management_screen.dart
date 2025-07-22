@@ -22,7 +22,7 @@ class AccountManagementScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bool isSmall = MediaQuery.of(context).size.width < 1400;
+    final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);
     final StripesConfig config = ref.watch(configProvider);
     final subNotifier = ref.watch(subHolderProvider);
     if (subNotifier.isLoading) {
@@ -105,6 +105,15 @@ class AccountManagementScreen extends ConsumerWidget {
                 const Divider(
                   endIndent: 8.0,
                   indent: 8.0,
+                ),
+                ListTile(
+                  dense: false,
+                  visualDensity: VisualDensity.comfortable,
+                  title: const Text("Settings"),
+                  trailing: const Icon(Icons.keyboard_arrow_right),
+                  onTap: () {
+                    context.pushNamed(Routes.SETTINGS);
+                  },
                 ),
               ],
               const SizedBox(

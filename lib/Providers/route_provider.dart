@@ -182,6 +182,15 @@ class RouteNotifier extends ChangeNotifier {
                 state: state);
           },
         ),
+        GoRoute(
+          name: Routes.SETTINGS,
+          path: Routes.SETTINGS,
+          pageBuilder: (context, state) => const NoTransitionPage(
+            child: Home(
+              selected: TabOption.tests,
+            ),
+          ),
+        ),
         /*
         GoRoute(
           name: Routes.BM,
