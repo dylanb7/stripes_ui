@@ -84,12 +84,7 @@ class _ExpandibleState extends State<Expandible>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
         animation: _expandController.view,
-        child: _expanded
-            ? Padding(
-                padding: const EdgeInsets.all(6.0),
-                child: widget.view,
-              )
-            : null,
+        child: _expanded ? widget.view : null,
         builder: (context, poss) {
           return GestureDetector(
             onTap: () {
