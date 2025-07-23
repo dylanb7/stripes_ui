@@ -18,17 +18,15 @@ class TypeTag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Widget inner = DecoratedBox(
-      decoration: BoxDecoration(
-        color: tagColor ?? Theme.of(context).colorScheme.secondary,
-        borderRadius: const BorderRadius.all(
+    final Widget inner = Chip(
+      visualDensity: VisualDensity.compact,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadiusGeometry.all(
           Radius.circular(4.0),
         ),
       ),
-      child: Text(
+      label: Text(
         text,
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: textColor ?? Theme.of(context).colorScheme.onSecondary),
       ),
     );
 

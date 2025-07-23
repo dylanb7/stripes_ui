@@ -38,7 +38,7 @@ class StyledTooltip extends StatelessWidget {
           ? TextSpan(
               style: Theme.of(context)
                   .textTheme
-                  .headlineMedium
+                  .titleMedium
                   ?.copyWith(color: Theme.of(context).colorScheme.onSurface),
               text: title,
               children: [
@@ -48,7 +48,7 @@ class StyledTooltip extends StatelessWidget {
                             .colorScheme
                             .onSurface
                             .withValues(alpha: 0.8)),
-                    text: "\n\n$message")
+                    text: "\n$message")
               ],
             )
           : null,

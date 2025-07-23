@@ -9,6 +9,8 @@ import 'package:stripes_ui/Providers/route_provider.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
+import 'package:stripes_ui/Util/breakpoint.dart';
+import 'package:stripes_ui/Util/custom_themes.dart';
 import 'package:stripes_ui/Util/palette.dart';
 import 'package:stripes_ui/config.dart';
 
@@ -91,9 +93,8 @@ class StripesHome extends ConsumerWidget {
       builder: builder,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      theme: light,
+      theme: dark,
       //darkTheme: dark,
-
       routeInformationProvider: router.routeInformationProvider,
       routeInformationParser: router.routeInformationParser,
       routerDelegate: router.routerDelegate,

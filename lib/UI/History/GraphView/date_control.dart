@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
+import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/date_helper.dart';
 
 class DateControl extends ConsumerWidget {
@@ -22,7 +23,7 @@ class DateControl extends ConsumerWidget {
         child: Center(
             child: SizedBox(
           height: 30,
-          width: min(450, width),
+          width: min(Breakpoint.tiny.value, width),
           child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
