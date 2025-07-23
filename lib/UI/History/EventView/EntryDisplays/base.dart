@@ -176,14 +176,17 @@ class _ExpandibleSymptomAreaState extends State<ExpandibleSymptomArea> {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12.0),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
+        borderRadius: BorderRadius.circular(4.0),
         color: ElevationOverlay.applySurfaceTint(Theme.of(context).cardColor,
             Theme.of(context).colorScheme.surfaceTint, 3),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(6.0),
+        padding: const EdgeInsets.all(8.0),
         child: AnimatedSize(
-          duration: const Duration(milliseconds: 200),
+          duration: Durations.medium1,
           alignment: Alignment.topLeft,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
