@@ -93,7 +93,9 @@ class StripesHome extends ConsumerWidget {
       builder: builder,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      theme: dark,
+      theme: light.copyWith(
+        tooltipTheme: tooltipTheme(context),
+      ),
       //darkTheme: dark,
       routeInformationProvider: router.routeInformationProvider,
       routeInformationParser: router.routeInformationParser,
