@@ -11,6 +11,8 @@ import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo
 import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
 import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
+import 'package:stripes_ui/UI/CommonWidgets/styled_tooltip.dart';
+import 'package:stripes_ui/UI/CommonWidgets/type_tag.dart';
 import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
 import 'package:stripes_ui/UI/Layout/home_screen.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
@@ -333,30 +335,10 @@ class _EditingModeState extends ConsumerState<EditingMode>
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               if (isDependentPage)
-                Tooltip(
-                  message: dependentTooltipText(),
-                  child: Container(
-                    decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(6.0),
-                        ),
-                        color: Theme.of(context).primaryColor),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 6.0, horizontal: 10.0),
-                      child: Center(
-                        child: Text(
-                          "Conditional",
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(
-                                  color:
-                                      Theme.of(context).colorScheme.onPrimary),
-                        ),
-                      ),
-                    ),
-                  ),
+                TypeTag(
+                  text: "conditional",
+                  onHover: dependentTooltipText(),
+                  onHoverTitle: "Depends on:",
                 ),
             ],
           ),

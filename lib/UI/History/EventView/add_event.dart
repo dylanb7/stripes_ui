@@ -7,6 +7,7 @@ import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
+import 'package:stripes_ui/UI/CommonWidgets/styled_tooltip.dart';
 import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
 
 import 'package:stripes_ui/Util/date_helper.dart';
@@ -32,7 +33,7 @@ class AddEvent extends ConsumerWidget {
 
     final DateTime now = DateTime.now();
 
-    return Tooltip(
+    return StyledTooltip(
       message: calendarSelection.selectedDate == null
           ? context.translate.noDateToAddTo
           : dateToMDY(calendarSelection.selectedDate!, context),

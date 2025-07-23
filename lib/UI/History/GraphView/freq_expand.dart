@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stripes_ui/UI/CommonWidgets/styled_tooltip.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
 
 class FreqExpandible extends StatefulWidget {
@@ -68,7 +69,7 @@ class _FreqExpandState extends State<FreqExpandible>
                       const SizedBox(
                         width: 4.0,
                       ),
-                      Tooltip(
+                      StyledTooltip(
                         message: 'Common Behaviors',
                         child: Icon(
                           _expanded ? Icons.expand_less : Icons.expand_more,

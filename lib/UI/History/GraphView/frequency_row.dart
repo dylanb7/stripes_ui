@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stripes_ui/UI/CommonWidgets/styled_tooltip.dart';
 
 class FrequencyRow extends StatelessWidget {
   final double percent;
@@ -63,10 +64,7 @@ class FrequencyRow extends StatelessWidget {
                 children: [
                   Expanded(
                     child: hasTooltip
-                        ? Tooltip(
-                            message: prompt,
-                            showDuration: const Duration(milliseconds: 20),
-                            child: text)
+                        ? StyledTooltip(message: prompt, child: text)
                         : text,
                   ),
                   const SizedBox(

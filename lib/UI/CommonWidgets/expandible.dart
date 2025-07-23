@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stripes_ui/UI/CommonWidgets/styled_tooltip.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
 
 class Expandible extends StatefulWidget {
@@ -251,9 +252,8 @@ class _ExpandRawState extends State<ExpandibleRaw>
                       const SizedBox(
                         width: 4.0,
                       ),
-                      Tooltip(
+                      StyledTooltip(
                         message: _listener.expanded ? 'Show Less' : 'Show More',
-                        showDuration: Duration.zero,
                         child: Icon(
                           _listener.expanded
                               ? Icons.expand_less
