@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:collection/collection.dart';
 import 'package:duration/duration.dart';
 import 'package:duration/locale.dart';
@@ -183,7 +185,7 @@ class _ExpandibleSymptomAreaState extends State<ExpandibleSymptomArea> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              widget.header,
+              if (!expanded) widget.header,
               if (expanded)
                 ...widget.responses
                     .map(
