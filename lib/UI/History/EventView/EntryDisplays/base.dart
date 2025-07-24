@@ -30,7 +30,7 @@ class RenderEntryGroup extends ConsumerWidget {
     if (!grouped) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: responses
             .map(
               (res) => EntryDisplay(
@@ -51,44 +51,38 @@ class RenderEntryGroup extends ConsumerWidget {
         byType[response.type] = [response];
       }
     }
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: byType.keys.map((type) {
-          final List<Response> forType = byType[type]!;
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: byType.keys.map((type) {
+        final List<Response> forType = byType[type]!;
 
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6.0),
-            child: ExpandibleSymptomArea(
-                header: RichText(
-                  text: TextSpan(
-                      text: type,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(fontWeight: FontWeight.bold),
-                      children: [
-                        TextSpan(
-                          text:
-                              " · ${context.translate.eventFilterResults(forType.length)}",
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurface
-                                      .withValues(alpha: 0.75)),
-                        )
-                      ]),
-                  textAlign: TextAlign.left,
-                ),
-                responses: forType),
-          );
-        }).toList(),
-      ),
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6.0),
+          child: ExpandibleSymptomArea(
+              header: RichText(
+                text: TextSpan(
+                    text: type,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                    children: [
+                      TextSpan(
+                        text:
+                            " · ${context.translate.eventFilterResults(forType.length)}",
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withValues(alpha: 0.75)),
+                      )
+                    ]),
+                textAlign: TextAlign.left,
+              ),
+              responses: forType),
+        );
+      }).toList(),
     );
   }
 }
@@ -176,9 +170,6 @@ class _ExpandibleSymptomAreaState extends State<ExpandibleSymptomArea> {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        border: Border.all(
-          color: Theme.of(context).colorScheme.onSurface,
-        ),
         borderRadius: BorderRadius.circular(4.0),
         color: ElevationOverlay.applySurfaceTint(Theme.of(context).cardColor,
             Theme.of(context).colorScheme.surfaceTint, 3),
