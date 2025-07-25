@@ -15,6 +15,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class BlueDyeTestScreen extends ConsumerStatefulWidget {
   const BlueDyeTestScreen({super.key});
@@ -34,7 +35,8 @@ class _BlueDyeTestScreenState extends ConsumerState<BlueDyeTestScreen> {
         ref.watch(blueDyeTestProgressProvider);
     if (progress.isLoading) {
       return Padding(
-        padding: const EdgeInsets.only(top: 20.0, right: 20.0, left: 20.0),
+        padding: const EdgeInsets.only(
+            top: AppPadding.xl, right: AppPadding.xl, left: AppPadding.xl),
         child: Center(
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: Breakpoint.medium.value),
@@ -44,7 +46,7 @@ class _BlueDyeTestScreenState extends ConsumerState<BlueDyeTestScreen> {
               children: [
                 TestSwitcher(),
                 SizedBox(
-                  height: 12.0,
+                  height: AppPadding.medium,
                 ),
                 LoadingWidget()
               ],
@@ -91,8 +93,8 @@ class _BlueDyeTestScreenState extends ConsumerState<BlueDyeTestScreen> {
         showDragHandle: false,
         shape: RoundedRectangleBorder(
           borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(15.0),
-            topRight: Radius.circular(15.0),
+            topLeft: Radius.circular(AppRounding.large),
+            topRight: Radius.circular(AppRounding.large),
           ),
           side: BorderSide(color: Theme.of(context).colorScheme.outline),
         ),
@@ -247,7 +249,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
       children: BlueDyeProgression.values
           .map(
             (step) => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              padding: const EdgeInsets.symmetric(horizontal: AppPadding.small),
               child: _buildScrollStep(context, index, currentIndex, step),
             ),
           )
@@ -273,15 +275,16 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(
-                        height: 20.0,
+                        height: AppPadding.xl,
                       ),
                       const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 20.0),
+                          padding:
+                              EdgeInsets.symmetric(horizontal: AppPadding.xl),
                           child: Align(
                               alignment: Alignment.centerLeft,
                               child: TestSwitcher())),
                       const SizedBox(
-                        height: 12.0,
+                        height: AppPadding.medium,
                       ),
                       ConstrainedBox(
                         constraints: const BoxConstraints(maxHeight: 120.0),
@@ -322,7 +325,9 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                                           context, index, currentIndex, step),
                                     )
                                     .toList()
-                                    .spacedBy(space: 12, axis: Axis.horizontal),
+                                    .spacedBy(
+                                        space: AppPadding.medium,
+                                        axis: Axis.horizontal),
                               ),
                       ),
                       /*if (shouldWrap)
@@ -352,14 +357,14 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                 )),*/
 
                       const SizedBox(
-                        height: 12.0,
+                        height: AppPadding.medium,
                       ),
                       Center(
                         child: getDisplayedWidget(),
                       ),
                       if (hasIndicator)
                         const SizedBox(
-                          height: 100,
+                          height: AppPadding.xxxl,
                         ),
                     ],
                   ),
@@ -399,14 +404,14 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: const BorderRadius.all(
-              Radius.circular(8.0),
+              Radius.circular(AppPadding.small),
             ),
             color: previous ? completedColor : surface,
             border:
                 Border.all(width: 1, color: active ? primary : disabledColor),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding: const EdgeInsets.all(AppPadding.medium),
             child: Center(
               child: Text(
                 step.getLabel(context),
@@ -426,7 +431,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
             color: active ? surface : disabledColor, width: lineThickness),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(6.0),
+        padding: const EdgeInsets.all(AppPadding.tiny),
         child: Center(
           child: DecoratedBox(
             decoration: BoxDecoration(
@@ -438,7 +443,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
               shape: BoxShape.circle,
             ),
             child: Padding(
-              padding: const EdgeInsets.all(12.0),
+              padding: const EdgeInsets.all(AppPadding.medium),
               child: Center(
                 child: Text(
                   '${step.value < 2 ? step.value + 1 : step.value}',
@@ -469,7 +474,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
           child: Container(
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.all(
-                Radius.circular(8.0),
+                Radius.circular(AppRounding.small),
               ),
               border: Border.all(
                   width: lineThickness,
@@ -486,8 +491,8 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(8.0),
-                        topRight: Radius.circular(8.0),
+                        topLeft: Radius.circular(AppRounding.small),
+                        topRight: Radius.circular(AppRounding.small),
                       ),
                       color: active
                           ? primary
@@ -496,14 +501,14 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                               : surface,
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(12.0),
+                      padding: const EdgeInsets.all(AppPadding.medium),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           stepCircle,
                           const SizedBox(
-                            width: 12.0,
+                            width: AppPadding.medium,
                           ),
                           Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -546,8 +551,8 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                 DecoratedBox(
                   decoration: BoxDecoration(
                     borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(8.0),
-                      bottomRight: Radius.circular(8.0),
+                      bottomLeft: Radius.circular(AppRounding.small),
+                      bottomRight: Radius.circular(AppRounding.small),
                     ),
                     color: active
                         ? primaryLight
@@ -561,7 +566,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       const SizedBox(
-                        width: 6.0,
+                        width: AppPadding.tiny,
                       ),
                       Text(
                         step.value < 2

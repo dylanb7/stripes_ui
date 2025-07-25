@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/QuestionModel/question.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
+import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/extensions.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class BlueDyeEntry extends ConsumerStatefulWidget {
   final QuestionsListener listener;
@@ -49,14 +51,15 @@ class _BlueDyeEntryState extends ConsumerState<BlueDyeEntry> {
     final bool hasError = widget.listener.pending.contains(widget.question) &&
         widget.listener.tried;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      padding: const EdgeInsets.symmetric(horizontal: AppPadding.medium),
       child: Container(
         decoration: BoxDecoration(
             border: hasError
                 ? Border.all(
                     color: Theme.of(context).colorScheme.error, width: 2.0)
                 : null,
-            borderRadius: const BorderRadius.all(Radius.circular(12.0))),
+            borderRadius:
+                const BorderRadius.all(Radius.circular(AppPadding.medium))),
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
@@ -66,10 +69,10 @@ class _BlueDyeEntryState extends ConsumerState<BlueDyeEntry> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(
-              height: 8.0,
+              height: AppPadding.small,
             ),
             ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 450.0),
+              constraints: BoxConstraints(maxWidth: Breakpoint.tiny.value),
               child: Center(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -81,7 +84,8 @@ class _BlueDyeEntryState extends ConsumerState<BlueDyeEntry> {
                       selectedColor: primary,
                       backgroundColor: surface,
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8.0, vertical: 4.0),
+                          horizontal: AppPadding.small,
+                          vertical: AppPadding.tiny),
                       labelStyle: TextStyle(
                           color: toggleState[0] ? onPrimary : onSurface,
                           fontWeight: FontWeight.bold),
@@ -104,7 +108,8 @@ class _BlueDyeEntryState extends ConsumerState<BlueDyeEntry> {
                       selectedColor: primary,
                       backgroundColor: surface,
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8.0, vertical: 4.0),
+                          horizontal: AppPadding.small,
+                          vertical: AppPadding.tiny),
                       labelStyle: TextStyle(
                           color: toggleState[1] ? onPrimary : onSurface,
                           fontWeight: FontWeight.bold),
@@ -127,7 +132,7 @@ class _BlueDyeEntryState extends ConsumerState<BlueDyeEntry> {
             ),
             if (hasError) ...[
               const SizedBox(
-                height: 8.0,
+                height: AppPadding.small,
               ),
               Text(
                 context.translate.submitBlueQuestionError,

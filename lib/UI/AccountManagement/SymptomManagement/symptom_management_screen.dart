@@ -17,6 +17,8 @@ import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 
+import '../../../Util/paddings.dart';
+
 class SymptomManagementScreen extends ConsumerWidget {
   const SymptomManagementScreen({super.key});
 
@@ -46,7 +48,7 @@ class SymptomManagementScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(
-                      height: 20.0,
+                      height: AppPadding.large,
                     ),
                     Row(
                       children: [
@@ -73,23 +75,22 @@ class SymptomManagementScreen extends ConsumerWidget {
                       ],
                     ),
                     const SizedBox(
-                      height: 6.0,
+                      height: AppPadding.tiny,
                     ),
-                    ...[
-                      const Divider(
-                        endIndent: 8.0,
-                        indent: 8.0,
-                      ),
-                      const AddCategoryWidget(),
-                      ...recordPaths.map((path) {
-                        return CategoryDisplay(recordPath: path);
-                      }).separated(
-                          by: const Divider(
-                            endIndent: 8.0,
-                            indent: 8.0,
-                          ),
-                          includeEnds: true),
-                    ],
+                    const Divider(
+                      endIndent: AppPadding.small,
+                      indent: AppPadding.small,
+                    ),
+                    const AddCategoryWidget(),
+                    ...recordPaths.map((path) {
+                      return CategoryDisplay(recordPath: path);
+                    }).separated(
+                        by: const Divider(
+                          endIndent: AppPadding.small,
+                          indent: AppPadding.small,
+                        ),
+                        includeEnds: true),
+
                     /*
             ...checkin.keys.map((items) {
               items.map((item) => {
@@ -112,13 +113,13 @@ class CategoryDisplay extends ConsumerWidget {
   const CategoryDisplay({required this.recordPath, super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final int symptoms = recordPath.pages.isEmpty
-        ? 0
-        : recordPath.pages
-            .map((page) => page.questionIds.length)
-            .reduce((value, element) => value + element);
+    final int symptoms = recordPath.pages.fold<int>(
+        0, (previousValue, page) => previousValue + page.questionIds.length);
     return Padding(
-      padding: const EdgeInsets.only(top: 4.0, left: 16.0, right: 16.0),
+      padding: const EdgeInsets.only(
+          top: AppPadding.tiny,
+          left: AppPadding.medium,
+          right: AppPadding.medium),
       child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
@@ -132,7 +133,7 @@ class CategoryDisplay extends ConsumerWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  IntrinsicHeight(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -171,14 +172,14 @@ class CategoryDisplay extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(
-                    width: 4.0,
+                    width: AppPadding.tiny,
                   ),
                   const Spacer(),
                 ],
               ),
             ),
             const SizedBox(
-              height: 4,
+              height: AppPadding.tiny,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -230,9 +231,11 @@ class AddCategoryWidget extends ConsumerStatefulWidget {
   }
 }
 
+enum AddCategoryFormState { idle, adding, loading, success }
+
 class _AddCategoryWidgetState extends ConsumerState<ConsumerStatefulWidget> {
-  bool isLoading = false, submitSuccess = false;
-  bool isAdding = false;
+  final _formState =
+      ValueNotifier<AddCategoryFormState>(AddCategoryFormState.idle);
   final TextEditingController category = TextEditingController();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   Period? recordPeriod;
@@ -242,7 +245,7 @@ class _AddCategoryWidgetState extends ConsumerState<ConsumerStatefulWidget> {
   Widget build(BuildContext context) {
     final double screenHeight = MediaQuery.of(context).size.height;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      padding: const EdgeInsets.symmetric(horizontal: AppPadding.small),
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: Breakpoint.medium.value),
         child: AnimatedSize(
@@ -250,19 +253,18 @@ class _AddCategoryWidgetState extends ConsumerState<ConsumerStatefulWidget> {
           child: Form(
             key: formKey,
             child: Opacity(
-              opacity: isLoading ? 0.6 : 1.0,
+              opacity:
+                  _formState.value == AddCategoryFormState.loading ? 0.6 : 1.0,
               child: IgnorePointer(
-                ignoring: isLoading,
+                ignoring: _formState.value == AddCategoryFormState.loading,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    if (isAdding) ...[
+                    if (_formState.value == AddCategoryFormState.adding) ...[
                       TextButton.icon(
                         onPressed: () {
-                          setState(() {
-                            isAdding = false;
-                          });
+                          _formState.value = AddCategoryFormState.idle;
                         },
                         label: const Text("Close"),
                         icon: const Icon(Icons.keyboard_arrow_up),
@@ -316,16 +318,16 @@ class _AddCategoryWidgetState extends ConsumerState<ConsumerStatefulWidget> {
                         ),
                       ),*/
                       const SizedBox(
-                        height: 16.0,
+                        height: AppPadding.large,
                       ),
                     ],
                     FilledButton(
                       onPressed: () async {
                         await add();
                       },
-                      child: submitSuccess
+                      child: _formState.value == AddCategoryFormState.success
                           ? const Icon(Icons.check)
-                          : isLoading
+                          : _formState.value == AddCategoryFormState.loading
                               ? const ButtonLoadingIndicator()
                               : const Text("Add Category"),
                     ),
@@ -340,10 +342,10 @@ class _AddCategoryWidgetState extends ConsumerState<ConsumerStatefulWidget> {
   }
 
   Future<void> add() async {
-    if (isLoading) return;
-    if (!isAdding) {
+    if (_formState.value == AddCategoryFormState.loading) return;
+    if (_formState.value != AddCategoryFormState.adding) {
       setState(() {
-        isAdding = true;
+        _formState.value = AddCategoryFormState.adding;
       });
       return;
     }
@@ -359,7 +361,7 @@ class _AddCategoryWidgetState extends ConsumerState<ConsumerStatefulWidget> {
     if (added && mounted) {
       setState(() {
         category.clear();
-        submitSuccess = true;
+        _formState.value = AddCategoryFormState.success;
       });
       await Future.delayed(Durations.long4);
       recordPeriod = null;
@@ -368,11 +370,7 @@ class _AddCategoryWidgetState extends ConsumerState<ConsumerStatefulWidget> {
       showSnack(context, "Failed to add question");
     }
     if (mounted) {
-      setState(() {
-        submitSuccess = false;
-        isLoading = false;
-        isAdding = false;
-      });
+      _formState.value = AddCategoryFormState.idle;
     }
   }
 }

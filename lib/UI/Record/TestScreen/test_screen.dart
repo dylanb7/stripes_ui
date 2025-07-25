@@ -6,6 +6,7 @@ import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/Util/extensions.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class TestScreen extends ConsumerStatefulWidget {
   const TestScreen({super.key});
@@ -134,7 +135,7 @@ class TestErrorPrevention<T extends Test> extends ConsumerWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(
-              height: 8.0,
+              height: AppPadding.small,
             ),
             Text(
               context.translate.blueMuffinErrorPreventionLineTwo,

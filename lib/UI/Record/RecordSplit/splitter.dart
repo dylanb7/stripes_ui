@@ -19,6 +19,7 @@ import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 import 'package:uuid/uuid.dart';
 
 class RecordSplitter extends ConsumerStatefulWidget {
@@ -104,7 +105,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: Breakpoint.small.value),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            padding: const EdgeInsets.symmetric(horizontal: AppPadding.medium),
             child: AsyncValueDefaults(
               value: pagesData,
               onData: (loadedPages) {
@@ -174,7 +175,8 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                       Expanded(
                         child: Container(
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12.0),
+                              borderRadius:
+                                  BorderRadius.circular(AppPadding.medium),
                               color: ElevationOverlay.applySurfaceTint(
                                   Theme.of(context).cardColor,
                                   Theme.of(context).colorScheme.surfaceTint,
@@ -197,7 +199,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                             )),
                       ),
                       const SizedBox(
-                        height: 8.0,
+                        height: AppPadding.small,
                       ),
                       IgnorePointer(
                         ignoring: isLoading || pagesData.isLoading,
@@ -213,7 +215,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                         ),
                       ),
                       const SizedBox(
-                        height: 8.0,
+                        height: AppPadding.small,
                       )
                     ]);
               },
@@ -244,13 +246,14 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
       thickness: 5.0,
       interactive: false,
       controller: scrollController,
-      radius: const Radius.circular(20.0),
+      radius: const Radius.circular(AppRounding.large),
       scrollbarOrientation: ScrollbarOrientation.right,
       child: SingleChildScrollView(
         controller: scrollController,
         scrollDirection: Axis.vertical,
         child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
+            padding: const EdgeInsets.symmetric(
+                vertical: AppPadding.tiny, horizontal: AppPadding.small),
             child: content),
       ),
     );
@@ -364,7 +367,8 @@ class RecordFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: const EdgeInsets.symmetric(
+          horizontal: AppPadding.xl, vertical: AppPadding.small),
       child: ListenableBuilder(
         listenable: questionListener,
         builder: (context, child) {
@@ -379,13 +383,13 @@ class RecordFooter extends StatelessWidget {
                         fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(
-                    height: 8.0,
+                    height: AppPadding.small,
                   )
                 ],
                 if (submitButton != null) ...[
                   submitButton!,
                   const SizedBox(
-                    height: 8.0,
+                    height: AppPadding.small,
                   )
                 ],
                 if (length != 0 && currentIndex != length)
@@ -518,7 +522,7 @@ class ErrorPrevention extends ConsumerWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(
-              height: 8.0,
+              height: AppPadding.small,
             ),
             Text(
               context.translate.errorPreventionLineTwo(type.toLowerCase()),

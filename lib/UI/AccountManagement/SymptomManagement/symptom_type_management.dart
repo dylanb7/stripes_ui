@@ -20,6 +20,7 @@ import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class SymptomTypeManagement extends ConsumerStatefulWidget {
   final String? category;
@@ -89,7 +90,7 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
           const Text("Category not created"),
           const SizedBox(
-            height: 8.0,
+            height: AppPadding.small,
           ),
           FilledButton.icon(
               icon: const Icon(Icons.add),
@@ -128,11 +129,11 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(
-                height: 20.0,
+                height: AppPadding.xl,
               ),
               topRow(),
               const SizedBox(
-                height: 12.0,
+                height: AppPadding.medium,
               ),
               const Divider(
                 height: 1,
@@ -325,7 +326,8 @@ class _EditingModeState extends ConsumerState<EditingMode>
 
       widgets.add(
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppPadding.large, vertical: AppPadding.tiny),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -345,12 +347,12 @@ class _EditingModeState extends ConsumerState<EditingMode>
         ),
       );
 
-      const double sepHeight = 24.0;
+      const double sepHeight = AppPadding.xl;
 
       const Widget sep = Divider(
         height: sepHeight,
-        endIndent: 16.0,
-        indent: 16.0,
+        endIndent: AppPadding.large,
+        indent: AppPadding.large,
       );
 
       final List<Question> pageQuestions = page.questions;
@@ -498,12 +500,13 @@ class _EditingModeState extends ConsumerState<EditingMode>
             thickness: 1,
           ),
           const SizedBox(
-            height: 8.0,
+            height: AppPadding.small,
           ),
           ...widgets,
           if (isDragging) ...[
             Padding(
-              padding: const EdgeInsets.only(left: 16.0, bottom: 4.0),
+              padding: const EdgeInsets.only(
+                  left: AppPadding.large, bottom: AppPadding.tiny),
               child: Text(
                 "Page ${layouts.length + 1}",
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -519,7 +522,7 @@ class _EditingModeState extends ConsumerState<EditingMode>
                   (context, List<Question?> candidates, List<dynamic> rejects) {
                 if (candidates.isEmpty || candidates[0] == null) {
                   return const SizedBox(
-                    height: 24.0,
+                    height: AppPadding.xl,
                   );
                 }
                 final Question candidate = candidates[0]!;
@@ -565,7 +568,8 @@ class _EditingModeState extends ConsumerState<EditingMode>
 
   Widget _symptomDisplay({required Question question, bool enabled = true}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(
+          vertical: AppPadding.tiny, horizontal: AppPadding.large),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -574,7 +578,7 @@ class _EditingModeState extends ConsumerState<EditingMode>
             fit: FlexFit.loose,
             child: SymptomInfoDisplay(question: question),
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: AppPadding.tiny),
           if (enabled)
             const Icon(
               Icons.drag_handle,
@@ -653,14 +657,14 @@ class ViewingMode extends StatelessWidget {
               .map((question) => SymptomDisplay(question: question))
               .separated(
                 by: Divider(
-                  endIndent: 32.0,
-                  indent: 32.0,
+                  endIndent: AppPadding.xxl,
+                  indent: AppPadding.xxl,
                   color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
                 ),
               ),
           const Divider(
-            endIndent: 8.0,
-            indent: 8.0,
+            endIndent: AppPadding.small,
+            indent: AppPadding.small,
           ),
         ]);
       }
@@ -674,7 +678,7 @@ class ViewingMode extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const SizedBox(
-            height: 6.0,
+            height: AppPadding.tiny,
           ),
           AddSymptomWidget(
             type: type,
@@ -708,7 +712,7 @@ class SymptomDisplay extends ConsumerWidget {
           : (question as MultipleChoice).choices;
       added = choices.map((choice) => Text(choice)).separated(
             by: const SizedBox(
-              height: 4.0,
+              height: AppPadding.tiny,
             ),
           );
     } else if (type == QuestionType.slider) {
@@ -756,7 +760,8 @@ class SymptomDisplay extends ConsumerWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(
+          vertical: AppPadding.tiny, horizontal: AppPadding.large),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
@@ -891,7 +896,7 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                               fixedSize:
                                   const Size(double.infinity, buttonHeight),
                               alignment: Alignment.centerLeft,
-                              padding: const EdgeInsets.all(16),
+                              padding: const EdgeInsets.all(AppPadding.large),
                               shape: const RoundedRectangleBorder(),
                             ),
                           ),
@@ -906,7 +911,7 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                         ),
                       ),
                       const SizedBox(
-                        height: 8.0,
+                        height: AppPadding.small,
                       ),
                       LabeledField(
                         label: "prompt",
@@ -921,7 +926,7 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                         ),
                       ),
                       const SizedBox(
-                        height: 8.0,
+                        height: AppPadding.small,
                       ),
                       if (selectedQuestionType == QuestionType.slider)
                         Row(
@@ -999,7 +1004,7 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                           initialValue: choices,
                         ),
                       const SizedBox(
-                        height: 16.0,
+                        height: AppPadding.large,
                       ),
                     ],
                     FilledButton(
@@ -1122,7 +1127,7 @@ class ChoicesFormField extends FormField<List<String>> {
                           ),
                         ),
                         const SizedBox(
-                          width: 8.0,
+                          width: AppPadding.small,
                         ),
                         IconButton.filled(
                             onPressed: () {
@@ -1154,7 +1159,7 @@ class ChoicesFormField extends FormField<List<String>> {
                       .separated(by: const Divider()),
                   if (state.hasError) ...[
                     const SizedBox(
-                      height: 4.0,
+                      height: AppPadding.tiny,
                     ),
                     Text(
                       state.errorText!,
@@ -1192,7 +1197,7 @@ class LabeledField extends StatelessWidget {
                 ?.copyWith(color: Theme.of(context).disabledColor),
           ),
           const SizedBox(
-            height: 4.0,
+            height: AppPadding.tiny,
           ),
           child
         ],

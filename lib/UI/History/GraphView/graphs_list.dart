@@ -64,9 +64,9 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
       children: [
         Padding(
           padding: const EdgeInsets.only(
-              left: AppPaddings.large,
-              right: AppPaddings.large,
-              top: AppPaddings.large),
+              left: AppPadding.large,
+              right: AppPadding.large,
+              top: AppPadding.large),
           child: Row(
             children: [
               IconButton(
@@ -79,7 +79,7 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
                 tab: TabOption.history,
               )),
               const SizedBox(
-                width: AppPaddings.tiny,
+                width: AppPadding.tiny,
               ),
               IconButton(
                   onPressed: () {
@@ -95,9 +95,9 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
         ),
         Padding(
           padding: const EdgeInsets.only(
-              left: AppPaddings.large,
-              right: AppPaddings.large,
-              top: AppPaddings.small),
+              left: AppPadding.large,
+              right: AppPadding.large,
+              top: AppPadding.small),
           child: AspectRatio(
             aspectRatio: 2.0,
             child: Hero(
@@ -114,13 +114,13 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
 
                   return DecoratedBox(
                     decoration: BoxDecoration(
-                      borderRadius:
-                          const BorderRadius.all(Radius.circular(6.0)),
+                      borderRadius: const BorderRadius.all(
+                          Radius.circular(AppRounding.tiny)),
                       color:
                           Theme.of(context).primaryColor.withValues(alpha: 0.2),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(AppPaddings.tiny),
+                      padding: const EdgeInsets.all(AppPadding.tiny),
                       child: GraphSymptom(
                           responses: forGraph,
                           settings: settings,
@@ -131,8 +131,8 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
                 onLoading: (_) {
                   return DecoratedBox(
                       decoration: BoxDecoration(
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(6.0)),
+                          borderRadius: const BorderRadius.all(
+                              Radius.circular(AppRounding.small)),
                           color: Theme.of(context).disabledColor));
                 },
               ),
@@ -140,13 +140,13 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
           ),
         ),
         const SizedBox(
-          height: 12.0,
+          height: AppPadding.medium,
         ),
         Padding(
           padding: const EdgeInsets.only(
-              left: AppPaddings.large,
-              right: AppPaddings.large,
-              top: AppPaddings.small),
+              left: AppPadding.large,
+              right: AppPadding.large,
+              top: AppPadding.small),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -183,11 +183,11 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
           ),
         ),
         const SizedBox(
-          height: AppPaddings.medium,
+          height: AppPadding.medium,
         ),
         Padding(
           padding: const EdgeInsets.only(
-              left: AppPaddings.large, right: AppPaddings.large),
+              left: AppPadding.large, right: AppPadding.large),
           child: Text(
             "displaying",
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -202,7 +202,7 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
           (key) {
             return Padding(
               padding: const EdgeInsets.symmetric(
-                horizontal: AppPaddings.large,
+                horizontal: AppPadding.large,
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -214,7 +214,7 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
                         color: forGraphKey(key), shape: BoxShape.circle),
                   ),
                   const SizedBox(
-                    width: AppPaddings.medium,
+                    width: AppPadding.medium,
                   ),
                   Expanded(
                     child: AsyncValueDefaults(
@@ -251,7 +251,7 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
                     ),
                   ),
                   const SizedBox(
-                    width: AppPaddings.medium,
+                    width: AppPadding.medium,
                   ),
                   key != widget.graphKey
                       ? IconButton(
@@ -272,7 +272,7 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
           },
         ).separated(by: const Divider(), includeEnds: true),
         const SizedBox(
-          height: 40.0,
+          height: AppPadding.xxl,
         )
       ],
     ));
@@ -285,8 +285,8 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
         showDragHandle: true,
         shape: RoundedRectangleBorder(
           borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(10.0),
-            topRight: Radius.circular(10.0),
+            topLeft: Radius.circular(AppRounding.small),
+            topRight: Radius.circular(AppRounding.small),
           ),
           side: BorderSide(color: Theme.of(context).colorScheme.outline),
         ),
@@ -342,9 +342,9 @@ class ListSection extends ConsumerWidget {
         if (includesControls)
           SliverPadding(
             padding: const EdgeInsets.only(
-                left: AppPaddings.large,
-                right: AppPaddings.large,
-                top: AppPaddings.large),
+                left: AppPadding.large,
+                right: AppPadding.large,
+                top: AppPadding.large),
             sliver: SliverToBoxAdapter(
               child: Row(
                 children: [
@@ -353,7 +353,7 @@ class ListSection extends ConsumerWidget {
                     tab: TabOption.history,
                   )),
                   const SizedBox(
-                    width: 4.0,
+                    width: AppPadding.tiny,
                   ),
                   IconButton(
                       onPressed: () {
@@ -368,7 +368,7 @@ class ListSection extends ConsumerWidget {
           const SliverFloatingHeader(
             child: GraphControlArea(),
           ),
-        const SliverPadding(padding: EdgeInsets.only(top: 6.0)),
+        const SliverPadding(padding: EdgeInsets.only(top: AppPadding.small)),
         AsyncValueDefaults(
           value: graphs,
           onData: (data) {
@@ -397,7 +397,8 @@ class ListSection extends ConsumerWidget {
                     onSelect(key);
                   },
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: AppPadding.xl),
                     child: GraphSymptomRow(
                         responses: withKeysRemoved[key]!,
                         graphKey: key,
@@ -423,7 +424,7 @@ class ListSection extends ConsumerWidget {
           onLoading: (_) => SliverList.separated(
             itemBuilder: (context, index) {
               return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -437,7 +438,7 @@ class ListSection extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(
-                      width: 6.0,
+                      width: AppPadding.small,
                     ),
                     Expanded(
                       flex: 3,
@@ -447,8 +448,8 @@ class ListSection extends ConsumerWidget {
                             color: Theme.of(context)
                                 .disabledColor
                                 .withValues(alpha: 0.3),
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(6.0))),
+                            borderRadius: const BorderRadius.all(
+                                Radius.circular(AppRounding.tiny))),
                       ),
                     ),
                   ],
@@ -459,7 +460,7 @@ class ListSection extends ConsumerWidget {
             itemCount: 5,
           ),
         ),
-        const SliverPadding(padding: EdgeInsets.only(top: 40.0)),
+        const SliverPadding(padding: EdgeInsets.only(top: AppPadding.xxl)),
       ],
     );
   }
@@ -498,7 +499,7 @@ class GraphSymptomRow extends StatelessWidget {
           ),
         ),
         const SizedBox(
-          width: 6.0,
+          width: AppPadding.tiny,
         ),
         Expanded(
           flex: 3,
@@ -509,7 +510,7 @@ class GraphSymptomRow extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
                 borderRadius: const BorderRadius.all(
-                  Radius.circular(6.0),
+                  Radius.circular(AppRounding.tiny),
                 ),
               ),
               child: hasHero
@@ -561,7 +562,7 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
 
     Widget constrain({required Widget child}) {
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
         child: ConstrainedBox(
           constraints: BoxConstraints(
             maxWidth: Breakpoint.tiny.value,
@@ -588,14 +589,14 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
         children: [
           if (widget.showsDateChange) ...[
             const SizedBox(
-              height: AppPaddings.small,
+              height: AppPadding.small,
             ),
             Center(
               child: constrain(
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     borderRadius: const BorderRadius.all(
-                      Radius.circular(6.0),
+                      Radius.circular(AppRounding.tiny),
                     ),
                     color:
                         Theme.of(context).primaryColor.withValues(alpha: 0.2),
@@ -662,10 +663,10 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
           ],
           if (widget.showsSpan) ...[
             const SizedBox(
-              height: AppPaddings.small,
+              height: AppPadding.small,
             ),
             Padding(
-              padding: const EdgeInsets.only(left: AppPaddings.large),
+              padding: const EdgeInsets.only(left: AppPadding.large),
               child: Text(
                 "span",
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -683,7 +684,7 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const SizedBox(
-                    width: AppPaddings.large,
+                    width: AppPadding.large,
                   ),
                   ...GraphSpan.values
                       .map(
@@ -701,7 +702,7 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
                       )
                       .separated(
                           by: const SizedBox(
-                        width: 5.0,
+                        width: AppPadding.tiny,
                       )),
                 ],
               ),
@@ -709,10 +710,10 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
           ],
           if (widget.showsYAxis) ...[
             const SizedBox(
-              height: AppPaddings.small,
+              height: AppPadding.small,
             ),
             Padding(
-              padding: const EdgeInsets.only(left: AppPaddings.large),
+              padding: const EdgeInsets.only(left: AppPadding.large),
               child: Text(
                 "showing",
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -730,7 +731,7 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const SizedBox(
-                    width: AppPaddings.large,
+                    width: AppPadding.large,
                   ),
                   ...GraphYAxis.values
                       .map(
@@ -747,7 +748,7 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
                       )
                       .separated(
                           by: const SizedBox(
-                        width: 5.0,
+                        width: AppPadding.tiny,
                       )),
                 ],
               ),
@@ -786,7 +787,7 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
             ],
           ),*/
           const SizedBox(
-            height: AppPaddings.tiny,
+            height: AppPadding.tiny,
           ),
         ],
       ),
@@ -811,7 +812,7 @@ class GraphScreenWrap extends StatelessWidget {
                 selected: TabOption.history,
               )),
         const SizedBox(
-          width: 8.0,
+          width: AppPadding.small,
         ),
         const UserProfileButton()
       ],

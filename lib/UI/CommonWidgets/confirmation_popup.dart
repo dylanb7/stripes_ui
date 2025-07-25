@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/tonal_button.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class ConfirmationPopup extends ConsumerWidget {
   final String confirm;
@@ -33,18 +34,19 @@ class ConfirmationPopup extends ConsumerWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          padding: const EdgeInsets.symmetric(horizontal: AppPadding.small),
           child: Center(
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10.0, vertical: 12.0),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: AppPadding.small, vertical: AppPadding.medium),
               child: ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: Breakpoint.small.value),
                 child: Card(
                   shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                      borderRadius:
+                          BorderRadius.all(Radius.circular(AppRounding.small))),
                   child: Padding(
-                    padding: const EdgeInsets.all(12.0),
+                    padding: const EdgeInsets.all(AppPadding.medium),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -55,7 +57,7 @@ class ConfirmationPopup extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             const SizedBox(
-                              width: 35,
+                              width: AppPadding.xxl,
                             ),
                             title,
                             IconButton(
@@ -68,11 +70,11 @@ class ConfirmationPopup extends ConsumerWidget {
                           ],
                         ),
                         const SizedBox(
-                          height: 8,
+                          height: AppPadding.small,
                         ),
                         body,
                         const SizedBox(
-                          height: 16.0,
+                          height: AppPadding.large,
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -136,10 +138,12 @@ class BasicButton extends StatelessWidget {
       style: ButtonStyle(
         backgroundColor: WidgetStateProperty.all(color),
         shape: WidgetStateProperty.all(const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(8.0)))),
+            borderRadius:
+                BorderRadius.all(Radius.circular(AppRounding.small)))),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 6.0),
+        padding: const EdgeInsets.symmetric(
+            vertical: AppPadding.tiny, horizontal: AppPadding.small),
         child: Text(
           text,
           style:

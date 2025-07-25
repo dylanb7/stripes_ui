@@ -9,6 +9,7 @@ import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class ProfileView extends ConsumerWidget {
   final SubUser subUser;
@@ -56,7 +57,7 @@ class ProfileView extends ConsumerWidget {
       highlightColor: selected ? Theme.of(context).colorScheme.primary : null,
       highlightOnShrink: true,
       header: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4.0),
+        padding: const EdgeInsets.symmetric(vertical: AppPadding.tiny),
         child: Text(
           subUser.name,
           style: Theme.of(context).textTheme.titleLarge,
@@ -65,7 +66,7 @@ class ProfileView extends ConsumerWidget {
       view: Column(
         children: [
           const SizedBox(
-            height: 6.0,
+            height: AppPadding.tiny,
           ),
           Row(
             children: [
@@ -83,7 +84,7 @@ class ProfileView extends ConsumerWidget {
                 ],
               ),
               const SizedBox(
-                width: 16.0,
+                width: AppPadding.large,
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,11 +102,11 @@ class ProfileView extends ConsumerWidget {
             ],
           ),
           const SizedBox(
-            height: 6.0,
+            height: AppPadding.small,
           ),
           controlRow,
           const SizedBox(
-            height: 6.0,
+            height: AppPadding.small,
           ),
         ],
       ),
@@ -147,17 +148,19 @@ class MinimalProfileView extends ConsumerWidget {
         decoration: BoxDecoration(
             color: selected ? primary : surface,
             borderRadius: const BorderRadius.all(
-              Radius.circular(12.0),
+              Radius.circular(AppRounding.medium),
             ),
             border: selected ? null : Border.all(width: 1.0, color: text)),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 6.0),
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppPadding.tiny, vertical: AppPadding.tiny),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: AppPadding.tiny),
                 child: FittedBox(
                   fit: BoxFit.fitWidth,
                   child: Text(
@@ -190,7 +193,7 @@ class MinimalProfileView extends ConsumerWidget {
                 ),
               ),
               const SizedBox(
-                width: 4.0,
+                width: AppPadding.tiny,
               ),
             ],
           ),
@@ -230,7 +233,7 @@ class DeleteConfirmation extends ConsumerWidget {
             ?.copyWith(color: Theme.of(context).primaryColor),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(AppPadding.small),
         child: Text(
             "This action is irreversable and will delete all entries associated with ${toDelete.name}"),
       ),

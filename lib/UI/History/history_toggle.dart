@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:stripes_ui/Util/breakpoint.dart';
 
 class LocationToggle extends StatelessWidget {
   final List<String> options;
@@ -20,7 +21,7 @@ class LocationToggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 450),
+        constraints: BoxConstraints(maxWidth: Breakpoint.tiny.value),
         child: CupertinoSlidingSegmentedControl<String>(
             children: Map.fromEntries(
               options.map(

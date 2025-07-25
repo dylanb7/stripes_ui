@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class FormContainer extends StatefulWidget {
   static const duration = Duration(milliseconds: 200);
@@ -80,8 +81,9 @@ class _FormContainerState extends State<FormContainer>
                             Align(
                               alignment: Alignment.topLeft,
                               child: Padding(
-                                padding:
-                                    const EdgeInsets.only(top: 8.0, left: 8.0),
+                                padding: const EdgeInsets.only(
+                                    top: AppPadding.small,
+                                    left: AppPadding.small),
                                 child: IconButton(
                                   iconSize: 35,
                                   icon: const Icon(
@@ -100,7 +102,8 @@ class _FormContainerState extends State<FormContainer>
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: AppPadding.large),
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(
                           maxWidth: 600,

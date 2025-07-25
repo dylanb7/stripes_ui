@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/expand_collapse_icon.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 enum NotificationType { info, error }
 
@@ -113,29 +114,31 @@ class AccountNotificationState extends ConsumerState<AccountNotification>
     return AnimatedPositioned(
       duration: Durations.medium1,
       curve: Curves.easeInOut,
-      bottom: collapsed.value ? 0.0 : 16.0,
-      left: isSmall || collapsed.value ? 0.0 : 16.0,
-      right: isSmall || collapsed.value ? 0.0 : 16.0,
+      bottom: collapsed.value ? 0.0 : AppPadding.large,
+      left: isSmall || collapsed.value ? 0.0 : AppPadding.large,
+      right: isSmall || collapsed.value ? 0.0 : AppPadding.large,
       child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(
               maxWidth: hasBorder ? Breakpoint.small.value : double.maxFinite),
           child: AnimatedContainer(
             decoration: BoxDecoration(
-              borderRadius:
-                  hasBorder ? BorderRadius.circular(12.0) : BorderRadius.zero,
+              borderRadius: hasBorder
+                  ? BorderRadius.circular(AppRounding.medium)
+                  : BorderRadius.zero,
               color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
             ),
             duration: Durations.medium1,
             curve: Curves.easeInOut,
             child: ClipRRect(
-              borderRadius:
-                  hasBorder ? BorderRadius.circular(12.0) : BorderRadius.zero,
+              borderRadius: hasBorder
+                  ? BorderRadius.circular(AppRounding.medium)
+                  : BorderRadius.zero,
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 2.0, sigmaY: 2.0),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                      vertical: 8.0, horizontal: 8.0),
+                      vertical: AppPadding.small, horizontal: AppPadding.small),
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,

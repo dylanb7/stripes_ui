@@ -6,6 +6,7 @@ import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_list
 import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/UI/Record/severity_slider.dart';
 import 'package:stripes_ui/Util/extensions.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class BMSlider extends ConsumerStatefulWidget {
   final QuestionsListener listener;
@@ -115,7 +116,7 @@ class _BMSliderState extends ConsumerState<BMSlider> {
           initial: value.toInt(),
         ),
         const SizedBox(
-          height: 4.0,
+          height: AppPadding.tiny,
         ),
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,

@@ -11,6 +11,7 @@ import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class Footer extends StatelessWidget {
   const Footer({super.key});
@@ -30,7 +31,7 @@ class Footer extends StatelessWidget {
           ],
         ),
         const SizedBox(
-          height: 35,
+          height: AppPadding.xxl,
         )
       ],
     ));
@@ -52,11 +53,11 @@ class Options extends ConsumerWidget {
     final AsyncValue<TestsRepo?> repo = ref.watch(testProvider);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
       child: Column(
         children: [
           const SizedBox(
-            height: 20.0,
+            height: AppPadding.xl,
           ),
           AsyncValueDefaults(
               value: paths,
@@ -72,14 +73,15 @@ class Options extends ConsumerWidget {
                     ...List.generate(
                       4,
                       (_) => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 5.0),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: AppPadding.tiny),
                         child: ConstrainedBox(
                           constraints:
                               BoxConstraints(maxWidth: Breakpoint.small.value),
                           child: Container(
                             decoration: BoxDecoration(
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(8.0)),
+                              borderRadius: const BorderRadius.all(
+                                  Radius.circular(AppRounding.small)),
                               color: Theme.of(context).disabledColor,
                             ),
                             height: 65.0,
@@ -88,7 +90,7 @@ class Options extends ConsumerWidget {
                       ),
                     ).separated(
                         by: const SizedBox(
-                      height: 10,
+                      height: AppPadding.small,
                     ))
                   ],
                 );
@@ -122,9 +124,9 @@ class Options extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Divider(
-                      height: 20,
-                      indent: 15,
-                      endIndent: 15,
+                      height: AppPadding.xl,
+                      indent: AppPadding.large,
+                      endIndent: AppPadding.large,
                       thickness: 2,
                     ),
                     Text(
@@ -154,7 +156,7 @@ class Options extends ConsumerWidget {
                 );
               }),
           const SizedBox(
-            height: 20.0,
+            height: AppPadding.xl,
           ),
         ],
       ),
@@ -191,7 +193,7 @@ class Header extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: AppPadding.large),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -239,7 +241,7 @@ class CheckInButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 5.0),
+        padding: const EdgeInsets.symmetric(vertical: AppPadding.tiny),
         child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: Breakpoint.small.value),
             child: OutlinedButton(
@@ -263,7 +265,7 @@ class CheckInButton extends ConsumerWidget {
               },
               child: Padding(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 10.0, vertical: 15.0),
+                    horizontal: AppPadding.small, vertical: AppPadding.large),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -332,7 +334,7 @@ class RecordButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 5.0),
+        padding: const EdgeInsets.symmetric(vertical: AppPadding.tiny),
         child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: Breakpoint.small.value),
             child: OutlinedButton(
@@ -341,7 +343,7 @@ class RecordButton extends StatelessWidget {
               },
               child: Padding(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 10.0, vertical: 15.0),
+                    horizontal: AppPadding.small, vertical: AppPadding.large),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,

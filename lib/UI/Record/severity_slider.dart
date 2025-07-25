@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class SliderListener extends ChangeNotifier {
   bool hasInteracted = false;
@@ -71,7 +72,7 @@ class _StripesSliderState extends State<StripesSlider> {
           borderRadius: const BorderRadius.all(Radius.circular(12.0)),
           color: listener.hasInteracted ? primary : disabled),
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(AppPadding.small),
         child: Column(children: [
           Row(children: [
             Visibility(
@@ -309,21 +310,22 @@ class _MoodSliderState extends State<MoodSlider> {
           ),
         ),
         const SizedBox(
-          height: 4.0,
+          height: AppPadding.tiny,
         ),
         DecoratedBox(
           decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+              borderRadius:
+                  const BorderRadius.all(Radius.circular(AppRounding.small)),
               color: listener.hasInteracted
                   ? Theme.of(context).primaryColor
                   : Theme.of(context).disabledColor),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             const SizedBox(
-              height: 2.0,
+              height: AppPadding.tiny,
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6.0),
+              padding: const EdgeInsets.symmetric(horizontal: AppPadding.tiny),
               child: Row(
                 children: List.generate(
                   6,
@@ -335,7 +337,7 @@ class _MoodSliderState extends State<MoodSlider> {
             ),
             Row(children: [
               const SizedBox(
-                width: 12.0,
+                width: AppPadding.medium,
               ),
               Visibility(
                   visible: value.toInt() != 0,
@@ -432,7 +434,7 @@ class _MoodSliderState extends State<MoodSlider> {
                     },
                   ).showCursorOnHover),
               const SizedBox(
-                width: 12.0,
+                width: AppPadding.medium,
               ),
             ]),
           ]),
@@ -452,7 +454,7 @@ class _MoodSliderState extends State<MoodSlider> {
           ],
         ),
         const SizedBox(
-          height: 6.0,
+          height: AppPadding.small,
         ),
       ],
     );
@@ -545,10 +547,12 @@ class _PainSliderState extends State<PainSlider> {
     final int selectedIndex = (value / 2).floor();
     return DecoratedBox(
       decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+          borderRadius:
+              const BorderRadius.all(Radius.circular(AppRounding.small)),
           color: listener.hasInteracted ? primary : disabled),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+        padding: const EdgeInsets.symmetric(
+            horizontal: AppPadding.medium, vertical: AppPadding.small),
         child:
             Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Text(
@@ -562,7 +566,7 @@ class _PainSliderState extends State<PainSlider> {
             textAlign: TextAlign.center,
           ),
           const SizedBox(
-            height: 6.0,
+            height: AppPadding.small,
           ),
           Row(
             children: List.generate(

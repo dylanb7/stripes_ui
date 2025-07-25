@@ -9,6 +9,7 @@ import 'package:stripes_ui/UI/CommonWidgets/date_time_entry.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/question_screen.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/extensions.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class SubmitScreen extends ConsumerStatefulWidget {
   final String type;
@@ -104,7 +105,7 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
     return Column(
       children: [
         const SizedBox(
-          height: 8.0,
+          height: AppPadding.small,
         ),
         Text(
           isEdit
@@ -116,7 +117,7 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
           textAlign: TextAlign.center,
         ),
         const SizedBox(
-          height: 40.0,
+          height: AppPadding.xxl,
         ),
         if (period != null)
           Text(
@@ -139,22 +140,22 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
           ),
         ],
         const SizedBox(
-          height: 8.0,
+          height: AppPadding.small,
         ),
         RenderQuestions(
             questions: testAdditions,
             questionsListener: widget.questionsListener),
         const SizedBox(
-          height: 8.0,
+          height: AppPadding.small,
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
+          padding: const EdgeInsets.symmetric(horizontal: AppPadding.small),
           child: Center(
             child: LongTextEntry(textController: _descriptionController),
           ),
         ),
         const SizedBox(
-          height: 18.0,
+          height: AppPadding.large,
         ),
       ],
     );
@@ -176,7 +177,7 @@ class LongTextEntry extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         const SizedBox(
-          height: 5,
+          height: AppPadding.tiny,
         ),
         ConstrainedBox(
           constraints: BoxConstraints(maxWidth: Breakpoint.tiny.value),
@@ -198,12 +199,14 @@ class LongTextEntry extends StatelessWidget {
                 FocusManager.instance.primaryFocus?.unfocus();
               },
               decoration: InputDecoration(
-                  border: const OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey, width: 1),
-                      borderRadius: BorderRadius.all(Radius.circular(4.0))),
+                  border: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          color: Theme.of(context).dividerColor, width: 1),
+                      borderRadius: const BorderRadius.all(
+                          Radius.circular(AppRounding.tiny))),
                   hintText: context.translate.submitDescriptionPlaceholder,
                   contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 8.0, vertical: 5.0)),
+                      horizontal: AppPadding.small, vertical: AppPadding.tiny)),
             ),
           ),
         ),

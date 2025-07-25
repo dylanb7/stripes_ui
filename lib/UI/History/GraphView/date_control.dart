@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/date_helper.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class DateControl extends ConsumerWidget {
   const DateControl({super.key});
@@ -19,7 +20,10 @@ class DateControl extends ConsumerWidget {
     final bool forwardDisabled =
         end.add(shiftAmount.amount).isAfter(DateTime.now());
     return Padding(
-        padding: const EdgeInsets.only(left: 30.0, right: 30.0, bottom: 8.0),
+        padding: const EdgeInsets.only(
+            left: AppPadding.xl,
+            right: AppPadding.xl,
+            bottom: AppPadding.small),
         child: Center(
             child: SizedBox(
           height: 30,
@@ -42,13 +46,14 @@ class DateControl extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(
-                  width: 6.0,
+                  width: AppPadding.small,
                 ),
                 Expanded(
                   child: Card(
                     margin: EdgeInsets.zero,
                     shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(15.0))),
+                        borderRadius: BorderRadius.all(
+                            Radius.circular(AppRounding.large))),
                     child: Center(
                       child: Text(
                         '${dateToMDY(start, context)} - ${dateToMDY(end, context)}',
@@ -63,7 +68,7 @@ class DateControl extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(
-                  width: 6.0,
+                  width: AppPadding.small,
                 ),
                 _buttonWrap(
                   child: IconButton(

@@ -8,6 +8,7 @@ import 'package:stripes_ui/UI/Record/QuestionEntries/base.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/question_screen.dart';
 import 'package:stripes_ui/UI/Record/severity_slider.dart';
 import 'package:stripes_ui/Util/extensions.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class PainFacesWidget extends ConsumerStatefulWidget {
   final QuestionsListener questionsListener;
@@ -47,7 +48,7 @@ class _PainFacesWidgetState extends ConsumerState<PainFacesWidget> {
       listener: widget.questionsListener,
       styled: false,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+        padding: const EdgeInsets.symmetric(horizontal: AppPadding.small),
         child: Column(children: [
           PainSlider(
             initial: response()?.toInt() ?? 0,
@@ -65,7 +66,7 @@ class _PainFacesWidgetState extends ConsumerState<PainFacesWidget> {
             listener: _sliderListener,
           ),
           const SizedBox(
-            height: 8.0,
+            height: AppPadding.small,
           ),
           Selection(
               text: "Unable to determine pain level",
@@ -157,7 +158,7 @@ class PainNumericWidgetState extends State<PainNumericWidget> {
     return Column(
       children: [
         const SizedBox(
-          height: 35,
+          height: AppPadding.xxl,
         ),
         StripesSlider(
           onChange: (p0) {},

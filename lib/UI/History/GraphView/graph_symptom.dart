@@ -39,7 +39,8 @@ class _GraphSymptomState extends State<GraphSymptom> {
   @override
   void didUpdateWidget(covariant GraphSymptom oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if(widget.responses != oldWidget.responses || widget.settings != oldWidget.settings) {
+    if (widget.responses != oldWidget.responses ||
+        widget.settings != oldWidget.settings) {
       _processData();
     }
   }
@@ -63,7 +64,6 @@ class _GraphSymptomState extends State<GraphSymptom> {
 
   @override
   Widget build(BuildContext context) {
-
     final FlGridData gridData = FlGridData(
       show: widget.isDetailed,
     );
@@ -429,7 +429,6 @@ class _GraphSymptomState extends State<GraphSymptom> {
     }
     return eventLists;
   }
-
 }
 
 class GraphDataSet<T> {
@@ -492,4 +491,3 @@ class YAxisRange {
         tickSize: roundedTick);
   }
 }
-

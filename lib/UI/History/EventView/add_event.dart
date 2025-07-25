@@ -12,6 +12,7 @@ import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
 
 import 'package:stripes_ui/Util/date_helper.dart';
 import 'package:stripes_ui/Util/extensions.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class AddEvent extends ConsumerWidget {
   const AddEvent({super.key});
@@ -72,7 +73,7 @@ class QuestionTypeOverlay extends ConsumerWidget {
         constraints: BoxConstraints(maxWidth: 350, maxHeight: screenHeight / 2),
         child: Card(
           child: Padding(
-            padding: const EdgeInsets.all(10.0),
+            padding: const EdgeInsets.all(AppPadding.small),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -104,8 +105,8 @@ class QuestionTypeOverlay extends ConsumerWidget {
                             children: [
                               ...recordPaths.map(
                                 (path) => Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 2.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: AppPadding.tiny),
                                   child: FilledButton(
                                     child: Text(path.name),
                                     onPressed: () {

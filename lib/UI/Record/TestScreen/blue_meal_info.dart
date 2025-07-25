@@ -14,6 +14,7 @@ import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class BlueMealPreStudy extends StatefulWidget {
@@ -85,19 +86,20 @@ class _PreStudyInfoState extends State<PreStudyInfo> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const SizedBox(
-                            height: 20.0,
+                            height: AppPadding.large,
                           ),
                           const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 20.0),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: AppPadding.large),
                               child: Align(
                                   alignment: Alignment.centerLeft,
                                   child: TestSwitcher())),
                           const SizedBox(
-                            height: 12.0,
+                            height: AppPadding.medium,
                           ),
                           Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 20.0),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: AppPadding.large),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -107,11 +109,12 @@ class _PreStudyInfoState extends State<PreStudyInfo> {
                                     color:
                                         Colors.yellow.withValues(alpha: 0.35),
                                     borderRadius: const BorderRadius.all(
-                                      Radius.circular(4.0),
+                                      Radius.circular(AppPadding.tiny),
                                     ),
                                   ),
                                   child: Padding(
-                                      padding: const EdgeInsets.all(4.0),
+                                      padding:
+                                          const EdgeInsets.all(AppPadding.tiny),
                                       child: Column(
                                         mainAxisAlignment:
                                             MainAxisAlignment.start,
@@ -134,11 +137,11 @@ class _PreStudyInfoState extends State<PreStudyInfo> {
                                       )),
                                 ),
                                 const SizedBox(
-                                  height: 12.0,
+                                  height: AppPadding.medium,
                                 ),
                                 const BlueMealStudyInstructions(),
                                 const SizedBox(
-                                  height: 12.0,
+                                  height: AppPadding.medium,
                                 ),
                                 Text(
                                   context.translate.preStudyEnrollTitle,
@@ -150,12 +153,12 @@ class _PreStudyInfoState extends State<PreStudyInfo> {
                                 Text(context
                                     .translate.preStudyEnrollDescPartOne),
                                 const SizedBox(
-                                  height: 12.0,
+                                  height: AppPadding.medium,
                                 ),
                                 Text(context
                                     .translate.preStudyEnrollDescPartTwo),
                                 const SizedBox(
-                                  height: 25.0,
+                                  height: AppPadding.xl,
                                 ),
                               ],
                             ),
@@ -217,8 +220,8 @@ class BlueMealInfoButton extends StatelessWidget {
         showDragHandle: false,
         shape: RoundedRectangleBorder(
           borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(15.0),
-            topRight: Radius.circular(15.0),
+            topLeft: Radius.circular(AppRounding.large),
+            topRight: Radius.circular(AppRounding.large),
           ),
           side: BorderSide(color: Theme.of(context).colorScheme.outline),
         ),
@@ -268,7 +271,8 @@ class _AppTosState extends State<AppTos> {
                     key: properties.scrollStateKey,
                     controller: properties.scrollController,
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: AppPadding.small),
                       child: Center(
                         child: ConstrainedBox(
                           constraints:
@@ -414,7 +418,7 @@ class _ReadConfirmationState extends State<ReadConfirmation> {
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: Breakpoint.medium.value),
           child: Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding: const EdgeInsets.all(AppPadding.medium),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -439,7 +443,7 @@ class _ReadConfirmationState extends State<ReadConfirmation> {
                           }
                         }),
                     const SizedBox(
-                      width: 4.0,
+                      width: AppPadding.tiny,
                     ),
                     Flexible(
                       child: Text(
@@ -451,7 +455,7 @@ class _ReadConfirmationState extends State<ReadConfirmation> {
                   ],
                 ),
                 const SizedBox(
-                  height: 8.0,
+                  height: AppPadding.small,
                 ),
                 widget.button,
               ],
@@ -476,10 +480,10 @@ class BlueMealInfoSheet extends ConsumerWidget {
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         const SizedBox(
-          height: 15,
+          height: AppPadding.large,
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -500,35 +504,36 @@ class BlueMealInfoSheet extends ConsumerWidget {
           ),
         ),
         const SizedBox(
-          height: 8.0,
+          height: AppPadding.small,
         ),
         Expanded(
             child: ScrollAssistedList(
                 builder: (context, properties) => ListView(
                       physics: const ScrollPhysics(),
                       shrinkWrap: true,
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: AppPadding.large),
                       key: properties.scrollStateKey,
                       controller: properties.scrollController,
                       children: [
                         DecoratedBox(
                           decoration: BoxDecoration(
                               color: Colors.yellow.withValues(alpha: 0.35),
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(4.0))),
+                              borderRadius: const BorderRadius.all(
+                                  Radius.circular(AppRounding.tiny))),
                           child: Padding(
-                            padding: const EdgeInsets.all(4.0),
+                            padding: const EdgeInsets.all(AppPadding.tiny),
                             child: Text(
                               context.translate.inStudySeeingExp,
                             ),
                           ),
                         ),
                         const SizedBox(
-                          height: 12.0,
+                          height: AppPadding.medium,
                         ),
                         const BlueMealStudyInstructions(),
                         const SizedBox(
-                          height: 12.0,
+                          height: AppPadding.medium,
                         ),
                         Text(
                           context.translate.inStudyWithdrawTitle,
@@ -541,7 +546,7 @@ class BlueMealInfoSheet extends ConsumerWidget {
                           context.translate.inStudyWithdrawDesc,
                         ),
                         const SizedBox(
-                          height: 12.0,
+                          height: AppPadding.medium,
                         ),
                         Center(
                             child: FilledButton(
@@ -584,7 +589,7 @@ class BlueMealInfoSheet extends ConsumerWidget {
                                 child: Text(context
                                     .translate.inStudyWithdrawButtonText))),
                         const SizedBox(
-                          height: 25.0,
+                          height: AppPadding.xl,
                         ),
                       ],
                     ),
@@ -625,11 +630,11 @@ class BlueMealStudyInstructions extends StatelessWidget {
               ?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(
-          height: 6.0,
+          height: AppPadding.small,
         ),
         Text(context.translate.studyExpBody),
         const SizedBox(
-          height: 6.0,
+          height: AppPadding.small,
         ),
         Text(context.translate.studyExpBodyCont),
         LabeledList(strings: [
@@ -639,7 +644,7 @@ class BlueMealStudyInstructions extends StatelessWidget {
           context.translate.studyBodySymptomFour,
         ], highlight: false),
         const SizedBox(
-          height: 12.0,
+          height: AppPadding.medium,
         ),
         Text(
           context.translate.studyEligibilityTitle,
@@ -650,7 +655,7 @@ class BlueMealStudyInstructions extends StatelessWidget {
         ),
         Text(context.translate.studyEligibilityParticipants),
         const SizedBox(
-          height: 6.0,
+          height: AppPadding.small,
         ),
         LabeledList(strings: [
           context.translate.studyEligibilityOne,
@@ -659,7 +664,7 @@ class BlueMealStudyInstructions extends StatelessWidget {
           context.translate.studyEligibilityFour,
         ], highlight: false),
         const SizedBox(
-          height: 12.0,
+          height: AppPadding.medium,
         ),
         Text(
           context.translate.studyFlowTitle,
@@ -670,7 +675,7 @@ class BlueMealStudyInstructions extends StatelessWidget {
         ),
         Text(context.translate.studyFlowDesc),
         const SizedBox(
-          height: 12.0,
+          height: AppPadding.medium,
         ),
         LabeledList(
             title: Text(context.translate.studyFlowPreStudy),
@@ -681,7 +686,7 @@ class BlueMealStudyInstructions extends StatelessWidget {
             mark: (index) => "${index + 1}.",
             highlight: false),
         const SizedBox(
-          height: 12.0,
+          height: AppPadding.medium,
         ),
         LabeledList(
             title: Text(
@@ -697,7 +702,7 @@ class BlueMealStudyInstructions extends StatelessWidget {
             ],
             highlight: false),
         const SizedBox(
-          height: 12.0,
+          height: AppPadding.medium,
         ),
         LabeledList(
             title: Text(
@@ -728,7 +733,7 @@ class BlueMealStudyInstructions extends StatelessWidget {
             mark: (index) => "${index + 1}.",
             highlight: false),
         const SizedBox(
-          height: 12.0,
+          height: AppPadding.medium,
         ),
         Text(
           context.translate.studyFlowBetweenStepTwoStepThree,
@@ -741,7 +746,7 @@ class BlueMealStudyInstructions extends StatelessWidget {
           context.translate.studyFlowBetweenStepTwoStepThreeDesc,
         ),
         const SizedBox(
-          height: 12.0,
+          height: AppPadding.medium,
         ),
         Text(
           context.translate.studyFlowStepThreeTitle,
@@ -754,7 +759,7 @@ class BlueMealStudyInstructions extends StatelessWidget {
           context.translate.studyFlowStepThreeDesc,
         ),
         const SizedBox(
-          height: 12.0,
+          height: AppPadding.medium,
         ),
         Text(
           context.translate.studyFlowStepFourTitle,
@@ -767,7 +772,7 @@ class BlueMealStudyInstructions extends StatelessWidget {
           context.translate.studyFlowStepFourDesc,
         ),
         const SizedBox(
-          height: 12.0,
+          height: AppPadding.medium,
         ),
         Text(
           context.translate.studyFlowComplete,
@@ -777,7 +782,7 @@ class BlueMealStudyInstructions extends StatelessWidget {
               ?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(
-          height: 12.0,
+          height: AppPadding.medium,
         ),
         Text(
           context.translate.studyContactTitle,
@@ -802,7 +807,7 @@ class BlueStudyInstructionsPartOne extends StatelessWidget {
     return AdaptiveCardLayout(
       cardColor: Theme.of(context).primaryColor.withValues(alpha: 0.2),
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(AppPadding.small),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -815,7 +820,7 @@ class BlueStudyInstructionsPartOne extends StatelessWidget {
                   ?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(
-              height: 8.0,
+              height: AppPadding.small,
             ),
             LabeledList(
               strings: [
@@ -829,12 +834,12 @@ class BlueStudyInstructionsPartOne extends StatelessWidget {
               highlight: false,
             ),
             const SizedBox(
-              height: 8.0,
+              height: AppPadding.small,
             ),
             ColoredBox(
               color: Colors.yellow.withValues(alpha: 0.35),
               child: Padding(
-                  padding: const EdgeInsets.all(4.0),
+                  padding: const EdgeInsets.all(AppPadding.tiny),
                   child: Text(context.translate.studyStepOneExplanationNote)),
             ),
           ],
@@ -872,7 +877,7 @@ class _BlueStudyInstructionsPartTwoState
     return AdaptiveCardLayout(
       cardColor: Theme.of(context).primaryColor.withValues(alpha: 0.2),
       child: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(AppPadding.medium),
         child: AnimatedSize(
           duration: const Duration(milliseconds: 200),
           child: Column(
@@ -896,11 +901,11 @@ class _BlueStudyInstructionsPartTwoState
                     ?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(
-                height: 8.0,
+                height: AppPadding.small,
               ),
               Text(context.translate.studyStepTwoExplanationDesc),
               const SizedBox(
-                height: 8.0,
+                height: AppPadding.small,
               ),
               LabeledList(
                   title: Text(context.translate.studyStepTwoExplanationPartOne),
@@ -910,7 +915,7 @@ class _BlueStudyInstructionsPartTwoState
                   ],
                   highlight: false),
               const SizedBox(
-                height: 8.0,
+                height: AppPadding.small,
               ),
               if (expanded)
                 Column(
@@ -928,11 +933,11 @@ class _BlueStudyInstructionsPartTwoState
                         ],
                         highlight: false),
                     const SizedBox(
-                      height: 8.0,
+                      height: AppPadding.small,
                     ),
                     Text(context.translate.studyStepTwoExplanationColorExp),
                     const SizedBox(
-                      height: 8.0,
+                      height: AppPadding.small,
                     ),
                   ],
                 ),
@@ -975,7 +980,7 @@ class BlueStudyInstructionsPartThree extends StatelessWidget {
     return AdaptiveCardLayout(
       cardColor: Theme.of(context).primaryColor.withValues(alpha: 0.2),
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(AppPadding.small),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -988,7 +993,7 @@ class BlueStudyInstructionsPartThree extends StatelessWidget {
                   ?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(
-              height: 8.0,
+              height: AppPadding.small,
             ),
             LabeledList(
               strings: [
@@ -1016,7 +1021,7 @@ class BlueStudyInstructionsPartFour extends StatelessWidget {
     return AdaptiveCardLayout(
       cardColor: Theme.of(context).primaryColor.withValues(alpha: 0.2),
       child: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(AppPadding.medium),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1038,7 +1043,7 @@ class BlueStudyInstructionsPartFour extends StatelessWidget {
                   ?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(
-              height: 8.0,
+              height: AppPadding.small,
             ),
             LabeledList(
               strings: [
@@ -1067,7 +1072,7 @@ class BlueStudyInstructionsBMLogs extends StatelessWidget {
     return AdaptiveCardLayout(
       cardColor: Theme.of(context).primaryColor.withValues(alpha: 0.2),
       child: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(AppPadding.medium),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1093,7 +1098,7 @@ class BlueStudyInstructionsBMLogs extends StatelessWidget {
                   ?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(
-              height: 8.0,
+              height: AppPadding.small,
             ),
             Text(context.translate.blueMealRecordDescription(
                 step.value < 2 ? "Step 2" : "Step 4")),
@@ -1123,7 +1128,7 @@ class LabeledList extends StatelessWidget {
     this.additions,
     this.title,
     this.mark,
-    this.padding = 4.0,
+    this.padding = AppPadding.tiny,
     super.key,
   });
 
@@ -1138,12 +1143,12 @@ class LabeledList extends StatelessWidget {
       children: strings.asMap().entries.map((index) {
         final bool isLast = index.key == strings.length - 1;
         return Padding(
-          padding: EdgeInsets.only(bottom: isLast ? 0 : 6.0),
+          padding: EdgeInsets.only(bottom: isLast ? 0 : AppPadding.tiny),
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(marker(index.key),
                 style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(
-              width: 4.0,
+              width: AppPadding.tiny,
             ),
             Expanded(
               child: Text(
@@ -1165,7 +1170,8 @@ class LabeledList extends StatelessWidget {
             children: [
               title!,
               Padding(
-                padding: const EdgeInsets.only(left: 12.0, top: 4.0),
+                padding: const EdgeInsets.only(
+                    left: AppPadding.medium, top: AppPadding.tiny),
                 child: list,
               ),
               if (additions != null) ...additions!
@@ -1176,7 +1182,8 @@ class LabeledList extends StatelessWidget {
     return Container(
         alignment: Alignment.centerLeft,
         decoration: BoxDecoration(
-            borderRadius: const BorderRadius.all(Radius.circular(6.0)),
+            borderRadius:
+                const BorderRadius.all(Radius.circular(AppRounding.small)),
             border: highlight
                 ? Border.all(
                     width: 2.0,
@@ -1206,7 +1213,7 @@ class LabeledWidgets extends StatelessWidget {
     this.additions,
     this.title,
     this.mark,
-    this.padding = 4.0,
+    this.padding = AppPadding.tiny,
     super.key,
   });
 
@@ -1221,12 +1228,12 @@ class LabeledWidgets extends StatelessWidget {
       children: widgets.asMap().entries.map((index) {
         final bool isLast = index.key == widgets.length - 1;
         return Padding(
-          padding: EdgeInsets.only(bottom: isLast ? 0 : 6.0),
+          padding: EdgeInsets.only(bottom: isLast ? 0 : AppPadding.tiny),
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(marker(index.key),
                 style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(
-              width: 4.0,
+              width: AppPadding.tiny,
             ),
             Expanded(child: index.value),
           ]),
@@ -1241,7 +1248,8 @@ class LabeledWidgets extends StatelessWidget {
             children: [
               title!,
               Padding(
-                padding: const EdgeInsets.only(left: 12.0, top: 4.0),
+                padding: const EdgeInsets.only(
+                    left: AppPadding.medium, top: AppPadding.tiny),
                 child: list,
               ),
               if (additions != null) ...additions!
@@ -1252,7 +1260,8 @@ class LabeledWidgets extends StatelessWidget {
     return Container(
         alignment: Alignment.centerLeft,
         decoration: BoxDecoration(
-            borderRadius: const BorderRadius.all(Radius.circular(6.0)),
+            borderRadius:
+                const BorderRadius.all(Radius.circular(AppRounding.tiny)),
             border: highlight
                 ? Border.all(
                     width: 2.0,

@@ -6,6 +6,7 @@ import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
 import 'package:stripes_ui/Util/extensions.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class EventGrid extends ConsumerWidget {
   final bool daysSeparated;
@@ -27,7 +28,7 @@ class EventGrid extends ConsumerWidget {
 
     if (available.valueOrNull!.isEmpty) {
       return const SliverPadding(
-        padding: EdgeInsets.only(top: 25),
+        padding: EdgeInsets.only(top: AppPadding.xl),
       );
     }
 
@@ -36,7 +37,8 @@ class EventGrid extends ConsumerWidget {
 
     if (!daysSeparated) {
       return SliverPadding(
-        padding: const EdgeInsets.only(left: 20.0, right: 20.0, bottom: 20.0),
+        padding: const EdgeInsets.only(
+            left: AppPadding.xl, right: AppPadding.xl, bottom: AppPadding.xl),
         sliver: RenderEntryGroupSliver(
             responses: availableStamps, grouped: symptomsGrouping),
       );
@@ -65,7 +67,7 @@ class EventGrid extends ConsumerWidget {
       if (keys.length > 1) {
         components.add(
           Padding(
-            padding: const EdgeInsetsGeometry.only(bottom: 4.0),
+            padding: const EdgeInsetsGeometry.only(bottom: AppPadding.tiny),
             child: RichText(
               text: TextSpan(
                   text: headerFormat.format(dateGroup),
@@ -94,14 +96,15 @@ class EventGrid extends ConsumerWidget {
       if (i < keys.length - 1) {
         components.add(
           const Divider(
-            height: 32.0,
+            height: AppPadding.xxl,
           ),
         );
       }
     }
 
     return SliverPadding(
-      padding: const EdgeInsets.only(left: 20.0, right: 20.0, bottom: 20.0),
+      padding: const EdgeInsets.only(
+          left: AppPadding.xl, right: AppPadding.xl, bottom: AppPadding.xl),
       sliver: SliverList.builder(
         itemBuilder: (context, index) => components[index],
         itemCount: components.length,

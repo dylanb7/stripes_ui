@@ -8,6 +8,7 @@ import 'package:stripes_ui/Providers/auth_provider.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/form_input.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 import 'package:stripes_ui/config.dart';
 import 'package:stripes_ui/entry.dart';
 
@@ -46,7 +47,7 @@ class SignUpLogin extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 35),
+      padding: const EdgeInsets.symmetric(horizontal: AppPadding.xxl),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -57,7 +58,7 @@ class SignUpLogin extends ConsumerWidget {
                     context.go(Routes.SIGN_UP);
                   },
                   child: Text(context.translate.signupWithAccessCode))),
-          const SizedBox(height: 8.0),
+          const SizedBox(height: AppPadding.small),
           TextButton(
             child: RichText(
                 text: TextSpan(children: [
@@ -71,16 +72,14 @@ class SignUpLogin extends ConsumerWidget {
             },
           ),
           const SizedBox(
-            height: 4.0,
+            height: AppPadding.tiny,
           ),
           const Divider(
-            height: 1,
-            color: Colors.grey,
-            endIndent: 8.0,
-            indent: 8.0,
+            endIndent: AppPadding.small,
+            indent: AppPadding.small,
           ),
           const SizedBox(
-            height: 4.0,
+            height: AppPadding.tiny,
           ),
           TextButton(
             child: Text(context.translate.useWithoutAccount),
@@ -148,19 +147,19 @@ class AccessLoginState extends ConsumerState<AccessLogin> {
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                   const SizedBox(
-                    width: 12.0,
+                    width: AppPadding.medium,
                   ),
                   const CircularProgressIndicator(),
                 ],
               ),
-            const SizedBox(height: 6.0),
+            const SizedBox(height: AppPadding.tiny),
             FilledButton(
               child: Text(context.translate.submitCode),
               onPressed: () {
                 if (!controller.text.isNotEmpty) _submitCode(context);
               },
             ),
-            const SizedBox(height: 8.0),
+            const SizedBox(height: AppPadding.small),
             TextButton(
               child: Text(context.translate.withoutCode),
               onPressed: () {

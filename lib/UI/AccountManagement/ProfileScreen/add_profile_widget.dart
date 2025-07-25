@@ -7,6 +7,7 @@ import 'package:stripes_ui/UI/AccountManagement/birth_year_selector.dart';
 import 'package:stripes_ui/UI/AccountManagement/gender_dropdown.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/form_input.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 import 'package:stripes_ui/Util/validators.dart';
 import 'package:stripes_ui/config.dart';
@@ -70,7 +71,7 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   AnimatedOpacity(
-                    duration: const Duration(milliseconds: 200),
+                    duration: Durations.medium1,
                     opacity: _expandibleListener.expanded ? 0 : 1,
                     child: const Icon(
                       Icons.add,
@@ -85,7 +86,7 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       const SizedBox(
-                        height: 12.0,
+                        height: AppPadding.medium,
                       ),
                       if (isName) ...[
                         TextFormField(
@@ -95,7 +96,7 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
                               hintText: 'First Name', controller: _firstName),
                         ),
                         const SizedBox(
-                          height: 8.0,
+                          height: AppPadding.small,
                         ),
                         TextFormField(
                           controller: _lastName,
@@ -104,7 +105,7 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
                               hintText: 'Last Name', controller: _lastName),
                         ),
                         const SizedBox(
-                          height: 8.0,
+                          height: AppPadding.small,
                         ),
                         IntrinsicHeight(
                           child: Row(
@@ -118,7 +119,7 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
                                 ),
                               ),
                               const SizedBox(
-                                width: 8.0,
+                                width: AppPadding.small,
                               ),
                               Expanded(
                                 flex: 1,
@@ -146,7 +147,7 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
                         ),
                       ],
                       const SizedBox(
-                        height: 25.0,
+                        height: AppPadding.large,
                       )
                     ],
                   ),
@@ -157,7 +158,7 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
             ),
             if (_expandibleListener.expanded)
               const SizedBox(
-                height: 25,
+                height: AppPadding.large,
               ),
           ]),
           if (_expandibleListener.expanded)

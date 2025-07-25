@@ -7,6 +7,7 @@ import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
 
 import 'package:stripes_ui/Util/date_helper.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class TimeSpanInfo extends ConsumerWidget {
   const TimeSpanInfo({super.key});
@@ -28,14 +29,14 @@ class TimeSpanInfo extends ConsumerWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 30),
+      padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
       child: Center(
         child: SizedBox(
           height: 70,
           width: min(450, width),
           child: Card(
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0)),
+                borderRadius: BorderRadius.circular(AppRounding.large)),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisAlignment: MainAxisAlignment.start,
@@ -57,9 +58,9 @@ class TimeSpanInfo extends ConsumerWidget {
                   ],
                 )),
                 const VerticalDivider(
-                  width: 5,
+                  width: AppPadding.tiny,
                   thickness: 1,
-                  indent: 25,
+                  indent: AppPadding.xl,
                   endIndent: 2,
                   color: Colors.black54,
                 ),
@@ -82,9 +83,9 @@ class TimeSpanInfo extends ConsumerWidget {
                   ],
                 )),
                 const VerticalDivider(
-                  width: 5,
+                  width: AppPadding.tiny,
                   thickness: 1,
-                  indent: 25,
+                  indent: AppPadding.xl,
                   endIndent: 2,
                   color: Colors.black54,
                 ),

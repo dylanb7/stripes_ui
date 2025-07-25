@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class AdaptiveCardLayout extends StatelessWidget {
   final Color cardColor;
@@ -22,11 +23,12 @@ class AdaptiveCardLayout extends StatelessWidget {
         constraints: BoxConstraints(
             maxWidth: isCard ? Breakpoint.medium.value : double.infinity),
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: isCard ? 20.0 : 0.0),
+          padding:
+              EdgeInsets.symmetric(horizontal: isCard ? AppPadding.xl : 0.0),
           child: DecoratedBox(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.all(
-                Radius.circular(isCard ? 8.0 : 0),
+                Radius.circular(isCard ? AppPadding.small : 0),
               ),
               border: Border.all(
                   width: 1,

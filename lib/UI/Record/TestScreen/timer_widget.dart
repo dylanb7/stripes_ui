@@ -11,6 +11,7 @@ import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
 class TimerWidget extends ConsumerWidget {
@@ -31,7 +32,7 @@ class TimerWidget extends ConsumerWidget {
               ? const BlueStudyInstructionsPartOne()
               : const BlueStudyInstructionsPartThree(),
           const SizedBox(
-            height: 12,
+            height: AppPadding.medium,
           ),
           Center(
             child: ConstrainedBox(
@@ -69,9 +70,10 @@ class _TimerPortionState extends ConsumerState<TimerPortion> {
           width: double.infinity,
           decoration: BoxDecoration(
               color: Theme.of(context).primaryColor,
-              borderRadius: const BorderRadius.all(Radius.circular(12.0))),
+              borderRadius:
+                  const BorderRadius.all(Radius.circular(AppRounding.medium))),
           child: Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding: const EdgeInsets.all(AppPadding.medium),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisAlignment: MainAxisAlignment.start,
@@ -100,7 +102,7 @@ class _TimerPortionState extends ConsumerState<TimerPortion> {
                   ),
                 ),
                 const SizedBox(
-                  height: 12,
+                  height: AppPadding.medium,
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -147,7 +149,7 @@ class _TimerPortionState extends ConsumerState<TimerPortion> {
           ),
         ),
         const SizedBox(
-          height: 12.0,
+          height: AppPadding.medium,
         ),
         Center(
           child: FilledButton(
@@ -160,7 +162,7 @@ class _TimerPortionState extends ConsumerState<TimerPortion> {
           ),
         ),
         const SizedBox(
-          height: 25.0,
+          height: AppPadding.xl,
         ),
       ],
     );

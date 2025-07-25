@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:stripes_ui/UI/CommonWidgets/styled_tooltip.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class FreqExpandible extends StatefulWidget {
   final Widget header, view;
@@ -36,7 +37,7 @@ class _FreqExpandState extends State<FreqExpandible>
         animation: _expandController.view,
         child: _expanded
             ? Padding(
-                padding: const EdgeInsets.all(4.0),
+                padding: const EdgeInsets.all(AppPadding.tiny),
                 child: widget.view,
               )
             : null,
@@ -63,11 +64,11 @@ class _FreqExpandState extends State<FreqExpandible>
                   Row(
                     children: [
                       const SizedBox(
-                        width: 8,
+                        width: AppPadding.small,
                       ),
                       Expanded(child: widget.header),
                       const SizedBox(
-                        width: 4.0,
+                        width: AppPadding.tiny,
                       ),
                       StyledTooltip(
                         message: 'Common Behaviors',
@@ -76,7 +77,7 @@ class _FreqExpandState extends State<FreqExpandible>
                         ),
                       ),
                       const SizedBox(
-                        width: 4.0,
+                        width: AppPadding.tiny,
                       )
                     ],
                   ).showCursorOnHover,

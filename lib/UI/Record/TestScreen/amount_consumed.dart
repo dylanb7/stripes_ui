@@ -11,6 +11,7 @@ import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class MealFinishedDisplay extends ConsumerWidget {
   final Function next;
@@ -92,7 +93,7 @@ class MealFinishedDisplay extends ConsumerWidget {
     final BlueMealStats mealStats = getMealStats();
     final double iconSize = Theme.of(context).iconTheme.size ?? 20;
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: cardLayout ? 20.0 : 0),
+      padding: EdgeInsets.symmetric(horizontal: cardLayout ? AppPadding.xl : 0),
       child: ConstrainedBox(
         constraints: BoxConstraints(
             maxWidth: cardLayout ? Breakpoint.small.value : double.infinity),
@@ -101,7 +102,7 @@ class MealFinishedDisplay extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             const SizedBox(
-              height: 6.0,
+              height: AppPadding.small,
             ),
             cardLayout
                 ? ConstrainedBox(
@@ -116,13 +117,13 @@ class MealFinishedDisplay extends ConsumerWidget {
                     child: BlueMealInfoButton(),
                   ),
             const SizedBox(
-              height: 6.0,
+              height: AppPadding.small,
             ),
             AdaptiveCardLayout(
               cardColor: cardColor,
               borderColor: Theme.of(context).primaryColor,
               child: Padding(
-                padding: const EdgeInsets.all(12.0),
+                padding: const EdgeInsets.all(AppPadding.medium),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -137,14 +138,14 @@ class MealFinishedDisplay extends ConsumerWidget {
                     ),
                     if (mealStats.start != null) ...[
                       const SizedBox(
-                        height: 8.0,
+                        height: AppPadding.small,
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           const Icon(Icons.alarm),
                           const SizedBox(
-                            width: 6.0,
+                            width: AppPadding.tiny,
                           ),
                           if (mealStats.start != null)
                             Text(context.translate.mealCompleteStartTime(
@@ -154,7 +155,7 @@ class MealFinishedDisplay extends ConsumerWidget {
                     ],
                     if (mealStats.duration != null) ...[
                       const SizedBox(
-                        height: 8.0,
+                        height: AppPadding.small,
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -165,7 +166,7 @@ class MealFinishedDisplay extends ConsumerWidget {
                             height: iconSize,
                           ),
                           const SizedBox(
-                            width: 6.0,
+                            width: AppPadding.tiny,
                           ),
                           if (mealStats.duration != null)
                             Text(
@@ -175,14 +176,14 @@ class MealFinishedDisplay extends ConsumerWidget {
                     ],
                     if (mealStats.amountConsumed != null) ...[
                       const SizedBox(
-                        height: 8.0,
+                        height: AppPadding.tiny,
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           const Icon(Icons.blur_linear),
                           const SizedBox(
-                            width: 6.0,
+                            width: AppPadding.tiny,
                           ),
                           Flexible(
                             child: Text(
@@ -193,7 +194,7 @@ class MealFinishedDisplay extends ConsumerWidget {
                       ),
                     ],
                     const SizedBox(
-                      height: 8.0,
+                      height: AppPadding.small,
                     ),
                     Text(
                       displaying == BlueDyeProgression.stepThree
@@ -205,14 +206,14 @@ class MealFinishedDisplay extends ConsumerWidget {
                           ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(
-                      height: 8.0,
+                      height: AppPadding.small,
                     ),
                   ],
                 ),
               ),
             ),
             const SizedBox(
-              height: 12.0,
+              height: AppPadding.medium,
             ),
             Center(
               child: FilledButton(
@@ -223,7 +224,7 @@ class MealFinishedDisplay extends ConsumerWidget {
               ),
             ),
             const SizedBox(
-              height: 25.0,
+              height: AppPadding.xl,
             ),
           ],
         ),
@@ -289,25 +290,25 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
               ?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(
-          height: 8.0,
+          height: AppPadding.small,
         ),
         Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 450.0),
+            constraints: BoxConstraints(maxWidth: Breakpoint.tiny.value),
             child: Opacity(
               opacity: isLoading ? 0.6 : 1,
               child: IgnorePointer(
                 ignoring: isLoading,
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12.0),
+                    borderRadius: BorderRadius.circular(AppRounding.small),
                     color: ElevationOverlay.applySurfaceTint(
                         Theme.of(context).cardColor,
                         Theme.of(context).colorScheme.surfaceTint,
                         3),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(AppPadding.small),
                     child: Column(
                       children: [
                         Text(
@@ -318,7 +319,7 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
                               ?.copyWith(color: Theme.of(context).primaryColor),
                         ),
                         const SizedBox(
-                          height: 8.0,
+                          height: AppPadding.small,
                         ),
                         ...amountText.keys.map<Widget>((amount) {
                           return RadioListTile<AmountConsumed>(
@@ -339,7 +340,7 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
                               });
                         }),
                         const SizedBox(
-                          height: 8.0,
+                          height: AppPadding.small,
                         ),
                         CheckboxListTile(
                           value: value == AmountConsumed.undetermined,
@@ -373,7 +374,7 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
           ),
         ),
         const SizedBox(
-          height: 12.0,
+          height: AppPadding.medium,
         ),
         Center(
           child: FilledButton(
@@ -386,7 +387,7 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
           ),
         ),
         const SizedBox(
-          height: 25.0,
+          height: AppPadding.xl,
         ),
       ],
     );
@@ -497,7 +498,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
       children: [
         cardLayout
             ? Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -506,13 +507,13 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
               )
             : const Center(child: BlueMealInfoButton()),
         const SizedBox(
-          height: 12,
+          height: AppPadding.medium,
         ),
         AdaptiveCardLayout(
           key: fastQuestionKey,
           cardColor: activeCard,
           child: Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding: const EdgeInsets.all(AppPadding.medium),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -548,7 +549,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                   ),
                 ),
                 const SizedBox(
-                  height: 8.0,
+                  height: AppPadding.small,
                 ),
                 ConstrainedBox(
                   constraints: BoxConstraints(maxWidth: Breakpoint.tiny.value),
@@ -574,7 +575,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                                       : true);
                                 }),
                             const SizedBox(
-                              width: 2.0,
+                              width: AppPadding.tiny,
                             ),
                             Text(context.translate.blueQuestionYes),
                           ],
@@ -599,7 +600,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                                       : false);
                                 }),
                             const SizedBox(
-                              width: 2.0,
+                              width: AppPadding.tiny,
                             ),
                             Text(context.translate.blueQuestionNo),
                           ],
@@ -622,7 +623,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
           ),
         ),
         const SizedBox(
-          height: 12.0,
+          height: AppPadding.medium,
         ),
         IgnorePointer(
           ignoring: completedFast.value == null || !completedFast.value!,
@@ -632,7 +633,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                 ? disabledColor
                 : activeCard,
             child: Padding(
-              padding: const EdgeInsets.all(12.0),
+              padding: const EdgeInsets.all(AppPadding.medium),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -649,7 +650,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   const SizedBox(
-                    height: 8.0,
+                    height: AppPadding.small,
                   ),
                   ...mealTimesText.keys.map<Widget>((amount) {
                     return RadioListTile<MealTime>(
@@ -684,7 +685,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
           ),
         ),
         const SizedBox(
-          height: 12.0,
+          height: AppPadding.medium,
         ),
         IgnorePointer(
           ignoring: mealTime.value == null && (completedFast.value ?? false),
@@ -692,7 +693,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
             key: mealAmountConsumedKey,
             cardColor: mealTime.value == null ? disabledColor : activeCard,
             child: Padding(
-              padding: const EdgeInsets.all(12.0),
+              padding: const EdgeInsets.all(AppPadding.medium),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -709,7 +710,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   const SizedBox(
-                    height: 8.0,
+                    height: AppPadding.small,
                   ),
                   ...amountText.keys.map<Widget>((amount) {
                     return RadioListTile<AmountConsumed>(
@@ -739,7 +740,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
           ),
         ),
         const SizedBox(
-          height: 8.0,
+          height: AppPadding.small,
         ),
         Center(
           child: FilledButton(
@@ -754,7 +755,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
           ),
         ),
         const SizedBox(
-          height: 25.0,
+          height: AppPadding.xl,
         ),
       ],
     );

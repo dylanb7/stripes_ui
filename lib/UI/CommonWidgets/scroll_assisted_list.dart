@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 typedef ScrollBuilder = Widget Function(
     BuildContext context, ScrollViewProperties properties);
@@ -79,7 +80,8 @@ class _ScrollAssistedListState extends State<ScrollAssistedList> {
             alignment: Alignment.bottomRight,
             child: Padding(
               padding: widget.padding ??
-                  const EdgeInsets.only(right: 6.0, bottom: 6.0),
+                  const EdgeInsets.only(
+                      right: AppPadding.tiny, bottom: AppPadding.tiny),
               child: IconButton.filled(
                 onPressed: () {
                   if (scrollsUp) {

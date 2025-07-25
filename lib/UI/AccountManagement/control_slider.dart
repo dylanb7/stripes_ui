@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 String? empty(String? val) {
   return val == null ? 'Not set' : null;
@@ -32,16 +33,18 @@ class PatientControlSelector extends FormField<String> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      height: 51,
+                      height: 50,
                       padding: const EdgeInsets.symmetric(
-                          vertical: 5, horizontal: 15),
+                          vertical: AppPadding.tiny,
+                          horizontal: AppPadding.large),
                       decoration: BoxDecoration(
                           color: Colors.white,
                           border: state.errorText == null
                               ? Border.all(color: Colors.grey)
                               : Border.all(
                                   color: Theme.of(context).colorScheme.error),
-                          borderRadius: BorderRadius.circular(5)),
+                          borderRadius:
+                              BorderRadius.circular(AppRounding.tiny)),
                       child: DropdownButton<String>(
                         onChanged: (value) {
                           listener.isControl = value == 'Control';
@@ -95,7 +98,8 @@ class PatientControlSelector extends FormField<String> {
                     ),
                     if (state.hasError)
                       Padding(
-                          padding: const EdgeInsets.only(left: 14.0, top: 6.0),
+                          padding: const EdgeInsets.only(
+                              left: AppPadding.medium, top: AppPadding.tiny),
                           child: Text(
                             state.errorText!,
                             textAlign: TextAlign.left,
