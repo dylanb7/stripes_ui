@@ -139,8 +139,8 @@ class _PatientScreenState extends ConsumerState<PatientScreen> {
               height: AppPadding.medium,
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
-              child: Wrap(children: [
+              padding: const EdgeInsets.symmetric(horizontal: AppPadding.tiny),
+              child: Wrap(runSpacing: AppPadding.tiny, children: [
                 ConstrainedBox(
                   constraints: BoxConstraints(maxWidth: Breakpoint.small.value),
                   child: const AddUserWidget(),

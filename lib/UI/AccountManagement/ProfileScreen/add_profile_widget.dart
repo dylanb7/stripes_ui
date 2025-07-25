@@ -63,21 +63,24 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
               highlightWidth: 1.0,
               highlightOnShrink: true,
               elevated: false,
-              header: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Add Profile',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  AnimatedOpacity(
-                    duration: Durations.medium1,
-                    opacity: _expandibleListener.expanded ? 0 : 1,
-                    child: const Icon(
-                      Icons.add,
+              header: Padding(
+                padding: const EdgeInsetsGeometry.all(AppPadding.tiny),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Add Profile',
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
-                  ),
-                ],
+                    AnimatedOpacity(
+                      duration: Durations.medium1,
+                      opacity: _expandibleListener.expanded ? 0 : 1,
+                      child: const Icon(
+                        Icons.add,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               view: FocusTraversalGroup(
                 child: Form(
@@ -132,17 +135,21 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
                           ),
                         ),
                       ] else ...[
-                        TextFormField(
-                          validator: (name) {
-                            if (name == null || name.isEmpty) {
-                              return 'Empty Field';
-                            }
-                            return null;
-                          },
-                          controller: _firstName,
-                          decoration: formFieldDecoration(
-                            hintText: 'Enter Profile Name',
+                        Padding(
+                          padding: const EdgeInsetsGeometry.symmetric(
+                              horizontal: AppPadding.small),
+                          child: TextFormField(
+                            validator: (name) {
+                              if (name == null || name.isEmpty) {
+                                return 'Empty Field';
+                              }
+                              return null;
+                            },
                             controller: _firstName,
+                            decoration: formFieldDecoration(
+                              hintText: 'Enter Profile Name',
+                              controller: _firstName,
+                            ),
                           ),
                         ),
                       ],
@@ -158,7 +165,7 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
             ),
             if (_expandibleListener.expanded)
               const SizedBox(
-                height: AppPadding.large,
+                height: AppPadding.xxl,
               ),
           ]),
           if (_expandibleListener.expanded)
