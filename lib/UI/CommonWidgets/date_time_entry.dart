@@ -6,6 +6,7 @@ import 'package:stripes_ui/UI/History/EventView/sig_dates.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 
 import 'package:stripes_ui/Util/mouse_hover.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class DateListener extends ChangeNotifier {
   DateTime date = DateTime.now();
@@ -211,7 +212,7 @@ class DateTimeHolder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final inner = Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      padding: const EdgeInsets.symmetric(vertical: AppPadding.tiny),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,

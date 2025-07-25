@@ -9,6 +9,7 @@ import 'package:stripes_ui/UI/AccountManagement/gender_dropdown.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/form_input.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 import 'package:stripes_ui/Util/validators.dart';
 import 'package:stripes_ui/config.dart';
@@ -58,16 +59,18 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
 
     return OverlayBackdrop(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        padding: const EdgeInsets.symmetric(horizontal: AppPadding.large),
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: Breakpoint.small.value),
           child: IntrinsicHeight(
             child: Card(
               shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                  borderRadius:
+                      BorderRadius.all(Radius.circular(AppRounding.medium)),
                   side: BorderSide(width: 1.0)),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: AppPadding.large),
                 child: Opacity(
                   opacity: isLoading ? 0.6 : 1,
                   child: IgnorePointer(
@@ -84,7 +87,7 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               const SizedBox(
-                                height: 6.0,
+                                height: AppPadding.small,
                               ),
                               Row(
                                 mainAxisAlignment:
@@ -114,7 +117,7 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
                                 ],
                               ),
                               const SizedBox(
-                                height: 6.0,
+                                height: AppPadding.medium,
                               ),
                               if (isName) ...[
                                 TextFormField(
@@ -126,7 +129,7 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
                                       clearable: false),
                                 ),
                                 const SizedBox(
-                                  height: 6.0,
+                                  height: AppPadding.tiny,
                                 ),
                                 TextFormField(
                                   controller: _lastName,
@@ -137,14 +140,14 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
                                       clearable: false),
                                 ),
                                 const SizedBox(
-                                  height: 6.0,
+                                  height: AppPadding.tiny,
                                 ),
                                 BirthYearSelector(
                                   context: context,
                                   controller: _birthYearController,
                                 ),
                                 const SizedBox(
-                                  height: 6.0,
+                                  height: AppPadding.tiny,
                                 ),
                                 GenderDropdown(
                                   context: context,
@@ -167,7 +170,7 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
                                 ),
                               ],
                               const SizedBox(
-                                height: 6.0,
+                                height: AppPadding.small,
                               ),
                               GestureDetector(
                                 onTap: () {
@@ -188,7 +191,7 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
                                 ),
                               ),
                               const SizedBox(
-                                height: 12.0,
+                                height: AppPadding.medium,
                               ),
                             ]),
                       ),

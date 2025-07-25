@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 TooltipThemeData tooltipTheme(BuildContext context) => TooltipThemeData(
       preferBelow: true,
       margin: const EdgeInsets.all(2.0),
-      padding: const EdgeInsets.all(6.0),
+      padding: const EdgeInsets.all(AppPadding.tiny),
       constraints: BoxConstraints(
         maxWidth: Breakpoint.tiny.value,
       ),
@@ -14,7 +15,7 @@ TooltipThemeData tooltipTheme(BuildContext context) => TooltipThemeData(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: const BorderRadius.all(
-          Radius.circular(4.0),
+          Radius.circular(AppRounding.tiny),
         ),
         border: Border.all(
           color: Theme.of(context).colorScheme.onSurface,

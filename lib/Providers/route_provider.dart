@@ -17,6 +17,7 @@ import 'package:stripes_ui/UI/Record/RecordSplit/splitter.dart';
 import 'package:stripes_ui/UI/Layout/home_screen.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/Util/constants.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 final routeProvider = Provider<GoRouter>((ref) {
   final RouteNotifier router = RouteNotifier(ref);
@@ -165,7 +166,7 @@ class RouteNotifier extends ChangeNotifier {
                     children: [
                       const Text("Path does not exist"),
                       const SizedBox(
-                        height: 8.0,
+                        height: AppPadding.small,
                       ),
                       TextButton(
                           onPressed: () {

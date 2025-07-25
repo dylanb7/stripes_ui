@@ -4,6 +4,7 @@ import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_list
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/base.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/question_screen.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class PainAreaWidget extends ConsumerStatefulWidget {
   final QuestionsListener questionsListener;
@@ -139,13 +140,13 @@ class _PainAreaWidgetState extends ConsumerState<PainAreaWidget> {
       question: widget.question,
       listener: widget.questionsListener,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+        padding: const EdgeInsets.symmetric(horizontal: AppPadding.medium),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             const SizedBox(
-              height: 12.0,
+              height: AppPadding.medium,
             ),
             IntrinsicHeight(
               child: Stack(children: [
@@ -154,10 +155,10 @@ class _PainAreaWidgetState extends ConsumerState<PainAreaWidget> {
                   decoration: BoxDecoration(
                     border: Border.all(
                         color: Theme.of(context).colorScheme.onSurface),
-                    borderRadius: BorderRadius.circular(12.0),
+                    borderRadius: BorderRadius.circular(AppRounding.medium),
                   ),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12.0),
+                    borderRadius: BorderRadius.circular(AppRounding.medium),
                     clipBehavior: Clip.hardEdge,
                     child: Image.asset(
                       'packages/stripes_ui/assets/images/abdomin.png',
@@ -203,7 +204,7 @@ class _PainAreaWidgetState extends ConsumerState<PainAreaWidget> {
               ]),
             ),
             const SizedBox(
-              height: 12.0,
+              height: AppPadding.medium,
             ),
             Selection(
                 text: "Unable to determine pain location",
@@ -212,7 +213,7 @@ class _PainAreaWidgetState extends ConsumerState<PainAreaWidget> {
                 },
                 selected: selected?.contains(Area.none) ?? false),
             const SizedBox(
-              height: 12.0,
+              height: AppPadding.medium,
             )
           ],
         ),
@@ -311,7 +312,7 @@ class SelectableTile extends StatelessWidget {
         onSelect(value);
       },
       child: Container(
-        padding: const EdgeInsets.all(4.0),
+        padding: const EdgeInsets.all(AppPadding.tiny),
         width: double.infinity,
         height: double.infinity,
         decoration: BoxDecoration(

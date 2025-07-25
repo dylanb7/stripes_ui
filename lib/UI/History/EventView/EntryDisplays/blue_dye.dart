@@ -5,6 +5,7 @@ import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/amount_consumed.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/Util/extensions.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class BlueDyeVisualDisplay extends StatelessWidget {
   final BlueDyeResp resp;
@@ -35,21 +36,21 @@ class BlueDyeVisualDisplay extends StatelessWidget {
               ?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(
-          height: 8.0,
+          height: AppPadding.small,
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             const Icon(Icons.alarm),
             const SizedBox(
-              width: 6.0,
+              width: AppPadding.tiny,
             ),
             Text(context.translate
                 .mealCompleteStartTime(resp.startEating, resp.startEating))
           ],
         ),
         const SizedBox(
-          height: 8.0,
+          height: AppPadding.small,
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -60,21 +61,21 @@ class BlueDyeVisualDisplay extends StatelessWidget {
               height: iconSize,
             ),
             const SizedBox(
-              width: 6.0,
+              width: AppPadding.tiny,
             ),
             Text(
                 "${context.translate.mealCompleteDuration} ${MealTime.fromDuration(resp.eatingDuration) ?? from(resp.eatingDuration, context)}")
           ],
         ),
         const SizedBox(
-          height: 8.0,
+          height: AppPadding.small,
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             const Icon(Icons.blur_linear),
             const SizedBox(
-              width: 6.0,
+              width: AppPadding.tiny,
             ),
             Flexible(
               child: Text(
@@ -84,7 +85,7 @@ class BlueDyeVisualDisplay extends StatelessWidget {
           ],
         ),
         const SizedBox(
-          height: 12.0,
+          height: AppPadding.medium,
         ),
         Text(
           context.translate.recordingStateTitle,
@@ -94,7 +95,7 @@ class BlueDyeVisualDisplay extends StatelessWidget {
               ?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(
-          height: 8.0,
+          height: AppPadding.small,
         ),
         ...resp.logs
             .map(
@@ -106,11 +107,11 @@ class BlueDyeVisualDisplay extends StatelessWidget {
             )
             .separated(
               by: const SizedBox(
-                height: 8.0,
+                height: AppPadding.small,
               ),
             ),
         const SizedBox(
-          height: 4.0,
+          height: AppPadding.tiny,
         ),
         Text(
           "Transit time: ${from(resp.firstBlue.difference(resp.finishedEatingTime ?? resp.startEating.add(resp.eatingDuration)), context)}",
@@ -120,7 +121,7 @@ class BlueDyeVisualDisplay extends StatelessWidget {
               ?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(
-          height: 4.0,
+          height: AppPadding.tiny,
         ),
         Text(
           "Lag phase: ${from(resp.lastBlue.difference(resp.firstBlue), context)}",

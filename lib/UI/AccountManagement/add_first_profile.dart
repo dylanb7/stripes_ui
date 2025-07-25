@@ -6,6 +6,7 @@ import 'package:stripes_ui/UI/CommonWidgets/form_container.dart';
 import 'package:stripes_ui/UI/AccountManagement/birth_year_selector.dart';
 import 'package:stripes_ui/UI/AccountManagement/gender_dropdown.dart';
 import 'package:stripes_ui/Util/form_input.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 import 'package:stripes_ui/Util/validators.dart';
 import 'package:stripes_ui/config.dart';
 import 'package:stripes_ui/entry.dart';
@@ -68,7 +69,7 @@ class _CreatePatientState extends ConsumerState<CreatePatient> {
         ],
       ),
       form: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        padding: const EdgeInsets.symmetric(horizontal: AppPadding.large),
         child: Form(
           key: _formKey,
           child: Column(
@@ -76,7 +77,7 @@ class _CreatePatientState extends ConsumerState<CreatePatient> {
             children: config.profileType == ProfileType.name
                 ? [
                     const SizedBox(
-                      height: 12.0,
+                      height: AppPadding.medium,
                     ),
                     TextFormField(
                       validator: nameValidator,
@@ -87,7 +88,7 @@ class _CreatePatientState extends ConsumerState<CreatePatient> {
                       ),
                     ),
                     const SizedBox(
-                      height: 8.0,
+                      height: AppPadding.small,
                     ),
                     TextFormField(
                       validator: nameValidator,
@@ -98,7 +99,7 @@ class _CreatePatientState extends ConsumerState<CreatePatient> {
                       ),
                     ),
                     const SizedBox(
-                      height: 8.0,
+                      height: AppPadding.small,
                     ),
                     IntrinsicHeight(
                         child: Row(
@@ -112,7 +113,7 @@ class _CreatePatientState extends ConsumerState<CreatePatient> {
                           ),
                         ),
                         const SizedBox(
-                          width: 8.0,
+                          width: AppPadding.small,
                         ),
                         Expanded(
                           flex: 1,
@@ -130,7 +131,7 @@ class _CreatePatientState extends ConsumerState<CreatePatient> {
                       ],
                     )),
                     const SizedBox(
-                      height: 8.0,
+                      height: AppPadding.small,
                     ),
                     FilledButton(
                       child: const Text('Add Profile'),
@@ -139,12 +140,12 @@ class _CreatePatientState extends ConsumerState<CreatePatient> {
                       },
                     ),
                     const SizedBox(
-                      height: 12.0,
+                      height: AppPadding.medium,
                     ),
                   ]
                 : [
                     const SizedBox(
-                      height: 12.0,
+                      height: AppPadding.medium,
                     ),
                     TextFormField(
                       validator: (name) {
@@ -158,7 +159,7 @@ class _CreatePatientState extends ConsumerState<CreatePatient> {
                       ),
                     ),
                     const SizedBox(
-                      height: 8.0,
+                      height: AppPadding.small,
                     ),
                     FilledButton(
                       child: const Text('Add Profile'),
@@ -167,7 +168,7 @@ class _CreatePatientState extends ConsumerState<CreatePatient> {
                       },
                     ),
                     const SizedBox(
-                      height: 12.0,
+                      height: AppPadding.large,
                     ),
                   ],
           ),

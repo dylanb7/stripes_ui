@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stripes_ui/UI/CommonWidgets/styled_tooltip.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class FrequencyRow extends StatelessWidget {
   final double percent;
@@ -34,7 +35,7 @@ class FrequencyRow extends StatelessWidget {
         clipBehavior: Clip.hardEdge,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(
-            Radius.circular(15.0),
+            Radius.circular(AppRounding.large),
           ),
         ),
         elevation: 6.0,
@@ -49,15 +50,15 @@ class FrequencyRow extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: fillColor,
                       borderRadius: const BorderRadius.only(
-                        topRight: Radius.circular(15.0),
-                        bottomRight: Radius.circular(15.0),
+                        topRight: Radius.circular(AppRounding.large),
+                        bottomRight: Radius.circular(AppRounding.large),
                       ),
                     ),
                   ),
                 ),
               ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(AppPadding.small),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -68,7 +69,7 @@ class FrequencyRow extends StatelessWidget {
                         : text,
                   ),
                   const SizedBox(
-                    width: 12.0,
+                    width: AppPadding.medium,
                   ),
                   Text(
                     '$amount',

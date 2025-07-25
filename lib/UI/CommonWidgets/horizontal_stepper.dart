@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class HorizontalStepper extends StatelessWidget {
   final List<HorizontalStep> steps;
@@ -41,7 +42,7 @@ class HorizontalStepper extends StatelessWidget {
                 .toList(),
           ),
           const SizedBox(
-            height: 8,
+            height: AppPadding.small,
           ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,

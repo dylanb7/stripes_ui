@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class StyledTooltip extends StatelessWidget {
   final String message;
@@ -19,14 +20,14 @@ class StyledTooltip extends StatelessWidget {
     return Tooltip(
       triggerMode: TooltipTriggerMode.tap,
       message: hasTitle ? null : message,
-      padding: const EdgeInsets.all(8.0),
-      margin: const EdgeInsets.all(4.0),
+      padding: const EdgeInsets.all(AppPadding.small),
+      margin: const EdgeInsets.all(AppPadding.tiny),
       preferBelow: true,
       constraints: BoxConstraints(maxWidth: Breakpoint.tiny.value),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: const BorderRadius.all(
-          Radius.circular(4.0),
+          Radius.circular(AppRounding.tiny),
         ),
         border: Border.all(color: Theme.of(context).colorScheme.onSurface),
       ),

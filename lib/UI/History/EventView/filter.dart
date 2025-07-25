@@ -5,7 +5,9 @@ import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
+import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/extensions.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class FilterView extends ConsumerWidget {
   const FilterView({super.key});
@@ -15,8 +17,8 @@ class FilterView extends ConsumerWidget {
     final Filters filters = ref.watch(filtersProvider);
     final String range = filters.toRange(context);
     return Wrap(
-      spacing: 6.0,
-      runSpacing: 6.0,
+      spacing: AppPadding.tiny,
+      runSpacing: AppPadding.tiny,
       alignment: WrapAlignment.start,
       crossAxisAlignment: WrapCrossAlignment.start,
       children: [
@@ -35,7 +37,7 @@ class FilterView extends ConsumerWidget {
                 context.translate.filterEventsButton,
               ),
               const SizedBox(
-                width: 4.0,
+                width: AppPadding.tiny,
               ),
               const Icon(
                 Icons.filter_list,
@@ -84,7 +86,7 @@ class RemoveChip extends StatelessWidget {
       icon: const Icon(Icons.close),
       style: Theme.of(context).filledButtonTheme.style?.copyWith(
           padding: const WidgetStatePropertyAll(
-              EdgeInsets.symmetric(horizontal: 6.0))),
+              EdgeInsets.symmetric(horizontal: AppPadding.tiny))),
       iconAlignment: IconAlignment.end,
     );
   }
@@ -184,7 +186,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const SizedBox(
-                width: 35,
+                width: AppPadding.xl,
               ),
               Text(
                 context.translate.eventFilterHeader,
@@ -201,7 +203,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
             ],
           ),
           const SizedBox(
-            height: 6.0,
+            height: AppPadding.tiny,
           ),
           if (availibleTypes.length > 1) ...[
             Text(
@@ -210,18 +212,18 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
               textAlign: TextAlign.left,
             ),
             const SizedBox(
-              height: 6.0,
+              height: AppPadding.small,
             ),
             Wrap(
               direction: Axis.horizontal,
               alignment: WrapAlignment.start,
               crossAxisAlignment: WrapCrossAlignment.start,
-              spacing: 5.0,
-              runSpacing: 5.0,
+              spacing: AppPadding.tiny,
+              runSpacing: AppPadding.tiny,
               children: availibleTypes.map((type) {
                 final bool selected = selectedTypes.contains(type);
                 return ChoiceChip(
-                  padding: const EdgeInsets.all(5.0),
+                  padding: const EdgeInsets.all(AppPadding.tiny),
                   label: Text(
                     type,
                   ),
@@ -240,7 +242,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
               }).toList(),
             ),
             const SizedBox(
-              height: 6.0,
+              height: AppPadding.tiny,
             ),
             if (availibleGroups.isNotEmpty) ...[
               Text(
@@ -249,18 +251,18 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                 textAlign: TextAlign.left,
               ),
               const SizedBox(
-                height: 6.0,
+                height: AppPadding.small,
               ),
               Wrap(
                 direction: Axis.horizontal,
                 alignment: WrapAlignment.start,
                 crossAxisAlignment: WrapCrossAlignment.start,
-                spacing: 5.0,
-                runSpacing: 5.0,
+                spacing: AppPadding.tiny,
+                runSpacing: AppPadding.tiny,
                 children: availibleGroups.map((type) {
                   final bool selected = selectedTypes.contains(type);
                   return ChoiceChip(
-                    padding: const EdgeInsets.all(5.0),
+                    padding: const EdgeInsets.all(AppPadding.tiny),
                     label: Text(
                       type,
                     ),
@@ -299,7 +301,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                 initialEnd: newRange?.end,
               ),*/
             const SizedBox(
-              height: 12.0,
+              height: AppPadding.medium,
             ),
             Row(
               children: [
@@ -316,7 +318,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
                   ),
                 ),
                 const SizedBox(
-                  width: 12.0,
+                  width: AppPadding.medium,
                 ),
                 Expanded(
                   child: FilledButton(
@@ -329,7 +331,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
               ],
             ),
             const SizedBox(
-              height: 6.0,
+              height: AppPadding.tiny,
             ),
           ],
         ]);
@@ -364,19 +366,21 @@ class _PopUpStyle extends StatelessWidget {
   Widget build(BuildContext context) {
     return OverlayBackdrop(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        padding: const EdgeInsets.symmetric(horizontal: AppPadding.small),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 450),
+          constraints: BoxConstraints(maxWidth: Breakpoint.tiny.value),
           child: SingleChildScrollView(
             child: Card(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
                 child: DecoratedBox(
                   decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(15.0))),
+                      borderRadius:
+                          BorderRadius.all(Radius.circular(AppRounding.small))),
                   child: Padding(
                       padding: const EdgeInsets.symmetric(
-                          vertical: 8.0, horizontal: 15.0),
+                          vertical: AppPadding.small,
+                          horizontal: AppPadding.large),
                       child: child),
                 ),
               ),

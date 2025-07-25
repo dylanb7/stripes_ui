@@ -19,6 +19,7 @@ import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 import 'package:stripes_ui/config.dart';
 
 import 'package:stripes_ui/entry.dart';
@@ -73,13 +74,13 @@ class RecordScreenContent extends ConsumerWidget {
                 constraints: BoxConstraints(maxWidth: Breakpoint.medium.value),
                 child: Column(children: [
                   const SizedBox(
-                    height: 20,
+                    height: AppPadding.xl,
                   ),
                   const Header(),
                   const Options(),
                   if (hasIndicator)
                     const SizedBox(
-                      height: 100.0,
+                      height: AppPadding.xxxl,
                     ),
                 ]),
               ),
@@ -109,7 +110,10 @@ class HistoryScreenContent extends ConsumerWidget {
                 slivers: [
                   SliverPadding(
                     padding: const EdgeInsets.only(
-                        left: 20, right: 20, top: 20, bottom: 12.0),
+                        left: AppPadding.xl,
+                        right: AppPadding.xl,
+                        top: AppPadding.xl,
+                        bottom: AppPadding.medium),
                     sliver: SliverToBoxAdapter(
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -134,17 +138,18 @@ class HistoryScreenContent extends ConsumerWidget {
                   SliverConstrainedCrossAxis(
                     maxExtent: Breakpoint.small.value,
                     sliver: SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: AppPadding.xl),
                       sliver: SliverList(
                         delegate: SliverChildListDelegate(
                           const [
                             FilterView(),
                             SizedBox(
-                              height: 8.0,
+                              height: AppPadding.small,
                             ),
                             EventsCalendar(),
                             SizedBox(
-                              height: 16.0,
+                              height: AppPadding.large,
                             ),
                             ActionRow()
                           ],
@@ -168,7 +173,10 @@ class HistoryScreenContent extends ConsumerWidget {
             flex: 2,
             child: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
+                padding: const EdgeInsets.only(
+                    left: AppPadding.xl,
+                    right: AppPadding.xl,
+                    top: AppPadding.xl),
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 800),
                   child: const Column(
@@ -179,11 +187,11 @@ class HistoryScreenContent extends ConsumerWidget {
                         tab: TabOption.history,
                       ),
                       SizedBox(
-                        height: 12.0,
+                        height: AppPadding.medium,
                       ),
                       FilterView(),
                       SizedBox(
-                        height: 8.0,
+                        height: AppPadding.small,
                       ),
                       EventsCalendar(),
                     ],
@@ -200,7 +208,10 @@ class HistoryScreenContent extends ConsumerWidget {
               slivers: [
                 SliverPadding(
                   padding: EdgeInsets.only(
-                      top: 8.0, left: 12.0, right: 12.0, bottom: 8.0),
+                      top: AppPadding.small,
+                      left: AppPadding.medium,
+                      right: AppPadding.medium,
+                      bottom: AppPadding.small),
                   sliver: SliverToBoxAdapter(
                     child: ActionRow(),
                   ),
@@ -329,8 +340,8 @@ class SmallLayout extends ConsumerWidget {
         ref.watch(testsHolderProvider).value?.testsRepo?.tests.isNotEmpty ??
             false;
     const divider = VerticalDivider(
-      endIndent: 10.0,
-      indent: 10.0,
+      endIndent: AppPadding.small,
+      indent: AppPadding.small,
       thickness: 1.0,
       width: 1.0,
     );
@@ -427,14 +438,15 @@ class NavTile extends StatelessWidget {
         onTap();
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+        padding: const EdgeInsets.symmetric(
+            horizontal: AppPadding.small, vertical: AppPadding.tiny),
         child: AnimatedContainer(
           duration: Durations.short4,
           decoration: selected
               ? BoxDecoration(
                   color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
                   borderRadius: const BorderRadius.all(
-                    Radius.circular(6.0),
+                    Radius.circular(AppRounding.tiny),
                   ),
                 )
               : const BoxDecoration(),
@@ -501,7 +513,8 @@ class LargeNavButton extends ConsumerWidget {
     Widget button() => TextButton(
         style: ButtonStyle(
             shape: WidgetStateProperty.all(const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(6.0))))),
+                borderRadius:
+                    BorderRadius.all(Radius.circular(AppRounding.tiny))))),
         onPressed: () {
           String route = Routes.HOME;
           if (tab == TabOption.tests) {
@@ -532,7 +545,7 @@ class LargeNavButton extends ConsumerWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
           borderRadius: const BorderRadius.all(
-            Radius.circular(6.0),
+            Radius.circular(AppRounding.tiny),
           ),
         ),
         child: child,

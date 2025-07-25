@@ -11,6 +11,7 @@ import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 import 'package:stripes_ui/config.dart';
 import 'package:stripes_ui/entry.dart';
 import 'package:path_provider/path_provider.dart';
@@ -199,16 +200,16 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
 
     return OverlayBackdrop(
         child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 25.0),
+            padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: const BorderRadius.all(
-                  Radius.circular(8.0),
+                  Radius.circular(AppRounding.small),
                 ),
                 color: Theme.of(context).scaffoldBackgroundColor,
               ),
               child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(AppPadding.small),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -231,7 +232,7 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
                                 ))
                           ]),
                       const SizedBox(
-                        height: 8,
+                        height: AppPadding.small,
                       ),
                       Text(
                         context.translate.exportDialog,
@@ -239,7 +240,7 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(
-                        height: 8,
+                        height: AppPadding.small,
                       ),
                       if (errorMessage != null) ...[
                         Text(
@@ -251,7 +252,7 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
                                   color: Theme.of(context).colorScheme.error),
                         ),
                         const SizedBox(
-                          height: 8,
+                          height: AppPadding.small,
                         )
                       ],
                       if (!loading && !done)

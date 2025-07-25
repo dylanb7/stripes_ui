@@ -7,6 +7,7 @@ import 'package:stripes_backend_helper/TestingReposImpl/test_question_repo.dart'
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_dye_test_screen.dart';
 import 'package:stripes_ui/Util/extensions.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 final Map<SubUser, BlueDyeState?> _repo = {};
 
@@ -112,12 +113,12 @@ class BlueDyeTest extends Test<BlueDyeState> {
           color: Theme.of(context).colorScheme.secondary.darken(),
         ),
         borderRadius: const BorderRadius.all(
-          Radius.circular(6.0),
+          Radius.circular(AppRounding.tiny),
         ),
         color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(4.0),
+        padding: const EdgeInsets.all(AppPadding.tiny),
         child: Text(
           context.translate.testInProgressNotif,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(

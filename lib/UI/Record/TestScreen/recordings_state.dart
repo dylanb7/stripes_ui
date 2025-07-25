@@ -19,6 +19,7 @@ import 'package:stripes_ui/UI/Record/TestScreen/card_layout_helper.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/extensions.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class RecordingsView extends ConsumerWidget {
   final Function? next;
@@ -48,7 +49,7 @@ class RecordingsView extends ConsumerWidget {
           fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
     );
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: cardLayout ? 20.0 : 0),
+      padding: EdgeInsets.symmetric(horizontal: cardLayout ? AppPadding.xl : 0),
       child: ConstrainedBox(
         constraints: BoxConstraints(
             maxWidth: cardLayout ? Breakpoint.small.value : double.infinity),
@@ -57,7 +58,7 @@ class RecordingsView extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(
-                height: 6.0,
+                height: AppPadding.tiny,
               ),
               cardLayout
                   ? Row(
@@ -67,17 +68,17 @@ class RecordingsView extends ConsumerWidget {
                     )
                   : const Center(child: BlueMealInfoButton()),
               const SizedBox(
-                height: 6.0,
+                height: AppPadding.tiny,
               ),
               DecoratedBox(
                 decoration: BoxDecoration(
                   borderRadius: cardLayout
-                      ? BorderRadius.circular(12.0)
+                      ? BorderRadius.circular(AppRounding.medium)
                       : const BorderRadius.all(Radius.circular(0)),
                   color: panelColor,
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(12.0),
+                  padding: const EdgeInsets.all(AppPadding.medium),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,11 +95,11 @@ class RecordingsView extends ConsumerWidget {
                             ?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(
-                        height: 8.0,
+                        height: AppPadding.small,
                       ),
                       BMDisplay(logs: logs),
                       const SizedBox(
-                        height: 8.0,
+                        height: AppPadding.small,
                       ),
                       Text(
                         clicked == BlueDyeProgression.stepTwo
@@ -119,14 +120,14 @@ class RecordingsView extends ConsumerWidget {
                               ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                       const SizedBox(
-                        height: 12.0,
+                        height: AppPadding.medium,
                       ),
                     ],
                   ),
                 ),
               ),
               const SizedBox(
-                height: 12.0,
+                height: AppPadding.medium,
               ),
               if (clicked != BlueDyeProgression.stepFive) ...[
                 Center(
@@ -140,7 +141,7 @@ class RecordingsView extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(
-                  height: 25.0,
+                  height: AppPadding.xl,
                 ),
               ],
             ]),
@@ -197,7 +198,7 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
     return Column(
       children: [
         const SizedBox(
-          height: 6.0,
+          height: AppPadding.small,
         ),
         cardLayout
             ? ConstrainedBox(
@@ -210,12 +211,12 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
               )
             : const Center(child: BlueMealInfoButton()),
         const SizedBox(
-          height: 6.0,
+          height: AppPadding.tiny,
         ),
         AdaptiveCardLayout(
           cardColor: cardColor,
           child: Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding: const EdgeInsets.all(AppPadding.medium),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
@@ -232,21 +233,21 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
                       ?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(
-                  height: 4.0,
+                  height: AppPadding.tiny,
                 ),
                 Text(
                   context.translate.blueMealWaitTimeLineOne,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 const SizedBox(
-                  height: 4.0,
+                  height: AppPadding.tiny,
                 ),
                 Text(
                   context.translate.blueMealWaitTimeLineTwo,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 const SizedBox(
-                  height: 4.0,
+                  height: AppPadding.tiny,
                 ),
                 if (!canProgress && !kIsWeb) ...[
                   Text(
@@ -254,7 +255,7 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   const SizedBox(
-                    height: 6.0,
+                    height: AppPadding.tiny,
                   ),
                   Center(
                     child: TextButton.icon(
@@ -277,7 +278,7 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
                   )
                 ],
                 const SizedBox(
-                  height: 8.0,
+                  height: AppPadding.small,
                 ),
                 Center(
                   child: Text(
@@ -286,18 +287,19 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
                   ),
                 ),
                 const SizedBox(
-                  height: 6.0,
+                  height: AppPadding.tiny,
                 ),
                 Center(
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(AppRounding.small),
                       border: Border.all(
                           width: 1.0, color: Theme.of(context).primaryColor),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 6.0, vertical: 4.0),
+                          horizontal: AppPadding.small,
+                          vertical: AppPadding.tiny),
                       child: canProgress
                           ? const Icon(Icons.check, size: 40.0)
                           : Text(
@@ -345,7 +347,7 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
           ),
         ),
         const SizedBox(
-          height: 12.0,
+          height: AppPadding.medium,
         ),
         Center(
           child: FilledButton(
@@ -358,7 +360,7 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
           ),
         ),
         const SizedBox(
-          height: 25.0,
+          height: AppPadding.xl,
         ),
       ],
     );
@@ -478,18 +480,18 @@ class _RecordingsWaitingState extends ConsumerState<RecordingsWaiting> {
         children: [
           const BlueStudyInstructionsPartTwo(initiallyExpanded: false),
           const SizedBox(
-            height: 12.0,
+            height: AppPadding.medium,
           ),
           DecoratedBox(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12.0),
+              borderRadius: BorderRadius.circular(AppRounding.medium),
               color: ElevationOverlay.applySurfaceTint(
                   Theme.of(context).cardColor,
                   Theme.of(context).colorScheme.surfaceTint,
                   3),
             ),
             child: Padding(
-              padding: const EdgeInsets.all(12.0),
+              padding: const EdgeInsets.all(AppPadding.medium),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -502,11 +504,11 @@ class _RecordingsWaitingState extends ConsumerState<RecordingsWaiting> {
                         ?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(
-                    height: 8.0,
+                    height: AppPadding.small,
                   ),
                   BMDisplay(logs: orderedTests[0].test.logs),
                   const SizedBox(
-                    height: 8.0,
+                    height: AppPadding.small,
                   ),
                   Center(
                       child: Text(
@@ -530,7 +532,7 @@ class _RecordingsWaitingState extends ConsumerState<RecordingsWaiting> {
                       textAlign: TextAlign.center,
                     )),
                     const SizedBox(
-                      height: 8.0,
+                      height: AppPadding.small,
                     ),
                     Center(
                       child: TextButton(
@@ -550,14 +552,14 @@ class _RecordingsWaitingState extends ConsumerState<RecordingsWaiting> {
                     )
                   ],
                   const SizedBox(
-                    height: 12.0,
+                    height: AppPadding.medium,
                   ),
                 ],
               ),
             ),
           ),
           const SizedBox(
-            height: 12.0,
+            height: AppPadding.medium,
           ),
           if (canProgress) ...[
             Center(
@@ -571,7 +573,7 @@ class _RecordingsWaitingState extends ConsumerState<RecordingsWaiting> {
               ),
             ),
             const SizedBox(
-              height: 25.0,
+              height: AppPadding.xl,
             )
           ]
         ]);
@@ -644,7 +646,7 @@ class _RecordingsState extends ConsumerState<RecordingsState> {
     );
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: cardLayout ? 20.0 : 0),
+      padding: EdgeInsets.symmetric(horizontal: cardLayout ? AppPadding.xl : 0),
       child: ConstrainedBox(
         constraints: BoxConstraints(
             maxWidth: cardLayout ? Breakpoint.small.value : double.infinity),
@@ -652,7 +654,7 @@ class _RecordingsState extends ConsumerState<RecordingsState> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const SizedBox(
-              height: 6,
+              height: AppPadding.tiny,
             ),
             cardLayout
                 ? Row(
@@ -662,23 +664,23 @@ class _RecordingsState extends ConsumerState<RecordingsState> {
                   )
                 : const Center(child: BlueMealInfoButton()),
             const SizedBox(
-              height: 6,
+              height: AppPadding.tiny,
             ),
             stage == BlueDyeProgression.stepTwo
                 ? BlueStudyInstructionsPartTwo(initiallyExpanded: emptyLogs)
                 : const BlueStudyInstructionsPartFour(),
             const SizedBox(
-              height: 12.0,
+              height: AppPadding.medium,
             ),
             DecoratedBox(
               decoration: BoxDecoration(
                 borderRadius: cardLayout
-                    ? BorderRadius.circular(12.0)
+                    ? BorderRadius.circular(AppRounding.medium)
                     : BorderRadius.circular(0),
                 color: panelColor,
               ),
               child: Padding(
-                padding: const EdgeInsets.all(12.0),
+                padding: const EdgeInsets.all(AppRounding.medium),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -691,7 +693,7 @@ class _RecordingsState extends ConsumerState<RecordingsState> {
                           ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(
-                      height: 8.0,
+                      height: AppPadding.small,
                     ),
                     emptyLogs
                         ? Center(
@@ -707,7 +709,7 @@ class _RecordingsState extends ConsumerState<RecordingsState> {
                           )
                         : BMDisplay(logs: blueDyeState.logs),
                     const SizedBox(
-                      height: 8.0,
+                      height: AppPadding.small,
                     ),
                     Center(
                       child: FilledButton(
@@ -721,14 +723,14 @@ class _RecordingsState extends ConsumerState<RecordingsState> {
                       ),
                     ),
                     const SizedBox(
-                      height: 12.0,
+                      height: AppPadding.medium,
                     ),
                   ],
                 ),
               ),
             ),
             const SizedBox(
-              height: 35.0,
+              height: AppPadding.xxl,
             ),
           ],
         ),
@@ -780,7 +782,7 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
     );
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: cardLayout ? 20.0 : 0),
+      padding: EdgeInsets.symmetric(horizontal: cardLayout ? AppPadding.xl : 0),
       child: ConstrainedBox(
         constraints: BoxConstraints(
             maxWidth: cardLayout ? Breakpoint.small.value : double.infinity),
@@ -788,7 +790,7 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const SizedBox(
-              height: 6,
+              height: AppPadding.small,
             ),
             cardLayout
                 ? ConstrainedBox(
@@ -804,27 +806,27 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
                     child: BlueMealInfoButton(),
                   ),
             const SizedBox(
-              height: 12.0,
+              height: AppPadding.medium,
             ),
             BlueStudyInstructionsBMLogs(
               step: stage,
             ),
             const SizedBox(
-              height: 12.0,
+              height: AppPadding.medium,
             ),
             AdaptiveCardLayout(
               cardColor: Colors.yellow.withValues(alpha: 0.35),
               child: Padding(
-                  padding: const EdgeInsets.all(12.0),
+                  padding: const EdgeInsets.all(AppPadding.medium),
                   child: Text(context.translate.blueMealRecordInstructions)),
             ),
             const SizedBox(
-              height: 12.0,
+              height: AppPadding.medium,
             ),
             AdaptiveCardLayout(
               cardColor: panelColor,
               child: Padding(
-                padding: const EdgeInsets.all(12.0),
+                padding: const EdgeInsets.all(AppPadding.medium),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -837,7 +839,7 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
                           ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(
-                      height: 8.0,
+                      height: AppPadding.small,
                     ),
                     emptyLogs
                         ? Center(
@@ -851,7 +853,7 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
                           )
                         : BMDisplay(logs: blueDyeState.logs),
                     const SizedBox(
-                      height: 8.0,
+                      height: AppPadding.small,
                     ),
                     Center(
                       child: ConstrainedBox(
@@ -872,7 +874,7 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
                                   .lighten(35),
                             ),
                             padding: WidgetStateProperty.all(
-                                const EdgeInsets.all(8.0)),
+                                const EdgeInsets.all(AppPadding.small)),
                             side: WidgetStateProperty.all(BorderSide(
                                 color: Theme.of(context)
                                     .colorScheme
@@ -882,7 +884,7 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
                             shape: WidgetStateProperty.all(
                               const RoundedRectangleBorder(
                                 borderRadius: BorderRadius.all(
-                                  Radius.circular(4.0),
+                                  Radius.circular(AppRounding.tiny),
                                 ),
                               ),
                             ),
@@ -907,14 +909,14 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
                       ),
                     ),
                     const SizedBox(
-                      height: 12.0,
+                      height: AppPadding.medium,
                     ),
                   ],
                 ),
               ),
             ),
             const SizedBox(
-              height: 35.0,
+              height: AppPadding.xxl,
             ),
           ],
         ),
@@ -959,7 +961,7 @@ class BMDisplay extends StatelessWidget {
             ]);*/
       }).separated(
           by: const SizedBox(
-        height: 8.0,
+        height: AppPadding.small,
       )),
     );
   }

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 import 'package:stripes_ui/entry.dart';
 
 import 'history_toggle.dart';
@@ -27,7 +28,8 @@ class LocationBar extends ConsumerWidget {
       return const SliverToBoxAdapter();
     }
     return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+      padding: const EdgeInsets.symmetric(
+          horizontal: AppPadding.xl, vertical: AppPadding.medium),
       sliver: SliverToBoxAdapter(
         child: Center(
           child: SizedBox(
@@ -48,7 +50,7 @@ class LocationBar extends ConsumerWidget {
                                     (element) => locMap[element] == value));
                       }),
                 const SizedBox(
-                  height: 4.0,
+                  height: AppPadding.tiny,
                 ),
                 if (location.loc == Loc.graph)
                   LocationToggle(

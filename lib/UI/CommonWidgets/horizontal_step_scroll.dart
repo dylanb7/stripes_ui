@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class HorizontalStepScrollController {}
 
@@ -19,7 +20,7 @@ class HorizontalStepScroll extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const double spaceBetween = 16.0;
+    const double spaceBetween = AppPadding.large;
     final bool shouldWrap =
         getBreakpoint(context).isLessThan(Breakpoint.medium);
     final int flooredProgress = progress.floor();
@@ -64,7 +65,7 @@ class HorizontalStepScroll extends StatelessWidget {
             .mapIndexed((index, step) =>
                 _getWidget(step, index, index <= flooredProgress))
             .toList()
-            .spacedBy(space: 12.0, axis: Axis.horizontal),
+            .spacedBy(space: AppPadding.medium, axis: Axis.horizontal),
       ),
     );
   }

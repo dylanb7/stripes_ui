@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/Providers/graph_data_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 import 'freq_expand.dart';
 import 'frequency_row.dart';
@@ -40,7 +41,7 @@ class EventFrequency extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         const SizedBox(
-          height: 14.0,
+          height: AppPadding.medium,
         ),
         FittedBox(
           fit: BoxFit.scaleDown,
@@ -51,15 +52,15 @@ class EventFrequency extends ConsumerWidget {
           ),
         ),
         const SizedBox(
-          height: 8.0,
+          height: AppPadding.small,
         ),
         Card(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRounding.medium)),
           child: Column(
             children: [
               const SizedBox(
-                height: 6.0,
+                height: AppPadding.tiny,
               ),
               ...catMap.keys.map((key) {
                 final int catVal = catMap[key]!;
@@ -74,7 +75,8 @@ class EventFrequency extends ConsumerWidget {
                 };
                 if (displayed.isEmpty) {
                   return Padding(
-                    padding: const EdgeInsets.only(left: 8.0, right: 32.0),
+                    padding: const EdgeInsets.only(
+                        left: AppPadding.small, right: AppPadding.xxl),
                     child: FrequencyRow(
                         percent: catVal.toDouble() / maxLengthCat,
                         amount: catVal,
@@ -101,7 +103,8 @@ class EventFrequency extends ConsumerWidget {
                       hasTooltip: false,
                       prompt: key),
                   view: Padding(
-                    padding: const EdgeInsets.only(left: 20.0, right: 28.0),
+                    padding: const EdgeInsets.only(
+                        left: AppPadding.xl, right: AppPadding.xl),
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -130,7 +133,7 @@ class EventFrequency extends ConsumerWidget {
                 );
               }),
               const SizedBox(
-                height: 8.0,
+                height: AppPadding.small,
               ),
             ],
           ),

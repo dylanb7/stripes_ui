@@ -8,6 +8,7 @@ import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/Util/extensions.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 import 'package:stripes_ui/config.dart';
 import 'package:stripes_ui/entry.dart';
 
@@ -107,8 +108,10 @@ class UserSelect extends ConsumerWidget {
           child: SafeArea(
             child: SingleChildScrollView(
               child: Padding(
-                padding:
-                    const EdgeInsets.only(left: 30.0, right: 30.0, top: 30),
+                padding: const EdgeInsets.only(
+                    left: AppPadding.xxl,
+                    right: AppPadding.xxl,
+                    top: AppPadding.xxl),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -145,8 +148,8 @@ class UserSelect extends ConsumerWidget {
                       children: subUsers
                           .map(
                             (user) => Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 5.0),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: AppPadding.tiny),
                               child: user.uid == current?.uid
                                   ? _getSelected(
                                       ref,

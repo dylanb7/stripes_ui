@@ -9,6 +9,7 @@ import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/question_screen.dart';
 import 'package:stripes_ui/UI/Record/severity_slider.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class MultiChoiceEntry extends ConsumerStatefulWidget {
   final MultipleChoice question;
@@ -40,12 +41,13 @@ class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
     final List<String> answers = widget.question.choices;
     final int? selectedIndex = selected();
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      padding: const EdgeInsets.symmetric(vertical: AppPadding.tiny),
       child: QuestionWrap(
         question: widget.question,
         listener: widget.listener,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppPadding.small, vertical: AppPadding.small),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -59,7 +61,7 @@ class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
               ),
               if (widget.question.userCreated) ...[
                 const SizedBox(
-                  height: 4.0,
+                  height: AppPadding.tiny,
                 ),
                 Text(
                   "custom symptom",
@@ -69,7 +71,7 @@ class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
                 ),
               ],
               const SizedBox(
-                height: 8.0,
+                height: AppPadding.small,
               ),
               Column(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -222,12 +224,15 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
     return Stack(
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: 9.0, right: 6.0, left: 6.0),
+          padding: const EdgeInsets.only(
+              top: AppPadding.small,
+              right: AppPadding.tiny,
+              left: AppPadding.tiny),
           child: QuestionWrap(
             question: widget.question,
             listener: widget.questionsListener,
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(AppPadding.small),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -237,7 +242,7 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
                   ),
                   if (widget.question.userCreated) ...[
                     const SizedBox(
-                      height: 4.0,
+                      height: AppPadding.tiny,
                     ),
                     Text(
                       "custom symptom",
@@ -247,7 +252,7 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
                     ),
                   ],
                   const SizedBox(
-                    height: 8.0,
+                    height: AppPadding.small,
                   ),
                   StripesSlider(
                     initial: value.toInt(),
@@ -270,7 +275,7 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
         if (_sliderListener.hasInteracted)
           Positioned(
             right: 0.0,
-            top: 3.0,
+            top: AppPadding.tiny,
             child: GestureDetector(
               behavior: HitTestBehavior.translucent,
               onTap: () {
@@ -283,7 +288,7 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
                     border: Border.all(),
                     color: Theme.of(context).colorScheme.surface),
                 child: const Padding(
-                  padding: EdgeInsets.all(4.0),
+                  padding: EdgeInsets.all(AppPadding.tiny),
                   child: Icon(
                     Icons.close,
                     size: 14.0,
@@ -357,18 +362,20 @@ class _FreeResponseEntryState extends State<FreeResponseEntry> {
             ? const BorderSide(color: Colors.grey, width: 1)
             : BorderSide(
                 color: Theme.of(context).colorScheme.secondary, width: 1),
-        borderRadius: const BorderRadius.all(Radius.circular(8.0)));
+        borderRadius:
+            const BorderRadius.all(Radius.circular(AppRounding.tiny)));
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      padding: const EdgeInsets.symmetric(vertical: AppPadding.tiny),
       child: Card(
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(
-            Radius.circular(15.0),
+            Radius.circular(AppRounding.medium),
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppPadding.small, vertical: AppPadding.tiny),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
@@ -381,7 +388,7 @@ class _FreeResponseEntryState extends State<FreeResponseEntry> {
                 ),
               ),
               const SizedBox(
-                width: 8.0,
+                width: AppPadding.small,
               ),
               SizedBox(
                 height: 120,
@@ -397,7 +404,8 @@ class _FreeResponseEntryState extends State<FreeResponseEntry> {
                       focusedBorder: borderStyle,
                       border: borderStyle,
                       contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 8.0, vertical: 5.0)),
+                          horizontal: AppPadding.small,
+                          vertical: AppPadding.tiny)),
                 ),
               ),
             ],
@@ -483,19 +491,23 @@ class Selection extends StatelessWidget {
       },
       child: Stack(children: [
         Padding(
-          padding: const EdgeInsets.only(top: 9.0, right: 6.0, left: 6.0),
+          padding: const EdgeInsets.only(
+              top: AppPadding.small,
+              right: AppPadding.tiny,
+              left: AppPadding.tiny),
           child: AnimatedContainer(
             width: double.infinity,
             decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+                borderRadius:
+                    const BorderRadius.all(Radius.circular(AppRounding.small)),
                 color: selected
                     ? Theme.of(context).colorScheme.primary
                     : Theme.of(context).cardColor,
                 border: Border.all(color: Theme.of(context).dividerColor)),
             duration: const Duration(milliseconds: 150),
             child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: AppPadding.medium, vertical: AppPadding.small),
                 child: Text(
                   text,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -508,14 +520,14 @@ class Selection extends StatelessWidget {
         if (selected)
           Positioned(
             right: 0.0,
-            top: 3.0,
+            top: AppPadding.tiny,
             child: DecoratedBox(
               decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(),
                   color: Theme.of(context).colorScheme.surface),
               child: const Padding(
-                padding: EdgeInsets.all(4.0),
+                padding: EdgeInsets.all(AppPadding.tiny),
                 child: Icon(
                   Icons.close,
                   size: 14.0,

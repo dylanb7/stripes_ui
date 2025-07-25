@@ -7,6 +7,7 @@ import 'package:stripes_ui/UI/CommonWidgets/tonal_button.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/extensions.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 import 'package:stripes_ui/entry.dart';
 
 class UserProfileButton extends ConsumerWidget {
@@ -64,10 +65,11 @@ class ExitErrorPrevention extends ConsumerWidget {
           children: [
             Card(
               shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                  borderRadius:
+                      BorderRadius.all(Radius.circular(AppRounding.small))),
               child: Padding(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 10.0, vertical: 12.0),
+                    horizontal: AppPadding.small, vertical: AppPadding.medium),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -78,7 +80,7 @@ class ExitErrorPrevention extends ConsumerWidget {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(
-                      height: 8.0,
+                      height: AppPadding.small,
                     ),
                     Text(
                       context.translate.exitStudyWarning,
@@ -86,14 +88,14 @@ class ExitErrorPrevention extends ConsumerWidget {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(
-                      height: 8.0,
+                      height: AppPadding.small,
                     ),
                   ],
                 ),
               ),
             ),
             const SizedBox(
-              height: 5,
+              height: AppPadding.tiny,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,

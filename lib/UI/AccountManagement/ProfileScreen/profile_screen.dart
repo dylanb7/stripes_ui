@@ -13,6 +13,7 @@ import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 
 import 'package:stripes_ui/Util/constants.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 import 'package:stripes_ui/config.dart';
 import 'package:stripes_ui/entry.dart';
 
@@ -58,7 +59,7 @@ class _PatientScreenState extends ConsumerState<PatientScreen> {
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             const SizedBox(
-              height: 20.0,
+              height: AppPadding.xl,
             ),
             Row(
               children: [
@@ -78,12 +79,13 @@ class _PatientScreenState extends ConsumerState<PatientScreen> {
               ],
             ),
             const SizedBox(
-              height: 6.0,
+              height: AppPadding.tiny,
             ),
             AnimatedSize(
               duration: Durations.short4,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: AppPadding.large),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -134,10 +136,10 @@ class _PatientScreenState extends ConsumerState<PatientScreen> {
               ),
             ),
             const SizedBox(
-              height: 12.0,
+              height: AppPadding.medium,
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
               child: Wrap(children: [
                 ConstrainedBox(
                   constraints: BoxConstraints(maxWidth: Breakpoint.small.value),
@@ -145,7 +147,8 @@ class _PatientScreenState extends ConsumerState<PatientScreen> {
                 ),
                 ...subUsers.map<Widget>(
                   (user) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: AppPadding.tiny),
                     child: ConstrainedBox(
                       constraints:
                           BoxConstraints(maxWidth: Breakpoint.small.value),

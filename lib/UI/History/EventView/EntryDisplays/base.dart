@@ -17,8 +17,10 @@ import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
 import 'package:stripes_ui/UI/History/EventView/EntryDisplays/blue_dye.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/pain_area.dart';
+import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/date_helper.dart';
 import 'package:stripes_ui/Util/extensions.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 import 'package:stripes_ui/repos/blue_dye_test_repo.dart';
 
 class RenderEntryGroup extends ConsumerWidget {
@@ -41,7 +43,7 @@ class RenderEntryGroup extends ConsumerWidget {
             )
             .separated(
                 by: const SizedBox(
-              height: 8.0,
+              height: AppPadding.small,
             )),
       );
     }
@@ -60,7 +62,7 @@ class RenderEntryGroup extends ConsumerWidget {
         final List<Response> forType = byType[type]!;
 
         return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6.0),
+          padding: const EdgeInsets.symmetric(vertical: AppPadding.tiny),
           child: ExpandibleSymptomArea(
               header: RichText(
                 text: TextSpan(
@@ -118,7 +120,7 @@ class RenderEntryGroupSliver extends ConsumerWidget {
 
     return SliverList.separated(
       separatorBuilder: (context, index) => const SizedBox(
-        height: 6.0,
+        height: AppPadding.tiny,
       ),
       itemBuilder: (context, index) {
         final List<Response> forType = byType[typeKeys[index]]!;
@@ -172,12 +174,12 @@ class _ExpandibleSymptomAreaState extends State<ExpandibleSymptomArea> {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(4.0),
+        borderRadius: BorderRadius.circular(AppRounding.tiny),
         color: ElevationOverlay.applySurfaceTint(Theme.of(context).cardColor,
             Theme.of(context).colorScheme.surfaceTint, 3),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(AppPadding.small),
         child: AnimatedSize(
           duration: Durations.medium1,
           alignment: Alignment.topLeft,
@@ -195,7 +197,7 @@ class _ExpandibleSymptomAreaState extends State<ExpandibleSymptomArea> {
                     )
                     .separated(
                         by: const SizedBox(
-                      height: 8.0,
+                      height: AppPadding.small,
                     )),
               TextButton.icon(
                 onPressed: () {
@@ -284,17 +286,17 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
 
     return ConstrainedBox(
       constraints: widget.hasConstraints
-          ? const BoxConstraints(maxWidth: 380)
+          ? BoxConstraints(maxWidth: Breakpoint.tiny.value)
           : const BoxConstraints(),
       child: DecoratedBox(
         decoration: BoxDecoration(
             border: Border.all(),
             borderRadius: const BorderRadius.all(
-              Radius.circular(8.0),
+              Radius.circular(AppRounding.small),
             ),
             color: Theme.of(context).colorScheme.surface),
         child: Padding(
-          padding: const EdgeInsetsGeometry.all(8.0),
+          padding: const EdgeInsetsGeometry.all(AppPadding.small),
           child: Expansible(
             key: ValueKey(widget.event.id ?? "${widget.event.stamp}"),
             headerBuilder: (context, animation) => GestureDetector(
@@ -326,7 +328,8 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
                                 WidgetSpan(
                                   alignment: PlaceholderAlignment.middle,
                                   child: Container(
-                                    padding: const EdgeInsets.only(left: 4.0),
+                                    padding: const EdgeInsets.only(
+                                        left: AppPadding.tiny),
                                     width: Theme.of(context)
                                             .textTheme
                                             .bodyLarge
@@ -366,19 +369,19 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 const SizedBox(
-                  height: 4.0,
+                  height: AppPadding.tiny,
                 ),
                 content ?? const SizedBox(),
                 if (widget.hasControls) ...[
                   const SizedBox(
-                    height: 3,
+                    height: AppPadding.tiny,
                   ),
                   Row(
                     children: [
                       const Spacer(),
                       if (button != null) button,
                       const SizedBox(
-                        width: 4.0,
+                        width: AppPadding.tiny,
                       ),
                       IconButton(
                         onPressed: isLoading
@@ -470,7 +473,7 @@ class DetailDisplay extends StatelessWidget {
             textAlign: TextAlign.left,
           ),
           const SizedBox(
-            height: 3.0,
+            height: AppPadding.tiny,
           ),
           Text(
             detail.description!,
@@ -479,7 +482,7 @@ class DetailDisplay extends StatelessWidget {
             maxLines: null,
           ),
           const Divider(
-            height: 8.0,
+            height: AppPadding.small,
           ),
         ],
         if (detail.responses.isNotEmpty) ...[
@@ -499,7 +502,7 @@ class DetailDisplay extends StatelessWidget {
             return ResponseDisplay(res: res);
           }
           return Padding(
-              padding: const EdgeInsets.only(bottom: 3.0),
+              padding: const EdgeInsets.only(bottom: AppPadding.tiny),
               child: ResponseDisplay(res: res));
         }),
       ],
@@ -569,7 +572,7 @@ class BlueDyeDisplay extends StatelessWidget {
           style: Theme.of(context).textTheme.bodyLarge,
         ),
         const SizedBox(
-          height: 3.0,
+          height: AppPadding.tiny,
         ),
         Text(
           '${dateToMDY(resp.startEating, context)} - ${timeString(resp.startEating, context)}',
@@ -577,7 +580,7 @@ class BlueDyeDisplay extends StatelessWidget {
           style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(
-          height: 3.0,
+          height: AppPadding.tiny,
         ),
         Text(
           context.translate.mealDurationEntry,
@@ -585,7 +588,7 @@ class BlueDyeDisplay extends StatelessWidget {
           style: Theme.of(context).textTheme.bodyLarge,
         ),
         const SizedBox(
-          height: 3.0,
+          height: AppPadding.tiny,
         ),
         Text(
           prettyDuration(
@@ -598,7 +601,7 @@ class BlueDyeDisplay extends StatelessWidget {
           style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(
-          height: 3.0,
+          height: AppPadding.tiny,
         ),
         if (resp.firstBlue != resp.lastBlue) ...[
           Text(
@@ -607,7 +610,7 @@ class BlueDyeDisplay extends StatelessWidget {
             style: Theme.of(context).textTheme.bodyLarge,
           ),
           const SizedBox(
-            height: 3.0,
+            height: AppPadding.tiny,
           ),
           Text(
             '${dateToMDY(resp.firstBlue, context)} - ${timeString(resp.firstBlue, context)}',
@@ -615,7 +618,7 @@ class BlueDyeDisplay extends StatelessWidget {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(
-            height: 3.0,
+            height: AppPadding.tiny,
           ),
         ],
         Text(
@@ -624,7 +627,7 @@ class BlueDyeDisplay extends StatelessWidget {
           style: Theme.of(context).textTheme.bodyLarge,
         ),
         const SizedBox(
-          height: 3.0,
+          height: AppPadding.tiny,
         ),
         Text(
           '${dateToMDY(resp.lastBlue, context)} - ${timeString(resp.lastBlue, context)}',
@@ -632,7 +635,7 @@ class BlueDyeDisplay extends StatelessWidget {
           style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(
-          height: 3.0,
+          height: AppPadding.tiny,
         ),
         Text(
           context.translate.transitDurationEntry,
@@ -640,7 +643,7 @@ class BlueDyeDisplay extends StatelessWidget {
           style: Theme.of(context).textTheme.bodyLarge,
         ),
         const SizedBox(
-          height: 3.0,
+          height: AppPadding.tiny,
         ),
         Text(
           prettyDuration(
@@ -688,7 +691,7 @@ class DeleteErrorPrevention extends ConsumerWidget {
             textAlign: TextAlign.center,
           ),
           const SizedBox(
-            height: 8.0,
+            height: AppPadding.small,
           ),
           Text(
             context.translate.stampDeleteWarningTwo,
@@ -730,7 +733,7 @@ class BMRow extends StatelessWidget {
       Text('${response.question.prompt} - ${response.response.toInt()}',
           style: Theme.of(context).textTheme.bodyMedium, maxLines: null),
       const SizedBox(
-        width: 4,
+        width: AppPadding.tiny,
       ),
       Image.asset(
         paths[response.response.toInt() - 1],
@@ -762,7 +765,7 @@ class PainSliderDisplay extends StatelessWidget {
       Text('${response.question.prompt} - ${response.response}',
           style: Theme.of(context).textTheme.bodyMedium, maxLines: null),
       const SizedBox(
-        width: 4,
+        width: AppPadding.tiny,
       ),
       response.response == -1
           ? Text(
@@ -775,7 +778,7 @@ class PainSliderDisplay extends StatelessWidget {
               children: [
                 from(selectedIndex),
                 const SizedBox(
-                  width: 4,
+                  width: AppPadding.tiny,
                 ),
                 Text(
                   hurtLevels[selectedIndex],
@@ -813,7 +816,7 @@ class MoodSliderDisplay extends StatelessWidget {
       Text('${response.question.prompt} - ${response.response}',
           style: Theme.of(context).textTheme.bodyMedium, maxLines: null),
       const SizedBox(
-        width: 4,
+        width: AppPadding.tiny,
       ),
       Wrap(
         alignment: WrapAlignment.center,
@@ -821,7 +824,7 @@ class MoodSliderDisplay extends StatelessWidget {
         children: [
           from(5 - selectedIndex),
           const SizedBox(
-            width: 4,
+            width: AppPadding.tiny,
           ),
         ],
       )
@@ -861,22 +864,23 @@ class PainLocationDisplay extends StatelessWidget {
               style: Theme.of(context).textTheme.bodyMedium,
               maxLines: null),
           const SizedBox(
-            width: 4,
+            width: AppPadding.tiny,
           ),
           if (painLocation.responses.isNotEmpty &&
               Area.fromValue(painLocation.responses[0]) != Area.none)
             ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 100, maxWidth: 400),
+              constraints: BoxConstraints(
+                  maxHeight: 100, maxWidth: Breakpoint.tiny.value),
               child: Stack(children: [
                 Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
                     border: Border.all(
                         color: Theme.of(context).colorScheme.onSurface),
-                    borderRadius: BorderRadius.circular(12.0),
+                    borderRadius: BorderRadius.circular(AppRounding.medium),
                   ),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12.0),
+                    borderRadius: BorderRadius.circular(AppRounding.medium),
                     clipBehavior: Clip.hardEdge,
                     child: Image.asset(
                       'packages/stripes_ui/assets/images/abdomin.png',
@@ -885,7 +889,7 @@ class PainLocationDisplay extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(
-                  height: 4.0,
+                  height: AppPadding.tiny,
                 ),
                 Positioned.fill(
                   child: FractionallySizedBox(
@@ -905,7 +909,8 @@ class PainLocationDisplay extends StatelessWidget {
                                         .contains(index + 1);
                                     return Expanded(
                                       child: Container(
-                                        padding: const EdgeInsets.all(2.0),
+                                        padding: const EdgeInsets.all(
+                                            AppPadding.tiny),
                                         width: double.infinity,
                                         height: double.infinity,
                                         decoration: BoxDecoration(

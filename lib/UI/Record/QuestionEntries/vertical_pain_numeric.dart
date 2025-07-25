@@ -7,6 +7,7 @@ import 'package:stripes_ui/UI/Record/QuestionEntries/base.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/question_screen.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class VerticalPainFaces extends StatefulWidget {
   final QuestionsListener questionsListener;
@@ -31,7 +32,7 @@ class _VerticalPainFacesState extends State<VerticalPainFaces> {
       question: widget.question,
       listener: widget.questionsListener,
       child: Padding(
-        padding: const EdgeInsets.all(6.0),
+        padding: const EdgeInsets.all(AppPadding.tiny),
         child: Column(children: [
           IntrinsicHeight(
             child: Row(
@@ -39,7 +40,8 @@ class _VerticalPainFacesState extends State<VerticalPainFaces> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: AppPadding.tiny),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,7 +65,8 @@ class _VerticalPainFacesState extends State<VerticalPainFaces> {
                           });
                         },
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10.0),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: AppPadding.small),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisAlignment: MainAxisAlignment.start,
@@ -92,7 +95,7 @@ class _VerticalPainFacesState extends State<VerticalPainFaces> {
                                 },
                               ),
                               const SizedBox(
-                                width: 6.0,
+                                width: AppPadding.tiny,
                               ),
                               Text(
                                 "$index",
@@ -109,10 +112,11 @@ class _VerticalPainFacesState extends State<VerticalPainFaces> {
                   ),
                 ),
                 const SizedBox(
-                  width: 8.0,
+                  width: AppPadding.small,
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: AppPadding.tiny),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -120,7 +124,8 @@ class _VerticalPainFacesState extends State<VerticalPainFaces> {
                     children: List.generate(5, (index) {
                       if (index == 0) {
                         return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10.0),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: AppPadding.small),
                           child: Text(
                             context.translate.painLevelZero,
                             style: Theme.of(context)
@@ -132,7 +137,8 @@ class _VerticalPainFacesState extends State<VerticalPainFaces> {
                       }
                       if (index == 4) {
                         return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10.0),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: AppPadding.small),
                           child: Text(
                             context.translate.painLevelFive,
                             style: Theme.of(context)
@@ -144,7 +150,8 @@ class _VerticalPainFacesState extends State<VerticalPainFaces> {
                       }
                       return Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: AppPadding.small),
                           child: AspectRatio(
                             aspectRatio: 1.0,
                             child: DecoratedBox(
@@ -172,10 +179,11 @@ class _VerticalPainFacesState extends State<VerticalPainFaces> {
                   ),
                 ),
                 const SizedBox(
-                  width: 8.0,
+                  width: AppPadding.small,
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2.0),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: AppPadding.tiny),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: List.generate(5, (value) {

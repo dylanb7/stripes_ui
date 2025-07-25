@@ -14,6 +14,7 @@ import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 import 'package:stripes_ui/config.dart';
 import 'package:stripes_ui/entry.dart';
 
@@ -45,11 +46,11 @@ class AccountManagementScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(
-                height: 20,
+                height: AppPadding.large,
               ),
               Row(children: [
                 const SizedBox(
-                  width: 20,
+                  width: AppPadding.large,
                 ),
                 Text(
                   'Account',
@@ -66,12 +67,12 @@ class AccountManagementScreen extends ConsumerWidget {
                     },
                     child: Text(context.translate.logOutButton)),
                 const SizedBox(
-                  width: 20,
+                  width: AppPadding.large,
                 ),
               ]),
               const Divider(
-                endIndent: 8.0,
-                indent: 8.0,
+                endIndent: AppPadding.small,
+                indent: AppPadding.small,
               ),
               ListTile(
                 dense: false,
@@ -89,8 +90,8 @@ class AccountManagementScreen extends ConsumerWidget {
                 },
               ),
               const Divider(
-                endIndent: 8.0,
-                indent: 8.0,
+                endIndent: AppPadding.small,
+                indent: AppPadding.small,
               ),
               if (config.hasSymptomEditing) ...[
                 ListTile(
@@ -103,8 +104,8 @@ class AccountManagementScreen extends ConsumerWidget {
                   },
                 ),
                 const Divider(
-                  endIndent: 8.0,
-                  indent: 8.0,
+                  endIndent: AppPadding.small,
+                  indent: AppPadding.small,
                 ),
                 ListTile(
                   dense: false,
@@ -117,7 +118,7 @@ class AccountManagementScreen extends ConsumerWidget {
                 ),
               ],
               const SizedBox(
-                height: 12.0,
+                height: AppPadding.medium,
               ),
               Center(
                 child: TextButton(
@@ -169,16 +170,18 @@ class _DeleteAccountPopupState extends ConsumerState<DeleteAccountPopup> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          padding: const EdgeInsets.symmetric(horizontal: AppPadding.small),
           child: Center(
             child: SizedBox(
               width: Breakpoint.small.value,
               child: Card(
                 shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                    borderRadius:
+                        BorderRadius.all(Radius.circular(AppRounding.small))),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 10.0, vertical: 12.0),
+                      horizontal: AppPadding.small,
+                      vertical: AppPadding.medium),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -207,12 +210,12 @@ class _DeleteAccountPopupState extends ConsumerState<DeleteAccountPopup> {
                         ],
                       ),
                       const SizedBox(
-                        height: 8,
+                        height: AppPadding.small,
                       ),
                       const Text(
                           "Are you sure you want to delete your account?\nThis action is irreversable and will remove all data associated with the account.\nTo confirm this action type \"Delete\""),
                       const SizedBox(
-                        height: 6.0,
+                        height: AppPadding.small,
                       ),
                       TextFormField(
                         controller: _controller,
@@ -220,7 +223,7 @@ class _DeleteAccountPopupState extends ConsumerState<DeleteAccountPopup> {
                             hintText: "Delete", errorText: error),
                       ),
                       const SizedBox(
-                        height: 6.0,
+                        height: AppPadding.small,
                       ),
                       FilledButton(
                           onPressed: () {
@@ -228,7 +231,7 @@ class _DeleteAccountPopupState extends ConsumerState<DeleteAccountPopup> {
                           },
                           child: const Text("Confirm Delete")),
                       const SizedBox(
-                        height: 16.0,
+                        height: AppPadding.large,
                       ),
                     ],
                   ),

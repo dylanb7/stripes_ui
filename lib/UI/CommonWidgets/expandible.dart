@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:stripes_ui/UI/CommonWidgets/styled_tooltip.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class Expandible extends StatefulWidget {
   final Widget header;
@@ -111,26 +112,27 @@ class _ExpandibleState extends State<Expandible>
                           widget.highlightColor != null
                       ? BorderSide(
                           color: widget.highlightColor!,
-                          width: widget.highlightWidth ?? 5.0)
+                          width: widget.highlightWidth ?? 4.0)
                       : const BorderSide(width: 0, color: Colors.transparent)),
               elevation: widget.elevated ? 1.0 : 0.0,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: AppPadding.tiny),
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       const SizedBox(
-                        height: 4.0,
+                        height: AppPadding.tiny,
                       ),
                       Row(
                         children: [
                           const SizedBox(
-                            width: 8.0,
+                            width: AppPadding.small,
                           ),
                           Expanded(child: widget.header),
                           if (_canExpand && widget.hasIndicator) ...[
                             const SizedBox(
-                              width: 4.0,
+                              width: AppPadding.tiny,
                             ),
                             Icon(
                               _expanded ? Icons.expand_less : Icons.expand_more,
@@ -138,12 +140,12 @@ class _ExpandibleState extends State<Expandible>
                             )
                           ],
                           const SizedBox(
-                            width: 4.0,
+                            width: AppPadding.tiny,
                           )
                         ],
                       ),
                       const SizedBox(
-                        height: 4.0,
+                        height: AppPadding.tiny,
                       ),
                       ClipRect(
                         child: Align(
@@ -228,7 +230,7 @@ class _ExpandRawState extends State<ExpandibleRaw>
         animation: _expandController.view,
         child: _listener.expanded
             ? Padding(
-                padding: const EdgeInsets.all(4.0),
+                padding: const EdgeInsets.all(AppPadding.tiny),
                 child: widget.view,
               )
             : null,
@@ -246,11 +248,11 @@ class _ExpandRawState extends State<ExpandibleRaw>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(
-                        width: 4.0,
+                        width: AppPadding.tiny,
                       ),
                       widget.header,
                       const SizedBox(
-                        width: 4.0,
+                        width: AppPadding.tiny,
                       ),
                       StyledTooltip(
                         message: _listener.expanded ? 'Show Less' : 'Show More',

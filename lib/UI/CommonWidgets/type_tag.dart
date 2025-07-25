@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stripes_ui/UI/CommonWidgets/styled_tooltip.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class TypeTag extends StatelessWidget {
   final String text;
@@ -22,7 +23,7 @@ class TypeTag extends StatelessWidget {
       visualDensity: VisualDensity.compact,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadiusGeometry.all(
-          Radius.circular(4.0),
+          Radius.circular(AppRounding.tiny),
         ),
       ),
       label: Text(

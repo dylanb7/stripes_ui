@@ -5,6 +5,7 @@ import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_list
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo_base.dart';
 import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/base.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 
 class QuestionScreen extends StatelessWidget {
   final List<Question> questions;
@@ -24,7 +25,7 @@ class QuestionScreen extends StatelessWidget {
     return Column(
       children: [
         const SizedBox(
-          height: 8.0,
+          height: AppPadding.small,
         ),
         Text(
           header,
@@ -34,11 +35,11 @@ class QuestionScreen extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         const SizedBox(
-          height: 8.0,
+          height: AppPadding.small,
         ),
         RenderQuestions(
             questions: questions, questionsListener: questionsListener),
-        const SizedBox(height: 16.0),
+        const SizedBox(height: AppPadding.large),
       ],
     );
   }
@@ -125,7 +126,8 @@ class QuestionWrapState extends ConsumerState<QuestionWrap> {
       duration: const Duration(milliseconds: 150),
       decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
-          borderRadius: const BorderRadius.all(Radius.circular(12.0)),
+          borderRadius:
+              const BorderRadius.all(Radius.circular(AppRounding.medium)),
           border: hasEntry
               ? Border.all(
                   width: 3.0, color: Theme.of(context).colorScheme.primary)

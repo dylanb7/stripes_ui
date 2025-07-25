@@ -11,6 +11,7 @@ import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
+import 'package:stripes_ui/Util/paddings.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../Providers/overlay_provider.dart';
@@ -49,7 +50,7 @@ class Home extends ConsumerWidget {
                 selected: selected,
               )),
         const SizedBox(
-          width: 8.0,
+          width: AppPadding.small,
         ),
         const UserProfileButton()
       ],
@@ -109,9 +110,10 @@ class _PageWrapState extends ConsumerState<PageWrap> {
                 scrolledUnderElevation: 0,
                 shape: RoundedRectangleBorder(
                     side: BorderSide(color: Theme.of(context).dividerColor)),
-                titleSpacing: widget.leading != null ? 5.0 : null,
+                titleSpacing: widget.leading != null ? AppPadding.tiny : null,
                 title: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: AppPadding.tiny),
                   child: Builder(builder: (context) {
                     return GestureDetector(
                       onTap: () {
@@ -127,7 +129,10 @@ class _PageWrapState extends ConsumerState<PageWrap> {
                 ),
                 centerTitle: false,
                 actions: widget.actions != null
-                    ? [...widget.actions!, const SizedBox(width: 8)]
+                    ? [
+                        ...widget.actions!,
+                        const SizedBox(width: AppPadding.small)
+                      ]
                     : null,
               ),
               body: widget.child,
@@ -153,8 +158,8 @@ class _PageWrapState extends ConsumerState<PageWrap> {
         showDragHandle: false,
         shape: RoundedRectangleBorder(
           borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(15.0),
-            topRight: Radius.circular(15.0),
+            topLeft: Radius.circular(AppRounding.large),
+            topRight: Radius.circular(AppRounding.large),
           ),
           side: BorderSide(color: Theme.of(context).colorScheme.outline),
         ),
@@ -226,10 +231,10 @@ class StripesInfoSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           const SizedBox(
-            height: 15.0,
+            height: AppPadding.large,
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            padding: const EdgeInsets.symmetric(horizontal: AppPadding.large),
             child: Row(
               children: [
                 SizedBox(
@@ -237,7 +242,8 @@ class StripesInfoSheet extends StatelessWidget {
                 ),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: AppPadding.small),
                     child: Text(
                       context.translate.stripesName,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -259,7 +265,7 @@ class StripesInfoSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(
-            height: 8.0,
+            height: AppPadding.small,
           ),
           Expanded(
               child: ScrollAssistedList(
@@ -270,9 +276,9 @@ class StripesInfoSheet extends StatelessWidget {
                         itemBuilder: (BuildContext context, int index) =>
                             Padding(
                                 padding: const EdgeInsets.only(
-                                  left: 15.0,
-                                  right: 15.0,
-                                  bottom: 6.0,
+                                  left: AppPadding.large,
+                                  right: AppPadding.large,
+                                  bottom: AppPadding.small,
                                 ),
                                 child: infoItems[index]),
                       ),
