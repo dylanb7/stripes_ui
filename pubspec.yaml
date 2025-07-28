@@ -19,7 +19,9 @@ dependencies:
   intl: any
   duration: ^3.0.13
   stripes_backend_helper:
-    path: ../stripes_backend_helper
+    git:
+      url: https://github.com/dylanb7/stripes_backend_helper
+      branch: master
   markdown_widget: ^2.3.2+8
   flex_color_scheme: ^8.2.0
   flutter_svg: ^2.0.10+1
