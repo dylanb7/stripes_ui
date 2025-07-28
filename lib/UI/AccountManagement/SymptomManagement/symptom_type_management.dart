@@ -11,7 +11,6 @@ import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo
 import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
 import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
-import 'package:stripes_ui/UI/CommonWidgets/styled_tooltip.dart';
 import 'package:stripes_ui/UI/CommonWidgets/type_tag.dart';
 import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
 import 'package:stripes_ui/UI/Layout/home_screen.dart';

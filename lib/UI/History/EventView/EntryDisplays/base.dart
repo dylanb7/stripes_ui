@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:collection/collection.dart';
 import 'package:duration/duration.dart';
 import 'package:duration/locale.dart';
@@ -21,7 +19,6 @@ import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/date_helper.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/paddings.dart';
-import 'package:stripes_ui/repos/blue_dye_test_repo.dart';
 
 class RenderEntryGroup extends ConsumerWidget {
   final bool grouped;
@@ -405,7 +402,7 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
 
   bool? _isBlueFromDetail(DetailResponse res) {
     List<Response> blueRes = res.responses
-        .where((val) => val.question.id == blueQuestionId)
+        .where((val) => val.question.id == "BlueDyeQuestion")
         .toList();
     if (blueRes.isEmpty) return null;
     final MultiResponse multi = blueRes.first as MultiResponse;

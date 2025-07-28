@@ -160,7 +160,7 @@ class MinimalProfileView extends ConsumerWidget {
             children: [
               Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: AppPadding.tiny),
+                    const EdgeInsets.symmetric(horizontal: AppPadding.small),
                 child: FittedBox(
                   fit: BoxFit.fitWidth,
                   child: Text(

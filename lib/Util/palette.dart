@@ -256,7 +256,7 @@ const List<Color> generateFrom = [
   Color(0xff4d32ac),
   Color(0xff0a3d7b),
   Color(0xff88330b),
-  Color(0xff3f6507),
+  Color.fromARGB(255, 56, 56, 56),
   Color(0xff668d11),
   Color(0xffa53670),
   Color(0xff781b4a),

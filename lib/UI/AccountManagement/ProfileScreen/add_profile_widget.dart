@@ -154,7 +154,7 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
                         ),
                       ],
                       const SizedBox(
-                        height: AppPadding.large,
+                        height: AppPadding.xxl,
                       )
                     ],
                   ),
@@ -165,7 +165,7 @@ class _AddUserWidgetState extends ConsumerState<AddUserWidget> {
             ),
             if (_expandibleListener.expanded)
               const SizedBox(
-                height: AppPadding.xxl,
+                height: AppPadding.large,
               ),
           ]),
           if (_expandibleListener.expanded)

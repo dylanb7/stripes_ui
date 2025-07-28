@@ -139,30 +139,31 @@ class _PatientScreenState extends ConsumerState<PatientScreen> {
               height: AppPadding.medium,
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppPadding.tiny),
-              child: Wrap(runSpacing: AppPadding.tiny, children: [
-                ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: Breakpoint.small.value),
-                  child: const AddUserWidget(),
-                ),
-                ...subUsers.map<Widget>(
-                  (user) => Padding(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: AppPadding.tiny),
-                    child: ConstrainedBox(
+              padding: const EdgeInsets.symmetric(horizontal: AppPadding.small),
+              child: Wrap(
+                  runSpacing: AppPadding.small,
+                  spacing: AppPadding.small,
+                  children: [
+                    ConstrainedBox(
                       constraints:
                           BoxConstraints(maxWidth: Breakpoint.small.value),
-                      child: config.profileType == ProfileType.username
-                          ? MinimalProfileView(
-                              subUser: user, selected: user.uid == current?.uid)
-                          : ProfileView(
-                              subUser: user,
-                              selected: user.uid == current?.uid,
-                            ),
+                      child: const AddUserWidget(),
                     ),
-                  ),
-                ),
-              ]),
+                    ...subUsers.map<Widget>(
+                      (user) => ConstrainedBox(
+                        constraints:
+                            BoxConstraints(maxWidth: Breakpoint.small.value),
+                        child: config.profileType == ProfileType.username
+                            ? MinimalProfileView(
+                                subUser: user,
+                                selected: user.uid == current?.uid)
+                            : ProfileView(
+                                subUser: user,
+                                selected: user.uid == current?.uid,
+                              ),
+                      ),
+                    ),
+                  ]),
             ),
           ]),
         ),

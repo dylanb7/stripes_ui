@@ -101,11 +101,11 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
               },
             )
           : null,
-      child: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: Breakpoint.small.value),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppPadding.medium),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppPadding.medium),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: Breakpoint.small.value),
             child: AsyncValueDefaults(
               value: pagesData,
               onData: (loadedPages) {
@@ -158,66 +158,64 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                   );
                 }
 
-                return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      RecordHeader(
-                        type: widget.type,
-                        hasChanged: hasChanged,
+                return Column(children: [
+                  RecordHeader(
+                    type: widget.type,
+                    hasChanged: hasChanged,
+                    questionListener: widget.questionListener,
+                    pageController: pageController,
+                    currentIndex: currentIndex,
+                    length: evaluatedPages.length,
+                    close: () {
+                      _close(ref, context, null);
+                    },
+                  ),
+                  Expanded(
+                    child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius:
+                              BorderRadius.circular(AppPadding.medium),
+                          color: ElevationOverlay.applySurfaceTint(
+                              Theme.of(context).cardColor,
+                              Theme.of(context).colorScheme.surfaceTint,
+                              3),
+                        ),
+                        child: IgnorePointer(
+                          ignoring: isLoading,
+                          child: PageView.builder(
+                            onPageChanged: (value) {
+                              setState(() {
+                                currentIndex = value;
+                              });
+                            },
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemBuilder: (context, index) =>
+                                _buildContent(context, index, evaluatedPages),
+                            itemCount: evaluatedPages.length + 1,
+                            controller: pageController,
+                          ),
+                        )),
+                  ),
+                  const SizedBox(
+                    height: AppPadding.tiny,
+                  ),
+                  IgnorePointer(
+                    ignoring: isLoading || pagesData.isLoading,
+                    child: Center(
+                      child: RecordFooter(
+                        submitButton: submitButton(),
                         questionListener: widget.questionListener,
                         pageController: pageController,
-                        currentIndex: currentIndex,
                         length: evaluatedPages.length,
-                        close: () {
-                          _close(ref, context, null);
-                        },
+                        pendingCount: pendingCount,
+                        currentIndex: currentIndex,
                       ),
-                      Expanded(
-                        child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius:
-                                  BorderRadius.circular(AppPadding.medium),
-                              color: ElevationOverlay.applySurfaceTint(
-                                  Theme.of(context).cardColor,
-                                  Theme.of(context).colorScheme.surfaceTint,
-                                  3),
-                            ),
-                            child: IgnorePointer(
-                              ignoring: isLoading,
-                              child: PageView.builder(
-                                onPageChanged: (value) {
-                                  setState(() {
-                                    currentIndex = value;
-                                  });
-                                },
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemBuilder: (context, index) => _buildContent(
-                                    context, index, evaluatedPages),
-                                itemCount: evaluatedPages.length + 1,
-                                controller: pageController,
-                              ),
-                            )),
-                      ),
-                      const SizedBox(
-                        height: AppPadding.small,
-                      ),
-                      IgnorePointer(
-                        ignoring: isLoading || pagesData.isLoading,
-                        child: Center(
-                          child: RecordFooter(
-                            submitButton: submitButton(),
-                            questionListener: widget.questionListener,
-                            pageController: pageController,
-                            length: evaluatedPages.length,
-                            pendingCount: pendingCount,
-                            currentIndex: currentIndex,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: AppPadding.small,
-                      )
-                    ]);
+                    ),
+                  ),
+                  const SizedBox(
+                    height: AppPadding.tiny,
+                  )
+                ]);
               },
             ),
           ),
@@ -368,49 +366,50 @@ class RecordFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(
-          horizontal: AppPadding.xl, vertical: AppPadding.small),
+          horizontal: AppPadding.xl, vertical: AppPadding.tiny),
       child: ListenableBuilder(
         listenable: questionListener,
         builder: (context, child) {
           return Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                if (questionListener.tried && pendingCount != 0) ...[
-                  Text(
-                    context.translate.nLevelError(pendingCount),
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.error,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(
-                    height: AppPadding.small,
-                  )
-                ],
-                if (submitButton != null) ...[
-                  submitButton!,
-                  const SizedBox(
-                    height: AppPadding.small,
-                  )
-                ],
-                if (length != 0 && currentIndex != length)
-                  GestureDetector(
-                    onTap: () {
-                      if (pendingCount != 0) {
-                        questionListener.tried = true;
-                      }
-                    },
-                    child: FilledButton(
-                        onPressed: pendingCount == 0
-                            ? () {
-                                questionListener.tried = false;
-                                pageController.nextPage(
-                                    duration: const Duration(milliseconds: 200),
-                                    curve: Curves.linear);
-                              }
-                            : null,
-                        child: Text(context.translate.nextButton)),
-                  ),
-              ]);
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              if (questionListener.tried && pendingCount != 0) ...[
+                Text(
+                  context.translate.nLevelError(pendingCount),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.error,
+                      fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(
+                  height: AppPadding.tiny,
+                )
+              ],
+              if (submitButton != null) ...[
+                submitButton!,
+                const SizedBox(
+                  height: AppPadding.tiny,
+                )
+              ],
+              if (length != 0 && currentIndex != length)
+                GestureDetector(
+                  onTap: () {
+                    if (pendingCount != 0) {
+                      questionListener.tried = true;
+                    }
+                  },
+                  child: FilledButton(
+                      onPressed: pendingCount == 0
+                          ? () {
+                              questionListener.tried = false;
+                              pageController.nextPage(
+                                  duration: const Duration(milliseconds: 200),
+                                  curve: Curves.linear);
+                            }
+                          : null,
+                      child: Text(context.translate.nextButton)),
+                ),
+            ],
+          );
         },
       ),
     );
@@ -441,7 +440,8 @@ class RecordHeader extends ConsumerWidget {
     final String? name =
         current == null || SubUser.isEmpty(current) ? null : current.name;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20.0),
+      padding:
+          const EdgeInsets.only(bottom: AppPadding.tiny, top: AppPadding.small),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -461,7 +461,7 @@ class RecordHeader extends ConsumerWidget {
                   icon: const Icon(Icons.arrow_back_sharp),
                 )
               : SizedBox(
-                  width: Theme.of(context).iconTheme.size ?? 20,
+                  width: Theme.of(context).iconTheme.size ?? 24.0,
                 ),
           Expanded(
             child: Column(
@@ -470,7 +470,7 @@ class RecordHeader extends ConsumerWidget {
               children: [
                 Text(
                   context.translate.recordHeader(type),
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w700,
                       color: Theme.of(context).colorScheme.primary),
                   textAlign: TextAlign.center,
@@ -480,7 +480,7 @@ class RecordHeader extends ConsumerWidget {
                     context.translate.recordUsername(type, name),
                     style: Theme.of(context)
                         .textTheme
-                        .titleSmall
+                        .bodyMedium
                         ?.copyWith(fontStyle: FontStyle.italic),
                     textAlign: TextAlign.center,
                   ),

@@ -117,7 +117,7 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
           textAlign: TextAlign.center,
         ),
         const SizedBox(
-          height: AppPadding.xxl,
+          height: AppPadding.xl,
         ),
         if (period != null)
           Text(
@@ -149,7 +149,7 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
           height: AppPadding.small,
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppPadding.small),
+          padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
           child: Center(
             child: LongTextEntry(textController: _descriptionController),
           ),

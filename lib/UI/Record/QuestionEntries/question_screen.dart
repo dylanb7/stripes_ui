@@ -39,7 +39,7 @@ class QuestionScreen extends StatelessWidget {
         ),
         RenderQuestions(
             questions: questions, questionsListener: questionsListener),
-        const SizedBox(height: AppPadding.large),
+        const SizedBox(height: AppPadding.xl),
       ],
     );
   }

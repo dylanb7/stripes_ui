@@ -8,7 +8,6 @@ import 'package:stripes_ui/UI/AccountManagement/SymptomManagement/symptom_manage
 import 'package:stripes_ui/UI/AccountManagement/SymptomManagement/symptom_type_management.dart';
 import 'package:stripes_ui/UI/AccountManagement/account_management_screen.dart';
 import 'package:stripes_ui/UI/History/GraphView/graphs_list.dart';
-import 'package:stripes_ui/UI/Login/landing_page.dart';
 
 import 'package:stripes_ui/Providers/auth_provider.dart';
 import 'package:stripes_ui/UI/AccountManagement/ProfileScreen/profile_screen.dart';
@@ -55,20 +54,6 @@ class RouteNotifier extends ChangeNotifier {
   }*/
 
   List<GoRoute> get _routes => [
-        GoRoute(
-          path: Routes.SIGN_UP,
-          pageBuilder: (context, state) =>
-              FadeIn(child: const Scaff(child: SizedBox()), state: state),
-        ),
-        GoRoute(
-          path: Routes.LOGIN,
-          pageBuilder: (context, state) =>
-              FadeIn(child: const Scaff(child: SizedBox()), state: state),
-        ),
-        GoRoute(
-            path: Routes.LANDING,
-            pageBuilder: (context, state) =>
-                const NoTransitionPage(child: LandingPage())),
         GoRoute(
           name: Routes.ACCOUNT,
           path: Routes.ACCOUNT,
