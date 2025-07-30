@@ -13,6 +13,7 @@ import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
 import 'package:stripes_ui/Util/paddings.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:rive/rive.dart';
 
 import '../../Providers/overlay_provider.dart';
 import '../CommonWidgets/user_profile_button.dart';
@@ -94,10 +95,15 @@ class PageWrap extends ConsumerStatefulWidget {
 class _PageWrapState extends ConsumerState<PageWrap> {
   _PageWrapState();
 
+  late final headerFile = FileLoader.fromAsset(
+      "packages/stripes_ui/assets/rive/stripes_header.riv",
+      riveFactory: Factory.rive);
+
+  RiveWidgetController? controller;
+
   @override
   Widget build(BuildContext context) {
     final CurrentOverlay overlay = ref.watch(overlayProvider);
-
     return SafeArea(
       child: GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -114,18 +120,34 @@ class _PageWrapState extends ConsumerState<PageWrap> {
                 title: Padding(
                   padding:
                       const EdgeInsets.symmetric(vertical: AppPadding.tiny),
-                  child: Builder(builder: (context) {
-                    return GestureDetector(
+                  child: SizedBox(
+                    height: 35.0,
+                    child: GestureDetector(
                       onTap: () {
                         _toggleBottomSheet(context);
                       },
-                      child: Image.asset(
-                        'packages/stripes_ui/assets/images/StripesLogo.png',
-                        fit: BoxFit.contain,
-                        height: 35,
-                      ).showCursorOnHover,
-                    );
-                  }),
+                      child: RiveWidgetBuilder(
+                        fileLoader: headerFile,
+                        builder: (context, state) {
+                          switch (state) {
+                            case RiveLoading():
+                              return Container();
+                            case RiveLoaded():
+                              controller = RiveWidgetController(
+                                state.file,
+                              );
+
+                              return RiveWidget(
+                                  alignment: Alignment.centerLeft,
+                                  fit: Fit.fitHeight,
+                                  controller: controller!);
+                            case RiveFailed():
+                              return Container();
+                          }
+                        },
+                      ),
+                    ),
+                  ),
                 ),
                 centerTitle: false,
                 actions: widget.actions != null
