@@ -55,9 +55,10 @@ class RenderQuestions extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<QuestionRepo> questionRepo = ref.watch(questionsProvider);
+    final AsyncValue<QuestionRepo?> questionRepo = ref.watch(questionsProvider);
     final Map<String, QuestionEntry> questionEntries =
-        questionRepo.mapOrNull(data: (data) => data.value.entryOverrides) ?? {};
+        questionRepo.mapOrNull(data: (data) => data.value?.entryOverrides) ??
+            {};
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -77,6 +78,9 @@ class RenderQuestions extends ConsumerWidget {
               question: question, questionsListener: questionsListener);
         } else if (question is FreeResponse) {
           return FreeResponseEntry(
+              question: question, listener: questionsListener);
+        } else if (question is AllThatApply) {
+          return AllThatApplyEntry(
               question: question, listener: questionsListener);
         }
         return Text(question.prompt);

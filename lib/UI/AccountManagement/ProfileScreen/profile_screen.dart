@@ -34,8 +34,6 @@ class _PatientScreenState extends ConsumerState<PatientScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);
-
     final StripesConfig config = ref.watch(configProvider);
 
     final subNotifier = ref.watch(subHolderProvider);
@@ -44,129 +42,117 @@ class _PatientScreenState extends ConsumerState<PatientScreen> {
     }
     final List<SubUser> subUsers = subNotifier.valueOrNull?.subUsers ?? [];
     final SubUser? current = subNotifier.valueOrNull?.selected;
-    return PageWrap(
-      actions: [
-        if (!isSmall)
-          ...TabOption.values.map((tab) => LargeNavButton(tab: tab)),
-        const UserProfileButton(
-          selected: true,
-        )
-      ],
-      bottomNav: isSmall ? const SmallLayout() : null,
-      child: RefreshWidget(
-        depth: RefreshDepth.subuser,
-        scrollable: SingleChildScrollView(
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            const SizedBox(
-              height: AppPadding.xl,
-            ),
-            Row(
-              children: [
-                IconButton(
-                    onPressed: () {
-                      context.goNamed(Routes.ACCOUNT);
-                    },
-                    icon: const Icon(Icons.keyboard_arrow_left)),
-                Text(
-                  'Profiles',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor),
-                  textAlign: TextAlign.left,
-                ),
-                const Spacer(),
-              ],
-            ),
-            const SizedBox(
-              height: AppPadding.tiny,
-            ),
-            AnimatedSize(
-              duration: Durations.short4,
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: AppPadding.large),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    RichText(
-                      text: TextSpan(
-                        text:
-                            "Your app account, created with your email and password, can be accessed on multiple devices ",
-                        style: Theme.of(context).textTheme.bodyMedium,
-                        children: [
-                          infoShowing
-                              ? TextSpan(
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                  text:
-                                      ". Share your account credentials with caregivers, such as nurses, school caregivers, and other parents, to allow them to access the account. You can also create profiles for multiple individuals and use the app to track symptoms for each person. To record symptoms, simply switch to the profile of the person you want to track.")
-                              : TextSpan(
-                                  text: "See more...",
-                                  recognizer: TapGestureRecognizer()
-                                    ..onTap = () {
-                                      setState(() {
-                                        infoShowing = true;
-                                      });
-                                    },
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
-                                      ?.copyWith(
-                                          color: Theme.of(context).primaryColor,
-                                          fontWeight: FontWeight.bold),
-                                ),
-                        ],
-                      ),
+    return RefreshWidget(
+      depth: RefreshDepth.subuser,
+      scrollable: SingleChildScrollView(
+        child:
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          const SizedBox(
+            height: AppPadding.large,
+          ),
+          Row(
+            children: [
+              IconButton(
+                  onPressed: () {
+                    context.goNamed(RouteName.ACCOUNT);
+                  },
+                  icon: const Icon(Icons.keyboard_arrow_left)),
+              Text(
+                'Profiles',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).primaryColor),
+                textAlign: TextAlign.left,
+              ),
+              const Spacer(),
+            ],
+          ),
+          const SizedBox(
+            height: AppPadding.tiny,
+          ),
+          AnimatedSize(
+            duration: Durations.short4,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppPadding.large),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  RichText(
+                    text: TextSpan(
+                      text:
+                          "Your app account, created with your email and password, can be accessed on multiple devices ",
+                      style: Theme.of(context).textTheme.bodyMedium,
+                      children: [
+                        infoShowing
+                            ? TextSpan(
+                                style: Theme.of(context).textTheme.bodyMedium,
+                                text:
+                                    ". Share your account credentials with caregivers, such as nurses, school caregivers, and other parents, to allow them to access the account. You can also create profiles for multiple individuals and use the app to track symptoms for each person. To record symptoms, simply switch to the profile of the person you want to track.")
+                            : TextSpan(
+                                text: "See more...",
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    setState(() {
+                                      infoShowing = true;
+                                    });
+                                  },
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                        color: Theme.of(context).primaryColor,
+                                        fontWeight: FontWeight.bold),
+                              ),
+                      ],
                     ),
-                    if (infoShowing)
-                      TextButton.icon(
-                        onPressed: () {
-                          setState(() {
-                            infoShowing = false;
-                          });
-                        },
-                        label: const Text("Close"),
-                        icon: const Icon(Icons.keyboard_arrow_up),
-                        iconAlignment: IconAlignment.end,
-                      ),
-                    const Divider(),
-                  ],
-                ),
+                  ),
+                  if (infoShowing)
+                    TextButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          infoShowing = false;
+                        });
+                      },
+                      label: const Text("Close"),
+                      icon: const Icon(Icons.keyboard_arrow_up),
+                      iconAlignment: IconAlignment.end,
+                    ),
+                  const Divider(),
+                ],
               ),
             ),
-            const SizedBox(
-              height: AppPadding.medium,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppPadding.small),
-              child: Wrap(
-                  runSpacing: AppPadding.small,
-                  spacing: AppPadding.small,
-                  children: [
-                    ConstrainedBox(
+          ),
+          const SizedBox(
+            height: AppPadding.medium,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppPadding.small),
+            child: Wrap(
+                runSpacing: AppPadding.small,
+                spacing: AppPadding.small,
+                children: [
+                  ConstrainedBox(
+                    constraints:
+                        BoxConstraints(maxWidth: Breakpoint.small.value),
+                    child: const AddUserWidget(),
+                  ),
+                  ...subUsers.map<Widget>(
+                    (user) => ConstrainedBox(
                       constraints:
                           BoxConstraints(maxWidth: Breakpoint.small.value),
-                      child: const AddUserWidget(),
+                      child: config.profileType == ProfileType.username
+                          ? MinimalProfileView(
+                              subUser: user, selected: user.uid == current?.uid)
+                          : ProfileView(
+                              subUser: user,
+                              selected: user.uid == current?.uid,
+                            ),
                     ),
-                    ...subUsers.map<Widget>(
-                      (user) => ConstrainedBox(
-                        constraints:
-                            BoxConstraints(maxWidth: Breakpoint.small.value),
-                        child: config.profileType == ProfileType.username
-                            ? MinimalProfileView(
-                                subUser: user,
-                                selected: user.uid == current?.uid)
-                            : ProfileView(
-                                subUser: user,
-                                selected: user.uid == current?.uid,
-                              ),
-                      ),
-                    ),
-                  ]),
-            ),
-          ]),
-        ),
+                  ),
+                ]),
+          ),
+        ]),
       ),
     );
   }

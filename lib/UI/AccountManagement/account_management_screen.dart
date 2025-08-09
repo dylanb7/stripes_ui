@@ -7,8 +7,6 @@ import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/route_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
-import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
-import 'package:stripes_ui/UI/Layout/home_screen.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
@@ -23,123 +21,111 @@ class AccountManagementScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);
     final StripesConfig config = ref.watch(configProvider);
     final subNotifier = ref.watch(subHolderProvider);
     if (subNotifier.isLoading) {
       return const LoadingWidget();
     }
     final SubUser? current = subNotifier.valueOrNull?.selected;
-    return PageWrap(
-      actions: [
-        if (!isSmall)
-          ...TabOption.values.map((tab) => LargeNavButton(tab: tab)),
-        const UserProfileButton(
-          selected: true,
-        )
-      ],
-      bottomNav: isSmall ? const SmallLayout() : null,
-      child: RefreshWidget(
-        depth: RefreshDepth.authuser,
-        scrollable: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+    return RefreshWidget(
+      depth: RefreshDepth.authuser,
+      scrollable: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(
+              height: AppPadding.large,
+            ),
+            Row(children: [
               const SizedBox(
-                height: AppPadding.large,
+                width: AppPadding.large,
               ),
-              Row(children: [
-                const SizedBox(
-                  width: AppPadding.large,
-                ),
-                Text(
-                  'Account',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor),
-                  textAlign: TextAlign.left,
-                ),
-                const Spacer(),
-                TextButton(
-                    onPressed: () async {
-                      await ref.read(authProvider).logOut();
-                      ref.invalidate(routeProvider);
-                    },
-                    child: Text(context.translate.logOutButton)),
-                const SizedBox(
-                  width: AppPadding.large,
-                ),
-              ]),
-              const Divider(
-                endIndent: AppPadding.small,
-                indent: AppPadding.small,
+              Text(
+                'Account',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).primaryColor),
+                textAlign: TextAlign.left,
               ),
+              const Spacer(),
+              TextButton(
+                  onPressed: () async {
+                    await ref.read(authProvider).logOut();
+                    ref.invalidate(routeProvider);
+                  },
+                  child: Text(context.translate.logOutButton)),
+              const SizedBox(
+                width: AppPadding.large,
+              ),
+            ]),
+            const Divider(
+              endIndent: AppPadding.small,
+              indent: AppPadding.small,
+            ),
+            ListTile(
+              dense: false,
+              visualDensity: VisualDensity.comfortable,
+              title: const Text("Profiles"),
+              trailing: const Icon(Icons.keyboard_arrow_right),
+              subtitle: current?.name != null
+                  ? Text(
+                      current!.name,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    )
+                  : null,
+              onTap: () {
+                context.pushNamed(RouteName.USERS);
+              },
+            ),
+            const Divider(
+              endIndent: AppPadding.small,
+              indent: AppPadding.small,
+            ),
+            if (config.hasSymptomEditing) ...[
               ListTile(
                 dense: false,
                 visualDensity: VisualDensity.comfortable,
-                title: const Text("Profiles"),
+                title: const Text("Symptoms"),
                 trailing: const Icon(Icons.keyboard_arrow_right),
-                subtitle: current?.name != null
-                    ? Text(
-                        current!.name,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      )
-                    : null,
                 onTap: () {
-                  context.pushNamed(Routes.USERS);
+                  context.pushNamed(RouteName.SYMPTOMS);
                 },
               ),
               const Divider(
                 endIndent: AppPadding.small,
                 indent: AppPadding.small,
               ),
-              if (config.hasSymptomEditing) ...[
-                ListTile(
-                  dense: false,
-                  visualDensity: VisualDensity.comfortable,
-                  title: const Text("Symptoms"),
-                  trailing: const Icon(Icons.keyboard_arrow_right),
-                  onTap: () {
-                    context.pushNamed(Routes.SYMPTOMS);
-                  },
-                ),
-                const Divider(
-                  endIndent: AppPadding.small,
-                  indent: AppPadding.small,
-                ),
-                ListTile(
-                  dense: false,
-                  visualDensity: VisualDensity.comfortable,
-                  title: const Text("Settings"),
-                  trailing: const Icon(Icons.keyboard_arrow_right),
-                  onTap: () {
-                    context.pushNamed(Routes.SETTINGS);
-                  },
-                ),
-              ],
-              const SizedBox(
-                height: AppPadding.medium,
-              ),
-              Center(
-                child: TextButton(
-                  onPressed: () {
-                    ref.read(overlayProvider.notifier).state =
-                        const CurrentOverlay(widget: DeleteAccountPopup());
-                  },
-                  style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all(Theme.of(context)
-                          .colorScheme
-                          .error
-                          .withValues(alpha: 0.2))),
-                  child: Text(
-                    "Delete account",
-                    style:
-                        TextStyle(color: Theme.of(context).colorScheme.error),
-                  ),
-                ),
-              ),
+              /*ListTile(
+                dense: false,
+                visualDensity: VisualDensity.comfortable,
+                title: const Text("Settings"),
+                trailing: const Icon(Icons.keyboard_arrow_right),
+                onTap: () {
+                  context.pushNamed(RouteName.SETTINGS);
+                },
+              ),*/
             ],
-          ),
+            const SizedBox(
+              height: AppPadding.medium,
+            ),
+            Center(
+              child: TextButton(
+                onPressed: () {
+                  ref.read(overlayProvider.notifier).state =
+                      const CurrentOverlay(widget: DeleteAccountPopup());
+                },
+                style: ButtonStyle(
+                    backgroundColor: WidgetStateProperty.all(Theme.of(context)
+                        .colorScheme
+                        .error
+                        .withValues(alpha: 0.2))),
+                child: Text(
+                  "Delete account",
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

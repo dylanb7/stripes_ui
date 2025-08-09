@@ -1,7 +1,10 @@
+import 'dart:math';
+
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:select_field/select_field.dart';
 
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo_base.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/record_period.dart';
@@ -9,8 +12,6 @@ import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/UI/AccountManagement/SymptomManagement/symptom_type_management.dart';
 import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
 import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
-import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
-import 'package:stripes_ui/UI/Layout/home_screen.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
@@ -26,84 +27,78 @@ class SymptomManagementScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final AsyncValue<List<RecordPath>> asyncRecordPaths =
         ref.watch(questionLayoutProvider);
-
-    final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);
-
-    return PageWrap(
-      actions: [
-        if (!isSmall)
-          ...TabOption.values.map((tab) => LargeNavButton(tab: tab)),
-        const UserProfileButton(
-          selected: true,
-        )
-      ],
-      bottomNav: isSmall ? const SmallLayout() : null,
-      child: RefreshWidget(
-        depth: RefreshDepth.subuser,
-        scrollable: AsyncValueDefaults(
-            value: asyncRecordPaths,
-            onData: (recordPaths) {
-              return SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const SizedBox(
-                      height: AppPadding.large,
-                    ),
-                    Row(
-                      children: [
-                        IconButton(
-                            onPressed: () {
-                              if (context.canPop()) {
-                                context.pop();
-                              } else {
-                                context.goNamed(Routes.ACCOUNT);
-                              }
-                            },
-                            icon: const Icon(Icons.keyboard_arrow_left)),
-                        Text(
-                          'Categories',
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleLarge
-                              ?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: Theme.of(context).primaryColor),
-                          textAlign: TextAlign.left,
-                        ),
-                        const Spacer(),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: AppPadding.tiny,
-                    ),
-                    const Divider(
-                      endIndent: AppPadding.small,
-                      indent: AppPadding.small,
-                    ),
-                    const AddCategoryWidget(),
-                    ...recordPaths.map((path) {
-                      return CategoryDisplay(recordPath: path);
-                    }).separated(
+    return AsyncValueDefaults(
+        value: asyncRecordPaths,
+        onData: (recordPaths) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(
+                height: AppPadding.large,
+              ),
+              Row(
+                children: [
+                  IconButton(
+                      onPressed: () {
+                        if (context.canPop()) {
+                          context.pop();
+                        } else {
+                          context.goNamed(RouteName.ACCOUNT);
+                        }
+                      },
+                      icon: const Icon(Icons.keyboard_arrow_left)),
+                  Text(
+                    'Categories',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).primaryColor),
+                    textAlign: TextAlign.left,
+                  ),
+                  const Spacer(),
+                ],
+              ),
+              const SizedBox(
+                height: AppPadding.medium,
+              ),
+              Divider(
+                thickness: 1,
+                height: 1,
+                endIndent: AppPadding.small,
+                indent: AppPadding.small,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+              Expanded(
+                child: RefreshWidget(
+                  depth: RefreshDepth.subuser,
+                  scrollable: ListView(
+                    children: [
+                      const SizedBox(
+                        height: AppPadding.small,
+                      ),
+                      const AddCategoryWidget(),
+                      ...recordPaths.map((path) {
+                        return CategoryDisplay(recordPath: path);
+                      }).separated(
                         by: const Divider(
-                          endIndent: AppPadding.small,
-                          indent: AppPadding.small,
+                          endIndent: AppPadding.medium,
+                          indent: AppPadding.medium,
                         ),
-                        includeEnds: true),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
 
-                    /*
+              /*
             ...checkin.keys.map((items) {
               items.map((item) => {
                 item.
               });
               return Container();
             })*/
-                  ],
-                ),
-              );
-            }),
-      ),
-    );
+            ],
+          );
+        });
   }
 }
 
@@ -116,10 +111,8 @@ class CategoryDisplay extends ConsumerWidget {
     final int symptoms = recordPath.pages.fold<int>(
         0, (previousValue, page) => previousValue + page.questionIds.length);
     return Padding(
-      padding: const EdgeInsets.only(
-          top: AppPadding.tiny,
-          left: AppPadding.medium,
-          right: AppPadding.medium),
+      padding: const EdgeInsets.symmetric(
+          vertical: AppPadding.tiny, horizontal: AppPadding.large),
       child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
@@ -127,7 +120,7 @@ class CategoryDisplay extends ConsumerWidget {
             GestureDetector(
               behavior: HitTestBehavior.translucent,
               onTap: () {
-                context.pushNamed(Routes.SYMPTOMTYPE,
+                context.pushNamed(RouteName.SYMPTOMTYPE,
                     pathParameters: {'type': recordPath.name});
               },
               child: Row(
@@ -174,7 +167,6 @@ class CategoryDisplay extends ConsumerWidget {
                   const SizedBox(
                     width: AppPadding.tiny,
                   ),
-                  const Spacer(),
                 ],
               ),
             ),
@@ -190,7 +182,7 @@ class CategoryDisplay extends ConsumerWidget {
                   onChanged: recordPath.locked
                       ? null
                       : (_) async {
-                          if (!await (await ref.read(questionsProvider.future))
+                          if (!await (await ref.read(questionsProvider.future))!
                                   .setPathEnabled(
                                       recordPath, !recordPath.enabled) &&
                               context.mounted) {
@@ -206,7 +198,7 @@ class CategoryDisplay extends ConsumerWidget {
                     onPressed: recordPath.userCreated
                         ? () async {
                             if (!await (await ref
-                                        .read(questionsProvider.future))
+                                        .read(questionsProvider.future))!
                                     .removeRecordPath(recordPath) &&
                                 context.mounted) {
                               showSnack(context,
@@ -234,18 +226,25 @@ class AddCategoryWidget extends ConsumerStatefulWidget {
 enum AddCategoryFormState { idle, adding, loading, success }
 
 class _AddCategoryWidgetState extends ConsumerState<ConsumerStatefulWidget> {
-  final _formState =
+  final ValueNotifier<AddCategoryFormState> _formState =
       ValueNotifier<AddCategoryFormState>(AddCategoryFormState.idle);
   final TextEditingController category = TextEditingController();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   Period? recordPeriod;
   static const double buttonHeight = 60.0;
 
+  final Map<Period, String> frequencyMap = {
+    Period.day: "Daily",
+    Period.week: "Weekly",
+    Period.month: "Monthly",
+    Period.year: "Yearly",
+  };
+
   @override
   Widget build(BuildContext context) {
     final double screenHeight = MediaQuery.of(context).size.height;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppPadding.small),
+      padding: const EdgeInsets.symmetric(horizontal: AppPadding.large),
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: Breakpoint.medium.value),
         child: AnimatedSize(
@@ -264,7 +263,9 @@ class _AddCategoryWidgetState extends ConsumerState<ConsumerStatefulWidget> {
                     if (_formState.value == AddCategoryFormState.adding) ...[
                       TextButton.icon(
                         onPressed: () {
-                          _formState.value = AddCategoryFormState.idle;
+                          setState(() {
+                            _formState.value = AddCategoryFormState.idle;
+                          });
                         },
                         label: const Text("Close"),
                         icon: const Icon(Icons.keyboard_arrow_up),
@@ -278,12 +279,11 @@ class _AddCategoryWidgetState extends ConsumerState<ConsumerStatefulWidget> {
                               : null,
                         ),
                       ),
-                      /*
                       const SizedBox(
                         height: 8.0,
                       ),
                       LabeledField(
-                        label: "type",
+                        label: "frequency",
                         child: SelectField<Period?>(
                           onOptionSelected: (option) {
                             setState(() {
@@ -304,19 +304,19 @@ class _AddCategoryWidgetState extends ConsumerState<ConsumerStatefulWidget> {
                             ),
                           ),
                           initialOption: Option<Period?>(
-                            label: "event",
+                            label: "Event",
                             value: null,
                           ),
                           options: Period.values
-                              .map<Option<Period?>>((option) =>
-                                  Option(label: option.name, value: option))
+                              .map<Option<Period?>>((option) => Option(
+                                  label: frequencyMap[option]!, value: option))
                               .toList()
                             ..add(Option<Period?>(
                               label: "Event",
                               value: null,
                             )),
                         ),
-                      ),*/
+                      ),
                       const SizedBox(
                         height: AppPadding.large,
                       ),
@@ -350,7 +350,12 @@ class _AddCategoryWidgetState extends ConsumerState<ConsumerStatefulWidget> {
       return;
     }
     if (!(formKey.currentState?.validate() ?? false)) return;
-    final QuestionRepo repo = await ref.read(questionsProvider.future);
+    final QuestionRepo? repo = await ref.read(questionsProvider.future);
+
+    if (repo == null) {
+      if (mounted) showSnack(context, "Failed to add question");
+      return;
+    }
     final bool added = await repo.addRecordPath(
       RecordPath(
           pages: const [],
@@ -370,7 +375,9 @@ class _AddCategoryWidgetState extends ConsumerState<ConsumerStatefulWidget> {
       showSnack(context, "Failed to add question");
     }
     if (mounted) {
-      _formState.value = AddCategoryFormState.idle;
+      setState(() {
+        _formState.value = AddCategoryFormState.idle;
+      });
     }
   }
 }

@@ -5,9 +5,7 @@ import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_ui/Providers/graph_packets.dart';
 import 'package:stripes_ui/UI/AccountManagement/profile_changer.dart';
 import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
-import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
 import 'package:stripes_ui/UI/History/GraphView/graph_symptom.dart';
-import 'package:stripes_ui/UI/Layout/home_screen.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
@@ -24,7 +22,7 @@ class GraphsList extends ConsumerWidget {
     return GraphScreenWrap(
       scrollable: ListSection(
         onSelect: (GraphKey key) {
-          context.pushNamed(Routes.SYMPTOMTREND, extra: key);
+          context.pushNamed(RouteName.SYMPTOMTREND, extra: key);
         },
       ),
     );
@@ -83,7 +81,7 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
               ),
               IconButton(
                   onPressed: () {
-                    context.pushNamed(Routes.HISTORY);
+                    context.pushNamed(RouteName.HISTORY);
                   },
                   icon: const Icon(Icons.calendar_month))
             ],
@@ -357,7 +355,7 @@ class ListSection extends ConsumerWidget {
                   ),
                   IconButton(
                       onPressed: () {
-                        context.pushNamed(Routes.HISTORY);
+                        context.pushNamed(RouteName.HISTORY);
                       },
                       icon: const Icon(Icons.calendar_month))
                 ],
@@ -802,36 +800,16 @@ class GraphScreenWrap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);
-
-    return PageWrap(
-      actions: [
-        if (!isSmall)
-          ...TabOption.values.map((tab) => LargeNavButton(
-                tab: tab,
-                selected: TabOption.history,
-              )),
-        const SizedBox(
-          width: AppPadding.small,
-        ),
-        const UserProfileButton()
-      ],
-      bottomNav: isSmall
-          ? const SmallLayout(
-              selected: TabOption.history,
-            )
-          : null,
-      child: AddIndicator(
-        builder: (context, hasIndicator) {
-          return Center(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: Breakpoint.medium.value),
-              child: RefreshWidget(
-                  depth: RefreshDepth.subuser, scrollable: scrollable),
-            ),
-          );
-        },
-      ),
+    return AddIndicator(
+      builder: (context, hasIndicator) {
+        return Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: Breakpoint.medium.value),
+            child: RefreshWidget(
+                depth: RefreshDepth.subuser, scrollable: scrollable),
+          ),
+        );
+      },
     );
   }
 }

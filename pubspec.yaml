@@ -19,7 +19,8 @@ dependencies:
   intl: any
   duration: ^3.0.13
   stripes_backend_helper:
-    path: ../stripes_backend_helper
+    git:
+    url: https://github.com/dylanb7/stripes_backend_helper
   rive: ^0.14.0-dev.4
   markdown_widget: ^2.3.2+8
   flex_color_scheme: ^8.2.0
@@ -29,7 +30,7 @@ dependencies:
   custom_sliding_segmented_control: ^1.8.3
   flutter_email_sender: ^7.0.0
   add_2_calendar: ^3.0.1
-  go_router: ^7.1.1
+  go_router: ^16.0.0
   equatable: ^2.0.3
   pin_code_fields: ^7.3.0
   smooth_page_indicator: ^1.1.0

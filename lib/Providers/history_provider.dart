@@ -110,11 +110,13 @@ class Available {
     _all = allStamps;
     _filteredInRange = _filter(_getStamps(_all, null, null, null, true));
     _visible = _getStamps(
-        allStamps,
-        filters.calendarSelection.selectedDate,
-        filters.calendarSelection.rangeStart,
-        filters.calendarSelection.rangeEnd,
-        false);
+            allStamps,
+            filters.calendarSelection.selectedDate,
+            filters.calendarSelection.rangeStart,
+            filters.calendarSelection.rangeEnd,
+            false)
+        .reversed
+        .toList();
     _filteredVisible = _filter(_visible);
   }
 
