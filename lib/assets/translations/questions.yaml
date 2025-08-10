@@ -1,0 +1,232 @@
+schemaVersion: 1.0.0
+
+# promptKey: [category].[qid].[slug]
+# choices: [[category].[qid].[slug].[choice_slug]]
+
+questions:
+  - id: q1
+    promptKey: pain.q1.stomach_pain
+    type: PAIN
+    kind: Check
+
+  - id: q2
+    promptKey: nb.q2.no_sleep
+    type: NB
+    kind: Check
+
+  - id: q3
+    promptKey: bm.q3.activity_after_bm
+    type: BM
+    kind: Check
+
+  - id: q4
+    promptKey: bm.q4.average_bm_type
+    type: BM
+    kind: Numeric
+    isRequired: true
+    min: 1
+    max: 7
+
+  - id: q6
+    promptKey: bm.q6.pain_with_bm
+    type: BM
+    kind: Numeric
+    isRequired: true
+    min: 0
+    max: 10
+
+  - id: q7
+    promptKey: bm.q7.could_not_reach_toilet
+    type: BM
+    kind: Check
+
+  - id: q8
+    promptKey: bm.q8.struggled_bm
+    type: BM
+    kind: Check
+
+  - id: q9
+    promptKey: bm.q9.black_stool
+    type: BM
+    kind: Check
+
+  - id: q10
+    promptKey: reflux.q10.rechewed_food
+    type: REFLUX
+    kind: Check
+
+  - id: q11
+    promptKey: reflux.q11.vomited_food
+    type: REFLUX
+    kind: Check
+
+  - id: q12
+    promptKey: reflux.q12.vomit_attempt
+    type: REFLUX
+    kind: Check
+
+  - id: q13
+    promptKey: nb.q13.woke_up_early
+    type: NB
+    kind: Check
+
+  - id: q14
+    promptKey: pain.q14.head_tilt_back_arch
+    type: PAIN
+    kind: Check
+
+  - id: q18
+    promptKey: pain.q18.abdomen_pressure
+    type: PAIN
+    kind: Check
+
+  - id: q19
+    promptKey: reflux.q19.gagging_after_swallow
+    type: REFLUX
+    kind: Check
+
+  - id: q20
+    promptKey: reflux.q20.food_refusal
+    type: REFLUX
+    kind: Check
+
+  - id: q21
+    promptKey: nb.q21.falling_asleep
+    type: NB
+    kind: Check
+
+  - id: q22
+    promptKey: nb.q22.staying_asleep
+    type: NB
+    kind: Check
+
+  - id: q23
+    promptKey: nb.q23.toss_turn_sleep
+    type: NB
+    kind: Check
+
+  - id: q24
+    promptKey: nb.q24.irritability
+    type: NB
+    kind: Check
+
+  - id: q25
+    promptKey: nb.q25.aggressive_behavior
+    type: NB
+    kind: Check
+
+  - id: q26
+    promptKey: nb.q26.self_injury
+    type: NB
+    kind: Check
+
+  - id: q27
+    promptKey: pain.q27.teeth_grit
+    type: PAIN
+    kind: Check
+
+  - id: q28
+    promptKey: pain.q28.pain_noises
+    type: PAIN
+    kind: Check
+
+  - id: q29
+    promptKey: bm.q29.lost_control
+    type: BM
+    kind: Check
+
+  - id: q30
+    promptKey: bm.q30.gas
+    type: BM
+    kind: Check
+
+  - id: q31
+    promptKey: bm.q31.bloating
+    type: BM
+    kind: Check
+
+  - id: q32
+    promptKey: pain.q32.verbal_pain
+    type: PAIN
+    kind: Check
+
+  - id: Pain-Rating
+    promptKey: pain.rating.value
+    type: PAIN
+    kind: Numeric
+    isRequired: true
+
+  - id: Pain-Location
+    promptKey: pain.location.value
+    type: PAIN
+    kind: AllThatApply
+    isRequired: true
+    choices:
+      - pain.location.value.unknown
+      - pain.location.value.upper_left
+      - pain.location.value.top
+      - pain.location.value.upper_right
+      - pain.location.value.left
+      - pain.location.value.center
+      - pain.location.value.right
+      - pain.location.value.bottom_left
+      - pain.location.value.bottom
+      - pain.location.value.bottom_right
+
+  - id: Meal-Type
+    promptKey: Meal Time.Meal-Type
+    type: Meal Time
+    kind: MultipleChoice
+    isRequired: false
+    choices:
+      - meal.breakfast
+      - meal.lunch
+      - meal.dinner
+      - meal.snack
+      - meal.other
+
+  - id: BlueDyeQuestion
+    promptKey: bm.blue_dye
+    type: BM
+    kind: MultipleChoice
+    isRequired: true
+    isAddition: true
+    choices:
+      - common.yes
+      - common.no
+
+recordPaths:
+  - name: Meal Time
+    pages:
+      - questionIds: [Meal-Type]
+
+  - name: PAIN
+    pages:
+      - questionIds: [q14, q27, q28, q1, q18]
+      - headerKey: pain.select_location
+        questionIds: [Pain-Location]
+        dependsOn:
+          oneOf:
+            - exists: q1
+            - exists: q18
+      - headerKey: pain.select_rating
+        questionIds: [Pain-Rating]
+
+  - name: BM
+    pages:
+      - headerKey: bm.select_type
+        questionIds: [q4]
+      - questionIds: [q3, q31, q30, q7, q8, q29, q9]
+      - headerKey: bm.select_pain
+        questionIds: [q6]
+        dependsOn:
+          oneOf:
+            - exists: q8
+
+  - name: REFLUX
+    pages:
+      - questionIds: [q20, q19, q10, q12, q11]
+
+  - name: NB
+    pages:
+      - questionIds: [q21, q23, q22, q13, q2, q24, q25, q26]
