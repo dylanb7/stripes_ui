@@ -10,12 +10,12 @@ import 'auth_provider.dart';
 
 final stampProvider = FutureProvider<StampRepo<Stamp>?>((ref) async {
   final auth = await ref.watch(authStream.future);
+  final sub =
+      await ref.watch(subHolderProvider.selectAsync((value) => value.selected));
   final questions = await ref.watch(questionsProvider.future);
-  final sub = ref
-      .watch(subHolderProvider.select((value) => value.valueOrNull?.selected));
   final bool subEmpty = sub == null || SubUser.isEmpty(sub);
 
-  if (AuthUser.isEmpty(auth) || subEmpty) {
+  if (AuthUser.isEmpty(auth) || subEmpty || questions == null) {
     return null;
   }
   return ref

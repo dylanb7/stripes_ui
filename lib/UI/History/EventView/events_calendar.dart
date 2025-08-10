@@ -567,6 +567,10 @@ class _CalendarHeader extends StatelessWidget {
                             Radius.circular(AppRounding.small)))),
                   ),
                   onPressed: () {
+                    showDateRangePicker(
+                        context: context,
+                        firstDate: DateTime(0),
+                        lastDate: focusedDay);
                     reset();
                   },
                   icon: const Icon(Icons.restart_alt))

@@ -28,7 +28,7 @@ class UserProfileButton extends ConsumerWidget {
         onPressed: () {
           final GoRouter router = GoRouter.of(context);
           if (selected) {
-            while (router.location.startsWith(Routes.ACCOUNT)) {
+            while (router.state.uri.pathSegments.contains(RouteName.ACCOUNT)) {
               if (!router.canPop()) {
                 router.go(Routes.HOME);
                 return;
@@ -36,7 +36,7 @@ class UserProfileButton extends ConsumerWidget {
               router.pop();
             }
           } else {
-            context.pushNamed(Routes.ACCOUNT);
+            context.pushNamed(RouteName.ACCOUNT);
           }
         },
         icon: Icon(

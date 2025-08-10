@@ -29,7 +29,7 @@ class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
   void initState() {
     final bool pending = selected() == null;
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      if (pending) {
+      if (pending && widget.question.isRequired) {
         widget.listener.addPending(widget.question);
       }
     });
@@ -102,14 +102,130 @@ class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
 
   _onTap(bool isSelected, int index) {
     if (isSelected) {
-      widget.listener.addPending(widget.question);
+      if (widget.question.isRequired) {
+        widget.listener.addPending(widget.question);
+      }
       widget.listener.removeResponse(widget.question);
     } else {
-      widget.listener.removePending(widget.question);
+      if (widget.question.isRequired) {
+        widget.listener.removePending(widget.question);
+      }
       widget.listener.addResponse(MultiResponse(
           question: widget.question,
           stamp: dateToStamp(DateTime.now()),
           index: index));
+    }
+    setState(() {});
+  }
+}
+
+class AllThatApplyEntry extends StatefulWidget {
+  final QuestionsListener listener;
+
+  final AllThatApply question;
+
+  const AllThatApplyEntry(
+      {required this.listener, required this.question, super.key});
+
+  @override
+  State<AllThatApplyEntry> createState() => _AllThatApplyEntryState();
+}
+
+class _AllThatApplyEntryState extends State<AllThatApplyEntry> {
+  @override
+  void initState() {
+    final bool pending = selected() == null;
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      if (pending && widget.question.isRequired) {
+        widget.listener.addPending(widget.question);
+      }
+    });
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final List<String> answers = widget.question.choices;
+    final List<int>? selectedIndices = selected();
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppPadding.tiny),
+      child: QuestionWrap(
+        question: widget.question,
+        listener: widget.listener,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppPadding.small, vertical: AppPadding.small),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Text(
+                  widget.question.prompt,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+              if (widget.question.userCreated) ...[
+                const SizedBox(
+                  height: AppPadding.tiny,
+                ),
+                Text(
+                  "custom symptom",
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).disabledColor.darken(),
+                      ),
+                ),
+              ],
+              const SizedBox(
+                height: AppPadding.small,
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: answers.mapIndexed((index, choice) {
+                  final bool isSelected =
+                      selectedIndices?.contains(index) ?? false;
+                  return Selection(
+                      text: choice,
+                      onClick: () {
+                        _onTap(isSelected, index, selectedIndices);
+                      },
+                      selected: isSelected);
+                }).toList(),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  List<int>? selected() {
+    Response? logged = widget.listener.fromQuestion(widget.question);
+    if (logged == null) return null;
+    return (logged as AllResponse).responses;
+  }
+
+  _onTap(bool isSelected, int index, List<int>? selectedIndices) {
+    if (isSelected) {
+      bool isEmpty = selectedIndices?.isEmpty ?? true;
+      if (widget.question.isRequired) {
+        widget.listener.addPending(widget.question);
+      }
+      widget.listener.removeResponse(widget.question);
+    } else {
+      if (widget.question.isRequired) {
+        widget.listener.removePending(widget.question);
+      }
+      widget.listener.addResponse(
+        AllResponse(
+          question: widget.question,
+          stamp: dateToStamp(DateTime.now()),
+          responses: [index],
+        ),
+      );
     }
     setState(() {});
   }

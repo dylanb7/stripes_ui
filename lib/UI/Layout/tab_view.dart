@@ -12,7 +12,9 @@ import 'package:stripes_ui/UI/AccountManagement/profile_changer.dart';
 import 'package:stripes_ui/UI/History/EventView/action_row.dart';
 import 'package:stripes_ui/UI/History/EventView/event_grid.dart';
 import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
+import 'package:stripes_ui/UI/History/EventView/events_view.dart';
 import 'package:stripes_ui/UI/History/EventView/filter.dart';
+import 'package:stripes_ui/UI/Layout/home_screen.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
 import 'package:stripes_ui/UI/Record/record_screen.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
@@ -97,159 +99,7 @@ class HistoryScreenContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final StripesConfig config = ref.watch(configProvider);
-    final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);
-    if (isSmall) {
-      return AddIndicator(builder: (context, hasIndicator) {
-        return Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: Breakpoint.medium.value),
-            child: RefreshWidget(
-              depth: RefreshDepth.authuser,
-              scrollable: CustomScrollView(
-                slivers: [
-                  SliverPadding(
-                    padding: const EdgeInsets.only(
-                        left: AppPadding.xl,
-                        right: AppPadding.xl,
-                        top: AppPadding.xl,
-                        bottom: AppPadding.medium),
-                    sliver: SliverToBoxAdapter(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Expanded(
-                            child: PatientChanger(
-                              tab: TabOption.history,
-                            ),
-                          ),
-                          if (config.hasGraphing) ...[
-                            IconButton(
-                              onPressed: () {
-                                context.pushNamed(Routes.TRENDS);
-                              },
-                              icon: const Icon(Icons.trending_up),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ),
-                  SliverConstrainedCrossAxis(
-                    maxExtent: Breakpoint.small.value,
-                    sliver: SliverPadding(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: AppPadding.xl),
-                      sliver: SliverList(
-                        delegate: SliverChildListDelegate(
-                          const [
-                            FilterView(),
-                            SizedBox(
-                              height: AppPadding.small,
-                            ),
-                            EventsCalendar(),
-                            SizedBox(
-                              height: AppPadding.large,
-                            ),
-                            ActionRow()
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  const EventGrid(),
-                ],
-              ),
-            ),
-          ),
-        );
-      });
-    }
-    return AddIndicator(builder: (context, hasIndicator) {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            flex: 2,
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.only(
-                    left: AppPadding.xl,
-                    right: AppPadding.xl,
-                    top: AppPadding.xl),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 800),
-                  child: const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      PatientChanger(
-                        tab: TabOption.history,
-                      ),
-                      SizedBox(
-                        height: AppPadding.medium,
-                      ),
-                      FilterView(),
-                      SizedBox(
-                        height: AppPadding.small,
-                      ),
-                      EventsCalendar(),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-          const VerticalDivider(),
-          const Expanded(
-              child: RefreshWidget(
-            depth: RefreshDepth.authuser,
-            scrollable: CustomScrollView(
-              slivers: [
-                SliverPadding(
-                  padding: EdgeInsets.only(
-                      top: AppPadding.small,
-                      left: AppPadding.medium,
-                      right: AppPadding.medium,
-                      bottom: AppPadding.small),
-                  sliver: SliverToBoxAdapter(
-                    child: ActionRow(),
-                  ),
-                ),
-                EventGrid(),
-              ],
-            ),
-          )
-
-              /*Column(
-              children: [
-                const SizedBox(
-                  height: 8.0,
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 12.0),
-                  child: ActionRow(),
-                ),
-                Expanded(
-                  child: RefreshWidget(
-                    depth: RefreshDepth.authuser,
-                    scrollable: SingleChildScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      key: scrollkey,
-                      controller: ScrollController(),
-                      child: const Padding(
-                        padding: EdgeInsets.only(top: 8.0),
-                        child: EventGrid(),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),*/
-              )
-        ],
-      );
-    });
+    return const EventsView();
   }
 }
 
@@ -295,6 +145,7 @@ class RefreshWidgetState extends ConsumerState<RefreshWidget> {
   Widget build(BuildContext context) {
     return RefreshIndicator.adaptive(
         onRefresh: () async {
+          navBarHeaderKey.currentState?.setLoading(isLoading: true);
           const String timeout = "Time Out";
           final Object? completed = await Future.any([
             if (widget.depth == RefreshDepth.authuser) authFuture(),
@@ -305,6 +156,7 @@ class RefreshWidgetState extends ConsumerState<RefreshWidget> {
           if (completed == timeout && context.mounted) {
             showSnack(context, "Timed out");
           }
+          navBarHeaderKey.currentState?.setLoading(isLoading: false);
         },
         child: widget.scrollable);
   }

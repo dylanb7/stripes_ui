@@ -12,8 +12,6 @@ import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
 import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
 import 'package:stripes_ui/UI/CommonWidgets/type_tag.dart';
-import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
-import 'package:stripes_ui/UI/Layout/home_screen.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
@@ -37,8 +35,7 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);
-
+    ref.watch(questionHomeProvider);
     final AsyncValue<PagesData> pagesData =
         ref.watch(pagesByPath(PagesByPathProps(pathName: widget.category)));
 
@@ -50,7 +47,7 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
                 if (context.canPop()) {
                   context.pop();
                 } else {
-                  context.goNamed(Routes.SYMPTOMS);
+                  context.goNamed(RouteName.SYMPTOMS);
                 }
               },
               icon: const Icon(Icons.keyboard_arrow_left)),
@@ -94,8 +91,14 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
           FilledButton.icon(
               icon: const Icon(Icons.add),
               onPressed: () async {
-                final QuestionRepo repo =
+                final QuestionRepo? repo =
                     await ref.read(questionsProvider.future);
+                if (repo == null) {
+                  if (context.mounted) {
+                    showSnack(context, "Failed to add ${widget.category}");
+                  }
+                  return;
+                }
                 final bool added = await repo.addRecordPath(
                   RecordPath(
                       pages: const [],
@@ -112,58 +115,54 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
       );
     }
 
-    return PageWrap(
-      actions: [
-        if (!isSmall)
-          ...TabOption.values.map((tab) => LargeNavButton(tab: tab)),
-        const UserProfileButton(
-          selected: true,
-        )
-      ],
-      bottomNav: isSmall ? const SmallLayout() : null,
-      child: AsyncValueDefaults(
-        value: pagesData,
-        onData: (loadedPagesData) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(
-                height: AppPadding.xl,
-              ),
-              topRow(),
-              const SizedBox(
-                height: AppPadding.medium,
-              ),
-              const Divider(
-                height: 1,
-                thickness: 1,
-              ),
-              if (loadedPagesData.loadedLayouts == null &&
-                  widget.category != null)
-                createNewCategory(),
-              if (loadedPagesData.loadedLayouts != null &&
-                  widget.category != null)
-                Expanded(
-                  child: editing
-                      ? EditingMode(
-                          pagesData: loadedPagesData,
-                          setNotEditing: () {
-                            if (mounted) {
-                              setState(() {
-                                editing = false;
-                              });
-                            }
-                          },
-                        )
-                      : ViewingMode(
+    return AsyncValueDefaults(
+      value: pagesData,
+      onData: (loadedPagesData) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const SizedBox(
+              height: AppPadding.large,
+            ),
+            topRow(),
+            const SizedBox(
+              height: AppPadding.medium,
+            ),
+            Divider(
+              thickness: 1,
+              height: 1,
+              endIndent: AppPadding.small,
+              indent: AppPadding.small,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+            if (loadedPagesData.loadedLayouts == null &&
+                widget.category != null)
+              createNewCategory(),
+            if (loadedPagesData.loadedLayouts != null &&
+                widget.category != null)
+              Expanded(
+                child: editing
+                    ? EditingMode(
+                        pagesData: loadedPagesData,
+                        setNotEditing: () {
+                          if (mounted) {
+                            setState(() {
+                              editing = false;
+                            });
+                          }
+                        },
+                      )
+                    : RefreshWidget(
+                        depth: RefreshDepth.subuser,
+                        scrollable: ViewingMode(
                           type: widget.category!,
                           pages: loadedPagesData.loadedLayouts!,
                         ),
-                ),
-            ],
-          );
-        },
-      ),
+                      ),
+              ),
+          ],
+        );
+      },
     );
   }
 }
@@ -245,6 +244,67 @@ class _EditingModeState extends ConsumerState<EditingMode>
                   },
                 ),
               ),
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: AppPadding.xxl,
+          child: Center(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    spreadRadius: 2,
+                    blurRadius: 2,
+                    blurStyle: BlurStyle.outer,
+                    offset: const Offset(0, 0),
+                  ),
+                ],
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: const BorderRadius.all(
+                  Radius.circular(100.0),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: 100,
+                    child: TextButton(
+                      onPressed: () {
+                        widget.setNotEditing();
+                      },
+                      child: Text(
+                        "Cancel",
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.error),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    width: 1.0,
+                    height:
+                        Theme.of(context).buttonTheme.height - AppPadding.small,
+                    color: Theme.of(context).dividerColor,
+                  ),
+                  SizedBox(
+                    width: 100,
+                    child: TextButton(
+                      onPressed: () async {
+                        if (await _save()) {
+                          widget.setNotEditing();
+                        } else if (context.mounted) {
+                          showSnack(context, "Failed to edit layouts");
+                        }
+                      },
+                      child: const Text("Save"),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        )
       ],
     );
   }
@@ -277,7 +337,7 @@ class _EditingModeState extends ConsumerState<EditingMode>
 
   Widget _buildDropPreview(BuildContext context, Question? value) {
     return SizedBox(
-        height: 80,
+        height: 60,
         child: Container(
           decoration: BoxDecoration(
               color: Theme.of(context).disabledColor.withValues(alpha: 0.4)),
@@ -285,24 +345,6 @@ class _EditingModeState extends ConsumerState<EditingMode>
   }
 
   Widget _buildList() {
-    LoadedPageLayout? existsInDependency(Question question) {
-      for (final LoadedPageLayout dependentLayout in dependentLayouts) {
-        for (final RelationOp op in dependentLayout.dependsOn.operations) {
-          for (final Relation rel in op.relations) {
-            if (question.id == rel.qid) return dependentLayout;
-          }
-        }
-      }
-      return null;
-    }
-
-    bool existsInPreviousDependency(int pageIndex, Question question) {
-      final LoadedPageLayout? dependency = existsInDependency(question);
-      if (dependency == null) return false;
-      final int index = layouts.indexOf(dependency);
-      return pageIndex < index;
-    }
-
     List<Widget> widgets = [];
 
     for (int i = 0; i < layouts.length; i++) {
@@ -333,7 +375,7 @@ class _EditingModeState extends ConsumerState<EditingMode>
             children: [
               Text(
                 "Page ${i + 1}",
-                style: Theme.of(context).textTheme.titleLarge,
+                style: Theme.of(context).textTheme.bodySmall,
               ),
               if (isDependentPage)
                 TypeTag(
@@ -390,8 +432,9 @@ class _EditingModeState extends ConsumerState<EditingMode>
 
         bool isNeighbor(Question candidate) {
           if (candidate == question) return true;
-          if (j + 1 < pageQuestions.length &&
-              pageQuestions[j + 1] == question) {
+          if ((j + 1 < pageQuestions.length &&
+                  pageQuestions[j + 1] == question) ||
+              (j - 1 >= 0 && pageQuestions[j - 1] == question)) {
             return true;
           }
           return false;
@@ -461,45 +504,49 @@ class _EditingModeState extends ConsumerState<EditingMode>
         controller: scrollController,
         physics: const ClampingScrollPhysics(),
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: TextButton(
-                  onPressed: () {
-                    widget.setNotEditing();
-                  },
-                  child: Text(
-                    "Cancel",
-                    style:
-                        TextStyle(color: Theme.of(context).colorScheme.error),
-                  ),
-                ),
-              ),
-              Container(
-                width: 1.0,
-                height: Theme.of(context).buttonTheme.height,
-                color: Theme.of(context).dividerColor,
-              ),
-              Expanded(
-                child: TextButton(
-                  onPressed: () async {
-                    if (await _save()) {
-                      widget.setNotEditing();
-                    } else if (context.mounted) {
-                      showSnack(context, "Failed to edit layouts");
-                    }
-                  },
-                  child: const Text("Save"),
-                ),
-              ),
-            ],
-          ),
-          const Divider(
-            height: 1,
-            thickness: 1,
-          ),
           const SizedBox(
-            height: AppPadding.small,
+            height: AppPadding.xxxl,
+          ),
+          DragTarget<Question>(
+            builder:
+                (context, List<Question?> candidates, List<dynamic> rejects) {
+              if (candidates.isEmpty || candidates[0] == null) {
+                return const SizedBox(
+                  height: AppPadding.xl,
+                );
+              }
+              final Question candidate = candidates[0]!;
+              return _buildDropPreview(context, candidate);
+            },
+            onWillAcceptWithDetails: (details) {
+              return existsInDependency(details.data) == null;
+            },
+            onAcceptWithDetails: (details) {
+              bool found = false;
+              for (int i = 0; i < layouts.length; i++) {
+                final LoadedPageLayout pageLayout = layouts[i];
+                for (int j = 0; j < pageLayout.questions.length; j++) {
+                  if (pageLayout.questions[j] == details.data) {
+                    final List<Question> newQuestions = pageLayout.questions
+                      ..removeAt(j);
+                    if (newQuestions.isEmpty) {
+                      layouts.removeAt(i);
+                    } else {
+                      layouts[i] = pageLayout.copyWith(questions: newQuestions);
+                    }
+                    found = true;
+                    break;
+                  }
+                }
+                if (found) break;
+              }
+              layouts.insert(
+                  0,
+                  LoadedPageLayout(
+                      questions: [details.data],
+                      dependsOn: const DependsOn.nothing()));
+              setState(() {});
+            },
           ),
           ...widgets,
           if (isDragging) ...[
@@ -558,7 +605,7 @@ class _EditingModeState extends ConsumerState<EditingMode>
             ),
           ],
           const SizedBox(
-            height: 100,
+            height: 150,
           ),
         ],
       );
@@ -594,14 +641,16 @@ class _EditingModeState extends ConsumerState<EditingMode>
       data: question,
       axis: Axis.vertical,
       hitTestBehavior: HitTestBehavior.deferToChild,
-      feedback: SizedBox(
-        width: MediaQuery.of(context).size.width,
+      feedback: Padding(
+        padding: const EdgeInsetsGeometry.symmetric(vertical: AppPadding.large),
         child: Container(
+          width: MediaQuery.of(context).size.width,
           decoration: BoxDecoration(
             color: Theme.of(context).canvasColor,
             boxShadow: [
               BoxShadow(
                   color: Theme.of(context).primaryColor,
+                  blurStyle: BlurStyle.outer,
                   blurRadius: 2.0,
                   spreadRadius: 2.0)
             ],
@@ -624,12 +673,31 @@ class _EditingModeState extends ConsumerState<EditingMode>
     );
   }
 
+  LoadedPageLayout? existsInDependency(Question question) {
+    for (final LoadedPageLayout dependentLayout in dependentLayouts) {
+      for (final RelationOp op in dependentLayout.dependsOn.operations) {
+        for (final Relation rel in op.relations) {
+          if (question.id == rel.qid) return dependentLayout;
+        }
+      }
+    }
+    return null;
+  }
+
+  bool existsInPreviousDependency(int pageIndex, Question question) {
+    final LoadedPageLayout? dependency = existsInDependency(question);
+    if (dependency == null) return false;
+    final int index = layouts.indexOf(dependency);
+    return pageIndex < index;
+  }
+
   Future<bool> _save() async {
     final RecordPath path = widget.pagesData.path!;
     final List<PageLayout> newPages =
         layouts.map((layout) => layout.toPageLayout()).toList();
-    final QuestionRepo repo = await ref.read(questionsProvider.future);
-    return await repo.updateRecordPath(path.copyWith(pages: newPages));
+    final QuestionRepo? repo = await ref.read(questionsProvider.future);
+    return await repo?.updateRecordPath(path.copyWith(pages: newPages)) ??
+        false;
   }
 
   @override
@@ -639,7 +707,7 @@ class _EditingModeState extends ConsumerState<EditingMode>
   }
 }
 
-class ViewingMode extends StatelessWidget {
+class ViewingMode extends ConsumerWidget {
   final String type;
 
   final List<LoadedPageLayout> pages;
@@ -647,42 +715,50 @@ class ViewingMode extends StatelessWidget {
   const ViewingMode({required this.type, required this.pages, super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(questionsProvider);
+
     Iterable<Widget> questionDisplays() {
       List<Widget> displays = [];
-      for (final LoadedPageLayout page in pages) {
+      for (final (int index, LoadedPageLayout page) in pages.indexed) {
         displays.addAll([
+          Padding(
+            padding: const EdgeInsetsGeometry.only(left: AppPadding.small),
+            child: Text("Page ${index + 1}",
+                style: Theme.of(context).textTheme.bodySmall),
+          ),
+          Divider(
+            endIndent: AppPadding.small,
+            indent: AppPadding.small,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
           ...page.questions
               .map((question) => SymptomDisplay(question: question))
               .separated(
                 by: Divider(
-                  endIndent: AppPadding.xxl,
-                  indent: AppPadding.xxl,
+                  endIndent: AppPadding.medium,
+                  indent: AppPadding.medium,
                   color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
                 ),
               ),
-          const Divider(
-            endIndent: AppPadding.small,
-            indent: AppPadding.small,
-          ),
         ]);
       }
-      return displays.isEmpty ? [] : displays
-        ..removeLast();
+      return displays;
     }
 
     return SingleChildScrollView(
       key: const PageStorageKey("SymptomScreen"),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(
-            height: AppPadding.tiny,
+            height: AppPadding.small,
           ),
-          AddSymptomWidget(
-            type: type,
+          Center(
+            child: AddSymptomWidget(
+              type: type,
+            ),
           ),
-          const Divider(),
           ...questionDisplays(),
           const SizedBox(
             height: 100,
@@ -731,7 +807,7 @@ class SymptomDisplay extends ConsumerWidget {
             onChanged: question.locked
                 ? null
                 : (_) async {
-                    if (!await (await ref.read(questionsProvider.future))
+                    if (!await (await ref.read(questionsProvider.future))!
                             .setQuestionEnabled(question, !question.enabled) &&
                         context.mounted) {
                       showSnack(context,
@@ -745,7 +821,7 @@ class SymptomDisplay extends ConsumerWidget {
           IconButton(
               onPressed: question.userCreated
                   ? () async {
-                      if (!await (await ref.read(questionsProvider.future))
+                      if (!await (await ref.read(questionsProvider.future))!
                               .removeQuestion(question) &&
                           context.mounted) {
                         showSnack(
@@ -798,11 +874,13 @@ class SymptomInfoDisplay extends StatelessWidget {
                 if (question.userCreated)
                   TextSpan(
                     text: " · custom symptom",
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.copyWith(color: Theme.of(context).disabledColor),
-                  )
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.75),
+                        ),
+                  ),
               ]),
         ),
         const SizedBox(
@@ -851,9 +929,11 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
 
   @override
   Widget build(BuildContext context) {
+    AsyncValue<PagesData> data =
+        ref.watch(pagesByPath(PagesByPathProps(pathName: widget.type)));
     final screenHeight = MediaQuery.of(context).size.height;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      padding: const EdgeInsets.symmetric(horizontal: AppPadding.medium),
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: Breakpoint.medium.value),
         child: AnimatedSize(
@@ -1067,7 +1147,8 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
             userCreated: true);
     }
     final bool added =
-        await (await ref.read(questionsProvider.future)).addQuestion(question);
+        await (await ref.read(questionsProvider.future))!.addQuestion(question);
+    print(added);
     if (added) {
       if (mounted) {
         setState(() {

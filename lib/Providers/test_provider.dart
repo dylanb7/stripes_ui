@@ -15,13 +15,14 @@ import 'package:stripes_ui/entry.dart';
 
 final testProvider = FutureProvider<TestsRepo?>((ref) async {
   final auth = await ref.watch(authStream.future);
-  final questions = await ref.watch(questionsProvider.future);
+
   final stamps = await ref.watch(stampProvider.future);
   final SubUser? sub = ref
       .watch(subHolderProvider.select((value) => value.valueOrNull?.selected));
+  final questions = await ref.watch(questionsProvider.future);
   final bool subEmpty = sub == null || SubUser.isEmpty(sub);
 
-  if (stamps == null || subEmpty) return null;
+  if (stamps == null || subEmpty || questions == null) return null;
   return ref.watch(reposProvider).test(
       user: auth, subUser: sub, stampRepo: stamps, questionRepo: questions);
 });

@@ -97,11 +97,14 @@ class RenderEntryGroupSliver extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (!grouped) {
-      return SliverList.builder(
+      return SliverList.separated(
         itemBuilder: (context, index) => EntryDisplay(
           event: responses[index],
         ),
         itemCount: responses.length,
+        separatorBuilder: (BuildContext context, int index) => const SizedBox(
+          height: AppPadding.tiny,
+        ),
       );
     }
     Map<String, List<Response>> byType = {};
@@ -454,6 +457,7 @@ class DetailDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool hasResponses = detail.responses.isNotEmpty;
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -478,11 +482,12 @@ class DetailDisplay extends StatelessWidget {
             textAlign: TextAlign.left,
             maxLines: null,
           ),
-          const Divider(
-            height: AppPadding.small,
-          ),
+          if (hasResponses)
+            const Divider(
+              height: AppPadding.small,
+            ),
         ],
-        if (detail.responses.isNotEmpty) ...[
+        if (hasResponses) ...[
           Text(
             context.translate.behaviorsLabel,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(

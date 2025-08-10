@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
@@ -34,6 +36,8 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
 
   late final bool isEdit;
 
+  late final Timer _updateSubmitTime;
+
   @override
   void initState() {
     isEdit = widget.questionsListener.editId != null;
@@ -49,10 +53,20 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
     _dateListener.addListener(_setSubmissionTime);
     _timeListener.addListener(_setSubmissionTime);
     _descriptionController.addListener(_updateDesc);
+    _updateSubmitTime = Timer.periodic(const Duration(seconds: 10), (_) {
+      if (mounted) {
+        setState(() {
+          final DateTime current = DateTime.now();
+          _dateListener.date = current;
+          _timeListener.time = TimeOfDay.fromDateTime(current);
+        });
+      }
+    });
     super.initState();
   }
 
   _setSubmissionTime() {
+    _updateSubmitTime.cancel();
     widget.questionsListener.submitTime = _combinedTime();
   }
 
@@ -87,6 +101,7 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
     _dateListener.removeListener(_setSubmissionTime);
     _timeListener.removeListener(_setSubmissionTime);
     _descriptionController.removeListener(_updateDesc);
+    _updateSubmitTime.cancel();
     super.dispose();
   }
 

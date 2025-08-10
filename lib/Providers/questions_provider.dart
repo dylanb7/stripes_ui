@@ -4,23 +4,30 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/auth_provider.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
+import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/entry.dart';
 
-final questionsProvider = FutureProvider<QuestionRepo>((ref) async {
+final questionsProvider = FutureProvider<QuestionRepo?>((ref) async {
   AuthUser user = await ref.watch(authStream.future);
-  return ref.watch(reposProvider).questions(user: user);
+  final sub =
+      await ref.watch(subHolderProvider.selectAsync((value) => value.selected));
+  final bool subEmpty = sub == null || SubUser.isEmpty(sub);
+  if (subEmpty) return null;
+  return ref.watch(reposProvider).questions(user: user, subUser: sub);
 });
 
 final questionHomeProvider = StreamProvider<QuestionHome>((ref) {
   return ref.watch(questionsProvider).map(
-      data: (data) => data.value.questions,
+      data: (data) =>
+          data.value == null ? const Stream.empty() : data.value!.questions,
       error: (_) => const Stream.empty(),
       loading: (_) => const Stream.empty());
 });
 
 final questionLayoutProvider = StreamProvider<List<RecordPath>>((ref) {
   return ref.watch(questionsProvider).map(
-      data: (data) => data.value.layouts,
+      data: (data) =>
+          data.value == null ? const Stream.empty() : data.value!.layouts,
       error: (_) => const Stream.empty(),
       loading: (_) => const Stream.empty());
 });

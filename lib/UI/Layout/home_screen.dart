@@ -4,19 +4,16 @@ import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/CommonWidgets/scroll_assisted_list.dart';
+import 'package:stripes_ui/UI/CommonWidgets/stripes_header.dart';
 import 'package:stripes_ui/UI/Layout/fabs.dart';
 import 'package:stripes_ui/UI/AccountManagement/add_first_profile.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
-import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/extensions.dart';
-import 'package:stripes_ui/Util/mouse_hover.dart';
 import 'package:stripes_ui/Util/paddings.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:rive/rive.dart';
 
 import '../../Providers/overlay_provider.dart';
-import '../CommonWidgets/user_profile_button.dart';
 
 @immutable
 class NavPath {
@@ -32,7 +29,6 @@ class Home extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AsyncValue<SubState> subNotif = ref.watch(subHolderProvider);
-    final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);
 
     if (subNotif.isLoading) {
       return const LoadingWidget();
@@ -41,31 +37,15 @@ class Home extends ConsumerWidget {
     final SubState state = subNotif.value!;
     final bool empty = state.subUsers.isEmpty;
     if (empty || state.selected == null || SubUser.isEmpty(state.selected!)) {
-      return const PageWrap(child: CreatePatient());
+      return const CreatePatient();
     }
-    return PageWrap(
-      actions: [
-        if (!isSmall)
-          ...TabOption.values.map((tab) => LargeNavButton(
-                tab: tab,
-                selected: selected,
-              )),
-        const SizedBox(
-          width: AppPadding.small,
-        ),
-        const UserProfileButton()
-      ],
-      bottomNav: isSmall
-          ? SmallLayout(
-              selected: selected,
-            )
-          : null,
-      child: TabContent(
-        selected: selected,
-      ),
+    return TabContent(
+      selected: selected,
     );
   }
 }
+
+final navBarHeaderKey = GlobalKey<StripesHeaderState>();
 
 class PageWrap extends ConsumerStatefulWidget {
   final Widget child;
@@ -95,12 +75,6 @@ class PageWrap extends ConsumerStatefulWidget {
 class _PageWrapState extends ConsumerState<PageWrap> {
   _PageWrapState();
 
-  late final headerFile = FileLoader.fromAsset(
-      "packages/stripes_ui/assets/rive/stripes_header.riv",
-      riveFactory: Factory.rive);
-
-  RiveWidgetController? controller;
-
   @override
   Widget build(BuildContext context) {
     final CurrentOverlay overlay = ref.watch(overlayProvider);
@@ -126,25 +100,8 @@ class _PageWrapState extends ConsumerState<PageWrap> {
                       onTap: () {
                         _toggleBottomSheet(context);
                       },
-                      child: RiveWidgetBuilder(
-                        fileLoader: headerFile,
-                        builder: (context, state) {
-                          switch (state) {
-                            case RiveLoading():
-                              return Container();
-                            case RiveLoaded():
-                              controller = RiveWidgetController(
-                                state.file,
-                              );
-
-                              return RiveWidget(
-                                  alignment: Alignment.centerLeft,
-                                  fit: Fit.fitHeight,
-                                  controller: controller!);
-                            case RiveFailed():
-                              return Container();
-                          }
-                        },
+                      child: StripesHeader(
+                        key: navBarHeaderKey,
                       ),
                     ),
                   ),
@@ -262,16 +219,15 @@ class StripesInfoSheet extends StatelessWidget {
                 SizedBox(
                   width: Theme.of(context).iconTheme.size ?? 24.0,
                 ),
-                Expanded(
+                const Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: AppPadding.small),
-                    child: Text(
-                      context.translate.stripesName,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Theme.of(context).primaryColor,
-                          fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center,
+                    padding: EdgeInsets.symmetric(horizontal: AppPadding.small),
+                    child: SizedBox(
+                      height: 35.0,
+                      child: StripesHeader(
+                        hasEntry: false,
+                        alignment: Alignment.center,
+                      ),
                     ),
                   ),
                 ),
@@ -290,21 +246,21 @@ class StripesInfoSheet extends StatelessWidget {
             height: AppPadding.small,
           ),
           Expanded(
-              child: ScrollAssistedList(
-                  builder: (context, properties) => ListView.builder(
-                        controller: properties.scrollController,
-                        key: properties.scrollStateKey,
-                        itemCount: infoItems.length,
-                        itemBuilder: (BuildContext context, int index) =>
-                            Padding(
-                                padding: const EdgeInsets.only(
-                                  left: AppPadding.large,
-                                  right: AppPadding.large,
-                                  bottom: AppPadding.small,
-                                ),
-                                child: infoItems[index]),
-                      ),
-                  scrollController: scroll)),
+            child: ScrollAssistedList(
+                builder: (context, properties) => ListView.builder(
+                      controller: properties.scrollController,
+                      key: properties.scrollStateKey,
+                      itemCount: infoItems.length,
+                      itemBuilder: (BuildContext context, int index) => Padding(
+                          padding: const EdgeInsets.only(
+                            left: AppPadding.large,
+                            right: AppPadding.large,
+                            bottom: AppPadding.small,
+                          ),
+                          child: infoItems[index]),
+                    ),
+                scrollController: scroll),
+          ),
         ]);
   }
 }

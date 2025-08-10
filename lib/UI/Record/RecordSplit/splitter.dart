@@ -12,7 +12,6 @@ import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
 import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
 import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
 import 'package:stripes_ui/UI/Layout/home_screen.dart';
-import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/question_screen.dart';
 import 'package:stripes_ui/UI/Record/submit_screen.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
@@ -78,146 +77,125 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
       ),
     );
 
-    final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);
-
     final bool isEdit = widget.questionListener.editId != null;
 
     final bool edited = !isEdit || isEdit && hasChanged;
 
-    return PageWrap(
-      actions: [
-        if (!isSmall)
-          ...TabOption.values.map((tab) => LargeNavButton(
-                tab: tab,
-                customSelect: (String route) {
-                  _close(ref, context, route);
-                },
-              )),
-      ],
-      bottomNav: isSmall
-          ? SmallLayout(
-              customSelect: (String route) {
-                _close(ref, context, route);
-              },
-            )
-          : null,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppPadding.medium),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: Breakpoint.small.value),
-            child: AsyncValueDefaults(
-              value: pagesData,
-              onData: (loadedPages) {
-                final List<LoadedPageLayout> evaluatedPages = loadedPages
-                        .loadedLayouts
-                        ?.where((page) =>
-                            page.dependsOn.eval(widget.questionListener))
-                        .toList() ??
-                    [];
-                int pending() {
-                  if (currentIndex > evaluatedPages.length - 1) return 0;
-                  final List<Question> pageQuestions =
-                      evaluatedPages[currentIndex].questions;
-                  return widget.questionListener.pending
-                      .where((pending) => pageQuestions.contains(pending))
-                      .length;
-                }
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppPadding.medium),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: Breakpoint.small.value),
+          child: AsyncValueDefaults(
+            value: pagesData,
+            onData: (loadedPages) {
+              final List<LoadedPageLayout> evaluatedPages = loadedPages
+                      .loadedLayouts
+                      ?.where((page) =>
+                          page.dependsOn.eval(widget.questionListener))
+                      .toList() ??
+                  [];
+              int pending() {
+                if (currentIndex > evaluatedPages.length - 1) return 0;
+                final List<Question> pageQuestions =
+                    evaluatedPages[currentIndex].questions;
+                return widget.questionListener.pending
+                    .where((pending) => pageQuestions.contains(pending))
+                    .length;
+              }
 
-                final int pendingCount = pending();
+              final int pendingCount = pending();
 
-                Widget? submitButton() {
-                  if (currentIndex != evaluatedPages.length) return null;
-                  final bool canSubmit =
-                      pendingCount == 0 && !isLoading && edited;
-                  return GestureDetector(
-                    onTap: () {
-                      if (pendingCount != 0 && !isLoading) {
-                        showSnack(
-                            context,
-                            context.translate.nLevelError(
-                                widget.questionListener.pending.length));
-                      }
-                    },
-                    child: FilledButton(
-                      onPressed: submitSuccess
-                          ? () {}
-                          : canSubmit
-                              ? () {
-                                  _submitEntry(context, ref, isEdit);
-                                }
-                              : null,
-                      child: submitSuccess
-                          ? const Icon(Icons.check)
-                          : isLoading
-                              ? const ButtonLoadingIndicator()
-                              : Text(isEdit
-                                  ? context.translate.editSubmitButtonText
-                                  : context.translate.submitButtonText),
-                    ),
-                  );
-                }
+              Widget? submitButton() {
+                if (currentIndex != evaluatedPages.length) return null;
+                final bool canSubmit =
+                    pendingCount == 0 && !isLoading && edited;
+                return GestureDetector(
+                  onTap: () {
+                    if (pendingCount != 0 && !isLoading) {
+                      showSnack(
+                          context,
+                          context.translate.nLevelError(
+                              widget.questionListener.pending.length));
+                    }
+                  },
+                  child: FilledButton(
+                    onPressed: submitSuccess
+                        ? () {}
+                        : canSubmit
+                            ? () {
+                                _submitEntry(context, ref, isEdit);
+                              }
+                            : null,
+                    child: submitSuccess
+                        ? const Icon(Icons.check)
+                        : isLoading
+                            ? const ButtonLoadingIndicator()
+                            : Text(isEdit
+                                ? context.translate.editSubmitButtonText
+                                : context.translate.submitButtonText),
+                  ),
+                );
+              }
 
-                return Column(children: [
-                  RecordHeader(
-                    type: widget.type,
-                    hasChanged: hasChanged,
-                    questionListener: widget.questionListener,
-                    pageController: pageController,
-                    currentIndex: currentIndex,
-                    length: evaluatedPages.length,
-                    close: () {
-                      _close(ref, context, null);
-                    },
-                  ),
-                  Expanded(
-                    child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius:
-                              BorderRadius.circular(AppPadding.medium),
-                          color: ElevationOverlay.applySurfaceTint(
-                              Theme.of(context).cardColor,
-                              Theme.of(context).colorScheme.surfaceTint,
-                              3),
-                        ),
-                        child: IgnorePointer(
-                          ignoring: isLoading,
-                          child: PageView.builder(
-                            onPageChanged: (value) {
-                              setState(() {
-                                currentIndex = value;
-                              });
-                            },
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemBuilder: (context, index) =>
-                                _buildContent(context, index, evaluatedPages),
-                            itemCount: evaluatedPages.length + 1,
-                            controller: pageController,
-                          ),
-                        )),
-                  ),
-                  const SizedBox(
-                    height: AppPadding.tiny,
-                  ),
-                  IgnorePointer(
-                    ignoring: isLoading || pagesData.isLoading,
-                    child: Center(
-                      child: RecordFooter(
-                        submitButton: submitButton(),
-                        questionListener: widget.questionListener,
-                        pageController: pageController,
-                        length: evaluatedPages.length,
-                        pendingCount: pendingCount,
-                        currentIndex: currentIndex,
+              return Column(children: [
+                RecordHeader(
+                  type: widget.type,
+                  hasChanged: hasChanged,
+                  questionListener: widget.questionListener,
+                  pageController: pageController,
+                  currentIndex: currentIndex,
+                  length: evaluatedPages.length,
+                  close: () {
+                    close(ref, context, null);
+                  },
+                ),
+                Expanded(
+                  child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(AppPadding.medium),
+                        color: ElevationOverlay.applySurfaceTint(
+                            Theme.of(context).cardColor,
+                            Theme.of(context).colorScheme.surfaceTint,
+                            3),
                       ),
+                      child: IgnorePointer(
+                        ignoring: isLoading,
+                        child: PageView.builder(
+                          onPageChanged: (value) {
+                            setState(() {
+                              currentIndex = value;
+                            });
+                          },
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemBuilder: (context, index) =>
+                              _buildContent(context, index, evaluatedPages),
+                          itemCount: evaluatedPages.length + 1,
+                          controller: pageController,
+                        ),
+                      )),
+                ),
+                const SizedBox(
+                  height: AppPadding.tiny,
+                ),
+                IgnorePointer(
+                  ignoring: isLoading || pagesData.isLoading,
+                  child: Center(
+                    child: RecordFooter(
+                      submitButton: submitButton(),
+                      questionListener: widget.questionListener,
+                      pageController: pageController,
+                      length: evaluatedPages.length,
+                      pendingCount: pendingCount,
+                      currentIndex: currentIndex,
                     ),
                   ),
-                  const SizedBox(
-                    height: AppPadding.tiny,
-                  )
-                ]);
-              },
-            ),
+                ),
+                const SizedBox(
+                  height: AppPadding.tiny,
+                )
+              ]);
+            },
           ),
         ),
       ),
@@ -257,7 +235,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     );
   }
 
-  void _close(WidgetRef ref, BuildContext context, String? route) {
+  void close(WidgetRef ref, BuildContext context, String? route) {
     if (!hasChanged) {
       widget.questionListener.tried = false;
       if (route == null) {
@@ -269,10 +247,11 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     }
 
     ref.read(overlayProvider.notifier).state = CurrentOverlay(
-        widget: ErrorPrevention(
-      type: widget.type,
-      route: route,
-    ));
+      widget: ErrorPrevention(
+        type: widget.type,
+        route: route,
+      ),
+    );
   }
 
   void _submitEntry(BuildContext context, WidgetRef ref, bool isEdit) async {
@@ -285,6 +264,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
       return;
     }
     if (isLoading) return;
+    navBarHeaderKey.currentState?.setLoading(isLoading: true);
     setState(() {
       isLoading = true;
     });
@@ -319,6 +299,8 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     setState(() {
       isLoading = false;
     });
+    navBarHeaderKey.currentState?.setLoading(isLoading: false);
+    navBarHeaderKey.currentState?.trigger();
     if (context.mounted) {
       if (!isEdit) {
         showSnack(
