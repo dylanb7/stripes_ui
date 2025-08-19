@@ -6,7 +6,8 @@ publish_to: none
 
 #stripes_backend_helper:
 #    git:
-#    url: https://github.com/dylanb7/stripes_backend_helper
+#       url: https://github.com/dylanb7/stripes_backend_helper
+#       branch: master
 
 environment:
   sdk: ^3.5.3
@@ -47,7 +48,8 @@ dependencies:
   path_provider: ^2.1.5
   stripes_backend_helper:
     git:
-    url: https://github.com/dylanb7/stripes_backend_helper
+      url: https://github.com/dylanb7/stripes_backend_helper
+      branch: master
 
 dev_dependencies:
   flutter_test:
