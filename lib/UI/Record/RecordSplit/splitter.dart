@@ -211,9 +211,17 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
         type: widget.type,
       );
     } else {
+      final List<Question> questions = layouts[index].questions;
+      final List<Question> filtered = questions
+          .where(
+            (question) =>
+                question.dependsOn == null ||
+                question.dependsOn!.eval(widget.questionListener),
+          )
+          .toList();
       content = QuestionScreen(
           header: layouts[index].header ?? context.translate.selectInstruction,
-          questions: layouts[index].questions,
+          questions: filtered,
           questionsListener: widget.questionListener);
     }
     final ScrollController scrollController = ScrollController();
