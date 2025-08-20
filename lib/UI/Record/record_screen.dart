@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -60,6 +61,17 @@ class Options extends ConsumerWidget {
             height: AppPadding.xl,
           ),
           AsyncValueDefaults(
+              value: checkins,
+              onData: (loadedCheckins) {
+                return CheckinsPageView(
+                  checkins: loadedCheckins,
+                  additions: (item) {
+                    return repo.valueOrNull
+                        ?.getPathAdditions(context, item.type);
+                  },
+                );
+              }),
+          AsyncValueDefaults(
               value: paths,
               onLoading: (_) {
                 return Column(
@@ -116,45 +128,6 @@ class Options extends ConsumerWidget {
                       }),
                     ]);
               }),
-          AsyncValueDefaults(
-              value: checkins,
-              onData: (loadedCheckins) {
-                if (loadedCheckins.isEmpty) return const SizedBox();
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Divider(
-                      height: AppPadding.xl,
-                      indent: AppPadding.large,
-                      endIndent: AppPadding.large,
-                      thickness: 2,
-                    ),
-                    Text(
-                      context.translate.checkInLabel,
-                      style: Theme.of(context).textTheme.titleMedium,
-                      textAlign: TextAlign.left,
-                    ),
-                    ...loadedCheckins.map((item) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            item.path.period!
-                                .getRangeString(DateTime.now(), context),
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                          CheckInButton(
-                            item: item,
-                            additions: repo.valueOrNull
-                                    ?.getPathAdditions(context, item.type) ??
-                                [],
-                          )
-                        ],
-                      );
-                    }),
-                  ],
-                );
-              }),
           const SizedBox(
             height: AppPadding.xl,
           ),
@@ -167,7 +140,10 @@ class Options extends ConsumerWidget {
 class CheckinsPageView extends StatefulWidget {
   final List<CheckinItem> checkins;
 
-  const CheckinsPageView({super.key, required this.checkins});
+  final List<Widget>? Function(CheckinItem) additions;
+
+  const CheckinsPageView(
+      {super.key, required this.checkins, required this.additions});
 
   @override
   State<StatefulWidget> createState() {
@@ -176,14 +152,85 @@ class CheckinsPageView extends StatefulWidget {
 }
 
 class _CheckinsPageViewState extends State<CheckinsPageView> {
+  late ExpansibleController expansionController;
+
+  late PageController pageController;
+
+  late List<CheckinItem> sorted;
+
+  late bool hasCheckin;
+
+  late int count;
+
+  @override
+  void initState() {
+    hasCheckin = false;
+    count = 0;
+    for (final CheckinItem item in widget.checkins) {
+      if (item.response == null) {
+        hasCheckin = true;
+        count++;
+        sorted.insert(0, item);
+      } else {
+        sorted.add(item);
+      }
+    }
+
+    expansionController = ExpansibleController();
+
+    pageController = PageController();
+
+    if (!hasCheckin) {
+      expansionController.collapse();
+    }
+
+    pageController.addListener(() {
+      if (mounted) setState(() {});
+    });
+
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        PageView.builder(
-            scrollDirection: Axis.horizontal, itemBuilder: (context, index) {}),
-      ],
-    );
+    if (widget.checkins.isEmpty) return const SizedBox();
+    return Expansible(
+        headerBuilder: (context, animation) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AnimatedDefaultTextStyle(
+                duration: Durations.medium1,
+                style: expansionController.isExpanded
+                    ? Theme.of(context).textTheme.titleMedium!
+                    : Theme.of(context).textTheme.bodySmall!,
+                child: Text(
+                  "${context.translate.checkInLabel} ($count/${widget.checkins.length})",
+                  textAlign: TextAlign.left,
+                ),
+              ),
+              if (expansionController.isExpanded)
+                Text(
+                  widget
+                      .checkins[pageController.page?.round() ?? 0].path.period!
+                      .getRangeString(DateTime.now(), context),
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+            ],
+          );
+        },
+        bodyBuilder: (context, animation) {
+          return PageView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: widget.checkins.length,
+              controller: pageController,
+              itemBuilder: (context, index) {
+                final CheckinItem item = widget.checkins[index];
+                return CheckInButton(
+                    item: item, additions: widget.additions(item) ?? []);
+              });
+        },
+        controller: expansionController);
   }
 }
 
