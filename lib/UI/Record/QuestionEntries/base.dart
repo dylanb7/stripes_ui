@@ -251,15 +251,31 @@ class _CheckBoxWidgetState extends State<CheckBoxWidget> {
         _onTap();
       },
       child: QuestionWrap(
-          question: widget.check,
-          listener: widget.listener,
-          styled: false,
-          child: Selection(
-              text: widget.check.prompt,
-              onClick: () {
-                _onTap();
-              },
-              selected: selected)),
+        question: widget.check,
+        listener: widget.listener,
+        styled: false,
+        child: Column(
+          children: [
+            Selection(
+                text: widget.check.prompt,
+                onClick: () {
+                  _onTap();
+                },
+                selected: selected),
+            if (widget.check.userCreated) ...[
+              const SizedBox(
+                height: AppPadding.tiny,
+              ),
+              Text(
+                "custom symptom",
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).disabledColor.darken(),
+                    ),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 
@@ -477,7 +493,7 @@ class _FreeResponseEntryState extends State<FreeResponseEntry> {
         borderSide: controller.text.isEmpty
             ? const BorderSide(color: Colors.grey, width: 1)
             : BorderSide(
-                color: Theme.of(context).colorScheme.secondary, width: 1),
+                color: Theme.of(context).colorScheme.primary, width: 1),
         borderRadius:
             const BorderRadius.all(Radius.circular(AppRounding.tiny)));
 
@@ -493,16 +509,24 @@ class _FreeResponseEntryState extends State<FreeResponseEntry> {
           padding: const EdgeInsets.symmetric(
               horizontal: AppPadding.small, vertical: AppPadding.tiny),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Flexible(
-                child: Text(
-                  widget.question.prompt,
-                  textAlign: TextAlign.left,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
+              Text(
+                widget.question.prompt,
+                style: Theme.of(context).textTheme.titleMedium,
               ),
+              if (widget.question.userCreated) ...[
+                const SizedBox(
+                  height: AppPadding.tiny,
+                ),
+                Text(
+                  "custom symptom",
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).disabledColor.darken(),
+                      ),
+                ),
+              ],
               const SizedBox(
                 width: AppPadding.small,
               ),

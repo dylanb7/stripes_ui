@@ -53,25 +53,25 @@ class Options extends ConsumerWidget {
 
     final AsyncValue<TestsRepo?> repo = ref.watch(testProvider);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
-      child: Column(
-        children: [
-          const SizedBox(
-            height: AppPadding.xl,
-          ),
-          AsyncValueDefaults(
-              value: checkins,
-              onData: (loadedCheckins) {
-                return CheckinsPageView(
-                  checkins: loadedCheckins,
-                  additions: (item) {
-                    return repo.valueOrNull
-                        ?.getPathAdditions(context, item.type);
-                  },
-                );
-              }),
-          AsyncValueDefaults(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(
+          height: AppPadding.xl,
+        ),
+        AsyncValueDefaults(
+            value: checkins,
+            onData: (loadedCheckins) {
+              return CheckinsPageView(
+                checkins: loadedCheckins,
+                additions: (item) {
+                  return repo.valueOrNull?.getPathAdditions(context, item.type);
+                },
+              );
+            }),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
+          child: AsyncValueDefaults(
               value: paths,
               onLoading: (_) {
                 return Column(
@@ -128,11 +128,11 @@ class Options extends ConsumerWidget {
                       }),
                     ]);
               }),
-          const SizedBox(
-            height: AppPadding.xl,
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(
+          height: AppPadding.xl,
+        ),
+      ],
     );
   }
 }
@@ -160,12 +160,15 @@ class _CheckinsPageViewState extends State<CheckinsPageView> {
 
   late bool hasCheckin;
 
+  int currentPage = 0;
+
   late int count;
 
   @override
   void initState() {
     hasCheckin = false;
     count = 0;
+    sorted = [];
     for (final CheckinItem item in widget.checkins) {
       if (item.response == null) {
         hasCheckin = true;
@@ -178,15 +181,13 @@ class _CheckinsPageViewState extends State<CheckinsPageView> {
 
     expansionController = ExpansibleController();
 
-    pageController = PageController();
+    pageController = PageController(initialPage: currentPage);
 
     if (!hasCheckin) {
       expansionController.collapse();
+    } else {
+      expansionController.expand();
     }
-
-    pageController.addListener(() {
-      if (mounted) setState(() {});
-    });
 
     super.initState();
   }
@@ -194,41 +195,106 @@ class _CheckinsPageViewState extends State<CheckinsPageView> {
   @override
   Widget build(BuildContext context) {
     if (widget.checkins.isEmpty) return const SizedBox();
+
     return Expansible(
         headerBuilder: (context, animation) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AnimatedDefaultTextStyle(
-                duration: Durations.medium1,
-                style: expansionController.isExpanded
-                    ? Theme.of(context).textTheme.titleMedium!
-                    : Theme.of(context).textTheme.bodySmall!,
-                child: Text(
-                  "${context.translate.checkInLabel} ($count/${widget.checkins.length})",
-                  textAlign: TextAlign.left,
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    if (expansionController.isExpanded) {
+                      expansionController.collapse();
+                    } else {
+                      expansionController.expand();
+                    }
+                  },
+                  child: Row(
+                    children: [
+                      AnimatedDefaultTextStyle(
+                        duration: Durations.medium1,
+                        style: expansionController.isExpanded
+                            ? Theme.of(context).textTheme.titleMedium!
+                            : Theme.of(context).textTheme.bodySmall!,
+                        child: Text(
+                          "${context.translate.checkInLabel} (${widget.checkins.length - count}/${widget.checkins.length})",
+                          textAlign: TextAlign.left,
+                        ),
+                      ),
+                      Icon(expansionController.isExpanded
+                          ? Icons.keyboard_arrow_up
+                          : Icons.keyboard_arrow_down)
+                    ],
+                  ),
                 ),
-              ),
-              if (expansionController.isExpanded)
-                Text(
-                  widget
-                      .checkins[pageController.page?.round() ?? 0].path.period!
-                      .getRangeString(DateTime.now(), context),
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-            ],
+                if (expansionController.isExpanded)
+                  Text(
+                    widget.checkins[currentPage].path.period!
+                        .getRangeString(DateTime.now(), context),
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+              ],
+            ),
           );
         },
         bodyBuilder: (context, animation) {
-          return PageView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: widget.checkins.length,
-              controller: pageController,
-              itemBuilder: (context, index) {
-                final CheckinItem item = widget.checkins[index];
-                return CheckInButton(
-                    item: item, additions: widget.additions(item) ?? []);
-              });
+          return SizedBox(
+            height: 75,
+            child: Row(
+              children: [
+                currentPage > 0
+                    ? IconButton(
+                        icon: Icon(
+                          Icons.arrow_back_ios,
+                          color: Theme.of(context).disabledColor,
+                        ),
+                        onPressed: () {
+                          pageController.previousPage(
+                              duration: Durations.medium1,
+                              curve: Curves.linear);
+                        },
+                      )
+                    : const SizedBox(width: 25),
+                Expanded(
+                  child: PageView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: widget.checkins.length,
+                    controller: pageController,
+                    onPageChanged: (newPage) {
+                      setState(() {
+                        currentPage = newPage;
+                      });
+                    },
+                    itemBuilder: (context, index) {
+                      final CheckinItem item = widget.checkins[index];
+                      return Padding(
+                        padding: const EdgeInsetsGeometry.symmetric(
+                            horizontal: AppPadding.tiny),
+                        child: CheckInButton(
+                            item: item,
+                            additions: widget.additions(item) ?? []),
+                      );
+                    },
+                  ),
+                ),
+                currentPage < sorted.length - 1
+                    ? IconButton(
+                        onPressed: () {
+                          pageController.nextPage(
+                              duration: Durations.medium1,
+                              curve: Curves.linear);
+                        },
+                        icon: Icon(
+                          Icons.arrow_forward_ios,
+                          color: Theme.of(context).disabledColor,
+                        ),
+                      )
+                    : const SizedBox(width: 25),
+              ],
+            ),
+          );
         },
         controller: expansionController);
   }
@@ -357,6 +423,7 @@ class CheckIndicator extends StatelessWidget {
           aspectRatio: 1.0,
           child: Container(
             decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(AppRounding.small),
                 border: Border.all(
                     width: 3.0, color: Theme.of(context).colorScheme.primary)),
             child: checked
