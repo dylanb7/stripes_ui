@@ -262,11 +262,9 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
     Widget? content;
     final DisplayBuilder? mainOverride = overrides[widget.event.question.id];
     if (mainOverride != null) return mainOverride(context, widget.event);
-    if (widget.event is BlueDyeResp) {
-      final BlueDyeResp resp = widget.event as BlueDyeResp;
+    if (widget.event case BlueDyeResp resp) {
       content = BlueDyeVisualDisplay(resp: resp);
-    } else if (widget.event is DetailResponse) {
-      final DetailResponse detail = widget.event as DetailResponse;
+    } else if (widget.event case DetailResponse detail) {
       isBlue = _isBlueFromDetail(detail);
       button = IconButton(
         onPressed: isLoading
@@ -523,28 +521,58 @@ class ResponseDisplay extends ConsumerWidget {
         ref.watch(questionsProvider).valueOrNull?.displayOverrides ?? {};
     final DisplayBuilder? childOverride = overrides[res.question.id];
     if (childOverride != null) return childOverride(context, res);
-    if (res is NumericResponse) {
-      final NumericResponse numeric = res as NumericResponse;
-      return Text('${numeric.question.prompt} - ${numeric.response}',
+    switch (res) {
+      case OpenResponse(
+          question: FreeResponse question,
+          response: String response
+        ):
+        return Text('${question.prompt} - $response',
+            textAlign: TextAlign.left,
+            style: Theme.of(context).textTheme.bodyMedium,
+            maxLines: null);
+      case NumericResponse(question: Numeric question, response: num response):
+        return Text('${question.prompt} - $response',
+            textAlign: TextAlign.left,
+            style: Theme.of(context).textTheme.bodyMedium,
+            maxLines: null);
+      case Selected(question: Check question):
+        Text(
+          question.prompt,
           textAlign: TextAlign.left,
           style: Theme.of(context).textTheme.bodyMedium,
-          maxLines: null);
-    }
-    if (res is MultiResponse) {
-      final MultiResponse multi = res as MultiResponse;
-      return Text(
-        '${multi.question.prompt} - ${multi.question.choices[multi.index]}',
-        textAlign: TextAlign.left,
-        style: Theme.of(context).textTheme.bodyMedium,
-      );
-    }
-    if (res is OpenResponse) {
-      final OpenResponse open = res as OpenResponse;
-      return Text('${open.question.prompt} - ${open.response}',
+          maxLines: null,
+        );
+      case MultiResponse(question: MultipleChoice question, index: int index):
+        return Text(
+          '${question.prompt} - ${question.choices[index]}',
           textAlign: TextAlign.left,
           style: Theme.of(context).textTheme.bodyMedium,
-          maxLines: null);
+        );
+      case AllResponse(
+          question: AllThatApply question,
+          responses: List<int> responses
+        ):
+        return Text(
+          '${question.prompt} - ${responses.map((val) => question.choices[val]).join(", ")}',
+          textAlign: TextAlign.left,
+          style: Theme.of(context).textTheme.bodyMedium,
+        );
+      case ResponseWrap(responses: List<Response> responses):
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: responses
+              .map((res) => ResponseDisplay(res: res))
+              .separated(
+                  by: const SizedBox(
+                height: AppPadding.tiny,
+              ))
+              .toList(),
+        );
+      case SingleResponseWrap(response: Response response):
+        return ResponseDisplay(res: response);
     }
+
     return Text(
       res.question.prompt,
       textAlign: TextAlign.left,

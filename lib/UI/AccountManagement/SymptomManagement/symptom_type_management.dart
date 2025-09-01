@@ -776,25 +776,18 @@ class SymptomDisplay extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final QuestionType type = QuestionType.from(question);
-
     Iterable<Widget>? added;
 
-    if (type == QuestionType.allThatApply ||
-        type == QuestionType.multipleChoice) {
-      final List<String> choices = type == QuestionType.allThatApply
-          ? (question as AllThatApply).choices
-          : (question as MultipleChoice).choices;
+    if (question
+        case AllThatApply(choices: List<String> choices) ||
+            MultipleChoice(choices: List<String> choices)) {
       added = choices.map((choice) => Text(choice)).separated(
             by: const SizedBox(
               height: AppPadding.tiny,
             ),
           );
-    } else if (type == QuestionType.slider) {
-      final Numeric numeric = question as Numeric;
-      final num min = numeric.min ?? 1;
-      final num max = numeric.max ?? 5;
-      added = [Text("$min - $max")];
+    } else if (question case Numeric(min: num? min, max: num? max)) {
+      added = [Text("${min ?? 1} - ${max ?? 5}")];
     }
 
     Widget editsRow() {
@@ -847,6 +840,14 @@ class SymptomDisplay extends ConsumerWidget {
         ],
       ),
     );
+  }
+}
+
+class SymptomEditSheet extends ConsumerStatefulWidget {
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() {
+    // TODO: implement createState
+    throw UnimplementedError();
   }
 }
 

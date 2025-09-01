@@ -8,12 +8,7 @@ import 'package:stripes_ui/Providers/auth_provider.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
-import 'package:stripes_ui/UI/AccountManagement/profile_changer.dart';
-import 'package:stripes_ui/UI/History/EventView/action_row.dart';
-import 'package:stripes_ui/UI/History/EventView/event_grid.dart';
-import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
 import 'package:stripes_ui/UI/History/EventView/events_view.dart';
-import 'package:stripes_ui/UI/History/EventView/filter.dart';
 import 'package:stripes_ui/UI/Layout/home_screen.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
 import 'package:stripes_ui/UI/Record/record_screen.dart';
@@ -22,7 +17,6 @@ import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/paddings.dart';
-import 'package:stripes_ui/config.dart';
 
 import 'package:stripes_ui/entry.dart';
 

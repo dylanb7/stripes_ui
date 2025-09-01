@@ -91,15 +91,21 @@ class _BMSliderState extends ConsumerState<BMSlider> {
             child: AspectRatio(
                 aspectRatio: 2.2, child: images[value.toInt() - 1])),
         if (listener.hasInteracted) ...[
-          Text(
-            descriptors[value.toInt() - 1],
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyLarge,
+          SizedBox(
+            height: AppPadding.xxxl,
+            child: Text(
+              descriptors[value.toInt() - 1],
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
           ),
+        ] else
           const SizedBox(
-            height: AppPadding.tiny,
-          )
-        ],
+            height: AppPadding.xl,
+          ),
+        const SizedBox(
+          height: AppPadding.tiny,
+        ),
         StripesSlider(
           onChange: (p0) {},
           onSlide: (val) {

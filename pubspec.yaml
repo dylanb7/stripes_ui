@@ -47,7 +47,9 @@ dependencies:
   loading_animation_widget: ^1.2.1
   path_provider: ^2.1.5
   stripes_backend_helper:
-    path: ../stripes_backend_helper
+    git:
+      url: https://github.com/dylanb7/stripes_backend_helper
+      branch: master
 
 dev_dependencies:
   flutter_test:

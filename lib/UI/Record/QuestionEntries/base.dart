@@ -491,11 +491,11 @@ class _FreeResponseEntryState extends State<FreeResponseEntry> {
   Widget build(BuildContext context) {
     final InputBorder borderStyle = OutlineInputBorder(
         borderSide: controller.text.isEmpty
-            ? const BorderSide(color: Colors.grey, width: 1)
+            ? const BorderSide(color: Colors.grey, width: 3)
             : BorderSide(
-                color: Theme.of(context).colorScheme.primary, width: 1),
+                color: Theme.of(context).colorScheme.primary, width: 3),
         borderRadius:
-            const BorderRadius.all(Radius.circular(AppRounding.tiny)));
+            const BorderRadius.all(Radius.circular(AppRounding.small)));
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppPadding.tiny),
@@ -528,7 +528,7 @@ class _FreeResponseEntryState extends State<FreeResponseEntry> {
                 ),
               ],
               const SizedBox(
-                width: AppPadding.small,
+                height: AppPadding.tiny,
               ),
               SizedBox(
                 height: 120,
@@ -547,6 +547,9 @@ class _FreeResponseEntryState extends State<FreeResponseEntry> {
                           horizontal: AppPadding.small,
                           vertical: AppPadding.tiny)),
                 ),
+              ),
+              const SizedBox(
+                height: AppPadding.tiny,
               ),
             ],
           ),

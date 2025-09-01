@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -55,6 +54,15 @@ class SymptomManagementScreen extends ConsumerWidget {
                     textAlign: TextAlign.left,
                   ),
                   const Spacer(),
+                  IconButton(
+                      onPressed: () {
+                        showModalBottomSheet(
+                            context: context,
+                            builder: (context) {
+                              return const AddCategorySheet();
+                            });
+                      },
+                      icon: const Icon(Icons.add))
                 ],
               ),
               const SizedBox(
@@ -113,103 +121,482 @@ class CategoryDisplay extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(
           vertical: AppPadding.tiny, horizontal: AppPadding.large),
-      child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () {
+          context.pushNamed(RouteName.SYMPTOMTYPE,
+              pathParameters: {'type': recordPath.name});
+        },
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onTap: () {
-                context.pushNamed(RouteName.SYMPTOMTYPE,
-                    pathParameters: {'type': recordPath.name});
-              },
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
+                  RichText(
+                    text: TextSpan(
+                      text: recordPath.name,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: recordPath.enabled
+                              ? null
+                              : Theme.of(context).disabledColor),
                       children: [
-                        RichText(
-                          text: TextSpan(
-                            text: recordPath.name,
-                            style: Theme.of(context).textTheme.titleMedium,
-                            children: [
-                              if (recordPath.userCreated)
-                                TextSpan(
-                                  text: " · custom category",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                          color: Theme.of(context)
-                                              .disabledColor
-                                              .darken()),
-                                ),
-                            ],
+                        if (recordPath.userCreated)
+                          TextSpan(
+                            text: " · custom category",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.75)),
                           ),
-                        ),
-                        Text(
-                          "$symptoms symptom${symptoms == 1 ? "" : "s"}${recordPath.period != null ? " · ${recordPath.period!.name}" : ""}",
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurface
-                                      .withValues(alpha: 0.75)),
-                        ),
                       ],
                     ),
                   ),
-                  const SizedBox(
-                    width: AppPadding.tiny,
+                  Text(
+                    "$symptoms symptom${symptoms == 1 ? "" : "s"}${recordPath.period != null ? " · ${recordPath.period!.name}" : ""}",
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withValues(alpha: 0.75)),
                   ),
                 ],
               ),
             ),
             const SizedBox(
-              height: AppPadding.tiny,
+              width: AppPadding.tiny,
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
+            IconButton(
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (context) => CategorySettingsSheet(
+                      path: recordPath,
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.more_horiz))
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class AddCategorySheet extends ConsumerStatefulWidget {
+  const AddCategorySheet({super.key});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() {
+    return AddCategorySheetState();
+  }
+}
+
+class AddCategorySheetState extends ConsumerState<AddCategorySheet> {
+  final ValueNotifier<AddCategoryFormState> _formState =
+      ValueNotifier<AddCategoryFormState>(AddCategoryFormState.idle);
+  final TextEditingController category = TextEditingController();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  Period? recordPeriod;
+
+  final Map<Period, String> frequencyMap = {
+    Period.day: "Daily",
+    Period.week: "Weekly",
+    Period.month: "Monthly",
+    Period.year: "Yearly",
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(
+          left: AppPadding.large,
+          right: AppPadding.large,
+          top: AppPadding.large),
+      child: Form(
+        key: formKey,
+        child: Opacity(
+          opacity: _formState.value == AddCategoryFormState.loading ? 0.6 : 1.0,
+          child: IgnorePointer(
+            ignoring: _formState.value == AddCategoryFormState.loading,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Switch(
-                  value: recordPath.enabled,
-                  onChanged: recordPath.locked
-                      ? null
-                      : (_) async {
-                          if (!await (await ref.read(questionsProvider.future))!
-                                  .setPathEnabled(
-                                      recordPath, !recordPath.enabled) &&
-                              context.mounted) {
-                            showSnack(context,
-                                "Failed to ${!recordPath.enabled ? "enable" : "disable"} ${recordPath.name}");
-                          }
-                        },
-                  thumbIcon: recordPath.locked
-                      ? WidgetStateProperty.all(const Icon(Icons.lock))
-                      : null,
+                Text(
+                  "Add Category",
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
-                IconButton(
-                    onPressed: recordPath.userCreated
-                        ? () async {
-                            if (!await (await ref
-                                        .read(questionsProvider.future))!
-                                    .removeRecordPath(recordPath) &&
-                                context.mounted) {
-                              showSnack(context,
-                                  "Failed to deleted ${recordPath.name}");
-                            }
-                          }
+                const SizedBox(
+                  height: AppPadding.small,
+                ),
+                LabeledField(
+                  label: "Category",
+                  child: TextFormField(
+                    decoration: const InputDecoration(
+                        hintText: "name",
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(
+                                Radius.circular(AppRounding.tiny)))),
+                    controller: category,
+                    validator: (value) => value == null || value.isEmpty
+                        ? "Must provide a category"
                         : null,
-                    icon: const Icon(Icons.delete))
+                  ),
+                ),
+                const SizedBox(
+                  height: AppPadding.small,
+                ),
+                Row(
+                  children: [
+                    Text(
+                      "Frequency",
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const Spacer(),
+                    DropdownMenuFormField<Period?>(
+                      enableSearch: false,
+                      enableFilter: false,
+                      inputDecorationTheme: InputDecorationThemeData(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(AppPadding.tiny),
+                        ),
+                      ),
+                      initialSelection: null,
+                      onSelected: (value) {
+                        setState(() {
+                          recordPeriod = value;
+                        });
+                      },
+                      dropdownMenuEntries: [...Period.values, null]
+                          .map<DropdownMenuEntry<Period?>>((option) =>
+                              DropdownMenuEntry(
+                                  value: option,
+                                  label: frequencyMap[option] ?? "Event"))
+                          .toList(),
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: AppPadding.large,
+                ),
+                Center(
+                  child: FilledButton(
+                    onPressed: () async {
+                      await add();
+                    },
+                    child: _formState.value == AddCategoryFormState.success
+                        ? const Icon(Icons.check)
+                        : _formState.value == AddCategoryFormState.loading
+                            ? const ButtonLoadingIndicator()
+                            : const Text("Add"),
+                  ),
+                ),
+                const SizedBox(
+                  height: AppPadding.xxl,
+                ),
               ],
             ),
-          ]),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> add() async {
+    if (_formState.value == AddCategoryFormState.loading) return;
+    if (_formState.value != AddCategoryFormState.adding) {
+      setState(() {
+        _formState.value = AddCategoryFormState.adding;
+      });
+      return;
+    }
+    if (!(formKey.currentState?.validate() ?? false)) return;
+    final QuestionRepo? repo = await ref.read(questionsProvider.future);
+
+    if (repo == null) {
+      if (mounted) showSnack(context, "Failed to add question");
+      return;
+    }
+    final bool added = await repo.addRecordPath(
+      RecordPath(
+          pages: const [],
+          period: recordPeriod,
+          userCreated: true,
+          name: category.text),
+    );
+    if (added && mounted) {
+      setState(() {
+        category.clear();
+        _formState.value = AddCategoryFormState.success;
+      });
+      await Future.delayed(Durations.long4);
+      recordPeriod = null;
+      formKey.currentState?.reset();
+    } else if (mounted) {
+      showSnack(context, "Failed to add question");
+    }
+    if (mounted) {
+      context.pop();
+      setState(() {
+        _formState.value = AddCategoryFormState.idle;
+      });
+    }
+  }
+}
+
+class CategorySettingsSheet extends ConsumerStatefulWidget {
+  final RecordPath path;
+
+  const CategorySettingsSheet({required this.path, super.key});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() {
+    return CategorySettingsSheetState();
+  }
+}
+
+class CategorySettingsSheetState extends ConsumerState<CategorySettingsSheet> {
+  late final int symptoms;
+
+  bool deleteTried = false, lockTried = false;
+
+  static const double buttonHeight = 60.0;
+
+  @override
+  void initState() {
+    symptoms = widget.path.pages.fold<int>(
+        0, (previousValue, page) => previousValue + page.questionIds.length);
+    super.initState();
+  }
+
+  @override
+  void didUpdateWidget(covariant CategorySettingsSheet oldWidget) {
+    if (oldWidget.path != widget.path) {}
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final Map<Period, String> frequencyMap = {
+      Period.day: "Daily",
+      Period.week: "Weekly",
+      Period.month: "Monthly",
+      Period.year: "Yearly",
+    };
+    final AsyncValue<RecordPath?> path = ref.watch(
+      questionLayoutProvider.select(
+        (value) => value.whenData((path) =>
+            path.where((path) => path.id == widget.path.id).firstOrNull),
+      ),
+    );
+    return SizedBox(
+      width: double.infinity,
+      child: Padding(
+        padding:
+            const EdgeInsetsGeometry.symmetric(horizontal: AppPadding.large),
+        child: AsyncValueDefaults(
+          value: path,
+          onData: (path) {
+            if (path == null) return Text("Failed to load ${widget.path.name}");
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                const SizedBox(
+                  height: AppPadding.large,
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: RichText(
+                        textAlign: TextAlign.start,
+                        text: TextSpan(
+                          text: path.name,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(
+                                  color: path.enabled
+                                      ? null
+                                      : Theme.of(context).disabledColor),
+                          children: [
+                            if (widget.path.userCreated) ...[
+                              TextSpan(
+                                text: " · custom category",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withValues(alpha: 0.75),
+                                    ),
+                              )
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      width: AppPadding.tiny,
+                    ),
+                    IconButton(
+                        onPressed: () {
+                          context.pop();
+                        },
+                        icon: const Icon(Icons.keyboard_arrow_down))
+                  ],
+                ),
+                Text(
+                  "$symptoms symptom${symptoms == 1 ? "" : "s"}",
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withValues(alpha: 0.75)),
+                ),
+                const SizedBox(
+                  height: AppPadding.small,
+                ),
+                Row(
+                  children: [
+                    Text(
+                      "Frequency",
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const Spacer(),
+                    if (widget.path.userCreated)
+                      DropdownMenu<Period?>(
+                        enableSearch: false,
+                        enableFilter: false,
+                        inputDecorationTheme: InputDecorationThemeData(
+                          border: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.circular(AppPadding.tiny),
+                          ),
+                        ),
+                        initialSelection: path.period,
+                        onSelected: (value) async {
+                          if (!await (await ref.read(questionsProvider.future))!
+                                  .setPathEnabled(widget.path, !path.enabled) &&
+                              context.mounted) {
+                            showSnack(context,
+                                "Failed to ${!widget.path.enabled ? "enable" : "disable"} ${widget.path.name}");
+                          }
+                        },
+                        dropdownMenuEntries: [...Period.values, null]
+                            .map<DropdownMenuEntry<Period?>>((option) =>
+                                DropdownMenuEntry(
+                                    value: option,
+                                    label: frequencyMap[option] ?? "Event"))
+                            .toList(),
+                      )
+                    else
+                      DecoratedBox(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(AppRounding.tiny),
+                          border: Border.all(width: 0.5),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsetsGeometry.symmetric(
+                              horizontal: AppPadding.xl,
+                              vertical: AppPadding.large),
+                          child: Text(frequencyMap[path.period] ?? "Event"),
+                        ),
+                      ),
+                  ],
+                ),
+                const Divider(),
+                if (path.locked && lockTried)
+                  Center(
+                    child: Text(
+                      "This category is currently locked on ${widget.path.enabled ? "enabled" : "disabled"}",
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.error),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                Row(
+                  children: [
+                    Text(
+                      "Enabled",
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const Spacer(),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          lockTried = true;
+                        });
+                      },
+                      child: Switch(
+                        value: path.enabled,
+                        onChanged: path.locked
+                            ? null
+                            : (_) async {
+                                if (!await (await ref
+                                            .read(questionsProvider.future))!
+                                        .setPathEnabled(widget.path,
+                                            !widget.path.enabled) &&
+                                    context.mounted) {
+                                  showSnack(context,
+                                      "Failed to ${!widget.path.enabled ? "enable" : "disable"} ${widget.path.name}");
+                                }
+                              },
+                        thumbIcon: path.locked
+                            ? WidgetStateProperty.all(const Icon(Icons.lock))
+                            : null,
+                      ),
+                    ),
+                  ],
+                ),
+                if (!path.userCreated && deleteTried)
+                  Center(
+                    child: Text(
+                      "Cannot delete a predefined category. Disable it to remove it from the record page",
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.error),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                Center(
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        deleteTried = true;
+                      });
+                    },
+                    child: FilledButton.icon(
+                      onPressed: path.userCreated
+                          ? () async {
+                              if (!await (await ref
+                                          .read(questionsProvider.future))!
+                                      .removeRecordPath(widget.path) &&
+                                  context.mounted) {
+                                showSnack(context,
+                                    "Failed to deleted ${widget.path.name}");
+                              }
+                            }
+                          : null,
+                      label: const Text("Delete"),
+                      icon: const Icon(Icons.delete),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
     );
   }
 }

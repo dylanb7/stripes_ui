@@ -69,22 +69,22 @@ class RenderQuestions extends ConsumerWidget {
         if (override != null) {
           return override(questionsListener, context, question);
         }
-        if (question is Check) {
-          return CheckBoxWidget(check: question, listener: questionsListener);
-        } else if (question is MultipleChoice) {
-          return MultiChoiceEntry(
-              question: question, listener: questionsListener);
-        } else if (question is Numeric) {
-          return SeverityWidget(
-              question: question, questionsListener: questionsListener);
-        } else if (question is FreeResponse) {
-          return FreeResponseEntry(
-              question: question, listener: questionsListener);
-        } else if (question is AllThatApply) {
-          return AllThatApplyEntry(
-              question: question, listener: questionsListener);
+        switch (question) {
+          case FreeResponse():
+            return FreeResponseEntry(
+                question: question, listener: questionsListener);
+          case Numeric():
+            return SeverityWidget(
+                question: question, questionsListener: questionsListener);
+          case Check():
+            return CheckBoxWidget(check: question, listener: questionsListener);
+          case MultipleChoice():
+            return MultiChoiceEntry(
+                question: question, listener: questionsListener);
+          case AllThatApply():
+            return AllThatApplyEntry(
+                question: question, listener: questionsListener);
         }
-        return Text(question.prompt);
       }).toList(),
     );
   }
