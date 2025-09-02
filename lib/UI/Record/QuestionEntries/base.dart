@@ -211,10 +211,20 @@ class _AllThatApplyEntryState extends State<AllThatApplyEntry> {
   _onTap(bool isSelected, int index, List<int>? selectedIndices) {
     if (isSelected) {
       bool isEmpty = selectedIndices?.isEmpty ?? true;
-      if (widget.question.isRequired) {
+      if (widget.question.isRequired && isEmpty) {
         widget.listener.addPending(widget.question);
       }
-      widget.listener.removeResponse(widget.question);
+      if (isEmpty) {
+        widget.listener.removeResponse(widget.question);
+      } else {
+        widget.listener.addResponse(
+          AllResponse(
+            question: widget.question,
+            stamp: dateToStamp(DateTime.now()),
+            responses: selectedIndices!..remove(index),
+          ),
+        );
+      }
     } else {
       if (widget.question.isRequired) {
         widget.listener.removePending(widget.question);
@@ -223,7 +233,7 @@ class _AllThatApplyEntryState extends State<AllThatApplyEntry> {
         AllResponse(
           question: widget.question,
           stamp: dateToStamp(DateTime.now()),
-          responses: [index],
+          responses: [...(selectedIndices ?? []), index],
         ),
       );
     }
@@ -325,6 +335,9 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
         value = val.toDouble();
         _controller.set(true);
         _sliderListener.interacted();
+        if (mounted) {
+          setState(() {});
+        }
       }
     });
 
