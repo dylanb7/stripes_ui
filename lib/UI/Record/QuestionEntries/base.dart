@@ -205,16 +205,16 @@ class _AllThatApplyEntryState extends State<AllThatApplyEntry> {
   List<int>? selected() {
     Response? logged = widget.listener.fromQuestion(widget.question);
     if (logged == null) return null;
-    return (logged as AllResponse).responses;
+    return [...(logged as AllResponse).responses];
   }
 
   _onTap(bool isSelected, int index, List<int>? selectedIndices) {
     if (isSelected) {
       bool isEmpty = selectedIndices?.isEmpty ?? true;
-      if (widget.question.isRequired && isEmpty) {
-        widget.listener.addPending(widget.question);
-      }
       if (isEmpty) {
+        if (widget.question.isRequired) {
+          widget.listener.addPending(widget.question);
+        }
         widget.listener.removeResponse(widget.question);
       } else {
         widget.listener.addResponse(

@@ -67,16 +67,17 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
                   textAlign: TextAlign.left,
                 ),
           const Spacer(),
-          if (!editing)
-            TextButton.icon(
+          if (!editing) ...[
+            IconButton.filled(
               onPressed: () {
                 setState(() {
                   editing = !editing;
                 });
               },
-              label: const Text("Edit Layout"),
               icon: const Icon(Icons.edit),
-            )
+            ),
+            IconButton.filled(onPressed: () {}, icon: const Icon(Icons.add))
+          ]
         ],
       );
     }
@@ -885,7 +886,7 @@ class SymptomInfoDisplay extends StatelessWidget {
               ]),
         ),
         const SizedBox(
-          height: 4,
+          height: AppPadding.tiny,
         ),
         Text(
           type.value,
@@ -1272,10 +1273,12 @@ class LabeledField extends StatelessWidget {
         children: [
           Text(
             label,
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
-                ?.copyWith(color: Theme.of(context).disabledColor),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withValues(alpha: 0.75),
+                ),
           ),
           const SizedBox(
             height: AppPadding.tiny,
