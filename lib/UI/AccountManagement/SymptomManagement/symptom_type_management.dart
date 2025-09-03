@@ -802,6 +802,7 @@ class SymptomDisplay extends ConsumerWidget {
         SizedBox(
           height: 60.0,
           child: ListView(
+            scrollDirection: Axis.horizontal,
             children: choices
                 .map((choice) => Chip(label: Text(choice)))
                 .separated(
