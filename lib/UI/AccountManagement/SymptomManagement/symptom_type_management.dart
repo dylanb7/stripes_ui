@@ -39,7 +39,7 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
     final AsyncValue<PagesData> pagesData =
         ref.watch(pagesByPath(PagesByPathProps(pathName: widget.category)));
 
-    Widget topRow() {
+    Widget topRow(PagesData data) {
       return Row(
         children: [
           IconButton(
@@ -68,15 +68,30 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
                 ),
           const Spacer(),
           if (!editing) ...[
-            IconButton.filled(
-              onPressed: () {
-                setState(() {
-                  editing = !editing;
-                });
-              },
+            IconButton(
+              onPressed: data.loadedLayouts?.isEmpty ?? true
+                  ? null
+                  : () {
+                      setState(() {
+                        editing = !editing;
+                      });
+                    },
               icon: const Icon(Icons.edit),
             ),
-            IconButton.filled(onPressed: () {}, icon: const Icon(Icons.add))
+            IconButton(
+                onPressed: widget.category == null
+                    ? null
+                    : () {
+                        showBottomSheet(
+                            context: context,
+                            builder: (context) {
+                              return AddSymptomWidget(type: widget.category!);
+                            });
+                      },
+                icon: const Icon(Icons.add)),
+            const SizedBox(
+              width: AppPadding.tiny,
+            ),
           ]
         ],
       );
@@ -125,7 +140,7 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
             const SizedBox(
               height: AppPadding.large,
             ),
-            topRow(),
+            topRow(loadedPagesData),
             const SizedBox(
               height: AppPadding.medium,
             ),
@@ -1215,8 +1230,10 @@ class ChoicesFormField extends FormField<List<String>> {
                             onPressed: () {
                               if (controller.text.isNotEmpty) {
                                 if (state.value != null) {
-                                  onChangedHandler(
-                                      [controller.text, ...state.value!]);
+                                  onChangedHandler([
+                                    ...state.value!,
+                                    controller.text,
+                                  ]);
                                 } else {
                                   onChangedHandler([controller.text]);
                                 }

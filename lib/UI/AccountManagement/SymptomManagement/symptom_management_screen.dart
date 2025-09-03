@@ -50,7 +50,7 @@ class SymptomManagementScreen extends ConsumerWidget {
                     textAlign: TextAlign.left,
                   ),
                   const Spacer(),
-                  IconButton.filled(
+                  IconButton(
                     onPressed: () {
                       showModalBottomSheet(
                           context: context,
@@ -61,6 +61,9 @@ class SymptomManagementScreen extends ConsumerWidget {
                     icon: const Icon(
                       Icons.add,
                     ),
+                  ),
+                  const SizedBox(
+                    width: AppPadding.tiny,
                   ),
                 ],
               ),
