@@ -799,16 +799,19 @@ class SymptomDisplay extends ConsumerWidget {
         case AllThatApply(choices: List<String> choices) ||
             MultipleChoice(choices: List<String> choices)) {
       added = [
-        ListView(
-          children: choices
-              .map((choice) => Text(choice))
-              .separated(
-                by: const SizedBox(
-                  height: AppPadding.tiny,
-                ),
-              )
-              .toList(),
-        )
+        SizedBox(
+          height: 60.0,
+          child: ListView(
+            children: choices
+                .map((choice) => Chip(label: Text(choice)))
+                .separated(
+                  by: const SizedBox(
+                    height: AppPadding.tiny,
+                  ),
+                )
+                .toList(),
+          ),
+        ),
       ];
     } else if (question case Numeric(min: num? min, max: num? max)) {
       added = [Text("${min ?? 1} - ${max ?? 5}")];
