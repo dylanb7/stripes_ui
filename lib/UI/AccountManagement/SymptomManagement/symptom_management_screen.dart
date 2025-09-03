@@ -445,7 +445,7 @@ class CategorySettingsSheetState extends ConsumerState<CategorySettingsSheet> {
                   ],
                 ),
                 Text(
-                  "$symptoms symptom${symptoms == 1 ? "" : "s"}",
+                  "$symptoms symptom${symptoms == 1 ? "" : "s"}${path.period != null ? " / ${path.period!.name}" : ""}",
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context)
                           .colorScheme

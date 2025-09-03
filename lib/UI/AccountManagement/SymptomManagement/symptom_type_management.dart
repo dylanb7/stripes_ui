@@ -82,8 +82,9 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
                 onPressed: widget.category == null
                     ? null
                     : () {
-                        showBottomSheet(
+                        showModalBottomSheet(
                             context: context,
+                            isScrollControlled: true,
                             builder: (context) {
                               return AddSymptomWidget(type: widget.category!);
                             });
@@ -797,11 +798,18 @@ class SymptomDisplay extends ConsumerWidget {
     if (question
         case AllThatApply(choices: List<String> choices) ||
             MultipleChoice(choices: List<String> choices)) {
-      added = choices.map((choice) => Text(choice)).separated(
-            by: const SizedBox(
-              height: AppPadding.tiny,
-            ),
-          );
+      added = [
+        ListView(
+          children: choices
+              .map((choice) => Text(choice))
+              .separated(
+                by: const SizedBox(
+                  height: AppPadding.tiny,
+                ),
+              )
+              .toList(),
+        )
+      ];
     } else if (question case Numeric(min: num? min, max: num? max)) {
       added = [Text("${min ?? 1} - ${max ?? 5}")];
     }
@@ -850,9 +858,27 @@ class SymptomDisplay extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          SymptomInfoDisplay(question: question),
+          Row(
+            children: [
+              Expanded(
+                child: SymptomInfoDisplay(question: question),
+              ),
+              const SizedBox(
+                width: AppPadding.tiny,
+              ),
+              IconButton(
+                  onPressed: () {
+                    showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        builder: (context) {
+                          return SizedBox();
+                        });
+                  },
+                  icon: const Icon(Icons.more_horiz))
+            ],
+          ),
           if (added != null) ...added,
-          editsRow(),
         ],
       ),
     );
@@ -928,8 +954,6 @@ class AddSymptomWidget extends ConsumerStatefulWidget {
 }
 
 class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
-  bool isAdding = false;
-
   final TextEditingController prompt = TextEditingController();
 
   final TextEditingController minValue = TextEditingController(text: "1");
@@ -937,8 +961,6 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
   List<String> choices = [];
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-
-  static const buttonHeight = 60.0;
 
   bool isLoading = false, submitSuccess = false;
 
@@ -948,7 +970,6 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
   Widget build(BuildContext context) {
     AsyncValue<PagesData> data =
         ref.watch(pagesByPath(PagesByPathProps(pathName: widget.type)));
-    final screenHeight = MediaQuery.of(context).size.height;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppPadding.medium),
       child: ConstrainedBox(
@@ -961,148 +982,160 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
               opacity: isLoading ? 0.6 : 1.0,
               child: IgnorePointer(
                 ignoring: isLoading,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
+                child: ListView(
                   children: [
-                    if (isAdding) ...[
-                      TextButton.icon(
-                        onPressed: () {
+                    Row(
+                      children: [
+                        Text(
+                          "type",
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
+                        const SizedBox(
+                          width: AppPadding.tiny,
+                        ),
+                        Expanded(
+                          child: DropdownMenuFormField<QuestionType>(
+                            dropdownMenuEntries: QuestionType.ordered
+                                .map(
+                                  (option) => DropdownMenuEntry(
+                                      label: option.name, value: option),
+                                )
+                                .toList(),
+                            enableSearch: false,
+                            enableFilter: false,
+                            onSelected: (option) {
+                              if (option == null) return;
+                              setState(() {
+                                selectedQuestionType = option;
+                              });
+                            },
+                            inputDecorationTheme: InputDecorationThemeData(
+                              border: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.circular(AppPadding.tiny),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: AppPadding.small,
+                    ),
+                    LabeledField(
+                      label: "prompt",
+                      child: TextFormField(
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(AppRounding.tiny),
+                            ),
+                          ),
+                        ),
+                        controller: prompt,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a prompt';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    const SizedBox(
+                      height: AppPadding.small,
+                    ),
+                    if (selectedQuestionType == QuestionType.slider)
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: LabeledField(
+                              label: "min",
+                              child: TextFormField(
+                                decoration: const InputDecoration(
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(AppRounding.tiny),
+                                    ),
+                                  ),
+                                ),
+                                keyboardType: TextInputType.number,
+                                controller: minValue,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter a minimum';
+                                  }
+                                  int? minNum = int.tryParse(value);
+                                  int? maxNum = int.tryParse(maxValue.text);
+                                  if (minNum == null || maxNum == null) {
+                                    return "Must have a range";
+                                  }
+                                  if (minNum >= maxNum) {
+                                    return "Invalid range";
+                                  }
+                                  return null;
+                                },
+                                inputFormatters: <TextInputFormatter>[
+                                  FilteringTextInputFormatter.digitsOnly
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 20.0,
+                          ),
+                          Expanded(
+                            child: LabeledField(
+                              label: "max",
+                              child: TextFormField(
+                                decoration: const InputDecoration(
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(AppRounding.tiny),
+                                    ),
+                                  ),
+                                ),
+                                keyboardType: TextInputType.number,
+                                controller: maxValue,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter a minimum';
+                                  }
+                                  int? maxNum = int.tryParse(value);
+                                  int? minNum = int.tryParse(minValue.text);
+                                  if (minNum == null || maxNum == null) {
+                                    return "Must have a range";
+                                  }
+                                  if (maxNum <= minNum) {
+                                    return "Invalid range";
+                                  }
+                                  return null;
+                                },
+                                inputFormatters: <TextInputFormatter>[
+                                  FilteringTextInputFormatter.digitsOnly
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    if (selectedQuestionType == QuestionType.multipleChoice ||
+                        selectedQuestionType == QuestionType.allThatApply)
+                      ChoicesFormField(
+                        validator: (value) => value == null || value.isEmpty
+                            ? "Must have at least one option"
+                            : null,
+                        onChanged: (value) {
+                          if (value == null) return;
                           setState(() {
-                            isAdding = false;
+                            choices = value;
                           });
                         },
-                        label: const Text("Close"),
-                        icon: const Icon(Icons.keyboard_arrow_up),
+                        initialValue: choices,
                       ),
-                      LabeledField(
-                        label: "type",
-                        child: SelectField<QuestionType>(
-                          onOptionSelected: (option) {
-                            setState(() {
-                              selectedQuestionType = option.value;
-                            });
-                          },
-                          menuDecoration: MenuDecoration(
-                            animationDuration: Durations.short4,
-                            height: min(
-                                buttonHeight * QuestionType.ordered.length,
-                                screenHeight / 2),
-                            buttonStyle: TextButton.styleFrom(
-                              fixedSize:
-                                  const Size(double.infinity, buttonHeight),
-                              alignment: Alignment.centerLeft,
-                              padding: const EdgeInsets.all(AppPadding.large),
-                              shape: const RoundedRectangleBorder(),
-                            ),
-                          ),
-                          initialOption: Option<QuestionType>(
-                            label: selectedQuestionType.value,
-                            value: selectedQuestionType,
-                          ),
-                          options: QuestionType.ordered
-                              .map((option) =>
-                                  Option(label: option.value, value: option))
-                              .toList(),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: AppPadding.small,
-                      ),
-                      LabeledField(
-                        label: "prompt",
-                        child: TextFormField(
-                          controller: prompt,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter a prompt';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      const SizedBox(
-                        height: AppPadding.small,
-                      ),
-                      if (selectedQuestionType == QuestionType.slider)
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              child: LabeledField(
-                                label: "min",
-                                child: TextFormField(
-                                  keyboardType: TextInputType.number,
-                                  controller: minValue,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter a minimum';
-                                    }
-                                    int? minNum = int.tryParse(value);
-                                    int? maxNum = int.tryParse(maxValue.text);
-                                    if (minNum == null || maxNum == null) {
-                                      return "Must have a range";
-                                    }
-                                    if (minNum >= maxNum) {
-                                      return "Invalid range";
-                                    }
-                                    return null;
-                                  },
-                                  inputFormatters: <TextInputFormatter>[
-                                    FilteringTextInputFormatter.digitsOnly
-                                  ],
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 20.0,
-                            ),
-                            Expanded(
-                              child: LabeledField(
-                                label: "max",
-                                child: TextFormField(
-                                  keyboardType: TextInputType.number,
-                                  controller: maxValue,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter a minimum';
-                                    }
-                                    int? maxNum = int.tryParse(value);
-                                    int? minNum = int.tryParse(minValue.text);
-                                    if (minNum == null || maxNum == null) {
-                                      return "Must have a range";
-                                    }
-                                    if (maxNum <= minNum) {
-                                      return "Invalid range";
-                                    }
-                                    return null;
-                                  },
-                                  inputFormatters: <TextInputFormatter>[
-                                    FilteringTextInputFormatter.digitsOnly
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      if (selectedQuestionType == QuestionType.multipleChoice ||
-                          selectedQuestionType == QuestionType.allThatApply)
-                        ChoicesFormField(
-                          validator: (value) => value == null || value.isEmpty
-                              ? "Must have at least one option"
-                              : null,
-                          onChanged: (value) {
-                            if (value == null) return;
-                            setState(() {
-                              choices = value;
-                            });
-                          },
-                          initialValue: choices,
-                        ),
-                      const SizedBox(
-                        height: AppPadding.large,
-                      ),
-                    ],
+                    const SizedBox(
+                      height: AppPadding.large,
+                    ),
                     FilledButton(
                       onPressed: () async {
                         await add();
@@ -1125,12 +1158,6 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
 
   Future<void> add() async {
     if (isLoading) return;
-    if (!isAdding) {
-      setState(() {
-        isAdding = true;
-      });
-      return;
-    }
 
     if (!formKey.currentState!.validate()) return;
 
@@ -1179,6 +1206,7 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
       choices.clear();
       formKey.currentState?.reset();
     } else if (mounted) {
+      context.pop();
       showSnack(context, "Failed to add question");
     }
 
@@ -1186,6 +1214,7 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
       setState(() {
         submitSuccess = false;
         isLoading = false;
+        context.pop();
       });
     }
   }
@@ -1220,6 +1249,13 @@ class ChoicesFormField extends FormField<List<String>> {
                       child: Row(children: [
                         Expanded(
                           child: TextField(
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(AppRounding.tiny),
+                                ),
+                              ),
+                            ),
                             controller: controller,
                           ),
                         ),
