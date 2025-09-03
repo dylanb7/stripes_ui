@@ -1337,27 +1337,17 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                             const SizedBox(
                               height: AppPadding.large,
                             ),
-                            Row(
-                              children: [
-                                Text(
+                            CheckboxListTile(
+                                title: const Text(
                                   "Is required",
-                                  style:
-                                      Theme.of(context).textTheme.titleMedium,
                                 ),
-                                const Spacer(),
-                                const SizedBox(
-                                  width: AppPadding.tiny,
-                                ),
-                                Checkbox(
-                                    value: isRequired,
-                                    onChanged: (value) {
-                                      if (value == null) return;
-                                      setState(() {
-                                        isRequired = value;
-                                      });
-                                    }),
-                              ],
-                            ),
+                                value: isRequired,
+                                onChanged: (value) {
+                                  if (value == null) return;
+                                  setState(() {
+                                    isRequired = value;
+                                  });
+                                }),
                           ],
                         ),
                       ),
