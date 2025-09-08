@@ -321,24 +321,29 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
                         const SizedBox(
                           height: AppPadding.small,
                         ),
-                        ...amountText.keys.map<Widget>((amount) {
-                          return RadioListTile<AmountConsumed>(
-                              title: Text(amountText[amount]!),
-                              value: amount,
-                              groupValue: value,
-                              onChanged: (newValue) {
-                                if (newValue == null) return;
-                                if (newValue == value) {
-                                  setState(() {
-                                    value = null;
-                                  });
-                                } else {
-                                  setState(() {
-                                    value = newValue;
-                                  });
-                                }
+                        RadioGroup<AmountConsumed>(
+                          groupValue: value,
+                          onChanged: (newValue) {
+                            if (newValue == null) return;
+                            if (newValue == value) {
+                              setState(() {
+                                value = null;
                               });
-                        }),
+                            } else {
+                              setState(() {
+                                value = newValue;
+                              });
+                            }
+                          },
+                          child: Column(
+                            children: amountText.keys.map<Widget>((amount) {
+                              return RadioListTile<AmountConsumed>(
+                                title: Text(amountText[amount]!),
+                                value: amount,
+                              );
+                            }).toList(),
+                          ),
+                        ),
                         const SizedBox(
                           height: AppPadding.small,
                         ),
@@ -551,62 +556,62 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                 const SizedBox(
                   height: AppPadding.small,
                 ),
-                ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: Breakpoint.tiny.value),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          onFastTap(completedFast.value == true ? null : true);
-                        },
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Radio<bool>(
+                RadioGroup<bool>(
+                  groupValue: completedFast.value,
+                  onChanged: (selected) {
+                    if (selected == null) return;
+                    onFastTap(
+                        completedFast.value == selected ? null : selected);
+                  },
+                  child: ConstrainedBox(
+                    constraints:
+                        BoxConstraints(maxWidth: Breakpoint.tiny.value),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            onFastTap(
+                                completedFast.value == true ? null : true);
+                          },
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Radio<bool>(
                                 value: true,
-                                groupValue: completedFast.value,
-                                onChanged: (selected) {
-                                  onFastTap(completedFast.value == true
-                                      ? null
-                                      : true);
-                                }),
-                            const SizedBox(
-                              width: AppPadding.tiny,
-                            ),
-                            Text(context.translate.blueQuestionYes),
-                          ],
+                              ),
+                              const SizedBox(
+                                width: AppPadding.tiny,
+                              ),
+                              Text(context.translate.blueQuestionYes),
+                            ],
+                          ),
                         ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          onFastTap(
-                              completedFast.value == false ? null : false);
-                        },
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Radio<bool>(
+                        GestureDetector(
+                          onTap: () {
+                            onFastTap(
+                                completedFast.value == false ? null : false);
+                          },
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Radio<bool>(
                                 value: false,
-                                groupValue: completedFast.value,
-                                onChanged: (selected) {
-                                  onFastTap(completedFast.value == false
-                                      ? null
-                                      : false);
-                                }),
-                            const SizedBox(
-                              width: AppPadding.tiny,
-                            ),
-                            Text(context.translate.blueQuestionNo),
-                          ],
+                              ),
+                              const SizedBox(
+                                width: AppPadding.tiny,
+                              ),
+                              Text(context.translate.blueQuestionNo),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
                 LabeledList(
@@ -652,33 +657,42 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                   const SizedBox(
                     height: AppPadding.small,
                   ),
-                  ...mealTimesText.keys.map<Widget>((amount) {
-                    return RadioListTile<MealTime>(
-                        title: Text(mealTimesText[amount]!),
-                        value: amount,
-                        groupValue: mealTime.value,
-                        onChanged: (newValue) {
-                          if (newValue == null) return;
-                          if (newValue == mealTime.value) {
-                            setState(() {
-                              mealTime.value = null;
-                            });
-                          } else {
-                            setState(() {
-                              mealTime.value = newValue;
-                            });
-                          }
-                          if (mealAmountConsumedKey.currentContext != null &&
-                              mealTime.value != null) {
-                            Scrollable.ensureVisible(
-                              mealAmountConsumedKey.currentContext!,
-                              duration: Durations.medium1,
-                              alignmentPolicy: ScrollPositionAlignmentPolicy
-                                  .keepVisibleAtEnd,
-                            );
-                          }
+                  RadioGroup<MealTime>(
+                    onChanged: (newValue) {
+                      if (newValue == null) return;
+                      if (newValue == mealTime.value) {
+                        setState(() {
+                          mealTime.value = null;
                         });
-                  }),
+                      } else {
+                        setState(() {
+                          mealTime.value = newValue;
+                        });
+                      }
+                      if (mealAmountConsumedKey.currentContext != null &&
+                          mealTime.value != null) {
+                        Scrollable.ensureVisible(
+                          mealAmountConsumedKey.currentContext!,
+                          duration: Durations.medium1,
+                          alignmentPolicy:
+                              ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+                        );
+                      }
+                    },
+                    groupValue: mealTime.value,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        ...mealTimesText.keys.map<Widget>((amount) {
+                          return RadioListTile<MealTime>(
+                            title: Text(mealTimesText[amount]!),
+                            value: amount,
+                          );
+                        }),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -712,28 +726,35 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                   const SizedBox(
                     height: AppPadding.small,
                   ),
-                  ...amountText.keys.map<Widget>((amount) {
-                    return RadioListTile<AmountConsumed>(
-                        title: Text(amountText[amount]!),
-                        value: amount,
-                        groupValue: amountConsumed.value,
-                        onChanged: (newValue) {
-                          if (newValue == null) return;
-                          if (newValue == amountConsumed.value) {
-                            setState(() {
-                              amountConsumed.value = null;
-                            });
-                          } else {
-                            setState(() {
-                              amountConsumed.value = newValue;
-                            });
-                          }
-                          Scrollable.ensureVisible(context,
-                              duration: Durations.medium1,
-                              alignmentPolicy: ScrollPositionAlignmentPolicy
-                                  .keepVisibleAtEnd);
+                  RadioGroup<AmountConsumed>(
+                    onChanged: (newValue) {
+                      if (newValue == null) return;
+                      if (newValue == amountConsumed.value) {
+                        setState(() {
+                          amountConsumed.value = null;
                         });
-                  }),
+                      } else {
+                        setState(() {
+                          amountConsumed.value = newValue;
+                        });
+                      }
+                      Scrollable.ensureVisible(context,
+                          duration: Durations.medium1,
+                          alignmentPolicy:
+                              ScrollPositionAlignmentPolicy.keepVisibleAtEnd);
+                    },
+                    groupValue: amountConsumed.value,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: amountText.keys.map<Widget>((amount) {
+                        return RadioListTile<AmountConsumed>(
+                          title: Text(amountText[amount]!),
+                          value: amount,
+                        );
+                      }).toList(),
+                    ),
+                  ),
                 ],
               ),
             ),

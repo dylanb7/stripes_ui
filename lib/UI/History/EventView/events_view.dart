@@ -19,71 +19,74 @@ class EventsView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final StripesConfig config = ref.watch(configProvider);
+
     return AddIndicator(builder: (context, hasIndicator) {
-      return Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: Breakpoint.medium.value),
-          child: RefreshWidget(
-            depth: RefreshDepth.authuser,
-            scrollable: CustomScrollView(
-              slivers: [
-                SliverPadding(
-                  padding: const EdgeInsets.only(
-                      left: AppPadding.xl,
-                      right: AppPadding.xl,
-                      top: AppPadding.xl,
-                      bottom: AppPadding.medium),
-                  sliver: SliverToBoxAdapter(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Expanded(
-                          child: PatientChanger(
-                            tab: TabOption.history,
-                          ),
+      return RefreshWidget(
+        depth: RefreshDepth.authuser,
+        scrollable: CustomScrollView(
+          slivers: [
+            SliverPadding(
+              padding: const EdgeInsets.only(
+                  left: AppPadding.xl,
+                  right: AppPadding.xl,
+                  top: AppPadding.xl,
+                  bottom: AppPadding.medium),
+              sliver: SliverConstrainedCrossAxis(
+                maxExtent: Breakpoint.medium.value,
+                sliver: SliverToBoxAdapter(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Expanded(
+                        child: PatientChanger(
+                          tab: TabOption.history,
                         ),
-                        if (config.hasGraphing) ...[
-                          IconButton(
-                            onPressed: () {
-                              context.pushNamed(RouteName.TRENDS);
-                            },
-                            icon: const Icon(Icons.trending_up),
-                          ),
-                        ],
+                      ),
+                      if (config.hasGraphing) ...[
+                        IconButton(
+                          onPressed: () {
+                            context.pushNamed(RouteName.TRENDS);
+                          },
+                          icon: const Icon(Icons.trending_up),
+                        ),
                       ],
-                    ),
+                    ],
                   ),
                 ),
-                /*const SliverFloatingHeader(
+              ),
+            ),
+
+            /*const SliverFloatingHeader(
                     child: SizedBox.expand(
                   child: FiltersRow(),
                 )),*/
-                SliverPadding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: AppPadding.xl),
-                  sliver: SliverConstrainedCrossAxis(
-                    maxExtent: Breakpoint.small.value,
-                    sliver: SliverList(
-                      delegate: SliverChildListDelegate(
-                        const [
-                          FilterView(),
-                          SizedBox(
-                            height: AppPadding.small,
-                          ),
-                          EventsCalendar(),
-                          SizedBox(
-                            height: AppPadding.large,
-                          ),
-                          ActionRow()
-                        ],
+            SliverPadding(
+              padding:
+                  const EdgeInsetsGeometry.symmetric(horizontal: AppPadding.xl),
+              sliver: SliverConstrainedCrossAxis(
+                maxExtent: Breakpoint.medium.value,
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate(
+                    const [
+                      FilterView(),
+                      SizedBox(
+                        height: AppPadding.small,
                       ),
-                    ),
+                      EventsCalendar(),
+                      SizedBox(
+                        height: AppPadding.large,
+                      ),
+                      ActionRow()
+                    ],
                   ),
                 ),
-                const EventGrid(),
-              ],
+              ),
             ),
-          ),
+            SliverConstrainedCrossAxis(
+              maxExtent: Breakpoint.medium.value,
+              sliver: const EventGrid(),
+            ),
+          ],
         ),
       );
     });

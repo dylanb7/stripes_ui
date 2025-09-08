@@ -17,6 +17,7 @@ import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/show_stripes_sheet.dart';
 
 class SymptomTypeManagement extends ConsumerStatefulWidget {
   final String? category;
@@ -81,11 +82,14 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
                 onPressed: widget.category == null
                     ? null
                     : () {
-                        showModalBottomSheet(
+                        showStripesSheet(
+                            scrollControlled: true,
                             context: context,
-                            isScrollControlled: true,
-                            builder: (context) {
-                              return AddSymptomWidget(type: widget.category!);
+                            sheetBuilder: (context, controller) {
+                              return AddSymptomWidget(
+                                type: widget.category!,
+                                scrollController: controller,
+                              );
                             });
                       },
                 icon: const Icon(Icons.add)),
@@ -1117,7 +1121,10 @@ class SymptomInfoDisplay extends StatelessWidget {
 class AddSymptomWidget extends ConsumerStatefulWidget {
   final String type;
 
-  const AddSymptomWidget({required this.type, super.key});
+  final ScrollController scrollController;
+
+  const AddSymptomWidget(
+      {required this.type, required this.scrollController, super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
@@ -1141,245 +1148,239 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
   @override
   Widget build(BuildContext context) {
     ref.watch(pagesByPath(PagesByPathProps(pathName: widget.type)));
-    return DraggableScrollableSheet(
-        initialChildSize: 0.55,
-        maxChildSize: 0.9,
-        snap: true,
-        expand: false,
-        snapSizes: const [
-          0.55,
-          0.9,
-        ],
-        builder: (context, controller) {
-          return Padding(
-            padding: const EdgeInsets.only(
-                left: AppPadding.medium,
-                right: AppPadding.medium,
-                top: AppPadding.large),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Add Symptom",
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                Expanded(
-                  child: Form(
-                    key: formKey,
-                    child: Opacity(
-                      opacity: isLoading ? 0.6 : 1.0,
-                      child: IgnorePointer(
-                        ignoring: isLoading,
-                        child: ListView(
-                          controller: controller,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  "Symptom type",
-                                  style: Theme.of(context).textTheme.titleSmall,
+    return Padding(
+      padding: const EdgeInsets.only(
+          left: AppPadding.medium,
+          right: AppPadding.medium,
+          top: AppPadding.large),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            Expanded(
+              child: Text(
+                "Add Symptom",
+                textAlign: TextAlign.left,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+            const SizedBox(
+              width: AppPadding.tiny,
+            ),
+            IconButton(
+                onPressed: () {
+                  context.pop();
+                },
+                icon: const Icon(Icons.keyboard_arrow_down))
+          ]),
+          Expanded(
+            child: Form(
+              key: formKey,
+              child: Opacity(
+                opacity: isLoading ? 0.6 : 1.0,
+                child: IgnorePointer(
+                  ignoring: isLoading,
+                  child: ListView(
+                    shrinkWrap: true,
+                    controller: widget.scrollController,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            "Symptom type",
+                            style: Theme.of(context).textTheme.titleSmall,
+                          ),
+                          const Spacer(),
+                          const SizedBox(
+                            width: AppPadding.tiny,
+                          ),
+                          Expanded(
+                            child: DropdownMenuFormField<QuestionType>(
+                              dropdownMenuEntries: QuestionType.ordered
+                                  .map(
+                                    (option) => DropdownMenuEntry(
+                                        label: option.value, value: option),
+                                  )
+                                  .toList(),
+                              initialSelection: QuestionType.check,
+                              enableSearch: false,
+                              enableFilter: false,
+                              onSelected: (option) {
+                                if (option == null) return;
+                                setState(() {
+                                  selectedQuestionType = option;
+                                });
+                              },
+                              inputDecorationTheme: InputDecorationThemeData(
+                                border: OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.circular(AppPadding.tiny),
                                 ),
-                                const Spacer(),
-                                const SizedBox(
-                                  width: AppPadding.tiny,
-                                ),
-                                Expanded(
-                                  child: DropdownMenuFormField<QuestionType>(
-                                    dropdownMenuEntries: QuestionType.ordered
-                                        .map(
-                                          (option) => DropdownMenuEntry(
-                                              label: option.value,
-                                              value: option),
-                                        )
-                                        .toList(),
-                                    initialSelection: QuestionType.check,
-                                    enableSearch: false,
-                                    enableFilter: false,
-                                    onSelected: (option) {
-                                      if (option == null) return;
-                                      setState(() {
-                                        selectedQuestionType = option;
-                                      });
-                                    },
-                                    inputDecorationTheme:
-                                        InputDecorationThemeData(
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(
-                                            AppPadding.tiny),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(
-                              height: AppPadding.small,
-                            ),
-                            LabeledField(
-                              label: "prompt",
-                              child: TextFormField(
-                                decoration: const InputDecoration(
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.all(
-                                      Radius.circular(AppRounding.tiny),
-                                    ),
-                                  ),
-                                ),
-                                controller: prompt,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter a prompt';
-                                  }
-                                  return null;
-                                },
                               ),
                             ),
-                            const SizedBox(
-                              height: AppPadding.small,
-                            ),
-                            if (selectedQuestionType == QuestionType.slider)
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Expanded(
-                                    child: LabeledField(
-                                      label: "min",
-                                      child: TextFormField(
-                                        decoration: const InputDecoration(
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.all(
-                                              Radius.circular(AppRounding.tiny),
-                                            ),
-                                          ),
-                                        ),
-                                        keyboardType: TextInputType.number,
-                                        controller: minValue,
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Please enter a minimum';
-                                          }
-                                          int? minNum = int.tryParse(value);
-                                          int? maxNum =
-                                              int.tryParse(maxValue.text);
-                                          if (minNum == null ||
-                                              maxNum == null) {
-                                            return "Must have a range";
-                                          }
-                                          if (minNum >= maxNum) {
-                                            return "Invalid range";
-                                          }
-                                          return null;
-                                        },
-                                        inputFormatters: <TextInputFormatter>[
-                                          FilteringTextInputFormatter.digitsOnly
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    width: 20.0,
-                                  ),
-                                  Expanded(
-                                    child: LabeledField(
-                                      label: "max",
-                                      child: TextFormField(
-                                        decoration: const InputDecoration(
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.all(
-                                              Radius.circular(AppRounding.tiny),
-                                            ),
-                                          ),
-                                        ),
-                                        keyboardType: TextInputType.number,
-                                        controller: maxValue,
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Please enter a minimum';
-                                          }
-                                          int? maxNum = int.tryParse(value);
-                                          int? minNum =
-                                              int.tryParse(minValue.text);
-                                          if (minNum == null ||
-                                              maxNum == null) {
-                                            return "Must have a range";
-                                          }
-                                          if (maxNum <= minNum) {
-                                            return "Invalid range";
-                                          }
-                                          return null;
-                                        },
-                                        inputFormatters: <TextInputFormatter>[
-                                          FilteringTextInputFormatter.digitsOnly
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: AppPadding.small,
+                      ),
+                      LabeledField(
+                        label: "prompt",
+                        child: TextFormField(
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(AppRounding.tiny),
                               ),
-                            if (selectedQuestionType ==
-                                    QuestionType.multipleChoice ||
-                                selectedQuestionType ==
-                                    QuestionType.allThatApply)
-                              ChoicesFormField(
-                                validator: (value) =>
-                                    value == null || value.isEmpty
-                                        ? "Must have at least one option"
-                                        : null,
-                                onChanged: (value) {
-                                  if (value == null) return;
-                                  setState(() {
-                                    choices = value;
-                                  });
-                                },
-                                initialValue: choices,
-                              ),
-                            const SizedBox(
-                              height: AppPadding.large,
                             ),
-                            CheckboxListTile(
-                                title: const Text(
-                                  "Is required",
-                                ),
-                                value: isRequired,
-                                onChanged: (value) {
-                                  if (value == null) return;
-                                  setState(() {
-                                    isRequired = value;
-                                  });
-                                }),
-                          ],
+                          ),
+                          controller: prompt,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter a prompt';
+                            }
+                            return null;
+                          },
                         ),
                       ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: double.infinity,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                        border: const Border(top: BorderSide()),
-                        color: Theme.of(context).colorScheme.surface),
-                    child: Padding(
-                      padding: const EdgeInsetsGeometry.symmetric(
-                          vertical: AppPadding.small),
-                      child: FilledButton(
-                        onPressed: () async {
-                          await add();
-                        },
-                        child: submitSuccess
-                            ? const Icon(Icons.check)
-                            : isLoading
-                                ? const ButtonLoadingIndicator()
-                                : const Text("Add Symptom"),
+                      const SizedBox(
+                        height: AppPadding.small,
                       ),
-                    ),
+                      if (selectedQuestionType == QuestionType.slider)
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: LabeledField(
+                                label: "min",
+                                child: TextFormField(
+                                  decoration: const InputDecoration(
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(AppRounding.tiny),
+                                      ),
+                                    ),
+                                  ),
+                                  keyboardType: TextInputType.number,
+                                  controller: minValue,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter a minimum';
+                                    }
+                                    int? minNum = int.tryParse(value);
+                                    int? maxNum = int.tryParse(maxValue.text);
+                                    if (minNum == null || maxNum == null) {
+                                      return "Must have a range";
+                                    }
+                                    if (minNum >= maxNum) {
+                                      return "Invalid range";
+                                    }
+                                    return null;
+                                  },
+                                  inputFormatters: <TextInputFormatter>[
+                                    FilteringTextInputFormatter.digitsOnly
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 20.0,
+                            ),
+                            Expanded(
+                              child: LabeledField(
+                                label: "max",
+                                child: TextFormField(
+                                  decoration: const InputDecoration(
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(AppRounding.tiny),
+                                      ),
+                                    ),
+                                  ),
+                                  keyboardType: TextInputType.number,
+                                  controller: maxValue,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter a minimum';
+                                    }
+                                    int? maxNum = int.tryParse(value);
+                                    int? minNum = int.tryParse(minValue.text);
+                                    if (minNum == null || maxNum == null) {
+                                      return "Must have a range";
+                                    }
+                                    if (maxNum <= minNum) {
+                                      return "Invalid range";
+                                    }
+                                    return null;
+                                  },
+                                  inputFormatters: <TextInputFormatter>[
+                                    FilteringTextInputFormatter.digitsOnly
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      if (selectedQuestionType == QuestionType.multipleChoice ||
+                          selectedQuestionType == QuestionType.allThatApply)
+                        ChoicesFormField(
+                          validator: (value) => value == null || value.isEmpty
+                              ? "Must have at least one option"
+                              : null,
+                          onChanged: (value) {
+                            if (value == null) return;
+                            setState(() {
+                              choices = value;
+                            });
+                          },
+                          initialValue: choices,
+                        ),
+                      const SizedBox(
+                        height: AppPadding.large,
+                      ),
+                      CheckboxListTile(
+                          title: const Text(
+                            "Is required",
+                          ),
+                          value: isRequired,
+                          onChanged: (value) {
+                            if (value == null) return;
+                            setState(() {
+                              isRequired = value;
+                            });
+                          }),
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
-          );
-        });
+          ),
+          SizedBox(
+            width: double.infinity,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                  border: const Border(top: BorderSide()),
+                  color: Theme.of(context).colorScheme.surface),
+              child: Padding(
+                padding: const EdgeInsetsGeometry.symmetric(
+                    vertical: AppPadding.small),
+                child: FilledButton(
+                  onPressed: () async {
+                    await add();
+                  },
+                  child: submitSuccess
+                      ? const Icon(Icons.check)
+                      : isLoading
+                          ? const ButtonLoadingIndicator()
+                          : const Text("Add Symptom"),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> add() async {

@@ -15,6 +15,7 @@ import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/show_stripes_sheet.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class BlueMealPreStudy extends StatefulWidget {
@@ -213,29 +214,11 @@ class BlueMealInfoButton extends StatelessWidget {
   }
 
   toggleBottomSheet(BuildContext context) {
-    showModalBottomSheet(
+    showStripesSheet(
         context: context,
-        useSafeArea: true,
-        isScrollControlled: true,
-        showDragHandle: false,
-        shape: RoundedRectangleBorder(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(AppRounding.large),
-            topRight: Radius.circular(AppRounding.large),
-          ),
-          side: BorderSide(color: Theme.of(context).colorScheme.outline),
-        ),
-        builder: (context) {
-          return DraggableScrollableSheet(
-              initialChildSize: 1.0,
-              minChildSize: 1.0,
-              builder: (context, controller) {
-                return SafeArea(
-                  child: BlueMealInfoSheet(
-                    scrollController: controller,
-                  ),
-                );
-              });
+        scrollControlled: true,
+        sheetBuilder: (context, controller) {
+          return BlueMealInfoSheet(scrollController: controller);
         });
   }
 }

@@ -12,6 +12,7 @@ import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
+import 'package:stripes_ui/Util/show_stripes_sheet.dart';
 
 import '../../../Util/paddings.dart';
 
@@ -52,11 +53,15 @@ class SymptomManagementScreen extends ConsumerWidget {
                   const Spacer(),
                   IconButton(
                     onPressed: () {
-                      showModalBottomSheet(
-                          context: context,
-                          builder: (context) {
-                            return const AddCategorySheet();
-                          });
+                      showStripesSheet(
+                        context: context,
+                        scrollControlled: true,
+                        child: (context) {
+                          return const SingleChildScrollView(
+                            child: AddCategorySheet(),
+                          );
+                        },
+                      );
                     },
                     icon: const Icon(
                       Icons.add,
@@ -175,11 +180,13 @@ class CategoryDisplay extends ConsumerWidget {
             ),
             IconButton(
                 onPressed: () {
-                  showModalBottomSheet(
+                  showStripesSheet(
                     context: context,
-                    builder: (context) => CategorySettingsSheet(
-                      path: recordPath,
-                    ),
+                    child: (context) {
+                      return CategorySettingsSheet(
+                        path: recordPath,
+                      );
+                    },
                   );
                 },
                 icon: const Icon(Icons.more_horiz))

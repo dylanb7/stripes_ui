@@ -29,8 +29,6 @@ enum TabOption {
   final String value;
 }
 
-final GlobalKey scrollkey = GlobalKey();
-
 class TabContent extends ConsumerWidget {
   final TabOption selected;
 
@@ -63,7 +61,6 @@ class RecordScreenContent extends ConsumerWidget {
         scrollable: SizedBox.expand(
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            key: scrollkey,
             controller: ScrollController(),
             child: Center(
               child: ConstrainedBox(
@@ -110,7 +107,6 @@ class AddIndicator extends ConsumerWidget {
     final Widget? addition = user != null ? indicator?.call(user) : null;
     return addition != null
         ? Stack(
-            key: GlobalKey(),
             children: [
               builder(context, true),
               addition,

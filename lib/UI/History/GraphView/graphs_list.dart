@@ -11,6 +11,7 @@ import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/palette.dart';
+import 'package:stripes_ui/Util/show_stripes_sheet.dart';
 
 import '../../../Util/paddings.dart';
 
@@ -277,34 +278,18 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
   }
 
   Future<GraphKey?> toggleKeySelect(BuildContext context) {
-    return showModalBottomSheet<GraphKey?>(
+    return showStripesSheet<GraphKey?>(
         context: context,
-        useSafeArea: true,
-        showDragHandle: true,
-        shape: RoundedRectangleBorder(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(AppRounding.small),
-            topRight: Radius.circular(AppRounding.small),
-          ),
-          side: BorderSide(color: Theme.of(context).colorScheme.outline),
-        ),
-        builder: (context) {
-          return DraggableScrollableSheet(
-              maxChildSize: 0.8,
-              minChildSize: 0.35,
-              initialChildSize: 0.6,
-              expand: false,
-              snap: false,
-              builder: (context, controller) {
-                return ListSection(
-                  controller: controller,
-                  onSelect: (key) {
-                    Navigator.pop(context, key);
-                  },
-                  includesControls: false,
-                  excludedKeys: [widget.graphKey, ...additions],
-                );
-              });
+        scrollControlled: true,
+        sheetBuilder: (context, controller) {
+          return ListSection(
+            controller: controller,
+            onSelect: (key) {
+              Navigator.pop(context, key);
+            },
+            includesControls: false,
+            excludedKeys: [widget.graphKey, ...additions],
+          );
         });
   }
 }
@@ -572,7 +557,7 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        //color: Theme.of(context).colorScheme.surface,
         border: widget.hasDivider
             ? Border(
                 bottom: BorderSide(
