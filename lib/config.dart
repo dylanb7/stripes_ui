@@ -48,6 +48,8 @@ class StripesConfig {
 
   final Widget Function(BuildContext, Widget?)? builder;
 
+  final List<LocalizationsDelegate>? localizationDelegates;
+
   const StripesConfig(
       {required this.profileType,
       required this.hasGraphing,
@@ -60,6 +62,7 @@ class StripesConfig {
       this.stageIndicator,
       this.stageAction,
       this.onExitStudy,
+      this.localizationDelegates,
       this.builder});
 
   const StripesConfig.sandbox()
@@ -74,5 +77,6 @@ class StripesConfig {
         authStrategy = null,
         locale = const Locale('en'),
         exportType = null,
-        onExitStudy = null;
+        onExitStudy = null,
+        localizationDelegates = null;
 }

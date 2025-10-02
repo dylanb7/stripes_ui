@@ -68,6 +68,7 @@ class StripesApp extends StatelessWidget {
       observers: [if (config.hasLogging) const Logger()],
       child: StripesHome(
         locale: config.locale,
+        delegates: config.localizationDelegates,
         builder: config.builder,
       ),
     );
@@ -77,8 +78,11 @@ class StripesApp extends StatelessWidget {
 class StripesHome extends ConsumerWidget {
   final Locale? locale;
 
+  final List<LocalizationsDelegate>? delegates;
+
   final Widget Function(BuildContext, Widget?)? builder;
-  const StripesHome({required this.locale, this.builder, super.key});
+  const StripesHome(
+      {required this.locale, this.delegates, this.builder, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -90,7 +94,10 @@ class StripesHome extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       title: 'Stripes',
       builder: builder,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      localizationsDelegates: [
+        ...AppLocalizations.localizationsDelegates,
+        if (delegates != null) ...delegates!
+      ],
       supportedLocales: AppLocalizations.supportedLocales,
       theme: light.copyWith(
         tooltipTheme: tooltipTheme(context),
