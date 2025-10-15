@@ -105,7 +105,7 @@ class _PageWrapState extends ConsumerState<PageWrap> {
               appBar: PreferredSize(
                 preferredSize: const Size.fromHeight(kToolbarHeight),
                 child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
+                  duration: Durations.medium1,
                   height: shouldHide ? 0 : kToolbarHeight,
                   child: ClipRect(
                     child: AppBar(
@@ -172,7 +172,7 @@ class _PageWrapState extends ConsumerState<PageWrap> {
               floatingActionButtonAnimator:
                   FloatingActionButtonAnimator.scaling,
               bottomNavigationBar: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
+                duration: Durations.medium1,
                 height: shouldHide ? 0 : 70,
                 child: SingleChildScrollView(
                   physics: const NeverScrollableScrollPhysics(),

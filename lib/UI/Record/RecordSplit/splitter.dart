@@ -74,7 +74,9 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
   Widget build(BuildContext context) {
     final QuestionsLocalizations? localizations =
         QuestionsLocalizations.of(context);
-    print(widget.type);
+
+    final String localizedType =
+        localizations?.value(widget.type) ?? widget.type;
 
     final AsyncValue<PagesData> pagesData = ref.watch(
       pagesByPath(
@@ -151,7 +153,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
 
               return Column(children: [
                 RecordHeader(
-                  type: widget.type,
+                  type: localizedType,
                   hasChanged: hasChanged,
                   questionListener: widget.questionListener,
                   pageController: pageController,
