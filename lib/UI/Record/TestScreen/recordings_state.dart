@@ -716,7 +716,7 @@ class _RecordingsState extends ConsumerState<RecordingsState> {
                         onPressed: () {
                           context.pushNamed(
                             'recordType',
-                            pathParameters: {'type': Symptoms.BM},
+                            pathParameters: {'type': 'category.BM'},
                           );
                         },
                         child: Text(context.translate.studyRecordBMButton),
@@ -863,7 +863,7 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
                           onPressed: () {
                             context.pushNamed(
                               'recordType',
-                              pathParameters: {'type': Symptoms.BM},
+                              pathParameters: {'type': 'category.BM'},
                             );
                           },
                           style: ButtonStyle(

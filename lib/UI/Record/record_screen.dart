@@ -1,5 +1,5 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
@@ -13,6 +13,7 @@ import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/mouse_hover.dart';
 import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/l10n/questions_delegate.dart';
 
 class Footer extends StatelessWidget {
   const Footer({super.key});
@@ -45,11 +46,17 @@ class Options extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(testsHolderProvider);
+
+    final QuestionsLocalizations? localizations =
+        QuestionsLocalizations.of(context);
     final AsyncValue<List<RecordPath>> paths = ref.watch(recordPaths(
         const RecordPathProps(
             filterEnabled: true, type: PathProviderType.record)));
-    final AsyncValue<List<CheckinItem>> checkins =
-        ref.watch(checkInPaths(null));
+    final AsyncValue<List<CheckinItem>> checkins = ref.watch(
+      checkInPaths(
+        const CheckInPathsProps(),
+      ),
+    );
 
     final AsyncValue<TestsRepo?> repo = ref.watch(testProvider);
 
@@ -62,8 +69,12 @@ class Options extends ConsumerWidget {
         AsyncValueDefaults(
             value: checkins,
             onData: (loadedCheckins) {
+              final List<CheckinItem> translatedCheckins = loadedCheckins
+                  .map((checkin) =>
+                      localizations?.translateCheckin(checkin) ?? checkin)
+                  .toList();
               return CheckinsPageView(
-                checkins: loadedCheckins,
+                checkins: translatedCheckins,
                 additions: (item) {
                   return repo.valueOrNull?.getPathAdditions(context, item.type);
                 },
@@ -108,6 +119,9 @@ class Options extends ConsumerWidget {
                 );
               },
               onData: (loadedPaths) {
+                final List<RecordPath> translatedPaths = loadedPaths
+                    .map((path) => localizations?.translatePath(path) ?? path)
+                    .toList();
                 return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -116,14 +130,15 @@ class Options extends ConsumerWidget {
                         style: Theme.of(context).textTheme.titleMedium,
                         textAlign: TextAlign.left,
                       ),
-                      ...loadedPaths.map((path) {
+                      ...translatedPaths.mapIndexed((index, path) {
                         final List<Widget> additions = repo.valueOrNull
                                 ?.getPathAdditions(context, path.name) ??
                             [];
 
                         return RecordButton(path.name, (context) {
-                          context.pushNamed('recordType',
-                              pathParameters: {'type': path.name});
+                          context.pushNamed('recordType', pathParameters: {
+                            'type': loadedPaths[index].name
+                          });
                         }, additions);
                       }),
                     ]);

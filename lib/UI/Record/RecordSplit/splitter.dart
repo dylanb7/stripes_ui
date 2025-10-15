@@ -19,6 +19,7 @@ import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/l10n/questions_delegate.dart';
 import 'package:uuid/uuid.dart';
 
 class RecordSplitter extends ConsumerStatefulWidget {
@@ -71,9 +72,16 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
 
   @override
   Widget build(BuildContext context) {
+    final QuestionsLocalizations? localizations =
+        QuestionsLocalizations.of(context);
+    print(widget.type);
+
     final AsyncValue<PagesData> pagesData = ref.watch(
       pagesByPath(
-        PagesByPathProps(pathName: widget.type, filterEnabled: true),
+        PagesByPathProps(
+          pathName: widget.type,
+          filterEnabled: true,
+        ),
       ),
     );
 
@@ -89,7 +97,10 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
           child: AsyncValueDefaults(
             value: pagesData,
             onData: (loadedPages) {
-              final List<LoadedPageLayout> evaluatedPages = loadedPages
+              final PagesData translatedPage =
+                  localizations?.translatePage(loadedPages) ?? loadedPages;
+
+              final List<LoadedPageLayout> evaluatedPages = translatedPage
                       .loadedLayouts
                       ?.where((page) =>
                           page.dependsOn.eval(widget.questionListener))
@@ -272,7 +283,8 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
       return;
     }
     if (isLoading) return;
-    navBarHeaderKey.currentState?.setLoading(isLoading: true);
+    QuestionsLocalizations? localizations = QuestionsLocalizations.of(context);
+
     setState(() {
       isLoading = true;
     });
@@ -288,7 +300,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
       stamp: isEdit
           ? dateToStamp(widget.questionListener.submitTime!)
           : entryStamp,
-      detailType: widget.type,
+      detailType: localizations?.value(widget.type) ?? widget.type,
     );
 
     if (isEdit) {
@@ -307,7 +319,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     setState(() {
       isLoading = false;
     });
-    navBarHeaderKey.currentState?.setLoading(isLoading: false);
+
     navBarHeaderKey.currentState?.trigger();
     if (context.mounted) {
       if (!isEdit) {
@@ -392,7 +404,7 @@ class RecordFooter extends StatelessWidget {
                           ? () {
                               questionListener.tried = false;
                               pageController.nextPage(
-                                  duration: const Duration(milliseconds: 200),
+                                  duration: Durations.medium1,
                                   curve: Curves.linear);
                             }
                           : null,
@@ -444,8 +456,7 @@ class RecordHeader extends ConsumerWidget {
                     } else {
                       questionListener.tried = false;
                       pageController.previousPage(
-                          duration: const Duration(milliseconds: 250),
-                          curve: Curves.linear);
+                          duration: Durations.medium1, curve: Curves.linear);
                     }
                   },
                   icon: const Icon(Icons.arrow_back_sharp),

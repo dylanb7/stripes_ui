@@ -13,6 +13,7 @@ import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/show_stripes_sheet.dart';
+import 'package:stripes_ui/l10n/questions_delegate.dart';
 
 import '../../../Util/paddings.dart';
 
@@ -21,11 +22,17 @@ class SymptomManagementScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final QuestionsLocalizations? localizations =
+        QuestionsLocalizations.of(context);
+
     final AsyncValue<List<RecordPath>> asyncRecordPaths =
         ref.watch(questionLayoutProvider);
     return AsyncValueDefaults(
         value: asyncRecordPaths,
         onData: (recordPaths) {
+          final List<RecordPath> translatedPaths = recordPaths
+              .map((path) => localizations?.translatePath(path) ?? path)
+              .toList();
           return Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -90,7 +97,7 @@ class SymptomManagementScreen extends ConsumerWidget {
                       const SizedBox(
                         height: AppPadding.small,
                       ),
-                      ...recordPaths.map((path) {
+                      ...translatedPaths.map((path) {
                         return CategoryDisplay(recordPath: path);
                       }).separated(
                         by: const Divider(
@@ -386,6 +393,8 @@ class CategorySettingsSheetState extends ConsumerState<CategorySettingsSheet> {
       Period.month: "Monthly",
       Period.year: "Yearly",
     };
+    final QuestionsLocalizations? localizations =
+        QuestionsLocalizations.of(context);
     final AsyncValue<RecordPath?> path = ref.watch(
       questionLayoutProvider.select(
         (value) => value.whenData((path) =>
@@ -401,6 +410,8 @@ class CategorySettingsSheetState extends ConsumerState<CategorySettingsSheet> {
           value: path,
           onData: (path) {
             if (path == null) return Text("Failed to load ${widget.path.name}");
+            final RecordPath translated =
+                localizations?.translatePath(path) ?? path;
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
@@ -414,16 +425,16 @@ class CategorySettingsSheetState extends ConsumerState<CategorySettingsSheet> {
                       child: RichText(
                         textAlign: TextAlign.start,
                         text: TextSpan(
-                          text: path.name,
+                          text: translated.name,
                           style: Theme.of(context)
                               .textTheme
                               .titleMedium
                               ?.copyWith(
-                                  color: path.enabled
+                                  color: translated.enabled
                                       ? null
                                       : Theme.of(context).disabledColor),
                           children: [
-                            if (widget.path.userCreated) ...[
+                            if (translated.userCreated) ...[
                               TextSpan(
                                 text: " · custom category",
                                 style: Theme.of(context)
@@ -452,7 +463,7 @@ class CategorySettingsSheetState extends ConsumerState<CategorySettingsSheet> {
                   ],
                 ),
                 Text(
-                  "$symptoms symptom${symptoms == 1 ? "" : "s"}${path.period != null ? " / ${path.period!.name}" : ""}",
+                  "$symptoms symptom${symptoms == 1 ? "" : "s"}${translated.period != null ? " / ${translated.period!.name}" : ""}",
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context)
                           .colorScheme
@@ -511,7 +522,7 @@ class CategorySettingsSheetState extends ConsumerState<CategorySettingsSheet> {
                   ],
                 ),*/
                 const Divider(),
-                if (path.locked && lockTried)
+                if (translated.locked && lockTried)
                   Center(
                     child: Text(
                       "This category is currently locked on ${widget.path.enabled ? "enabled" : "disabled"}",
@@ -534,27 +545,27 @@ class CategorySettingsSheetState extends ConsumerState<CategorySettingsSheet> {
                         });
                       },
                       child: Switch(
-                        value: path.enabled,
-                        onChanged: path.locked
+                        value: translated.enabled,
+                        onChanged: translated.locked
                             ? null
                             : (_) async {
                                 if (!await (await ref
                                             .read(questionsProvider.future))!
-                                        .setPathEnabled(widget.path,
-                                            !widget.path.enabled) &&
+                                        .setPathEnabled(
+                                            translated, !translated.enabled) &&
                                     context.mounted) {
                                   showSnack(context,
-                                      "Failed to ${!widget.path.enabled ? "enable" : "disable"} ${widget.path.name}");
+                                      "Failed to ${!translated.enabled ? "enable" : "disable"} ${translated.name}");
                                 }
                               },
-                        thumbIcon: path.locked
+                        thumbIcon: translated.locked
                             ? WidgetStateProperty.all(const Icon(Icons.lock))
                             : null,
                       ),
                     ),
                   ],
                 ),
-                if (!path.userCreated && deleteTried)
+                if (!translated.userCreated && deleteTried)
                   Center(
                     child: Text(
                       "Cannot delete a predefined category. Disable it to remove it from the record page",
@@ -571,11 +582,11 @@ class CategorySettingsSheetState extends ConsumerState<CategorySettingsSheet> {
                       });
                     },
                     child: FilledButton.icon(
-                      onPressed: path.userCreated
+                      onPressed: translated.userCreated
                           ? () async {
                               if (!await (await ref
                                           .read(questionsProvider.future))!
-                                      .removeRecordPath(widget.path) &&
+                                      .removeRecordPath(translated) &&
                                   context.mounted) {
                                 showSnack(context,
                                     "Failed to deleted ${widget.path.name}");
@@ -584,6 +595,12 @@ class CategorySettingsSheetState extends ConsumerState<CategorySettingsSheet> {
                           : null,
                       label: const Text("Delete"),
                       icon: const Icon(Icons.delete),
+                      style: FilledButton.styleFrom(
+                        backgroundColor:
+                            Theme.of(context).colorScheme.errorContainer,
+                        foregroundColor:
+                            Theme.of(context).colorScheme.onErrorContainer,
+                      ),
                     ),
                   ),
                 ),

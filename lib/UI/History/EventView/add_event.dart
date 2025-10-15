@@ -13,6 +13,7 @@ import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
 import 'package:stripes_ui/Util/date_helper.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/l10n/questions_delegate.dart';
 
 class AddEvent extends ConsumerWidget {
   const AddEvent({super.key});
@@ -62,6 +63,8 @@ class QuestionTypeOverlay extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final QuestionsLocalizations? localizations =
+        QuestionsLocalizations.of(context);
     final AsyncValue<List<RecordPath>> paths = ref.watch(recordPaths(
         const RecordPathProps(
             filterEnabled: true, type: PathProviderType.both)));
@@ -98,12 +101,16 @@ class QuestionTypeOverlay extends ConsumerWidget {
                 AsyncValueDefaults(
                     value: paths,
                     onData: (recordPaths) {
+                      final List<RecordPath> translatedPaths = recordPaths
+                          .map((path) =>
+                              localizations?.translatePath(path) ?? path)
+                          .toList();
                       return Expanded(
                         child: SingleChildScrollView(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              ...recordPaths.map(
+                              ...translatedPaths.map(
                                 (path) => Padding(
                                   padding: const EdgeInsets.symmetric(
                                       vertical: AppPadding.tiny),

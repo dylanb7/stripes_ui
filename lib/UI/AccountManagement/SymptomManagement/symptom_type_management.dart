@@ -10,14 +10,15 @@ import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo
 import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
 import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
+import 'package:stripes_ui/UI/CommonWidgets/segmented_draggable_list.dart';
 import 'package:stripes_ui/UI/CommonWidgets/type_tag.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
-import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/paddings.dart';
 import 'package:stripes_ui/Util/show_stripes_sheet.dart';
+import 'package:stripes_ui/l10n/questions_delegate.dart';
 
 class SymptomTypeManagement extends ConsumerStatefulWidget {
   final String? category;
@@ -36,6 +37,8 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
   @override
   Widget build(BuildContext context) {
     ref.watch(questionHomeProvider);
+    final QuestionsLocalizations? localizations =
+        QuestionsLocalizations.of(context);
     final AsyncValue<PagesData> pagesData =
         ref.watch(pagesByPath(PagesByPathProps(pathName: widget.category)));
 
@@ -138,13 +141,16 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
     return AsyncValueDefaults(
       value: pagesData,
       onData: (loadedPagesData) {
+        final PagesData translatedPagesData =
+            localizations?.translatePage(loadedPagesData) ?? loadedPagesData;
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const SizedBox(
               height: AppPadding.large,
             ),
-            topRow(loadedPagesData),
+            topRow(translatedPagesData),
             const SizedBox(
               height: AppPadding.medium,
             ),
@@ -155,15 +161,15 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
               indent: AppPadding.small,
               color: Theme.of(context).colorScheme.onSurface,
             ),
-            if (loadedPagesData.loadedLayouts == null &&
+            if (translatedPagesData.loadedLayouts == null &&
                 widget.category != null)
               createNewCategory(),
-            if (loadedPagesData.loadedLayouts != null &&
+            if (translatedPagesData.loadedLayouts != null &&
                 widget.category != null)
               Expanded(
                 child: editing
-                    ? EditingMode(
-                        pagesData: loadedPagesData,
+                    ? EditListOrder(
+                        pagesData: translatedPagesData,
                         setNotEditing: () {
                           if (mounted) {
                             setState(() {
@@ -171,18 +177,162 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
                             });
                           }
                         },
-                      )
+                      ) /*EditingMode(
+                        pagesData: translatedPagesData,
+                        setNotEditing: () {
+                          if (mounted) {
+                            setState(() {
+                              editing = false;
+                            });
+                          }
+                        },
+                      )*/
                     : RefreshWidget(
                         depth: RefreshDepth.subuser,
                         scrollable: ViewingMode(
                           type: widget.category!,
-                          pages: loadedPagesData.loadedLayouts!,
+                          pages: translatedPagesData.loadedLayouts!,
                         ),
                       ),
               ),
           ],
         );
       },
+    );
+  }
+}
+
+class EditListOrder extends ConsumerWidget {
+  final PagesData pagesData;
+
+  final Function setNotEditing;
+
+  const EditListOrder(
+      {required this.pagesData, required this.setNotEditing, super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    List<LoadedPageLayout> loadedLayouts = pagesData.loadedLayouts!;
+
+    Map<String, LoadedPageLayout> layoutsById = {};
+
+    List<SegmentedDraggablePage<Question>> draggablePages = [];
+
+    for (final LoadedPageLayout layout in loadedLayouts) {
+      draggablePages.add(SegmentedDraggablePage(
+          items: layout.questions, id: layout.id, header: layout.header));
+      if (layout.id != null) {
+        layoutsById[layout.id!] = layout;
+      }
+    }
+
+    /*LoadedPageLayout? existsInDependency(Question question) {
+      for (final LoadedPageLayout dependentLayout in dependentLayouts) {
+        for (final RelationOp op in dependentLayout.dependsOn.operations) {
+          for (final Relation rel in op.relations) {
+            if (question.id == rel.qid) return dependentLayout;
+          }
+        }
+      }
+      return null;
+    }
+
+    bool existsInPreviousDependency(int pageIndex, Question question) {
+      final LoadedPageLayout? dependency = existsInDependency(question);
+      if (dependency == null) return false;
+      final int index = layouts.indexOf(dependency);
+      return pageIndex < index;
+    }*/
+
+    Widget pageHeaderBuilder(BuildContext context,
+        SegmentedDraggablePage<Question> page, int index) {
+      final Widget pageTitle = Text(
+        "Page ${index + 1}",
+        style: Theme.of(context).textTheme.bodySmall,
+      );
+
+      if (page.id == null ||
+          layoutsById[page.id] == null ||
+          layoutsById[page.id]!.dependsOn == const DependsOn.nothing()) {
+        return pageTitle;
+      }
+
+      String? promptProvider(String qid) {
+        final Iterable<Question> questionMatch = loadedLayouts
+            .map((layout) => layout.questions)
+            .flattenedToList
+            .where((question) => question.id == qid);
+        if (questionMatch.isEmpty) return null;
+        return questionMatch.first.prompt;
+      }
+
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            "Page ${index + 1}",
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          TypeTag(
+            text: "conditional",
+            onHover: layoutsById[page.id]!
+                .dependsOn
+                .toReadableString(promptProvider: promptProvider),
+            onHoverTitle: "Depends on:",
+          ),
+        ],
+      );
+    }
+
+    Future<bool> save(List<SegmentedDraggablePage<Question>> layouts) async {
+      final QuestionRepo? repo = await ref.read(questionsProvider.future);
+      if (repo == null) return false;
+
+      final RecordPath path = pagesData.path!;
+
+      final List<PageLayout> newPages = layouts
+          .map(
+            (layout) => PageLayout(
+                questionIds: layout.items.map((item) => item.id).toList(),
+                uid: layout.id,
+                header: layout.header,
+                dependsOn: layoutsById[layout.id]?.dependsOn ??
+                    const DependsOn.nothing()),
+          )
+          .toList();
+      return await repo.updateRecordPath(path.copyWith(pages: newPages));
+    }
+
+    return SegmentedDraggableList<Question>(
+        layouts: draggablePages,
+        setNotEditing: setNotEditing,
+        save: save,
+        pageHeaderBuilder: pageHeaderBuilder,
+        shouldAccept: (layouts, details) => true,
+        buildItem: (context, question, handle, enabled) => _symptomDisplay(
+            question: question, handle: handle, enabled: enabled));
+  }
+
+  Widget _symptomDisplay(
+      {required Question question,
+      required Widget? handle,
+      bool enabled = true}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+          vertical: AppPadding.tiny, horizontal: AppPadding.large),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Flexible(
+            fit: FlexFit.loose,
+            child: SymptomInfoDisplay(question: question),
+          ),
+          const SizedBox(width: AppPadding.tiny),
+          if (handle != null && enabled) handle
+        ],
+      ),
     );
   }
 }
@@ -877,11 +1027,11 @@ class SymptomDisplay extends ConsumerWidget {
               ),
               IconButton(
                   onPressed: () {
-                    showModalBottomSheet(
+                    showStripesSheet(
                         context: context,
-                        isScrollControlled: true,
-                        builder: (context) {
-                          return SizedBox();
+                        scrollControlled: true,
+                        child: (context) {
+                          return SymptomEditSheet(question: question);
                         });
                   },
                   icon: const Icon(Icons.more_horiz))
@@ -905,6 +1055,8 @@ class SymptomEditSheet extends ConsumerStatefulWidget {
 }
 
 class SymptomEditSheetState extends ConsumerState<SymptomEditSheet> {
+  bool deleteTried = false, lockTried = false;
+
   @override
   Widget build(BuildContext context) {
     final Question? question = ref.watch(
@@ -912,159 +1064,124 @@ class SymptomEditSheetState extends ConsumerState<SymptomEditSheet> {
         (value) => value.valueOrNull?.forDisplay(widget.question.id),
       ),
     );
+
+    final QuestionsLocalizations? localizations =
+        QuestionsLocalizations.of(context);
+
     return SizedBox(
       width: double.infinity,
       child: Padding(
-          padding:
-              const EdgeInsetsGeometry.symmetric(horizontal: AppPadding.large),
-          child:
-              SizedBox() /* AsyncValueDefaults(
-          value: path,
-          onData: (path) {
-            if (path == null) return Text("Failed to load ${widget.path.name}");
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                const SizedBox(
-                  height: AppPadding.large,
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: RichText(
-                        textAlign: TextAlign.start,
-                        text: TextSpan(
-                          text: path.name,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(
-                                  color: path.enabled
-                                      ? null
-                                      : Theme.of(context).disabledColor),
-                          children: [
-                            if (widget.path.userCreated) ...[
-                              TextSpan(
-                                text: " · custom category",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurface
-                                          .withValues(alpha: 0.75),
-                                    ),
-                              )
-                            ],
-                          ],
+        padding: const EdgeInsets.symmetric(horizontal: AppPadding.large),
+        child: question == null
+            ? Text("Failed to load ${widget.question.prompt}")
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const SizedBox(height: AppPadding.large),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: SymptomInfoDisplay(
+                          question:
+                              localizations?.translateQuestion(question) ??
+                                  question,
+                        ),
+                      ),
+                      const SizedBox(width: AppPadding.tiny),
+                      IconButton(
+                        onPressed: () => context.pop(),
+                        icon: const Icon(Icons.keyboard_arrow_down),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppPadding.small),
+                  const Divider(),
+                  if (question.locked && lockTried)
+                    Center(
+                      child: Text(
+                        "This symptom is currently locked on ${question.enabled ? "enabled" : "disabled"}",
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  Row(
+                    children: [
+                      Text("Enabled",
+                          style: Theme.of(context).textTheme.titleMedium),
+                      const Spacer(),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            lockTried = true;
+                          });
+                        },
+                        child: Switch(
+                          value: question.enabled,
+                          onChanged: question.locked
+                              ? null
+                              : (_) async {
+                                  final repo =
+                                      await ref.read(questionsProvider.future);
+                                  if (repo == null) return;
+                                  if (!await repo.setQuestionEnabled(
+                                          question, !question.enabled) &&
+                                      context.mounted) {
+                                    showSnack(context,
+                                        "Failed to ${!question.enabled ? "enable" : "disable"} ${question.prompt}");
+                                  }
+                                },
+                          thumbIcon: question.locked
+                              ? WidgetStateProperty.all(const Icon(Icons.lock))
+                              : null,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Divider(),
+                  if (!question.userCreated && deleteTried)
+                    Center(
+                      child: Text(
+                        "Cannot delete a predefined symptom. Disable it to remove it from the record page.",
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  Center(
+                    child: GestureDetector(
+                      onTap: () {
+                        if (!question.userCreated) {
+                          setState(() {
+                            deleteTried = true;
+                          });
+                        }
+                      },
+                      child: FilledButton.icon(
+                        onPressed: question.userCreated
+                            ? () async {
+                                //TODO: add enable/disable
+                              }
+                            : null,
+                        label: const Text("Delete"),
+                        icon: const Icon(Icons.delete),
+                        style: FilledButton.styleFrom(
+                          backgroundColor:
+                              Theme.of(context).colorScheme.errorContainer,
+                          foregroundColor:
+                              Theme.of(context).colorScheme.onErrorContainer,
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      width: AppPadding.tiny,
-                    ),
-                    IconButton(
-                        onPressed: () {
-                          context.pop();
-                        },
-                        icon: const Icon(Icons.keyboard_arrow_down))
-                  ],
-                ),
-                Text(
-                  "$symptoms symptom${symptoms == 1 ? "" : "s"}${path.period != null ? " / ${path.period!.name}" : ""}",
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withValues(alpha: 0.75)),
-                ),
-                const SizedBox(
-                  height: AppPadding.small,
-                ),
-                const Divider(),
-                if (path.locked && lockTried)
-                  Center(
-                    child: Text(
-                      "This category is currently locked on ${widget.path.enabled ? "enabled" : "disabled"}",
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.error),
-                      textAlign: TextAlign.center,
-                    ),
                   ),
-                Row(
-                  children: [
-                    Text(
-                      "Enabled",
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const Spacer(),
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          lockTried = true;
-                        });
-                      },
-                      child: Switch(
-                        value: path.enabled,
-                        onChanged: path.locked
-                            ? null
-                            : (_) async {
-                                if (!await (await ref
-                                            .read(questionsProvider.future))!
-                                        .setQuestionEnabled(
-                                            question, !question.enabled) &&
-                                    context.mounted) {
-                                  showSnack(context,
-                                      "Failed to ${!question.enabled ? "enable" : "disable"} ${question.prompt}");
-                                }
-                              },
-                        thumbIcon: path.locked
-                            ? WidgetStateProperty.all(const Icon(Icons.lock))
-                            : null,
-                      ),
-                    ),
-                  ],
-                ),
-                if (!path.userCreated && deleteTried)
-                  Center(
-                    child: Text(
-                      "Cannot delete a predefined category. Disable it to remove it from the record page",
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.error),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                Center(
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        deleteTried = true;
-                      });
-                    },
-                    child: FilledButton.icon(
-                      onPressed: path.userCreated
-                          ? () async {
-                              if (!await (await ref
-                                          .read(questionsProvider.future))!
-                                      .removeRecordPath(widget.path) &&
-                                  context.mounted) {
-                                showSnack(context,
-                                    "Failed to deleted ${widget.path.name}");
-                              }
-                            }
-                          : null,
-                      label: const Text("Delete"),
-                      icon: const Icon(Icons.delete),
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        ),*/
-          ),
+                  const SizedBox(height: AppPadding.large),
+                ],
+              ),
+      ),
     );
   }
 }

@@ -69,6 +69,8 @@ class StripesHeaderState extends State<StripesHeader> {
   }
 
   void setLoading({required bool isLoading}) {
-    _loadingBool?.value = isLoading;
+    /*setState(() {
+      _loadingBool?.value = isLoading;
+    });*/
   }
 }

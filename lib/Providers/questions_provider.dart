@@ -18,24 +18,31 @@ final questionsProvider = FutureProvider<QuestionRepo?>((ref) async {
 
 final questionHomeProvider = StreamProvider<QuestionHome>((ref) {
   return ref.watch(questionsProvider).map(
-      data: (data) =>
-          data.value == null ? const Stream.empty() : data.value!.questions,
+      data: (data) {
+        final QuestionRepo<QuestionHome>? repo = data.value;
+        if (repo == null) return const Stream.empty();
+        return repo.questions;
+      },
       error: (_) => const Stream.empty(),
       loading: (_) => const Stream.empty());
 });
 
 final questionLayoutProvider = StreamProvider<List<RecordPath>>((ref) {
   return ref.watch(questionsProvider).map(
-      data: (data) =>
-          data.value == null ? const Stream.empty() : data.value!.layouts,
+      data: (data) {
+        final QuestionRepo<QuestionHome>? repo = data.value;
+        if (repo == null) return const Stream.empty();
+        return repo.layouts;
+      },
       error: (_) => const Stream.empty(),
       loading: (_) => const Stream.empty());
 });
 
 final questionsByType =
     FutureProvider<Map<String, List<Question>>>((ref) async {
-  final QuestionHome home = await ref.watch(questionHomeProvider.future);
   final List<RecordPath> paths = await ref.watch(questionLayoutProvider.future);
+  final QuestionHome home = await ref.watch(questionHomeProvider.future);
+
   final Map<String, List<Question>> byCategory = home.byType();
 
   //add in empty paths
@@ -72,8 +79,10 @@ class PagesData extends Equatable {
 
 final pagesByPath = FutureProvider.autoDispose
     .family<PagesData, PagesByPathProps>((ref, props) async {
-  final QuestionHome home = await ref.watch(questionHomeProvider.future);
   final List<RecordPath> paths = await ref.watch(questionLayoutProvider.future);
+  final QuestionHome home = await ref.watch(questionHomeProvider.future);
+  print(props.pathName);
+  print(paths.map((e) => e.name).toList());
   final Iterable<RecordPath> withName =
       paths.where((path) => path.name == props.pathName);
   final RecordPath? matching = withName.isEmpty ? null : withName.first;
@@ -139,17 +148,24 @@ class CheckinItem {
       {required this.path, required this.type, required this.response});
 }
 
-final checkInPaths = FutureProvider.family<List<CheckinItem>, DateTime?>(
-    (ref, searchDate) async {
-  List<CheckinItem> checkins = [];
-  final DateTime date = searchDate ?? DateTime.now();
-  final List<Stamp> stamps = await ref.watch(stampHolderProvider.future);
+class CheckInPathsProps {
+  final DateTime? searchDate;
+  const CheckInPathsProps({this.searchDate});
+}
 
-  const pathProps =
-      RecordPathProps(filterEnabled: true, type: PathProviderType.checkin);
+final checkInPaths =
+    FutureProvider.family<List<CheckinItem>, CheckInPathsProps>(
+        (ref, props) async {
+  const pathProps = RecordPathProps(
+    filterEnabled: true,
+    type: PathProviderType.checkin,
+  );
 
   final List<RecordPath> paths = await ref.watch(recordPaths(pathProps).future);
 
+  List<CheckinItem> checkins = [];
+  final DateTime date = props.searchDate ?? DateTime.now();
+  final List<Stamp> stamps = await ref.watch(stampsStreamProvider.future);
   for (final RecordPath recordPath in paths) {
     final DateTimeRange range = recordPath.period!.getRange(date);
 
@@ -158,7 +174,8 @@ final checkInPaths = FutureProvider.family<List<CheckinItem>, DateTime?>(
     final List<Stamp> valid = stamps.where((element) {
       final DateTime stampTime = dateFromStamp(element.stamp);
       return element.type == searchType &&
-          (stampTime.isBefore(range.end) || stampTime.isBefore(range.end)) &&
+          (stampTime.isBefore(range.end) ||
+              stampTime.isAtSameMomentAs(range.end)) &&
           (stampTime.isAfter(range.start) ||
               stampTime.isAtSameMomentAs(range.start));
     }).toList();

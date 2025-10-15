@@ -81,16 +81,20 @@ class RouteNotifier extends ChangeNotifier {
                     : TabOption.values[currentTabIndex];
               }
 
+              bool inRecording = pathSegments[0] == RouteName.ACCOUNT;
+
               bool inAccount = pathSegments[0] == RouteName.ACCOUNT;
 
               return NoTransitionPage(
                   child: PageWrap(
                 actions: [
                   if (!isSmall)
-                    ...TabOption.values.map((tab) => LargeNavButton(
-                          tab: tab,
-                          selected: selected,
-                        )),
+                    ...TabOption.values.map(
+                      (tab) => LargeNavButton(
+                        tab: tab,
+                        selected: selected,
+                      ),
+                    ),
                   UserProfileButton(
                     selected: inAccount,
                   )

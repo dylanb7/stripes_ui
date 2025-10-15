@@ -222,7 +222,7 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
                         final bool hasData = loadedData.containsKey(key);
 
                         return Text(
-                          key.toString(),
+                          key.toLocalizedString(context),
                           style: Theme.of(context)
                               .textTheme
                               .bodyMedium
@@ -474,7 +474,7 @@ class GraphSymptomRow extends StatelessWidget {
         Expanded(
           flex: 4,
           child: Text(
-            graphKey.toString(),
+            graphKey.toLocalizedString(context),
             style: Theme.of(context)
                 .textTheme
                 .bodyMedium
@@ -557,7 +557,7 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        //color: Theme.of(context).colorScheme.surface,
+        color: Theme.of(context).colorScheme.surface,
         border: widget.hasDivider
             ? Border(
                 bottom: BorderSide(

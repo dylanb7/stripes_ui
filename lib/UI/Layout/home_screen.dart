@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
@@ -58,12 +59,15 @@ class PageWrap extends ConsumerStatefulWidget {
 
   final FabState? fabState;
 
+  final bool floating;
+
   const PageWrap(
       {required this.child,
       this.actions,
       this.bottomNav,
       this.leading,
       this.fabState,
+      this.floating = true,
       super.key});
 
   @override
@@ -75,51 +79,106 @@ class PageWrap extends ConsumerStatefulWidget {
 class _PageWrapState extends ConsumerState<PageWrap> {
   _PageWrapState();
 
+  bool _hideNavBar = false;
+
+  @override
+  void didUpdateWidget(covariant PageWrap oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.child != oldWidget.child) {
+      if (_hideNavBar) {
+        setState(() => _hideNavBar = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final CurrentOverlay overlay = ref.watch(overlayProvider);
+    final bool shouldHide = widget.floating && _hideNavBar;
+
     return SafeArea(
       child: GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Stack(
           children: [
             Scaffold(
-              appBar: AppBar(
-                automaticallyImplyLeading: false,
-                leading: widget.leading,
-                scrolledUnderElevation: 0,
-                shape: RoundedRectangleBorder(
-                    side: BorderSide(color: Theme.of(context).dividerColor)),
-                titleSpacing: widget.leading != null ? AppPadding.tiny : null,
-                title: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: AppPadding.tiny),
-                  child: SizedBox(
-                    height: 35.0,
-                    child: GestureDetector(
-                      onTap: () {
-                        _toggleBottomSheet(context);
-                      },
-                      child: StripesHeader(
-                        key: navBarHeaderKey,
+              appBar: PreferredSize(
+                preferredSize: const Size.fromHeight(kToolbarHeight),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  height: shouldHide ? 0 : kToolbarHeight,
+                  child: ClipRect(
+                    child: AppBar(
+                      automaticallyImplyLeading: false,
+                      leading: widget.leading,
+                      scrolledUnderElevation: 0,
+                      shape: RoundedRectangleBorder(
+                          side: BorderSide(
+                              color: Theme.of(context).dividerColor)),
+                      titleSpacing:
+                          widget.leading != null ? AppPadding.tiny : null,
+                      title: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: AppPadding.tiny),
+                        child: SizedBox(
+                          height: 35.0,
+                          child: GestureDetector(
+                            onTap: () {
+                              _toggleBottomSheet(context);
+                            },
+                            child: StripesHeader(
+                              key: navBarHeaderKey,
+                            ),
+                          ),
+                        ),
                       ),
+                      centerTitle: false,
+                      actions: widget.actions != null
+                          ? [
+                              ...widget.actions!,
+                              const SizedBox(width: AppPadding.small)
+                            ]
+                          : null,
                     ),
                   ),
                 ),
-                centerTitle: false,
-                actions: widget.actions != null
-                    ? [
-                        ...widget.actions!,
-                        const SizedBox(width: AppPadding.small)
-                      ]
-                    : null,
               ),
-              body: widget.child,
+              body: NotificationListener<ScrollNotification>(
+                onNotification: (notification) {
+                  if (!widget.floating) return true;
+                  if (notification.depth > 0) return true;
+                  if (notification is UserScrollNotification) {
+                    if (notification.direction == ScrollDirection.reverse) {
+                      if (!_hideNavBar) {
+                        setState(() {
+                          _hideNavBar = true;
+                        });
+                      }
+                    }
+                    if (notification.direction == ScrollDirection.forward) {
+                      if (_hideNavBar) {
+                        setState(() {
+                          _hideNavBar = false;
+                        });
+                      }
+                    }
+                  }
+                  return true;
+                },
+                child: widget.child,
+              ),
               floatingActionButton: widget.fabState?.fab,
               floatingActionButtonLocation: widget.fabState?.location,
               floatingActionButtonAnimator:
                   FloatingActionButtonAnimator.scaling,
-              bottomNavigationBar: widget.bottomNav,
+              bottomNavigationBar: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                height: shouldHide ? 0 : 70,
+                child: SingleChildScrollView(
+                  physics: const NeverScrollableScrollPhysics(),
+                  child: widget.bottomNav,
+                ),
+              ),
             ),
             if (overlay.widget != null)
               Material(color: Colors.transparent, child: overlay.widget!)

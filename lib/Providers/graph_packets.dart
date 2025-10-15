@@ -8,6 +8,7 @@ import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/UI/History/EventView/sig_dates.dart';
 import 'package:stripes_ui/Util/extensions.dart';
+import 'package:stripes_ui/l10n/questions_delegate.dart';
 
 enum GraphYAxis {
   frequency("Frequency"),
@@ -226,9 +227,9 @@ class GraphKey extends Equatable {
 
   const GraphKey({required this.title, required this.isCategory, this.qid});
 
-  @override
-  String toString() {
-    return "${isCategory ? "Category · " : ""} $title";
+  String toLocalizedString(BuildContext context) {
+    QuestionsLocalizations? localizations = QuestionsLocalizations.of(context);
+    return "${isCategory ? "Category · " : ""} ${localizations?.value(title) ?? title}";
   }
 
   @override

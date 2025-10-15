@@ -78,6 +78,7 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
     if (isEdit && widget.questionsListener.submitTime != null) {
       return widget.questionsListener.submitTime!;
     }
+
     final Period? period = ref
         .read(pagesByPath(PagesByPathProps(pathName: widget.type)))
         .valueOrNull

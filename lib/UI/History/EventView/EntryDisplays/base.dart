@@ -19,6 +19,7 @@ import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/date_helper.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/l10n/questions_delegate.dart';
 
 class RenderEntryGroup extends ConsumerWidget {
   final bool grouped;
@@ -521,39 +522,39 @@ class ResponseDisplay extends ConsumerWidget {
         ref.watch(questionsProvider).valueOrNull?.displayOverrides ?? {};
     final DisplayBuilder? childOverride = overrides[res.question.id];
     if (childOverride != null) return childOverride(context, res);
+    final QuestionsLocalizations? localizations =
+        QuestionsLocalizations.of(context);
+
+    final Question translatedQuestion =
+        localizations?.translateQuestion(res.question) ?? res.question;
+
     switch (res) {
-      case OpenResponse(
-          question: FreeResponse question,
-          response: String response
-        ):
-        return Text('${question.prompt} - $response',
+      case OpenResponse(response: String response):
+        return Text('${translatedQuestion.prompt} - $response',
             textAlign: TextAlign.left,
             style: Theme.of(context).textTheme.bodyMedium,
             maxLines: null);
-      case NumericResponse(question: Numeric question, response: num response):
-        return Text('${question.prompt} - $response',
+      case NumericResponse(response: num response):
+        return Text('${translatedQuestion.prompt} - $response',
             textAlign: TextAlign.left,
             style: Theme.of(context).textTheme.bodyMedium,
             maxLines: null);
-      case Selected(question: Check question):
+      case Selected():
         Text(
-          question.prompt,
+          translatedQuestion.prompt,
           textAlign: TextAlign.left,
           style: Theme.of(context).textTheme.bodyMedium,
           maxLines: null,
         );
-      case MultiResponse(question: MultipleChoice question, index: int index):
+      case MultiResponse(index: int index):
         return Text(
-          '${question.prompt} - ${question.choices[index]}',
+          '${translatedQuestion.prompt} - ${(translatedQuestion as MultipleChoice).choices[index]}',
           textAlign: TextAlign.left,
           style: Theme.of(context).textTheme.bodyMedium,
         );
-      case AllResponse(
-          question: AllThatApply question,
-          responses: List<int> responses
-        ):
+      case AllResponse(responses: List<int> responses):
         return Text(
-          '${question.prompt} - ${responses.map((val) => question.choices[val]).join(", ")}',
+          '${translatedQuestion.prompt} - ${responses.map((val) => (translatedQuestion as AllThatApply).choices[val]).join(", ")}',
           textAlign: TextAlign.left,
           style: Theme.of(context).textTheme.bodyMedium,
         );
@@ -574,7 +575,7 @@ class ResponseDisplay extends ConsumerWidget {
     }
 
     return Text(
-      res.question.prompt,
+      translatedQuestion.prompt,
       textAlign: TextAlign.left,
       style: Theme.of(context).textTheme.bodyMedium,
       maxLines: null,

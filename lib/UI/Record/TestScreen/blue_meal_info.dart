@@ -544,8 +544,6 @@ class BlueMealInfoSheet extends ConsumerWidget {
                                       body:
                                           "${user.attributes["email"] ?? "{insert account email}"}");
 
-                                  print(email.toJson());
-
                                   if (kIsWeb) {
                                     final Uri mailTo = webMailTo(email);
                                     bool launched = false;
