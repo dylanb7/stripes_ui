@@ -760,8 +760,13 @@ class BMRow extends StatelessWidget {
       'packages/stripes_ui/assets/images/poop6.png',
       'packages/stripes_ui/assets/images/poop7.png'
     ];
+    final QuestionsLocalizations? localizations =
+        QuestionsLocalizations.of(context);
+    final Question translatedQuestion =
+        localizations?.translateQuestion(response.question) ??
+            response.question;
     return Row(children: [
-      Text('${response.question.prompt} - ${response.response.toInt()}',
+      Text('${translatedQuestion.prompt} - ${response.response.toInt()}',
           style: Theme.of(context).textTheme.bodyMedium, maxLines: null),
       const SizedBox(
         width: AppPadding.tiny,
@@ -782,6 +787,11 @@ class PainSliderDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final QuestionsLocalizations? localizations =
+        QuestionsLocalizations.of(context);
+    final Question translatedQuestion =
+        localizations?.translateQuestion(response.question) ??
+            response.question;
     final int res = response.response.toInt();
     final List<String> hurtLevels = [
       context.translate.painLevelZero,
@@ -793,7 +803,7 @@ class PainSliderDisplay extends StatelessWidget {
     ];
     final int selectedIndex = (res.toDouble() / 2).floor();
     return Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-      Text('${response.question.prompt} - ${response.response}',
+      Text('${translatedQuestion.prompt} - ${response.response}',
           style: Theme.of(context).textTheme.bodyMedium, maxLines: null),
       const SizedBox(
         width: AppPadding.tiny,
@@ -841,10 +851,15 @@ class MoodSliderDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final QuestionsLocalizations? localizations =
+        QuestionsLocalizations.of(context);
+    final Question translatedQuestion =
+        localizations?.translateQuestion(response.question) ??
+            response.question;
     final int res = response.response.toInt();
     final int selectedIndex = (res.toDouble() / 2).floor();
     return Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-      Text('${response.question.prompt} - ${response.response}',
+      Text('${translatedQuestion.prompt} - ${response.response}',
           style: Theme.of(context).textTheme.bodyMedium, maxLines: null),
       const SizedBox(
         width: AppPadding.tiny,
@@ -882,6 +897,11 @@ class PainLocationDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final QuestionsLocalizations? localizations =
+        QuestionsLocalizations.of(context);
+    final AllThatApply translatedQuestion = localizations
+            ?.translateQuestion(painLocation.question) as AllThatApply? ??
+        painLocation.question;
     final filledBorder =
         BorderSide(color: Theme.of(context).colorScheme.onSurface);
     const blankBorder = BorderSide(color: Colors.transparent);
@@ -891,7 +911,7 @@ class PainLocationDisplay extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-              '${painLocation.question.prompt} - ${painLocation.choices.join(", ")}',
+              '${translatedQuestion.prompt} - ${painLocation.responses.map((res) => translatedQuestion.choices[res]).join(", ")}',
               style: Theme.of(context).textTheme.bodyMedium,
               maxLines: null),
           const SizedBox(
