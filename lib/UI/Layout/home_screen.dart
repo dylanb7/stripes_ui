@@ -67,7 +67,7 @@ class PageWrap extends ConsumerStatefulWidget {
       this.bottomNav,
       this.leading,
       this.fabState,
-      this.floating = true,
+      this.floating = false,
       super.key});
 
   @override

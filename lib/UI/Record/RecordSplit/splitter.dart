@@ -285,6 +285,8 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     if (isLoading) return;
     QuestionsLocalizations? localizations = QuestionsLocalizations.of(context);
 
+    final String detailType = localizations?.value(widget.type) ?? widget.type;
+
     setState(() {
       isLoading = true;
     });
@@ -300,7 +302,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
       stamp: isEdit
           ? dateToStamp(widget.questionListener.submitTime!)
           : entryStamp,
-      detailType: localizations?.value(widget.type) ?? widget.type,
+      detailType: detailType,
     );
 
     if (isEdit) {
@@ -326,7 +328,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
         showSnack(
             context,
             context.translate
-                .undoEntry(widget.type, submissionEntry, submissionEntry),
+                .undoEntry(detailType, submissionEntry, submissionEntry),
             action: () async {
           await repo?.removeStamp(detailResponse);
           await (await ref.read(testProvider.future))
