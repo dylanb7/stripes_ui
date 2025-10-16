@@ -12,6 +12,7 @@ import 'package:stripes_ui/UI/Record/QuestionEntries/question_screen.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/l10n/questions_delegate.dart';
 
 class SubmitScreen extends ConsumerStatefulWidget {
   final String type;
@@ -108,6 +109,12 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final QuestionsLocalizations? localizations =
+        QuestionsLocalizations.of(context);
+
+    final String localizedType =
+        localizations?.value(widget.type) ?? widget.type;
+
     final Period? period = ref
         .watch(pagesByPath(PagesByPathProps(pathName: widget.type)))
         .valueOrNull
@@ -125,8 +132,8 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
         ),
         Text(
           isEdit
-              ? context.translate.editSubmitHeader(widget.type)
-              : context.translate.submitHeader(widget.type),
+              ? context.translate.editSubmitHeader(localizedType)
+              : context.translate.submitHeader(localizedType),
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
               color: Theme.of(context).colorScheme.primary,
               fontWeight: FontWeight.bold),

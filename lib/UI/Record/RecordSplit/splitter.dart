@@ -52,6 +52,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
   @override
   void initState() {
     original = widget.questionListener.copy();
+    print(original);
     pageController = PageController();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       widget.questionListener.addListener(_changedUpdate);
