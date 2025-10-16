@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -110,8 +111,8 @@ class QuestionTypeOverlay extends ConsumerWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              ...translatedPaths.map(
-                                (path) => Padding(
+                              ...translatedPaths.mapIndexed(
+                                (index, path) => Padding(
                                   padding: const EdgeInsets.symmetric(
                                       vertical: AppPadding.tiny),
                                   child: FilledButton(
@@ -121,7 +122,9 @@ class QuestionTypeOverlay extends ConsumerWidget {
                                           closedOverlay;
                                       context.pushNamed(
                                         'recordType',
-                                        pathParameters: {'type': path.name},
+                                        pathParameters: {
+                                          'type': recordPaths[index].name
+                                        },
                                         extra:
                                             QuestionsListener(submitTime: date),
                                       );
