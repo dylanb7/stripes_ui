@@ -29,6 +29,8 @@ class RenderEntryGroup extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final QuestionsLocalizations? localizations =
+        QuestionsLocalizations.of(context);
     if (!grouped) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,7 +66,7 @@ class RenderEntryGroup extends ConsumerWidget {
           child: ExpandibleSymptomArea(
               header: RichText(
                 text: TextSpan(
-                    text: type,
+                    text: localizations?.value(type) ?? type,
                     style: Theme.of(context)
                         .textTheme
                         .titleMedium
@@ -108,6 +110,8 @@ class RenderEntryGroupSliver extends ConsumerWidget {
         ),
       );
     }
+    final QuestionsLocalizations? localizations =
+        QuestionsLocalizations.of(context);
     Map<String, List<Response>> byType = {};
     for (final Response response in responses) {
       if (byType.containsKey(response.type)) {
@@ -129,7 +133,8 @@ class RenderEntryGroupSliver extends ConsumerWidget {
         return ExpandibleSymptomArea(
             header: RichText(
               text: TextSpan(
-                  text: typeKeys[index],
+                  text:
+                      localizations?.value(typeKeys[index]) ?? typeKeys[index],
                   style: Theme.of(context)
                       .textTheme
                       .titleMedium
@@ -256,6 +261,8 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
 
   @override
   Widget build(BuildContext context) {
+    final QuestionsLocalizations? localizations =
+        QuestionsLocalizations.of(context);
     final Map<String, DisplayBuilder> overrides =
         ref.watch(questionsProvider).valueOrNull?.displayOverrides ?? {};
     final DateTime date = dateFromStamp(widget.event.stamp);
@@ -317,7 +324,8 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
                     children: [
                       Text.rich(
                         TextSpan(
-                            text: widget.event.type,
+                            text: localizations?.value(widget.event.type) ??
+                                widget.event.type,
                             style: Theme.of(context)
                                 .textTheme
                                 .bodyLarge

@@ -304,7 +304,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
       stamp: isEdit
           ? dateToStamp(widget.questionListener.submitTime!)
           : entryStamp,
-      detailType: detailType,
+      detailType: widget.type,
     );
 
     if (isEdit) {
