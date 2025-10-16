@@ -256,6 +256,7 @@ class CheckBoxWidget extends StatefulWidget {
 class _CheckBoxWidgetState extends State<CheckBoxWidget> {
   @override
   Widget build(BuildContext context) {
+    print(widget.listener);
     return GestureDetector(
       onTap: () {
         _onTap();

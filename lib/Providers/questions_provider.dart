@@ -81,8 +81,7 @@ final pagesByPath = FutureProvider.autoDispose
     .family<PagesData, PagesByPathProps>((ref, props) async {
   final List<RecordPath> paths = await ref.watch(questionLayoutProvider.future);
   final QuestionHome home = await ref.watch(questionHomeProvider.future);
-  print(props.pathName);
-  print(paths.map((e) => e.name).toList());
+
   final Iterable<RecordPath> withName =
       paths.where((path) => path.name == props.pathName);
   final RecordPath? matching = withName.isEmpty ? null : withName.first;
