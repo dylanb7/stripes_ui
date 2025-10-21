@@ -8,8 +8,8 @@ import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/entry.dart';
 
 final questionsProvider = FutureProvider<QuestionRepo?>((ref) async {
-  AuthUser user = await ref.watch(authStream.future);
-  final sub =
+  final AuthUser user = await ref.watch(authStream.future);
+  final SubUser? sub =
       await ref.watch(subHolderProvider.selectAsync((value) => value.selected));
   final bool subEmpty = sub == null || SubUser.isEmpty(sub);
   if (subEmpty) return null;
