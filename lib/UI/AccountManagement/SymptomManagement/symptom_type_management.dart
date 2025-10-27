@@ -56,7 +56,7 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
               icon: const Icon(Icons.keyboard_arrow_left)),
           widget.category != null
               ? Text(
-                  widget.category!,
+                  localizations?.value(widget.category!) ?? widget.category,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Theme.of(context).primaryColor),
@@ -141,16 +141,13 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
     return AsyncValueDefaults(
       value: pagesData,
       onData: (loadedPagesData) {
-        final PagesData translatedPagesData =
-            localizations?.translatePage(loadedPagesData) ?? loadedPagesData;
-
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const SizedBox(
               height: AppPadding.large,
             ),
-            topRow(translatedPagesData),
+            topRow(loadedPagesData),
             const SizedBox(
               height: AppPadding.medium,
             ),
@@ -161,15 +158,15 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
               indent: AppPadding.small,
               color: Theme.of(context).colorScheme.onSurface,
             ),
-            if (translatedPagesData.loadedLayouts == null &&
+            if (loadedPagesData.loadedLayouts == null &&
                 widget.category != null)
               createNewCategory(),
-            if (translatedPagesData.loadedLayouts != null &&
+            if (loadedPagesData.loadedLayouts != null &&
                 widget.category != null)
               Expanded(
                 child: editing
                     ? EditListOrder(
-                        pagesData: translatedPagesData,
+                        pagesData: loadedPagesData,
                         setNotEditing: () {
                           if (mounted) {
                             setState(() {
@@ -191,7 +188,7 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
                         depth: RefreshDepth.subuser,
                         scrollable: ViewingMode(
                           type: widget.category!,
-                          pages: translatedPagesData.loadedLayouts!,
+                          pages: loadedPagesData.loadedLayouts!,
                         ),
                       ),
               ),
@@ -246,9 +243,12 @@ class EditListOrder extends ConsumerWidget {
 
     Widget pageHeaderBuilder(BuildContext context,
         SegmentedDraggablePage<Question> page, int index) {
-      final Widget pageTitle = Text(
-        "Page ${index + 1}",
-        style: Theme.of(context).textTheme.bodySmall,
+      final Widget pageTitle = Padding(
+        padding: const EdgeInsetsGeometry.only(left: AppPadding.tiny),
+        child: Text(
+          "Page ${index + 1}",
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
       );
 
       if (page.id == null ||
