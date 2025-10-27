@@ -22,17 +22,11 @@ class SymptomManagementScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final QuestionsLocalizations? localizations =
-        QuestionsLocalizations.of(context);
-
     final AsyncValue<List<RecordPath>> asyncRecordPaths =
         ref.watch(questionLayoutProvider);
     return AsyncValueDefaults(
         value: asyncRecordPaths,
         onData: (recordPaths) {
-          final List<RecordPath> translatedPaths = recordPaths
-              .map((path) => localizations?.translatePath(path) ?? path)
-              .toList();
           return Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -97,7 +91,7 @@ class SymptomManagementScreen extends ConsumerWidget {
                       const SizedBox(
                         height: AppPadding.small,
                       ),
-                      ...translatedPaths.map((path) {
+                      ...recordPaths.map((path) {
                         return CategoryDisplay(recordPath: path);
                       }).separated(
                         by: const Divider(
@@ -129,8 +123,12 @@ class CategoryDisplay extends ConsumerWidget {
   const CategoryDisplay({required this.recordPath, super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final QuestionsLocalizations? localizations =
+        QuestionsLocalizations.of(context);
     final int symptoms = recordPath.pages.fold<int>(
         0, (previousValue, page) => previousValue + page.questionIds.length);
+    final RecordPath translated =
+        localizations?.translatePath(recordPath) ?? recordPath;
     return Padding(
       padding: const EdgeInsets.symmetric(
           vertical: AppPadding.tiny, horizontal: AppPadding.large),
@@ -150,9 +148,9 @@ class CategoryDisplay extends ConsumerWidget {
                 children: [
                   RichText(
                     text: TextSpan(
-                      text: recordPath.name,
+                      text: translated.name,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: recordPath.enabled
+                          color: translated.enabled
                               ? null
                               : Theme.of(context).disabledColor),
                       children: [
@@ -551,8 +549,7 @@ class CategorySettingsSheetState extends ConsumerState<CategorySettingsSheet> {
                             : (_) async {
                                 if (!await (await ref
                                             .read(questionsProvider.future))!
-                                        .setPathEnabled(
-                                            translated, !translated.enabled) &&
+                                        .setPathEnabled(path, !path.enabled) &&
                                     context.mounted) {
                                   showSnack(context,
                                       "Failed to ${!translated.enabled ? "enable" : "disable"} ${translated.name}");
@@ -586,7 +583,7 @@ class CategorySettingsSheetState extends ConsumerState<CategorySettingsSheet> {
                           ? () async {
                               if (!await (await ref
                                           .read(questionsProvider.future))!
-                                      .removeRecordPath(translated) &&
+                                      .removeRecordPath(path) &&
                                   context.mounted) {
                                 showSnack(context,
                                     "Failed to deleted ${widget.path.name}");
