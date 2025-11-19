@@ -244,7 +244,7 @@ class EditListOrder extends ConsumerWidget {
     Widget pageHeaderBuilder(BuildContext context,
         SegmentedDraggablePage<Question> page, int index) {
       final Widget pageTitle = Padding(
-        padding: const EdgeInsetsGeometry.only(left: AppPadding.tiny),
+        padding: const EdgeInsetsGeometry.only(left: AppPadding.small),
         child: Text(
           "Page ${index + 1}",
           style: Theme.of(context).textTheme.bodySmall,
@@ -943,7 +943,10 @@ class SymptomDisplay extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     Iterable<Widget>? added;
 
-    if (question
+    final QuestionsLocalizations? localizations = QuestionsLocalizations.of(context);
+    final Question translated = localizations?.translateQuestion(question) ?? question;
+
+    if (translated
         case AllThatApply(choices: List<String> choices) ||
             MultipleChoice(choices: List<String> choices)) {
       added = [
@@ -964,7 +967,7 @@ class SymptomDisplay extends ConsumerWidget {
           ]),
         ),
       ];
-    } else if (question case Numeric(min: num? min, max: num? max)) {
+    } else if (translated case Numeric(min: num? min, max: num? max)) {
       added = [
         Padding(
           padding: const EdgeInsetsGeometry.only(left: AppPadding.large),
@@ -1193,13 +1196,15 @@ class SymptomInfoDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final QuestionType type = QuestionType.from(question);
+    final QuestionsLocalizations? localizations = QuestionsLocalizations.of(context);
+    final Question translated = localizations?.translateQuestion(question) ?? question;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         RichText(
           text: TextSpan(
-              text: question.prompt,
+              text: translated.prompt,
               style: Theme.of(context).textTheme.titleMedium,
               children: [
                 if (question.isRequired)

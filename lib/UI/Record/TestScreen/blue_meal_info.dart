@@ -457,7 +457,119 @@ class BlueMealInfoSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Column(
+    return Stack(children: [
+        ScrollAssistedList(
+                builder: (context, properties) => ListView(
+                      physics: const ScrollPhysics(),
+                      shrinkWrap: true,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: AppPadding.large),
+                      key: properties.scrollStateKey,
+                      controller: properties.scrollController,
+                      children: [
+                        const SizedBox(height: AppPadding.xxxl,),
+                        DecoratedBox(
+                          decoration: BoxDecoration(
+                              color: Colors.yellow.withValues(alpha: 0.35),
+                              borderRadius: const BorderRadius.all(
+                                  Radius.circular(AppRounding.tiny))),
+                          child: Padding(
+                            padding: const EdgeInsets.all(AppPadding.tiny),
+                            child: Text(
+                              context.translate.inStudySeeingExp,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: AppPadding.medium,
+                        ),
+                        const BlueMealStudyInstructions(),
+                        const SizedBox(
+                          height: AppPadding.medium,
+                        ),
+                        Text(
+                          context.translate.inStudyWithdrawTitle,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          context.translate.inStudyWithdrawDesc,
+                        ),
+                        const SizedBox(
+                          height: AppPadding.medium,
+                        ),
+                        Center(
+                            child: FilledButton(
+                                onPressed: () async {
+                                  final AuthUser user =
+                                      await ref.read(authStream.future);
+
+                                  final Email email = Email(
+                                      subject:
+                                          "Blue Meal Study withdrawl request",
+                                      recipients: ["BlueMeal@iu.edu"],
+                                      body:
+                                          "${user.attributes["email"] ?? "{insert account email}"}");
+
+                                  if (kIsWeb) {
+                                    final Uri mailTo = webMailTo(email);
+                                    bool launched = false;
+                                    if (await canLaunchUrl(mailTo)) {
+                                      launched = await launchUrl(mailTo);
+                                    } else {
+                                      launched = false;
+                                    }
+                                    if (!launched && context.mounted) {
+                                      showSnack(
+                                          context, "Failed to generate email");
+                                    }
+                                    return;
+                                  }
+                                  try {
+                                    await FlutterEmailSender.send(email);
+                                  } catch (e) {
+                                    if (context.mounted) {
+                                      showSnack(
+                                          context, "Unable to construct email");
+                                    }
+                                  }
+                                },
+                                child: Text(context
+                                    .translate.inStudyWithdrawButtonText))),
+                        const SizedBox(
+                          height: AppPadding.xl,
+                        ),
+                      ],
+                    ),
+                scrollController: scrollController),DecoratedBox(decoration: BoxDecoration(gradient: LinearGradient(stops: const [0.0, 0.7, 1.0],colors: [
+          Theme.of(context).colorScheme.surface,
+          Theme.of(context).colorScheme.surface,
+          Theme.of(context).colorScheme.surface.withValues(alpha: 0),
+        ], begin: AlignmentGeometry.topCenter, end: AlignmentGeometry.bottomCenter)),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                context.translate.blueDyeHeader,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: Theme.of(context).primaryColor,
+                    fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              IconButton.filled(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  icon: const Icon(Icons.close))
+            ],
+          ),
+        ),),],);
+    /*return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -576,7 +688,7 @@ class BlueMealInfoSheet extends ConsumerWidget {
                     ),
                 scrollController: scrollController)),
       ],
-    );
+    );*/
   }
 
   Uri webMailTo(Email email) {

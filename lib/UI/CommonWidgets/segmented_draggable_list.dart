@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'dart:ui';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
@@ -544,7 +544,7 @@ class _SegmentedDraggableListState<T extends Object>
       feedback: feedback(
         child: widget.buildItem(context, item, handle, true),
       ),
-      dragAnchorStrategy: pointerDragAnchorStrategy,
+      dragAnchorStrategy: childDragAnchorStrategy,
       onDragStarted: () {
         setState(() {
           isDragging = true;
