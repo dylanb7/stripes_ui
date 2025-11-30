@@ -56,6 +56,7 @@ class SymptomManagementScreen extends ConsumerWidget {
                     onPressed: () {
                       showStripesSheet(
                         context: context,
+                        ref: ref,
                         scrollControlled: true,
                         child: (context) {
                           return const SingleChildScrollView(
@@ -187,6 +188,7 @@ class CategoryDisplay extends ConsumerWidget {
                 onPressed: () {
                   showStripesSheet(
                     context: context,
+                    ref: ref,
                     child: (context) {
                       return CategorySettingsSheet(
                         path: recordPath,

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
+import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/history_provider.dart';
+import 'package:stripes_ui/Providers/stamps_provider.dart';
+import 'package:stripes_ui/Providers/display_data_provider.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
-import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
+
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/paddings.dart';
@@ -14,8 +17,8 @@ class FilterView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final Filters filters = ref.watch(filtersProvider);
-    final String range = filters.toRange(context);
+    final DisplayDataSettings filters = ref.watch(displayDataProvider);
+    final String range = filters.getRangeString(context);
     return Wrap(
       spacing: AppPadding.tiny,
       runSpacing: AppPadding.tiny,
@@ -48,24 +51,18 @@ class FilterView extends ConsumerWidget {
         if (false && range.isNotEmpty)
           RemoveChip(
               onPressed: () {
-                ref.read(filtersProvider.notifier).state = Filters(
-                    calendarSelection:
-                        CalendarSelection.selected(DateTime.now()),
-                    latestRequired: filters.latestRequired,
-                    earliestRequired: filters.earliestRequired,
-                    stampFilters: filters.stampFilters);
+                // Range clearing logic if needed, but range is managed by DisplayDataProvider
               },
               text: range),
-        ...filters.stampFilters?.map(
-              (filter) => RemoveChip(
-                onPressed: () {
-                  ref.read(filtersProvider.notifier).state = filters.copyWith(
-                      stampFilters: filters.stampFilters?..remove(filter));
-                },
-                text: filter.name,
-              ),
-            ) ??
-            []
+        ...filters.filters.map(
+          (filter) => RemoveChip(
+            onPressed: () {
+              ref.read(displayDataProvider.notifier).updateFilters(
+                  filters.filters.where((f) => f != filter).toList());
+            },
+            text: filter.name,
+          ),
+        )
       ],
     );
   }
@@ -100,20 +97,10 @@ class _FilterPopUp extends ConsumerStatefulWidget {
 class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
   Set<String> selectedTypes = {};
 
-  DateTimeRange? newRange;
-
   @override
   void initState() {
-    final Filters filters = ref.read(filtersProvider);
-    final DateTime? start = filters.calendarSelection.rangeStart ??
-        filters.calendarSelection.selectedDate;
-    final DateTime? end = filters.calendarSelection.rangeEnd ??
-        filters.calendarSelection.selectedDate;
-    if (start != null && end != null) {
-      newRange = DateTimeRange(start: start, end: end);
-    }
-    selectedTypes.addAll(
-        filters.stampFilters?.map((filter) => filter.name).toList() ?? []);
+    final DisplayDataSettings filters = ref.read(displayDataProvider);
+    selectedTypes.addAll(filters.filters.map((filter) => filter.name).toList());
     super.initState();
   }
 
@@ -121,8 +108,6 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
   Widget build(BuildContext context) {
     final AsyncValue<Map<String, Set<String>>> availible =
         ref.watch(setsProvider);
-
-    final Filters filters = ref.watch(filtersProvider);
 
     if (availible.isLoading) {
       return const _PopUpStyle(child: LoadingWidget());
@@ -148,32 +133,7 @@ class _FilterPopUpState extends ConsumerState<_FilterPopUp> {
             filterClass: groups);
       }).toList();
 
-      final DateTime? newStart = newRange?.start;
-      final DateTime? newEnd = newRange?.end;
-      final bool isSameDay =
-          ((newStart != null && newEnd != null) && sameDay(newStart, newEnd)) ||
-              newStart == null ||
-              newEnd == null;
-      DateTime? newEarliest() {
-        if (newRange == null || filters.earliestRequired == null) {
-          return filters.earliestRequired;
-        }
-        if (newRange!.start.isBefore(filters.earliestRequired!)) {
-          return newRange!.start;
-        }
-        return filters.earliestRequired;
-      }
-
-      ref.read(filtersProvider.notifier).state = Filters(
-          calendarSelection: CalendarSelection(
-              selectedDate: isSameDay ? newStart ?? newEnd : null,
-              rangeStart: isSameDay ? null : newStart,
-              rangeEnd: isSameDay ? null : newEnd),
-          earliestRequired: newEarliest(),
-          latestRequired: filters.latestRequired,
-          stampFilters: [
-            ...typeFilters,
-          ]);
+      ref.read(displayDataProvider.notifier).updateFilters(typeFilters);
       ref.read(overlayProvider.notifier).state = closedOverlay;
     }
 
@@ -342,8 +302,9 @@ const String types = "types";
 const String groups = "groups";
 
 final setsProvider = FutureProvider.autoDispose((ref) async {
-  final List<Response> stamps =
-      (await ref.watch(availibleStampsProvider.future)).all;
+  final List<Response> stamps = (await ref.watch(stampHolderProvider.future))
+      .whereType<Response>()
+      .toList();
 
   final Map<String, Set<String>> values = {types: {}, groups: {}};
 

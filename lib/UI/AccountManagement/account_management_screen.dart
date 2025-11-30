@@ -15,6 +15,8 @@ import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/paddings.dart';
 import 'package:stripes_ui/config.dart';
 import 'package:stripes_ui/entry.dart';
+import 'package:stripes_ui/UI/Record/RecordSplit/baseline_entry.dart';
+import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 
 class AccountManagementScreen extends ConsumerWidget {
   const AccountManagementScreen({super.key});
@@ -105,6 +107,43 @@ class AccountManagementScreen extends ConsumerWidget {
                 },
               ),*/
             ],
+            ListTile(
+              dense: false,
+              visualDensity: VisualDensity.comfortable,
+              title: const Text("Test Baseline Entry"),
+              trailing: const Icon(Icons.keyboard_arrow_right),
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => BaselineEntry(
+                          recordPath: "Baseline Test",
+                          questions: const [
+                            FreeResponse(
+                                id: "l1",
+                                prompt: "How are you feeling?",
+                                type: "FreeResponse"),
+                            Numeric(
+                                id: "l2",
+                                prompt: "Pain Level",
+                                type: "Numeric",
+                                min: 1,
+                                max: 10),
+                            Check(
+                                id: "l3",
+                                prompt: "Do you have a headache?",
+                                type: "Check"),
+                            MultipleChoice(
+                                id: "l4",
+                                prompt: "Mood",
+                                type: "MultipleChoice",
+                                choices: ["Happy", "Sad", "Neutral"]),
+                          ],
+                        )));
+              },
+            ),
+            const Divider(
+              endIndent: AppPadding.small,
+              indent: AppPadding.small,
+            ),
             const SizedBox(
               height: AppPadding.medium,
             ),

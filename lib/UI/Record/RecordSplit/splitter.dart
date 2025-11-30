@@ -232,6 +232,13 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                 question.dependsOn!.eval(widget.questionListener),
           )
           .toList();
+
+      print(layouts[index]);
+      for(final question in questions) {
+        print(question.toJson());
+
+
+      }
       content = QuestionScreen(
           header: layouts[index].header ?? context.translate.selectInstruction,
           questions: filtered,

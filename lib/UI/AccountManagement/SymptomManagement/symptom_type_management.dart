@@ -18,6 +18,7 @@ import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/paddings.dart';
 import 'package:stripes_ui/Util/show_stripes_sheet.dart';
+import 'package:stripes_ui/UI/AccountManagement/SymptomManagement/dependency_editor.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
 
 class SymptomTypeManagement extends ConsumerStatefulWidget {
@@ -88,6 +89,7 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
                         showStripesSheet(
                             scrollControlled: true,
                             context: context,
+                            ref: ref,
                             sheetBuilder: (context, controller) {
                               return AddSymptomWidget(
                                 type: widget.category!,
@@ -141,13 +143,15 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
     return AsyncValueDefaults(
       value: pagesData,
       onData: (loadedPagesData) {
+        final PagesData translatedPagesData =
+            localizations?.translatePage(loadedPagesData) ?? loadedPagesData;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const SizedBox(
               height: AppPadding.large,
             ),
-            topRow(loadedPagesData),
+            topRow(translatedPagesData),
             const SizedBox(
               height: AppPadding.medium,
             ),
@@ -188,7 +192,7 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
                         depth: RefreshDepth.subuser,
                         scrollable: ViewingMode(
                           type: widget.category!,
-                          pages: loadedPagesData.loadedLayouts!,
+                          pageData: loadedPagesData,
                         ),
                       ),
               ),
@@ -209,6 +213,8 @@ class EditListOrder extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final Color cardColor =
+        Theme.of(context).primaryColor.withValues(alpha: 0.2);
     List<LoadedPageLayout> loadedLayouts = pagesData.loadedLayouts!;
 
     Map<String, LoadedPageLayout> layoutsById = {};
@@ -251,11 +257,11 @@ class EditListOrder extends ConsumerWidget {
         ),
       );
 
-      if (page.id == null ||
+      /*if (page.id == null ||
           layoutsById[page.id] == null ||
           layoutsById[page.id]!.dependsOn == const DependsOn.nothing()) {
         return pageTitle;
-      }
+      }*/
 
       String? promptProvider(String qid) {
         final Iterable<Question> questionMatch = loadedLayouts
@@ -270,17 +276,27 @@ class EditListOrder extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            "Page ${index + 1}",
-            style: Theme.of(context).textTheme.bodySmall,
+          Row(
+            children: [
+              Text(
+                "Page ${index + 1}",
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(width: AppPadding.small),
+            ],
           ),
-          TypeTag(
-            text: "conditional",
-            onHover: layoutsById[page.id]!
-                .dependsOn
-                .toReadableString(promptProvider: promptProvider),
-            onHoverTitle: "Depends on:",
-          ),
+          if (layoutsById[page.id] != null &&
+              layoutsById[page.id]!.dependsOn != const DependsOn.nothing())
+            TypeTag(
+              text: "conditional",
+              onHover: layoutsById[page.id]!
+                  .dependsOn
+                  .toReadableString(promptProvider: promptProvider),
+              onHoverTitle: "Depends on:",
+            ),
         ],
       );
     }
@@ -309,6 +325,62 @@ class EditListOrder extends ConsumerWidget {
         setNotEditing: setNotEditing,
         save: save,
         pageHeaderBuilder: pageHeaderBuilder,
+        pageDecorator: (context, child, index) {
+          return Container(
+            margin: const EdgeInsets.only(
+                bottom: AppPadding.large,
+                left: AppPadding.large,
+                right: AppPadding.large),
+            padding: const EdgeInsets.all(AppPadding.medium),
+            decoration: BoxDecoration(
+              color: cardColor,
+              borderRadius: BorderRadius.circular(AppRounding.medium),
+            ),
+            child: child,
+          );
+        },
+        buildDropPreview: (context, question, isNewPage) {
+          if (question == null) return const SizedBox();
+          if (!isNewPage) {
+            return Container(
+              height: 60,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Theme.of(context).disabledColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(AppRounding.small),
+              ),
+            );
+          }
+          return Container(
+            margin: const EdgeInsets.symmetric(
+                vertical: AppPadding.medium, horizontal: AppPadding.large),
+            width: double.infinity,
+            padding: const EdgeInsets.all(AppPadding.medium),
+            decoration: BoxDecoration(
+              color: cardColor,
+              borderRadius: BorderRadius.circular(AppRounding.medium),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding:
+                      const EdgeInsetsGeometry.only(left: AppPadding.small),
+                  child: Text(
+                    "New Page",
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                _symptomDisplay(
+                    question: question, handle: null, enabled: false),
+              ],
+            ),
+          );
+        },
         shouldAccept: (layouts, details) => true,
         buildItem: (context, question, handle, enabled) => _symptomDisplay(
             question: question, handle: handle, enabled: enabled));
@@ -337,6 +409,936 @@ class EditListOrder extends ConsumerWidget {
   }
 }
 
+class ViewingMode extends ConsumerWidget {
+  final String type;
+
+  final PagesData pageData;
+
+  const ViewingMode({required this.type, required this.pageData, super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(questionsProvider);
+    final pages = pageData.loadedLayouts ?? [];
+
+    Iterable<Widget> questionDisplays() {
+      List<Widget> displays = [];
+      for (final (int index, LoadedPageLayout page) in pages.indexed) {
+        displays.add(
+          Container(
+            margin: const EdgeInsets.only(
+                bottom: AppPadding.large,
+                left: AppPadding.large,
+                right: AppPadding.large),
+            padding: const EdgeInsets.all(AppPadding.medium),
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(AppRounding.medium),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: const EdgeInsetsGeometry.symmetric(
+                      horizontal: AppPadding.small),
+                  child: Row(
+                    children: [
+                      Text(
+                        "Page ${index + 1}",
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      const Spacer(),
+                      if (index > 0)
+                        IconButton(
+                          icon: const Icon(Icons.settings),
+                          onPressed: () {
+                            final previousQuestions = pages
+                                .sublist(0, index)
+                                .map((l) => l.questions)
+                                .flattenedToList
+                                .toList();
+
+                            showStripesSheet(
+                              context: context,
+                              ref: ref,
+                              scrollControlled: true,
+                              child: (context) => DependencyEditor(
+                                  initialDependency: page.dependsOn,
+                                  availableQuestions: previousQuestions,
+                                  onSave: (newDependency) async {
+                                    final LoadedPageLayout newLayout =
+                                        page.copyWith(dependsOn: newDependency);
+                                    pages[index] = newLayout;
+                                    if (pageData.path != null) {
+                                      final RecordPath toSave = pageData.path!
+                                          .copyWith(
+                                              pages: pages
+                                                  .map((page) => PageLayout(
+                                                      questionIds: page
+                                                          .questions
+                                                          .map((question) =>
+                                                              question.id)
+                                                          .toList(),
+                                                      dependsOn:
+                                                          page.dependsOn))
+                                                  .toList());
+                                      await (await ref
+                                              .read(questionsProvider.future))
+                                          ?.updateRecordPath(toSave);
+                                      if (context.mounted) {
+                                        Navigator.pop(context);
+                                        // Force rebuild to show updated tag
+                                        (context as Element).markNeedsBuild();
+                                      }
+                                    }
+                                  }),
+                            );
+                          },
+                        ),
+                    ],
+                  ),
+                ),
+                ...page.questions
+                    .map((question) => SymptomDisplay(question: question))
+                    .separated(
+                      by: Divider(
+                        endIndent: AppPadding.medium,
+                        indent: AppPadding.medium,
+                        color: Theme.of(context)
+                            .dividerColor
+                            .withValues(alpha: 0.1),
+                      ),
+                    ),
+              ],
+            ),
+          ),
+        );
+      }
+      return displays;
+    }
+
+    return SingleChildScrollView(
+      key: const PageStorageKey("SymptomScreen"),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(
+            height: AppPadding.small,
+          ),
+          ...questionDisplays(),
+          const SizedBox(
+            height: 100,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class SymptomDisplay extends ConsumerWidget {
+  final Question question;
+
+  const SymptomDisplay({required this.question, super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    Iterable<Widget>? added;
+
+    final QuestionsLocalizations? localizations =
+        QuestionsLocalizations.of(context);
+    final Question translated =
+        localizations?.translateQuestion(question) ?? question;
+
+    if (translated
+        case AllThatApply(choices: List<String> choices) ||
+            MultipleChoice(choices: List<String> choices)) {
+      added = [
+        SizedBox(
+          height: 60.0,
+          child: ListView(scrollDirection: Axis.horizontal, children: [
+            const SizedBox(
+              width: AppPadding.large,
+            ),
+            ...choices.map((choice) => Chip(label: Text(choice))).separated(
+                  by: const SizedBox(
+                    width: AppPadding.tiny,
+                  ),
+                ),
+            const SizedBox(
+              width: AppPadding.large,
+            ),
+          ]),
+        ),
+      ];
+    } else if (translated case Numeric(min: num? min, max: num? max)) {
+      added = [
+        Padding(
+          padding: const EdgeInsetsGeometry.only(left: AppPadding.large),
+          child: Text("${min ?? 1} - ${max ?? 5}"),
+        )
+      ];
+    }
+
+    Widget editsRow() {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Switch(
+            value: question.enabled,
+            onChanged: question.locked
+                ? null
+                : (_) async {
+                    if (!await (await ref.read(questionsProvider.future))!
+                            .setQuestionEnabled(question, !question.enabled) &&
+                        context.mounted) {
+                      showSnack(context,
+                          "Failed to ${!question.enabled ? "enable" : "disable"} ${question.prompt}");
+                    }
+                  },
+            thumbIcon: question.locked
+                ? WidgetStateProperty.all(const Icon(Icons.lock))
+                : null,
+          ),
+          IconButton(
+              onPressed: () async {
+                if (question.userCreated) {
+                  if (!await (await ref.read(questionsProvider.future))!
+                          .removeQuestion(question) &&
+                      context.mounted) {
+                    showSnack(context, "Failed to delete ${question.prompt}");
+                  }
+                } else {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text("Cannot Delete"),
+                      content: const Text(
+                          "Pre-installed symptoms cannot be deleted. You can disable them to hide them from your daily log."),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text("OK"),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+              },
+              icon: Icon(
+                Icons.delete,
+                color: !question.userCreated
+                    ? Theme.of(context).disabledColor
+                    : null,
+              ))
+        ],
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(
+              vertical: AppPadding.tiny, horizontal: AppPadding.large),
+          child: Row(
+            children: [
+              Expanded(
+                child: SymptomInfoDisplay(question: question),
+              ),
+              const SizedBox(
+                width: AppPadding.tiny,
+              ),
+              IconButton(
+                  onPressed: () {
+                    showStripesSheet(
+                        context: context,
+                        ref: ref,
+                        scrollControlled: true,
+                        child: (context) {
+                          return SymptomEditSheet(question: question);
+                        });
+                  },
+                  icon: const Icon(Icons.more_horiz))
+            ],
+          ),
+        ),
+        if (added != null) ...added,
+      ],
+    );
+  }
+}
+
+class SymptomEditSheet extends ConsumerStatefulWidget {
+  final Question question;
+  const SymptomEditSheet({required this.question, super.key});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() {
+    return SymptomEditSheetState();
+  }
+}
+
+class SymptomEditSheetState extends ConsumerState<SymptomEditSheet> {
+  bool deleteTried = false, lockTried = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final Question? question = ref.watch(
+      questionHomeProvider.select(
+        (value) => value.valueOrNull?.forDisplay(widget.question.id),
+      ),
+    );
+
+    final QuestionsLocalizations? localizations =
+        QuestionsLocalizations.of(context);
+
+    return SizedBox(
+      width: double.infinity,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppPadding.large),
+        child: question == null
+            ? Text("Failed to load ${widget.question.prompt}")
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const SizedBox(height: AppPadding.large),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: SymptomInfoDisplay(
+                          question:
+                              localizations?.translateQuestion(question) ??
+                                  question,
+                        ),
+                      ),
+                      const SizedBox(width: AppPadding.tiny),
+                      IconButton(
+                        onPressed: () => context.pop(),
+                        icon: const Icon(Icons.keyboard_arrow_down),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppPadding.small),
+                  const Divider(),
+                  if (question.locked && lockTried)
+                    Center(
+                      child: Text(
+                        "This symptom is currently locked on ${question.enabled ? "enabled" : "disabled"}",
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  Row(
+                    children: [
+                      Text("Enabled",
+                          style: Theme.of(context).textTheme.titleMedium),
+                      const Spacer(),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            lockTried = true;
+                          });
+                        },
+                        child: Switch(
+                          value: question.enabled,
+                          onChanged: question.locked
+                              ? null
+                              : (_) async {
+                                  final repo =
+                                      await ref.read(questionsProvider.future);
+                                  if (repo == null) return;
+                                  if (!await repo.setQuestionEnabled(
+                                          question, !question.enabled) &&
+                                      context.mounted) {
+                                    showSnack(context,
+                                        "Failed to ${!question.enabled ? "enable" : "disable"} ${question.prompt}");
+                                  }
+                                },
+                          thumbIcon: question.locked
+                              ? WidgetStateProperty.all(const Icon(Icons.lock))
+                              : null,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Divider(),
+                  if (!question.userCreated && deleteTried)
+                    Center(
+                      child: Text(
+                        "Cannot delete a predefined symptom. Disable it to remove it from the record page.",
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  Center(
+                    child: GestureDetector(
+                      onTap: () {
+                        if (!question.userCreated) {
+                          setState(() {
+                            deleteTried = true;
+                          });
+                        }
+                      },
+                      child: FilledButton.icon(
+                        onPressed: question.userCreated
+                            ? () async {
+                                //TODO: add enable/disable
+                              }
+                            : null,
+                        label: const Text("Delete"),
+                        icon: const Icon(Icons.delete),
+                        style: FilledButton.styleFrom(
+                          backgroundColor:
+                              Theme.of(context).colorScheme.errorContainer,
+                          foregroundColor:
+                              Theme.of(context).colorScheme.onErrorContainer,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppPadding.large),
+                ],
+              ),
+      ),
+    );
+  }
+}
+
+class SymptomInfoDisplay extends StatelessWidget {
+  final Question question;
+  const SymptomInfoDisplay({required this.question, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final QuestionType type = QuestionType.from(question);
+    final QuestionsLocalizations? localizations =
+        QuestionsLocalizations.of(context);
+    final Question translated =
+        localizations?.translateQuestion(question) ?? question;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        RichText(
+          text: TextSpan(
+              text: translated.prompt,
+              style: Theme.of(context).textTheme.titleMedium,
+              children: [
+                if (question.userCreated)
+                  TextSpan(
+                    text: " · custom symptom",
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.75),
+                        ),
+                  ),
+              ]),
+        ),
+        const SizedBox(
+          height: AppPadding.tiny,
+        ),
+        RichText(
+          text: TextSpan(
+              text: type.value,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.75),
+                  ),
+              children: [
+                if (question.isRequired)
+                  const TextSpan(
+                    text: '*',
+                    style: TextStyle(color: Colors.red),
+                  ),
+              ]),
+        ),
+      ],
+    );
+  }
+}
+
+class AddSymptomWidget extends ConsumerStatefulWidget {
+  final String type;
+
+  final ScrollController scrollController;
+
+  const AddSymptomWidget(
+      {required this.type, required this.scrollController, super.key});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() {
+    return _AddSymptomWidgetState();
+  }
+}
+
+class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
+  final TextEditingController prompt = TextEditingController();
+
+  final TextEditingController minValue = TextEditingController(text: "1");
+  final TextEditingController maxValue = TextEditingController(text: "5");
+  List<String> choices = [];
+
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+  bool isLoading = false, submitSuccess = false, isRequired = false;
+
+  QuestionType selectedQuestionType = QuestionType.check;
+
+  @override
+  Widget build(BuildContext context) {
+    ref.watch(pagesByPath(PagesByPathProps(pathName: widget.type)));
+    return Padding(
+      padding: const EdgeInsets.only(
+          left: AppPadding.medium,
+          right: AppPadding.medium,
+          top: AppPadding.large),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            Expanded(
+              child: Text(
+                "Add Symptom",
+                textAlign: TextAlign.left,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+            const SizedBox(
+              width: AppPadding.tiny,
+            ),
+            IconButton(
+                onPressed: () {
+                  context.pop();
+                },
+                icon: const Icon(Icons.keyboard_arrow_down))
+          ]),
+          Expanded(
+            child: Form(
+              key: formKey,
+              child: Opacity(
+                opacity: isLoading ? 0.6 : 1.0,
+                child: IgnorePointer(
+                  ignoring: isLoading,
+                  child: ListView(
+                    shrinkWrap: true,
+                    controller: widget.scrollController,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            "Symptom type",
+                            style: Theme.of(context).textTheme.titleSmall,
+                          ),
+                          const Spacer(),
+                          const SizedBox(
+                            width: AppPadding.tiny,
+                          ),
+                          Expanded(
+                            child: DropdownMenuFormField<QuestionType>(
+                              dropdownMenuEntries: QuestionType.ordered
+                                  .map(
+                                    (option) => DropdownMenuEntry(
+                                        label: option.value, value: option),
+                                  )
+                                  .toList(),
+                              initialSelection: QuestionType.check,
+                              enableSearch: false,
+                              enableFilter: false,
+                              onSelected: (option) {
+                                if (option == null) return;
+                                setState(() {
+                                  selectedQuestionType = option;
+                                });
+                              },
+                              inputDecorationTheme: InputDecorationThemeData(
+                                border: OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.circular(AppPadding.tiny),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: AppPadding.small,
+                      ),
+                      LabeledField(
+                        label: "prompt",
+                        child: TextFormField(
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(AppRounding.tiny),
+                              ),
+                            ),
+                          ),
+                          controller: prompt,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter a prompt';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      const SizedBox(
+                        height: AppPadding.small,
+                      ),
+                      if (selectedQuestionType == QuestionType.slider)
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: LabeledField(
+                                label: "min",
+                                child: TextFormField(
+                                  decoration: const InputDecoration(
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(AppRounding.tiny),
+                                      ),
+                                    ),
+                                  ),
+                                  keyboardType: TextInputType.number,
+                                  controller: minValue,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter a minimum';
+                                    }
+                                    int? minNum = int.tryParse(value);
+                                    int? maxNum = int.tryParse(maxValue.text);
+                                    if (minNum == null || maxNum == null) {
+                                      return "Must have a range";
+                                    }
+                                    if (minNum >= maxNum) {
+                                      return "Invalid range";
+                                    }
+                                    return null;
+                                  },
+                                  inputFormatters: <TextInputFormatter>[
+                                    FilteringTextInputFormatter.digitsOnly
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 20.0,
+                            ),
+                            Expanded(
+                              child: LabeledField(
+                                label: "max",
+                                child: TextFormField(
+                                  decoration: const InputDecoration(
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(AppRounding.tiny),
+                                      ),
+                                    ),
+                                  ),
+                                  keyboardType: TextInputType.number,
+                                  controller: maxValue,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter a minimum';
+                                    }
+                                    int? maxNum = int.tryParse(value);
+                                    int? minNum = int.tryParse(minValue.text);
+                                    if (minNum == null || maxNum == null) {
+                                      return "Must have a range";
+                                    }
+                                    if (maxNum <= minNum) {
+                                      return "Invalid range";
+                                    }
+                                    return null;
+                                  },
+                                  inputFormatters: <TextInputFormatter>[
+                                    FilteringTextInputFormatter.digitsOnly
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      if (selectedQuestionType == QuestionType.multipleChoice ||
+                          selectedQuestionType == QuestionType.allThatApply)
+                        ChoicesFormField(
+                          validator: (value) => value == null || value.isEmpty
+                              ? "Must have at least one option"
+                              : null,
+                          onChanged: (value) {
+                            if (value == null) return;
+                            setState(() {
+                              choices = value;
+                            });
+                          },
+                          initialValue: choices,
+                        ),
+                      const SizedBox(
+                        height: AppPadding.large,
+                      ),
+                      CheckboxListTile(
+                          title: const Text(
+                            "Is required",
+                          ),
+                          value: isRequired,
+                          onChanged: (value) {
+                            if (value == null) return;
+                            setState(() {
+                              isRequired = value;
+                            });
+                          }),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(
+            width: double.infinity,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                  border: const Border(top: BorderSide()),
+                  color: Theme.of(context).colorScheme.surface),
+              child: Padding(
+                padding: const EdgeInsetsGeometry.symmetric(
+                    vertical: AppPadding.small),
+                child: FilledButton(
+                  onPressed: () async {
+                    await add();
+                  },
+                  child: submitSuccess
+                      ? const Icon(Icons.check)
+                      : isLoading
+                          ? const ButtonLoadingIndicator()
+                          : const Text("Add Symptom"),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> add() async {
+    if (isLoading) return;
+
+    if (!formKey.currentState!.validate()) return;
+
+    setState(() {
+      isLoading = true;
+    });
+    Question question;
+    switch (selectedQuestionType) {
+      case QuestionType.check:
+        question = Check(
+            id: "",
+            prompt: prompt.text,
+            type: widget.type,
+            isRequired: isRequired,
+            userCreated: true);
+      case QuestionType.freeResponse:
+        question = FreeResponse(
+            id: "",
+            prompt: prompt.text,
+            type: widget.type,
+            isRequired: isRequired,
+            userCreated: true);
+      case QuestionType.slider:
+        question = Numeric(
+            id: "",
+            prompt: prompt.text,
+            type: widget.type,
+            isRequired: isRequired,
+            userCreated: true);
+      case QuestionType.multipleChoice:
+        question = MultipleChoice(
+            id: "",
+            prompt: prompt.text,
+            type: widget.type,
+            choices: choices,
+            isRequired: isRequired,
+            userCreated: true);
+      case QuestionType.allThatApply:
+        question = AllThatApply(
+            id: "",
+            prompt: prompt.text,
+            type: widget.type,
+            choices: choices,
+            isRequired: isRequired,
+            userCreated: true);
+    }
+    final bool added =
+        await (await ref.read(questionsProvider.future))!.addQuestion(question);
+
+    if (added) {
+      if (mounted) {
+        setState(() {
+          submitSuccess = true;
+        });
+      }
+      await Future.delayed(Durations.long4);
+      prompt.clear();
+      minValue.clear();
+      maxValue.clear();
+      choices.clear();
+      formKey.currentState?.reset();
+    } else if (mounted) {
+      context.pop();
+      showSnack(context, "Failed to add question");
+    }
+
+    if (mounted) {
+      setState(() {
+        submitSuccess = false;
+        isLoading = false;
+        context.pop();
+      });
+    }
+  }
+}
+
+class ChoicesFormField extends FormField<List<String>> {
+  ChoicesFormField({
+    super.key,
+    super.onSaved,
+    super.validator,
+    ValueChanged<List<String>?>? onChanged,
+    List<String> super.initialValue = const [],
+  }) : super(
+          builder: (FormFieldState<List<String>> state) {
+            final TextEditingController controller = TextEditingController();
+
+            void onChangedHandler(List<String>? value) {
+              state.didChange(value);
+              if (onChanged != null) {
+                onChanged(value);
+              }
+            }
+
+            return UnmanagedRestorationScope(
+              bucket: state.bucket,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (state.value != null)
+                    LabeledField(
+                      label: "Choice",
+                      child: Row(children: [
+                        Expanded(
+                          child: TextField(
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(AppRounding.tiny),
+                                ),
+                              ),
+                            ),
+                            controller: controller,
+                          ),
+                        ),
+                        const SizedBox(
+                          width: AppPadding.small,
+                        ),
+                        IconButton.filled(
+                            onPressed: () {
+                              if (controller.text.isNotEmpty) {
+                                if (state.value != null) {
+                                  onChangedHandler([
+                                    ...state.value!,
+                                    controller.text,
+                                  ]);
+                                } else {
+                                  onChangedHandler([controller.text]);
+                                }
+                                controller.clear();
+                              }
+                            },
+                            icon: const Icon(Icons.add)),
+                      ]),
+                    ),
+                  ...state.value!
+                      .mapIndexed(
+                        (index, choice) => ListTile(
+                          title: Text(choice),
+                          trailing: IconButton(
+                            onPressed: () {
+                              onChangedHandler(state.value!..removeAt(index));
+                            },
+                            icon: const Icon(Icons.delete),
+                          ),
+                        ),
+                      )
+                      .separated(by: const Divider()),
+                  if (state.hasError) ...[
+                    const SizedBox(
+                      height: AppPadding.tiny,
+                    ),
+                    Text(
+                      state.errorText!,
+                      style: TextStyle(
+                          fontSize: 12.0,
+                          color: Theme.of(state.context).colorScheme.error),
+                    ),
+                  ],
+                ],
+              ),
+            );
+          },
+        );
+}
+
+class LabeledField extends StatelessWidget {
+  final Widget child;
+  final String label;
+
+  const LabeledField({required this.label, required this.child, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return IntrinsicHeight(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withValues(alpha: 0.75),
+                ),
+          ),
+          const SizedBox(
+            height: AppPadding.tiny,
+          ),
+          child
+        ],
+      ),
+    );
+  }
+}
+
+/*
 class EditingMode extends ConsumerStatefulWidget {
   final PagesData pagesData;
 
@@ -877,831 +1879,4 @@ class _EditingModeState extends ConsumerState<EditingMode>
   }
 }
 
-class ViewingMode extends ConsumerWidget {
-  final String type;
-
-  final List<LoadedPageLayout> pages;
-
-  const ViewingMode({required this.type, required this.pages, super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(questionsProvider);
-
-    Iterable<Widget> questionDisplays() {
-      List<Widget> displays = [];
-      for (final (int index, LoadedPageLayout page) in pages.indexed) {
-        displays.addAll([
-          Padding(
-            padding: const EdgeInsetsGeometry.only(left: AppPadding.small),
-            child: Text("Page ${index + 1}",
-                style: Theme.of(context).textTheme.bodySmall),
-          ),
-          Divider(
-            endIndent: AppPadding.small,
-            indent: AppPadding.small,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
-          ...page.questions
-              .map((question) => SymptomDisplay(question: question))
-              .separated(
-                by: Divider(
-                  endIndent: AppPadding.medium,
-                  indent: AppPadding.medium,
-                  color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
-                ),
-              ),
-        ]);
-      }
-      return displays;
-    }
-
-    return SingleChildScrollView(
-      key: const PageStorageKey("SymptomScreen"),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(
-            height: AppPadding.small,
-          ),
-          ...questionDisplays(),
-          const SizedBox(
-            height: 100,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class SymptomDisplay extends ConsumerWidget {
-  final Question question;
-
-  const SymptomDisplay({required this.question, super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    Iterable<Widget>? added;
-
-    final QuestionsLocalizations? localizations = QuestionsLocalizations.of(context);
-    final Question translated = localizations?.translateQuestion(question) ?? question;
-
-    if (translated
-        case AllThatApply(choices: List<String> choices) ||
-            MultipleChoice(choices: List<String> choices)) {
-      added = [
-        SizedBox(
-          height: 60.0,
-          child: ListView(scrollDirection: Axis.horizontal, children: [
-            const SizedBox(
-              width: AppPadding.large,
-            ),
-            ...choices.map((choice) => Chip(label: Text(choice))).separated(
-                  by: const SizedBox(
-                    width: AppPadding.tiny,
-                  ),
-                ),
-            const SizedBox(
-              width: AppPadding.large,
-            ),
-          ]),
-        ),
-      ];
-    } else if (translated case Numeric(min: num? min, max: num? max)) {
-      added = [
-        Padding(
-          padding: const EdgeInsetsGeometry.only(left: AppPadding.large),
-          child: Text("${min ?? 1} - ${max ?? 5}"),
-        )
-      ];
-    }
-
-    Widget editsRow() {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Switch(
-            value: question.enabled,
-            onChanged: question.locked
-                ? null
-                : (_) async {
-                    if (!await (await ref.read(questionsProvider.future))!
-                            .setQuestionEnabled(question, !question.enabled) &&
-                        context.mounted) {
-                      showSnack(context,
-                          "Failed to ${!question.enabled ? "enable" : "disable"} ${question.prompt}");
-                    }
-                  },
-            thumbIcon: question.locked
-                ? WidgetStateProperty.all(const Icon(Icons.lock))
-                : null,
-          ),
-          IconButton(
-              onPressed: question.userCreated
-                  ? () async {
-                      if (!await (await ref.read(questionsProvider.future))!
-                              .removeQuestion(question) &&
-                          context.mounted) {
-                        showSnack(
-                            context, "Failed to delete ${question.prompt}");
-                      }
-                    }
-                  : null,
-              icon: const Icon(Icons.delete))
-        ],
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(
-              vertical: AppPadding.tiny, horizontal: AppPadding.large),
-          child: Row(
-            children: [
-              Expanded(
-                child: SymptomInfoDisplay(question: question),
-              ),
-              const SizedBox(
-                width: AppPadding.tiny,
-              ),
-              IconButton(
-                  onPressed: () {
-                    showStripesSheet(
-                        context: context,
-                        scrollControlled: true,
-                        child: (context) {
-                          return SymptomEditSheet(question: question);
-                        });
-                  },
-                  icon: const Icon(Icons.more_horiz))
-            ],
-          ),
-        ),
-        if (added != null) ...added,
-      ],
-    );
-  }
-}
-
-class SymptomEditSheet extends ConsumerStatefulWidget {
-  final Question question;
-  const SymptomEditSheet({required this.question, super.key});
-
-  @override
-  ConsumerState<ConsumerStatefulWidget> createState() {
-    return SymptomEditSheetState();
-  }
-}
-
-class SymptomEditSheetState extends ConsumerState<SymptomEditSheet> {
-  bool deleteTried = false, lockTried = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final Question? question = ref.watch(
-      questionHomeProvider.select(
-        (value) => value.valueOrNull?.forDisplay(widget.question.id),
-      ),
-    );
-
-    final QuestionsLocalizations? localizations =
-        QuestionsLocalizations.of(context);
-
-    return SizedBox(
-      width: double.infinity,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppPadding.large),
-        child: question == null
-            ? Text("Failed to load ${widget.question.prompt}")
-            : Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const SizedBox(height: AppPadding.large),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: SymptomInfoDisplay(
-                          question:
-                              localizations?.translateQuestion(question) ??
-                                  question,
-                        ),
-                      ),
-                      const SizedBox(width: AppPadding.tiny),
-                      IconButton(
-                        onPressed: () => context.pop(),
-                        icon: const Icon(Icons.keyboard_arrow_down),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: AppPadding.small),
-                  const Divider(),
-                  if (question.locked && lockTried)
-                    Center(
-                      child: Text(
-                        "This symptom is currently locked on ${question.enabled ? "enabled" : "disabled"}",
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).colorScheme.error,
-                            ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  Row(
-                    children: [
-                      Text("Enabled",
-                          style: Theme.of(context).textTheme.titleMedium),
-                      const Spacer(),
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            lockTried = true;
-                          });
-                        },
-                        child: Switch(
-                          value: question.enabled,
-                          onChanged: question.locked
-                              ? null
-                              : (_) async {
-                                  final repo =
-                                      await ref.read(questionsProvider.future);
-                                  if (repo == null) return;
-                                  if (!await repo.setQuestionEnabled(
-                                          question, !question.enabled) &&
-                                      context.mounted) {
-                                    showSnack(context,
-                                        "Failed to ${!question.enabled ? "enable" : "disable"} ${question.prompt}");
-                                  }
-                                },
-                          thumbIcon: question.locked
-                              ? WidgetStateProperty.all(const Icon(Icons.lock))
-                              : null,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Divider(),
-                  if (!question.userCreated && deleteTried)
-                    Center(
-                      child: Text(
-                        "Cannot delete a predefined symptom. Disable it to remove it from the record page.",
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).colorScheme.error,
-                            ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  Center(
-                    child: GestureDetector(
-                      onTap: () {
-                        if (!question.userCreated) {
-                          setState(() {
-                            deleteTried = true;
-                          });
-                        }
-                      },
-                      child: FilledButton.icon(
-                        onPressed: question.userCreated
-                            ? () async {
-                                //TODO: add enable/disable
-                              }
-                            : null,
-                        label: const Text("Delete"),
-                        icon: const Icon(Icons.delete),
-                        style: FilledButton.styleFrom(
-                          backgroundColor:
-                              Theme.of(context).colorScheme.errorContainer,
-                          foregroundColor:
-                              Theme.of(context).colorScheme.onErrorContainer,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: AppPadding.large),
-                ],
-              ),
-      ),
-    );
-  }
-}
-
-class SymptomInfoDisplay extends StatelessWidget {
-  final Question question;
-  const SymptomInfoDisplay({required this.question, super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final QuestionType type = QuestionType.from(question);
-    final QuestionsLocalizations? localizations = QuestionsLocalizations.of(context);
-    final Question translated = localizations?.translateQuestion(question) ?? question;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        RichText(
-          text: TextSpan(
-              text: translated.prompt,
-              style: Theme.of(context).textTheme.titleMedium,
-              children: [
-                if (question.isRequired)
-                  const TextSpan(
-                    text: '*',
-                    style: TextStyle(color: Colors.red),
-                  ),
-                if (question.userCreated)
-                  TextSpan(
-                    text: " · custom symptom",
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withValues(alpha: 0.75),
-                        ),
-                  ),
-              ]),
-        ),
-        const SizedBox(
-          height: AppPadding.tiny,
-        ),
-        Text(
-          type.value,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context)
-                  .colorScheme
-                  .onSurface
-                  .withValues(alpha: 0.75)),
-        ),
-      ],
-    );
-  }
-}
-
-class AddSymptomWidget extends ConsumerStatefulWidget {
-  final String type;
-
-  final ScrollController scrollController;
-
-  const AddSymptomWidget(
-      {required this.type, required this.scrollController, super.key});
-
-  @override
-  ConsumerState<ConsumerStatefulWidget> createState() {
-    return _AddSymptomWidgetState();
-  }
-}
-
-class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
-  final TextEditingController prompt = TextEditingController();
-
-  final TextEditingController minValue = TextEditingController(text: "1");
-  final TextEditingController maxValue = TextEditingController(text: "5");
-  List<String> choices = [];
-
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-
-  bool isLoading = false, submitSuccess = false, isRequired = false;
-
-  QuestionType selectedQuestionType = QuestionType.check;
-
-  @override
-  Widget build(BuildContext context) {
-    ref.watch(pagesByPath(PagesByPathProps(pathName: widget.type)));
-    return Padding(
-      padding: const EdgeInsets.only(
-          left: AppPadding.medium,
-          right: AppPadding.medium,
-          top: AppPadding.large),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(children: [
-            Expanded(
-              child: Text(
-                "Add Symptom",
-                textAlign: TextAlign.left,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-            ),
-            const SizedBox(
-              width: AppPadding.tiny,
-            ),
-            IconButton(
-                onPressed: () {
-                  context.pop();
-                },
-                icon: const Icon(Icons.keyboard_arrow_down))
-          ]),
-          Expanded(
-            child: Form(
-              key: formKey,
-              child: Opacity(
-                opacity: isLoading ? 0.6 : 1.0,
-                child: IgnorePointer(
-                  ignoring: isLoading,
-                  child: ListView(
-                    shrinkWrap: true,
-                    controller: widget.scrollController,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            "Symptom type",
-                            style: Theme.of(context).textTheme.titleSmall,
-                          ),
-                          const Spacer(),
-                          const SizedBox(
-                            width: AppPadding.tiny,
-                          ),
-                          Expanded(
-                            child: DropdownMenuFormField<QuestionType>(
-                              dropdownMenuEntries: QuestionType.ordered
-                                  .map(
-                                    (option) => DropdownMenuEntry(
-                                        label: option.value, value: option),
-                                  )
-                                  .toList(),
-                              initialSelection: QuestionType.check,
-                              enableSearch: false,
-                              enableFilter: false,
-                              onSelected: (option) {
-                                if (option == null) return;
-                                setState(() {
-                                  selectedQuestionType = option;
-                                });
-                              },
-                              inputDecorationTheme: InputDecorationThemeData(
-                                border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(AppPadding.tiny),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: AppPadding.small,
-                      ),
-                      LabeledField(
-                        label: "prompt",
-                        child: TextFormField(
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(AppRounding.tiny),
-                              ),
-                            ),
-                          ),
-                          controller: prompt,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter a prompt';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      const SizedBox(
-                        height: AppPadding.small,
-                      ),
-                      if (selectedQuestionType == QuestionType.slider)
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              child: LabeledField(
-                                label: "min",
-                                child: TextFormField(
-                                  decoration: const InputDecoration(
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(AppRounding.tiny),
-                                      ),
-                                    ),
-                                  ),
-                                  keyboardType: TextInputType.number,
-                                  controller: minValue,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter a minimum';
-                                    }
-                                    int? minNum = int.tryParse(value);
-                                    int? maxNum = int.tryParse(maxValue.text);
-                                    if (minNum == null || maxNum == null) {
-                                      return "Must have a range";
-                                    }
-                                    if (minNum >= maxNum) {
-                                      return "Invalid range";
-                                    }
-                                    return null;
-                                  },
-                                  inputFormatters: <TextInputFormatter>[
-                                    FilteringTextInputFormatter.digitsOnly
-                                  ],
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 20.0,
-                            ),
-                            Expanded(
-                              child: LabeledField(
-                                label: "max",
-                                child: TextFormField(
-                                  decoration: const InputDecoration(
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(AppRounding.tiny),
-                                      ),
-                                    ),
-                                  ),
-                                  keyboardType: TextInputType.number,
-                                  controller: maxValue,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter a minimum';
-                                    }
-                                    int? maxNum = int.tryParse(value);
-                                    int? minNum = int.tryParse(minValue.text);
-                                    if (minNum == null || maxNum == null) {
-                                      return "Must have a range";
-                                    }
-                                    if (maxNum <= minNum) {
-                                      return "Invalid range";
-                                    }
-                                    return null;
-                                  },
-                                  inputFormatters: <TextInputFormatter>[
-                                    FilteringTextInputFormatter.digitsOnly
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      if (selectedQuestionType == QuestionType.multipleChoice ||
-                          selectedQuestionType == QuestionType.allThatApply)
-                        ChoicesFormField(
-                          validator: (value) => value == null || value.isEmpty
-                              ? "Must have at least one option"
-                              : null,
-                          onChanged: (value) {
-                            if (value == null) return;
-                            setState(() {
-                              choices = value;
-                            });
-                          },
-                          initialValue: choices,
-                        ),
-                      const SizedBox(
-                        height: AppPadding.large,
-                      ),
-                      CheckboxListTile(
-                          title: const Text(
-                            "Is required",
-                          ),
-                          value: isRequired,
-                          onChanged: (value) {
-                            if (value == null) return;
-                            setState(() {
-                              isRequired = value;
-                            });
-                          }),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-          SizedBox(
-            width: double.infinity,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                  border: const Border(top: BorderSide()),
-                  color: Theme.of(context).colorScheme.surface),
-              child: Padding(
-                padding: const EdgeInsetsGeometry.symmetric(
-                    vertical: AppPadding.small),
-                child: FilledButton(
-                  onPressed: () async {
-                    await add();
-                  },
-                  child: submitSuccess
-                      ? const Icon(Icons.check)
-                      : isLoading
-                          ? const ButtonLoadingIndicator()
-                          : const Text("Add Symptom"),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> add() async {
-    if (isLoading) return;
-
-    if (!formKey.currentState!.validate()) return;
-
-    setState(() {
-      isLoading = true;
-    });
-    Question question;
-    switch (selectedQuestionType) {
-      case QuestionType.check:
-        question = Check(
-            id: "",
-            prompt: prompt.text,
-            type: widget.type,
-            isRequired: isRequired,
-            userCreated: true);
-      case QuestionType.freeResponse:
-        question = FreeResponse(
-            id: "",
-            prompt: prompt.text,
-            type: widget.type,
-            isRequired: isRequired,
-            userCreated: true);
-      case QuestionType.slider:
-        question = Numeric(
-            id: "",
-            prompt: prompt.text,
-            type: widget.type,
-            isRequired: isRequired,
-            userCreated: true);
-      case QuestionType.multipleChoice:
-        question = MultipleChoice(
-            id: "",
-            prompt: prompt.text,
-            type: widget.type,
-            choices: choices,
-            isRequired: isRequired,
-            userCreated: true);
-      case QuestionType.allThatApply:
-        question = AllThatApply(
-            id: "",
-            prompt: prompt.text,
-            type: widget.type,
-            choices: choices,
-            isRequired: isRequired,
-            userCreated: true);
-    }
-    final bool added =
-        await (await ref.read(questionsProvider.future))!.addQuestion(question);
-
-    if (added) {
-      if (mounted) {
-        setState(() {
-          submitSuccess = true;
-        });
-      }
-      await Future.delayed(Durations.long4);
-      prompt.clear();
-      minValue.clear();
-      maxValue.clear();
-      choices.clear();
-      formKey.currentState?.reset();
-    } else if (mounted) {
-      context.pop();
-      showSnack(context, "Failed to add question");
-    }
-
-    if (mounted) {
-      setState(() {
-        submitSuccess = false;
-        isLoading = false;
-        context.pop();
-      });
-    }
-  }
-}
-
-class ChoicesFormField extends FormField<List<String>> {
-  ChoicesFormField({
-    super.key,
-    super.onSaved,
-    super.validator,
-    ValueChanged<List<String>?>? onChanged,
-    List<String> super.initialValue = const [],
-  }) : super(
-          builder: (FormFieldState<List<String>> state) {
-            final TextEditingController controller = TextEditingController();
-
-            void onChangedHandler(List<String>? value) {
-              state.didChange(value);
-              if (onChanged != null) {
-                onChanged(value);
-              }
-            }
-
-            return UnmanagedRestorationScope(
-              bucket: state.bucket,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (state.value != null)
-                    LabeledField(
-                      label: "Choice",
-                      child: Row(children: [
-                        Expanded(
-                          child: TextField(
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(AppRounding.tiny),
-                                ),
-                              ),
-                            ),
-                            controller: controller,
-                          ),
-                        ),
-                        const SizedBox(
-                          width: AppPadding.small,
-                        ),
-                        IconButton.filled(
-                            onPressed: () {
-                              if (controller.text.isNotEmpty) {
-                                if (state.value != null) {
-                                  onChangedHandler([
-                                    ...state.value!,
-                                    controller.text,
-                                  ]);
-                                } else {
-                                  onChangedHandler([controller.text]);
-                                }
-                                controller.clear();
-                              }
-                            },
-                            icon: const Icon(Icons.add)),
-                      ]),
-                    ),
-                  ...state.value!
-                      .mapIndexed(
-                        (index, choice) => ListTile(
-                          title: Text(choice),
-                          trailing: IconButton(
-                            onPressed: () {
-                              onChangedHandler(state.value!..removeAt(index));
-                            },
-                            icon: const Icon(Icons.delete),
-                          ),
-                        ),
-                      )
-                      .separated(by: const Divider()),
-                  if (state.hasError) ...[
-                    const SizedBox(
-                      height: AppPadding.tiny,
-                    ),
-                    Text(
-                      state.errorText!,
-                      style: TextStyle(
-                          fontSize: 12.0,
-                          color: Theme.of(state.context).colorScheme.error),
-                    ),
-                  ],
-                ],
-              ),
-            );
-          },
-        );
-}
-
-class LabeledField extends StatelessWidget {
-  final Widget child;
-  final String label;
-
-  const LabeledField({required this.label, required this.child, super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return IntrinsicHeight(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            label,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurface
-                      .withValues(alpha: 0.75),
-                ),
-          ),
-          const SizedBox(
-            height: AppPadding.tiny,
-          ),
-          child
-        ],
-      ),
-    );
-  }
-}
+ */

@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/paddings.dart';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:stripes_ui/Providers/sheet_provider.dart';
+
 typedef DraggableSheetBuilder = Widget Function(BuildContext, ScrollController);
 
 typedef ChildBuilder = Widget Function(BuildContext);
 //if scroll controller is specified use draggableScrollableSheet
 Future<T?> showStripesSheet<T>({
   required BuildContext context,
+  required WidgetRef ref,
   ChildBuilder? child,
   bool scrollControlled = false,
   ShapeBorder? dialogShape,
@@ -25,6 +29,13 @@ Future<T?> showStripesSheet<T>({
 
   final bool showingDialog =
       getBreakpoint(context).isGreaterThan(Breakpoint.large) || isFullScreen;
+
+  ref.read(isSheetOpenProvider.notifier).state = true;
+  ref.read(sheetCloseCallbackProvider.notifier).state = () {
+    if (context.mounted) {
+      Navigator.of(context).pop();
+    }
+  };
 
   if (showingDialog) {
     final ShapeBorder finalDialogShape = dialogShape ??
@@ -60,7 +71,10 @@ Future<T?> showStripesSheet<T>({
                 ? child(context)
                 : sheetBuilder!(context, ScrollController()),
           );
-        });
+        }).whenComplete(() {
+      ref.read(isSheetOpenProvider.notifier).state = false;
+      ref.read(sheetCloseCallbackProvider.notifier).state = null;
+    });
   }
 
   final bool draggableScrollableSheet = sheetBuilder != null;
@@ -88,5 +102,8 @@ Future<T?> showStripesSheet<T>({
           );
         }
         return child!(context);
-      });
+      }).whenComplete(() {
+    ref.read(isSheetOpenProvider.notifier).state = false;
+    ref.read(sheetCloseCallbackProvider.notifier).state = null;
+  });
 }

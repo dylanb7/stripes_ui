@@ -61,16 +61,16 @@ class CalendarDay extends StatelessWidget {
           decoration: BoxDecoration(
             color: background,
             borderRadius: BorderRadius.only(
-                topRight: within || rangeStart
+                topRight: within || (rangeStart && !rangeEnd)
                     ? Radius.zero
                     : const Radius.circular(AppRounding.small),
-                topLeft: within || rangeEnd
+                topLeft: within || (rangeEnd && !rangeStart)
                     ? Radius.zero
                     : const Radius.circular(AppRounding.small),
-                bottomRight: within || rangeStart
+                bottomRight: within || (rangeStart && !rangeEnd)
                     ? Radius.zero
                     : const Radius.circular(AppRounding.small),
-                bottomLeft: within || rangeEnd
+                bottomLeft: within || (rangeEnd && !rangeStart)
                     ? Radius.zero
                     : const Radius.circular(AppRounding.small)),
           ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:stripes_ui/Providers/history_provider.dart';
+import 'package:stripes_ui/Providers/display_data_provider.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/config.dart';
 
@@ -12,9 +12,10 @@ class ActionRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final Filters filters = ref.watch(filtersProvider);
-    final int results = ref.watch(availibleStampsProvider
-        .select((value) => value.valueOrNull?.filteredVisible.length ?? 0));
+    //final DisplayDataSettings filters = ref.watch(displayDataProvider);
+    final int results = ref.watch(availableStampsProvider
+        .select((available) => available.valueOrNull?.length ?? 0));
+    ;
     return Column(
       children: [
         Row(
@@ -29,17 +30,15 @@ class ActionRow extends ConsumerWidget {
             ),
             const Row(children: [
               AddEvent(),
-              Export(
-                type: ExportType.perPage,
-              ),
+              Export(),
             ])
           ],
         ),
-        Row(
+        /*Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              filters.toRange(context),
+              filters.getRangeString(context),
               style: Theme.of(context)
                   .textTheme
                   .titleMedium
@@ -56,12 +55,13 @@ class ActionRow extends ConsumerWidget {
               showCheckmark: false,
               selectedColor: Theme.of(context).primaryColor,
               onSelected: (value) {
-                ref.read(filtersProvider.notifier).state =
-                    filters.copyWith(groupSymptoms: value);
+                ref
+                    .read(displayDataProvider.notifier)
+                    .updateGroupSymptoms(value);
               },
             )
           ],
-        ),
+        ),*/
         Divider(
           thickness: 1.5,
           color: Theme.of(context).dividerColor,

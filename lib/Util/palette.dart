@@ -1,6 +1,6 @@
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
-import 'package:stripes_ui/Providers/graph_packets.dart';
+import 'package:stripes_ui/Providers/display_data_provider.dart';
 
 const Color darkIconButton = Color(0xffff651f);
 const Color lightIconButton = Color(0xff1744a3);
@@ -248,28 +248,19 @@ const ColorScheme flexSchemeDark = ColorScheme(
   surfaceTint: Color(0xffb1cff5),
 );
 
-const List<Color> generateFrom = [
-  Color(0xff097e55),
-  Color(0xff0a7d84),
-  Color(0xff1460a5),
-  Color(0xff3048af),
-  Color(0xff4d32ac),
-  Color(0xff0a3d7b),
-  Color(0xff88330b),
-  Color.fromARGB(255, 56, 56, 56),
-  Color(0xff668d11),
-  Color(0xffa53670),
-  Color(0xff781b4a),
-  Color(0xff87b09b),
-  Color(0xff9389c9),
-  Color(0xffd2a08a),
-  Color(0xff045631),
-  Color(0xffc76da5),
-  Color(0xffd67581),
-  Color(0xffd3a42f),
-  Color(0xffa8481f)
-];
-
 Color forGraphKey(GraphKey key) {
-  return generateFrom[key.hashCode % (generateFrom.length - 1)];
+  final String seed = key.qid ?? key.title;
+
+  int hash = 0;
+  for (var i = 0; i < seed.length; i++) {
+    hash = seed.codeUnitAt(i) + ((hash << 5) - hash);
+  }
+
+  final double h = (hash.abs() % 360).toDouble();
+
+  final double s = 0.65 + ((hash.abs() % 20) / 100.0);
+
+  final double l = 0.45 + ((hash.abs() % 20) / 100.0);
+
+  return HSLColor.fromAHSL(1.0, h, s, l).toColor();
 }

@@ -8,7 +8,7 @@ import 'package:stripes_ui/Providers/auth_provider.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
-import 'package:stripes_ui/UI/History/EventView/events_view.dart';
+import 'package:stripes_ui/UI/History/UnifiedView/list_style_view.dart';
 import 'package:stripes_ui/UI/Layout/home_screen.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
 import 'package:stripes_ui/UI/Record/record_screen.dart';
@@ -19,6 +19,7 @@ import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/paddings.dart';
 
 import 'package:stripes_ui/entry.dart';
+import 'package:stripes_ui/Providers/sheet_provider.dart';
 
 enum TabOption {
   record('Record'),
@@ -207,6 +208,9 @@ class SmallLayout extends ConsumerWidget {
                     icon: const Icon(Icons.add),
                     label: context.translate.recordTab,
                     onTap: () {
+                      if (ref.read(isSheetOpenProvider)) {
+                        ref.read(sheetCloseCallbackProvider)?.call();
+                      }
                       if (customSelect != null) {
                         customSelect!(Routes.HOME);
                       } else {
@@ -222,6 +226,9 @@ class SmallLayout extends ConsumerWidget {
                       icon: const Icon(Icons.checklist_outlined),
                       label: context.translate.testTab,
                       onTap: () {
+                        if (ref.read(isSheetOpenProvider)) {
+                          ref.read(sheetCloseCallbackProvider)?.call();
+                        }
                         if (customSelect != null) {
                           customSelect!(Routes.TEST);
                         } else {
@@ -237,6 +244,18 @@ class SmallLayout extends ConsumerWidget {
                     icon: const Icon(Icons.history),
                     label: context.translate.historyTab,
                     onTap: () {
+                      if (ref.read(isSheetOpenProvider)) {
+                        ref.read(sheetCloseCallbackProvider)?.call();
+                      }
+                      if (selected == TabOption.history) {
+                        if (ref
+                            .read(historyScrollControllerProvider)
+                            .hasClients) {
+                          ref.read(historyScrollControllerProvider).animateTo(0,
+                              duration: Durations.medium2,
+                              curve: Curves.easeInOut);
+                        }
+                      }
                       if (customSelect != null) {
                         customSelect!(Routes.HISTORY);
                       } else {
@@ -358,6 +377,15 @@ class LargeNavButton extends ConsumerWidget {
                 borderRadius:
                     BorderRadius.all(Radius.circular(AppRounding.tiny))))),
         onPressed: () {
+          if (ref.read(isSheetOpenProvider)) {
+            ref.read(sheetCloseCallbackProvider)?.call();
+          }
+          if (tab == TabOption.history && selected == TabOption.history) {
+            if (ref.read(historyScrollControllerProvider).hasClients) {
+              ref.read(historyScrollControllerProvider).animateTo(0,
+                  duration: Durations.medium2, curve: Curves.easeInOut);
+            }
+          }
           String route = Routes.HOME;
           if (tab == TabOption.tests) {
             route = Routes.TEST;

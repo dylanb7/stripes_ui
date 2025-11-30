@@ -49,9 +49,13 @@ class SegmentedDraggableList<T extends Object> extends StatefulWidget {
           BuildContext context, SegmentedDraggablePage<T> page, int index)?
       pageHeaderBuilder;
 
+  final Widget Function(BuildContext context, Widget child, int index)?
+      pageDecorator;
+
   final Widget? Function(BuildContext context, T item)? feedback;
 
-  final Widget Function(BuildContext context, T? value)? buildDropPreview;
+  final Widget Function(BuildContext context, T? value, bool isNewPage)?
+      buildDropPreview;
 
   final Widget? Function(BuildContext context, T item)? childOnDrag;
 
@@ -67,6 +71,8 @@ class SegmentedDraggableList<T extends Object> extends StatefulWidget {
 
   final bool Function(SegmentedDraggablePage<T> page, T item)? draggable;
 
+  final Alignment handleAlignment;
+
   final bool canAddFirstPage, canAddLastPage;
 
   const SegmentedDraggableList({
@@ -76,6 +82,7 @@ class SegmentedDraggableList<T extends Object> extends StatefulWidget {
     required this.buildItem,
     this.shouldAccept,
     this.pageHeaderBuilder,
+    this.pageDecorator,
     this.canAddFirstPage = true,
     this.canAddLastPage = true,
     this.feedback,
@@ -84,6 +91,7 @@ class SegmentedDraggableList<T extends Object> extends StatefulWidget {
     this.buildDropPreview,
     this.hasTargets,
     this.draggable,
+    this.handleAlignment = Alignment.centerRight,
     super.key,
   });
 
@@ -259,9 +267,9 @@ class _SegmentedDraggableListState<T extends Object>
         curve: Curves.linear, duration: Duration(milliseconds: travelInMillis));
   }
 
-  Widget _buildDropPreview(BuildContext context, T? value) {
+  Widget _buildDropPreview(BuildContext context, T? value, bool isNewPage) {
     if (widget.buildDropPreview != null) {
-      return widget.buildDropPreview!(context, value);
+      return widget.buildDropPreview!(context, value, isNewPage);
     }
     return SizedBox(
         height: 60,
@@ -276,9 +284,10 @@ class _SegmentedDraggableListState<T extends Object>
 
     for (int i = 0; i < layouts.length; i++) {
       final SegmentedDraggablePage<T> page = layouts[i];
+      List<Widget> pageWidgets = [];
 
       Widget? header = widget.pageHeaderBuilder?.call(context, page, i);
-      if (header != null) widgets.add(header);
+      if (header != null) pageWidgets.add(header);
 
       const double sepHeight = AppPadding.xl;
 
@@ -335,14 +344,14 @@ class _SegmentedDraggableListState<T extends Object>
               )
             : sep;
         bool hasTargets = widget.hasTargets?.call(page, currentItem) ?? true;
-        widgets.add(
+        pageWidgets.add(
           hasTargets
               ? DragTarget<T>(
                   builder: (context, List<T?> candidates, rejects) {
                     if (candidates.isEmpty || candidates[0] == null) return sep;
                     final T candidate = candidates[0]!;
                     return !isNeighbor(candidate)
-                        ? _buildDropPreview(context, candidates[0])
+                        ? _buildDropPreview(context, candidates[0], false)
                         : separator;
                   },
                   onWillAcceptWithDetails: (details) {
@@ -357,12 +366,12 @@ class _SegmentedDraggableListState<T extends Object>
               : separator,
         );
         final bool enabled = widget.draggable?.call(page, currentItem) ?? true;
-        widgets.add(enabled
+        pageWidgets.add(enabled
             ? _buildDraggableItem(currentItem)
             : widget.buildItem(context, currentItem, null, enabled));
       }
       bool hasTargets = widget.hasTargets?.call(page, page.items.last) ?? true;
-      widgets.add(
+      pageWidgets.add(
         hasTargets
             ? DragTarget<T>(
                 onWillAcceptWithDetails: (details) {
@@ -378,7 +387,7 @@ class _SegmentedDraggableListState<T extends Object>
                   if (candidates.isEmpty || candidates[0] == null) return sep;
                   final T candidate = candidates[0]!;
                   return page.items.isEmpty || candidate != page.items.last
-                      ? _buildDropPreview(context, candidates[0])
+                      ? _buildDropPreview(context, candidates[0], false)
                       : const SizedBox(
                           height: sepHeight,
                         );
@@ -388,6 +397,16 @@ class _SegmentedDraggableListState<T extends Object>
                 height: sepHeight,
               ),
       );
+
+      Widget pageContent = Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: pageWidgets,
+      );
+
+      if (widget.pageDecorator != null) {
+        pageContent = widget.pageDecorator!(context, pageContent, i);
+      }
+      widgets.add(pageContent);
     }
 
     return LayoutBuilder(builder: (context, constraints) {
@@ -408,7 +427,7 @@ class _SegmentedDraggableListState<T extends Object>
                   );
                 }
                 final T candidate = candidates[0]!;
-                return _buildDropPreview(context, candidate);
+                return _buildDropPreview(context, candidate, true);
               },
               onWillAcceptWithDetails: (details) {
                 return widget.shouldAccept?.call(layouts, details) ?? true;
@@ -461,7 +480,7 @@ class _SegmentedDraggableListState<T extends Object>
                   );
                 }
                 final T candidate = candidates[0]!;
-                return _buildDropPreview(context, candidate);
+                return _buildDropPreview(context, candidate, true);
               },
               onWillAcceptWithDetails: (details) {
                 return widget.shouldAccept?.call(layouts, details) ?? true;
@@ -506,23 +525,22 @@ class _SegmentedDraggableListState<T extends Object>
       final Widget? customFeedback = widget.feedback?.call(context, item);
       if (customFeedback != null) return customFeedback;
       return Material(
-        child: IntrinsicWidth(
-          child: ConstrainedBox(
-            constraints:
-                BoxConstraints(maxWidth: MediaQuery.of(context).size.width),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).canvasColor,
-                boxShadow: [
-                  BoxShadow(
-                      color: Theme.of(context).primaryColor,
-                      blurStyle: BlurStyle.outer,
-                      blurRadius: 2.0,
-                      spreadRadius: 2.0)
-                ],
-              ),
-              child: child,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+              maxWidth:
+                  MediaQuery.of(context).size.width - (AppPadding.xl * 2)),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).canvasColor,
+              boxShadow: [
+                BoxShadow(
+                    color: Theme.of(context).primaryColor,
+                    blurStyle: BlurStyle.outer,
+                    blurRadius: 2.0,
+                    spreadRadius: 2.0)
+              ],
             ),
+            child: child,
           ),
         ),
       );
@@ -541,10 +559,14 @@ class _SegmentedDraggableListState<T extends Object>
       maxSimultaneousDrags: 1,
       data: item,
       hitTestBehavior: HitTestBehavior.deferToChild,
-      feedback: feedback(
-        child: widget.buildItem(context, item, handle, true),
+      feedback: FractionalTranslation(
+        translation: Offset(-(widget.handleAlignment.x + 1) / 2,
+            -(widget.handleAlignment.y + 1) / 2),
+        child: feedback(
+          child: widget.buildItem(context, item, handle, true),
+        ),
       ),
-      dragAnchorStrategy: childDragAnchorStrategy,
+      dragAnchorStrategy: pointerDragAnchorStrategy,
       onDragStarted: () {
         setState(() {
           isDragging = true;

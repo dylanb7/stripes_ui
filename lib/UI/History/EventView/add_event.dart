@@ -4,14 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo_base.dart';
-import 'package:stripes_ui/Providers/history_provider.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
-import 'package:stripes_ui/UI/CommonWidgets/styled_tooltip.dart';
-import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
-
-import 'package:stripes_ui/Util/date_helper.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/paddings.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
@@ -26,33 +21,13 @@ class AddEvent extends ConsumerWidget {
           CurrentOverlay(widget: QuestionTypeOverlay(date: addTime));
     }
 
-    final CalendarSelection calendarSelection = ref
-        .watch(filtersProvider.select((filters) => filters.calendarSelection));
-
-    final DateTime? selected = calendarSelection.selectedDate ??
-        (calendarSelection.rangeEnd == null
-            ? calendarSelection.rangeStart
-            : null);
-
     final DateTime now = DateTime.now();
 
-    return StyledTooltip(
-      message: calendarSelection.selectedDate == null
-          ? context.translate.noDateToAddTo
-          : dateToMDY(calendarSelection.selectedDate!, context),
-      child: IconButton(
-        icon: const Icon(Icons.add),
-        onPressed: selected == null
-            ? null
-            : () {
-                openEventOverlay(
-                    ref,
-                    sameDay(now, selected)
-                        ? now
-                        : DateTime(
-                            selected.year, selected.month, selected.day, 12));
-              },
-      ),
+    return IconButton(
+      icon: const Icon(Icons.add),
+      onPressed: () {
+        openEventOverlay(ref, now);
+      },
     );
   }
 }

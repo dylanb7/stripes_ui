@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
-import 'package:stripes_ui/Providers/history_provider.dart';
+import 'package:stripes_ui/Providers/display_data_provider.dart';
 import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
@@ -17,9 +17,7 @@ import 'package:stripes_ui/entry.dart';
 import 'package:path_provider/path_provider.dart';
 
 class Export extends ConsumerStatefulWidget {
-  final ExportType type;
-
-  const Export({required this.type, super.key});
+  const Export({super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
@@ -32,9 +30,9 @@ class _ExportState extends ConsumerState<Export> {
 
   @override
   Widget build(BuildContext context) {
-    final AsyncValue<Available> available = ref.watch(availibleStampsProvider);
-    final List<Response> availableStamps =
-        available.valueOrNull?.filteredVisible ?? [];
+    final AsyncValue<List<Response>> available =
+        ref.watch(availableStampsProvider);
+    final List<Response> availableStamps = available.valueOrNull ?? [];
     final ExportAction? exportFunc = ref.watch(configProvider).export;
     return IconButton(
       onPressed: available.isLoading ||

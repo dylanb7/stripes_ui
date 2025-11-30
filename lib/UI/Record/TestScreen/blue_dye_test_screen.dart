@@ -161,7 +161,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
         blueDyeTestProgressProvider.selectAsync(
             (progress) => progress.getProgression()), (prev, next) async {
       final BlueDyeProgression? nextValue = await next;
-      final BlueDyeProgression? prevValue = await next;
+      final BlueDyeProgression? prevValue = await prev;
       if (context.mounted &&
           nextValue != null &&
           (prevValue == null ||

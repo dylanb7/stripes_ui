@@ -13,6 +13,7 @@ import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
 
+/*
 enum Loc {
   day,
   graph;
@@ -375,3 +376,4 @@ List<Response> _convertStamps(List<Stamp> stamps) {
       ? stamps
       : stamps.whereType<Response>().toList();
 }
+*/

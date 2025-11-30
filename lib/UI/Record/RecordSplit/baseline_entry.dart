@@ -15,14 +15,20 @@ import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/paddings.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
+import 'package:stripes_ui/Providers/overlay_provider.dart';
+import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
 import 'package:uuid/uuid.dart';
 
 class BaselineEntry extends ConsumerStatefulWidget {
   final String recordPath;
+  final List<Question>? questions;
 
   late final QuestionsListener questionListener;
   BaselineEntry(
-      {super.key, required this.recordPath, QuestionsListener? data}) {
+      {super.key,
+      required this.recordPath,
+      this.questions,
+      QuestionsListener? data}) {
     questionListener = data ?? QuestionsListener();
   }
 
@@ -90,15 +96,25 @@ class _BaselineEntryState extends ConsumerState<BaselineEntry> {
               final PagesData translatedPage =
                   localizations?.translatePage(loadedPages) ?? loadedPages;
 
-              final List<Question> allQuestions = translatedPage.loadedLayouts
+              List<Question> allQuestions = translatedPage.loadedLayouts
                       ?.expand((page) => page.questions)
                       .toList() ??
                   [];
+
+              if (allQuestions.isEmpty && widget.questions != null) {
+                allQuestions = widget.questions!;
+              }
 
               final int pendingCount = widget.questionListener.pending.length;
 
               return Column(
                 children: [
+                  _BaselineHeader(
+                    type: widget.recordPath,
+                    close: () {
+                      close(ref, context, null);
+                    },
+                  ),
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
@@ -178,6 +194,25 @@ class _BaselineEntryState extends ConsumerState<BaselineEntry> {
     );
   }
 
+  void close(WidgetRef ref, BuildContext context, String? route) {
+    if (!hasChanged) {
+      widget.questionListener.tried = false;
+      if (route == null) {
+        context.pop();
+      } else {
+        context.go(route);
+      }
+      return;
+    }
+
+    ref.read(overlayProvider.notifier).state = CurrentOverlay(
+      widget: ErrorPrevention(
+        type: widget.recordPath,
+        route: route,
+      ),
+    );
+  }
+
   void _submitEntry(BuildContext context, WidgetRef ref, bool isEdit) async {
     if (widget.questionListener.pending.isNotEmpty) {
       widget.questionListener.tried = true;
@@ -241,5 +276,96 @@ class _BaselineEntryState extends ConsumerState<BaselineEntry> {
         context.go(Routes.HOME);
       }
     }
+  }
+}
+
+class _BaselineHeader extends StatelessWidget {
+  final String type;
+  final Function close;
+
+  const _BaselineHeader({required this.type, required this.close});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding:
+          const EdgeInsets.only(bottom: AppPadding.tiny, top: AppPadding.small),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          IconButton(
+            onPressed: () {
+              close();
+            },
+            icon: const Icon(Icons.close),
+          ),
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  context.translate.recordHeader(type),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: Theme.of(context).colorScheme.primary),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
+            width: Theme.of(context).iconTheme.size ?? 24.0,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ErrorPrevention extends ConsumerWidget {
+  final String type;
+
+  final String? route;
+
+  const ErrorPrevention({required this.type, required this.route, super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ConfirmationPopup(
+        title: Text(
+          context.translate.errorPreventionTitle,
+          style: Theme.of(context).textTheme.headlineMedium,
+          textAlign: TextAlign.center,
+        ),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              context.translate.errorPreventionLineOne,
+              style: Theme.of(context).textTheme.bodyMedium,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(
+              height: AppPadding.small,
+            ),
+            Text(
+              context.translate.errorPreventionLineTwo(type.toLowerCase()),
+              style: Theme.of(context).textTheme.bodyMedium,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        onConfirm: () {
+          if (route == null) {
+            context.pop();
+          } else {
+            context.go(route!);
+          }
+        },
+        cancel: context.translate.errorPreventionStay,
+        confirm: context.translate.errorPreventionLeave);
   }
 }
