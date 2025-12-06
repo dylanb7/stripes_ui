@@ -31,7 +31,7 @@ class EventGrid extends ConsumerWidget {
     }
 
     final List<Response> availableStamps =
-        (available.valueOrNull ?? []).reversed.toList();
+        (available.valueOrNull ?? []).toList();
 
     if (!daysSeparated) {
       return SliverPadding(

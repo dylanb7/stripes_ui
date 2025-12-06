@@ -15,8 +15,8 @@ import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/paddings.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
-import 'package:stripes_ui/Providers/overlay_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
+import 'package:stripes_ui/Providers/navigation_provider.dart';
 import 'package:uuid/uuid.dart';
 
 class BaselineEntry extends ConsumerStatefulWidget {
@@ -44,6 +44,7 @@ class _BaselineEntryState extends ConsumerState<BaselineEntry> {
   bool hasChanged = false;
   bool isLoading = false;
   bool submitSuccess = false;
+  bool _allowPop = false;
 
   @override
   void initState() {
@@ -68,8 +69,25 @@ class _BaselineEntryState extends ConsumerState<BaselineEntry> {
     }
   }
 
+  Future<bool> _handleNavigation(BuildContext context) async {
+    if (!hasChanged) return true;
+    final result = await showDialog<bool>(
+        context: context,
+        builder: (context) => ErrorPrevention(
+              type: widget.recordPath,
+            ));
+    if (result == true) {
+      // User confirmed they want to leave, reset hasChanged so guard doesn't trigger again
+      setState(() {
+        hasChanged = false;
+      });
+    }
+    return result ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
+    ref.watch(registerGuardProvider(_handleNavigation));
     final QuestionsLocalizations? localizations =
         QuestionsLocalizations.of(context);
 
@@ -85,77 +103,100 @@ class _BaselineEntryState extends ConsumerState<BaselineEntry> {
     final bool isEdit = widget.questionListener.editId != null;
     final bool edited = !isEdit || isEdit && hasChanged;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppPadding.medium),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: Breakpoint.small.value),
-          child: AsyncValueDefaults(
-            value: pagesData,
-            onData: (loadedPages) {
-              final PagesData translatedPage =
-                  localizations?.translatePage(loadedPages) ?? loadedPages;
-
-              List<Question> allQuestions = translatedPage.loadedLayouts
-                      ?.expand((page) => page.questions)
-                      .toList() ??
-                  [];
-
-              if (allQuestions.isEmpty && widget.questions != null) {
-                allQuestions = widget.questions!;
+    return PopScope(
+      canPop: _allowPop,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        if (await _handleNavigation(context)) {
+          if (context.mounted) {
+            setState(() {
+              _allowPop = true;
+            });
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (context.mounted) {
+                if (context.canPop()) {
+                  context.pop();
+                } else {
+                  context.go(Routes.HOME);
+                }
               }
+            });
+          }
+        }
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppPadding.medium),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: Breakpoint.small.value),
+            child: AsyncValueDefaults(
+              value: pagesData,
+              onData: (loadedPages) {
+                final PagesData translatedPage =
+                    localizations?.translatePage(loadedPages) ?? loadedPages;
 
-              final int pendingCount = widget.questionListener.pending.length;
+                List<Question> allQuestions = translatedPage.loadedLayouts
+                        ?.expand((page) => page.questions)
+                        .toList() ??
+                    [];
 
-              return Column(
-                children: [
-                  _BaselineHeader(
-                    type: widget.recordPath,
-                    close: () {
-                      close(ref, context, null);
-                    },
-                  ),
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(AppPadding.medium),
-                        color: ElevationOverlay.applySurfaceTint(
-                            Theme.of(context).cardColor,
-                            Theme.of(context).colorScheme.surfaceTint,
-                            3),
-                      ),
-                      child: IgnorePointer(
-                        ignoring: isLoading,
-                        child: _buildContent(context, allQuestions),
+                if (allQuestions.isEmpty && widget.questions != null) {
+                  allQuestions = widget.questions!;
+                }
+
+                final int pendingCount = widget.questionListener.pending.length;
+
+                return Column(
+                  children: [
+                    _BaselineHeader(
+                      type: widget.recordPath,
+                      close: () {
+                        close(ref, context);
+                      },
+                    ),
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius:
+                              BorderRadius.circular(AppPadding.medium),
+                          color: ElevationOverlay.applySurfaceTint(
+                              Theme.of(context).cardColor,
+                              Theme.of(context).colorScheme.surfaceTint,
+                              3),
+                        ),
+                        child: IgnorePointer(
+                          ignoring: isLoading,
+                          child: _buildContent(context, allQuestions),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: AppPadding.tiny),
-                  IgnorePointer(
-                    ignoring: isLoading || pagesData.isLoading,
-                    child: Center(
-                      child: FilledButton(
-                        onPressed: submitSuccess
-                            ? () {}
-                            : (pendingCount == 0 && !isLoading && edited)
-                                ? () {
-                                    _submitEntry(context, ref, isEdit);
-                                  }
-                                : null,
-                        child: submitSuccess
-                            ? const Icon(Icons.check)
-                            : isLoading
-                                ? const ButtonLoadingIndicator()
-                                : Text(isEdit
-                                    ? context.translate.editSubmitButtonText
-                                    : context.translate.submitButtonText),
+                    const SizedBox(height: AppPadding.tiny),
+                    IgnorePointer(
+                      ignoring: isLoading || pagesData.isLoading,
+                      child: Center(
+                        child: FilledButton(
+                          onPressed: submitSuccess
+                              ? () {}
+                              : (pendingCount == 0 && !isLoading && edited)
+                                  ? () {
+                                      _submitEntry(context, ref, isEdit);
+                                    }
+                                  : null,
+                          child: submitSuccess
+                              ? const Icon(Icons.check)
+                              : isLoading
+                                  ? const ButtonLoadingIndicator()
+                                  : Text(isEdit
+                                      ? context.translate.editSubmitButtonText
+                                      : context.translate.submitButtonText),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: AppPadding.tiny),
-                ],
-              );
-            },
+                    const SizedBox(height: AppPadding.tiny),
+                  ],
+                );
+              },
+            ),
           ),
         ),
       ),
@@ -194,23 +235,16 @@ class _BaselineEntryState extends ConsumerState<BaselineEntry> {
     );
   }
 
-  void close(WidgetRef ref, BuildContext context, String? route) {
+  void close(WidgetRef ref, BuildContext context) async {
     if (!hasChanged) {
-      widget.questionListener.tried = false;
-      if (route == null) {
+      if (context.canPop()) {
         context.pop();
       } else {
-        context.go(route);
+        context.go(Routes.HOME);
       }
-      return;
+    } else {
+      ref.read(navigationControllerProvider).push(context, Routes.HOME);
     }
-
-    ref.read(overlayProvider.notifier).state = CurrentOverlay(
-      widget: ErrorPrevention(
-        type: widget.recordPath,
-        route: route,
-      ),
-    );
   }
 
   void _submitEntry(BuildContext context, WidgetRef ref, bool isEdit) async {
@@ -327,13 +361,12 @@ class _BaselineHeader extends StatelessWidget {
 class ErrorPrevention extends ConsumerWidget {
   final String type;
 
-  final String? route;
-
-  const ErrorPrevention({required this.type, required this.route, super.key});
+  const ErrorPrevention({required this.type, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ConfirmationPopup(
+        onConfirm: () => _confirm(context),
         title: Text(
           context.translate.errorPreventionTitle,
           style: Theme.of(context).textTheme.headlineMedium,
@@ -358,14 +391,14 @@ class ErrorPrevention extends ConsumerWidget {
             ),
           ],
         ),
-        onConfirm: () {
-          if (route == null) {
-            context.pop();
-          } else {
-            context.go(route!);
-          }
+        onCancel: () {
+          Navigator.of(context).pop(false);
         },
         cancel: context.translate.errorPreventionStay,
         confirm: context.translate.errorPreventionLeave);
+  }
+
+  _confirm(BuildContext context) {
+    Navigator.of(context).pop(true);
   }
 }

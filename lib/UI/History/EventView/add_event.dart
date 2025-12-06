@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo_base.dart';
-import 'package:stripes_ui/Providers/overlay_provider.dart';
+
 import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
 import 'package:stripes_ui/Util/extensions.dart';
@@ -17,8 +17,9 @@ class AddEvent extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     openEventOverlay(WidgetRef ref, DateTime addTime) {
-      ref.read(overlayProvider.notifier).state =
-          CurrentOverlay(widget: QuestionTypeOverlay(date: addTime));
+      showDialog(
+          context: context,
+          builder: (context) => QuestionTypeOverlay(date: addTime));
     }
 
     final DateTime now = DateTime.now();
@@ -47,7 +48,7 @@ class QuestionTypeOverlay extends ConsumerWidget {
 
     final double screenHeight = MediaQuery.of(context).size.height;
 
-    return OverlayBackdrop(
+    return Center(
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: 350, maxHeight: screenHeight / 2),
         child: Card(
@@ -67,8 +68,7 @@ class QuestionTypeOverlay extends ConsumerWidget {
                       ),
                       IconButton(
                           onPressed: () {
-                            ref.read(overlayProvider.notifier).state =
-                                closedOverlay;
+                            Navigator.of(context).pop();
                           },
                           icon: const Icon(
                             Icons.close,
@@ -93,8 +93,7 @@ class QuestionTypeOverlay extends ConsumerWidget {
                                   child: FilledButton(
                                     child: Text(path.name),
                                     onPressed: () {
-                                      ref.read(overlayProvider.notifier).state =
-                                          closedOverlay;
+                                      Navigator.of(context).pop();
                                       context.pushNamed(
                                         'recordType',
                                         pathParameters: {

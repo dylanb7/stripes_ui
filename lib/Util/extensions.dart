@@ -73,3 +73,17 @@ extension Contains on DateTimeRange {
         (end.isAfter(dateTime) || end.isAtSameMomentAs(dateTime));
   }
 }
+
+extension GroupBy<T> on Iterable<T> {
+  Map<String, List<T>> groupBy(String Function(T) key) {
+    final Map<String, List<T>> grouped = {};
+    for (final T item in this) {
+      final String groupKey = key(item);
+      if (!grouped.containsKey(groupKey)) {
+        grouped[groupKey] = [];
+      }
+      grouped[groupKey]!.add(item);
+    }
+    return grouped;
+  }
+}

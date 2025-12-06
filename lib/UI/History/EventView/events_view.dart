@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:stripes_ui/Providers/sheet_provider.dart';
 import 'package:stripes_ui/UI/AccountManagement/profile_changer.dart';
 import 'package:stripes_ui/UI/History/EventView/action_row.dart';
 import 'package:stripes_ui/UI/History/EventView/event_grid.dart';
 import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
-import 'package:stripes_ui/UI/History/EventView/filter.dart';
+import 'package:stripes_ui/UI/History/Filters/filter_sheet.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
@@ -67,16 +68,29 @@ class EventsView extends ConsumerWidget {
                 maxExtent: Breakpoint.medium.value,
                 sliver: SliverList(
                   delegate: SliverChildListDelegate(
-                    const [
-                      FilterView(),
-                      SizedBox(
+                    [
+                      IconButton.filled(
+                        style: const ButtonStyle(
+                          visualDensity: VisualDensity.compact,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        onPressed: () {
+                          ref.read(sheetControllerProvider).show(
+                                context: context,
+                                scrollControlled: true,
+                                child: (context) => const FilterSheet(),
+                              );
+                        },
+                        icon: const Icon(Icons.filter_list),
+                      ),
+                      const SizedBox(
                         height: AppPadding.small,
                       ),
-                      EventsCalendar(),
-                      SizedBox(
+                      const EventsCalendar(),
+                      const SizedBox(
                         height: AppPadding.large,
                       ),
-                      ActionRow()
+                      const ActionRow()
                     ],
                   ),
                 ),

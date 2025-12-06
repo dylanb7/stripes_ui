@@ -8,7 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
-import 'package:stripes_ui/Providers/overlay_provider.dart';
+
 import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/test_provider.dart';
@@ -432,8 +432,9 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
   }
 
   _delete(WidgetRef ref) {
-    ref.read(overlayProvider.notifier).state = CurrentOverlay(
-      widget: DeleteErrorPrevention(
+    showDialog(
+      context: context,
+      builder: (context) => DeleteErrorPrevention(
         delete: () async {
           if (mounted) {
             setState(() {
@@ -744,11 +745,6 @@ class DeleteErrorPrevention extends ConsumerWidget {
 
   _confirm(WidgetRef ref) {
     delete();
-    _closeOverlay(ref);
-  }
-
-  _closeOverlay(WidgetRef ref) {
-    ref.read(overlayProvider.notifier).state = closedOverlay;
   }
 }
 

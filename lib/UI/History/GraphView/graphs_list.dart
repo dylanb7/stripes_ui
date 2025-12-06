@@ -11,6 +11,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
 
 import 'package:stripes_ui/Providers/display_data_provider.dart';
+import 'package:stripes_ui/Providers/sheet_provider.dart';
 import 'package:stripes_ui/UI/AccountManagement/profile_changer.dart';
 import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
 import 'package:stripes_ui/UI/History/GraphView/graph_symptom.dart';
@@ -19,7 +20,6 @@ import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/palette.dart';
-import 'package:stripes_ui/Util/show_stripes_sheet.dart';
 
 import '../../../Util/paddings.dart';
 
@@ -108,46 +108,43 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
               left: AppPadding.large,
               right: AppPadding.large,
               top: AppPadding.small),
-          child: AspectRatio(
-            aspectRatio: 2.0,
-            child: Hero(
-              tag: widget.graphKey,
-              child: AsyncValueDefaults(
-                value: graphData,
-                onData: (loadedData) {
-                  Map<GraphKey, List<Response>> forGraph = {};
-                  for (final GraphKey key in [widget.graphKey, ...additions]) {
-                    if (loadedData.containsKey(key)) {
-                      forGraph[key] = loadedData[key]!;
-                    }
+          child: Hero(
+            tag: widget.graphKey,
+            child: AsyncValueDefaults(
+              value: graphData,
+              onData: (loadedData) {
+                Map<GraphKey, List<Response>> forGraph = {};
+                for (final GraphKey key in [widget.graphKey, ...additions]) {
+                  if (loadedData.containsKey(key)) {
+                    forGraph[key] = loadedData[key]!;
                   }
+                }
 
-                  return DecoratedBox(
+                return DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.all(
+                        Radius.circular(AppRounding.tiny)),
+                    color:
+                        Theme.of(context).primaryColor.withValues(alpha: 0.2),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppPadding.tiny),
+                    child: GraphSymptom(
+                      responses: forGraph,
+                      isDetailed: true,
+                      forExport: false,
+                      colorKeys: colorKeys,
+                    ),
+                  ),
+                );
+              },
+              onLoading: (_) {
+                return DecoratedBox(
                     decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.all(
-                          Radius.circular(AppRounding.tiny)),
-                      color:
-                          Theme.of(context).primaryColor.withValues(alpha: 0.2),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(AppPadding.tiny),
-                      child: GraphSymptom(
-                        responses: forGraph,
-                        isDetailed: true,
-                        forExport: false,
-                        colorKeys: colorKeys,
-                      ),
-                    ),
-                  );
-                },
-                onLoading: (_) {
-                  return DecoratedBox(
-                      decoration: BoxDecoration(
-                          borderRadius: const BorderRadius.all(
-                              Radius.circular(AppRounding.small)),
-                          color: Theme.of(context).disabledColor));
-                },
-              ),
+                        borderRadius: const BorderRadius.all(
+                            Radius.circular(AppRounding.small)),
+                        color: Theme.of(context).disabledColor));
+              },
             ),
           ),
         ),
@@ -174,7 +171,8 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
                   if (!hasValuesToAdd) return addLayerButton();
                   return addLayerButton(
                     onPressed: () async {
-                      final GraphKey? result = await toggleKeySelect(context);
+                      final GraphKey? result =
+                          await toggleKeySelect(context, ref);
                       if (result != null) {
                         setState(() {
                           additions.add(result);
@@ -188,17 +186,16 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
               ),
               FilledButton.icon(
                 onPressed: () {
-                  showStripesSheet(
-                    context: context,
-                    ref: ref,
-                    scrollControlled: true,
-                    child: (context) => GraphExportSheet(
-                      graphKey: widget.graphKey,
-                      additions: additions,
-                      colorKeys: colorKeys,
-                      customLabels: customLabels,
-                    ),
-                  );
+                  ref.read(sheetControllerProvider).show(
+                        context: context,
+                        scrollControlled: true,
+                        child: (context) => GraphExportSheet(
+                          graphKey: widget.graphKey,
+                          additions: additions,
+                          colorKeys: colorKeys,
+                          customLabels: customLabels,
+                        ),
+                      );
                 },
                 label: const Text("Share"),
                 icon: const Icon(
@@ -228,17 +225,18 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
           (key) {
             return InkWell(
               onTap: () async {
-                final GraphEditResult? result =
-                    await showStripesSheet<GraphEditResult>(
-                  context: context,
-                  ref: ref,
-                  scrollControlled: true,
-                  child: (context) => ColorPickerSheet(
-                    currentColor: colorKeys[key] ?? forGraphKey(key),
-                    currentLabel:
-                        customLabels[key] ?? key.toLocalizedString(context),
-                  ),
-                );
+                final GraphEditResult? result = await ref
+                    .read(sheetControllerProvider)
+                    .show<GraphEditResult>(
+                      context: context,
+                      scrollControlled: true,
+                      child: (context) => ColorPickerSheet(
+                        currentColor: colorKeys[key] ?? forGraphKey(key),
+                        currentLabel:
+                            customLabels[key] ?? key.toLocalizedString(context),
+                      ),
+                    );
+
                 if (result != null) {
                   setState(() {
                     colorKeys[key] = result.color;
@@ -342,21 +340,19 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
     ));
   }
 
-  Future<GraphKey?> toggleKeySelect(BuildContext context) {
-    return showStripesSheet<GraphKey?>(
-        context: context,
-        ref: ref,
-        scrollControlled: true,
-        sheetBuilder: (context, controller) {
-          return ListSection(
+  Future<GraphKey?> toggleKeySelect(BuildContext context, WidgetRef ref) {
+    return ref.read(sheetControllerProvider).show<GraphKey?>(
+          context: context,
+          scrollControlled: true,
+          sheetBuilder: (context, controller) => ListSection(
             controller: controller,
             onSelect: (key) {
               Navigator.pop(context, key);
             },
             includesControls: false,
             excludedKeys: [widget.graphKey, ...additions],
-          );
-        });
+          ),
+        );
   }
 }
 
@@ -464,6 +460,7 @@ class GraphSliverList extends ConsumerWidget {
                 child: GraphSymptomRow(
                   responses: withKeysRemoved[key]!,
                   graphKey: key,
+                  compact: true,
                 ),
               ),
             );
@@ -531,59 +528,111 @@ class GraphSymptomRow extends StatelessWidget {
 
   final bool hasHero;
 
+  final bool compact;
+
   const GraphSymptomRow(
       {required this.responses,
       required this.graphKey,
       this.hasHero = true,
+      this.compact = false,
       super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Expanded(
-          flex: 4,
-          child: Text(
-            graphKey.toLocalizedString(context),
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(fontWeight: FontWeight.w600),
-          ),
-        ),
-        const SizedBox(
-          width: AppPadding.tiny,
-        ),
-        Expanded(
-          flex: 3,
-          child: AspectRatio(
-            aspectRatio: 2.0,
-            child: Container(
-              height: 80.0,
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
-                borderRadius: const BorderRadius.all(
-                  Radius.circular(AppRounding.tiny),
-                ),
+    if (compact) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: AppPadding.tiny),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              flex: 4,
+              child: Text(
+                graphKey.toLocalizedString(context),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(fontWeight: FontWeight.w600),
               ),
-              child: hasHero
-                  ? Hero(
-                      tag: graphKey,
-                      child: GraphSymptom(
-                          responses: {graphKey: responses}, isDetailed: false),
-                    )
-                  : GraphSymptom(
-                      responses: {graphKey: responses}, isDetailed: false),
             ),
-          ),
+            const SizedBox(
+              width: AppPadding.tiny,
+            ),
+            Expanded(
+              flex: 3,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(AppRounding.tiny),
+                  ),
+                ),
+                child: hasHero
+                    ? Hero(
+                        tag: graphKey,
+                        child: GraphSymptom(
+                            responses: {graphKey: responses},
+                            isDetailed: false),
+                      )
+                    : GraphSymptom(
+                        responses: {graphKey: responses}, isDetailed: false),
+              ),
+            ),
+            const Icon(
+              Icons.keyboard_arrow_right,
+              size: 24.0,
+            )
+          ],
         ),
-        const Icon(
-          Icons.keyboard_arrow_right,
-          size: 32.0,
-        )
-      ],
+      );
+    }
+    return Card(
+      elevation: 0,
+      color: Theme.of(context).colorScheme.surfaceContainer,
+      margin: const EdgeInsets.symmetric(vertical: AppPadding.tiny),
+      child: Padding(
+        padding: const EdgeInsets.all(AppPadding.medium),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    graphKey.toLocalizedString(context),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ),
+                const Icon(Icons.chevron_right),
+              ],
+            ),
+            const SizedBox(height: AppPadding.medium),
+            AspectRatio(
+              aspectRatio: 2.0,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.circular(AppRounding.small),
+                ),
+                padding: const EdgeInsets.all(AppPadding.small),
+                child: hasHero
+                    ? Hero(
+                        tag: graphKey,
+                        child: GraphSymptom(
+                            responses: {graphKey: responses},
+                            isDetailed: false),
+                      )
+                    : GraphSymptom(
+                        responses: {graphKey: responses}, isDetailed: false),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -729,34 +778,27 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
                     ),
               ),
             ),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const SizedBox(
-                    width: AppPadding.large,
-                  ),
-                  ...DisplayTimeCycle.values
-                      .map(
-                        (span) => FilterChip(
-                          label: Text(span.value),
-                          selected: span == settings.cycle,
-                          onSelected: (value) {
-                            if (!value) return;
-                            ref
-                                .read(displayDataProvider.notifier)
-                                .setCycle(span);
-                          },
-                          showCheckmark: false,
-                        ),
-                      )
-                      .separated(
-                          by: const SizedBox(
-                        width: AppPadding.tiny,
-                      )),
-                ],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppPadding.large),
+              child: SizedBox(
+                width: double.infinity,
+                child: SegmentedButton<DisplayTimeCycle>(
+                  segments: DisplayTimeCycle.values
+                      .map((cycle) => ButtonSegment<DisplayTimeCycle>(
+                            value: cycle,
+                            label: Text(cycle.value),
+                          ))
+                      .toList(),
+                  selected: {settings.cycle},
+                  onSelectionChanged: (newSelection) {
+                    if (newSelection.isNotEmpty) {
+                      ref
+                          .read(displayDataProvider.notifier)
+                          .setCycle(newSelection.first);
+                    }
+                  },
+                  showSelectedIcon: false,
+                ),
               ),
             ),
           ],
@@ -776,86 +818,27 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
                     ),
               ),
             ),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const SizedBox(
-                    width: AppPadding.large,
-                  ),
-                  ...GraphYAxis.values
-                      .map(
-                        (axis) => FilterChip(
-                          label: Text(axis.value),
-                          selected: axis == settings.axis,
-                          onSelected: (value) {
-                            if (!value) return;
-                            ref
-                                .read(displayDataProvider.notifier)
-                                .setAxis(axis);
-                          },
-                          showCheckmark: false,
-                        ),
-                      )
-                      .separated(
-                          by: const SizedBox(
-                        width: AppPadding.tiny,
-                      )),
-                ],
-              ),
-            ),
-          ],
-          if (widget.showsYAxis) ...[
-            const SizedBox(
-              height: AppPadding.small,
-            ),
             Padding(
-              padding: const EdgeInsets.only(left: AppPadding.large),
-              child: Text(
-                "grouping",
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withValues(alpha: 0.6),
-                    ),
-              ),
-            ),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const SizedBox(
-                    width: AppPadding.large,
-                  ),
-                  FilterChip(
-                    label: const Text("Side-by-Side"),
-                    selected: settings.groupSymptoms,
-                    onSelected: (value) {
+              padding: const EdgeInsets.symmetric(horizontal: AppPadding.large),
+              child: SizedBox(
+                width: double.infinity,
+                child: SegmentedButton<GraphYAxis>(
+                  segments: GraphYAxis.values
+                      .map((axis) => ButtonSegment<GraphYAxis>(
+                            value: axis,
+                            label: Text(axis.value),
+                          ))
+                      .toList(),
+                  selected: {settings.axis},
+                  onSelectionChanged: (newSelection) {
+                    if (newSelection.isNotEmpty) {
                       ref
                           .read(displayDataProvider.notifier)
-                          .updateGroupSymptoms(value);
-                    },
-                    showCheckmark: false,
-                  ),
-                  const SizedBox(
-                    width: AppPadding.tiny,
-                  ),
-                  FilterChip(
-                    label: const Text("Stacked"),
-                    selected: !settings.groupSymptoms,
-                    onSelected: (value) {
-                      ref
-                          .read(displayDataProvider.notifier)
-                          .updateGroupSymptoms(!value);
-                    },
-                    showCheckmark: false,
-                  ),
-                ],
+                          .setAxis(newSelection.first);
+                    }
+                  },
+                  showSelectedIcon: false,
+                ),
               ),
             ),
           ],
@@ -1139,15 +1122,12 @@ class _GraphExportSheetState extends ConsumerState<GraphExportSheet> {
                             forGraph[key] = loadedData[key]!;
                           }
                         }
-                        return AspectRatio(
-                          aspectRatio: 1.0,
-                          child: GraphSymptom(
-                            responses: forGraph,
-                            isDetailed: true,
-                            forExport: true,
-                            colorKeys: widget.colorKeys,
-                            customLabels: widget.customLabels,
-                          ),
+                        return GraphSymptom(
+                          responses: forGraph,
+                          isDetailed: true,
+                          forExport: true,
+                          colorKeys: widget.colorKeys,
+                          customLabels: widget.customLabels,
                         );
                       },
                       onLoading: (_) =>

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
-import 'package:stripes_ui/Providers/overlay_provider.dart';
+import 'package:stripes_ui/Providers/navigation_provider.dart';
 import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
@@ -49,13 +49,13 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
 
   bool submitSuccess = false;
 
+  bool _allowPop = false;
+
   @override
   void initState() {
     original = widget.questionListener.copy();
     pageController = PageController();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      widget.questionListener.addListener(_changedUpdate);
-    });
+    widget.questionListener.addListener(_changedUpdate);
 
     super.initState();
   }
@@ -70,8 +70,26 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     }
   }
 
+  Future<bool> _handleNavigation(BuildContext context) async {
+    if (!hasChanged) return true;
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => ErrorPrevention(
+        type: widget.type,
+      ),
+    );
+    if (result == true) {
+      // User confirmed they want to leave, reset hasChanged so guard doesn't trigger again
+      setState(() {
+        hasChanged = false;
+      });
+    }
+    return result ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
+    ref.watch(registerGuardProvider(_handleNavigation));
     final QuestionsLocalizations? localizations =
         QuestionsLocalizations.of(context);
 
@@ -91,124 +109,147 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
 
     final bool edited = !isEdit || isEdit && hasChanged;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppPadding.medium),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: Breakpoint.small.value),
-          child: AsyncValueDefaults(
-            value: pagesData,
-            onData: (loadedPages) {
-              final PagesData translatedPage =
-                  localizations?.translatePage(loadedPages) ?? loadedPages;
-
-              final List<LoadedPageLayout> evaluatedPages = translatedPage
-                      .loadedLayouts
-                      ?.where((page) =>
-                          page.dependsOn.eval(widget.questionListener))
-                      .toList() ??
-                  [];
-              int pending() {
-                if (currentIndex > evaluatedPages.length - 1) return 0;
-                final List<Question> pageQuestions =
-                    evaluatedPages[currentIndex].questions;
-                return widget.questionListener.pending
-                    .where((pending) => pageQuestions.contains(pending))
-                    .length;
+    return PopScope(
+      canPop: _allowPop,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        if (await _handleNavigation(context)) {
+          if (context.mounted) {
+            setState(() {
+              _allowPop = true;
+            });
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (context.mounted) {
+                if (context.canPop()) {
+                  context.pop();
+                } else {
+                  context.go(Routes.HOME);
+                }
               }
+            });
+          }
+        }
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppPadding.medium),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: Breakpoint.small.value),
+            child: AsyncValueDefaults(
+              value: pagesData,
+              onData: (loadedPages) {
+                final PagesData translatedPage =
+                    localizations?.translatePage(loadedPages) ?? loadedPages;
 
-              final int pendingCount = pending();
+                final List<LoadedPageLayout> evaluatedPages = translatedPage
+                        .loadedLayouts
+                        ?.where((page) =>
+                            page.dependsOn.eval(widget.questionListener))
+                        .toList() ??
+                    [];
+                int pending() {
+                  if (currentIndex > evaluatedPages.length - 1) return 0;
+                  final List<Question> pageQuestions =
+                      evaluatedPages[currentIndex].questions;
+                  return widget.questionListener.pending
+                      .where((pending) => pageQuestions.contains(pending))
+                      .length;
+                }
 
-              Widget? submitButton() {
-                if (currentIndex != evaluatedPages.length) return null;
-                final bool canSubmit =
-                    pendingCount == 0 && !isLoading && edited;
-                return GestureDetector(
-                  onTap: () {
-                    if (pendingCount != 0 && !isLoading) {
-                      showSnack(
-                          context,
-                          context.translate.nLevelError(
-                              widget.questionListener.pending.length));
-                    }
-                  },
-                  child: FilledButton(
-                    onPressed: submitSuccess
-                        ? () {}
-                        : canSubmit
-                            ? () {
-                                _submitEntry(context, ref, isEdit);
-                              }
-                            : null,
-                    child: submitSuccess
-                        ? const Icon(Icons.check)
-                        : isLoading
-                            ? const ButtonLoadingIndicator()
-                            : Text(isEdit
-                                ? context.translate.editSubmitButtonText
-                                : context.translate.submitButtonText),
+                final int pendingCount = pending();
+
+                Widget? submitButton() {
+                  if (currentIndex != evaluatedPages.length) return null;
+                  final bool canSubmit =
+                      pendingCount == 0 && !isLoading && edited;
+                  return GestureDetector(
+                    onTap: () {
+                      if (pendingCount != 0 && !isLoading) {
+                        showSnack(
+                            context,
+                            context.translate.nLevelError(
+                                widget.questionListener.pending.length));
+                      }
+                    },
+                    child: FilledButton(
+                      onPressed: submitSuccess
+                          ? () {}
+                          : canSubmit
+                              ? () {
+                                  _submitEntry(context, ref, isEdit);
+                                }
+                              : null,
+                      child: submitSuccess
+                          ? const Icon(Icons.check)
+                          : isLoading
+                              ? const ButtonLoadingIndicator()
+                              : Text(isEdit
+                                  ? context.translate.editSubmitButtonText
+                                  : context.translate.submitButtonText),
+                    ),
+                  );
+                }
+
+                return Column(children: [
+                  RecordHeader(
+                    type: localizedType,
+                    hasChanged: hasChanged,
+                    questionListener: widget.questionListener,
+                    pageController: pageController,
+                    currentIndex: currentIndex,
+                    length: evaluatedPages.length,
+                    close: () {
+                      close(ref, context);
+                    },
                   ),
-                );
-              }
-
-              return Column(children: [
-                RecordHeader(
-                  type: localizedType,
-                  hasChanged: hasChanged,
-                  questionListener: widget.questionListener,
-                  pageController: pageController,
-                  currentIndex: currentIndex,
-                  length: evaluatedPages.length,
-                  close: () {
-                    close(ref, context, null);
-                  },
-                ),
-                Expanded(
-                  child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(AppPadding.medium),
-                        color: ElevationOverlay.applySurfaceTint(
-                            Theme.of(context).cardColor,
-                            Theme.of(context).colorScheme.surfaceTint,
-                            3),
-                      ),
-                      child: IgnorePointer(
-                        ignoring: isLoading,
-                        child: PageView.builder(
-                          onPageChanged: (value) {
-                            setState(() {
-                              currentIndex = value;
-                            });
-                          },
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemBuilder: (context, index) =>
-                              _buildContent(context, index, evaluatedPages),
-                          itemCount: evaluatedPages.length + 1,
-                          controller: pageController,
+                  Expanded(
+                    child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius:
+                              BorderRadius.circular(AppPadding.medium),
+                          color: ElevationOverlay.applySurfaceTint(
+                              Theme.of(context).cardColor,
+                              Theme.of(context).colorScheme.surfaceTint,
+                              3),
                         ),
-                      )),
-                ),
-                const SizedBox(
-                  height: AppPadding.tiny,
-                ),
-                IgnorePointer(
-                  ignoring: isLoading || pagesData.isLoading,
-                  child: Center(
-                    child: RecordFooter(
-                      submitButton: submitButton(),
-                      questionListener: widget.questionListener,
-                      pageController: pageController,
-                      length: evaluatedPages.length,
-                      pendingCount: pendingCount,
-                      currentIndex: currentIndex,
+                        child: IgnorePointer(
+                          ignoring: isLoading,
+                          child: PageView.builder(
+                            onPageChanged: (value) {
+                              setState(() {
+                                currentIndex = value;
+                              });
+                            },
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemBuilder: (context, index) =>
+                                _buildContent(context, index, evaluatedPages),
+                            itemCount: evaluatedPages.length + 1,
+                            controller: pageController,
+                          ),
+                        )),
+                  ),
+                  const SizedBox(
+                    height: AppPadding.tiny,
+                  ),
+                  IgnorePointer(
+                    ignoring: isLoading || pagesData.isLoading,
+                    child: Center(
+                      child: RecordFooter(
+                        submitButton: submitButton(),
+                        questionListener: widget.questionListener,
+                        pageController: pageController,
+                        length: evaluatedPages.length,
+                        pendingCount: pendingCount,
+                        currentIndex: currentIndex,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(
-                  height: AppPadding.tiny,
-                )
-              ]);
-            },
+                  const SizedBox(
+                    height: AppPadding.tiny,
+                  )
+                ]);
+              },
+            ),
           ),
         ),
       ),
@@ -233,12 +274,6 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
           )
           .toList();
 
-      print(layouts[index]);
-      for(final question in questions) {
-        print(question.toJson());
-
-
-      }
       content = QuestionScreen(
           header: layouts[index].header ?? context.translate.selectInstruction,
           questions: filtered,
@@ -263,23 +298,20 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     );
   }
 
-  void close(WidgetRef ref, BuildContext context, String? route) {
+  void close(WidgetRef ref, BuildContext context) async {
     if (!hasChanged) {
-      widget.questionListener.tried = false;
-      if (route == null) {
+      if (context.canPop()) {
         context.pop();
       } else {
-        context.go(route);
+        context.go(Routes.HOME);
       }
-      return;
+    } else {
+      if (context.canPop()) {
+        ref.read(navigationControllerProvider).pop(context);
+      } else {
+        ref.read(navigationControllerProvider).navigate(context, Routes.HOME);
+      }
     }
-
-    ref.read(overlayProvider.notifier).state = CurrentOverlay(
-      widget: ErrorPrevention(
-        type: widget.type,
-        route: route,
-      ),
-    );
   }
 
   void _submitEntry(BuildContext context, WidgetRef ref, bool isEdit) async {
@@ -512,9 +544,7 @@ class RecordHeader extends ConsumerWidget {
 class ErrorPrevention extends ConsumerWidget {
   final String type;
 
-  final String? route;
-
-  const ErrorPrevention({required this.type, required this.route, super.key});
+  const ErrorPrevention({required this.type, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -543,13 +573,6 @@ class ErrorPrevention extends ConsumerWidget {
             ),
           ],
         ),
-        onConfirm: () {
-          if (route == null) {
-            context.pop();
-          } else {
-            context.go(route!);
-          }
-        },
         cancel: context.translate.errorPreventionStay,
         confirm: context.translate.errorPreventionLeave);
   }

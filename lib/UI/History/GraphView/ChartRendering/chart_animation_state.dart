@@ -1,0 +1,166 @@
+import 'dart:ui' as ui;
+
+import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_axis.dart';
+import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_data.dart';
+
+class AnimatedAxisLabel {
+  final double normalizedPosition;
+  final String text;
+  final double value;
+
+  const AnimatedAxisLabel({
+    required this.normalizedPosition,
+    required this.text,
+    required this.value,
+  });
+
+  @override
+  bool operator ==(Object other) =>
+      other is AnimatedAxisLabel &&
+      normalizedPosition == other.normalizedPosition &&
+      text == other.text &&
+      value == other.value;
+
+  @override
+  int get hashCode => Object.hash(normalizedPosition, text, value);
+}
+
+class AxisLabelsState {
+  List<AnimatedAxisLabel> previous;
+  List<AnimatedAxisLabel> current;
+
+  bool useCrossfade;
+
+  AxisLabelsState()
+      : previous = [],
+        current = [],
+        useCrossfade = false;
+
+  void update(List<AnimatedAxisLabel> newLabels) {
+    previous = current;
+    current = newLabels;
+    useCrossfade = previous.length != current.length;
+  }
+}
+
+class ChartAnimationState<T, D> {
+  final Map<(int, int), double> _previousYValues = {};
+  final Map<(int, int), double> _currentYValues = {};
+
+  final AxisLabelsState xAxis = AxisLabelsState();
+  final AxisLabelsState yAxis = AxisLabelsState();
+
+  DataBounds? _lastBounds;
+
+  void initializeFromDatasets(List<ChartSeriesData<T, D>> datasets) {
+    _currentYValues.clear();
+    for (int dsIndex = 0; dsIndex < datasets.length; dsIndex++) {
+      final ChartSeriesData<T, D> data = datasets[dsIndex];
+      for (int i = 0; i < data.data.length; i++) {
+        _currentYValues[(dsIndex, i)] = data.getPointY(data.data[i], i);
+      }
+    }
+  }
+
+  void updateFromDatasets(List<ChartSeriesData<T, D>> datasets) {
+    _previousYValues.clear();
+    _previousYValues.addAll(_currentYValues);
+    initializeFromDatasets(datasets);
+  }
+
+  void updateAxisLabels<Axis>(
+    DataBounds bounds,
+    ChartAxis<D> xAxisConfig,
+    ChartAxis<dynamic> yAxisConfig, {
+    double anchor = 0.0,
+  }) {
+    if (_lastBounds == bounds) return;
+
+    xAxis.update(_generateXLabels(bounds, xAxisConfig, anchor));
+    yAxis.update(_generateYLabels(bounds, yAxisConfig));
+    _lastBounds = bounds;
+  }
+
+  double getAnimatedY(int dsIndex, int pointIndex, double targetY, double t) {
+    final startY = _previousYValues[(dsIndex, pointIndex)] ?? 0.0;
+    return ui.lerpDouble(startY, targetY, t) ?? targetY;
+  }
+
+  List<AnimatedAxisLabel> _generateXLabels(
+      DataBounds bounds, ChartAxis<D> axis, double anchor) {
+    final labels = <AnimatedAxisLabel>[];
+    if (!axis.showing || bounds.xAxisTickSize <= 0) return labels;
+
+    final xRange = bounds.maxX - bounds.minX;
+    if (xRange <= 0) return labels;
+
+    double value;
+    if (axis is DateTimeAxis) {
+      final int multiple =
+          ((bounds.labelMinX - anchor) / bounds.xAxisTickSize).ceil();
+      value = anchor + (multiple * bounds.xAxisTickSize);
+    } else {
+      value = bounds.labelMinX;
+    }
+
+    while (value < bounds.labelMaxX) {
+      if (value < bounds.labelMinX) {
+        value += bounds.xAxisTickSize;
+        continue;
+      }
+
+      String text = "";
+      switch (axis) {
+        case DateTimeAxis():
+          text = (axis as DateTimeAxis)
+              .format(DateTime.fromMillisecondsSinceEpoch(value.toInt()));
+          break;
+        case NumberAxis():
+          text = (axis as NumberAxis).format(value);
+          break;
+        case CategoryAxis(categories: final List<String> categories):
+          final index = value.round();
+          if (index >= 0 && index < categories.length) {
+            text = categories[index];
+          }
+          break;
+        default:
+          text = value.toStringAsFixed(1);
+          break;
+      }
+
+      if (text.isNotEmpty) {
+        final normalizedPos = (value - bounds.minX) / xRange;
+        labels.add(AnimatedAxisLabel(
+          normalizedPosition: normalizedPos,
+          text: text,
+          value: value,
+        ));
+      }
+      value += bounds.xAxisTickSize;
+    }
+    return labels;
+  }
+
+  List<AnimatedAxisLabel> _generateYLabels(
+      DataBounds bounds, ChartAxis<dynamic> axis) {
+    final labels = <AnimatedAxisLabel>[];
+    if (!axis.showing || bounds.yAxisTickSize <= 0) return labels;
+
+    final yRange = bounds.maxY - bounds.minY;
+    if (yRange <= 0) return labels;
+
+    double value = bounds.minY;
+    while (value <= bounds.maxY + 0.0001) {
+      final text = axis.format(value);
+      final normalizedPos = (value - bounds.minY) / yRange;
+      labels.add(AnimatedAxisLabel(
+        normalizedPosition: normalizedPos,
+        text: text,
+        value: value,
+      ));
+      value += bounds.yAxisTickSize;
+    }
+    return labels;
+  }
+}

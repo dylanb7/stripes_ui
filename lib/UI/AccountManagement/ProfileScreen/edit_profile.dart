@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
-import 'package:stripes_ui/Providers/overlay_provider.dart';
+
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/AccountManagement/birth_year_selector.dart';
 import 'package:stripes_ui/UI/AccountManagement/control_slider.dart';
@@ -57,9 +57,9 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
     final bool isName =
         ref.watch(configProvider).profileType == ProfileType.name;
 
-    return OverlayBackdrop(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppPadding.large),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppPadding.large),
+      child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: Breakpoint.small.value),
           child: IntrinsicHeight(
@@ -105,7 +105,7 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
                                   ),
                                   IconButton(
                                       onPressed: () {
-                                        _close(ref);
+                                        _close(context);
                                       },
                                       highlightColor: Colors.transparent,
                                       hoverColor: Colors.transparent,
@@ -185,7 +185,7 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
                                   onPressed: !canSave
                                       ? null
                                       : () {
-                                          _editUser(ref);
+                                          _editUser(ref, context);
                                         },
                                   child: const Text('Save Changes'),
                                 ),
@@ -206,8 +206,8 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
     );
   }
 
-  _close(WidgetRef ref) {
-    ref.read(overlayProvider.notifier).state = closedOverlay;
+  _close(BuildContext context) {
+    Navigator.of(context).pop();
   }
 
   bool _editsMade() {
@@ -224,7 +224,7 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
     return !subEquals(newUser, widget.subUser);
   }
 
-  _editUser(WidgetRef ref) async {
+  _editUser(WidgetRef ref, BuildContext context) async {
     final bool isName =
         ref.watch(configProvider).profileType == ProfileType.name;
     _formKey.currentState?.save();
@@ -251,7 +251,7 @@ class _EditUserWidgetState extends ConsumerState<EditUserWidget> {
       setState(() {
         isLoading = false;
       });
-      _close(ref);
+      _close(context);
     }
   }
 }

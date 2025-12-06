@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stripes_ui/Providers/auth_provider.dart';
-import 'package:stripes_ui/Providers/overlay_provider.dart';
+import 'package:stripes_ui/Providers/navigation_provider.dart';
+
 import 'package:stripes_ui/UI/CommonWidgets/tonal_button.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
@@ -36,7 +37,9 @@ class UserProfileButton extends ConsumerWidget {
               router.pop();
             }
           } else {
-            context.pushNamed(RouteName.ACCOUNT);
+            ref
+                .read(navigationControllerProvider)
+                .pushNamed(context, RouteName.ACCOUNT);
           }
         },
         icon: Icon(
@@ -56,7 +59,7 @@ class ExitErrorPrevention extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return OverlayBackdrop(
+    return Center(
       child: SizedBox(
         width: Breakpoint.tiny.value,
         child: Column(
@@ -102,13 +105,13 @@ class ExitErrorPrevention extends ConsumerWidget {
               children: [
                 FilledButton(
                     onPressed: () {
-                      _closeOverlay(ref);
+                      _closeOverlay(context);
                     },
                     child: Text(context.translate.stampDeleteCancel)),
                 TonalButtonTheme(
                   child: FilledButton.tonal(
                     onPressed: () {
-                      _confirm(ref);
+                      _confirm(ref, context);
                     },
                     child: Text(context.translate.stampDeleteConfirm),
                   ),
@@ -121,8 +124,8 @@ class ExitErrorPrevention extends ConsumerWidget {
     );
   }
 
-  _confirm(WidgetRef ref) async {
-    _closeOverlay(ref);
+  _confirm(WidgetRef ref, BuildContext context) async {
+    _closeOverlay(context);
     final Function? exitAction = ref.watch(configProvider).onExitStudy;
     try {
       await exitAction!();
@@ -131,7 +134,7 @@ class ExitErrorPrevention extends ConsumerWidget {
     }
   }
 
-  _closeOverlay(WidgetRef ref) {
-    ref.read(overlayProvider.notifier).state = closedOverlay;
+  _closeOverlay(BuildContext context) {
+    Navigator.of(context).pop();
   }
 }

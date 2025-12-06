@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:markdown_widget/widget/markdown_block.dart';
 import 'package:stripes_backend_helper/RepositoryBase/AuthBase/auth_user.dart';
 import 'package:stripes_ui/Providers/auth_provider.dart';
+import 'package:stripes_ui/Providers/sheet_provider.dart';
 import 'package:stripes_ui/Providers/test_progress_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/scroll_assisted_list.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
@@ -15,7 +16,6 @@ import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/paddings.dart';
-import 'package:stripes_ui/Util/show_stripes_sheet.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class BlueMealPreStudy extends StatefulWidget {
@@ -214,9 +214,8 @@ class BlueMealInfoButton extends ConsumerWidget {
   }
 
   toggleBottomSheet(BuildContext context, WidgetRef ref) {
-    showStripesSheet(
+    ref.read(sheetControllerProvider).show(
         context: context,
-        ref: ref,
         scrollControlled: true,
         sheetBuilder: (context, controller) {
           return BlueMealInfoSheet(scrollController: controller);

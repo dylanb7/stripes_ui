@@ -10,6 +10,8 @@ import 'package:stripes_backend_helper/RepositoryBase/StampBase/stamp.dart';
 import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/UI/History/EventView/sig_dates.dart';
+import 'package:stripes_ui/UI/History/Filters/filter_logic.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
 
 enum DisplayTimeCycle {
@@ -140,7 +142,7 @@ class DisplayDataSettings extends Equatable {
       case DisplayTimeCycle.month:
         return DateFormat.d();
       case DisplayTimeCycle.custom:
-        return DateFormat.d();
+        return _getSmartLayout().format;
     }
   }
 
@@ -153,18 +155,78 @@ class DisplayDataSettings extends Equatable {
       case DisplayTimeCycle.month:
         return DateUtils.getDaysInMonth(range.start.year, range.start.month);
       case DisplayTimeCycle.custom:
-        return 6;
+        return _getSmartLayout().buckets;
     }
+  }
+
+  ({int buckets, DateFormat format}) _getSmartLayout() {
+    final diff = range.duration;
+    const int maxBars = 50;
+
+    int calculateBuckets(int totalUnits, List<int> multiples) {
+      if (totalUnits <= maxBars) return totalUnits;
+      for (final m in multiples) {
+        if (totalUnits / m <= maxBars) {
+          return (totalUnits / m).ceil();
+        }
+      }
+      return (totalUnits / multiples.last).ceil();
+    }
+
+    if (diff.inSeconds <= 120) {
+      return (
+        buckets: calculateBuckets(diff.inSeconds, [1, 2, 3, 5, 10, 15, 30]),
+        format: DateFormat.Hms()
+      );
+    }
+    if (diff.inMinutes <= 120) {
+      return (
+        buckets: calculateBuckets(diff.inMinutes, [1, 2, 3, 5, 10, 15, 30]),
+        format: DateFormat.Hm()
+      );
+    }
+    if (diff.inHours <= 48) {
+      return (
+        buckets: calculateBuckets(diff.inHours, [1, 2, 3, 4, 6, 8, 12]),
+        format: DateFormat.j()
+      );
+    }
+    if (diff.inDays <= 14) {
+      return (
+        buckets: calculateBuckets(diff.inDays, [1, 2, 7]),
+        format: DateFormat.E()
+      );
+    }
+    if (diff.inDays <= 60) {
+      final weeks = (diff.inDays / 7).ceil();
+      return (
+        buckets: calculateBuckets(weeks, [1, 2, 4]),
+        format: DateFormat.MMMd()
+      );
+    }
+    if (diff.inDays <= 730) {
+      final months = (diff.inDays / 30).ceil();
+      return (
+        buckets: calculateBuckets(months, [1, 2, 3, 4, 6]),
+        format: DateFormat.MMM()
+      );
+    }
+
+    final years = (diff.inDays / 365).ceil();
+    return (
+      buckets: calculateBuckets(years, [1, 2, 5, 10]),
+      format: DateFormat.y()
+    );
   }
 
   int getTitles() {
     switch (cycle) {
       case DisplayTimeCycle.day:
-        return 6;
+        return 4;
       case DisplayTimeCycle.week:
         return 7;
       case DisplayTimeCycle.month:
-        return 6;
+        return 4;
       case DisplayTimeCycle.custom:
         return 4;
     }
@@ -309,9 +371,9 @@ final displayDataProvider =
   return DisplayDataProvider();
 });
 
-final availableStampsProvider = FutureProvider<List<Response>>((ref) async {
-  final settings = ref.watch(displayDataProvider);
-  final stamps = await ref.watch(stampHolderProvider.future);
+final inRangeProvider = FutureProvider.autoDispose<List<Response>>((ref) async {
+  final DisplayDataSettings settings = ref.watch(displayDataProvider);
+  final List<Stamp> stamps = await ref.watch(stampHolderProvider.future);
 
   return stamps.whereType<Response>().where((response) {
     final date = dateFromStamp(response.stamp);
@@ -319,15 +381,29 @@ final availableStampsProvider = FutureProvider<List<Response>>((ref) async {
         date.isAfter(settings.range.end)) {
       return false;
     }
+    return true;
+  }).toList();
+});
+
+final availableStampsProvider = FutureProvider<List<Response>>((ref) async {
+  final DisplayDataSettings settings = ref.watch(displayDataProvider);
+  final List<Response> stamps = await ref.watch(inRangeProvider.future);
+
+  final Map<String, List<LabeledFilter>> groupedFilters =
+      settings.filters.groupBy((filter) => filter.filterType.name);
+
+  return stamps.where((response) {
     if (settings.filters.isNotEmpty) {
-      bool matches = false;
-      for (final filter in settings.filters) {
-        if (filter.filter(response)) {
-          matches = true;
-          break;
+      for (final filterGroup in groupedFilters.values) {
+        bool matches = false;
+        for (final filter in filterGroup) {
+          if (filter.filter(response)) {
+            matches = true;
+            break;
+          }
         }
+        if (!matches) return false;
       }
-      if (!matches) return false;
     }
     return true;
   }).toList();
@@ -444,7 +520,13 @@ Map<DateTime, List<Response>> generateEventMap(List<Response> responses) {
 String getSmartRangeString(DateTimeRange range, String locale,
     {bool includeTime = false}) {
   final start = range.start;
-  final end = range.end;
+  DateTime end = range.end;
+  if (end.hour == 0 &&
+      end.minute == 0 &&
+      end.second == 0 &&
+      end.millisecond == 0) {
+    end = end.subtract(const Duration(milliseconds: 1));
+  }
 
   final bool sameYear = start.year == end.year;
   final bool sameMonth = sameYear && start.month == end.month;
@@ -542,12 +624,12 @@ typedef StampFilter = bool Function(Stamp);
 @immutable
 class LabeledFilter with EquatableMixin {
   final String name;
-  final String filterClass;
+  final FilterType filterType;
   final StampFilter filter;
 
   const LabeledFilter(
-      {required this.name, required this.filterClass, required this.filter});
+      {required this.name, required this.filterType, required this.filter});
 
   @override
-  List<Object?> get props => [name, filter, filterClass];
+  List<Object?> get props => [name, filter, filterType];
 }

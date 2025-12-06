@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/display_data_provider.dart';
-import 'package:stripes_ui/Providers/overlay_provider.dart';
+
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
@@ -196,103 +196,98 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
   Widget build(BuildContext context) {
     final exportFunc = ref.watch(configProvider).export;
 
-    return OverlayBackdrop(
-        child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
+    return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
+        child: Center(
             child: Container(
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(
-                  Radius.circular(AppRounding.small),
-                ),
-                color: Theme.of(context).scaffoldBackgroundColor,
-              ),
-              child: Padding(
-                  padding: const EdgeInsets.all(AppPadding.small),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              context.translate.exportName,
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
-                            IconButton(
-                                onPressed: () {
-                                  ref.read(overlayProvider.notifier).state =
-                                      closedOverlay;
-                                },
-                                icon: const Icon(
-                                  Icons.close,
-                                  size: 35,
-                                ))
-                          ]),
-                      const SizedBox(
-                        height: AppPadding.small,
-                      ),
-                      Text(
-                        context.translate.exportDialog,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(
-                        height: AppPadding.small,
-                      ),
-                      if (errorMessage != null) ...[
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.all(
+              Radius.circular(AppRounding.small),
+            ),
+            color: Theme.of(context).scaffoldBackgroundColor,
+          ),
+          child: Padding(
+              padding: const EdgeInsets.all(AppPadding.small),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
                         Text(
-                          errorMessage!,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(
-                                  color: Theme.of(context).colorScheme.error),
+                          context.translate.exportName,
+                          style: Theme.of(context).textTheme.titleLarge,
                         ),
-                        const SizedBox(
-                          height: AppPadding.small,
-                        )
-                      ],
-                      if (!loading && !done)
-                        FilledButton(
-                            child: Text(context.translate
-                                .recordCount(widget.responses.length)),
-                            onPressed: () async {
+                        IconButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            icon: const Icon(
+                              Icons.close,
+                              size: 35,
+                            ))
+                      ]),
+                  const SizedBox(
+                    height: AppPadding.small,
+                  ),
+                  Text(
+                    context.translate.exportDialog,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(
+                    height: AppPadding.small,
+                  ),
+                  if (errorMessage != null) ...[
+                    Text(
+                      errorMessage!,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.error),
+                    ),
+                    const SizedBox(
+                      height: AppPadding.small,
+                    )
+                  ],
+                  if (!loading && !done)
+                    FilledButton(
+                        child: Text(context.translate
+                            .recordCount(widget.responses.length)),
+                        onPressed: () async {
+                          setState(() {
+                            errorMessage = null;
+                            loading = true;
+                          });
+
+                          try {
+                            await exportFunc!(
+                                context, widget.responses, ExportType.menu);
+                          } catch (e) {
+                            if (mounted) {
+                              setState(() {
+                                errorMessage = context.translate.uploadFail;
+                                loading = false;
+                              });
+                            }
+                          } finally {
+                            if (mounted) {
                               setState(() {
                                 errorMessage = null;
-                                loading = true;
+                                loading = false;
+                                done = true;
                               });
-
-                              try {
-                                await exportFunc!(
-                                    context, widget.responses, ExportType.menu);
-                              } catch (e) {
-                                if (mounted) {
-                                  setState(() {
-                                    errorMessage = context.translate.uploadFail;
-                                    loading = false;
-                                  });
-                                }
-                              } finally {
-                                if (mounted) {
-                                  setState(() {
-                                    errorMessage = null;
-                                    loading = false;
-                                    done = true;
-                                  });
-                                }
-                              }
-                            }),
-                      if (loading) const LoadingWidget(),
-                      if (done)
-                        FilledButton(
-                            child: Text(context.translate.uploadDone),
-                            onPressed: () {
-                              ref.read(overlayProvider.notifier).state =
-                                  closedOverlay;
-                            })
-                    ],
-                  )),
-            )));
+                            }
+                          }
+                        }),
+                  if (loading) const LoadingWidget(),
+                  if (done)
+                    FilledButton(
+                        child: Text(context.translate.uploadDone),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        })
+                ],
+              )),
+        )));
   }
 }

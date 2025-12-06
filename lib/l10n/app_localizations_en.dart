@@ -1029,7 +1029,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get eventFilterReset => 'Reset';
 
   @override
-  String get eventFilterTypesTag => 'Types';
+  String get eventFilterTypesTag => 'Categories';
 
   @override
   String get eventFiltersFromTag => 'From:';

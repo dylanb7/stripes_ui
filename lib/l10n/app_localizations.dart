@@ -1771,7 +1771,7 @@ abstract class AppLocalizations {
   /// No description provided for @eventFilterTypesTag.
   ///
   /// In en, this message translates to:
-  /// **'Types'**
+  /// **'Categories'**
   String get eventFilterTypesTag;
 
   /// No description provided for @eventFiltersFromTag.

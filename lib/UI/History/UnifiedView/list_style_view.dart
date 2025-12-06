@@ -8,13 +8,11 @@ import 'package:stripes_ui/UI/History/EventView/event_grid.dart';
 import 'package:stripes_ui/UI/History/EventView/export.dart';
 import 'package:stripes_ui/UI/History/GraphView/graphs_list.dart';
 import 'package:stripes_ui/UI/History/UnifiedView/bottom_sheet_calendar.dart';
-import 'package:stripes_ui/UI/History/UnifiedView/filter_sheet.dart';
+import 'package:stripes_ui/UI/History/Filters/filter_sheet.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
-import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/paddings.dart';
-import 'package:stripes_ui/Util/show_stripes_sheet.dart';
 import 'package:stripes_ui/Providers/sheet_provider.dart';
 import 'package:stripes_ui/config.dart';
 import 'package:stripes_ui/entry.dart';
@@ -32,61 +30,58 @@ class EventsView extends ConsumerWidget {
         scrollable: CustomScrollView(
             controller: ref.watch(historyScrollControllerProvider),
             slivers: [
-              SliverPadding(
-                padding: const EdgeInsets.only(
-                    left: AppPadding.xl,
-                    right: AppPadding.xl,
-                    top: AppPadding.xl,
-                    bottom: AppPadding.medium),
-                sliver: SliverConstrainedCrossAxis(
-                  maxExtent: Breakpoint.medium.value,
-                  sliver: SliverToBoxAdapter(
-                    child: Row(
-                      children: [
-                        const Expanded(
-                          child: PatientChanger(
-                            tab: TabOption.history,
-                          ),
+              SliverCrossAxisGroup(
+                slivers: [
+                  SliverPadding(
+                    padding: const EdgeInsets.only(
+                        left: AppPadding.xl,
+                        right: AppPadding.xl,
+                        top: AppPadding.xl,
+                        bottom: AppPadding.medium),
+                    sliver: SliverConstrainedCrossAxis(
+                      maxExtent: Breakpoint.medium.value,
+                      sliver: SliverToBoxAdapter(
+                        child: Row(
+                          children: [
+                            const Expanded(
+                              child: PatientChanger(
+                                tab: TabOption.history,
+                              ),
+                            ),
+                            const SizedBox(
+                              width: AppPadding.tiny,
+                            ),
+                            if (config.hasGraphing)
+                              IconButton.outlined(
+                                  onPressed: () {
+                                    ref.read(viewModeProvider.notifier).state =
+                                        mode == ViewMode.graph
+                                            ? ViewMode.events
+                                            : ViewMode.graph;
+                                  },
+                                  icon: mode == ViewMode.graph
+                                      ? const Icon(Icons.list)
+                                      : const Icon(Icons.bar_chart))
+                          ],
                         ),
-                        const SizedBox(
-                          width: AppPadding.tiny,
-                        ),
-                        if (config.hasGraphing)
-                          IconButton.outlined(
-                              onPressed: () {
-                                ref.read(viewModeProvider.notifier).state =
-                                    mode == ViewMode.graph
-                                        ? ViewMode.events
-                                        : ViewMode.graph;
-                              },
-                              icon: mode == ViewMode.graph
-                                  ? const Icon(Icons.list)
-                                  : const Icon(Icons.bar_chart))
-                      ],
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
 
               /*const SliverFloatingHeader(
                     child: SizedBox.expand(
                   child: FiltersRow(),
                 )),*/
-              SliverPadding(
-                padding: const EdgeInsetsGeometry.symmetric(
-                    horizontal: AppPadding.xl),
-                sliver: SliverConstrainedCrossAxis(
-                  maxExtent: Breakpoint.medium.value,
-                  sliver: SliverList(
-                    delegate: SliverChildListDelegate(
-                      [
-                        const FiltersRow(),
-                        const SizedBox(
-                          height: AppPadding.tiny,
-                        ),
-                      ],
-                    ),
-                  ),
+
+              const SliverPadding(
+                padding: EdgeInsetsGeometry.only(
+                    left: AppPadding.large,
+                    right: AppPadding.large,
+                    bottom: AppPadding.tiny),
+                sliver: SliverToBoxAdapter(
+                  child: FiltersRow(),
                 ),
               ),
               const SliverToBoxAdapter(
@@ -115,9 +110,13 @@ class EventsView extends ConsumerWidget {
                 ),
               ),
               mode == ViewMode.events
-                  ? SliverConstrainedCrossAxis(
-                      maxExtent: Breakpoint.medium.value,
-                      sliver: const EventGrid(),
+                  ? SliverCrossAxisGroup(
+                      slivers: [
+                        SliverConstrainedCrossAxis(
+                          maxExtent: Breakpoint.medium.value,
+                          sliver: const EventGrid(),
+                        ),
+                      ],
                     )
                   : GraphSliverList(onSelect: (key) {
                       context.pushNamed(RouteName.SYMPTOMTREND, extra: key);
@@ -212,6 +211,7 @@ class FiltersRow extends ConsumerWidget {
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         SegmentedButton<DisplayTimeCycle>(
             segments: [
@@ -242,53 +242,16 @@ class FiltersRow extends ConsumerWidget {
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
           onPressed: () {
-            showStripesSheet(
-                context: context, ref: ref, child: (context) => FilterSheet());
+            ref.read(sheetControllerProvider).show(
+                  context: context,
+                  scrollControlled: true,
+                  sheetBuilder: (context, controller) =>
+                      FilterSheet(scrollController: controller),
+                );
           },
           icon: const Icon(Icons.filter_list),
         ),
       ],
-    );
-  }
-}
-
-class CurrentFilters extends ConsumerWidget {
-  const CurrentFilters({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final List<LabeledFilter> filters =
-        ref.watch(displayDataProvider.select((value) => value.filters));
-    if (filters.isEmpty) return const SizedBox.shrink();
-    return SizedBox(
-      height: 40.0,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: [
-          const SizedBox(width: AppPadding.large),
-          ...filters
-              .map(
-                (filter) => FilledButton.tonalIcon(
-                  onPressed: () {
-                    ref.read(displayDataProvider.notifier).updateFilters(
-                        filters.where((f) => f != filter).toList());
-                  },
-                  label: Text(filter.name),
-                  icon: const Icon(Icons.close),
-                  style: Theme.of(context).filledButtonTheme.style?.copyWith(
-                        visualDensity: VisualDensity.compact,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                  iconAlignment: IconAlignment.end,
-                ),
-              )
-              .separated(
-                by: const SizedBox(
-                  width: AppPadding.tiny,
-                ),
-              ),
-        ],
-      ),
     );
   }
 }
@@ -387,10 +350,9 @@ class _DateRangeButtonState extends ConsumerState<DateRangeButton> {
                     (_dragOffset.abs() / (_threshold * 2)).clamp(0.0, 0.5),
                 child: InkWell(
                   onTap: () {
-                    showStripesSheet(
-                        scrollControlled: true,
+                    ref.read(sheetControllerProvider).show(
                         context: context,
-                        ref: ref,
+                        scrollControlled: true,
                         child: (context) => const BottomSheetCalendar());
                   },
                   borderRadius: BorderRadius.circular(AppRounding.small),

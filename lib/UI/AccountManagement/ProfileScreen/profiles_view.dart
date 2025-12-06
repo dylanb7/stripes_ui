@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
-import 'package:stripes_ui/Providers/overlay_provider.dart';
+
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/AccountManagement/ProfileScreen/edit_profile.dart';
 import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
@@ -45,7 +45,7 @@ class ProfileView extends ConsumerWidget {
           hoverColor: Colors.transparent,
           splashColor: Colors.transparent,
           onPressed: () {
-            _editPatient(ref);
+            _editPatient(ref, context);
           },
           icon: const Icon(Icons.edit),
         )
@@ -117,9 +117,10 @@ class ProfileView extends ConsumerWidget {
     ref.read(subHolderProvider.notifier).changeCurrent(subUser);
   }
 
-  _editPatient(WidgetRef ref) {
-    ref.read(overlayProvider.notifier).state =
-        CurrentOverlay(widget: EditUserWidget(subUser: subUser));
+  _editPatient(WidgetRef ref, BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (context) => EditUserWidget(subUser: subUser));
   }
 }
 
@@ -176,7 +177,7 @@ class MinimalProfileView extends ConsumerWidget {
               const Spacer(),
               IconButton(
                 onPressed: () {
-                  _editProfile(ref);
+                  _editProfile(ref, context);
                 },
                 icon: Icon(
                   Icons.edit,
@@ -185,7 +186,7 @@ class MinimalProfileView extends ConsumerWidget {
               ),
               IconButton(
                 onPressed: () {
-                  _deleteProfile(ref);
+                  _deleteProfile(ref, context);
                 },
                 icon: Icon(
                   Icons.delete,
@@ -206,14 +207,16 @@ class MinimalProfileView extends ConsumerWidget {
     ref.read(subHolderProvider.notifier).changeCurrent(subUser);
   }
 
-  _editProfile(WidgetRef ref) {
-    ref.read(overlayProvider.notifier).state =
-        CurrentOverlay(widget: EditUserWidget(subUser: subUser));
+  _editProfile(WidgetRef ref, BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (context) => EditUserWidget(subUser: subUser));
   }
 
-  _deleteProfile(WidgetRef ref) {
-    ref.read(overlayProvider.notifier).state =
-        CurrentOverlay(widget: DeleteConfirmation(toDelete: subUser));
+  _deleteProfile(WidgetRef ref, BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (context) => DeleteConfirmation(toDelete: subUser));
   }
 }
 

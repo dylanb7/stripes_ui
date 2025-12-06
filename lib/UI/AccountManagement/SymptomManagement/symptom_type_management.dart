@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/QuestionModel/question.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo_base.dart';
 import 'package:stripes_ui/Providers/questions_provider.dart';
+import 'package:stripes_ui/Providers/sheet_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
 import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
 import 'package:stripes_ui/UI/CommonWidgets/segmented_draggable_list.dart';
@@ -17,7 +16,6 @@ import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/paddings.dart';
-import 'package:stripes_ui/Util/show_stripes_sheet.dart';
 import 'package:stripes_ui/UI/AccountManagement/SymptomManagement/dependency_editor.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
 
@@ -86,16 +84,16 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
                 onPressed: widget.category == null
                     ? null
                     : () {
-                        showStripesSheet(
-                            scrollControlled: true,
-                            context: context,
-                            ref: ref,
-                            sheetBuilder: (context, controller) {
-                              return AddSymptomWidget(
-                                type: widget.category!,
-                                scrollController: controller,
-                              );
-                            });
+                        ref.read(sheetControllerProvider).show(
+                              context: context,
+                              scrollControlled: true,
+                              sheetBuilder: (context, controller) {
+                                return AddSymptomWidget(
+                                  type: widget.category!,
+                                  scrollController: controller,
+                                );
+                              },
+                            );
                       },
                 icon: const Icon(Icons.add)),
             const SizedBox(
@@ -461,41 +459,23 @@ class ViewingMode extends ConsumerWidget {
                                 .flattenedToList
                                 .toList();
 
-                            showStripesSheet(
-                              context: context,
-                              ref: ref,
-                              scrollControlled: true,
-                              child: (context) => DependencyEditor(
-                                  initialDependency: page.dependsOn,
-                                  availableQuestions: previousQuestions,
-                                  onSave: (newDependency) async {
-                                    final LoadedPageLayout newLayout =
-                                        page.copyWith(dependsOn: newDependency);
-                                    pages[index] = newLayout;
-                                    if (pageData.path != null) {
-                                      final RecordPath toSave = pageData.path!
-                                          .copyWith(
-                                              pages: pages
-                                                  .map((page) => PageLayout(
-                                                      questionIds: page
-                                                          .questions
-                                                          .map((question) =>
-                                                              question.id)
-                                                          .toList(),
-                                                      dependsOn:
-                                                          page.dependsOn))
-                                                  .toList());
-                                      await (await ref
-                                              .read(questionsProvider.future))
-                                          ?.updateRecordPath(toSave);
-                                      if (context.mounted) {
-                                        Navigator.pop(context);
-                                        // Force rebuild to show updated tag
-                                        (context as Element).markNeedsBuild();
-                                      }
-                                    }
-                                  }),
-                            );
+                            ref.read(sheetControllerProvider).show(
+                                  context: context,
+                                  scrollControlled: true,
+                                  child: (context) => DependencyEditor(
+                                      initialDependency: page.dependsOn,
+                                      availableQuestions: previousQuestions,
+                                      onSave: (newDependency) async {
+                                        onSaveDependency(
+                                          context: context,
+                                          ref: ref,
+                                          pages: pages,
+                                          page: page,
+                                          newDependency: newDependency,
+                                          index: index,
+                                        );
+                                      }),
+                                );
                           },
                         ),
                     ],
@@ -535,6 +515,33 @@ class ViewingMode extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  onSaveDependency(
+      {required BuildContext context,
+      required WidgetRef ref,
+      required List<LoadedPageLayout> pages,
+      required LoadedPageLayout page,
+      required DependsOn newDependency,
+      required int index}) async {
+    final LoadedPageLayout newLayout = page.copyWith(dependsOn: newDependency);
+    pages[index] = newLayout;
+    if (pageData.path != null) {
+      final RecordPath toSave = pageData.path!.copyWith(
+          pages: pages
+              .map((page) => PageLayout(
+                  questionIds:
+                      page.questions.map((question) => question.id).toList(),
+                  dependsOn: page.dependsOn))
+              .toList());
+      await (await ref.read(questionsProvider.future))
+          ?.updateRecordPath(toSave);
+      if (context.mounted) {
+        Navigator.pop(context);
+
+        (context as Element).markNeedsBuild();
+      }
+    }
   }
 }
 
@@ -655,13 +662,13 @@ class SymptomDisplay extends ConsumerWidget {
               ),
               IconButton(
                   onPressed: () {
-                    showStripesSheet(
-                        context: context,
-                        ref: ref,
-                        scrollControlled: true,
-                        child: (context) {
-                          return SymptomEditSheet(question: question);
-                        });
+                    ref.read(sheetControllerProvider).show(
+                          context: context,
+                          scrollControlled: true,
+                          child: (context) {
+                            return SymptomEditSheet(question: question);
+                          },
+                        );
                   },
                   icon: const Icon(Icons.more_horiz))
             ],

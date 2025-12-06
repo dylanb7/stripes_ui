@@ -6,15 +6,12 @@ import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/CommonWidgets/scroll_assisted_list.dart';
 import 'package:stripes_ui/UI/CommonWidgets/stripes_header.dart';
-import 'package:stripes_ui/UI/Layout/fabs.dart';
 import 'package:stripes_ui/UI/AccountManagement/add_first_profile.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/paddings.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-import '../../Providers/overlay_provider.dart';
 
 @immutable
 class NavPath {
@@ -57,8 +54,6 @@ class PageWrap extends ConsumerStatefulWidget {
 
   final Widget? leading;
 
-  final FabState? fabState;
-
   final bool floating;
 
   const PageWrap(
@@ -66,7 +61,6 @@ class PageWrap extends ConsumerStatefulWidget {
       this.actions,
       this.bottomNav,
       this.leading,
-      this.fabState,
       this.floating = false,
       super.key});
 
@@ -93,96 +87,83 @@ class _PageWrapState extends ConsumerState<PageWrap> {
 
   @override
   Widget build(BuildContext context) {
-    final CurrentOverlay overlay = ref.watch(overlayProvider);
     final bool shouldHide = widget.floating && _hideNavBar;
 
     return SafeArea(
       child: GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-        child: Stack(
-          children: [
-            Scaffold(
-              appBar: PreferredSize(
-                preferredSize: const Size.fromHeight(kToolbarHeight),
-                child: AnimatedContainer(
-                  duration: Durations.medium1,
-                  height: shouldHide ? 0 : kToolbarHeight,
-                  child: ClipRect(
-                    child: AppBar(
-                      automaticallyImplyLeading: false,
-                      leading: widget.leading,
-                      scrolledUnderElevation: 0,
-                      shape: RoundedRectangleBorder(
-                          side: BorderSide(
-                              color: Theme.of(context).dividerColor)),
-                      titleSpacing:
-                          widget.leading != null ? AppPadding.tiny : null,
-                      title: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: AppPadding.tiny),
-                        child: SizedBox(
-                          height: 35.0,
-                          child: GestureDetector(
-                            onTap: () {
-                              _toggleBottomSheet(context);
-                            },
-                            child: StripesHeader(
-                              key: navBarHeaderKey,
-                            ),
-                          ),
+        child: Scaffold(
+          appBar: PreferredSize(
+            preferredSize: const Size.fromHeight(kToolbarHeight),
+            child: AnimatedContainer(
+              duration: Durations.medium1,
+              height: shouldHide ? 0 : kToolbarHeight,
+              child: ClipRect(
+                child: AppBar(
+                  automaticallyImplyLeading: false,
+                  leading: widget.leading,
+                  scrolledUnderElevation: 0,
+                  shape: RoundedRectangleBorder(
+                      side: BorderSide(color: Theme.of(context).dividerColor)),
+                  titleSpacing: widget.leading != null ? AppPadding.tiny : null,
+                  title: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: AppPadding.tiny),
+                    child: SizedBox(
+                      height: 35.0,
+                      child: GestureDetector(
+                        onTap: () {
+                          _toggleBottomSheet(context);
+                        },
+                        child: StripesHeader(
+                          key: navBarHeaderKey,
                         ),
                       ),
-                      centerTitle: false,
-                      actions: widget.actions != null
-                          ? [
-                              ...widget.actions!,
-                              const SizedBox(width: AppPadding.small)
-                            ]
-                          : null,
                     ),
                   ),
-                ),
-              ),
-              body: NotificationListener<ScrollNotification>(
-                onNotification: (notification) {
-                  if (!widget.floating) return true;
-                  if (notification.depth > 0) return true;
-                  if (notification is UserScrollNotification) {
-                    if (notification.direction == ScrollDirection.reverse) {
-                      if (!_hideNavBar) {
-                        setState(() {
-                          _hideNavBar = true;
-                        });
-                      }
-                    }
-                    if (notification.direction == ScrollDirection.forward) {
-                      if (_hideNavBar) {
-                        setState(() {
-                          _hideNavBar = false;
-                        });
-                      }
-                    }
-                  }
-                  return true;
-                },
-                child: widget.child,
-              ),
-              floatingActionButton: widget.fabState?.fab,
-              floatingActionButtonLocation: widget.fabState?.location,
-              floatingActionButtonAnimator:
-                  FloatingActionButtonAnimator.scaling,
-              bottomNavigationBar: AnimatedContainer(
-                duration: Durations.medium1,
-                height: shouldHide ? 0 : 70,
-                child: SingleChildScrollView(
-                  physics: const NeverScrollableScrollPhysics(),
-                  child: widget.bottomNav,
+                  centerTitle: false,
+                  actions: widget.actions != null
+                      ? [
+                          ...widget.actions!,
+                          const SizedBox(width: AppPadding.small)
+                        ]
+                      : null,
                 ),
               ),
             ),
-            if (overlay.widget != null)
-              Material(color: Colors.transparent, child: overlay.widget!)
-          ],
+          ),
+          body: NotificationListener<ScrollNotification>(
+            onNotification: (notification) {
+              if (!widget.floating) return true;
+              if (notification.depth > 0) return true;
+              if (notification is UserScrollNotification) {
+                if (notification.direction == ScrollDirection.reverse) {
+                  if (!_hideNavBar) {
+                    setState(() {
+                      _hideNavBar = true;
+                    });
+                  }
+                }
+                if (notification.direction == ScrollDirection.forward) {
+                  if (_hideNavBar) {
+                    setState(() {
+                      _hideNavBar = false;
+                    });
+                  }
+                }
+              }
+              return true;
+            },
+            child: widget.child,
+          ),
+          bottomNavigationBar: AnimatedContainer(
+            duration: Durations.medium1,
+            height: shouldHide ? 0 : 70,
+            child: SingleChildScrollView(
+              physics: const NeverScrollableScrollPhysics(),
+              child: widget.bottomNav,
+            ),
+          ),
         ),
       ),
     );

@@ -82,6 +82,9 @@ class _BottomSheetCalendarState extends ConsumerState<BottomSheetCalendar> {
       rangeEndDecoration: BoxDecoration(),
     );
 
+    final DateTime lastDay =
+        (_rangeEnd != null && _rangeEnd!.isAfter(now)) ? _rangeEnd! : now;
+
     Widget builder(BuildContext context, DateTime day, DateTime focus) {
       final int events = eventMap[day]?.length ?? 0;
       final DateTime normalizedDay = DateTime(day.year, day.month, day.day);
@@ -222,12 +225,11 @@ class _BottomSheetCalendarState extends ConsumerState<BottomSheetCalendar> {
                             _pageController = controller;
                           },
                           daysOfWeekHeight: 25.0,
-                          focusedDay: focusedDay,
+                          focusedDay: focusedDay.isAfter(lastDay)
+                              ? lastDay
+                              : focusedDay,
                           firstDay: DateTime(2020),
-                          lastDay:
-                              (_rangeEnd != null && _rangeEnd!.isAfter(now))
-                                  ? _rangeEnd!
-                                  : now,
+                          lastDay: lastDay,
                           rangeSelectionMode: RangeSelectionMode.toggledOn,
                           rangeStartDay: _rangeStart,
                           rangeEndDay: _rangeEnd,
