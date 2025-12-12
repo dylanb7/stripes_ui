@@ -7,8 +7,11 @@ import 'package:stripes_ui/Providers/display_data_provider.dart';
 import 'package:stripes_ui/UI/AccountManagement/SymptomManagement/symptom_management_screen.dart';
 import 'package:stripes_ui/UI/AccountManagement/SymptomManagement/symptom_type_management.dart';
 import 'package:stripes_ui/UI/AccountManagement/account_management_screen.dart';
+import 'package:stripes_ui/UI/AccountManagement/baselines_section.dart';
 import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
+import 'package:stripes_ui/UI/History/DashboardView/dashboard_screen.dart';
 import 'package:stripes_ui/UI/History/GraphView/graphs_list.dart';
+import 'package:stripes_ui/UI/Record/RecordSplit/baseline_entry.dart';
 
 import 'package:stripes_ui/Providers/auth_provider.dart';
 import 'package:stripes_ui/UI/AccountManagement/ProfileScreen/profile_screen.dart';
@@ -120,6 +123,46 @@ class RouteNotifier extends ChangeNotifier {
                     pageBuilder: (context, state) =>
                         FadeIn(child: const PatientScreen(), state: state),
                   ),
+                  GoRoute(
+                    parentNavigatorKey: _shellNavigatorKey,
+                    name: RouteName.BASELINES,
+                    path: Routes.BASELINES,
+                    pageBuilder: (context, state) =>
+                        FadeIn(child: const BaselinesScreen(), state: state),
+                  ),
+                  GoRoute(
+                    parentNavigatorKey: _shellNavigatorKey,
+                    name: RouteName.BASELINE_ENTRY,
+                    path: Routes.BASELINE_ENTRY,
+                    pageBuilder: (context, state) {
+                      final String? recordPath =
+                          state.pathParameters['recordPath'];
+                      if (recordPath == null) {
+                        return FadeIn(
+                            child: const Scaffold(
+                              body: Center(child: Text('Invalid baseline')),
+                            ),
+                            state: state);
+                      }
+
+                      final String decodedPath =
+                          Uri.decodeComponent(recordPath);
+                      return FadeIn(
+                          child: Scaffold(
+                            body: SafeArea(
+                              child: BaselineEntry(recordPath: decodedPath),
+                            ),
+                          ),
+                          state: state);
+                    },
+                  ),
+                  /*GoRoute(
+                    parentNavigatorKey: _shellNavigatorKey,
+                    name: RouteName.DASHBOARD,
+                    path: Routes.DASHBOARD,
+                    pageBuilder: (context, state) =>
+                        FadeIn(child: const DashboardScreen(), state: state),
+                  ),*/
                   GoRoute(
                       parentNavigatorKey: _shellNavigatorKey,
                       name: RouteName.SYMPTOMS,

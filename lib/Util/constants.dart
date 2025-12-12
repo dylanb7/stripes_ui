@@ -10,6 +10,9 @@ class Routes {
   static const String USERS = 'profiles';
   static const String SYMPTOMS = 'symptoms';
   static const String SYMPTOMTYPE = 'symptomtype';
+  static const String BASELINES = 'baselines';
+  static const String BASELINE_ENTRY = 'baseline/:recordPath';
+  static const String DASHBOARD = 'dashboard';
   static const String TEST = '/tests';
   static const String ACCOUNT = '/account';
   static const String SETTINGS = '/settings';
@@ -25,6 +28,9 @@ class RouteName {
   static const String USERS = 'profiles';
   static const String SYMPTOMS = 'symptoms';
   static const String SYMPTOMTYPE = 'symptomtype';
+  static const String BASELINES = 'baselines';
+  static const String BASELINE_ENTRY = 'baseline_entry';
+  static const String DASHBOARD = 'dashboard';
   static const String TEST = 'tests';
   static const String ACCOUNT = 'account';
   static const String SETTINGS = 'settings';

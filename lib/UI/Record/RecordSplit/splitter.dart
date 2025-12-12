@@ -51,6 +51,9 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
 
   bool _allowPop = false;
 
+  final Map<int, ScrollController> _scrollControllers = {};
+  final Map<int, int> _previousQuestionCounts = {};
+
   @override
   void initState() {
     original = widget.questionListener.copy();
@@ -259,6 +262,8 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
   Widget _buildContent(
       BuildContext context, int index, List<LoadedPageLayout> layouts) {
     Widget content;
+    int filteredCount = 0;
+
     if (index == layouts.length) {
       content = SubmitScreen(
         questionsListener: widget.questionListener,
@@ -266,20 +271,58 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
       );
     } else {
       final List<Question> questions = layouts[index].questions;
-      final List<Question> filtered = questions
-          .where(
-            (question) =>
-                question.dependsOn == null ||
-                question.dependsOn!.eval(widget.questionListener),
-          )
-          .toList();
+      final List<Question> visible = [];
+      final List<Question> hidden = [];
+
+      for (final question in questions) {
+        final bool shouldShow = question.dependsOn == null ||
+            question.dependsOn!.eval(widget.questionListener);
+        if (shouldShow) {
+          visible.add(question);
+        } else {
+          hidden.add(question);
+        }
+      }
+
+      for (final question in hidden) {
+        if (widget.questionListener.fromQuestion(question) != null) {
+          widget.questionListener.removeResponse(question);
+          widget.questionListener.removePending(question);
+        }
+      }
+
+      filteredCount = visible.length;
 
       content = QuestionScreen(
           header: layouts[index].header ?? context.translate.selectInstruction,
-          questions: filtered,
+          questions: visible,
           questionsListener: widget.questionListener);
     }
-    final ScrollController scrollController = ScrollController();
+
+    _scrollControllers.putIfAbsent(index, () => ScrollController());
+    final scrollController = _scrollControllers[index]!;
+
+    final previousCount = _previousQuestionCounts[index] ?? 0;
+    if (filteredCount > previousCount && previousCount > 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (scrollController.hasClients) {
+          final currentPosition = scrollController.position.pixels;
+          final maxPosition = scrollController.position.maxScrollExtent;
+
+          final targetPosition =
+              (currentPosition + 150).clamp(0.0, maxPosition);
+          if (targetPosition > currentPosition) {
+            scrollController.animateTo(
+              targetPosition,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOut,
+            );
+          }
+        }
+      });
+    }
+    _previousQuestionCounts[index] = filteredCount;
+
     return Scrollbar(
       thumbVisibility: true,
       thickness: 5.0,
@@ -387,6 +430,9 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
   @override
   void dispose() {
     widget.questionListener.removeListener(_changedUpdate);
+    for (final controller in _scrollControllers.values) {
+      controller.dispose();
+    }
     super.dispose();
   }
 }

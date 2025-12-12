@@ -197,7 +197,7 @@ class DisplayDataSettings extends Equatable {
         format: DateFormat.E()
       );
     }
-    if (diff.inDays <= 60) {
+    if (diff.inDays <= 365) {
       final weeks = (diff.inDays / 7).ceil();
       return (
         buckets: calculateBuckets(weeks, [1, 2, 4]),
@@ -256,13 +256,13 @@ class DisplayDataProvider extends StateNotifier<DisplayDataSettings> {
   DisplayDataProvider()
       : super(DisplayDataSettings(
           range: DateTimeRange(
-              start: DateTime.now().subtract(const Duration(days: 7)),
-              end: DateTime.now()),
-          cycle: DisplayTimeCycle.week,
+              start: DateTime.now(),
+              end: DateTime.now().add(const Duration(days: 1))),
+          cycle: DisplayTimeCycle.day,
           groupSymptoms: false,
           axis: GraphYAxis.number,
         )) {
-    setCycle(DisplayTimeCycle.week);
+    setCycle(DisplayTimeCycle.day);
   }
 
   void setCycle(DisplayTimeCycle cycle, {DateTime? seedStartTime}) {
@@ -296,8 +296,8 @@ class DisplayDataProvider extends StateNotifier<DisplayDataSettings> {
     state = state.copyWith(cycle: cycle, range: newRange);
   }
 
-  void setRange(DateTimeRange range) {
-    state = state.copyWith(range: range, cycle: DisplayTimeCycle.custom);
+  void setRange(DateTimeRange range, {DisplayTimeCycle? cycle}) {
+    state = state.copyWith(range: range, cycle: cycle ?? state.cycle);
   }
 
   void updateFilters(List<LabeledFilter> filters) {
@@ -385,7 +385,8 @@ final inRangeProvider = FutureProvider.autoDispose<List<Response>>((ref) async {
   }).toList();
 });
 
-final availableStampsProvider = FutureProvider<List<Response>>((ref) async {
+final availableStampsProvider =
+    FutureProvider.autoDispose<List<Response>>((ref) async {
   final DisplayDataSettings settings = ref.watch(displayDataProvider);
   final List<Response> stamps = await ref.watch(inRangeProvider.future);
 
@@ -461,16 +462,23 @@ final eventsMapProvider =
   final settings = ref.watch(displayDataProvider);
   final stamps = await ref.watch(stampHolderProvider.future);
 
+  // Group filters by type (same logic as availableStampsProvider)
+  final Map<String, List<LabeledFilter>> groupedFilters =
+      settings.filters.groupBy((filter) => filter.filterType.name);
+
   final filtered = stamps.whereType<Response>().where((response) {
     if (settings.filters.isNotEmpty) {
-      bool matches = false;
-      for (final filter in settings.filters) {
-        if (filter.filter(response)) {
-          matches = true;
-          break;
+      // AND between filter groups, OR within each group
+      for (final filterGroup in groupedFilters.values) {
+        bool matches = false;
+        for (final filter in filterGroup) {
+          if (filter.filter(response)) {
+            matches = true;
+            break;
+          }
         }
+        if (!matches) return false;
       }
-      if (!matches) return false;
     }
     return true;
   }).toList();

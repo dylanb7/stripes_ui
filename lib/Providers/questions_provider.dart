@@ -38,6 +38,21 @@ final questionLayoutProvider = StreamProvider<List<RecordPath>>((ref) {
       loading: (_) => const Stream.empty());
 });
 
+/// Exposes baseline layouts from repos that mix in BaselineRecordPathMixin.
+final baselineLayoutProvider = StreamProvider<List<RecordPath>>((ref) {
+  return ref.watch(questionsProvider).map(
+      data: (data) {
+        final repo = data.value;
+        if (repo == null) return const Stream.empty();
+        if (repo is BaselineRecordPathMixin) {
+          return repo.baselineRecordPaths;
+        }
+        return const Stream.empty();
+      },
+      error: (_) => const Stream.empty(),
+      loading: (_) => const Stream.empty());
+});
+
 final questionsByType =
     FutureProvider<Map<String, List<Question>>>((ref) async {
   final List<RecordPath> paths = await ref.watch(questionLayoutProvider.future);
@@ -81,10 +96,21 @@ final pagesByPath = FutureProvider.autoDispose
     .family<PagesData, PagesByPathProps>((ref, props) async {
   final List<RecordPath> paths = await ref.watch(questionLayoutProvider.future);
   final QuestionHome home = await ref.watch(questionHomeProvider.future);
+  final List<Stamp> baselines = await ref.watch(baselinesStreamProvider.future);
 
-  final Iterable<RecordPath> withName =
+  // Search in regular layouts first
+  Iterable<RecordPath> withName =
       paths.where((path) => path.name == props.pathName);
-  final RecordPath? matching = withName.isEmpty ? null : withName.first;
+  RecordPath? matching = withName.isEmpty ? null : withName.first;
+
+  // If not found, check baseline layouts
+  if (matching == null) {
+    final List<RecordPath> baselinePaths =
+        await ref.watch(baselineLayoutProvider.future);
+    withName = baselinePaths.where((path) => path.name == props.pathName);
+    matching = withName.isEmpty ? null : withName.first;
+  }
+
   if (matching == null) return const PagesData();
   List<LoadedPageLayout> loadedLayouts = [];
   for (final PageLayout layout in matching.pages) {
@@ -93,6 +119,11 @@ final pagesByPath = FutureProvider.autoDispose
       Question? question = home.fromBank(qid);
       if (question == null || (props.filterEnabled && !question.enabled)) {
         continue;
+      }
+      if (question.fromBaseline != null) {
+        final bool hasBaseline =
+            baselines.any((element) => element.type == question.fromBaseline);
+        if (!hasBaseline) continue;
       }
       questions.add(question);
     }
@@ -150,6 +181,25 @@ class CheckinItem {
 class CheckInPathsProps {
   final DateTime? searchDate;
   const CheckInPathsProps({this.searchDate});
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! CheckInPathsProps) return false;
+    // Compare by day only (not time) for date-based caching
+    final a = searchDate;
+    final b = other.searchDate;
+    if (a == null && b == null) return true;
+    if (a == null || b == null) return false;
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  @override
+  int get hashCode {
+    final d = searchDate;
+    if (d == null) return 0;
+    return Object.hash(d.year, d.month, d.day);
+  }
 }
 
 final checkInPaths =

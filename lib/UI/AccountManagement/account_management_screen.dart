@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
+
+import 'package:stripes_ui/Models/baseline_trigger.dart';
 import 'package:stripes_ui/Providers/auth_provider.dart';
+import 'package:stripes_ui/Providers/baseline_trigger_provider.dart';
 
 import 'package:stripes_ui/Providers/route_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
@@ -83,6 +85,28 @@ class AccountManagementScreen extends ConsumerWidget {
               endIndent: AppPadding.small,
               indent: AppPadding.small,
             ),
+            // Baselines navigation with pending count
+            const _BaselinesNavTile(),
+            const Divider(
+              endIndent: AppPadding.small,
+              indent: AppPadding.small,
+            ),
+            // Dashboard navigation
+            ListTile(
+              dense: false,
+              visualDensity: VisualDensity.comfortable,
+              leading: const Icon(Icons.dashboard_outlined),
+              title: const Text("Dashboard"),
+              subtitle: const Text("View your activity stats"),
+              trailing: const Icon(Icons.keyboard_arrow_right),
+              onTap: () {
+                context.pushNamed(RouteName.DASHBOARD);
+              },
+            ),
+            const Divider(
+              endIndent: AppPadding.small,
+              indent: AppPadding.small,
+            ),
             if (config.hasSymptomEditing) ...[
               ListTile(
                 dense: false,
@@ -107,43 +131,7 @@ class AccountManagementScreen extends ConsumerWidget {
                 },
               ),*/
             ],
-            ListTile(
-              dense: false,
-              visualDensity: VisualDensity.comfortable,
-              title: const Text("Test Baseline Entry"),
-              trailing: const Icon(Icons.keyboard_arrow_right),
-              onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => BaselineEntry(
-                          recordPath: "Baseline Test",
-                          questions: const [
-                            FreeResponse(
-                                id: "l1",
-                                prompt: "How are you feeling?",
-                                type: "FreeResponse"),
-                            Numeric(
-                                id: "l2",
-                                prompt: "Pain Level",
-                                type: "Numeric",
-                                min: 1,
-                                max: 10),
-                            Check(
-                                id: "l3",
-                                prompt: "Do you have a headache?",
-                                type: "Check"),
-                            MultipleChoice(
-                                id: "l4",
-                                prompt: "Mood",
-                                type: "MultipleChoice",
-                                choices: ["Happy", "Sad", "Neutral"]),
-                          ],
-                        )));
-              },
-            ),
-            const Divider(
-              endIndent: AppPadding.small,
-              indent: AppPadding.small,
-            ),
+
             const SizedBox(
               height: AppPadding.medium,
             ),
@@ -274,5 +262,83 @@ class _DeleteAccountPopupState extends ConsumerState<DeleteAccountPopup> {
     } else if (mounted) {
       showSnack(context, "Failed to delete account");
     }
+  }
+}
+
+class _BaselinesNavTile extends ConsumerWidget {
+  const _BaselinesNavTile();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final AsyncValue<List<BaselineTrigger>> pendingBaselines =
+        ref.watch(incompleteBaselinesProvider);
+
+    return pendingBaselines.when(
+      data: (pending) {
+        final int pendingCount = pending.length;
+
+        return ListTile(
+          dense: false,
+          visualDensity: VisualDensity.comfortable,
+          title: const Text("Baselines"),
+          subtitle: pendingCount > 0
+              ? Text(
+                  '$pendingCount pending',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
+                    fontWeight: FontWeight.w500,
+                  ),
+                )
+              : null,
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (pendingCount > 0)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppPadding.small,
+                    vertical: AppPadding.tiny,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .error
+                        .withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(AppRounding.small),
+                  ),
+                  child: Text(
+                    pendingCount.toString(),
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.error,
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ),
+              const SizedBox(width: AppPadding.tiny),
+              const Icon(Icons.keyboard_arrow_right),
+            ],
+          ),
+          onTap: () {
+            context.pushNamed(RouteName.BASELINES);
+          },
+        );
+      },
+      loading: () => const ListTile(
+        dense: false,
+        visualDensity: VisualDensity.comfortable,
+        title: Text("Baselines"),
+        trailing: SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      ),
+      error: (_, __) => const ListTile(
+        dense: false,
+        visualDensity: VisualDensity.comfortable,
+        title: Text("Baselines"),
+        trailing: Icon(Icons.keyboard_arrow_right),
+      ),
+    );
   }
 }

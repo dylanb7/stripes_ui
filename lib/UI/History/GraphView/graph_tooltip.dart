@@ -33,6 +33,8 @@ class GraphTooltip extends ConsumerWidget {
 
     if (stamps.isEmpty) return const SizedBox.shrink();
 
+    bool showCount = true;
+
     Widget? getStat() {
       List<Response> flatStamps = [];
       for (final s in stamps) {
@@ -79,6 +81,7 @@ class GraphTooltip extends ConsumerWidget {
             for (final multi in multis) {
               counts[multi.choice] = (counts[multi.choice] ?? 0) + 1;
             }
+            showCount = false;
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: counts.entries
@@ -104,6 +107,7 @@ class GraphTooltip extends ConsumerWidget {
                 counts[choice] = (counts[choice] ?? 0) + 1;
               }
             }
+            showCount = false;
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: counts.entries
@@ -164,7 +168,7 @@ class GraphTooltip extends ConsumerWidget {
             ),
           if (stat != null || !scatter) const SizedBox(height: 8),
           if (stat != null) stat,
-          if (!scatter)
+          if (!scatter && showCount)
             _RowInfo(
               label: "Count",
               value: stamps.length.toString(),

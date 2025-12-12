@@ -32,6 +32,15 @@ final stampsStreamProvider = StreamProvider<List<Stamp>>((ref) async* {
   }
 });
 
+final baselinesStreamProvider = StreamProvider<List<Stamp>>((ref) async* {
+  final StampRepo? repo = await ref.watch(stampProvider.future);
+  if (repo == null || repo is! BaselineMixin) {
+    yield [];
+  } else {
+    yield* repo.baselines;
+  }
+});
+
 final stampHolderProvider =
     AsyncNotifierProvider<StampNotifier, List<Stamp>>(StampNotifier.new);
 

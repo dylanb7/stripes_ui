@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/display_data_provider.dart';
+import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
 import 'package:stripes_ui/Util/extensions.dart';
@@ -20,6 +21,12 @@ class EventGrid extends ConsumerWidget {
     final AsyncValue<List<Response>> available =
         ref.watch(availableStampsProvider);
 
+    // Get check-in path types to filter them out
+    final AsyncValue<List<CheckinItem>> checkins =
+        ref.watch(checkInPaths(const CheckInPathsProps()));
+    final Set<String> checkinTypes =
+        checkins.valueOrNull?.map((item) => item.type).toSet() ?? {};
+
     if (available.isLoading) {
       return const SliverFillRemaining(child: LoadingWidget());
     }
@@ -30,8 +37,10 @@ class EventGrid extends ConsumerWidget {
       );
     }
 
-    final List<Response> availableStamps =
-        (available.valueOrNull ?? []).toList();
+    // Filter out check-in entries
+    final List<Response> availableStamps = (available.valueOrNull ?? [])
+        .where((response) => !checkinTypes.contains(response.type))
+        .toList();
 
     if (!daysSeparated) {
       return SliverPadding(

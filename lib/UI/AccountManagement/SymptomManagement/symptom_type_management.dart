@@ -292,7 +292,7 @@ class EditListOrder extends ConsumerWidget {
               text: "conditional",
               onHover: layoutsById[page.id]!
                   .dependsOn
-                  .toReadableString(promptProvider: promptProvider),
+                  .toReadableString(promptProvider),
               onHoverTitle: "Depends on:",
             ),
         ],
@@ -524,16 +524,31 @@ class ViewingMode extends ConsumerWidget {
       required LoadedPageLayout page,
       required DependsOn newDependency,
       required int index}) async {
+    // Create a copy to avoid mutating the original list
+    final List<LoadedPageLayout> pagesCopy = List.from(pages);
     final LoadedPageLayout newLayout = page.copyWith(dependsOn: newDependency);
-    pages[index] = newLayout;
+    pagesCopy[index] = newLayout;
     if (pageData.path != null) {
-      final RecordPath toSave = pageData.path!.copyWith(
-          pages: pages
-              .map((page) => PageLayout(
-                  questionIds:
-                      page.questions.map((question) => question.id).toList(),
-                  dependsOn: page.dependsOn))
-              .toList());
+      final pageLayouts = pagesCopy
+          .map((page) => PageLayout(
+              questionIds:
+                  page.questions.map((question) => question.id).toList(),
+              uid: page.id,
+              header: page.header,
+              dependsOn: page.dependsOn))
+          .toList();
+
+      print('=== onSaveDependency ===');
+      print('Original pages count: ${pages.length}');
+      print('PagesCopy count: ${pagesCopy.length}');
+      print('PageLayouts to save: ${pageLayouts.length}');
+      for (int i = 0; i < pageLayouts.length; i++) {
+        print('  Page $i: questions=${pageLayouts[i].questionIds.length}');
+      }
+
+      final RecordPath toSave = pageData.path!.copyWith(pages: pageLayouts);
+      print('Path name: ${toSave.name}');
+
       await (await ref.read(questionsProvider.future))
           ?.updateRecordPath(toSave);
       if (context.mounted) {

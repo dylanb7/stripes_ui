@@ -210,8 +210,8 @@ class _AllThatApplyEntryState extends State<AllThatApplyEntry> {
 
   _onTap(bool isSelected, int index, List<int>? selectedIndices) {
     if (isSelected) {
-      bool isEmpty = selectedIndices?.isEmpty ?? true;
-      if (isEmpty) {
+      final int currentCount = selectedIndices?.length ?? 0;
+      if (currentCount <= 1) {
         if (widget.question.isRequired) {
           widget.listener.addPending(widget.question);
         }
@@ -255,6 +255,18 @@ class CheckBoxWidget extends StatefulWidget {
 
 class _CheckBoxWidgetState extends State<CheckBoxWidget> {
   @override
+  void initState() {
+    final bool isNotChecked =
+        widget.listener.fromQuestion(widget.check) == null;
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      if (isNotChecked && widget.check.isRequired) {
+        widget.listener.addPending(widget.check);
+      }
+    });
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
@@ -294,8 +306,16 @@ class _CheckBoxWidgetState extends State<CheckBoxWidget> {
   _onTap() {
     setState(() {
       if (selected) {
+        // Unchecking - add back to pending if required
+        if (widget.check.isRequired) {
+          widget.listener.addPending(widget.check);
+        }
         widget.listener.removeResponse(widget.check);
       } else {
+        // Checking - remove from pending if required
+        if (widget.check.isRequired) {
+          widget.listener.removePending(widget.check);
+        }
         widget.listener.addResponse(Selected(
             question: widget.check, stamp: dateToStamp(DateTime.now())));
       }

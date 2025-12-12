@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:stripes_ui/UI/History/GraphView/ChartRendering/annotation_painter.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/axis_painter.dart';
+import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_annotation.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_animation_state.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_axis.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_data.dart';
@@ -26,6 +28,8 @@ class RenderChart<T, D> extends StatefulWidget {
   final ChartAxis<dynamic> yAxis;
   final ChartStyle? style;
   final bool stackBars;
+  final List<ChartAnnotation<D>>? verticalAnnotations;
+  final List<ChartAnnotation<dynamic>>? horizontalAnnotations;
 
   const RenderChart.multi({
     super.key,
@@ -41,6 +45,8 @@ class RenderChart<T, D> extends StatefulWidget {
     this.yAxis = const NumberAxis(),
     this.style,
     this.stackBars = false,
+    this.verticalAnnotations,
+    this.horizontalAnnotations,
   });
 
   RenderChart({
@@ -56,6 +62,8 @@ class RenderChart<T, D> extends StatefulWidget {
     required this.xAxis,
     this.yAxis = const NumberAxis(),
     this.style,
+    this.verticalAnnotations,
+    this.horizontalAnnotations,
   })  : datasets = [data],
         stackBars = false;
 
@@ -70,6 +78,7 @@ class _RenderChartState<T, D> extends State<RenderChart<T, D>>
   late ChartAnimationState<T, D> _animState;
 
   ChartHitTestResult<T, D>? _lastHoverResult;
+  Offset? _hoverPosition;
 
   @override
   void initState() {
@@ -224,6 +233,25 @@ class _RenderChartState<T, D> extends State<RenderChart<T, D>>
   }
 
   void _handleTap(Offset position, ChartGeometry geometry, ChartStyle style) {
+    // Check for annotation taps first
+    final annotationHit = AnnotationPainter.hitTest(
+      position: position,
+      geometry: geometry,
+      xAxis: widget.xAxis,
+      yAxis: widget.yAxis,
+      verticalAnnotations: widget.verticalAnnotations ?? [],
+      horizontalAnnotations: widget.horizontalAnnotations ?? [],
+    );
+
+    if (annotationHit != null) {
+      annotationHit.onTap?.call();
+      // If annotation hit, we might still want to trigger chart tap or not?
+      // Usually annotation tap is specific. Let's return if annotation is handled?
+      // Or let it fall through?
+      // If user provided onTap for annotation, they probably expect that to be the primary action.
+      if (annotationHit.onTap != null) return;
+    }
+
     if (widget.onTap == null) return;
 
     final hit = _hitTest(position, geometry, style);
@@ -233,6 +261,12 @@ class _RenderChartState<T, D> extends State<RenderChart<T, D>>
   }
 
   void _handleHover(Offset position, ChartGeometry geometry, ChartStyle style) {
+    if (_hoverPosition != position) {
+      setState(() {
+        _hoverPosition = position;
+      });
+    }
+
     if (widget.onHover == null) return;
 
     final hit = _hitTest(position, geometry, style);
@@ -243,6 +277,12 @@ class _RenderChartState<T, D> extends State<RenderChart<T, D>>
   }
 
   void _handleHoverExit() {
+    if (_hoverPosition != null) {
+      setState(() {
+        _hoverPosition = null;
+      });
+    }
+
     if (widget.onHover == null) return;
 
     if (_lastHoverResult != null) {
@@ -321,6 +361,9 @@ class _RenderChartState<T, D> extends State<RenderChart<T, D>>
                     geometry: geometry,
                     style: style,
                     stackBars: widget.stackBars,
+                    verticalAnnotations: widget.verticalAnnotations ?? [],
+                    horizontalAnnotations: widget.horizontalAnnotations ?? [],
+                    hoverPosition: _hoverPosition,
                   ),
                 );
               },
@@ -342,6 +385,9 @@ class _ChartPainter<T, D> extends CustomPainter {
   final ChartStyle style;
   final ChartGeometry geometry;
   final bool stackBars;
+  final List<ChartAnnotation<D>> verticalAnnotations;
+  final List<ChartAnnotation<dynamic>> horizontalAnnotations;
+  final Offset? hoverPosition;
 
   _ChartPainter({
     required this.datasets,
@@ -353,6 +399,9 @@ class _ChartPainter<T, D> extends CustomPainter {
     required this.geometry,
     required this.style,
     required this.stackBars,
+    required this.verticalAnnotations,
+    required this.horizontalAnnotations,
+    this.hoverPosition,
   });
 
   @override
@@ -361,6 +410,16 @@ class _ChartPainter<T, D> extends CustomPainter {
 
     AxisPainter.paintGridLines(canvas, geometry, animState.xAxis,
         animState.yAxis, animationValue, style);
+
+    AnnotationPainter.paint(
+      canvas,
+      geometry,
+      xAxis,
+      yAxis,
+      verticalAnnotations,
+      horizontalAnnotations,
+      style,
+    );
 
     AxisPainter.paintAxisLines(canvas, geometry, style);
     if (yAxis.showing) {
@@ -406,6 +465,31 @@ class _ChartPainter<T, D> extends CustomPainter {
     }
 
     canvas.restore();
+
+    // Paint crosshair lines if enabled
+    final crosshairStyle = style.crosshairStyle;
+    if (crosshairStyle != null && hoverPosition != null) {
+      final Paint crosshairPaint = Paint()
+        ..color = crosshairStyle.color
+        ..strokeWidth = crosshairStyle.strokeWidth
+        ..style = PaintingStyle.stroke;
+
+      if (crosshairStyle.showX) {
+        canvas.drawLine(
+          Offset(hoverPosition!.dx, geometry.topMargin),
+          Offset(hoverPosition!.dx, geometry.topMargin + geometry.drawHeight),
+          crosshairPaint,
+        );
+      }
+
+      if (crosshairStyle.showY) {
+        canvas.drawLine(
+          Offset(geometry.leftMargin, hoverPosition!.dy),
+          Offset(geometry.leftMargin + geometry.drawWidth, hoverPosition!.dy),
+          crosshairPaint,
+        );
+      }
+    }
   }
 
   @override
@@ -414,6 +498,9 @@ class _ChartPainter<T, D> extends CustomPainter {
         oldDelegate.bounds != bounds ||
         oldDelegate.animationValue != animationValue ||
         oldDelegate.style != style ||
-        oldDelegate.stackBars != stackBars;
+        oldDelegate.stackBars != stackBars ||
+        oldDelegate.verticalAnnotations != verticalAnnotations ||
+        oldDelegate.horizontalAnnotations != horizontalAnnotations ||
+        oldDelegate.hoverPosition != hoverPosition;
   }
 }

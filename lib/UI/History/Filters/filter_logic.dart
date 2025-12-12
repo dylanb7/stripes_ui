@@ -187,21 +187,43 @@ class CategoryContext extends FilterContext<CategoryState> {
   }) {
     final QuestionsLocalizations? localizations =
         QuestionsLocalizations.of(context);
+
+    // Create mappings for ALL categories, not just selected ones
+    // localized name → raw value (for looking up what was selected)
+    final Map<String, String> localizedToRaw = {};
+    // raw value → localized name (for displaying selected items)
+    final Map<String, String> rawToLocalized = {};
+
+    for (final type in categories) {
+      final localized = localizations?.value(type) ?? type;
+      localizedToRaw[localized] = type;
+      rawToLocalized[type] = localized;
+    }
+
+    // Get localized display names for all categories
+    final List<String> displayItems =
+        categories.map((type) => rawToLocalized[type] ?? type).toList();
+
+    // Convert selected raw values to their localized display names
+    final Set<String> selectedDisplayItems =
+        state.selectedItems.map((type) => rawToLocalized[type] ?? type).toSet();
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppPadding.medium),
       child: FilterChipSection(
         title: context.translate.eventFilterTypesTag,
-        items: categories
-            .map((type) => localizations?.value(type) ?? type)
-            .whereType<String>()
-            .toList(),
-        selectedItems: state.selectedItems,
-        onSelected: (item, selected) {
+        items: displayItems,
+        selectedItems: selectedDisplayItems,
+        onSelected: (localizedItem, selected) {
+          // Convert localized item back to raw value
+          final rawValue = localizedToRaw[localizedItem];
+          if (rawValue == null) return;
+
           final newSelected = Set<String>.from(state.selectedItems);
           if (selected) {
-            newSelected.add(item);
+            newSelected.add(rawValue);
           } else {
-            newSelected.remove(item);
+            newSelected.remove(rawValue);
           }
           onStateChanged(state.copyWith(selectedItems: newSelected));
         },

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:stripes_ui/Providers/display_data_provider.dart';
 import 'package:stripes_ui/Providers/sheet_provider.dart';
 import 'package:stripes_ui/UI/AccountManagement/profile_changer.dart';
 import 'package:stripes_ui/UI/History/EventView/action_row.dart';
@@ -69,20 +70,8 @@ class EventsView extends ConsumerWidget {
                 sliver: SliverList(
                   delegate: SliverChildListDelegate(
                     [
-                      IconButton.filled(
-                        style: const ButtonStyle(
-                          visualDensity: VisualDensity.compact,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        onPressed: () {
-                          ref.read(sheetControllerProvider).show(
-                                context: context,
-                                scrollControlled: true,
-                                child: (context) => const FilterSheet(),
-                              );
-                        },
-                        icon: const Icon(Icons.filter_list),
-                      ),
+                      _FiltersRow(),
+                      const CurrentFilters(),
                       const SizedBox(
                         height: AppPadding.small,
                       ),
@@ -107,47 +96,38 @@ class EventsView extends ConsumerWidget {
   }
 }
 
-class FiltersRow extends ConsumerStatefulWidget {
-  const FiltersRow({super.key});
-
+class _FiltersRow extends ConsumerWidget {
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() {
-    return FiltersRowState();
-  }
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final int filterCount = ref.watch(
+        displayDataProvider.select((settings) => settings.filters.length));
 
-class FiltersRowState extends ConsumerState<FiltersRow> {
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      scrollDirection: Axis.horizontal,
-      children: [
-        IconButton.filled(
-            onPressed: () {
-              showBottomSheet(
-                  context: context,
-                  builder: (context) {
-                    return Container();
-                  });
-            },
-            icon: const Icon(Icons.filter_list))
-      ],
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppPadding.small),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Badge(
+            isLabelVisible: filterCount > 0,
+            label: Text(filterCount.toString()),
+            child: IconButton.filled(
+              style: const ButtonStyle(
+                visualDensity: VisualDensity.compact,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              onPressed: () {
+                ref.read(sheetControllerProvider).show(
+                      context: context,
+                      scrollControlled: true,
+                      sheetBuilder: (context, controller) =>
+                          FilterSheet(scrollController: controller),
+                    );
+              },
+              icon: const Icon(Icons.filter_list),
+            ),
+          ),
+        ],
+      ),
     );
-  }
-}
-
-class ActionsRow extends ConsumerStatefulWidget {
-  const ActionsRow({super.key});
-
-  @override
-  ConsumerState<ConsumerStatefulWidget> createState() {
-    return ActionsRowState();
-  }
-}
-
-class ActionsRowState extends ConsumerState<ActionsRow> {
-  @override
-  Widget build(BuildContext context) {
-    return Container();
   }
 }

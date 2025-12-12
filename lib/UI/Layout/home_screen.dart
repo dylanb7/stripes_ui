@@ -3,6 +3,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
+import 'package:stripes_ui/UI/CommonWidgets/baseline_gate.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/CommonWidgets/scroll_assisted_list.dart';
 import 'package:stripes_ui/UI/CommonWidgets/stripes_header.dart';
@@ -89,79 +90,83 @@ class _PageWrapState extends ConsumerState<PageWrap> {
   Widget build(BuildContext context) {
     final bool shouldHide = widget.floating && _hideNavBar;
 
-    return SafeArea(
-      child: GestureDetector(
-        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-        child: Scaffold(
-          appBar: PreferredSize(
-            preferredSize: const Size.fromHeight(kToolbarHeight),
-            child: AnimatedContainer(
-              duration: Durations.medium1,
-              height: shouldHide ? 0 : kToolbarHeight,
-              child: ClipRect(
-                child: AppBar(
-                  automaticallyImplyLeading: false,
-                  leading: widget.leading,
-                  scrolledUnderElevation: 0,
-                  shape: RoundedRectangleBorder(
-                      side: BorderSide(color: Theme.of(context).dividerColor)),
-                  titleSpacing: widget.leading != null ? AppPadding.tiny : null,
-                  title: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: AppPadding.tiny),
-                    child: SizedBox(
-                      height: 35.0,
-                      child: GestureDetector(
-                        onTap: () {
-                          _toggleBottomSheet(context);
-                        },
-                        child: StripesHeader(
-                          key: navBarHeaderKey,
+    return BaselineGate(
+      child: SafeArea(
+        child: GestureDetector(
+          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+          child: Scaffold(
+            appBar: PreferredSize(
+              preferredSize: const Size.fromHeight(kToolbarHeight),
+              child: AnimatedContainer(
+                duration: Durations.medium1,
+                height: shouldHide ? 0 : kToolbarHeight,
+                child: ClipRect(
+                  child: AppBar(
+                    automaticallyImplyLeading: false,
+                    leading: widget.leading,
+                    scrolledUnderElevation: 0,
+                    shape: RoundedRectangleBorder(
+                        side:
+                            BorderSide(color: Theme.of(context).dividerColor)),
+                    titleSpacing:
+                        widget.leading != null ? AppPadding.tiny : null,
+                    title: Padding(
+                      padding:
+                          const EdgeInsets.symmetric(vertical: AppPadding.tiny),
+                      child: SizedBox(
+                        height: 35.0,
+                        child: GestureDetector(
+                          onTap: () {
+                            _toggleBottomSheet(context);
+                          },
+                          child: StripesHeader(
+                            key: navBarHeaderKey,
+                          ),
                         ),
                       ),
                     ),
+                    centerTitle: false,
+                    actions: widget.actions != null
+                        ? [
+                            ...widget.actions!,
+                            const SizedBox(width: AppPadding.small)
+                          ]
+                        : null,
                   ),
-                  centerTitle: false,
-                  actions: widget.actions != null
-                      ? [
-                          ...widget.actions!,
-                          const SizedBox(width: AppPadding.small)
-                        ]
-                      : null,
                 ),
               ),
             ),
-          ),
-          body: NotificationListener<ScrollNotification>(
-            onNotification: (notification) {
-              if (!widget.floating) return true;
-              if (notification.depth > 0) return true;
-              if (notification is UserScrollNotification) {
-                if (notification.direction == ScrollDirection.reverse) {
-                  if (!_hideNavBar) {
-                    setState(() {
-                      _hideNavBar = true;
-                    });
+            body: NotificationListener<ScrollNotification>(
+              onNotification: (notification) {
+                if (!widget.floating) return true;
+                if (notification.depth > 0) return true;
+                if (notification is UserScrollNotification) {
+                  if (notification.direction == ScrollDirection.reverse) {
+                    if (!_hideNavBar) {
+                      setState(() {
+                        _hideNavBar = true;
+                      });
+                    }
+                  }
+                  if (notification.direction == ScrollDirection.forward) {
+                    if (_hideNavBar) {
+                      setState(() {
+                        _hideNavBar = false;
+                      });
+                    }
                   }
                 }
-                if (notification.direction == ScrollDirection.forward) {
-                  if (_hideNavBar) {
-                    setState(() {
-                      _hideNavBar = false;
-                    });
-                  }
-                }
-              }
-              return true;
-            },
-            child: widget.child,
-          ),
-          bottomNavigationBar: AnimatedContainer(
-            duration: Durations.medium1,
-            height: shouldHide ? 0 : 70,
-            child: SingleChildScrollView(
-              physics: const NeverScrollableScrollPhysics(),
-              child: widget.bottomNav,
+                return true;
+              },
+              child: widget.child,
+            ),
+            bottomNavigationBar: AnimatedContainer(
+              duration: Durations.medium1,
+              height: shouldHide ? 0 : 70,
+              child: SingleChildScrollView(
+                physics: const NeverScrollableScrollPhysics(),
+                child: widget.bottomNav,
+              ),
             ),
           ),
         ),

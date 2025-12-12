@@ -11,6 +11,7 @@ import 'package:stripes_ui/Providers/display_data_provider.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_axis.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_data.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_hit_tester.dart';
+import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_annotation.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_style.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/render_chart.dart';
 import 'package:stripes_ui/UI/History/GraphView/graph_point.dart';
@@ -50,16 +51,16 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
 
   @override
   void dispose() {
-    _removeTooltip();
+    _removeTooltip(disposing: true);
     super.dispose();
   }
 
-  void _removeTooltip() {
+  void _removeTooltip({bool disposing = false}) {
     _closeTimer?.cancel();
     _closeTimer = null;
     _tooltipEntry?.remove();
     _tooltipEntry = null;
-    if (mounted && _selectedHit != null) {
+    if (!disposing && mounted && _selectedHit != null) {
       setState(() {
         _selectedHit = null;
       });
@@ -260,14 +261,21 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
           min: settings.range.start,
           max: settings.range.end,
           showing: widget.isDetailed,
-          interval: settings.cycle == DisplayTimeCycle.custom
-              ? null
-              : settings.range.duration.inMilliseconds / settings.getTitles(),
+          interval:
+              settings.range.duration.inMilliseconds / settings.getTitles(),
         ),
         style: ChartStyle.fromTheme(context).copyWith(
           showGridLines: widget.isDetailed,
           gridLineColor: Theme.of(context).colorScheme.outline,
           gridLineWidth: 0.5,
+          crosshairStyle: widget.isDetailed
+              ? CrosshairStyle(
+                  color: Theme.of(context).colorScheme.outline,
+                  strokeWidth: 2.0,
+                  showX: true,
+                  showY: false,
+                )
+              : null,
         ),
         yAxis: settings.axis == GraphYAxis.entrytime
             ? HourAxis(showing: widget.isDetailed, interval: 6.0)

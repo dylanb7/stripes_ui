@@ -107,7 +107,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
         ? calendarSelection.range.start
         : null;
     final DateTime? rangeEnd = calendarSelection.cycle != DisplayTimeCycle.day
-        ? calendarSelection.range.end
+        ? calendarSelection.range.end.subtract(const Duration(days: 1))
         : null;
     final DateTime now = DateTime.now();
     const CalendarStyle calendarStyle = CalendarStyle(
@@ -343,21 +343,31 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
 
     if (selection == RangeSelection.start) {
       if (currentRange.end.isBefore(selectedDay)) {
-        ref.read(displayDataProvider.notifier).setRange(DateTimeRange(
-            start: selectedDay, end: selectedDay.add(const Duration(days: 1))));
+        ref.read(displayDataProvider.notifier).setRange(
+            DateTimeRange(
+                start: selectedDay,
+                end: selectedDay.add(const Duration(days: 1))),
+            cycle: DisplayTimeCycle.custom);
         rangeSelection.value = RangeSelection.end;
       } else {
-        ref
-            .read(displayDataProvider.notifier)
-            .setRange(DateTimeRange(start: selectedDay, end: currentRange.end));
+        ref.read(displayDataProvider.notifier).setRange(
+            DateTimeRange(start: selectedDay, end: currentRange.end),
+            cycle: DisplayTimeCycle.custom);
       }
     } else if (selection == RangeSelection.end) {
       if (selectedDay.isBefore(currentRange.start)) {
-        ref.read(displayDataProvider.notifier).setRange(DateTimeRange(
-            start: selectedDay, end: selectedDay.add(const Duration(days: 1))));
-      } else {
         ref.read(displayDataProvider.notifier).setRange(
-            DateTimeRange(start: currentRange.start, end: selectedDay));
+            DateTimeRange(
+                start: selectedDay,
+                end: selectedDay.add(const Duration(days: 1))),
+            cycle: DisplayTimeCycle.custom);
+      } else {
+        // Add 1 day to include the selected end day
+        ref.read(displayDataProvider.notifier).setRange(
+            DateTimeRange(
+                start: currentRange.start,
+                end: selectedDay.add(const Duration(days: 1))),
+            cycle: DisplayTimeCycle.custom);
       }
     }
   }

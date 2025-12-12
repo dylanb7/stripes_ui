@@ -168,16 +168,12 @@ class CheckinsPageView extends StatefulWidget {
 
 class _CheckinsPageViewState extends State<CheckinsPageView> {
   late ExpansibleController expansionController;
-
-  late PageController pageController;
-
+  late ScrollController scrollController;
   late List<CheckinItem> sorted;
-
   late bool hasCheckin;
-
   int currentPage = 0;
-
   late int count;
+  double itemWidth = 280;
 
   @override
   void initState() {
@@ -195,8 +191,8 @@ class _CheckinsPageViewState extends State<CheckinsPageView> {
     }
 
     expansionController = ExpansibleController();
-
-    pageController = PageController(initialPage: currentPage);
+    scrollController = ScrollController();
+    scrollController.addListener(_onScroll);
 
     if (!hasCheckin) {
       expansionController.collapse();
@@ -207,9 +203,28 @@ class _CheckinsPageViewState extends State<CheckinsPageView> {
     super.initState();
   }
 
+  void _onScroll() {
+    if (!scrollController.hasClients) return;
+    final double offset = scrollController.offset;
+    final int newPage =
+        (offset / itemWidth).round().clamp(0, sorted.length - 1);
+    if (newPage != currentPage) {
+      setState(() {
+        currentPage = newPage;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    scrollController.removeListener(_onScroll);
+    scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (widget.checkins.isEmpty) return const SizedBox();
+    if (sorted.isEmpty) return const SizedBox();
 
     return Expansible(
         headerBuilder: (context, animation) {
@@ -244,9 +259,12 @@ class _CheckinsPageViewState extends State<CheckinsPageView> {
                     ],
                   ),
                 ),
-                if (expansionController.isExpanded)
+                if (expansionController.isExpanded &&
+                    currentPage < sorted.length)
                   Text(
-                    widget.checkins[currentPage].path.period!
+                    sorted[currentPage]
+                        .path
+                        .period!
                         .getRangeString(DateTime.now(), context),
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
@@ -255,59 +273,39 @@ class _CheckinsPageViewState extends State<CheckinsPageView> {
           );
         },
         bodyBuilder: (context, animation) {
-          return SizedBox(
-            height: 75,
-            child: Row(
-              children: [
-                currentPage > 0
-                    ? IconButton(
-                        icon: Icon(
-                          Icons.arrow_back_ios,
-                          color: Theme.of(context).disabledColor,
-                        ),
-                        onPressed: () {
-                          pageController.previousPage(
-                              duration: Durations.medium1,
-                              curve: Curves.linear);
-                        },
-                      )
-                    : const SizedBox(width: 25),
-                Expanded(
-                  child: PageView.builder(
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppPadding.medium),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // Use available width for full-width items, or fixed width if smaller
+                itemWidth = constraints.maxWidth > 300
+                    ? constraints.maxWidth - AppPadding.small * 2
+                    : 280;
+
+                return SizedBox(
+                  height: 100,
+                  child: ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    itemCount: widget.checkins.length,
-                    controller: pageController,
-                    onPageChanged: (newPage) {
-                      setState(() {
-                        currentPage = newPage;
-                      });
-                    },
+                    controller: scrollController,
+                    physics: const PageScrollPhysics(),
+                    itemCount: sorted.length,
                     itemBuilder: (context, index) {
-                      final CheckinItem item = widget.checkins[index];
+                      final CheckinItem item = sorted[index];
                       return Padding(
-                        padding: const EdgeInsetsGeometry.symmetric(
+                        padding: const EdgeInsets.symmetric(
                             horizontal: AppPadding.tiny),
-                        child: CheckInButton(
+                        child: SizedBox(
+                          width: itemWidth,
+                          child: CheckInButton(
                             item: item,
-                            additions: widget.additions(item) ?? []),
+                            additions: widget.additions(item) ?? [],
+                          ),
+                        ),
                       );
                     },
                   ),
-                ),
-                currentPage < sorted.length - 1
-                    ? IconButton(
-                        onPressed: () {
-                          pageController.nextPage(
-                              duration: Durations.medium1,
-                              curve: Curves.linear);
-                        },
-                        icon: Icon(
-                          Icons.arrow_forward_ios,
-                          color: Theme.of(context).disabledColor,
-                        ),
-                      )
-                    : const SizedBox(width: 25),
-              ],
+                );
+              },
             ),
           );
         },
@@ -366,61 +364,162 @@ class CheckInButton extends ConsumerWidget {
 
   const CheckInButton({required this.item, required this.additions, super.key});
 
+  String _formatTimeRemaining(Duration duration, BuildContext context) {
+    if (duration.isNegative) return '';
+    if (duration.inDays > 0) {
+      return '${duration.inDays}d remaining';
+    }
+    if (duration.inHours > 0) {
+      return '${duration.inHours}h remaining';
+    }
+    if (duration.inMinutes > 0) {
+      return '${duration.inMinutes}m remaining';
+    }
+    return 'Ending soon';
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Padding(
-        padding: const EdgeInsets.symmetric(vertical: AppPadding.tiny),
-        child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: Breakpoint.small.value),
-            child: OutlinedButton(
-              onPressed: () {
-                if (item.response != null) {
-                  String? routeName = item.response!.type;
+    final bool isCompleted = item.response != null;
+    final ColorScheme colors = Theme.of(context).colorScheme;
 
-                  context.pushNamed('recordType',
-                      pathParameters: {'type': routeName},
-                      extra: QuestionsListener(
-                          responses: item.response!.responses,
-                          editId: item.response?.id,
-                          submitTime: dateFromStamp(item.response!.stamp),
-                          desc: item.response!.description));
-                } else {
-                  context.pushNamed(
-                    'recordType',
-                    pathParameters: {'type': item.type},
-                  );
-                }
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: AppPadding.small, vertical: AppPadding.large),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Text(item.type,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .primary)),
-                          ...additions
-                        ]),
-                    CheckIndicator(
-                      checked: item.response != null,
-                    )
-                  ],
+    // Calculate time remaining for pending check-ins
+    final DateTimeRange range = item.path.period!.getRange(DateTime.now());
+    final Duration timeRemaining = range.end.difference(DateTime.now());
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppPadding.tiny),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: Breakpoint.small.value),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              if (item.response != null) {
+                String? routeName = item.response!.type;
+                context.pushNamed('recordType',
+                    pathParameters: {'type': routeName},
+                    extra: QuestionsListener(
+                        responses: item.response!.responses,
+                        editId: item.response?.id,
+                        submitTime: dateFromStamp(item.response!.stamp),
+                        desc: item.response!.description));
+              } else {
+                context.pushNamed(
+                  'recordType',
+                  pathParameters: {'type': item.type},
+                );
+              }
+            },
+            borderRadius: BorderRadius.circular(AppRounding.medium),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(AppRounding.medium),
+                border: Border.all(
+                  color: isCompleted
+                      ? colors.primary.withValues(alpha: 0.3)
+                      : colors.outlineVariant,
+                  width: isCompleted ? 2 : 1,
                 ),
+                gradient: isCompleted
+                    ? LinearGradient(
+                        colors: [
+                          colors.primaryContainer.withValues(alpha: 0.3),
+                          colors.primaryContainer.withValues(alpha: 0.1),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      )
+                    : null,
               ),
-            ).showCursorOnHover));
+              padding: const EdgeInsets.all(AppPadding.medium),
+              child: Row(
+                children: [
+                  // Check indicator
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isCompleted
+                          ? colors.primary
+                          : colors.surfaceContainerHighest,
+                      border: isCompleted
+                          ? null
+                          : Border.all(color: colors.outline, width: 2),
+                    ),
+                    child: isCompleted
+                        ? Icon(Icons.check, color: colors.onPrimary, size: 24)
+                        : Icon(Icons.add,
+                            color: colors.onSurfaceVariant, size: 24),
+                  ),
+                  const SizedBox(width: AppPadding.medium),
+
+                  // Content
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          item.path.name,
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: isCompleted
+                                        ? colors.primary
+                                        : colors.onSurface,
+                                  ),
+                        ),
+                        const SizedBox(height: 2),
+                        if (isCompleted)
+                          Text(
+                            'Last updated ${_formatLastUpdated(item.response!.stamp, context)}',
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: colors.onSurfaceVariant,
+                                    ),
+                          )
+                        else
+                          Text(
+                            _formatTimeRemaining(timeRemaining, context),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: colors.onSurfaceVariant,
+                                    ),
+                          ),
+                        if (additions.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          ...additions,
+                        ],
+                      ],
+                    ),
+                  ),
+
+                  // Trailing icon
+                  Icon(
+                    Icons.chevron_right,
+                    color: colors.onSurfaceVariant,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ).showCursorOnHover,
+      ),
+    );
+  }
+
+  String _formatLastUpdated(int stamp, BuildContext context) {
+    final DateTime date = dateFromStamp(stamp);
+    final Duration diff = DateTime.now().difference(date);
+    if (diff.inMinutes < 60) {
+      return '${diff.inMinutes}m ago';
+    }
+    if (diff.inHours < 24) {
+      return '${diff.inHours}h ago';
+    }
+    return '${diff.inDays}d ago';
   }
 }
 

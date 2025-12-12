@@ -7,6 +7,7 @@ import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/History/Filters/filter_logic.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/l10n/questions_delegate.dart';
 
 final setsProvider =
     FutureProvider.autoDispose<Map<FilterType, FilterContext>>((ref) async {
@@ -291,6 +292,19 @@ class CurrentFilters extends ConsumerWidget {
     final List<LabeledFilter> filters =
         ref.watch(displayDataProvider.select((value) => value.filters));
     if (filters.isEmpty) return const SizedBox.shrink();
+
+    // Import localization for category types
+    final QuestionsLocalizations? localizations =
+        QuestionsLocalizations.of(context);
+
+    String getLocalizedName(LabeledFilter filter) {
+      // Only localize category type filters, others use their name directly
+      if (filter.filterType == FilterType.category) {
+        return localizations?.value(filter.name) ?? filter.name;
+      }
+      return filter.name;
+    }
+
     return SizedBox(
       height: 40.0,
       child: ListView(
@@ -299,7 +313,7 @@ class CurrentFilters extends ConsumerWidget {
           const SizedBox(width: AppPadding.large),
           ...filters.map((filter) {
             return FilterChip(
-              label: Text(filter.name),
+              label: Text(getLocalizedName(filter)),
               selected: true,
               showCheckmark: false,
               deleteIcon: const Icon(Icons.close),

@@ -15,7 +15,10 @@ class ChartStyle {
   final Color? gridLineColor;
   final double gridLineWidth;
 
+  final TextStyle annotationLabelStyle;
+  final Color annotationLineColor;
   final BarChartStyle barChartStyle;
+  final CrosshairStyle? crosshairStyle;
 
   const ChartStyle({
     this.axisLabelStyle = const TextStyle(color: Colors.grey, fontSize: 10),
@@ -29,6 +32,10 @@ class ChartStyle {
     this.gridLineColor,
     this.gridLineWidth = 0.5,
     this.barChartStyle = const BarChartStyle(),
+    this.annotationLabelStyle =
+        const TextStyle(color: Colors.grey, fontSize: 10),
+    this.annotationLineColor = Colors.grey,
+    this.crosshairStyle,
   });
 
   Color get effectiveGridColor =>
@@ -47,6 +54,12 @@ class ChartStyle {
             color: colorScheme.onSurfaceVariant,
           ),
       axisLineColor: colorScheme.outlineVariant,
+      annotationLabelStyle: theme.textTheme.labelSmall?.copyWith(
+            color: colorScheme.onSurface.withValues(alpha: 0.8),
+            fontWeight: FontWeight.bold,
+          ) ??
+          const TextStyle(),
+      annotationLineColor: colorScheme.secondary,
     );
   }
 
@@ -64,6 +77,9 @@ class ChartStyle {
     Color? gridLineColor,
     double? gridLineWidth,
     BarChartStyle? barChartStyle,
+    TextStyle? annotationLabelStyle,
+    Color? annotationLineColor,
+    CrosshairStyle? crosshairStyle,
   }) {
     return ChartStyle(
       axisLabelStyle: axisLabelStyle ?? this.axisLabelStyle,
@@ -77,6 +93,9 @@ class ChartStyle {
       showGridLines: showGridLines ?? this.showGridLines,
       gridLineColor: gridLineColor ?? this.gridLineColor,
       gridLineWidth: gridLineWidth ?? this.gridLineWidth,
+      annotationLabelStyle: annotationLabelStyle ?? this.annotationLabelStyle,
+      annotationLineColor: annotationLineColor ?? this.annotationLineColor,
+      crosshairStyle: crosshairStyle ?? this.crosshairStyle,
     );
   }
 }
@@ -90,4 +109,18 @@ class BarChartStyle {
       {this.barWidthRatio = 0.8,
       this.barMaxWidth = 50.0,
       this.stackBars = false});
+}
+
+class CrosshairStyle {
+  final Color color;
+  final double strokeWidth;
+  final bool showX;
+  final bool showY;
+
+  const CrosshairStyle({
+    this.color = Colors.grey,
+    this.strokeWidth = 1.0,
+    this.showX = true,
+    this.showY = true,
+  });
 }

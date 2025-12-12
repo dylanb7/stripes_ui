@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/record_period.dart';
 import 'package:stripes_ui/Providers/display_data_provider.dart';
+import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/UI/AccountManagement/profile_changer.dart';
 import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
 import 'package:stripes_ui/UI/History/EventView/event_grid.dart';
@@ -16,6 +18,10 @@ import 'package:stripes_ui/Util/paddings.dart';
 import 'package:stripes_ui/Providers/sheet_provider.dart';
 import 'package:stripes_ui/config.dart';
 import 'package:stripes_ui/entry.dart';
+import 'package:stripes_ui/l10n/questions_delegate.dart';
+import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
+import 'package:stripes_backend_helper/date_format.dart';
+import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 
 class EventsView extends ConsumerWidget {
   const EventsView({super.key});
@@ -114,6 +120,16 @@ class EventsView extends ConsumerWidget {
                       slivers: [
                         SliverConstrainedCrossAxis(
                           maxExtent: Breakpoint.medium.value,
+                          sliver: const CheckinSection(),
+                        ),
+                      ],
+                    )
+                  : const SliverToBoxAdapter(child: SizedBox.shrink()),
+              mode == ViewMode.events
+                  ? SliverCrossAxisGroup(
+                      slivers: [
+                        SliverConstrainedCrossAxis(
+                          maxExtent: Breakpoint.medium.value,
                           sliver: const EventGrid(),
                         ),
                       ],
@@ -132,8 +148,20 @@ class EventGridHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final DisplayDataSettings settings = ref.watch(displayDataProvider);
+    final DateTime selectedDate = settings.range.start;
+
     final AsyncValue<int> eventsCount = ref.watch(availableStampsProvider
         .select((stamps) => stamps.whenData((data) => data.length)));
+
+    // Get check-in count (completed ones)
+    final AsyncValue<int> checkinCount = ref.watch(
+      checkInPaths(CheckInPathsProps(searchDate: selectedDate))
+          .select((checkins) => checkins.whenData(
+                (items) => items.where((item) => item.response != null).length,
+              )),
+    );
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
       child: Row(
@@ -141,12 +169,16 @@ class EventGridHeader extends ConsumerWidget {
         children: [
           AsyncValueDefaults(
             value: eventsCount,
-            onData: (value) => Text(
-              "$value Results",
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.primary),
-            ),
+            onData: (eventValue) {
+              final int checkinsValue = checkinCount.valueOrNull ?? 0;
+              final int total = eventValue + checkinsValue;
+              return Text(
+                "$total Results",
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.primary),
+              );
+            },
             onError: (error) => const SizedBox.shrink(),
             onLoading: (_) => const SizedBox.shrink(),
           ),
@@ -293,6 +325,7 @@ class _DateRangeButtonState extends ConsumerState<DateRangeButton> {
         ),
         Expanded(
           child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onHorizontalDragUpdate: (details) {
               setState(() {
                 _dragOffset += details.delta.dx;
@@ -359,7 +392,7 @@ class _DateRangeButtonState extends ConsumerState<DateRangeButton> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: AppPadding.small,
-                        vertical: AppPadding.tiny),
+                        vertical: AppPadding.medium),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -413,6 +446,132 @@ class _DateRangeButtonState extends ConsumerState<DateRangeButton> {
                 },
         ),
       ],
+    );
+  }
+}
+
+/// Displays all check-ins for the current period - both pending and completed.
+class CheckinSection extends ConsumerWidget {
+  const CheckinSection({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Use the selected date from history view
+    final DisplayDataSettings settings = ref.watch(displayDataProvider);
+    final DateTime selectedDate = settings.range.start;
+
+    final AsyncValue<List<CheckinItem>> checkins = ref.watch(
+      checkInPaths(CheckInPathsProps(searchDate: selectedDate)),
+    );
+
+    return checkins.when(
+      data: (items) {
+        if (items.isEmpty) {
+          // Debug: show message when no check-ins found
+          return SliverPadding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppPadding.xl, vertical: AppPadding.small),
+            sliver: SliverToBoxAdapter(
+              child: Text(
+                'No check-ins configured',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+              ),
+            ),
+          );
+        }
+
+        final QuestionsLocalizations? localizations =
+            QuestionsLocalizations.of(context);
+
+        // Only show completed check-ins
+        final completedItems =
+            items.where((item) => item.response != null).toList();
+
+        if (completedItems.isEmpty) {
+          return const SliverToBoxAdapter(child: SizedBox.shrink());
+        }
+
+        return SliverPadding(
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppPadding.xl, vertical: AppPadding.tiny),
+          sliver: SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Check-ins',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                ),
+                const SizedBox(height: AppPadding.tiny),
+                Wrap(
+                  spacing: AppPadding.tiny,
+                  runSpacing: AppPadding.tiny,
+                  children: completedItems.map((item) {
+                    final translatedItem =
+                        localizations?.translateCheckin(item) ?? item;
+                    final String dateRange =
+                        item.path.period!.getRangeString(selectedDate, context);
+
+                    return ActionChip(
+                      visualDensity: VisualDensity.compact,
+                      padding: EdgeInsets.zero,
+                      avatar: Icon(
+                        Icons.check_circle,
+                        size: 16,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      label: Text(
+                        '${translatedItem.path.name} • $dateRange',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      backgroundColor: Theme.of(context)
+                          .colorScheme
+                          .primaryContainer
+                          .withValues(alpha: 0.3),
+                      onPressed: () {
+                        context.pushNamed(
+                          'recordType',
+                          pathParameters: {'type': item.type},
+                          extra: QuestionsListener(
+                            responses: item.response!.responses,
+                            editId: item.response?.id,
+                            submitTime: dateFromStamp(item.response!.stamp),
+                            desc: item.response!.description,
+                          ),
+                        );
+                      },
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: AppPadding.small),
+                const Divider(height: 1),
+              ],
+            ),
+          ),
+        );
+      },
+      loading: () => SliverPadding(
+        padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
+        sliver: SliverToBoxAdapter(
+          child: Text('Loading check-ins...',
+              style: Theme.of(context).textTheme.bodySmall),
+        ),
+      ),
+      error: (error, __) => SliverPadding(
+        padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
+        sliver: SliverToBoxAdapter(
+          child: Text('Error: $error',
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: Colors.red)),
+        ),
+      ),
     );
   }
 }

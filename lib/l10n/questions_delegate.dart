@@ -121,4 +121,85 @@ extension QuestionsLocalizationsExtensions on QuestionsLocalizations {
             prompt: value(prompt) ?? prompt);
     }
   }
+
+  /// Translates a question that was generated via Transform.
+  ///
+  /// For generated questions (those with '::' in their ID), this method:
+  /// 1. Tries to find a translation for the prompt template (with {value} placeholder)
+  /// 2. Translates the interpolated value if a translation exists
+  /// 3. Reconstructs the prompt with translated pieces
+  ///
+  /// Falls back to standard translateQuestion if no template translation found.
+  Question translateGeneratedQuestion(
+      Question question, Question? templateQuestion) {
+    // First try standard translation
+    final standardTranslation = translateQuestion(question);
+
+    // If prompt was translated, we're done
+    if (standardTranslation.prompt != question.prompt) {
+      return standardTranslation;
+    }
+
+    // Try to extract template and value from the prompt
+    // The template question should have the original prompt with {value} placeholder
+    if (templateQuestion != null) {
+      final templatePrompt = templateQuestion.prompt;
+      final translatedTemplate = value(templatePrompt) as String?;
+
+      if (translatedTemplate != null &&
+          translatedTemplate.contains('{value}')) {
+        // Find what value was interpolated by comparing prompts
+        final extractedValue =
+            _extractInterpolatedValue(templatePrompt, question.prompt);
+
+        if (extractedValue != null) {
+          // Translate the value if possible
+          final translatedValue =
+              (value(extractedValue) as String?) ?? extractedValue;
+
+          // Reconstruct with translated template and value
+          final newPrompt =
+              translatedTemplate.replaceAll('{value}', translatedValue);
+
+          return _copyQuestionWithPrompt(question, newPrompt);
+        }
+      }
+    }
+
+    // Also translate choices if applicable
+    return standardTranslation;
+  }
+
+  /// Extracts the value that was interpolated into a template.
+  /// Returns null if extraction failed.
+  String? _extractInterpolatedValue(String template, String result) {
+    // Find where {value} is in the template
+    final placeholderIndex = template.indexOf('{value}');
+    if (placeholderIndex == -1) return null;
+
+    // Get the text before and after placeholder
+    final prefix = template.substring(0, placeholderIndex);
+    final suffix = template.substring(placeholderIndex + '{value}'.length);
+
+    // Extract the value from the result
+    if (!result.startsWith(prefix)) return null;
+    if (suffix.isNotEmpty && !result.endsWith(suffix)) return null;
+
+    final valueStart = prefix.length;
+    final valueEnd =
+        suffix.isNotEmpty ? result.length - suffix.length : result.length;
+
+    if (valueStart >= valueEnd) return null;
+    return result.substring(valueStart, valueEnd);
+  }
+
+  Question _copyQuestionWithPrompt(Question question, String newPrompt) {
+    return switch (question) {
+      FreeResponse() => question.copyWith(prompt: newPrompt),
+      Numeric() => question.copyWith(prompt: newPrompt),
+      Check() => question.copyWith(prompt: newPrompt),
+      MultipleChoice() => question.copyWith(prompt: newPrompt),
+      AllThatApply() => question.copyWith(prompt: newPrompt),
+    };
+  }
 }
