@@ -72,6 +72,11 @@ extension Contains on DateTimeRange {
     return (start.isBefore(dateTime) || start.isAtSameMomentAs(dateTime)) &&
         (end.isAfter(dateTime) || end.isAtSameMomentAs(dateTime));
   }
+
+  bool overlaps(DateTimeRange other) {
+    return (start.isBefore(other.end) || start.isAtSameMomentAs(other.end)) &&
+        (end.isAfter(other.start) || end.isAtSameMomentAs(other.start));
+  }
 }
 
 extension GroupBy<T> on Iterable<T> {

@@ -9,6 +9,7 @@ import 'package:stripes_ui/Providers/stamps_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/baseline_gate.dart';
 import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
+import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/date_helper.dart';
 import 'package:stripes_ui/Util/paddings.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
@@ -73,14 +74,27 @@ class BaselinesScreen extends ConsumerWidget {
                   const SizedBox(height: AppPadding.medium),
                 ],
                 if (stamps.isNotEmpty) ...[
-                  _SectionHeader(
-                    title: 'Completed',
-                    count: stamps.length,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  ...stamps.map((stamp) => _CompletedBaselineTile(
-                        stamp: stamp,
-                      )),
+                  // Group stamps by baseline type, keeping only the latest version for display
+                  ...(() {
+                    final Map<String, Stamp> latestByType = {};
+                    for (final stamp in stamps) {
+                      final existing = latestByType[stamp.type];
+                      if (existing == null || stamp.stamp > existing.stamp) {
+                        latestByType[stamp.type] = stamp;
+                      }
+                    }
+                    return [
+                      _SectionHeader(
+                        title: 'Completed',
+                        count: latestByType.length,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      ...latestByType.values
+                          .map((stamp) => _CompletedBaselineTile(
+                                stamp: stamp,
+                              )),
+                    ];
+                  })(),
                 ],
                 if (pending.isEmpty && stamps.isEmpty)
                   Center(
@@ -169,12 +183,68 @@ class _CompletedBaselineTile extends ConsumerStatefulWidget {
 
 class _CompletedBaselineTileState
     extends ConsumerState<_CompletedBaselineTile> {
-  bool _expanded = false;
+  bool _isExpanded = true;
+
+  void _showVersionPicker(
+    BuildContext context,
+    WidgetRef ref,
+    List<({int version, int stamp})> versions,
+    int currentVersion,
+  ) {
+    final colors = Theme.of(context).colorScheme;
+
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(AppPadding.medium),
+              child: Text(
+                'Select Version',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+            const Divider(height: 1),
+            ...versions.map((v) {
+              final versionDate = dateFromStamp(v.stamp);
+              final isSelected = v.version == currentVersion;
+              return ListTile(
+                leading: isSelected
+                    ? Icon(Icons.check_circle, color: colors.primary)
+                    : const Icon(Icons.circle_outlined),
+                title: Text('Version ${v.version}'),
+                subtitle: Text(dateToMDY(versionDate, context)),
+                onTap: () {
+                  ref
+                      .read(baselineVersionPreferenceProvider.notifier)
+                      .setVersion(widget.stamp.type, v.version);
+                  Navigator.pop(context);
+                },
+              );
+            }),
+            const Divider(height: 1),
+            ListTile(
+              leading: const Icon(Icons.update),
+              title: const Text('Always use latest'),
+              onTap: () {
+                ref
+                    .read(baselineVersionPreferenceProvider.notifier)
+                    .clearVersion(widget.stamp.type);
+                Navigator.pop(context);
+              },
+            ),
+            const SizedBox(height: AppPadding.small),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final ColorScheme colors = Theme.of(context).colorScheme;
-    final DateTime date = dateFromStamp(widget.stamp.stamp);
     final QuestionsLocalizations? localizations =
         QuestionsLocalizations.of(context);
     final String title =
@@ -193,143 +263,203 @@ class _CompletedBaselineTileState
       ),
       child: Card(
         margin: EdgeInsets.zero,
+        clipBehavior: Clip.antiAlias,
         child: Column(
           children: [
-            ListTile(
-              leading: Container(
-                padding: const EdgeInsets.all(AppPadding.small),
-                decoration: BoxDecoration(
-                  color: colors.primaryContainer,
-                  borderRadius: BorderRadius.circular(AppRounding.tiny),
-                ),
-                child: Icon(
-                  Icons.check,
-                  color: colors.primary,
-                ),
-              ),
-              title: Text(title),
-              subtitle: Text(
-                'Completed ${dateToMDY(date, context)}',
-                style: TextStyle(color: colors.primary),
-              ),
-              trailing: IconButton(
-                icon: Icon(
-                  _expanded ? Icons.expand_less : Icons.expand_more,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _expanded = !_expanded;
-                  });
-                },
-              ),
-              onTap: () {
-                setState(() {
-                  _expanded = !_expanded;
-                });
-              },
-            ),
-            if (_expanded) ...[
-              // Version selector
-              versionsAsync.when(
-                data: (versions) {
-                  if (versions.length <= 1) {
-                    return const SizedBox.shrink();
-                  }
+            // Header Section
+            versionsAsync.when(
+              data: (versions) {
+                final int effectiveVersion =
+                    effectiveVersionAsync.valueOrNull ??
+                        (versions.isNotEmpty ? versions.first.version : 1);
 
-                  final int effectiveVersion =
-                      effectiveVersionAsync.valueOrNull ??
-                          versions.first.version;
+                final currentVersionData = versions.firstWhere(
+                  (v) => v.version == effectiveVersion,
+                  orElse: () =>
+                      (version: effectiveVersion, stamp: widget.stamp.stamp),
+                );
+                final versionDate = dateFromStamp(currentVersionData.stamp);
 
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppPadding.large,
-                    ),
-                    child: Row(
-                      children: [
-                        Text(
-                          'Active Version:',
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: colors.onSurfaceVariant,
-                                  ),
+                return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _isExpanded = !_isExpanded;
+                      });
+                    },
+                    behavior: HitTestBehavior.opaque,
+                    child: Container(
+                      padding: const EdgeInsets.all(AppPadding.medium),
+                      decoration: BoxDecoration(
+                        color:
+                            colors.surfaceContainerHigh.withValues(alpha: 0.5),
+                        border: Border(
+                          bottom: BorderSide(
+                            color: colors.outlineVariant.withValues(alpha: 0.5),
+                            width: _isExpanded ? 1.0 : 0.0,
+                          ),
                         ),
-                        const SizedBox(width: AppPadding.small),
-                        DropdownButton<int>(
-                          value: effectiveVersion,
-                          items: versions.map((v) {
-                            final versionDate = dateFromStamp(v.stamp);
-                            return DropdownMenuItem(
-                              value: v.version,
-                              child: Text(
-                                'v${v.version} (${dateToMDY(versionDate, context)})',
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                            );
-                          }).toList(),
-                          onChanged: (newVersion) {
-                            if (newVersion != null) {
-                              ref
-                                  .read(baselineVersionPreferenceProvider
-                                      .notifier)
-                                  .setVersion(widget.stamp.type, newVersion);
-                            }
-                          },
-                          underline: const SizedBox.shrink(),
-                          isDense: true,
-                        ),
-                        const Spacer(),
-                        if (ref
-                                .read(baselineVersionPreferenceProvider)
-                                .valueOrNull
-                                ?.containsKey(widget.stamp.type) ==
-                            true)
-                          TextButton(
-                            onPressed: () {
-                              ref
-                                  .read(baselineVersionPreferenceProvider
-                                      .notifier)
-                                  .clearVersion(widget.stamp.type);
-                            },
-                            child: Text(
-                              'Use Latest',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .labelSmall
-                                  ?.copyWith(color: colors.primary),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: colors.primaryContainer,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.history_edu,
+                              size: 20,
+                              color: colors.primary,
                             ),
                           ),
-                      ],
-                    ),
-                  );
-                },
-                loading: () => const SizedBox.shrink(),
-                error: (_, __) => const SizedBox.shrink(),
-              ),
+                          const SizedBox(width: AppPadding.medium),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  title,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                ),
+                                const SizedBox(height: 2),
+                                Row(
+                                  children: [
+                                    Text(
+                                      'Version $effectiveVersion',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelSmall
+                                          ?.copyWith(
+                                            color: colors.primary,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                    ),
+                                    Text(
+                                      ' • ${dateToMDY(versionDate, context)}',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelSmall
+                                          ?.copyWith(
+                                            color: colors.onSurfaceVariant,
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (versions.length > 1)
+                            TextButton.icon(
+                              onPressed: () => _showVersionPicker(
+                                context,
+                                ref,
+                                versions,
+                                effectiveVersion,
+                              ),
+                              icon: const Icon(Icons.swap_horiz, size: 16),
+                              label: const Text('Switch'),
+                              style: TextButton.styleFrom(
+                                visualDensity: VisualDensity.compact,
+                              ),
+                            ),
+                          const SizedBox(width: AppPadding.small),
+                          Icon(
+                            _isExpanded
+                                ? Icons.keyboard_arrow_up
+                                : Icons.keyboard_arrow_down,
+                            color: colors.onSurfaceVariant,
+                          ),
+                        ],
+                      ),
+                    ));
+              },
+              loading: () => ListTile(title: Text(title)),
+              error: (_, __) => ListTile(title: Text(title)),
+            ),
+
+            if (_isExpanded) ...[
+              // Content Section
               Padding(
+                padding: const EdgeInsets.all(AppPadding.medium),
+                child: _buildStampContent(context, ref),
+              ),
+
+              // Footer Action
+              Container(
+                width: double.infinity,
                 padding: const EdgeInsets.only(
-                  left: AppPadding.large,
-                  right: AppPadding.large,
+                  left: AppPadding.medium,
+                  right: AppPadding.medium,
                   bottom: AppPadding.medium,
                 ),
-                child: _buildStampContent(context),
+                child: OutlinedButton.icon(
+                  onPressed: () async {
+                    await context.pushNamed(
+                      RouteName.BASELINE_ENTRY,
+                      pathParameters: {
+                        'recordPath': Uri.encodeComponent(widget.stamp.type),
+                      },
+                    );
+                    if (context.mounted) {
+                      ref.invalidate(baselinesStreamProvider);
+                    }
+                  },
+                  icon: const Icon(Icons.edit_note, size: 18),
+                  label: const Text('Update Baseline'),
+                ),
               ),
-            ],
+            ]
           ],
         ),
       ),
     );
   }
 
-  Widget _buildStampContent(BuildContext context) {
-    if (widget.stamp case DetailResponse detail) {
-      return DetailDisplay(detail: detail);
-    } else if (widget.stamp is Response) {
-      return ResponseDisplay(res: widget.stamp as Response);
-    }
+  Widget _buildStampContent(BuildContext context, WidgetRef ref) {
+    // Watch the selected version's data
+    final selectedDataAsync = ref.watch(baselineResponseProvider((
+      baselineType: widget.stamp.type,
+      version: null, // null means use effective version
+    )));
 
-    return Text(
-      'Baseline recorded',
-      style: Theme.of(context).textTheme.bodyMedium,
+    return selectedDataAsync.when(
+      data: (detail) {
+        if (detail != null) {
+          return DetailDisplay(detail: detail);
+        }
+        // Fallback to widget.stamp if provider returns null
+        if (widget.stamp case DetailResponse d) {
+          return DetailDisplay(detail: d);
+        } else if (widget.stamp is Response) {
+          return ResponseDisplay(res: widget.stamp as Response);
+        }
+        return Text(
+          'Baseline recorded',
+          style: Theme.of(context).textTheme.bodyMedium,
+        );
+      },
+      loading: () => const Padding(
+        padding: EdgeInsets.all(AppPadding.medium),
+        child: Center(child: CircularProgressIndicator()),
+      ),
+      error: (_, __) {
+        // Fallback to widget.stamp on error
+        if (widget.stamp case DetailResponse detail) {
+          return DetailDisplay(detail: detail);
+        } else if (widget.stamp is Response) {
+          return ResponseDisplay(res: widget.stamp as Response);
+        }
+        return Text(
+          'Error loading baseline',
+          style: Theme.of(context).textTheme.bodyMedium,
+        );
+      },
     );
   }
 }

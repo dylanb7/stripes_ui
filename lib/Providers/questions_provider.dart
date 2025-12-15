@@ -211,11 +211,32 @@ final checkInPaths =
   );
 
   final List<RecordPath> paths = await ref.watch(recordPaths(pathProps).future);
+  final QuestionHome home = await ref.watch(questionHomeProvider.future);
+  final List<Stamp> baselines = await ref.watch(baselinesStreamProvider.future);
 
   List<CheckinItem> checkins = [];
   final DateTime date = props.searchDate ?? DateTime.now();
   final List<Stamp> stamps = await ref.watch(stampsStreamProvider.future);
   for (final RecordPath recordPath in paths) {
+    // Check baseline dependency
+    bool dependentOnMissingBaseline = false;
+    for (final PageLayout page in recordPath.pages) {
+      for (final String qid in page.questionIds) {
+        final Question? q = home.fromBank(qid);
+        if (q?.fromBaseline != null) {
+          final String baselineType = q!.fromBaseline!;
+          final bool hasBaseline = baselines.any((b) => b.type == baselineType);
+          if (!hasBaseline) {
+            dependentOnMissingBaseline = true;
+          }
+          break;
+        }
+      }
+      if (dependentOnMissingBaseline) break;
+    }
+
+    if (dependentOnMissingBaseline) continue;
+
     final DateTimeRange range = recordPath.period!.getRange(date);
 
     final String searchType = recordPath.name;
@@ -240,4 +261,55 @@ final checkInPaths =
         : second.response == null
             ? 1
             : 0);
+});
+
+@immutable
+class BaselineRecordItem {
+  final RecordPath path;
+  final DetailResponse? baseline;
+
+  const BaselineRecordItem({required this.path, this.baseline});
+}
+
+final availableRecordPaths =
+    FutureProvider<List<BaselineRecordItem>>((ref) async {
+  const pathProps =
+      RecordPathProps(filterEnabled: true, type: PathProviderType.record);
+  final List<RecordPath> paths = await ref.watch(recordPaths(pathProps).future);
+  final QuestionHome home = await ref.watch(questionHomeProvider.future);
+  final List<Stamp> baselines = await ref.watch(baselinesStreamProvider.future);
+
+  final List<BaselineRecordItem> visiblePaths = [];
+
+  for (final RecordPath path in paths) {
+    // Traverse pages to find ANY fromBaseline question
+    Question? baselineQuestion;
+    for (final PageLayout page in path.pages) {
+      for (final String qid in page.questionIds) {
+        final Question? q = home.fromBank(qid);
+        if (q?.fromBaseline != null) {
+          baselineQuestion = q;
+          break;
+        }
+      }
+      if (baselineQuestion != null) break;
+    }
+
+    if (baselineQuestion != null) {
+      // It depends on a baseline
+      final String baselineType = baselineQuestion.fromBaseline!;
+      final Stamp? baseline = baselines
+          .cast<Stamp?>()
+          .firstWhere((b) => b?.type == baselineType, orElse: () => null);
+
+      if (baseline != null && baseline is DetailResponse) {
+        visiblePaths.add(BaselineRecordItem(path: path, baseline: baseline));
+      }
+      // If baseline missing, do NOT add (hide path)
+    } else {
+      // Regular path, always show
+      visiblePaths.add(BaselineRecordItem(path: path));
+    }
+  }
+  return visiblePaths;
 });

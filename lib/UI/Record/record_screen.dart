@@ -49,9 +49,9 @@ class Options extends ConsumerWidget {
 
     final QuestionsLocalizations? localizations =
         QuestionsLocalizations.of(context);
-    final AsyncValue<List<RecordPath>> paths = ref.watch(recordPaths(
-        const RecordPathProps(
-            filterEnabled: true, type: PathProviderType.record)));
+    // Use availableRecordPaths to filter out baseline-dependent paths if baseline is missing
+    final AsyncValue<List<BaselineRecordItem>> paths =
+        ref.watch(availableRecordPaths);
     final AsyncValue<List<CheckinItem>> checkins = ref.watch(
       checkInPaths(
         const CheckInPathsProps(),
@@ -118,10 +118,15 @@ class Options extends ConsumerWidget {
                   ],
                 );
               },
-              onData: (loadedPaths) {
-                final List<RecordPath> translatedPaths = loadedPaths
-                    .map((path) => localizations?.translatePath(path) ?? path)
+              onData: (loadedItems) {
+                // Translate record paths inside items
+                final List<BaselineRecordItem> translatedItems = loadedItems
+                    .map((item) => BaselineRecordItem(
+                        path: localizations?.translatePath(item.path) ??
+                            item.path,
+                        baseline: item.baseline))
                     .toList();
+
                 return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -130,15 +135,20 @@ class Options extends ConsumerWidget {
                         style: Theme.of(context).textTheme.titleMedium,
                         textAlign: TextAlign.left,
                       ),
-                      ...translatedPaths.mapIndexed((index, path) {
+                      ...translatedItems.mapIndexed((index, item) {
                         final List<Widget> additions = repo.valueOrNull
-                                ?.getPathAdditions(context, path.name) ??
+                                ?.getPathAdditions(context, item.path.name) ??
                             [];
 
-                        return RecordButton(path.name, (context) {
-                          context.pushNamed('recordType', pathParameters: {
-                            'type': loadedPaths[index].name
-                          });
+                        return RecordButton(item.path.name, (context) async {
+                          await context.pushNamed('recordType',
+                              pathParameters: {
+                                'type': loadedItems[index].path.name
+                              },
+                              extra: item.baseline);
+                          if (context.mounted) {
+                            ref.invalidate(stampsStreamProvider);
+                          }
                         }, additions);
                       }),
                     ]);
@@ -168,7 +178,9 @@ class CheckinsPageView extends StatefulWidget {
 
 class _CheckinsPageViewState extends State<CheckinsPageView> {
   late ExpansibleController expansionController;
-  late ScrollController scrollController;
+  PageController? _pageController;
+  double? _lastViewportFraction;
+
   late List<CheckinItem> sorted;
   late bool hasCheckin;
   int currentPage = 0;
@@ -191,8 +203,6 @@ class _CheckinsPageViewState extends State<CheckinsPageView> {
     }
 
     expansionController = ExpansibleController();
-    scrollController = ScrollController();
-    scrollController.addListener(_onScroll);
 
     if (!hasCheckin) {
       expansionController.collapse();
@@ -203,22 +213,9 @@ class _CheckinsPageViewState extends State<CheckinsPageView> {
     super.initState();
   }
 
-  void _onScroll() {
-    if (!scrollController.hasClients) return;
-    final double offset = scrollController.offset;
-    final int newPage =
-        (offset / itemWidth).round().clamp(0, sorted.length - 1);
-    if (newPage != currentPage) {
-      setState(() {
-        currentPage = newPage;
-      });
-    }
-  }
-
   @override
   void dispose() {
-    scrollController.removeListener(_onScroll);
-    scrollController.dispose();
+    _pageController?.dispose();
     super.dispose();
   }
 
@@ -278,22 +275,44 @@ class _CheckinsPageViewState extends State<CheckinsPageView> {
             child: LayoutBuilder(
               builder: (context, constraints) {
                 // Use available width for full-width items, or fixed width if smaller
-                itemWidth = constraints.maxWidth > 300
-                    ? constraints.maxWidth - AppPadding.small * 2
+                itemWidth = constraints.maxWidth > 340
+                    ? constraints.maxWidth -
+                        (AppPadding.medium * 2) -
+                        AppPadding.small
                     : 280;
+
+                final double viewportFraction =
+                    (itemWidth / constraints.maxWidth).clamp(0.1, 1.0);
+
+                if (_pageController == null ||
+                    (_lastViewportFraction != null &&
+                        (_lastViewportFraction! - viewportFraction).abs() >
+                            0.001)) {
+                  final oldController = _pageController;
+                  _pageController = PageController(
+                      viewportFraction: viewportFraction,
+                      initialPage: currentPage);
+                  oldController?.dispose();
+                  _lastViewportFraction = viewportFraction;
+                }
 
                 return SizedBox(
                   height: 100,
-                  child: ListView.builder(
+                  child: PageView.builder(
                     scrollDirection: Axis.horizontal,
-                    controller: scrollController,
-                    physics: const PageScrollPhysics(),
+                    controller: _pageController,
                     itemCount: sorted.length,
+                    padEnds: false, // Align start
+                    onPageChanged: (index) {
+                      setState(() {
+                        currentPage = index;
+                      });
+                    },
                     itemBuilder: (context, index) {
                       final CheckinItem item = sorted[index];
+                      // Add padding to simulate gap, adjusted by viewport fraction logic implicitly
                       return Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: AppPadding.tiny),
+                        padding: const EdgeInsets.only(right: AppPadding.small),
                         child: SizedBox(
                           width: itemWidth,
                           child: CheckInButton(
@@ -394,10 +413,10 @@ class CheckInButton extends ConsumerWidget {
         child: Material(
           color: Colors.transparent,
           child: InkWell(
-            onTap: () {
+            onTap: () async {
               if (item.response != null) {
                 String? routeName = item.response!.type;
-                context.pushNamed('recordType',
+                await context.pushNamed('recordType',
                     pathParameters: {'type': routeName},
                     extra: QuestionsListener(
                         responses: item.response!.responses,
@@ -405,10 +424,13 @@ class CheckInButton extends ConsumerWidget {
                         submitTime: dateFromStamp(item.response!.stamp),
                         desc: item.response!.description));
               } else {
-                context.pushNamed(
+                await context.pushNamed(
                   'recordType',
                   pathParameters: {'type': item.type},
                 );
+              }
+              if (context.mounted) {
+                ref.invalidate(stampsStreamProvider);
               }
             },
             borderRadius: BorderRadius.circular(AppRounding.medium),
@@ -417,41 +439,41 @@ class CheckInButton extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(AppRounding.medium),
                 border: Border.all(
                   color: isCompleted
-                      ? colors.primary.withValues(alpha: 0.3)
-                      : colors.outlineVariant,
-                  width: isCompleted ? 2 : 1,
+                      ? colors.outlineVariant.withValues(alpha: 0.5)
+                      : colors.primary,
+                  width: isCompleted ? 1 : 2,
                 ),
+                color: isCompleted ? colors.surfaceContainerLow : null,
                 gradient: isCompleted
-                    ? LinearGradient(
+                    ? null
+                    : LinearGradient(
                         colors: [
-                          colors.primaryContainer.withValues(alpha: 0.3),
-                          colors.primaryContainer.withValues(alpha: 0.1),
+                          colors.primaryContainer.withValues(alpha: 0.4),
+                          colors.primaryContainer.withValues(alpha: 0.2),
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                      )
-                    : null,
+                      ),
               ),
-              padding: const EdgeInsets.all(AppPadding.medium),
+              padding: const EdgeInsets.all(AppPadding.small),
               child: Row(
                 children: [
                   // Check indicator
                   Container(
-                    width: 40,
-                    height: 40,
+                    width: 35,
+                    height: 35,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: isCompleted
-                          ? colors.primary
-                          : colors.surfaceContainerHighest,
+                          ? colors.surfaceContainerHighest
+                          : colors.primary,
                       border: isCompleted
-                          ? null
-                          : Border.all(color: colors.outline, width: 2),
+                          ? Border.all(color: colors.outlineVariant, width: 1)
+                          : null,
                     ),
                     child: isCompleted
-                        ? Icon(Icons.check, color: colors.onPrimary, size: 24)
-                        : Icon(Icons.add,
-                            color: colors.onSurfaceVariant, size: 24),
+                        ? Icon(Icons.check, color: colors.outline, size: 20)
+                        : Icon(Icons.add, color: colors.onPrimary, size: 24),
                   ),
                   const SizedBox(width: AppPadding.medium),
 
@@ -467,17 +489,17 @@ class CheckInButton extends ConsumerWidget {
                               Theme.of(context).textTheme.titleMedium?.copyWith(
                                     fontWeight: FontWeight.w600,
                                     color: isCompleted
-                                        ? colors.primary
+                                        ? colors.onSurfaceVariant
                                         : colors.onSurface,
                                   ),
                         ),
                         const SizedBox(height: 2),
                         if (isCompleted)
                           Text(
-                            'Last updated ${_formatLastUpdated(item.response!.stamp, context)}',
+                            'Completed ${_formatLastUpdated(item.response!.stamp, context)}',
                             style:
                                 Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: colors.onSurfaceVariant,
+                                      color: colors.outline,
                                     ),
                           )
                         else
@@ -485,7 +507,8 @@ class CheckInButton extends ConsumerWidget {
                             _formatTimeRemaining(timeRemaining, context),
                             style:
                                 Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: colors.onSurfaceVariant,
+                                      color: colors.primary,
+                                      fontWeight: FontWeight.w500,
                                     ),
                           ),
                         if (additions.isNotEmpty) ...[

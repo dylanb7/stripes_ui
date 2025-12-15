@@ -7,6 +7,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
+import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_resolver.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 
 import 'package:stripes_ui/Providers/questions_provider.dart';
@@ -239,14 +240,15 @@ class _ExpandibleSymptomAreaState extends State<ExpandibleSymptomArea> {
 class EntryDisplay extends ConsumerStatefulWidget {
   final Response event;
 
-  final bool hasControls, hasConstraints, includeFullDate;
+  final bool hasControls, hasConstraints, includeFullDate, isNested;
 
   const EntryDisplay(
       {super.key,
       required this.event,
       this.hasControls = true,
       this.hasConstraints = true,
-      this.includeFullDate = false});
+      this.includeFullDate = false,
+      this.isNested = false});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => EntryDisplayState();
@@ -295,12 +297,14 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
           ? BoxConstraints(maxWidth: Breakpoint.tiny.value)
           : const BoxConstraints(),
       child: DecoratedBox(
-        decoration: BoxDecoration(
-            border: Border.all(),
-            borderRadius: const BorderRadius.all(
-              Radius.circular(AppRounding.small),
-            ),
-            color: Theme.of(context).colorScheme.surface),
+        decoration: widget.isNested
+            ? const BoxDecoration()
+            : BoxDecoration(
+                border: Border.all(),
+                borderRadius: const BorderRadius.all(
+                  Radius.circular(AppRounding.small),
+                ),
+                color: Theme.of(context).colorScheme.surface),
         child: Padding(
           padding: const EdgeInsetsGeometry.all(AppPadding.small),
           child: Expansible(
@@ -466,64 +470,174 @@ class DetailDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool hasResponses = detail.responses.isNotEmpty;
+    final colors = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    final Map<String, Question> resolvedQuestions = _resolveQuestions();
+    final List<(Response, Question?)> displayableResponses =
+        _getDisplayableResponses(resolvedQuestions);
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
         if (detail.description != null && detail.description!.isNotEmpty) ...[
-          Text(
-            context.translate.descriptionLabel,
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: Theme.of(context)
-                    .colorScheme
-                    .onSurface
-                    .withValues(alpha: 0.75)),
-            textAlign: TextAlign.left,
-          ),
-          const SizedBox(
-            height: AppPadding.tiny,
-          ),
-          Text(
-            detail.description!,
-            style: Theme.of(context).textTheme.bodyMedium,
-            textAlign: TextAlign.left,
-            maxLines: null,
-          ),
-          if (hasResponses)
-            const Divider(
-              height: AppPadding.small,
-            ),
-        ],
-        if (hasResponses) ...[
-          Text(
-            context.translate.behaviorsLabel,
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurface
-                      .withValues(alpha: 0.85),
+          Container(
+            padding: const EdgeInsets.all(AppPadding.small),
+            decoration: BoxDecoration(
+              color: colors.surfaceContainerHigh,
+              borderRadius: BorderRadius.circular(AppRounding.small),
+              border: Border(
+                left: BorderSide(
+                  color: colors.primary,
+                  width: 3,
                 ),
-            textAlign: TextAlign.left,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  context.translate.descriptionLabel.toUpperCase(),
+                  style: textTheme.labelSmall?.copyWith(
+                    color: colors.primary,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.8,
+                  ),
+                ),
+                const SizedBox(height: AppPadding.tiny),
+                Text(detail.description!, style: textTheme.bodyMedium),
+              ],
+            ),
+          ),
+          if (hasResponses) const SizedBox(height: AppPadding.medium),
+        ],
+
+        // Responses section
+        if (displayableResponses.isNotEmpty) ...[
+          Text(
+            context.translate.behaviorsLabel.toUpperCase(),
+            style: textTheme.labelSmall?.copyWith(
+              color: colors.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(height: AppPadding.small),
+          // Display responses directly without a heavy container background
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: displayableResponses.mapIndexed<Widget>((index, pair) {
+              final (response, resolvedQ) = pair;
+              final isLast = index == displayableResponses.length - 1;
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppPadding
+                          .tiny, // Reduced horizontal padding since no container
+                      vertical: AppPadding.small,
+                    ),
+                    child: ResponseDisplay(
+                      res: response,
+                      resolvedQuestion: resolvedQ,
+                    ),
+                  ),
+                  if (!isLast)
+                    Divider(
+                      height: 1,
+                      color: colors.outlineVariant
+                          .withValues(alpha: 0.25), // More subtle divider
+                    ),
+                ],
+              );
+            }).toList(),
           ),
         ],
-        ...detail.responses.mapIndexed<Widget>((index, res) {
-          if (index == detail.responses.length - 1) {
-            return ResponseDisplay(res: res);
-          }
-          return Padding(
-              padding: const EdgeInsets.only(bottom: AppPadding.tiny),
-              child: ResponseDisplay(res: res));
-        }),
       ],
     );
+  }
+
+  /// Resolves generator questions to produce proper prompts for display.
+  /// Returns a map of question ID to resolved Question.
+  Map<String, Question> _resolveQuestions() {
+    final Map<String, Question> resolved = {};
+
+    for (final response in detail.responses) {
+      final question = response.question;
+
+      if (question.transform != null) {
+        // This question has a transform - resolve it to get generated questions
+        final resolvedQuestions = question.resolve(current: detail);
+        for (final resolvedQ in resolvedQuestions) {
+          if (resolvedQ.prompt.isNotEmpty) {
+            resolved[resolvedQ.id] = resolvedQ;
+          }
+        }
+      }
+    }
+    return resolved;
+  }
+
+  /// Filters responses for display, returns list of (response, resolvedQuestion) pairs
+  List<(Response, Question?)> _getDisplayableResponses(
+      Map<String, Question> resolvedQuestions) {
+    final List<(Response, Question?)> result = [];
+
+    // Track which resolved questions have been used
+    final Set<String> usedResolvedIds = {};
+
+    // First pass: match responses with proper IDs
+    for (final response in detail.responses) {
+      final question = response.question;
+      final prompt = question.prompt;
+
+      // If prompt is valid (not empty and not a template), use as-is
+      if (prompt.isNotEmpty &&
+          !prompt.startsWith('{{') &&
+          !prompt.contains('{value}')) {
+        result.add((response, null));
+        continue;
+      }
+
+      // Check if this is a generated question (ID contains '::')
+      if (question.id.contains(generatedIdDelimiter)) {
+        final resolvedQ = resolvedQuestions[question.id];
+        if (resolvedQ != null && resolvedQ.prompt.isNotEmpty) {
+          result.add((response, resolvedQ));
+          usedResolvedIds.add(question.id);
+          continue;
+        }
+      }
+
+      // Check if question ID is 'empty' - try to match by response index
+      // This handles cases where the generated question ID wasn't properly saved
+      if (question.id == 'empty' && prompt.isEmpty) {
+        // Find an unused resolved question to use
+        for (final entry in resolvedQuestions.entries) {
+          if (!usedResolvedIds.contains(entry.key)) {
+            result.add((response, entry.value));
+            usedResolvedIds.add(entry.key);
+            break;
+          }
+        }
+        continue;
+      }
+
+      // Skip responses with blank prompts that couldn't be resolved
+    }
+
+    return result;
   }
 }
 
 class ResponseDisplay extends ConsumerWidget {
   final Response<Question> res;
+  final Question? resolvedQuestion;
 
-  const ResponseDisplay({required this.res, super.key});
+  const ResponseDisplay({required this.res, this.resolvedQuestion, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -533,39 +647,190 @@ class ResponseDisplay extends ConsumerWidget {
     if (childOverride != null) return childOverride(context, res);
     final QuestionsLocalizations? localizations =
         QuestionsLocalizations.of(context);
+    final colors = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     final Question translatedQuestion =
         localizations?.translateQuestion(res.question) ?? res.question;
 
+    // Use resolved question if provided for prompt and choices
+    final Question effectiveQuestion = resolvedQuestion ?? translatedQuestion;
+    final String displayPrompt = effectiveQuestion.prompt.isNotEmpty
+        ? effectiveQuestion.prompt
+        : translatedQuestion.prompt;
+
+    // Compact row-based layout for better scannability
+    Widget buildResponseRow(String prompt, String response,
+        {bool forceStack = false}) {
+      // If response is very long or explicit stack requested, use column
+      if (forceStack || response.length > 30) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              prompt,
+              style: textTheme.bodyMedium?.copyWith(
+                color: colors.onSurface.withValues(alpha: 0.8),
+              ),
+            ),
+            const SizedBox(height: AppPadding.tiny),
+            Text(
+              response,
+              style: textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: colors.primary,
+              ),
+              textAlign: TextAlign.left,
+            ),
+          ],
+        );
+      }
+
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(
+              prompt,
+              style: textTheme.bodyMedium?.copyWith(
+                color: colors.onSurface.withValues(alpha: 0.8),
+              ),
+            ),
+          ),
+          const SizedBox(width: AppPadding.small),
+          Expanded(
+            flex: 2,
+            child: Text(
+              response,
+              style: textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: colors.primary,
+              ),
+              textAlign: TextAlign.end,
+            ),
+          ),
+        ],
+      );
+    }
+
+    // Helper for choice chips/cards
+    Widget buildChoiceCard(String text) {
+      return Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppPadding.small,
+          vertical: 4,
+        ),
+        decoration: BoxDecoration(
+          color: colors.primaryContainer.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(AppRounding.small),
+          border: Border.all(color: colors.primary.withValues(alpha: 0.3)),
+        ),
+        child: Text(
+          text,
+          style: textTheme.bodySmall?.copyWith(
+            color: colors.onPrimaryContainer,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      );
+    }
+
     switch (res) {
       case OpenResponse(response: String response):
-        return Text('${translatedQuestion.prompt} - $response',
-            textAlign: TextAlign.left,
-            style: Theme.of(context).textTheme.bodyMedium,
-            maxLines: null);
+        // Always stack free response for better readability
+        return buildResponseRow(displayPrompt, response, forceStack: true);
       case NumericResponse(response: num response):
-        return Text('${translatedQuestion.prompt} - $response',
-            textAlign: TextAlign.left,
-            style: Theme.of(context).textTheme.bodyMedium,
-            maxLines: null);
+        return buildResponseRow(displayPrompt, response.toString());
       case Selected():
-        Text(
-          translatedQuestion.prompt,
-          textAlign: TextAlign.left,
-          style: Theme.of(context).textTheme.bodyMedium,
-          maxLines: null,
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Text(
+                displayPrompt,
+                style: textTheme.bodyMedium?.copyWith(
+                  color: colors.onSurface
+                      .withValues(alpha: 0.8), // Matches other prompts
+                ),
+              ),
+            ),
+            const SizedBox(width: AppPadding.small),
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Icon(Icons.check_circle, size: 20, color: colors.primary),
+            ),
+          ],
         );
       case MultiResponse(index: int index):
-        return Text(
-          '${translatedQuestion.prompt} - ${(translatedQuestion as MultipleChoice).choices[index]}',
-          textAlign: TextAlign.left,
-          style: Theme.of(context).textTheme.bodyMedium,
+        final choices = effectiveQuestion is MultipleChoice
+            ? effectiveQuestion.choices
+            : (translatedQuestion as MultipleChoice).choices;
+        final choiceText = index < choices.length
+            ? (localizations?.value(choices[index]) ?? choices[index])
+            : 'Unknown';
+
+        if (choiceText.length < 20) {
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  displayPrompt,
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: colors.onSurface.withValues(alpha: 0.8),
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppPadding.small),
+              buildChoiceCard(choiceText),
+            ],
+          );
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              displayPrompt,
+              style: textTheme.bodyMedium?.copyWith(
+                color: colors.onSurface.withValues(alpha: 0.8),
+              ),
+            ),
+            const SizedBox(height: AppPadding.small),
+            buildChoiceCard(choiceText),
+          ],
         );
       case AllResponse(responses: List<int> responses):
-        return Text(
-          '${translatedQuestion.prompt} - ${responses.map((val) => (translatedQuestion as AllThatApply).choices[val]).join(", ")}',
-          textAlign: TextAlign.left,
-          style: Theme.of(context).textTheme.bodyMedium,
+        final choices = effectiveQuestion is AllThatApply
+            ? effectiveQuestion.choices
+            : (translatedQuestion as AllThatApply).choices;
+        final choiceTexts = responses
+            .map((val) => localizations?.value(choices[val]) ?? choices[val])
+            .toList();
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              displayPrompt,
+              style: textTheme.bodyMedium?.copyWith(
+                color: colors.onSurface.withValues(alpha: 0.8),
+              ),
+            ),
+            if (choiceTexts.isNotEmpty) ...[
+              const SizedBox(height: AppPadding.small),
+              Wrap(
+                spacing: AppPadding.small,
+                runSpacing: AppPadding.small,
+                children: choiceTexts.map((e) => buildChoiceCard(e)).toList(),
+              ),
+            ],
+          ],
         );
       case ResponseWrap(responses: List<Response> responses):
         return Column(
@@ -582,13 +847,6 @@ class ResponseDisplay extends ConsumerWidget {
       case SingleResponseWrap(response: Response response):
         return ResponseDisplay(res: response);
     }
-
-    return Text(
-      translatedQuestion.prompt,
-      textAlign: TextAlign.left,
-      style: Theme.of(context).textTheme.bodyMedium,
-      maxLines: null,
-    );
   }
 }
 
@@ -769,18 +1027,43 @@ class BMRow extends StatelessWidget {
     final Question translatedQuestion =
         localizations?.translateQuestion(response.question) ??
             response.question;
-    return Row(children: [
-      Text('${translatedQuestion.prompt} - ${response.response.toInt()}',
-          style: Theme.of(context).textTheme.bodyMedium, maxLines: null),
-      const SizedBox(
-        width: AppPadding.tiny,
-      ),
-      Image.asset(
-        paths[response.response.toInt() - 1],
-        height: 25,
-        fit: BoxFit.fitHeight,
-      ),
-    ]);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Flexible(
+          child: Text(
+            translatedQuestion.prompt,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withValues(alpha: 0.8),
+                ),
+            maxLines: null,
+          ),
+        ),
+        const SizedBox(width: AppPadding.small),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '${response.response.toInt()}',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+            ),
+            const SizedBox(width: AppPadding.tiny),
+            Image.asset(
+              paths[response.response.toInt() - 1],
+              height: 25,
+              fit: BoxFit.fitHeight,
+            ),
+          ],
+        ),
+      ],
+    );
   }
 }
 
@@ -806,33 +1089,61 @@ class PainSliderDisplay extends StatelessWidget {
       context.translate.painLevelFive,
     ];
     final int selectedIndex = (res.toDouble() / 2).floor();
-    return Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-      Text('${translatedQuestion.prompt} - ${response.response}',
-          style: Theme.of(context).textTheme.bodyMedium, maxLines: null),
-      const SizedBox(
-        width: AppPadding.tiny,
-      ),
-      response.response == -1
-          ? Text(
-              "Undetermined",
-              style: Theme.of(context).textTheme.bodyMedium,
-            )
-          : Wrap(
-              alignment: WrapAlignment.center,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                from(selectedIndex),
-                const SizedBox(
-                  width: AppPadding.tiny,
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Flexible(
+          child: Text(
+            translatedQuestion.prompt,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withValues(alpha: 0.8),
                 ),
-                Text(
-                  hurtLevels[selectedIndex],
-                  style: Theme.of(context).textTheme.bodyMedium,
-                  maxLines: 1,
-                ),
-              ],
-            )
-    ]);
+            maxLines: null,
+          ),
+        ),
+        const SizedBox(width: AppPadding.small),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (response.response != -1) ...[
+              Text(
+                '${response.response}',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+              ),
+              const SizedBox(width: AppPadding.tiny),
+            ],
+            response.response == -1
+                ? Text(
+                    "Undetermined",
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  )
+                : Wrap(
+                    alignment: WrapAlignment.center,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      from(selectedIndex),
+                      const SizedBox(
+                        width: AppPadding.tiny,
+                      ),
+                      Text(
+                        hurtLevels[selectedIndex],
+                        style: Theme.of(context).textTheme.bodyMedium,
+                        maxLines: 1,
+                      ),
+                    ],
+                  )
+          ],
+        ),
+      ],
+    );
   }
 
   Widget from(int index) {
@@ -862,23 +1173,49 @@ class MoodSliderDisplay extends StatelessWidget {
             response.question;
     final int res = response.response.toInt();
     final int selectedIndex = (res.toDouble() / 2).floor();
-    return Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-      Text('${translatedQuestion.prompt} - ${response.response}',
-          style: Theme.of(context).textTheme.bodyMedium, maxLines: null),
-      const SizedBox(
-        width: AppPadding.tiny,
-      ),
-      Wrap(
-        alignment: WrapAlignment.center,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: [
-          from(5 - selectedIndex),
-          const SizedBox(
-            width: AppPadding.tiny,
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Flexible(
+          child: Text(
+            translatedQuestion.prompt,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withValues(alpha: 0.8),
+                ),
+            maxLines: null,
           ),
-        ],
-      )
-    ]);
+        ),
+        const SizedBox(width: AppPadding.small),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '${response.response}',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+            ),
+            const SizedBox(width: AppPadding.tiny),
+            Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                from(5 - selectedIndex),
+                const SizedBox(
+                  width: AppPadding.tiny,
+                ),
+              ],
+            )
+          ],
+        ),
+      ],
+    );
   }
 
   Widget from(int index) {
@@ -906,136 +1243,169 @@ class PainLocationDisplay extends StatelessWidget {
     final AllThatApply translatedQuestion = localizations
             ?.translateQuestion(painLocation.question) as AllThatApply? ??
         painLocation.question;
-    final filledBorder =
-        BorderSide(color: Theme.of(context).colorScheme.onSurface);
+    final colors = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final filledBorder = BorderSide(color: colors.onSurface);
     const blankBorder = BorderSide(color: Colors.transparent);
 
+    final List<String> selectedLocations = painLocation.responses
+        .map((res) => res < translatedQuestion.choices.length
+            ? translatedQuestion.choices[res]
+            : 'Unknown')
+        .toList();
+
     return Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-              '${translatedQuestion.prompt} - ${painLocation.responses.map((res) => translatedQuestion.choices[res]).join(", ")}',
-              style: Theme.of(context).textTheme.bodyMedium,
-              maxLines: null),
-          const SizedBox(
-            width: AppPadding.tiny,
-          ),
-          if (painLocation.responses.isNotEmpty &&
-              Area.fromValue(painLocation.responses[0]) != Area.none)
-            ConstrainedBox(
-              constraints: BoxConstraints(
-                  maxHeight: 100, maxWidth: Breakpoint.tiny.value),
-              child: Stack(children: [
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                        color: Theme.of(context).colorScheme.onSurface),
-                    borderRadius: BorderRadius.circular(AppRounding.medium),
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Flexible(
+              child: Text(
+                translatedQuestion.prompt,
+                style: textTheme.bodyMedium?.copyWith(
+                  color: colors.onSurface.withValues(alpha: 0.8),
+                ),
+              ),
+            ),
+            const SizedBox(width: AppPadding.small),
+          ],
+        ),
+        if (selectedLocations.isNotEmpty) ...[
+          const SizedBox(height: AppPadding.tiny),
+          SizedBox(
+            height: 26.0,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: selectedLocations.length,
+              separatorBuilder: (context, index) =>
+                  const SizedBox(width: AppPadding.tiny),
+              itemBuilder: (context, index) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppPadding.small,
+                    vertical: 4,
                   ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(AppRounding.medium),
-                    clipBehavior: Clip.hardEdge,
-                    child: Image.asset(
-                      'packages/stripes_ui/assets/images/abdomin.png',
-                      fit: BoxFit.fill,
+                  decoration: BoxDecoration(
+                    color: colors.primaryContainer.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(AppRounding.small),
+                    border: Border.all(
+                        color: colors.primary.withValues(alpha: 0.3)),
+                  ),
+                  child: Text(
+                    selectedLocations[index],
+                    style: textTheme.bodySmall?.copyWith(
+                      color: colors.onPrimaryContainer,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                ),
-                const SizedBox(
-                  height: AppPadding.tiny,
-                ),
-                Positioned.fill(
-                  child: FractionallySizedBox(
-                      widthFactor: 0.55,
-                      heightFactor: 0.7,
-                      child: Column(
-                        children: [
-                          ...List.generate(
-                            3,
-                            (colIndex) => Expanded(
-                              child: Row(
-                                children: [
-                                  ...List.generate(3, (rowIndex) {
-                                    final int index = (colIndex * 3) + rowIndex;
-                                    final bool isSelected = painLocation
-                                        .responses
-                                        .contains(index + 1);
-                                    return Expanded(
-                                      child: Container(
-                                        padding: const EdgeInsets.all(
-                                            AppPadding.tiny),
-                                        width: double.infinity,
-                                        height: double.infinity,
-                                        decoration: BoxDecoration(
-                                          border: Border(
-                                              top: colIndex == 0
-                                                  ? blankBorder
-                                                  : filledBorder,
-                                              left: rowIndex == 0
-                                                  ? blankBorder
-                                                  : filledBorder,
-                                              right: rowIndex == 2
-                                                  ? blankBorder
-                                                  : filledBorder,
-                                              bottom: colIndex == 2
-                                                  ? blankBorder
-                                                  : filledBorder),
-                                        ),
-                                        child: Stack(children: [
-                                          Positioned.fill(
-                                            child: FractionallySizedBox(
-                                              widthFactor: 0.9,
-                                              heightFactor: 0.9,
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  gradient: isSelected
-                                                      ? RadialGradient(
-                                                          center:
-                                                              Alignment.center,
-                                                          radius: 0.7,
-                                                          colors: [
-                                                            Theme.of(context)
-                                                                .colorScheme
-                                                                .error,
-                                                            Colors.transparent
-                                                          ],
-                                                          stops: const [
-                                                            0.1,
-                                                            1.0
-                                                          ],
-                                                        )
-                                                      : null,
-                                                ),
-                                                width: double.infinity,
-                                                height: double.infinity,
-                                              ),
-                                            ),
-                                          ),
-                                        ]),
-                                      ), /*SelectableTile(
-                                  row: rowIndex,
-                                  col: colIndex,
-                                  index: index,
-                                  selected: (selected?.contains(area) ?? false)
-                                      ? area
-                                      : null,
-                                  onSelect: (newValue) {
-                                    setResponse(newValue);
-                                  }),*/
-                                    );
-                                  })
-                                ],
-                              ),
-                            ),
-                          )
-                        ],
-                      )),
-                ),
-              ]),
+                );
+              },
             ),
-        ]);
+          ),
+        ],
+        if (painLocation.responses.isNotEmpty &&
+            Area.fromValue(painLocation.responses[0]) != Area.none) ...[
+          const SizedBox(height: AppPadding.small),
+          ConstrainedBox(
+            constraints:
+                BoxConstraints(maxHeight: 100, maxWidth: Breakpoint.tiny.value),
+            child: Stack(children: [
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  border: Border.all(color: colors.onSurface),
+                  borderRadius: BorderRadius.circular(AppRounding.medium),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(AppRounding.medium),
+                  clipBehavior: Clip.hardEdge,
+                  child: Image.asset(
+                    'packages/stripes_ui/assets/images/abdomin.png',
+                    fit: BoxFit.fill,
+                  ),
+                ),
+              ),
+              Positioned.fill(
+                child: FractionallySizedBox(
+                  widthFactor: 0.55,
+                  heightFactor: 0.7,
+                  child: Column(
+                    children: [
+                      ...List.generate(
+                        3,
+                        (colIndex) => Expanded(
+                          child: Row(
+                            children: [
+                              ...List.generate(3, (rowIndex) {
+                                final int index = (colIndex * 3) + rowIndex;
+                                final bool isSelected =
+                                    painLocation.responses.contains(index + 1);
+                                return Expanded(
+                                  child: Container(
+                                    padding:
+                                        const EdgeInsets.all(AppPadding.tiny),
+                                    width: double.infinity,
+                                    height: double.infinity,
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                        top: colIndex == 0
+                                            ? blankBorder
+                                            : filledBorder,
+                                        left: rowIndex == 0
+                                            ? blankBorder
+                                            : filledBorder,
+                                        right: rowIndex == 2
+                                            ? blankBorder
+                                            : filledBorder,
+                                        bottom: colIndex == 2
+                                            ? blankBorder
+                                            : filledBorder,
+                                      ),
+                                    ),
+                                    child: Stack(children: [
+                                      Positioned.fill(
+                                        child: FractionallySizedBox(
+                                          widthFactor: 0.9,
+                                          heightFactor: 0.9,
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              gradient: isSelected
+                                                  ? RadialGradient(
+                                                      center: Alignment.center,
+                                                      radius: 0.7,
+                                                      colors: [
+                                                        colors.error,
+                                                        Colors.transparent
+                                                      ],
+                                                      stops: const [0.1, 1.0],
+                                                    )
+                                                  : null,
+                                            ),
+                                            width: double.infinity,
+                                            height: double.infinity,
+                                          ),
+                                        ),
+                                      ),
+                                    ]),
+                                  ),
+                                );
+                              })
+                            ],
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ]),
+          ),
+        ],
+      ],
+    );
   }
 }

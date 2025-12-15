@@ -9,6 +9,7 @@ import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Providers/stamps_provider.dart';
 
 class BaselineGate extends ConsumerWidget {
   final Widget child;
@@ -329,15 +330,18 @@ class BaselineTriggerTile extends ConsumerWidget {
                   Align(
                     alignment: Alignment.centerRight,
                     child: FilledButton.icon(
-                      onPressed: () {
+                      onPressed: () async {
                         // Dismiss the gate overlay first
                         onStart?.call();
                         // URL encode the recordPath to handle special characters
                         final encoded = Uri.encodeComponent(trigger.recordPath);
-                        context.pushNamed(
+                        await context.pushNamed(
                           RouteName.BASELINE_ENTRY,
                           pathParameters: {'recordPath': encoded},
                         );
+                        if (context.mounted) {
+                          ref.invalidate(baselinesStreamProvider);
+                        }
                       },
                       icon: const Icon(Icons.arrow_forward, size: 16),
                       label: const Text('Start'),

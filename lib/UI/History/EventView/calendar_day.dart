@@ -11,7 +11,8 @@ class CalendarDay extends StatelessWidget {
       rangeStart,
       rangeEnd,
       within,
-      endSelected;
+      endSelected,
+      hasCheckIn;
 
   final CalendarStyle style;
 
@@ -30,6 +31,7 @@ class CalendarDay extends StatelessWidget {
       required this.within,
       required this.endSelected,
       required this.style,
+      this.hasCheckIn = false,
       super.key});
 
   @override
@@ -87,12 +89,27 @@ class CalendarDay extends StatelessWidget {
             child: FittedBox(
               fit: BoxFit.scaleDown,
               child: Center(
-                child: Text(
-                  text,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(color: textColor, fontSize: 20),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      text,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(color: textColor, fontSize: 20),
+                    ),
+                    if (hasCheckIn)
+                      Container(
+                        margin: const EdgeInsets.only(top: 2),
+                        width: 4,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: highlighted ? onPrimary : primary,
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ),

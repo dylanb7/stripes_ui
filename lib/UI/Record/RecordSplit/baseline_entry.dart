@@ -11,6 +11,8 @@ import 'package:stripes_ui/Providers/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
 import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/question_screen.dart';
+import 'package:stripes_ui/UI/Record/RecordSplit/layout_helper.dart';
+import 'package:stripes_ui/UI/Record/RecordSplit/record_layout_shell.dart';
 import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
@@ -45,6 +47,7 @@ class _BaselineEntryState extends ConsumerState<BaselineEntry> {
   bool hasChanged = false;
   bool isLoading = false;
   bool submitSuccess = false;
+  String? _errorMessage;
 
   late final PageController _pageController;
   int _currentIndex = 0;
@@ -125,206 +128,166 @@ class _BaselineEntryState extends ConsumerState<BaselineEntry> {
           }
         }
       },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppPadding.medium),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: Breakpoint.small.value),
-            child: AsyncValueDefaults(
-              value: pagesData,
-              onData: (loadedPages) {
-                final PagesData translatedPage =
-                    localizations?.translatePage(loadedPages) ?? loadedPages;
+      child: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: Breakpoint.small.value),
+          child: AsyncValueDefaults(
+            value: pagesData,
+            onData: (loadedPages) {
+              final PagesData translatedPage =
+                  localizations?.translatePage(loadedPages) ?? loadedPages;
+              final List<LoadedPageLayout> filteredLayouts =
+                  LayoutHelper.processLayouts(
+                loadedLayouts: translatedPage.loadedLayouts,
+                listener: widget.questionListener,
+                deferCleanup: true,
+              );
 
-                // First filter pages by page-level dependsOn
-                final pagesWithDependsOn = translatedPage.loadedLayouts
-                    ?.where(
-                        (page) => page.dependsOn.eval(widget.questionListener))
-                    .toList();
+              if (filteredLayouts.isEmpty) return const SizedBox();
 
-                if (pagesWithDependsOn == null) return const SizedBox();
+              final bool isLastPage =
+                  _currentIndex == filteredLayouts.length - 1;
+              final VoidCallback? onPressed = isLastPage
+                  ? (edited && !isLoading
+                      ? () async {
+                          setState(() => isLoading = true);
+                          try {
+                            await _submit(context, ref, true);
+                          } finally {
+                            if (mounted) setState(() => isLoading = false);
+                          }
+                        }
+                      : null)
+                  : () {
+                      final currentLayout = filteredLayouts[_currentIndex];
+                      final currentQuestions = currentLayout.questions
+                          .where((q) =>
+                              widget.questions == null ||
+                              widget.questions!.any((wq) => wq.id == q.id))
+                          .toList();
 
-                // Then filter questions within each page and exclude empty pages
-                final filteredLayouts = pagesWithDependsOn
-                    .map((page) {
-                      final visibleQuestions = page.questions.where((q) {
-                        // Check question-level dependsOn (null means always visible)
-                        return q.dependsOn?.eval(widget.questionListener) ??
-                            true;
+                      final pendingRequired = currentQuestions.where((q) =>
+                          q.isRequired &&
+                          !widget.questionListener.questions.containsKey(q.id));
+
+                      if (pendingRequired.isNotEmpty) {
+                        widget.questionListener.tried = true;
+                        setState(() {
+                          _errorMessage = context.translate
+                              .nLevelError(pendingRequired.length);
+                        });
+                        return;
+                      }
+
+                      setState(() {
+                        _errorMessage = null;
+                      });
+                      _pageController.nextPage(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut);
+                    };
+
+              // Calculate question progress for current page
+              int totalQuestions = 0;
+              int answeredQuestions = 0;
+              int pendingRequiredCount = 0;
+
+              if (_currentIndex < filteredLayouts.length) {
+                final pageQuestions = filteredLayouts[_currentIndex].questions;
+                totalQuestions = pageQuestions.length;
+                answeredQuestions = pageQuestions
+                    .where(
+                        (q) => widget.questionListener.fromQuestion(q) != null)
+                    .length;
+                pendingRequiredCount = widget.questionListener.pending
+                    .where((q) => pageQuestions.contains(q))
+                    .length;
+              }
+
+              final controller = RecordEntryController(
+                title: localizations?.value(widget.recordPath) ??
+                    widget.recordPath,
+                currentIndex: _currentIndex,
+                totalPages: filteredLayouts.length,
+                pageController: _pageController,
+                onClose: () {
+                  if (context.canPop()) {
+                    context.pop();
+                  } else {
+                    context.go(Routes.HOME);
+                  }
+                },
+                isLoading: isLoading,
+                onControl: onPressed,
+                controlLabel: isLastPage ? 'Submit' : 'Next',
+                isReady: onPressed != null,
+                isSubmit: isLastPage,
+                errorMessage: _errorMessage,
+                onDismissError: () {
+                  setState(() {
+                    _errorMessage = null;
+                  });
+                },
+                totalQuestions: totalQuestions,
+                answeredQuestions: answeredQuestions,
+                pendingRequiredCount: pendingRequiredCount,
+              );
+
+              return RecordEntryProvider(
+                controller: controller,
+                child: RecordEntryShell(
+                  divider: const ComboDivider(),
+                  content: PageView.builder(
+                    controller: _pageController,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: filteredLayouts.length,
+                    onPageChanged: (index) {
+                      setState(() {
+                        _currentIndex = index;
+                        _errorMessage = null;
+                      });
+                    },
+                    itemBuilder: (context, index) {
+                      final layout = filteredLayouts[index];
+                      if (!_scrollControllers.containsKey(index)) {
+                        _scrollControllers[index] = ScrollController();
+                      }
+
+                      final visibleQuestions = layout.questions.where((q) {
+                        return widget.questions == null ||
+                            widget.questions!.any((wq) => wq.id == q.id);
                       }).toList();
-                      return page.copyWith(questions: visibleQuestions);
-                    })
-                    .where((page) => page.questions.isNotEmpty)
-                    .toList();
 
-                if (filteredLayouts.isEmpty) return const SizedBox();
-
-                return Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          top: AppPadding.small, bottom: AppPadding.medium),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Row(
-                            children: [
-                              IconButton(
-                                icon: Icon(_currentIndex == 0
-                                    ? Icons.close
-                                    : Icons.arrow_back),
-                                onPressed: () {
-                                  if (_currentIndex > 0) {
-                                    _pageController.previousPage(
-                                      duration:
-                                          const Duration(milliseconds: 300),
-                                      curve: Curves.easeInOut,
-                                    );
-                                  } else {
-                                    if (context.canPop()) {
-                                      context.pop();
-                                    } else {
-                                      context.go(Routes.HOME);
-                                    }
-                                  }
-                                },
-                              ),
-                              Expanded(
+                      return SingleChildScrollView(
+                        controller: _scrollControllers[index],
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            if (layout.header != null)
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    top: AppPadding.large,
+                                    bottom: AppPadding.medium),
                                 child: Text(
-                                  localizations?.value(widget.recordPath) ??
-                                      widget.recordPath,
-                                  style: Theme.of(context).textTheme.titleLarge,
-                                  textAlign: TextAlign.center,
+                                  layout.header!,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineMedium,
+                                  textAlign: TextAlign.start,
                                 ),
                               ),
-                              const SizedBox(width: 48), // Balance button
-                            ],
-                          ),
-                          const SizedBox(height: AppPadding.small),
-                          LinearProgressIndicator(
-                            value: filteredLayouts.length <= 1
-                                ? 1.0
-                                : _currentIndex / (filteredLayouts.length - 1),
-                            backgroundColor: Theme.of(context)
-                                .colorScheme
-                                .surfaceContainerHighest,
-                            color: Theme.of(context).colorScheme.primary,
-                            borderRadius:
-                                BorderRadius.circular(AppRounding.small),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: PageView.builder(
-                        controller: _pageController,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: filteredLayouts.length,
-                        onPageChanged: (index) {
-                          setState(() {
-                            _currentIndex = index;
-                          });
-                        },
-                        itemBuilder: (context, index) {
-                          final layout = filteredLayouts[index];
-                          // Initialize scroll controller for this page if needed
-                          if (!_scrollControllers.containsKey(index)) {
-                            _scrollControllers[index] = ScrollController();
-                          }
-
-                          // Filter by widget.questions if provided (dependsOn already filtered)
-                          final visibleQuestions = layout.questions.where((q) {
-                            return widget.questions == null ||
-                                widget.questions!.any((wq) => wq.id == q.id);
-                          }).toList();
-
-                          return SingleChildScrollView(
-                            controller: _scrollControllers[index],
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                if (layout.header != null)
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        top: AppPadding.large,
-                                        bottom: AppPadding.medium),
-                                    child: Text(
-                                      layout.header!,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headlineMedium,
-                                      textAlign: TextAlign.start,
-                                    ),
-                                  ),
-                                RenderQuestions(
-                                    questions: visibleQuestions,
-                                    questionsListener: widget.questionListener),
-                                const SizedBox(height: 100), // Bottom padding
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: AppPadding.medium),
-                      child: HybridSubmitButton(
-                        buttonText: "Submit",
-                        isDisabled: !edited,
-                        isLoading: isLoading,
-                        currentIndex: _currentIndex,
-                        totalLength: filteredLayouts.length,
-                        onSubmit: () async {
-                          setState(() {
-                            isLoading = true;
-                          });
-                          try {
-                            // Using _submitEntry logic here but renamed to _submit or inlined
-                            await _submit(context, ref,
-                                true); // true for success? No, just call _submit
-                            // The _submit method will handle state updates and navigation
-                          } finally {
-                            if (mounted) {
-                              setState(() {
-                                isLoading = false;
-                              });
-                            }
-                          }
-                        },
-                        onNext: () {
-                          // Check for unanswered required questions on current page
-                          final currentLayout = filteredLayouts[_currentIndex];
-                          final currentQuestions = currentLayout.questions
-                              .where((q) =>
-                                  widget.questions == null ||
-                                  widget.questions!.any((wq) => wq.id == q.id))
-                              .toList();
-
-                          final pendingRequired = currentQuestions.where((q) =>
-                              q.isRequired &&
-                              !widget.questionListener.questions
-                                  .containsKey(q.id));
-
-                          if (pendingRequired.isNotEmpty) {
-                            widget.questionListener.tried = true;
-                            showSnack(
-                                context,
-                                context.translate
-                                    .nLevelError(pendingRequired.length));
-                            return;
-                          }
-
-                          _pageController.nextPage(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeInOut);
-                        },
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
+                            RenderQuestions(
+                                questions: visibleQuestions,
+                                questionsListener: widget.questionListener),
+                            const SizedBox(height: 100),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              );
+            },
           ),
         ),
       ),
@@ -333,13 +296,12 @@ class _BaselineEntryState extends ConsumerState<BaselineEntry> {
 
   Future<void> _submit(
       BuildContext context, WidgetRef ref, bool isSuccess) async {
-    // Note: This logic was adapted from the original _submitEntry to match the signature needed
     if (widget.questionListener.pending.isNotEmpty) {
       widget.questionListener.tried = true;
-      showSnack(
-          context,
-          context.translate
-              .nLevelError(widget.questionListener.pending.length));
+      setState(() {
+        _errorMessage = context.translate
+            .nLevelError(widget.questionListener.pending.length);
+      });
       return;
     }
 
@@ -356,7 +318,7 @@ class _BaselineEntryState extends ConsumerState<BaselineEntry> {
     } else {
       // Get existing versions and increment
       final versions =
-          await ref.read(baselineVersionsProvider(widget.recordPath).future);
+          ref.read(baselineVersionsProvider(widget.recordPath)).value ?? [];
       final int nextVersion = versions.isEmpty ? 1 : versions.first.version + 1;
       entryId = BaselineId.create(widget.recordPath, nextVersion).toString();
     }
@@ -364,8 +326,9 @@ class _BaselineEntryState extends ConsumerState<BaselineEntry> {
     final DetailResponse detailResponse = DetailResponse(
       id: entryId,
       description: widget.questionListener.description,
-      responses:
-          widget.questionListener.questions.values.toList(growable: false),
+      responses: widget.questionListener.questions.values
+          .map((res) => res.encodeGeneratedQuestion())
+          .toList(growable: false),
       stamp: isEdit
           ? dateToStamp(widget.questionListener.submitTime!)
           : entryStamp,

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
+import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/display_data_provider.dart';
+import 'package:stripes_ui/Providers/questions_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/History/EventView/calendar_day.dart';
 import 'package:stripes_ui/UI/History/EventView/sig_dates.dart';
@@ -37,10 +39,7 @@ class _BottomSheetCalendarState extends ConsumerState<BottomSheetCalendar> {
 
     if (settings.cycle != DisplayTimeCycle.month &&
         _rangeEnd != null &&
-        _rangeEnd!.hour == 0 &&
-        _rangeEnd!.minute == 0 &&
-        _rangeEnd!.second == 0 &&
-        _rangeEnd!.millisecond == 0) {
+        !_dateAltered(_rangeEnd)) {
       _rangeEnd = _rangeEnd!.subtract(const Duration(milliseconds: 1));
     }
     focusedDay = _rangeEnd ?? DateTime.now();
@@ -70,8 +69,44 @@ class _BottomSheetCalendarState extends ConsumerState<BottomSheetCalendar> {
         eventsValue.valueOrNull ?? {};
 
     final bool validRange = _rangeStart != null && _rangeEnd != null;
-
     final DateTime now = DateTime.now();
+
+    final checkinPaths = ref
+        .watch(recordPaths(const RecordPathProps(
+            filterEnabled: true, type: PathProviderType.checkin)))
+        .valueOrNull;
+
+    final Set<DateTime> checkInCoverage = {};
+    if (checkinPaths != null && eventMap.isNotEmpty) {
+      final Map<String, dynamic> typeToPeriod = {
+        for (var p in checkinPaths) p.name: p.period!
+      };
+
+      for (final events in eventMap.values) {
+        for (final event in events) {
+          final period = typeToPeriod[event.type];
+          if (period != null) {
+            final DateTime date = dateFromStamp(event.stamp);
+            final DateTimeRange range = period.getRange(date);
+
+            DateTime iterator =
+                DateTime(range.start.year, range.start.month, range.start.day);
+            final DateTime end =
+                DateTime(range.end.year, range.end.month, range.end.day);
+
+            if (DateUtils.isSameDay(range.start, range.end)) {
+              checkInCoverage.add(iterator);
+            } else {
+              while (!iterator.isAfter(end) && !iterator.isAfter(now)) {
+                checkInCoverage.add(iterator);
+                iterator = iterator.add(const Duration(days: 1));
+              }
+            }
+          }
+        }
+      }
+    }
+
     const CalendarStyle calendarStyle = CalendarStyle(
       cellMargin: EdgeInsets.all(AppPadding.tiny),
       cellPadding: EdgeInsets.zero,
@@ -86,7 +121,6 @@ class _BottomSheetCalendarState extends ConsumerState<BottomSheetCalendar> {
         (_rangeEnd != null && _rangeEnd!.isAfter(now)) ? _rangeEnd! : now;
 
     Widget builder(BuildContext context, DateTime day, DateTime focus) {
-      final int events = eventMap[day]?.length ?? 0;
       final DateTime normalizedDay = DateTime(day.year, day.month, day.day);
       final DateTime? normalizedStart = _rangeStart != null
           ? DateTime(_rangeStart!.year, _rangeStart!.month, _rangeStart!.day)
@@ -106,17 +140,35 @@ class _BottomSheetCalendarState extends ConsumerState<BottomSheetCalendar> {
           !isStart &&
           !isEnd;
 
+      int displayEvents = 0;
+      final List<Response>? dayEvents = eventMap[day];
+
+      if (dayEvents != null && dayEvents.isNotEmpty) {
+        final Set<String> checkinTypes =
+            checkinPaths?.map((p) => p.name).toSet() ?? {};
+
+        if (checkinPaths != null) {
+          displayEvents =
+              dayEvents.where((e) => !checkinTypes.contains(e.type)).length;
+        } else {
+          displayEvents = dayEvents.length;
+        }
+      }
+
+      final bool hasCheckIn = checkInCoverage.contains(normalizedDay);
+
       return CalendarDay(
         day: day,
         isToday: isSameDay(day, now),
         selected: false,
         disabled: day.isAfter(now),
-        events: events,
+        events: displayEvents,
         rangeStart: isStart,
         rangeEnd: isEnd,
         within: isWithin,
         endSelected: normalizedEnd != null,
         style: calendarStyle,
+        hasCheckIn: hasCheckIn,
       );
     }
 
@@ -287,6 +339,14 @@ class _BottomSheetCalendarState extends ConsumerState<BottomSheetCalendar> {
         ),
       ],
     );
+  }
+
+  bool _dateAltered(DateTime? date) {
+    if (date == null) return false;
+    return date.hour != 0 ||
+        date.minute != 0 ||
+        date.second != 0 ||
+        date.millisecond != 0;
   }
 
   void _onYearChange() {

@@ -507,6 +507,10 @@ class _FreeResponseEntryState extends State<FreeResponseEntry> {
     final Response? res = widget.listener.fromQuestion(widget.question);
     if (res != null) {
       controller.text = (res as OpenResponse).response;
+    } else if (widget.question.isRequired) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        widget.listener.addPending(widget.question);
+      });
     }
     controller.addListener(_onEdit);
 
@@ -514,10 +518,21 @@ class _FreeResponseEntryState extends State<FreeResponseEntry> {
   }
 
   _onEdit() {
-    widget.listener.addResponse(OpenResponse(
-        question: widget.question,
-        stamp: dateToStamp(DateTime.now()),
-        response: controller.text));
+    final String text = controller.text;
+    if (text.isEmpty) {
+      widget.listener.removeResponse(widget.question);
+      if (widget.question.isRequired) {
+        widget.listener.addPending(widget.question);
+      }
+    } else {
+      widget.listener.addResponse(OpenResponse(
+          question: widget.question,
+          stamp: dateToStamp(DateTime.now()),
+          response: text));
+      if (widget.question.isRequired) {
+        widget.listener.removePending(widget.question);
+      }
+    }
   }
 
   @override
@@ -532,12 +547,9 @@ class _FreeResponseEntryState extends State<FreeResponseEntry> {
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppPadding.tiny),
-      child: Card(
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(
-            Radius.circular(AppRounding.medium),
-          ),
-        ),
+      child: QuestionWrap(
+        question: widget.question,
+        listener: widget.listener,
         child: Padding(
           padding: const EdgeInsets.symmetric(
               horizontal: AppPadding.small, vertical: AppPadding.tiny),

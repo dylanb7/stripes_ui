@@ -538,16 +538,7 @@ class ViewingMode extends ConsumerWidget {
               dependsOn: page.dependsOn))
           .toList();
 
-      print('=== onSaveDependency ===');
-      print('Original pages count: ${pages.length}');
-      print('PagesCopy count: ${pagesCopy.length}');
-      print('PageLayouts to save: ${pageLayouts.length}');
-      for (int i = 0; i < pageLayouts.length; i++) {
-        print('  Page $i: questions=${pageLayouts[i].questionIds.length}');
-      }
-
       final RecordPath toSave = pageData.path!.copyWith(pages: pageLayouts);
-      print('Path name: ${toSave.name}');
 
       await (await ref.read(questionsProvider.future))
           ?.updateRecordPath(toSave);

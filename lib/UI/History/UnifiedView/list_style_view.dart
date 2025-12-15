@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/record_period.dart';
+import 'package:stripes_ui/Util/date_helper.dart';
 import 'package:stripes_ui/Providers/display_data_provider.dart';
 import 'package:stripes_ui/Providers/questions_provider.dart';
+import 'package:stripes_ui/Providers/stamps_provider.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/UI/AccountManagement/profile_changer.dart';
 import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
+import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
 import 'package:stripes_ui/UI/History/EventView/event_grid.dart';
 import 'package:stripes_ui/UI/History/EventView/export.dart';
 import 'package:stripes_ui/UI/History/GraphView/graphs_list.dart';
@@ -148,19 +151,8 @@ class EventGridHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final DisplayDataSettings settings = ref.watch(displayDataProvider);
-    final DateTime selectedDate = settings.range.start;
-
     final AsyncValue<int> eventsCount = ref.watch(availableStampsProvider
         .select((stamps) => stamps.whenData((data) => data.length)));
-
-    // Get check-in count (completed ones)
-    final AsyncValue<int> checkinCount = ref.watch(
-      checkInPaths(CheckInPathsProps(searchDate: selectedDate))
-          .select((checkins) => checkins.whenData(
-                (items) => items.where((item) => item.response != null).length,
-              )),
-    );
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
@@ -169,16 +161,12 @@ class EventGridHeader extends ConsumerWidget {
         children: [
           AsyncValueDefaults(
             value: eventsCount,
-            onData: (eventValue) {
-              final int checkinsValue = checkinCount.valueOrNull ?? 0;
-              final int total = eventValue + checkinsValue;
-              return Text(
-                "$total Results",
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.primary),
-              );
-            },
+            onData: (value) => Text(
+              "$value Results",
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.primary),
+            ),
             onError: (error) => const SizedBox.shrink(),
             onLoading: (_) => const SizedBox.shrink(),
           ),
@@ -450,127 +438,470 @@ class _DateRangeButtonState extends ConsumerState<DateRangeButton> {
   }
 }
 
-/// Displays all check-ins for the current period - both pending and completed.
+/// Displays completed check-ins within the selected date range.
 class CheckinSection extends ConsumerWidget {
   const CheckinSection({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Use the selected date from history view
+    // Get display settings for range
     final DisplayDataSettings settings = ref.watch(displayDataProvider);
-    final DateTime selectedDate = settings.range.start;
 
-    final AsyncValue<List<CheckinItem>> checkins = ref.watch(
-      checkInPaths(CheckInPathsProps(searchDate: selectedDate)),
-    );
+    // Get check-in path types and periods
+    const RecordPathProps pathProps =
+        RecordPathProps(filterEnabled: true, type: PathProviderType.checkin);
+    final AsyncValue<List<RecordPath>> pathsAsync =
+        ref.watch(recordPaths(pathProps));
 
-    return checkins.when(
-      data: (items) {
-        if (items.isEmpty) {
-          // Debug: show message when no check-ins found
-          return SliverPadding(
-            padding: const EdgeInsets.symmetric(
-                horizontal: AppPadding.xl, vertical: AppPadding.small),
-            sliver: SliverToBoxAdapter(
-              child: Text(
-                'No check-ins configured',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.outline,
-                    ),
-              ),
+    // Get all stamps (unfiltered by date, because we need custom overlap logic)
+    final AsyncValue<List<Stamp>> allStampsAsync =
+        ref.watch(stampsStreamProvider);
+
+    if (allStampsAsync.isLoading || pathsAsync.isLoading) {
+      return const SliverToBoxAdapter(child: SizedBox.shrink());
+    }
+
+    final List<RecordPath> paths = pathsAsync.valueOrNull ?? [];
+    final List<Stamp> allStamps = allStampsAsync.valueOrNull ?? [];
+
+    final Map<String, dynamic> typeToPeriod = {
+      for (var path in paths) path.name: path.period!
+    };
+
+    // Filter stamps: Must be a check-in type AND its period range must overlap the selected range
+    final List<Response> checkinStamps = [];
+    for (final stamp in allStamps) {
+      if (stamp is! Response) continue;
+      // Is it a check-in type?
+      final dynamic period = typeToPeriod[stamp.type];
+      if (period == null) continue;
+
+      // Check overlap
+      final DateTime stampDate = dateFromStamp(stamp.stamp);
+      final DateTimeRange checkinRange = period.getRange(stampDate);
+
+      if (checkinRange.overlaps(settings.range)) {
+        checkinStamps.add(stamp);
+      }
+    }
+
+    if (checkinStamps.isEmpty) {
+      return const SliverToBoxAdapter(child: SizedBox.shrink());
+    }
+
+    // Sort all stamps by date descending (newest first)
+    checkinStamps.sort((a, b) => b.stamp.compareTo(a.stamp));
+
+    // 1. Group by Period String
+    final Map<String, List<Response>> stampsByPeriodGroup = {};
+    final Map<String, DateTime> periodStartForSorting = {};
+
+    for (final stamp in checkinStamps) {
+      final dynamic period = typeToPeriod[stamp.type];
+      final String periodString =
+          period?.getRangeString(DateTime.now(), context) ?? "Other";
+
+      if (!stampsByPeriodGroup.containsKey(periodString)) {
+        stampsByPeriodGroup[periodString] = [];
+        // Capture start time for sorting groups
+        final DateTime stampDate = dateFromStamp(stamp.stamp);
+        final DateTimeRange range = period.getRange(stampDate);
+        periodStartForSorting[periodString] = range.start;
+      }
+      stampsByPeriodGroup[periodString]!.add(stamp);
+    }
+
+    // 2. Sort groups chronologically
+    final List<String> sortedPeriodStrings = stampsByPeriodGroup.keys.toList()
+      ..sort((a, b) {
+        final DateTime? startA = periodStartForSorting[a];
+        final DateTime? startB = periodStartForSorting[b];
+        if (startA == null || startB == null) return 0;
+        return startA.compareTo(startB);
+      });
+
+    final QuestionsLocalizations? localizations =
+        QuestionsLocalizations.of(context);
+    final ColorScheme colors = Theme.of(context).colorScheme;
+
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(
+          horizontal: AppPadding.xl, vertical: AppPadding.tiny),
+      sliver: SliverToBoxAdapter(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Check-ins',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: colors.onSurfaceVariant,
+                  ),
             ),
-          );
-        }
+            const SizedBox(height: AppPadding.tiny),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              clipBehavior: Clip.none, // Allow shadow/blooms to show
+              child: IntrinsicHeight(
+                // align headers/items nicely if needed
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: sortedPeriodStrings.map((periodString) {
+                    final List<Response> groupStamps =
+                        stampsByPeriodGroup[periodString]!;
 
-        final QuestionsLocalizations? localizations =
-            QuestionsLocalizations.of(context);
+                    // Group by type within this period
+                    final Map<String, List<Response>> stampsByType =
+                        groupStamps.groupBy((s) => s.type);
+                    final List<String> sortedTypes = stampsByType.keys.toList()
+                      ..sort();
 
-        // Only show completed check-ins
-        final completedItems =
-            items.where((item) => item.response != null).toList();
+                    return Padding(
+                      padding: const EdgeInsets.only(right: AppPadding.large),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (periodString != "Other")
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 4.0),
+                              child: Text(
+                                periodString,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelSmall
+                                    ?.copyWith(
+                                      color: colors.primary,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                              ),
+                            ),
+                          Wrap(
+                            spacing: AppPadding.tiny,
+                            runSpacing: AppPadding.tiny,
+                            children: sortedTypes.map((type) {
+                              final List<Response> typeStamps =
+                                  stampsByType[type]!;
+                              final String name =
+                                  localizations?.value(type) ?? type;
 
-        if (completedItems.isEmpty) {
-          return const SliverToBoxAdapter(child: SizedBox.shrink());
-        }
+                              String label = name;
+                              if (typeStamps.length > 1) {
+                                label += ' • ${typeStamps.length}';
+                              }
 
-        return SliverPadding(
-          padding: const EdgeInsets.symmetric(
-              horizontal: AppPadding.xl, vertical: AppPadding.tiny),
-          sliver: SliverToBoxAdapter(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Check-ins',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                ),
-                const SizedBox(height: AppPadding.tiny),
-                Wrap(
-                  spacing: AppPadding.tiny,
-                  runSpacing: AppPadding.tiny,
-                  children: completedItems.map((item) {
-                    final translatedItem =
-                        localizations?.translateCheckin(item) ?? item;
-                    final String dateRange =
-                        item.path.period!.getRangeString(selectedDate, context);
+                              // Match "Completed" style from Record Screen
+                              return ActionChip(
+                                visualDensity: VisualDensity.compact,
+                                padding: EdgeInsets.zero,
+                                avatar: Icon(
+                                  Icons.check,
+                                  size: 16,
+                                  color: colors.outline,
+                                ),
+                                label: Text(
+                                  label,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                        color: colors.onSurfaceVariant,
+                                      ),
+                                ),
+                                backgroundColor: colors.surfaceContainerLow,
+                                side: BorderSide(
+                                  color: colors.outlineVariant
+                                      .withValues(alpha: 0.5),
+                                ),
+                                onPressed: () {
+                                  // Find start index in the full sorted list
+                                  final int startIndex =
+                                      checkinStamps.indexOf(typeStamps.first);
 
-                    return ActionChip(
-                      visualDensity: VisualDensity.compact,
-                      padding: EdgeInsets.zero,
-                      avatar: Icon(
-                        Icons.check_circle,
-                        size: 16,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      label: Text(
-                        '${translatedItem.path.name} • $dateRange',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                      backgroundColor: Theme.of(context)
-                          .colorScheme
-                          .primaryContainer
-                          .withValues(alpha: 0.3),
-                      onPressed: () {
-                        context.pushNamed(
-                          'recordType',
-                          pathParameters: {'type': item.type},
-                          extra: QuestionsListener(
-                            responses: item.response!.responses,
-                            editId: item.response?.id,
-                            submitTime: dateFromStamp(item.response!.stamp),
-                            desc: item.response!.description,
+                                  ref.read(sheetControllerProvider).show(
+                                        context: context,
+                                        scrollControlled: true,
+                                        child: (context) => CheckinDetailPager(
+                                          stamps:
+                                              checkinStamps, // Pass ALL stamps
+                                          initialIndex:
+                                              startIndex == -1 ? 0 : startIndex,
+                                          typeToPeriod: typeToPeriod,
+                                        ),
+                                      );
+                                },
+                              );
+                            }).toList(),
                           ),
-                        );
-                      },
+                        ],
+                      ),
                     );
                   }).toList(),
                 ),
-                const SizedBox(height: AppPadding.small),
-                const Divider(height: 1),
+              ),
+            ),
+            const SizedBox(height: AppPadding.small),
+            const Divider(height: 1),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class CheckinDetailPager extends ConsumerStatefulWidget {
+  final List<Response> stamps;
+  final int initialIndex;
+  final Map<String, dynamic> typeToPeriod;
+
+  const CheckinDetailPager({
+    required this.stamps,
+    required this.initialIndex,
+    required this.typeToPeriod,
+    super.key,
+  });
+
+  @override
+  ConsumerState<CheckinDetailPager> createState() => _CheckinDetailPagerState();
+}
+
+class _CheckinDetailPagerState extends ConsumerState<CheckinDetailPager> {
+  late PageController _controller;
+
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+    _controller = PageController(initialPage: widget.initialIndex);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final double sheetHeight = MediaQuery.sizeOf(context).height * 0.75;
+    final QuestionsLocalizations? localizations =
+        QuestionsLocalizations.of(context);
+
+    // Current Stamp Data
+    final stamp = widget.stamps[_currentIndex];
+    final detailStamp = stamp as DetailResponse;
+    final String name = localizations?.value(stamp.type) ?? stamp.type;
+    final DateTime stampDate = dateFromStamp(stamp.stamp);
+    final dynamic period = widget.typeToPeriod[stamp.type];
+
+    return SizedBox(
+      height: sheetHeight,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppPadding.large, vertical: AppPadding.medium),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        transitionBuilder:
+                            (Widget child, Animation<double> animation) {
+                          return FadeTransition(
+                              opacity: animation, child: child);
+                        },
+                        layoutBuilder: (currentChild, previousChildren) {
+                          return Stack(
+                            alignment: Alignment.centerLeft,
+                            children: <Widget>[
+                              ...previousChildren,
+                              if (currentChild != null) currentChild,
+                            ],
+                          );
+                        },
+                        child: Text(
+                          name,
+                          key: ValueKey<String>(name),
+                          textAlign: TextAlign.left,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleLarge
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        transitionBuilder:
+                            (Widget child, Animation<double> animation) {
+                          return FadeTransition(
+                              opacity: animation, child: child);
+                        },
+                        layoutBuilder: (currentChild, previousChildren) {
+                          return Stack(
+                            alignment: Alignment.centerLeft,
+                            children: <Widget>[
+                              ...previousChildren,
+                              if (currentChild != null) currentChild,
+                            ],
+                          );
+                        },
+                        child: Text(
+                          period?.getRangeString(stampDate, context) ??
+                              dateToMDY(stampDate, context),
+                          key: ValueKey<String>(
+                              stamp.id ?? ''), // Unique per stamp
+                          textAlign: TextAlign.left,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        transitionBuilder:
+                            (Widget child, Animation<double> animation) {
+                          return FadeTransition(
+                              opacity: animation, child: child);
+                        },
+                        layoutBuilder: (currentChild, previousChildren) {
+                          return Stack(
+                            alignment: Alignment.centerLeft,
+                            children: <Widget>[
+                              ...previousChildren,
+                              if (currentChild != null) currentChild,
+                            ],
+                          );
+                        },
+                        child: Text(
+                          "Updated ${dateToMDY(stampDate, context)}",
+                          key: ValueKey<String>("updated-${stamp.id ?? ''}"),
+                          textAlign: TextAlign.left,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: AppPadding.small),
+                Row(
+                  children: [
+                    IconButton.filledTonal(
+                      onPressed: () {
+                        Navigator.pop(context); // Close modal
+                        context.pushNamed(
+                          'recordType',
+                          pathParameters: {'type': stamp.type},
+                          extra: QuestionsListener(
+                            responses: detailStamp.responses,
+                            editId: detailStamp.id,
+                            submitTime: stampDate,
+                            desc: detailStamp.description,
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.edit),
+                    ),
+                    const SizedBox(width: AppPadding.tiny),
+                    IconButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      icon: const Icon(Icons.keyboard_arrow_down),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
-        );
-      },
-      loading: () => SliverPadding(
-        padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
-        sliver: SliverToBoxAdapter(
-          child: Text('Loading check-ins...',
-              style: Theme.of(context).textTheme.bodySmall),
-        ),
-      ),
-      error: (error, __) => SliverPadding(
-        padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
-        sliver: SliverToBoxAdapter(
-          child: Text('Error: $error',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: Colors.red)),
-        ),
+          const Divider(height: 1),
+          // Swipeable Content
+          Expanded(
+            child: PageView.builder(
+              controller: _controller,
+              itemCount: widget.stamps.length,
+              onPageChanged: (index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+              },
+              itemBuilder: (context, index) {
+                final pageStamp = widget.stamps[index];
+                final pageDetail = pageStamp as DetailResponse;
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.all(AppPadding.large),
+                  child: DetailDisplay(detail: pageDetail),
+                );
+              },
+            ),
+          ),
+          const Divider(height: 1),
+          // Bottom Navigation Bar
+          if (widget.stamps.length > 1)
+            Padding(
+              padding: const EdgeInsets.all(AppPadding.small),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    onPressed: _currentIndex > 0
+                        ? () {
+                            _controller.previousPage(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
+                          }
+                        : null,
+                    icon: const Icon(Icons.chevron_left),
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: List.generate(widget.stamps.length, (i) {
+                      final bool isSelected = i == _currentIndex;
+                      return AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        margin: const EdgeInsets.symmetric(horizontal: 2.0),
+                        height: 6.0,
+                        width: 6.0,
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).colorScheme.outlineVariant,
+                          borderRadius: BorderRadius.circular(3.0),
+                        ),
+                      );
+                    }),
+                  ),
+                  IconButton(
+                    onPressed: _currentIndex < widget.stamps.length - 1
+                        ? () {
+                            _controller.nextPage(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
+                          }
+                        : null,
+                    icon: const Icon(Icons.chevron_right),
+                  ),
+                ],
+              ),
+            ),
+        ],
       ),
     );
   }

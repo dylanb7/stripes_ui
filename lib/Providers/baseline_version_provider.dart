@@ -72,70 +72,107 @@ class BaselineVersionNotifier extends AsyncNotifier<Map<String, int>> {
 ///
 /// Returns a list of (version, stamp) tuples sorted by version descending.
 final baselineVersionsProvider =
-    FutureProvider.family<List<({int version, int stamp})>, String>(
-        (ref, baselineType) async {
-  final baselines = await ref.watch(baselinesStreamProvider.future);
+    Provider.family<AsyncValue<List<({int version, int stamp})>>, String>(
+        (ref, baselineType) {
+  return ref.watch(baselinesStreamProvider).whenData((baselines) {
+    final List<({int version, int stamp})> versions = [];
 
-  final List<({int version, int stamp})> versions = [];
-
-  for (final stamp in baselines) {
-    if (stamp is DetailResponse && stamp.type == baselineType) {
-      // Try to parse version from the response ID if it's a versioned baseline
-      final parsed = stamp.id != null ? BaselineId.parse(stamp.id!) : null;
-      if (parsed != null) {
-        versions.add((version: parsed.version, stamp: stamp.stamp));
-      } else {
-        // Legacy baseline without version - treat as version 1
-        // Check if we already added a version 1
-        if (!versions.any((v) => v.version == 1)) {
-          versions.add((version: 1, stamp: stamp.stamp));
+    for (final stamp in baselines) {
+      if (stamp is DetailResponse && stamp.type == baselineType) {
+        // Try to parse version from the response ID if it's a versioned baseline
+        final parsed = stamp.id != null ? BaselineId.parse(stamp.id!) : null;
+        if (parsed != null) {
+          versions.add((version: parsed.version, stamp: stamp.stamp));
+        } else {
+          // Legacy baseline without version - treat as version 1
+          // Check if we already added a version 1
+          if (!versions.any((v) => v.version == 1)) {
+            versions.add((version: 1, stamp: stamp.stamp));
+          }
         }
       }
     }
-  }
 
-  // Sort by version descending (latest first)
-  versions.sort((a, b) => b.version.compareTo(a.version));
-  return versions;
+    // Sort by version descending (latest first)
+    versions.sort((a, b) => b.version.compareTo(a.version));
+    return versions;
+  });
 });
 
 /// Provider that returns the effective baseline version to use for a type.
 ///
 /// Uses the user's preference if set, otherwise returns the latest version.
 final effectiveBaselineVersionProvider =
-    FutureProvider.family<int, String>((ref, baselineType) async {
-  final preference = await ref.watch(baselineVersionPreferenceProvider.future);
+    Provider.family<AsyncValue<int>, String>((ref, baselineType) {
+  final AsyncValue<Map<String, int>> preferenceAsync =
+      ref.watch(baselineVersionPreferenceProvider);
+  final AsyncValue<List<({int version, int stamp})>> versionsAsync =
+      ref.watch(baselineVersionsProvider(baselineType));
+
+  if (preferenceAsync.isLoading || versionsAsync.isLoading) {
+    return const AsyncValue.loading();
+  }
+
+  if (preferenceAsync.hasError) {
+    return AsyncValue.error(
+        preferenceAsync.error!, preferenceAsync.stackTrace!);
+  }
+  if (versionsAsync.hasError) {
+    return AsyncValue.error(versionsAsync.error!, versionsAsync.stackTrace!);
+  }
+
+  final preference = preferenceAsync.value ?? {};
   final preferredVersion = preference[baselineType];
 
   if (preferredVersion != null) {
-    return preferredVersion;
+    return AsyncValue.data(preferredVersion);
   }
 
   // No preference set, use latest version
-  final versions =
-      await ref.watch(baselineVersionsProvider(baselineType).future);
+  final versions = versionsAsync.value ?? [];
   if (versions.isEmpty) {
-    return 1; // Default to version 1 if no baselines exist
+    return const AsyncValue.data(
+        1); // Default to version 1 if no baselines exist
   }
-  return versions.first.version;
+  return AsyncValue.data(versions.first.version);
 });
 
-final baselineResponseProvider = FutureProvider.family<DetailResponse?,
-    ({String baselineType, int? version})>((ref, params) async {
-  final baselines = await ref.watch(baselinesStreamProvider.future);
+final baselineResponseProvider = Provider.family<AsyncValue<DetailResponse?>,
+    ({String baselineType, int? version})>((ref, params) {
+  final AsyncValue<List<Stamp>> baselinesAsync =
+      ref.watch(baselinesStreamProvider);
 
-  final effectiveVersion = params.version ??
-      await ref
-          .watch(effectiveBaselineVersionProvider(params.baselineType).future);
+  // We need to resolve the effective version if null is passed
+  AsyncValue<int> effectiveVersionAsync;
+  if (params.version != null) {
+    effectiveVersionAsync = AsyncValue.data(params.version!);
+  } else {
+    effectiveVersionAsync =
+        ref.watch(effectiveBaselineVersionProvider(params.baselineType));
+  }
+
+  if (baselinesAsync.isLoading || effectiveVersionAsync.isLoading) {
+    return const AsyncValue.loading();
+  }
+  if (baselinesAsync.hasError) {
+    return AsyncValue.error(baselinesAsync.error!, baselinesAsync.stackTrace!);
+  }
+  if (effectiveVersionAsync.hasError) {
+    return AsyncValue.error(
+        effectiveVersionAsync.error!, effectiveVersionAsync.stackTrace!);
+  }
+
+  final baselines = baselinesAsync.value ?? [];
+  final effectiveVersion = effectiveVersionAsync.value!;
 
   for (final stamp in baselines) {
     if (stamp is DetailResponse && stamp.type == params.baselineType) {
       final parsed = stamp.id != null ? BaselineId.parse(stamp.id!) : null;
       if (parsed != null && parsed.version == effectiveVersion) {
-        return stamp;
+        return AsyncValue.data(stamp);
       } else if (parsed == null && effectiveVersion == 1) {
         // Legacy baseline without version ID
-        return stamp;
+        return AsyncValue.data(stamp);
       }
     }
   }
@@ -145,8 +182,8 @@ final baselineResponseProvider = FutureProvider.family<DetailResponse?,
       .where((s) => s.type == params.baselineType)
       .toList();
 
-  if (matching.isEmpty) return null;
+  if (matching.isEmpty) return const AsyncValue.data(null);
 
   matching.sort((a, b) => b.stamp.compareTo(a.stamp));
-  return matching.first;
+  return AsyncValue.data(matching.first);
 });

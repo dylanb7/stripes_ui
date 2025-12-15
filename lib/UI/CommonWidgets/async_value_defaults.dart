@@ -17,17 +17,27 @@ class AsyncValueDefaults<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return value.map(
-        data: (data) => onData(data.value),
-        error: onError ??
-            (error) => Center(
-                  child: Text(
-                    error.error.toString(),
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.error,
-                        ),
+    return value.when(
+        skipLoadingOnReload: true,
+        data: (data) => onData(data),
+        error: (error, stack) {
+          if (onError != null) {
+            return onError!(AsyncError(error, stack));
+          }
+          return Center(
+            child: Text(
+              error.toString(),
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.error,
                   ),
-                ),
-        loading: onLoading ?? (_) => const LoadingWidget());
+            ),
+          );
+        },
+        loading: () {
+          if (onLoading != null) {
+            return onLoading!(AsyncLoading<T>());
+          }
+          return const LoadingWidget();
+        });
   }
 }

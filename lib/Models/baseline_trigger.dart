@@ -16,6 +16,13 @@ class BaselineTrigger {
 
   /// Returns true if this baseline has been completed.
   bool isComplete(List<Stamp> baselines) {
-    return baselines.any((s) => s.type == baselineType);
+    return baselines.any((s) {
+      // Check direct type match
+      if (s.type == baselineType) return true;
+      // Check if the ID indicates this baseline type (for versioned baselines)
+      final id = s.id;
+      if (id != null && id.startsWith(baselineType)) return true;
+      return false;
+    });
   }
 }

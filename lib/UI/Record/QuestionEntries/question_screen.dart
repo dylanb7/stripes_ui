@@ -17,31 +17,38 @@ class QuestionScreen extends StatelessWidget {
 
   final QuestionsListener questionsListener;
 
+  final DetailResponse? baseline;
+
   const QuestionScreen(
       {required this.header,
       required this.questions,
       required this.questionsListener,
+      this.baseline,
       super.key});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const SizedBox(
-          height: AppPadding.small,
-        ),
-        Text(
-          header,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.bold),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(
-          height: AppPadding.small,
-        ),
+        if (header.isNotEmpty) ...[
+          const SizedBox(
+            height: AppPadding.small,
+          ),
+          Text(
+            header,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(
+            height: AppPadding.small,
+          ),
+        ],
         RenderQuestions(
-            questions: questions, questionsListener: questionsListener),
+            questions: questions,
+            questionsListener: questionsListener,
+            baseline: baseline),
         const SizedBox(height: AppPadding.xl),
       ],
     );
@@ -53,8 +60,13 @@ class RenderQuestions extends ConsumerWidget {
 
   final QuestionsListener questionsListener;
 
+  final DetailResponse? baseline;
+
   const RenderQuestions(
-      {required this.questions, required this.questionsListener, super.key});
+      {required this.questions,
+      required this.questionsListener,
+      this.baseline,
+      super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -70,6 +82,7 @@ class RenderQuestions extends ConsumerWidget {
         return QuestionResolverWrapper(
           question: question,
           questionsListener: questionsListener,
+          baseline: baseline,
           builder: (question) {
             final EntryBuilder? override =
                 questionEntries[question.id]?.entryBuilder;
@@ -162,11 +175,13 @@ class QuestionResolverWrapper extends ConsumerWidget {
   final Question question;
   final QuestionsListener questionsListener;
   final Widget Function(Question) builder;
+  final DetailResponse? baseline;
 
   const QuestionResolverWrapper({
     required this.question,
     required this.questionsListener,
     required this.builder,
+    this.baseline,
     super.key,
   });
 
@@ -188,6 +203,15 @@ class QuestionResolverWrapper extends ConsumerWidget {
 
   Widget _buildBaselineResolved(BuildContext context, WidgetRef ref,
       QuestionsLocalizations? localizations) {
+    // If baseline is provided explicitly, use it without watching provider
+    if (baseline != null) {
+      if (baseline!.type != question.fromBaseline) {
+        // Should match, but if not, fallback or validation?
+        // Assuming the passed baseline is the correct one for the path.
+      }
+      return _resolveAndBuild(baseline, localizations);
+    }
+
     final AsyncValue<DetailResponse?> baselineResponse = ref.watch(
       baselineResponseProvider(
         (baselineType: question.fromBaseline!, version: null),
@@ -195,27 +219,29 @@ class QuestionResolverWrapper extends ConsumerWidget {
     );
 
     return baselineResponse.when(
-      data: (latest) {
-        if (latest == null) return builder(question);
-
-        final int baselineVersion = _extractVersion(latest);
-
-        final List<Question> resolvedQuestions = question.resolveFromBaseline(
-          baseline: latest,
-          baselineVersion: baselineVersion,
-        );
-
-        // Translate the resolved questions using template-aware translation
-        final translatedQuestions = resolvedQuestions
-            .map((q) =>
-                localizations?.translateGeneratedQuestion(q, question) ?? q)
-            .toList();
-
-        return _buildResolvedQuestions(translatedQuestions);
-      },
+      data: (latest) => _resolveAndBuild(latest, localizations),
       error: (_, __) => builder(question),
       loading: () => builder(question),
     );
+  }
+
+  Widget _resolveAndBuild(
+      DetailResponse? latest, QuestionsLocalizations? localizations) {
+    if (latest == null) return builder(question);
+
+    final int baselineVersion = _extractVersion(latest);
+
+    final List<Question> resolvedQuestions = question.resolveFromBaseline(
+      baseline: latest,
+      baselineVersion: baselineVersion,
+    );
+
+    // Translate the resolved questions using template-aware translation
+    final translatedQuestions = resolvedQuestions
+        .map((q) => localizations?.translateGeneratedQuestion(q, question) ?? q)
+        .toList();
+
+    return _buildResolvedQuestions(translatedQuestions);
   }
 
   Widget _buildMidRecordingResolved(
@@ -300,8 +326,6 @@ class _GeneratedQuestionsGroup extends StatefulWidget {
   final List<Question> resolvedQuestions;
   final Widget Function(Question) builder;
 
-  static const int collapseThreshold = 3;
-
   const _GeneratedQuestionsGroup({
     required this.sourceQuestion,
     required this.resolvedQuestions,
@@ -317,17 +341,6 @@ class _GeneratedQuestionsGroupState extends State<_GeneratedQuestionsGroup>
     with TickerProviderStateMixin {
   late List<AnimationController> _controllers;
   late List<Animation<double>> _animations;
-  bool _isExpanded = false;
-
-  bool get _shouldCollapse =>
-      widget.resolvedQuestions.length >
-      _GeneratedQuestionsGroup.collapseThreshold;
-
-  int get _visibleCount => _isExpanded
-      ? widget.resolvedQuestions.length
-      : (_shouldCollapse
-          ? _GeneratedQuestionsGroup.collapseThreshold
-          : widget.resolvedQuestions.length);
 
   @override
   void initState() {
@@ -349,26 +362,9 @@ class _GeneratedQuestionsGroupState extends State<_GeneratedQuestionsGroup>
     }).toList();
 
     // Stagger the animations with 100ms delay between each (only for visible)
-    for (int i = 0; i < _visibleCount; i++) {
+    for (int i = 0; i < widget.resolvedQuestions.length; i++) {
       Future.delayed(Duration(milliseconds: i * 100), () {
         if (mounted && i < _controllers.length) {
-          _controllers[i].forward();
-        }
-      });
-    }
-  }
-
-  void _expand() {
-    setState(() {
-      _isExpanded = true;
-    });
-
-    for (int i = _GeneratedQuestionsGroup.collapseThreshold;
-        i < _controllers.length;
-        i++) {
-      final delay = (i - _GeneratedQuestionsGroup.collapseThreshold) * 100;
-      Future.delayed(Duration(milliseconds: delay), () {
-        if (mounted) {
           _controllers[i].forward();
         }
       });
@@ -382,7 +378,6 @@ class _GeneratedQuestionsGroupState extends State<_GeneratedQuestionsGroup>
       for (final controller in _controllers) {
         controller.dispose();
       }
-      _isExpanded = false;
       _initAnimations();
     }
   }
@@ -399,7 +394,6 @@ class _GeneratedQuestionsGroupState extends State<_GeneratedQuestionsGroup>
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final int totalCount = widget.resolvedQuestions.length;
-    final int hiddenCount = totalCount - _visibleCount;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -420,7 +414,7 @@ class _GeneratedQuestionsGroupState extends State<_GeneratedQuestionsGroup>
           ),
         ),
 
-        for (int i = 0; i < _visibleCount; i++)
+        for (int i = 0; i < totalCount; i++)
           FadeTransition(
             opacity: _animations[i],
             child: SlideTransition(
@@ -431,37 +425,6 @@ class _GeneratedQuestionsGroupState extends State<_GeneratedQuestionsGroup>
               child: widget.builder(widget.resolvedQuestions[i]),
             ),
           ),
-
-        if (_shouldCollapse && !_isExpanded)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: AppPadding.small),
-            child: Center(
-              child: TextButton.icon(
-                onPressed: _expand,
-                icon: const Icon(Icons.expand_more, size: 18),
-                label: Text('Show $hiddenCount more questions'),
-                style: TextButton.styleFrom(
-                  foregroundColor: colorScheme.primary,
-                  textStyle: Theme.of(context).textTheme.labelMedium,
-                ),
-              ),
-            ),
-          ),
-
-        if (_isExpanded)
-          for (int i = _GeneratedQuestionsGroup.collapseThreshold;
-              i < totalCount;
-              i++)
-            FadeTransition(
-              opacity: _animations[i],
-              child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0, 0.1),
-                  end: Offset.zero,
-                ).animate(_animations[i]),
-                child: widget.builder(widget.resolvedQuestions[i]),
-              ),
-            ),
       ],
     );
   }
