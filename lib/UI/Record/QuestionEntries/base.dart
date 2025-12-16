@@ -6,330 +6,282 @@ import 'package:stripes_backend_helper/QuestionModel/question.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_backend_helper/date_format.dart';
-import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
-import 'package:stripes_ui/UI/Record/QuestionEntries/question_screen.dart';
+import 'package:stripes_ui/UI/Record/QuestionEntries/question_entry_scope.dart';
+
 import 'package:stripes_ui/UI/Record/severity_slider.dart';
 import 'package:stripes_ui/Util/paddings.dart';
 
-class MultiChoiceEntry extends ConsumerStatefulWidget {
+class MultiChoiceEntry extends ConsumerWidget {
   final MultipleChoice question;
-
   final QuestionsListener listener;
 
-  const MultiChoiceEntry(
-      {required this.question, required this.listener, super.key});
+  const MultiChoiceEntry({
+    required this.question,
+    required this.listener,
+    super.key,
+  });
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _MultiChoiceEntryState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    return QuestionEntryScope(
+      question: question,
+      listener: listener,
+      child: Builder(builder: (context) {
+        final controller = QuestionEntryScope.of(context);
 
-class _MultiChoiceEntryState extends ConsumerState<MultiChoiceEntry> {
-  @override
-  void initState() {
-    final bool pending = selected() == null;
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      if (pending && widget.question.isRequired) {
-        widget.listener.addPending(widget.question);
-      }
-    });
-    super.initState();
-  }
+        return ListenableBuilder(
+          listenable: controller,
+          builder: (context, _) {
+            final List<String> answers = question.choices;
+            final int? selectedIndex = _getSelectedIndex(controller);
 
-  @override
-  Widget build(BuildContext context) {
-    final List<String> answers = widget.question.choices;
-    final int? selectedIndex = selected();
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppPadding.tiny),
-      child: QuestionWrap(
-        question: widget.question,
-        listener: widget.listener,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-              horizontal: AppPadding.small, vertical: AppPadding.small),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Flexible(
-                child: Text(
-                  widget.question.prompt,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
+            return QuestionEntryCard(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppPadding.small,
+                vertical: AppPadding.small,
               ),
-              if (widget.question.userCreated) ...[
-                const SizedBox(
-                  height: AppPadding.tiny,
-                ),
-                Text(
-                  "custom symptom",
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).disabledColor.darken(),
-                      ),
-                ),
-              ],
-              const SizedBox(
-                height: AppPadding.small,
-              ),
-              Column(
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
-                children: answers.mapIndexed((index, choice) {
-                  final bool isSelected = index == selectedIndex;
-                  return Selection(
-                      text: choice,
-                      onClick: () {
-                        _onTap(isSelected, index);
-                      },
-                      selected: isSelected);
-                }).toList(),
+                children: [
+                  Flexible(
+                    child: Text(
+                      question.prompt,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ),
+                  if (question.userCreated) ...[
+                    const SizedBox(height: AppPadding.tiny),
+                    Text(
+                      "custom symptom",
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).disabledColor.darken(),
+                          ),
+                    ),
+                  ],
+                  const SizedBox(height: AppPadding.small),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.min,
+                    children: answers.mapIndexed((index, choice) {
+                      final bool isSelected = index == selectedIndex;
+                      return Selection(
+                        text: choice,
+                        onClick: () => _onTap(controller, isSelected, index),
+                        selected: isSelected,
+                      );
+                    }).toList(),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
-      ),
+            );
+          },
+        );
+      }),
     );
   }
 
-  int? selected() {
-    Response? logged = widget.listener.fromQuestion(widget.question);
-    if (logged == null) return null;
-    return (logged as MultiResponse).index;
+  int? _getSelectedIndex(QuestionEntryController controller) {
+    final Response? response = controller.response;
+    if (response == null) return null;
+    return (response as MultiResponse).index;
   }
 
-  _onTap(bool isSelected, int index) {
+  void _onTap(QuestionEntryController controller, bool isSelected, int index) {
     if (isSelected) {
-      if (widget.question.isRequired) {
-        widget.listener.addPending(widget.question);
-      }
-      widget.listener.removeResponse(widget.question);
+      controller.removeResponse();
     } else {
-      if (widget.question.isRequired) {
-        widget.listener.removePending(widget.question);
-      }
-      widget.listener.addResponse(MultiResponse(
-          question: widget.question,
-          stamp: dateToStamp(DateTime.now()),
-          index: index));
+      controller.addResponse(MultiResponse(
+        question: question,
+        stamp: controller.stamp,
+        index: index,
+      ));
     }
-    setState(() {});
   }
 }
 
-class AllThatApplyEntry extends StatefulWidget {
+class AllThatApplyEntry extends StatelessWidget {
   final QuestionsListener listener;
-
   final AllThatApply question;
 
-  const AllThatApplyEntry(
-      {required this.listener, required this.question, super.key});
-
-  @override
-  State<AllThatApplyEntry> createState() => _AllThatApplyEntryState();
-}
-
-class _AllThatApplyEntryState extends State<AllThatApplyEntry> {
-  @override
-  void initState() {
-    final bool pending = selected() == null;
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      if (pending && widget.question.isRequired) {
-        widget.listener.addPending(widget.question);
-      }
-    });
-    super.initState();
-  }
+  const AllThatApplyEntry({
+    required this.listener,
+    required this.question,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final List<String> answers = widget.question.choices;
-    final List<int>? selectedIndices = selected();
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppPadding.tiny),
-      child: QuestionWrap(
-        question: widget.question,
-        listener: widget.listener,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-              horizontal: AppPadding.small, vertical: AppPadding.small),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Flexible(
-                child: Text(
-                  widget.question.prompt,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
+    return QuestionEntryScope(
+      question: question,
+      listener: listener,
+      child: Builder(builder: (context) {
+        final controller = QuestionEntryScope.of(context);
+
+        return ListenableBuilder(
+          listenable: controller,
+          builder: (context, _) {
+            final List<String> answers = question.choices;
+            final List<int>? selectedIndices = _getSelectedIndices(controller);
+
+            return QuestionEntryCard(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppPadding.small,
+                vertical: AppPadding.small,
               ),
-              if (widget.question.userCreated) ...[
-                const SizedBox(
-                  height: AppPadding.tiny,
-                ),
-                Text(
-                  "custom symptom",
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).disabledColor.darken(),
-                      ),
-                ),
-              ],
-              const SizedBox(
-                height: AppPadding.small,
-              ),
-              Column(
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
-                children: answers.mapIndexed((index, choice) {
-                  final bool isSelected =
-                      selectedIndices?.contains(index) ?? false;
-                  return Selection(
-                      text: choice,
-                      onClick: () {
-                        _onTap(isSelected, index, selectedIndices);
-                      },
-                      selected: isSelected);
-                }).toList(),
+                children: [
+                  Flexible(
+                    child: Text(
+                      question.prompt,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ),
+                  if (question.userCreated) ...[
+                    const SizedBox(height: AppPadding.tiny),
+                    Text(
+                      "custom symptom",
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).disabledColor.darken(),
+                          ),
+                    ),
+                  ],
+                  const SizedBox(height: AppPadding.small),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.min,
+                    children: answers.mapIndexed((index, choice) {
+                      final bool isSelected =
+                          selectedIndices?.contains(index) ?? false;
+                      return Selection(
+                        text: choice,
+                        onClick: () => _onTap(
+                            controller, isSelected, index, selectedIndices),
+                        selected: isSelected,
+                      );
+                    }).toList(),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
-      ),
+            );
+          },
+        );
+      }),
     );
   }
 
-  List<int>? selected() {
-    Response? logged = widget.listener.fromQuestion(widget.question);
-    if (logged == null) return null;
-    return [...(logged as AllResponse).responses];
+  List<int>? _getSelectedIndices(QuestionEntryController controller) {
+    final Response? response = controller.response;
+    if (response == null) return null;
+    return [...(response as AllResponse).responses];
   }
 
-  _onTap(bool isSelected, int index, List<int>? selectedIndices) {
+  void _onTap(
+    QuestionEntryController controller,
+    bool isSelected,
+    int index,
+    List<int>? selectedIndices,
+  ) {
     if (isSelected) {
       final int currentCount = selectedIndices?.length ?? 0;
       if (currentCount <= 1) {
-        if (widget.question.isRequired) {
-          widget.listener.addPending(widget.question);
-        }
-        widget.listener.removeResponse(widget.question);
+        // Last item - remove entirely
+        controller.removeResponse();
       } else {
-        widget.listener.addResponse(
+        // Remove just this index but keep others
+        controller.addResponse(
           AllResponse(
-            question: widget.question,
-            stamp: dateToStamp(DateTime.now()),
+            question: question,
+            stamp: controller.stamp,
             responses: selectedIndices!..remove(index),
           ),
         );
       }
     } else {
-      if (widget.question.isRequired) {
-        widget.listener.removePending(widget.question);
-      }
-      widget.listener.addResponse(
+      controller.addResponse(
         AllResponse(
-          question: widget.question,
-          stamp: dateToStamp(DateTime.now()),
+          question: question,
+          stamp: controller.stamp,
           responses: [...(selectedIndices ?? []), index],
         ),
       );
     }
-    setState(() {});
   }
 }
 
-class CheckBoxWidget extends StatefulWidget {
+class CheckBoxWidget extends StatelessWidget {
   final Check check;
-
   final QuestionsListener listener;
 
-  const CheckBoxWidget(
-      {required this.check, required this.listener, super.key});
-
-  @override
-  State<CheckBoxWidget> createState() => _CheckBoxWidgetState();
-}
-
-class _CheckBoxWidgetState extends State<CheckBoxWidget> {
-  @override
-  void initState() {
-    final bool isNotChecked =
-        widget.listener.fromQuestion(widget.check) == null;
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      if (isNotChecked && widget.check.isRequired) {
-        widget.listener.addPending(widget.check);
-      }
-    });
-    super.initState();
-  }
+  const CheckBoxWidget({
+    required this.check,
+    required this.listener,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        _onTap();
-      },
-      child: QuestionWrap(
-        question: widget.check,
-        listener: widget.listener,
-        styled: false,
-        child: Column(
-          children: [
-            Selection(
-                text: widget.check.prompt,
-                onClick: () {
-                  _onTap();
-                },
-                selected: selected),
-            if (widget.check.userCreated) ...[
-              const SizedBox(
-                height: AppPadding.tiny,
-              ),
-              Text(
-                "custom symptom",
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).disabledColor.darken(),
+    return QuestionEntryScope(
+      question: check,
+      listener: listener,
+      child: Builder(builder: (context) {
+        final controller = QuestionEntryScope.of(context);
+
+        return ListenableBuilder(
+          listenable: controller,
+          builder: (context, _) {
+            final bool isSelected = controller.hasResponse;
+
+            return QuestionEntryCard(
+              styled: false,
+              child: Column(
+                children: [
+                  Selection(
+                    text: check.prompt,
+                    onClick: () => _onTap(controller),
+                    selected: isSelected,
+                  ),
+                  if (check.userCreated) ...[
+                    const SizedBox(height: AppPadding.tiny),
+                    Text(
+                      "custom symptom",
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).disabledColor.darken(),
+                          ),
                     ),
+                  ],
+                ],
               ),
-            ],
-          ],
-        ),
-      ),
+            );
+          },
+        );
+      }),
     );
   }
 
-  bool get selected => widget.listener.fromQuestion(widget.check) != null;
-
-  _onTap() {
-    setState(() {
-      if (selected) {
-        // Unchecking - add back to pending if required
-        if (widget.check.isRequired) {
-          widget.listener.addPending(widget.check);
-        }
-        widget.listener.removeResponse(widget.check);
-      } else {
-        // Checking - remove from pending if required
-        if (widget.check.isRequired) {
-          widget.listener.removePending(widget.check);
-        }
-        widget.listener.addResponse(Selected(
-            question: widget.check, stamp: dateToStamp(DateTime.now())));
-      }
-    });
+  void _onTap(QuestionEntryController controller) {
+    controller.toggleResponse(() => Selected(
+          question: check,
+          stamp: controller.stamp,
+        ));
   }
 }
 
 class SeverityWidget extends ConsumerStatefulWidget {
   final QuestionsListener questionsListener;
-
   final Numeric question;
 
-  const SeverityWidget(
-      {required this.questionsListener, required this.question, super.key});
+  const SeverityWidget({
+    required this.questionsListener,
+    required this.question,
+    super.key,
+  });
 
   @override
   ConsumerState<SeverityWidget> createState() => _SeverityWidgetState();
@@ -337,66 +289,72 @@ class SeverityWidget extends ConsumerStatefulWidget {
 
 class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
   late double value;
-
   final SliderListener _sliderListener = SliderListener();
-
-  late final ExpandibleController _controller;
 
   @override
   void initState() {
-    _controller = ExpandibleController(false);
+    super.initState();
     final double max = (widget.question.max ?? 5).toDouble();
     final double min = (widget.question.min ?? 1).toDouble();
-
     value = (((max - min) / 2) + min).roundToDouble();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      num? val = response();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final num? val = _getResponse();
       if (val != null) {
         value = val.toDouble();
-        _controller.set(true);
         _sliderListener.interacted();
-        if (mounted) {
-          setState(() {});
-        }
+        if (mounted) setState(() {});
       }
     });
 
-    _controller.addListener(_expandListener);
-    _sliderListener.addListener(_interactListener);
-    super.initState();
+    _sliderListener.addListener(_onSliderInteract);
   }
 
-  _interactListener() {
+  void _onSliderInteract() {
     widget.questionsListener.removePending(widget.question);
   }
 
-  _expandListener() {
-    if (_controller.expanded) {
-      if (_sliderListener.hasInteracted) {
-        _saveValue();
-      } else {
-        widget.questionsListener.addPending(widget.question);
-      }
-    } else {
-      widget.questionsListener.removeResponse(widget.question);
-      widget.questionsListener.removePending(widget.question);
-    }
+  @override
+  void dispose() {
+    _sliderListener.removeListener(_onSliderInteract);
+    super.dispose();
+  }
+
+  num? _getResponse() {
+    final Response? res =
+        widget.questionsListener.fromQuestion(widget.question);
+    if (res == null) return null;
+    return (res as NumericResponse).response;
+  }
+
+  void _saveValue() {
+    widget.questionsListener.addResponse(NumericResponse(
+      question: widget.question,
+      stamp: dateToStamp(DateTime.now()),
+      response: value,
+    ));
+  }
+
+  void _clearValue() {
+    widget.questionsListener.removeResponse(widget.question);
+    _sliderListener.hasInteracted = false;
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(
+    return QuestionEntryScope(
+      question: widget.question,
+      listener: widget.questionsListener,
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(
               top: AppPadding.small,
               right: AppPadding.tiny,
-              left: AppPadding.tiny),
-          child: QuestionWrap(
-            question: widget.question,
-            listener: widget.questionsListener,
-            child: Padding(
+              left: AppPadding.tiny,
+            ),
+            child: QuestionEntryCard(
               padding: const EdgeInsets.all(AppPadding.small),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -406,9 +364,7 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   if (widget.question.userCreated) ...[
-                    const SizedBox(
-                      height: AppPadding.tiny,
-                    ),
+                    const SizedBox(height: AppPadding.tiny),
                     Text(
                       "custom symptom",
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -416,9 +372,7 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
                           ),
                     ),
                   ],
-                  const SizedBox(
-                    height: AppPadding.small,
-                  ),
+                  const SizedBox(height: AppPadding.small),
                   StripesSlider(
                     initial: value.toInt(),
                     min: widget.question.min?.toInt() ?? 1,
@@ -436,104 +390,94 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
               ),
             ),
           ),
-        ),
-        if (_sliderListener.hasInteracted)
-          Positioned(
-            right: 0.0,
-            top: AppPadding.tiny,
-            child: GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onTap: () {
-                widget.questionsListener.removeResponse(widget.question);
-                _sliderListener.hasInteracted = false;
-              },
-              child: DecoratedBox(
-                decoration: BoxDecoration(
+          if (_sliderListener.hasInteracted)
+            Positioned(
+              right: 0.0,
+              top: AppPadding.tiny,
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: _clearValue,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(),
-                    color: Theme.of(context).colorScheme.surface),
-                child: const Padding(
-                  padding: EdgeInsets.all(AppPadding.tiny),
-                  child: Icon(
-                    Icons.close,
-                    size: 14.0,
+                    color: Theme.of(context).colorScheme.surface,
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.all(AppPadding.tiny),
+                    child: Icon(Icons.close, size: 14.0),
                   ),
                 ),
               ),
             ),
-          ),
-      ],
+        ],
+      ),
     );
-  }
-
-  num? response() {
-    Response? res = widget.questionsListener.fromQuestion(widget.question);
-    if (res == null) return null;
-    return (res as NumericResponse).response;
-  }
-
-  _saveValue() {
-    widget.questionsListener.addResponse(NumericResponse(
-        question: widget.question,
-        stamp: dateToStamp(DateTime.now()),
-        response: value));
-  }
-
-  @override
-  void dispose() {
-    _controller.removeListener(_expandListener);
-    _sliderListener.removeListener(_interactListener);
-    super.dispose();
   }
 }
 
 class FreeResponseEntry extends StatefulWidget {
   final FreeResponse question;
-
   final QuestionsListener listener;
 
-  const FreeResponseEntry(
-      {required this.question, required this.listener, super.key});
+  const FreeResponseEntry({
+    required this.question,
+    required this.listener,
+    super.key,
+  });
 
   @override
-  State<StatefulWidget> createState() => _FreeResponseEntryState();
+  State<FreeResponseEntry> createState() => _FreeResponseEntryState();
 }
 
 class _FreeResponseEntryState extends State<FreeResponseEntry> {
   final TextEditingController controller = TextEditingController();
+  bool _initialized = false;
 
   @override
   void initState() {
-    final Response? res = widget.listener.fromQuestion(widget.question);
-    if (res != null) {
-      controller.text = (res as OpenResponse).response;
-    } else if (widget.question.isRequired) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        widget.listener.addPending(widget.question);
-      });
-    }
-    controller.addListener(_onEdit);
-
     super.initState();
+    controller.addListener(_onEdit);
   }
 
-  _onEdit() {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      final Response? res = widget.listener.fromQuestion(widget.question);
+      if (res != null) {
+        controller.text = (res as OpenResponse).response;
+      }
+      _initialized = true;
+    }
+  }
+
+  void _onEdit() {
+    // We don't update state immediately on every keystroke to avoid spamming
+    // the listener, but we could debouce if needed.
+    // For now, mirroring original behavior but using local state
+    // The actual update happens via the controller in the build method scope
+    // or we need access to the scope controller here.
+    // Since we are in State, we can't easily access the scope controller
+    // unless we look it up. But the look up requires context.
+
+    final entryController = QuestionEntryScope.maybeOf(context);
+    if (entryController == null) return;
+
     final String text = controller.text;
     if (text.isEmpty) {
-      widget.listener.removeResponse(widget.question);
-      if (widget.question.isRequired) {
-        widget.listener.addPending(widget.question);
-      }
+      entryController.removeResponse();
     } else {
-      widget.listener.addResponse(OpenResponse(
-          question: widget.question,
-          stamp: dateToStamp(DateTime.now()),
-          response: text));
-      if (widget.question.isRequired) {
-        widget.listener.removePending(widget.question);
-      }
+      entryController.addResponse(OpenResponse(
+        question: widget.question,
+        stamp: entryController.stamp,
+        response: text,
+      ));
     }
   }
+
+  // Note: The previous implementation logic for adding/removing pending
+  // is now handled by QuestionEntryController automatically.
 
   @override
   Widget build(BuildContext context) {
@@ -545,116 +489,130 @@ class _FreeResponseEntryState extends State<FreeResponseEntry> {
         borderRadius:
             const BorderRadius.all(Radius.circular(AppRounding.small)));
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppPadding.tiny),
-      child: QuestionWrap(
-        question: widget.question,
-        listener: widget.listener,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-              horizontal: AppPadding.small, vertical: AppPadding.tiny),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                widget.question.prompt,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              if (widget.question.userCreated) ...[
-                const SizedBox(
-                  height: AppPadding.tiny,
-                ),
-                Text(
-                  "custom symptom",
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).disabledColor.darken(),
-                      ),
-                ),
-              ],
-              const SizedBox(
-                height: AppPadding.tiny,
-              ),
-              SizedBox(
-                height: 120,
-                child: TextField(
-                  controller: controller,
-                  maxLines: null,
-                  keyboardType: TextInputType.multiline,
-                  textCapitalization: TextCapitalization.sentences,
-                  textInputAction: TextInputAction.newline,
-                  expands: true,
-                  textAlignVertical: TextAlignVertical.top,
-                  decoration: InputDecoration(
-                      focusedBorder: borderStyle,
-                      border: borderStyle,
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: AppPadding.small,
-                          vertical: AppPadding.tiny)),
-                ),
-              ),
-              const SizedBox(
-                height: AppPadding.tiny,
-              ),
-            ],
-          ),
-        ),
-      ),
+    return QuestionEntryScope(
+      question: widget.question,
+      listener: widget.listener,
+      child: Builder(builder: (context) {
+        // We need to make sure the controller logic in _onEdit has access to this scope
+        // The _onEdit listener is called when text changes.
+        // context in _onEdit is this widget's context.
+        // BUT QuestionEntryScope is a child of this widget.
+        // So QuestionEntryScope.of(context) will NOT work in _onEdit if we use 'context' of _FreeResponseEntryState.
+        // We need to modify the structure or how we access the controller.
+
+        // Better approach: Pass the controller to the methods or use a wrapper.
+        // Actually, since this is a StatefulWidget, we can just use the listener directly
+        // for the text editing part, OR we can put the TextEditingController
+        // inside a child widget that is under the Scope.
+
+        // Let's refactor to put content in a separate widget or use a builder pattern that works.
+        // Or simpler: The QuestionEntryController wraps the listener.
+        // We can just use the listener directly for logic as before,
+        // BUT we want to use the consistency of the Scope.
+
+        // Let's try to grab the controller in the builder and pass it to a callback wrapper.
+        // Or cleaner: make _FreeResponseEntryContent widget.
+
+        return QuestionEntryContent(
+          question: widget.question,
+          controller: controller, // TextEditingController
+          borderStyle: borderStyle,
+        );
+      }),
     );
   }
 
   @override
   void dispose() {
-    widget.listener.removeListener(_onEdit);
+    controller.removeListener(_onEdit);
+    controller.dispose();
     super.dispose();
   }
 }
 
-class DependentEntry extends StatefulWidget {
-  final bool Function(QuestionsListener) showing;
+class QuestionEntryContent extends StatelessWidget {
+  final FreeResponse question;
+  final TextEditingController controller;
+  final InputBorder borderStyle;
 
-  final QuestionsListener listener;
-
-  final Question question;
-
-  const DependentEntry(
-      {super.key,
-      required this.listener,
-      required this.question,
-      required this.showing});
-
-  @override
-  State<StatefulWidget> createState() => DependentEntryState();
-}
-
-class DependentEntryState extends State<DependentEntry> {
-  bool showing = false;
-
-  @override
-  void initState() {
-    showing = widget.showing(widget.listener);
-    widget.listener.addListener(_updateShowing);
-
-    super.initState();
-  }
-
-  _updateShowing() {
-    setState(() {
-      showing = widget.showing(widget.listener);
-    });
-  }
+  const QuestionEntryContent({
+    super.key,
+    required this.question,
+    required this.controller,
+    required this.borderStyle,
+  });
 
   @override
   Widget build(BuildContext context) {
-    if (!showing) return Container();
-    return RenderQuestions(
-        questions: [widget.question], questionsListener: widget.listener);
-  }
+    final scopeController = QuestionEntryScope.of(context);
 
-  @override
-  void dispose() {
-    widget.listener.removeListener(_updateShowing);
-    super.dispose();
+    // We need to hook up the listener here or in the parent?
+    // If we hook in parent, we can't access scopeController.
+    // So we should add listener here? But TextEditingController is passed in.
+    // Use ValueListenableBuilder on text controller?
+
+    return ListenableBuilder(
+        listenable: controller,
+        builder: (context, _) {
+          // This ensures we have the latest text, but we need to trigger updates to scopeController
+          // We can do that in onChange of TextField?
+          // TextField has onChanged.
+
+          return QuestionEntryCard(
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppPadding.small, vertical: AppPadding.tiny),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  question.prompt,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                if (question.userCreated) ...[
+                  const SizedBox(height: AppPadding.tiny),
+                  Text(
+                    "custom symptom",
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).disabledColor.darken(),
+                        ),
+                  ),
+                ],
+                const SizedBox(height: AppPadding.tiny),
+                SizedBox(
+                  height: 120,
+                  child: TextField(
+                    controller: controller,
+                    maxLines: null,
+                    keyboardType: TextInputType.multiline,
+                    textCapitalization: TextCapitalization.sentences,
+                    textInputAction: TextInputAction.newline,
+                    expands: true,
+                    textAlignVertical: TextAlignVertical.top,
+                    onChanged: (text) {
+                      if (text.isEmpty) {
+                        scopeController.removeResponse();
+                      } else {
+                        scopeController.addResponse(OpenResponse(
+                          question: question,
+                          stamp: scopeController.stamp,
+                          response: text,
+                        ));
+                      }
+                    },
+                    decoration: InputDecoration(
+                        focusedBorder: borderStyle,
+                        border: borderStyle,
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: AppPadding.small,
+                            vertical: AppPadding.tiny)),
+                  ),
+                ),
+                const SizedBox(height: AppPadding.tiny),
+              ],
+            ),
+          );
+        });
   }
 }
 

@@ -188,20 +188,39 @@ class _BaselineEntryState extends ConsumerState<BaselineEntry> {
                     };
 
               // Calculate question progress for current page
+              // This includes both static questions and generated questions (with :: in ID)
               int totalQuestions = 0;
               int answeredQuestions = 0;
               int pendingRequiredCount = 0;
 
               if (_currentIndex < filteredLayouts.length) {
                 final pageQuestions = filteredLayouts[_currentIndex].questions;
-                totalQuestions = pageQuestions.length;
-                answeredQuestions = pageQuestions
-                    .where(
-                        (q) => widget.questionListener.fromQuestion(q) != null)
+                final pageQuestionIds = pageQuestions.map((q) => q.id).toSet();
+
+                // Helper to check if a question ID belongs to this page
+                // Generated questions have IDs like "sourceId::index"
+                bool belongsToPage(String questionId) {
+                  if (pageQuestionIds.contains(questionId)) return true;
+                  // Check if it's a generated question from a page question
+                  final parts = questionId.split('::');
+                  if (parts.length > 1) {
+                    return pageQuestionIds.contains(parts.first);
+                  }
+                  return false;
+                }
+
+                // Count all answered questions (static + generated) for this page
+                answeredQuestions = widget.questionListener.questions.keys
+                    .where((qId) => belongsToPage(qId))
                     .length;
+
+                // Count all pending required questions for this page
                 pendingRequiredCount = widget.questionListener.pending
-                    .where((q) => pageQuestions.contains(q))
+                    .where((q) => belongsToPage(q.id))
                     .length;
+
+                // Total = answered + pending (includes both static and generated)
+                totalQuestions = answeredQuestions + pendingRequiredCount;
               }
 
               final controller = RecordEntryController(

@@ -306,7 +306,7 @@
   "painLevelThree": "Hurts Even More",
   "painLevelFour": "Hurts Whole Lot",
   "painLevelFive": "Hurts Worst",
-  "nLevelError": "{count, plural, =1{Missing entry} other{Missing entries}}",
+  "nLevelError": "{count, plural, =1{Missing entry} other{Missing {count} entries}}",
   "@nLevelError": {
     "placeholders": {
       "count": {
@@ -496,5 +496,64 @@
   "stampDeleteCancel": "Cancel",
   "exitStudy": "Exit Study",
   "exitStudyWarning": "When you exit the study all exported data will be deleted and your access code will be invalidated",
-  "passwordConfirm": "Confirm Password"
+  "passwordConfirm": "Confirm Password",
+  "exportDataTitle": "Export Data",
+  "exportOptionCsv": "CSV Export",
+  "exportOptionCsvDesc": "Raw data in spreadsheet format",
+  "exportOptionReport": "Summary Report",
+  "exportOptionReportDesc": "PDF report with summary statistics",
+  "csvExportTitle": "CSV Export",
+  "csvExportPreview": "Export Preview",
+  "csvTotalRows": "Total Rows",
+  "csvDetailEntries": "Detail Entries",
+  "csvBlueDyeTests": "Blue Dye Tests",
+  "csvFilesToGenerate": "Files to Generate",
+  "csvEntriesWithRows": "{count} entries with {rows} rows",
+  "@csvEntriesWithRows": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "rows": {"type": "int"}
+    }
+  },
+  "csvBlueDyeTestResults": "{count} Blue Dye test results",
+  "@csvBlueDyeTestResults": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "csvSampleData": "Sample Data",
+  "csvNoDetailEntries": "No detail entries to preview",
+  "csvExportButton": "Export CSV",
+  "csvExporting": "Exporting...",
+  "csvExportFailed": "Failed to export: {error}",
+  "@csvExportFailed": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "reportTitle": "Summary Report",
+  "reportPreview": "Report Preview",
+  "reportTotalEntries": "Total Entries",
+  "reportDaysWithData": "Days with Data",
+  "reportCategories": "Categories",
+  "reportEntriesByCategory": "Entries by Category",
+  "reportContents": "Report Contents",
+  "reportContentsDesc": "The PDF report will include:\n• Summary statistics for the selected period\n• Breakdown by entry category\n• Response distributions and averages\n• Blue Dye test results (if available)",
+  "reportGeneratePdf": "Generate PDF",
+  "reportGenerating": "Generating...",
+  "reportGenerationFailed": "Failed to generate report: {error}",
+  "@reportGenerationFailed": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "tableHeaderDate": "Date",
+  "tableHeaderType": "Type",
+  "tableHeaderResponse": "Response",
+  "entriesCount": "{count} entries",
+  "@entriesCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  }
 }

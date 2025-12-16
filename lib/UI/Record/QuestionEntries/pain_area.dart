@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/base.dart';
-import 'package:stripes_ui/UI/Record/QuestionEntries/question_screen.dart';
+import 'package:stripes_ui/UI/Record/QuestionEntries/question_entry_scope.dart';
 import 'package:stripes_ui/Util/paddings.dart';
 
 class PainAreaWidget extends ConsumerStatefulWidget {
@@ -113,116 +113,29 @@ extension ToValue on Area {
 }
 
 class _PainAreaWidgetState extends ConsumerState<PainAreaWidget> {
-  @override
-  void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      widget.questionsListener.addListener(_state);
-    });
-    super.initState();
-  }
+  // We can remove the listener in initState because we use QuestionEntryScope
+  // which rebuilds/notifies. Or we can use the scope controller.
 
-  _state() {
-    setState(() {});
-  }
-
-  List<Area>? response() {
-    Response? res = widget.questionsListener.fromQuestion(widget.question);
+  List<Area>? _getResponse() {
+    final Response? res =
+        widget.questionsListener.fromQuestion(widget.question);
     if (res == null) return null;
     List<int> index = (res as AllResponse).responses;
     return index.map((value) => Area.fromValue(value)).toList();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final List<Area>? selected = response();
+  void _setResponse(Area newValue) {
+    // We can use the controller if we access it via context or pass it.
+    // However, the logic here is specific.
+    // We'll mimic the old logic but use standard listener calls or controller calls.
+    // Using listener directly is fine as long as we use QuestionEntryScope for wrapper.
+    // Actually, QuestionEntryController methods are cleaner if they support this.
+    // But for AllThatApply with custom exclusive logic (Area.none), exact control is better.
+    // We will assume QuestionEntryScope handles the "pending" state via listener updates?
+    // Yes, QuestionEntryController listens to the listener.
 
-    return QuestionWrap(
-      question: widget.question,
-      listener: widget.questionsListener,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppPadding.medium),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            const SizedBox(
-              height: AppPadding.medium,
-            ),
-            IntrinsicHeight(
-              child: Stack(children: [
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                        color: Theme.of(context).colorScheme.onSurface),
-                    borderRadius: BorderRadius.circular(AppRounding.medium),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(AppRounding.medium),
-                    clipBehavior: Clip.hardEdge,
-                    child: Image.asset(
-                      'packages/stripes_ui/assets/images/abdomin.png',
-                      fit: BoxFit.fill,
-                    ),
-                  ),
-                ),
-                Positioned.fill(
-                  child: FractionallySizedBox(
-                      widthFactor: 0.55,
-                      heightFactor: 0.7,
-                      child: Column(
-                        children: [
-                          ...List.generate(
-                            3,
-                            (colIndex) => Expanded(
-                              child: Row(
-                                children: [
-                                  ...List.generate(3, (rowIndex) {
-                                    final int index = (colIndex * 3) + rowIndex;
-                                    final Area area = Area.fromValue(index + 1);
-                                    return Expanded(
-                                      child: SelectableTile(
-                                          row: rowIndex,
-                                          col: colIndex,
-                                          index: index,
-                                          selected: (selected?.contains(area) ??
-                                                  false)
-                                              ? area
-                                              : null,
-                                          onSelect: (newValue) {
-                                            setResponse(newValue);
-                                          }),
-                                    );
-                                  })
-                                ],
-                              ),
-                            ),
-                          )
-                        ],
-                      )),
-                ),
-              ]),
-            ),
-            const SizedBox(
-              height: AppPadding.medium,
-            ),
-            Selection(
-                text: "Unable to determine pain location",
-                onClick: () {
-                  setResponse(Area.none);
-                },
-                selected: selected?.contains(Area.none) ?? false),
-            const SizedBox(
-              height: AppPadding.medium,
-            )
-          ],
-        ),
-      ),
-    );
-  }
+    final List<Area>? current = _getResponse();
 
-  setResponse(Area newValue) {
-    final List<Area>? current = response();
     if (newValue == Area.none) {
       if (current?.contains(newValue) ?? false) {
         widget.questionsListener.removeResponse(widget.question);
@@ -239,6 +152,7 @@ class _PainAreaWidgetState extends ConsumerState<PainAreaWidget> {
       }
       return;
     }
+
     if (current == null) {
       widget.questionsListener.addResponse(AllResponse(
           question: widget.question,
@@ -279,9 +193,92 @@ class _PainAreaWidgetState extends ConsumerState<PainAreaWidget> {
   }
 
   @override
-  void dispose() {
-    widget.questionsListener.removeListener(_state);
-    super.dispose();
+  Widget build(BuildContext context) {
+    final List<Area>? selected = _getResponse();
+
+    return QuestionEntryScope(
+      question: widget.question,
+      listener: widget.questionsListener,
+      child: QuestionEntryCard(
+        styled: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppPadding.medium),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              const SizedBox(height: AppPadding.medium),
+              IntrinsicHeight(
+                child: Stack(children: [
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                          color: Theme.of(context).colorScheme.onSurface),
+                      borderRadius: BorderRadius.circular(AppRounding.medium),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(AppRounding.medium),
+                      clipBehavior: Clip.hardEdge,
+                      child: Image.asset(
+                        'packages/stripes_ui/assets/images/abdomin.png',
+                        fit: BoxFit.fill,
+                      ),
+                    ),
+                  ),
+                  Positioned.fill(
+                    child: FractionallySizedBox(
+                        widthFactor: 0.55,
+                        heightFactor: 0.7,
+                        child: Column(
+                          children: [
+                            ...List.generate(
+                              3,
+                              (colIndex) => Expanded(
+                                child: Row(
+                                  children: [
+                                    ...List.generate(3, (rowIndex) {
+                                      final int index =
+                                          (colIndex * 3) + rowIndex;
+                                      final Area area =
+                                          Area.fromValue(index + 1);
+                                      return Expanded(
+                                        child: SelectableTile(
+                                            row: rowIndex,
+                                            col: colIndex,
+                                            index: index,
+                                            selected:
+                                                (selected?.contains(area) ??
+                                                        false)
+                                                    ? area
+                                                    : null,
+                                            onSelect: (newValue) {
+                                              _setResponse(newValue);
+                                            }),
+                                      );
+                                    })
+                                  ],
+                                ),
+                              ),
+                            )
+                          ],
+                        )),
+                  ),
+                ]),
+              ),
+              const SizedBox(height: AppPadding.medium),
+              Selection(
+                  text: "Unable to determine pain location",
+                  onClick: () {
+                    _setResponse(Area.none);
+                  },
+                  selected: selected?.contains(Area.none) ?? false),
+              const SizedBox(height: AppPadding.medium)
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 

@@ -113,64 +113,6 @@ class RenderQuestions extends ConsumerWidget {
   }
 }
 
-class QuestionWrap extends ConsumerStatefulWidget {
-  final Question question;
-
-  final QuestionsListener listener;
-
-  final Widget child;
-
-  final bool styled;
-
-  const QuestionWrap(
-      {required this.question,
-      required this.listener,
-      required this.child,
-      this.styled = true,
-      super.key});
-
-  @override
-  ConsumerState<ConsumerStatefulWidget> createState() => QuestionWrapState();
-}
-
-class QuestionWrapState extends ConsumerState<QuestionWrap> {
-  @override
-  void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      if (widget.question.isRequired && !hasEntry) {
-        widget.listener.addPending(widget.question);
-      }
-    });
-
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (!widget.styled) return widget.child;
-    final bool hasError = widget.listener.tried &&
-        widget.listener.pending.contains(widget.question);
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 150),
-      decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius:
-              const BorderRadius.all(Radius.circular(AppRounding.medium)),
-          border: hasEntry
-              ? Border.all(
-                  width: 3.0, color: Theme.of(context).colorScheme.primary)
-              : hasError
-                  ? Border.all(
-                      width: 3.0, color: Theme.of(context).colorScheme.error)
-                  : Border.all(
-                      width: 3.0, color: Theme.of(context).dividerColor)),
-      child: widget.child,
-    );
-  }
-
-  bool get hasEntry => widget.listener.fromQuestion(widget.question) != null;
-}
-
 class QuestionResolverWrapper extends ConsumerWidget {
   final Question question;
   final QuestionsListener questionsListener;

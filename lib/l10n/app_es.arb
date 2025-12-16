@@ -343,7 +343,7 @@
     "painLevelThree": "Hurts Even More",
     "painLevelFour": "Hurts Whole Lot",
     "painLevelFive": "Hurts Worst",
-    "nLevelError": "{count, plural, =1{Missing entry} other{Missing entries}}",
+    "nLevelError": "{count, plural, =1{Missing entry} other{Missing {count} entries}}",
     "@nLevelError": {
         "placeholders": {
             "count": {

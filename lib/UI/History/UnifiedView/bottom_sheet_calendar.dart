@@ -230,7 +230,8 @@ class _BottomSheetCalendarState extends ConsumerState<BottomSheetCalendar> {
                                   .subtract(const Duration(milliseconds: 1));
                             }
                             ref.read(displayDataProvider.notifier).setRange(
-                                DateTimeRange(start: _rangeStart!, end: end));
+                                DateTimeRange(start: _rangeStart!, end: end),
+                                cycle: DisplayTimeCycle.custom);
                             Navigator.of(context).pop();
                           }
                         : null,

@@ -4,10 +4,12 @@ import 'package:intl/intl.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/display_data_provider.dart';
 import 'package:stripes_ui/Providers/questions_provider.dart';
+import 'package:stripes_ui/Util/breakpoint.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/l10n/questions_delegate.dart';
 
 class EventGrid extends ConsumerWidget {
   final bool daysSeparated;
@@ -42,6 +44,35 @@ class EventGrid extends ConsumerWidget {
         .where((response) => !checkinTypes.contains(response.type))
         .toList();
 
+    // Use SliverGrid for large screens
+    if (MediaQuery.of(context).size.width > Breakpoint.large.value) {
+      if (!daysSeparated) {
+        return SliverPadding(
+          padding: const EdgeInsets.only(
+              left: AppPadding.xl, right: AppPadding.xl, bottom: AppPadding.xl),
+          sliver: SliverGrid(
+            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 400,
+              mainAxisExtent: 180,
+              crossAxisSpacing: AppPadding.small,
+              mainAxisSpacing: AppPadding.small,
+            ),
+            delegate: SliverChildBuilderDelegate(
+              (context, index) => EntryDisplay(event: availableStamps[index]),
+              childCount: availableStamps.length,
+            ),
+          ),
+        );
+      }
+
+      return SliverPadding(
+        padding: const EdgeInsets.only(
+            left: AppPadding.xl, right: AppPadding.xl, bottom: AppPadding.xl),
+        sliver:
+            _buildAdaptiveGrid(context, ref, availableStamps, symptomsGrouping),
+      );
+    }
+
     if (!daysSeparated) {
       return SliverPadding(
         padding: const EdgeInsets.only(
@@ -51,8 +82,34 @@ class EventGrid extends ConsumerWidget {
       );
     }
 
-    Map<DateTime, List<Response>> questionsByDay = {};
-    for (final Response response in availableStamps) {
+    // Flatten the list into lightweight data items
+    final List<_GridItem> items = _buildGridItems(
+      context,
+      availableStamps,
+      symptomsGrouping,
+    );
+
+    return SliverPadding(
+      padding: const EdgeInsets.only(
+          left: AppPadding.xl, right: AppPadding.xl, bottom: AppPadding.xl),
+      sliver: SliverList.builder(
+        itemCount: items.length,
+        itemBuilder: (context, index) {
+          final item = items[index];
+          return item.build(context, ref);
+        },
+      ),
+    );
+  }
+
+  Widget _buildAdaptiveGrid(
+    BuildContext context,
+    WidgetRef ref,
+    List<Response> stamps,
+    bool groupSymptoms,
+  ) {
+    final Map<DateTime, List<Response>> questionsByDay = {};
+    for (final Response response in stamps) {
       final DateTime responseDate = dateFromStamp(response.stamp);
       final DateTime day =
           DateTime(responseDate.year, responseDate.month, responseDate.day);
@@ -64,20 +121,207 @@ class EventGrid extends ConsumerWidget {
     }
 
     final List<DateTime> keys = questionsByDay.keys.toList();
-    List<Widget> components = [];
+    final List<Widget> slivers = [];
+
     for (int i = 0; i < keys.length; i++) {
       final DateTime dateGroup = keys[i];
-      final DateFormat headerFormat = dateGroup.year == DateTime.now().year
-          ? DateFormat.MMMd()
-          : DateFormat.yMMMd();
       final List<Response> daySymptoms = questionsByDay[dateGroup]!;
 
-      components.add(
-        Padding(
-          padding: const EdgeInsetsGeometry.only(bottom: AppPadding.tiny),
-          child: RichText(
+      // Add Header
+      slivers.add(SliverToBoxAdapter(
+        child: _HeaderItem(date: dateGroup, count: daySymptoms.length)
+            .build(context, ref),
+      ));
+
+      // Add Grid Content (using Rows for expansion)
+      int crossAxisCount = (MediaQuery.of(context).size.width / 400).ceil();
+      if (crossAxisCount < 1) crossAxisCount = 1;
+
+      // Chunk responses into rows
+      final List<List<Response>> chunks = [];
+      for (var i = 0; i < daySymptoms.length; i += crossAxisCount) {
+        chunks.add(daySymptoms.sublist(
+            i,
+            (i + crossAxisCount) > daySymptoms.length
+                ? daySymptoms.length
+                : i + crossAxisCount));
+      }
+
+      slivers.add(SliverList.builder(
+        itemCount: chunks.length,
+        itemBuilder: (context, index) {
+          final chunk = chunks[index];
+          return Padding(
+            padding: const EdgeInsets.only(bottom: AppPadding.small),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: chunk
+                  .map((e) => Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: AppPadding.tiny),
+                          child: EntryDisplay(event: e),
+                        ),
+                      ))
+                  .toList()
+                ..addAll(List.generate(
+                    crossAxisCount - chunk.length,
+                    (index) => const Expanded(
+                            child: SizedBox(
+                          height: 10,
+                        )))), // Fill empty spaces
+            ),
+          );
+        },
+      ));
+
+      // Add Divider if not last day
+      if (i < keys.length - 1) {
+        slivers.add(const SliverToBoxAdapter(
+          child: Divider(
+            height: AppPadding.xxl,
+          ),
+        ));
+      }
+    }
+
+    return SliverMainAxisGroup(slivers: slivers);
+  }
+
+  List<_GridItem> _buildGridItems(
+    BuildContext context,
+    List<Response> stamps,
+    bool groupSymptoms,
+  ) {
+    final Map<DateTime, List<Response>> questionsByDay = {};
+    for (final Response response in stamps) {
+      final DateTime responseDate = dateFromStamp(response.stamp);
+      final DateTime day =
+          DateTime(responseDate.year, responseDate.month, responseDate.day);
+      if (questionsByDay.containsKey(day)) {
+        questionsByDay[day]!.add(response);
+      } else {
+        questionsByDay[day] = [response];
+      }
+    }
+
+    final List<DateTime> keys = questionsByDay.keys.toList();
+    final List<_GridItem> items = [];
+
+    for (int i = 0; i < keys.length; i++) {
+      final DateTime dateGroup = keys[i];
+      final List<Response> daySymptoms = questionsByDay[dateGroup]!;
+
+      // Add Header
+      items.add(_HeaderItem(date: dateGroup, count: daySymptoms.length));
+
+      // Add Content
+      if (groupSymptoms) {
+        // Group by type
+        Map<String, List<Response>> byType = {};
+        for (final Response response in daySymptoms) {
+          if (byType.containsKey(response.type)) {
+            byType[response.type]!.add(response);
+          } else {
+            byType[response.type] = [response];
+          }
+        }
+        for (final type in byType.keys) {
+          items.add(_GroupedItem(
+            type: type,
+            responses: byType[type]!,
+          ));
+        }
+      } else {
+        // Flat list of responses
+        for (final response in daySymptoms) {
+          items.add(_ResponseItem(response: response));
+        }
+      }
+
+      // Add Divider if not last day
+      if (i < keys.length - 1) {
+        items.add(const _DividerItem());
+      }
+    }
+
+    return items;
+  }
+}
+
+sealed class _GridItem {
+  const _GridItem();
+  Widget build(BuildContext context, WidgetRef ref);
+}
+
+class _HeaderItem extends _GridItem {
+  final DateTime date;
+  final int count;
+
+  const _HeaderItem({required this.date, required this.count});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final DateFormat headerFormat = date.year == DateTime.now().year
+        ? DateFormat.MMMd()
+        : DateFormat.yMMMd();
+
+    return Padding(
+      padding: const EdgeInsetsGeometry.only(bottom: AppPadding.tiny),
+      child: RichText(
+        text: TextSpan(
+            text: headerFormat.format(date),
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(fontWeight: FontWeight.bold),
+            children: [
+              TextSpan(
+                text: " · ${context.translate.eventFilterResults(count)}",
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.75)),
+              )
+            ]),
+        textAlign: TextAlign.left,
+      ),
+    );
+  }
+}
+
+class _ResponseItem extends _GridItem {
+  final Response response;
+
+  const _ResponseItem({required this.response});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppPadding.small),
+      child: EntryDisplay(event: response),
+    );
+  }
+}
+
+class _GroupedItem extends _GridItem {
+  final String type;
+  final List<Response> responses;
+
+  const _GroupedItem({required this.type, required this.responses});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final QuestionsLocalizations? localizations =
+        QuestionsLocalizations.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppPadding.tiny),
+      child: ExpandibleSymptomArea(
+          header: RichText(
             text: TextSpan(
-                text: headerFormat.format(dateGroup),
+                text: localizations?.value(type) ?? type,
                 style: Theme.of(context)
                     .textTheme
                     .titleMedium
@@ -85,7 +329,7 @@ class EventGrid extends ConsumerWidget {
                 children: [
                   TextSpan(
                     text:
-                        " · ${context.translate.eventFilterResults(daySymptoms.length)}",
+                        " · ${context.translate.eventFilterResults(responses.length)}",
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context)
                             .colorScheme
@@ -95,27 +339,18 @@ class EventGrid extends ConsumerWidget {
                 ]),
             textAlign: TextAlign.left,
           ),
-        ),
-      );
+          responses: responses),
+    );
+  }
+}
 
-      components.add(
-          RenderEntryGroup(responses: daySymptoms, grouped: symptomsGrouping));
-      if (i < keys.length - 1) {
-        components.add(
-          const Divider(
-            height: AppPadding.xxl,
-          ),
-        );
-      }
-    }
+class _DividerItem extends _GridItem {
+  const _DividerItem();
 
-    return SliverPadding(
-      padding: const EdgeInsets.only(
-          left: AppPadding.xl, right: AppPadding.xl, bottom: AppPadding.xl),
-      sliver: SliverList.builder(
-        itemBuilder: (context, index) => components[index],
-        itemCount: components.length,
-      ),
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return const Divider(
+      height: AppPadding.xxl,
     );
   }
 }

@@ -92,3 +92,15 @@ extension GroupBy<T> on Iterable<T> {
     return grouped;
   }
 }
+
+extension IntExtensions on int {
+  int coerceAtMost(int max) {
+    if (this > max) return max;
+    return this;
+  }
+
+  int coerceAtLeast(int min) {
+    if (this < min) return min;
+    return this;
+  }
+}

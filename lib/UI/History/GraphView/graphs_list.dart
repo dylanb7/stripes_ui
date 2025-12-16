@@ -447,6 +447,63 @@ class GraphSliverList extends ConsumerWidget {
             ),
           );
         }
+        // ADAPTIVE LAYOUT
+        final bool isLargeScreen =
+            MediaQuery.of(context).size.width > Breakpoint.large.value;
+
+        if (isLargeScreen) {
+          int crossAxisCount = (MediaQuery.of(context).size.width / 500).ceil();
+          if (crossAxisCount < 1) crossAxisCount = 1;
+
+          final List<GraphKey> keys = withKeysRemoved.keys.toList();
+          final int rowCount = (keys.length / crossAxisCount).ceil();
+
+          return SliverList.builder(
+            itemCount: rowCount,
+            itemBuilder: (context, rowIndex) {
+              final int startIndex = rowIndex * crossAxisCount;
+              final int endIndex = (startIndex + crossAxisCount)
+                  .coerceAtMost(keys.length); // Requires extension or math.min
+              final List<GraphKey> rowKeys = keys.sublist(startIndex, endIndex);
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: AppPadding.large),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: AppPadding.xl),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ...rowKeys.map((key) => Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: AppPadding.small),
+                              child: GestureDetector(
+                                behavior: HitTestBehavior.translucent,
+                                onTap: () {
+                                  onSelect(key);
+                                },
+                                child: GraphSymptomRow(
+                                  responses: withKeysRemoved[key]!,
+                                  graphKey: key,
+                                  compact: false, // Use card style for grid
+                                ),
+                              ),
+                            ),
+                          )),
+                      // Fill empty space if row is not full
+                      ...List.generate(
+                        crossAxisCount - rowKeys.length,
+                        (_) => const Expanded(child: SizedBox()),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        }
+
         return SliverList.separated(
           itemBuilder: (context, index) {
             final GraphKey key = withKeysRemoved.keys.elementAt(index);

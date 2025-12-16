@@ -7,8 +7,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/display_data_provider.dart';
+import 'package:stripes_ui/Providers/sheet_provider.dart';
 
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
+import 'package:stripes_ui/UI/History/EventView/export_options_sheet.dart';
 import 'package:stripes_ui/Util/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/paddings.dart';
@@ -16,43 +18,32 @@ import 'package:stripes_ui/config.dart';
 import 'package:stripes_ui/entry.dart';
 import 'package:path_provider/path_provider.dart';
 
-class Export extends ConsumerStatefulWidget {
+class Export extends ConsumerWidget {
   const Export({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() {
-    return _ExportState();
-  }
-}
-
-class _ExportState extends ConsumerState<Export> {
-  bool isLoading = false;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final AsyncValue<List<Response>> available =
         ref.watch(availableStampsProvider);
     final List<Response> availableStamps = available.valueOrNull ?? [];
     final ExportAction? exportFunc = ref.watch(configProvider).export;
+
     return IconButton(
-      onPressed: available.isLoading ||
-              availableStamps.isEmpty ||
-              exportFunc == null ||
-              isLoading
-          ? null
-          : () async {
-              setState(() {
-                isLoading = true;
-              });
-              await exportFunc(context, availableStamps, ExportType.perPage);
-              setState(() {
-                isLoading = false;
-              });
-            },
+      onPressed:
+          available.isLoading || availableStamps.isEmpty || exportFunc == null
+              ? null
+              : () {
+                  ref.read(sheetControllerProvider).show(
+                        context: context,
+                        scrollControlled: true,
+                        child: (context) =>
+                            ExportOptionsSheet(responses: availableStamps),
+                      );
+                },
       icon: const Icon(
         Icons.ios_share,
       ),
-      tooltip: 'Download',
+      tooltip: 'Export',
     );
   }
 }

@@ -411,13 +411,18 @@ class ComboDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        RecordEntryQuestionProgress(),
-        RecordEntryPageProgressDivider()
-      ],
+    return const AnimatedSize(
+      duration: Durations.medium1,
+      curve: Curves.easeInOut,
+      alignment: Alignment.bottomCenter,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          RecordEntryQuestionProgress(),
+          RecordEntryPageProgressDivider()
+        ],
+      ),
     );
   }
 }
@@ -430,11 +435,29 @@ class RecordEntryPageProgressDivider extends StatelessWidget {
     final controller = RecordEntryProvider.of(context);
 
     return ListenableBuilder(
-      listenable: controller,
+      listenable: controller.pageController,
       builder: (context, _) {
-        final progress = controller.totalPages <= 1
-            ? 1.0
-            : controller.currentIndex / (controller.totalPages - 1);
+        final int totalPages = controller.totalPages;
+
+        if (totalPages <= 1) {
+          return LinearProgressIndicator(
+            value: 1.0,
+            backgroundColor:
+                Theme.of(context).colorScheme.surfaceContainerHighest,
+            color: Theme.of(context).colorScheme.primary,
+            minHeight: 3,
+          );
+        }
+
+        double page = 0.0;
+        if (controller.pageController.hasClients) {
+          page = controller.pageController.page ??
+              controller.currentIndex.toDouble();
+        } else {
+          page = controller.currentIndex.toDouble();
+        }
+
+        final double progress = (page / (totalPages - 1)).clamp(0.0, 1.0);
 
         return LinearProgressIndicator(
           value: progress,
@@ -442,6 +465,91 @@ class RecordEntryPageProgressDivider extends StatelessWidget {
               Theme.of(context).colorScheme.surfaceContainerHighest,
           color: Theme.of(context).colorScheme.primary,
           minHeight: 3,
+        );
+      },
+    );
+  }
+}
+
+class RecordEntryQuestionProgress extends StatelessWidget {
+  const RecordEntryQuestionProgress({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = RecordEntryProvider.of(context);
+    final colors = Theme.of(context).colorScheme;
+
+    return ListenableBuilder(
+      listenable: controller,
+      builder: (context, _) {
+        final total = controller.totalQuestions;
+        final answered = controller.answeredQuestions;
+        final pendingRequired = controller.pendingRequiredCount;
+
+        if (total == 0) {
+          return const SizedBox(
+            height: AppPadding.tiny,
+          );
+        }
+
+        return Row(
+          children: [
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    '$answered/$total',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: colors.onSurfaceVariant,
+                          fontWeight: FontWeight.w500,
+                        ),
+                  ),
+                  const SizedBox(width: AppPadding.small),
+                ],
+              ),
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: List.generate(total, (index) {
+                final bool isFilled = index < answered;
+                final bool isPendingRequired =
+                    !isFilled && (index - answered) < pendingRequired;
+
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  margin: const EdgeInsets.symmetric(horizontal: 2),
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: isFilled
+                        ? colors.primary
+                        : isPendingRequired
+                            ? colors.error.withValues(alpha: 0.4)
+                            : colors.surfaceContainerHighest,
+                    border: isPendingRequired && !isFilled
+                        ? Border.all(color: colors.error, width: 1.5)
+                        : null,
+                  ),
+                );
+              }),
+            ),
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const SizedBox(width: AppPadding.small),
+                  if (pendingRequired > 0)
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      size: 14,
+                      color: colors.error,
+                    ),
+                ],
+              ),
+            ),
+          ],
         );
       },
     );
@@ -465,7 +573,8 @@ class RecordEntryErrorBanner extends StatelessWidget {
 
         return Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: AppPadding.tiny),
+          padding: const EdgeInsets.symmetric(
+              vertical: AppPadding.tiny, horizontal: AppPadding.small),
           decoration: BoxDecoration(
             color: colors.errorContainer,
             border: Border(
@@ -504,90 +613,6 @@ class RecordEntryErrorBanner extends StatelessWidget {
               ),
             ],
           ),
-        );
-      },
-    );
-  }
-}
-
-class RecordEntryQuestionProgress extends StatelessWidget {
-  const RecordEntryQuestionProgress({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final controller = RecordEntryProvider.of(context);
-    final colors = Theme.of(context).colorScheme;
-
-    return ListenableBuilder(
-      listenable: controller,
-      builder: (context, _) {
-        final total = controller.totalQuestions;
-        final answered = controller.answeredQuestions;
-        final pendingRequired = controller.pendingRequiredCount;
-
-        if (total == 0) return const SizedBox.shrink();
-
-        return Row(
-          children: [
-            // Left: text right-aligned
-            Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    '$answered/$total',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: colors.onSurfaceVariant,
-                          fontWeight: FontWeight.w500,
-                        ),
-                  ),
-                  const SizedBox(width: AppPadding.small),
-                ],
-              ),
-            ),
-            // Center: dots
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: List.generate(total, (index) {
-                final bool isFilled = index < answered;
-                final bool isPendingRequired =
-                    !isFilled && (index - answered) < pendingRequired;
-
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  margin: const EdgeInsets.symmetric(horizontal: 2),
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: isFilled
-                        ? colors.primary
-                        : isPendingRequired
-                            ? colors.error.withValues(alpha: 0.4)
-                            : colors.surfaceContainerHighest,
-                    border: isPendingRequired && !isFilled
-                        ? Border.all(color: colors.error, width: 1.5)
-                        : null,
-                  ),
-                );
-              }),
-            ),
-            // Right: icon left-aligned
-            Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const SizedBox(width: AppPadding.small),
-                  if (pendingRequired > 0)
-                    Icon(
-                      Icons.warning_amber_rounded,
-                      size: 14,
-                      color: colors.error,
-                    ),
-                ],
-              ),
-            ),
-          ],
         );
       },
     );

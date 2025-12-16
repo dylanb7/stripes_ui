@@ -1327,7 +1327,7 @@ abstract class AppLocalizations {
   /// No description provided for @nLevelError.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{Missing entry} other{Missing entries}}'**
+  /// **'{count, plural, =1{Missing entry} other{Missing {count} entries}}'**
   String nLevelError(num count);
 
   /// No description provided for @moodLowLevel.
@@ -1917,6 +1917,204 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Confirm Password'**
   String get passwordConfirm;
+
+  /// No description provided for @exportDataTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Export Data'**
+  String get exportDataTitle;
+
+  /// No description provided for @exportOptionCsv.
+  ///
+  /// In en, this message translates to:
+  /// **'CSV Export'**
+  String get exportOptionCsv;
+
+  /// No description provided for @exportOptionCsvDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Raw data in spreadsheet format'**
+  String get exportOptionCsvDesc;
+
+  /// No description provided for @exportOptionReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary Report'**
+  String get exportOptionReport;
+
+  /// No description provided for @exportOptionReportDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF report with summary statistics'**
+  String get exportOptionReportDesc;
+
+  /// No description provided for @csvExportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'CSV Export'**
+  String get csvExportTitle;
+
+  /// No description provided for @csvExportPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Export Preview'**
+  String get csvExportPreview;
+
+  /// No description provided for @csvTotalRows.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Rows'**
+  String get csvTotalRows;
+
+  /// No description provided for @csvDetailEntries.
+  ///
+  /// In en, this message translates to:
+  /// **'Detail Entries'**
+  String get csvDetailEntries;
+
+  /// No description provided for @csvBlueDyeTests.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue Dye Tests'**
+  String get csvBlueDyeTests;
+
+  /// No description provided for @csvFilesToGenerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Files to Generate'**
+  String get csvFilesToGenerate;
+
+  /// No description provided for @csvEntriesWithRows.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} entries with {rows} rows'**
+  String csvEntriesWithRows(int count, int rows);
+
+  /// No description provided for @csvBlueDyeTestResults.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} Blue Dye test results'**
+  String csvBlueDyeTestResults(int count);
+
+  /// No description provided for @csvSampleData.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample Data'**
+  String get csvSampleData;
+
+  /// No description provided for @csvNoDetailEntries.
+  ///
+  /// In en, this message translates to:
+  /// **'No detail entries to preview'**
+  String get csvNoDetailEntries;
+
+  /// No description provided for @csvExportButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Export CSV'**
+  String get csvExportButton;
+
+  /// No description provided for @csvExporting.
+  ///
+  /// In en, this message translates to:
+  /// **'Exporting...'**
+  String get csvExporting;
+
+  /// No description provided for @csvExportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to export: {error}'**
+  String csvExportFailed(String error);
+
+  /// No description provided for @reportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary Report'**
+  String get reportTitle;
+
+  /// No description provided for @reportPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Report Preview'**
+  String get reportPreview;
+
+  /// No description provided for @reportTotalEntries.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Entries'**
+  String get reportTotalEntries;
+
+  /// No description provided for @reportDaysWithData.
+  ///
+  /// In en, this message translates to:
+  /// **'Days with Data'**
+  String get reportDaysWithData;
+
+  /// No description provided for @reportCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get reportCategories;
+
+  /// No description provided for @reportEntriesByCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Entries by Category'**
+  String get reportEntriesByCategory;
+
+  /// No description provided for @reportContents.
+  ///
+  /// In en, this message translates to:
+  /// **'Report Contents'**
+  String get reportContents;
+
+  /// No description provided for @reportContentsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'The PDF report will include:\n• Summary statistics for the selected period\n• Breakdown by entry category\n• Response distributions and averages\n• Blue Dye test results (if available)'**
+  String get reportContentsDesc;
+
+  /// No description provided for @reportGeneratePdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate PDF'**
+  String get reportGeneratePdf;
+
+  /// No description provided for @reportGenerating.
+  ///
+  /// In en, this message translates to:
+  /// **'Generating...'**
+  String get reportGenerating;
+
+  /// No description provided for @reportGenerationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to generate report: {error}'**
+  String reportGenerationFailed(String error);
+
+  /// No description provided for @tableHeaderDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get tableHeaderDate;
+
+  /// No description provided for @tableHeaderType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get tableHeaderType;
+
+  /// No description provided for @tableHeaderResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'Response'**
+  String get tableHeaderResponse;
+
+  /// No description provided for @entriesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} entries'**
+  String entriesCount(int count);
 }
 
 class _AppLocalizationsDelegate

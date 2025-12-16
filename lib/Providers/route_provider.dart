@@ -15,7 +15,7 @@ import 'package:stripes_ui/UI/Record/RecordSplit/baseline_entry.dart';
 
 import 'package:stripes_ui/Providers/auth_provider.dart';
 import 'package:stripes_ui/UI/AccountManagement/ProfileScreen/profile_screen.dart';
-import 'package:stripes_ui/UI/Record/RecordSplit/splitter.dart';
+import 'package:stripes_ui/UI/Record/RecordSplit/record_entry.dart';
 
 import 'package:stripes_ui/UI/Layout/home_screen.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';

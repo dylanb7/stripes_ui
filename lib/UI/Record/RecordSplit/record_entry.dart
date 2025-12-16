@@ -214,20 +214,47 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                           .recordUsername(localizedType, currentUser.name);
 
               // Calculate question progress for current page
+              // This includes both static questions and generated questions (with :: in ID)
               int totalQuestions = 0;
               int answeredQuestions = 0;
               int pendingRequiredCount = 0;
 
               if (currentIndex < evaluatedPages.length) {
                 final pageQuestions = evaluatedPages[currentIndex].questions;
-                totalQuestions = pageQuestions.length;
-                answeredQuestions = pageQuestions
-                    .where(
-                        (q) => widget.questionListener.fromQuestion(q) != null)
+
+                // Filter to only visible questions logic same as _buildContent
+                final visibleQuestions = pageQuestions.where((q) {
+                  return q.dependsOn == null ||
+                      q.dependsOn!.eval(widget.questionListener);
+                }).toList();
+
+                final pageQuestionIds =
+                    visibleQuestions.map((q) => q.id).toSet();
+
+                // Helper to check if a question ID belongs to this page
+                // Generated questions have IDs like "sourceId::index"
+                bool belongsToPage(String questionId) {
+                  if (pageQuestionIds.contains(questionId)) return true;
+                  // Check if it's a generated question from a page question
+                  final parts = questionId.split('::');
+                  if (parts.length > 1) {
+                    return pageQuestionIds.contains(parts.first);
+                  }
+                  return false;
+                }
+
+                // Count all answered questions (static + generated) for this page
+                answeredQuestions = widget.questionListener.questions.keys
+                    .where((qId) => belongsToPage(qId))
                     .length;
+
+                // Count all pending required questions for this page
                 pendingRequiredCount = widget.questionListener.pending
-                    .where((q) => pageQuestions.contains(q))
+                    .where((q) => belongsToPage(q.id))
                     .length;
+
+                // Total is simply the number of visible questions
+                totalQuestions = visibleQuestions.length;
               }
 
               final controller = RecordEntryController(

@@ -23,7 +23,6 @@ import 'package:stripes_ui/config.dart';
 import 'package:stripes_ui/entry.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
-import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 
 class EventsView extends ConsumerWidget {
@@ -86,8 +85,8 @@ class EventsView extends ConsumerWidget {
 
               const SliverPadding(
                 padding: EdgeInsetsGeometry.only(
-                    left: AppPadding.large,
-                    right: AppPadding.large,
+                    left: AppPadding.xl,
+                    right: AppPadding.xl,
                     bottom: AppPadding.tiny),
                 sliver: SliverToBoxAdapter(
                   child: FiltersRow(),
@@ -132,7 +131,7 @@ class EventsView extends ConsumerWidget {
                   ? SliverCrossAxisGroup(
                       slivers: [
                         SliverConstrainedCrossAxis(
-                          maxExtent: Breakpoint.medium.value,
+                          maxExtent: Breakpoint.large.value,
                           sliver: const EventGrid(),
                         ),
                       ],
@@ -247,14 +246,19 @@ class FiltersRow extends ConsumerWidget {
                 )
                 .toList(),
             showSelectedIcon: false,
+            emptySelectionAllowed: true,
             style: const ButtonStyle(
               visualDensity: VisualDensity.compact,
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             onSelectionChanged: (newValue) {
-              ref.read(displayDataProvider.notifier).setCycle(newValue.first);
+              if (newValue.isNotEmpty) {
+                ref.read(displayDataProvider.notifier).setCycle(newValue.first);
+              }
             },
-            selected: {settings.cycle}),
+            selected: settings.cycle == DisplayTimeCycle.custom
+                ? {}
+                : {settings.cycle}),
         const Spacer(),
         IconButton.filled(
           style: const ButtonStyle(

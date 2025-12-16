@@ -46,6 +46,8 @@ dependencies:
   share_plus: ^10.0.0
   loading_animation_widget: ^1.2.1
   path_provider: ^2.1.5
+  pdf: ^3.11.1
+  printing: ^5.13.3
   stripes_backend_helper:
     path: ../stripes_backend_helper
 

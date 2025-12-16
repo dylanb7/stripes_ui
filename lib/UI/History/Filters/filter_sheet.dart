@@ -310,7 +310,7 @@ class CurrentFilters extends ConsumerWidget {
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: [
-          const SizedBox(width: AppPadding.large),
+          const SizedBox(width: AppPadding.xl),
           ...filters.map((filter) {
             return FilterChip(
               label: Text(getLocalizedName(filter)),

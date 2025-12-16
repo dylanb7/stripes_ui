@@ -162,7 +162,7 @@ class _PageWrapState extends ConsumerState<PageWrap> {
             ),
             bottomNavigationBar: AnimatedContainer(
               duration: Durations.medium1,
-              height: shouldHide ? 0 : 70,
+              height: shouldHide || widget.bottomNav == null ? 0 : 70,
               child: SingleChildScrollView(
                 physics: const NeverScrollableScrollPhysics(),
                 child: widget.bottomNav,

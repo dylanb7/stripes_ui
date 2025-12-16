@@ -7,27 +7,30 @@ import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/UI/Record/severity_slider.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/UI/Record/QuestionEntries/question_entry_scope.dart';
 
 class BMSlider extends ConsumerStatefulWidget {
   final QuestionsListener listener;
-
   final Numeric question;
 
-  const BMSlider({required this.listener, required this.question, super.key});
+  const BMSlider({
+    required this.listener,
+    required this.question,
+    super.key,
+  });
 
   @override
-  ConsumerState createState() => _BMSliderState();
+  ConsumerState<BMSlider> createState() => _BMSliderState();
 }
 
 class _BMSliderState extends ConsumerState<BMSlider> {
   late List<Image> images;
-
-  late SliderListener listener;
-
-  double value = 4;
+  final SliderListener _sliderListener = SliderListener();
+  double _value = 4;
 
   @override
   void initState() {
+    super.initState();
     const List<String> paths = [
       'packages/stripes_ui/assets/images/poop1.png',
       'packages/stripes_ui/assets/images/poop2.png',
@@ -37,32 +40,21 @@ class _BMSliderState extends ConsumerState<BMSlider> {
       'packages/stripes_ui/assets/images/poop6.png',
       'packages/stripes_ui/assets/images/poop7.png'
     ];
-    images = paths
-        .map((path) => Image.asset(
-              path,
-            ))
-        .toList();
-    listener = SliderListener();
+    images = paths.map((path) => Image.asset(path)).toList();
 
-    final Response? res = widget.listener.fromQuestion(widget.question);
-    bool pending = false;
-    if (res != null) {
-      listener.hasInteracted = true;
-      value = (res as NumericResponse).response.toDouble();
-    } else {
-      pending = true;
-    }
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      if (pending) {
-        widget.listener.addPending(widget.question);
+    _sliderListener.addListener(_onSliderInteract);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final num? val = _getResponse();
+      if (val != null) {
+        _sliderListener.interacted();
+        _value = val.toDouble();
+        if (mounted) setState(() {});
       }
     });
-    listener.addListener(_interactListener);
-
-    super.initState();
   }
 
-  _interactListener() {
+  void _onSliderInteract() {
     widget.listener.removePending(widget.question);
   }
 
@@ -72,6 +64,26 @@ class _BMSliderState extends ConsumerState<BMSlider> {
       precacheImage(image.image, context);
     }
     super.didChangeDependencies();
+  }
+
+  @override
+  void dispose() {
+    _sliderListener.removeListener(_onSliderInteract);
+    super.dispose();
+  }
+
+  num? _getResponse() {
+    final Response? res = widget.listener.fromQuestion(widget.question);
+    if (res == null) return null;
+    return (res as NumericResponse).response;
+  }
+
+  void _saveValue(double newValue) {
+    widget.listener.addResponse(NumericResponse(
+      question: widget.question,
+      stamp: dateToStamp(DateTime.now()),
+      response: newValue,
+    ));
   }
 
   @override
@@ -85,79 +97,76 @@ class _BMSliderState extends ConsumerState<BMSlider> {
       "Fluffy pieces with ragged edges, a mushy stool",
       "Liquid consistency with no solid pieces"
     ];
-    return Column(
-      children: [
-        Center(
-            child: AspectRatio(
-                aspectRatio: 2.2, child: images[value.toInt() - 1])),
-        if (listener.hasInteracted) ...[
-          SizedBox(
-            height: AppPadding.xxxl,
-            child: Text(
-              descriptors[value.toInt() - 1],
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleMedium,
+
+    return QuestionEntryScope(
+      question: widget.question,
+      listener: widget.listener,
+      child: Column(
+        children: [
+          QuestionEntryCard(
+            styled: false,
+            child: Column(
+              children: [
+                Center(
+                  child: AspectRatio(
+                    aspectRatio: 2.2,
+                    child: images[_value.toInt() - 1],
+                  ),
+                ),
+                if (_sliderListener.hasInteracted) ...[
+                  SizedBox(
+                    height: AppPadding.xxxl,
+                    child: Text(
+                      descriptors[_value.toInt() - 1],
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ),
+                ] else
+                  const SizedBox(height: AppPadding.xl),
+                const SizedBox(height: AppPadding.tiny),
+                StripesSlider(
+                  onChange: (p0) {},
+                  onSlide: (val) {
+                    setState(() {
+                      _value = val;
+                      _saveValue(val);
+                    });
+                  },
+                  listener: _sliderListener,
+                  hasLevelReminder: !_sliderListener.hasInteracted,
+                  min: 1,
+                  max: 7,
+                  initial: _value.toInt(),
+                ),
+                const SizedBox(height: AppPadding.tiny),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: AppPadding.small),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        context.translate.hardTag,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              color: Theme.of(context).primaryColor,
+                            ),
+                      ),
+                      Text(
+                        context.translate.softTag,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              color: Theme.of(context).primaryColor,
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
-        ] else
-          const SizedBox(
-            height: AppPadding.xl,
-          ),
-        const SizedBox(
-          height: AppPadding.tiny,
-        ),
-        StripesSlider(
-          onChange: (p0) {},
-          onSlide: (val) {
-            setState(() {
-              value = val;
-              _saveValue();
-            });
-          },
-          listener: listener,
-          hasLevelReminder: !listener.hasInteracted,
-          min: 1,
-          max: 7,
-          initial: value.toInt(),
-        ),
-        const SizedBox(
-          height: AppPadding.tiny,
-        ),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Text(
-              context.translate.hardTag,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyLarge
-                  ?.copyWith(color: Theme.of(context).primaryColor),
-            ),
-            Text(
-              context.translate.softTag,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyLarge
-                  ?.copyWith(color: Theme.of(context).primaryColor),
-            ),
-          ],
-        )
-      ],
+        ],
+      ),
     );
-  }
-
-  _saveValue() {
-    widget.listener.addResponse(NumericResponse(
-        question: widget.question,
-        stamp: dateToStamp(DateTime.now()),
-        response: value));
-  }
-
-  @override
-  void dispose() {
-    listener.removeListener(_interactListener);
-    super.dispose();
   }
 }

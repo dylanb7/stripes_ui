@@ -347,11 +347,14 @@ class DisplayDataProvider extends StateNotifier<DisplayDataSettings> {
         newEnd = DateTime(newStart.year, newStart.month + 1, 0);
         break;
       case DisplayTimeCycle.custom:
-        int shiftInDays = state.range.end.difference(start).inDays;
-        newStart = forward
-            ? start.add(Duration(days: shiftInDays))
-            : start.subtract(Duration(days: shiftInDays));
-        newEnd = newStart.add(Duration(days: shiftInDays));
+        // Use the full duration of the custom range for shifting
+        final duration = state.range.duration;
+        // Ensure at least 1 day shift to prevent stuck ranges
+        final shiftDuration =
+            duration.inDays > 0 ? duration : const Duration(days: 1);
+        newStart =
+            forward ? start.add(shiftDuration) : start.subtract(shiftDuration);
+        newEnd = newStart.add(shiftDuration);
         break;
     }
 

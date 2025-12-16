@@ -731,7 +731,7 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Missing entries',
+      other: 'Missing $countString entries',
       one: 'Missing entry',
     );
     return '$_temp0';
@@ -1105,4 +1105,114 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get passwordConfirm => 'Confirm Password';
+
+  @override
+  String get exportDataTitle => 'Export Data';
+
+  @override
+  String get exportOptionCsv => 'CSV Export';
+
+  @override
+  String get exportOptionCsvDesc => 'Raw data in spreadsheet format';
+
+  @override
+  String get exportOptionReport => 'Summary Report';
+
+  @override
+  String get exportOptionReportDesc => 'PDF report with summary statistics';
+
+  @override
+  String get csvExportTitle => 'CSV Export';
+
+  @override
+  String get csvExportPreview => 'Export Preview';
+
+  @override
+  String get csvTotalRows => 'Total Rows';
+
+  @override
+  String get csvDetailEntries => 'Detail Entries';
+
+  @override
+  String get csvBlueDyeTests => 'Blue Dye Tests';
+
+  @override
+  String get csvFilesToGenerate => 'Files to Generate';
+
+  @override
+  String csvEntriesWithRows(int count, int rows) {
+    return '$count entries with $rows rows';
+  }
+
+  @override
+  String csvBlueDyeTestResults(int count) {
+    return '$count Blue Dye test results';
+  }
+
+  @override
+  String get csvSampleData => 'Sample Data';
+
+  @override
+  String get csvNoDetailEntries => 'No detail entries to preview';
+
+  @override
+  String get csvExportButton => 'Export CSV';
+
+  @override
+  String get csvExporting => 'Exporting...';
+
+  @override
+  String csvExportFailed(String error) {
+    return 'Failed to export: $error';
+  }
+
+  @override
+  String get reportTitle => 'Summary Report';
+
+  @override
+  String get reportPreview => 'Report Preview';
+
+  @override
+  String get reportTotalEntries => 'Total Entries';
+
+  @override
+  String get reportDaysWithData => 'Days with Data';
+
+  @override
+  String get reportCategories => 'Categories';
+
+  @override
+  String get reportEntriesByCategory => 'Entries by Category';
+
+  @override
+  String get reportContents => 'Report Contents';
+
+  @override
+  String get reportContentsDesc =>
+      'The PDF report will include:\n• Summary statistics for the selected period\n• Breakdown by entry category\n• Response distributions and averages\n• Blue Dye test results (if available)';
+
+  @override
+  String get reportGeneratePdf => 'Generate PDF';
+
+  @override
+  String get reportGenerating => 'Generating...';
+
+  @override
+  String reportGenerationFailed(String error) {
+    return 'Failed to generate report: $error';
+  }
+
+  @override
+  String get tableHeaderDate => 'Date';
+
+  @override
+  String get tableHeaderType => 'Type';
+
+  @override
+  String get tableHeaderResponse => 'Response';
+
+  @override
+  String entriesCount(int count) {
+    return '$count entries';
+  }
 }
