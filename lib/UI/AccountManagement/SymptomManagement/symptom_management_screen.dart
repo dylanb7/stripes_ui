@@ -4,18 +4,18 @@ import 'package:go_router/go_router.dart';
 
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo_base.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/record_period.dart';
-import 'package:stripes_ui/Providers/questions_provider.dart';
-import 'package:stripes_ui/Providers/sheet_provider.dart';
+import 'package:stripes_ui/Providers/questions/questions_provider.dart';
+import 'package:stripes_ui/Providers/Navigation/sheet_provider.dart';
 import 'package:stripes_ui/UI/AccountManagement/SymptomManagement/symptom_type_management.dart';
 import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
 import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/Util/constants.dart';
-import 'package:stripes_ui/Util/easy_snack.dart';
+import 'package:stripes_ui/Util/Widgets/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
 
-import '../../../Util/paddings.dart';
+import '../../../Util/Design/paddings.dart';
 
 class SymptomManagementScreen extends ConsumerWidget {
   const SymptomManagementScreen({super.key});

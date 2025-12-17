@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:stripes_ui/UI/CommonWidgets/tonal_button.dart';
-import 'package:stripes_ui/Util/breakpoint.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Design/breakpoint.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 
 class ConfirmationPopup extends ConsumerWidget {
   final String confirm;

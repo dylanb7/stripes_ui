@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:stripes_backend_helper/QuestionModel/question.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo_base.dart';
-import 'package:stripes_ui/Providers/questions_provider.dart';
+import 'package:stripes_ui/Providers/questions/questions_provider.dart';
 
 class QuestionsLocalizations {
   Map<String, dynamic> questionTranslations = {};

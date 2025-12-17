@@ -5,9 +5,9 @@ import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/amount_consumed.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/Util/extensions.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 
-import 'package:stripes_ui/Util/date_helper.dart';
+import 'package:stripes_ui/Util/Helpers/date_helper.dart';
 
 class BlueDyeVisualDisplay extends StatelessWidget {
   final BlueDyeResp resp;

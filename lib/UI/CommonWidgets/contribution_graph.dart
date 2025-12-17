@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 
 /// A GitHub-style contribution graph widget showing entry activity over time.
 /// Each cell represents a day, with color intensity based on entry count.

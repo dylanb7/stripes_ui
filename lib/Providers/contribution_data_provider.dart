@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/RepositoryBase/StampBase/stamp.dart';
 import 'package:stripes_backend_helper/date_format.dart';
-import 'package:stripes_ui/Providers/stamps_provider.dart';
+import 'package:stripes_ui/Providers/history/stamps_provider.dart';
 
 /// Provides aggregated entry counts by day for the contribution graph.
 /// Only fetches the last 30 days of data for performance.

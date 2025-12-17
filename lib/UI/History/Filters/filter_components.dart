@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stripes_backend_helper/QuestionModel/question.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
 
 class FilterChipSection extends StatelessWidget {

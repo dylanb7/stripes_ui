@@ -4,7 +4,7 @@ import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_list
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/base.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/question_entry_scope.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 
 class PainAreaWidget extends ConsumerStatefulWidget {
   final QuestionsListener questionsListener;

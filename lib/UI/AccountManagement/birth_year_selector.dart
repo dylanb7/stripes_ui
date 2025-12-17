@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:stripes_ui/Util/form_input.dart';
-import 'package:stripes_ui/Util/mouse_hover.dart';
+import 'package:stripes_ui/Util/Helpers/form_input.dart';
+import 'package:stripes_ui/Util/Widgets/mouse_hover.dart';
 
 class BirthYearController {
   DateTime _birthYear = DateTime(2005);

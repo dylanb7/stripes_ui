@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:stripes_ui/Util/form_input.dart';
+import 'package:stripes_ui/Util/Helpers/form_input.dart';
 
 class ObscureTextField extends StatefulWidget {
   final String hintText;

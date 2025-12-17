@@ -9,16 +9,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
-import 'package:stripes_ui/Providers/test_progress_provider.dart';
-import 'package:stripes_ui/Providers/test_provider.dart';
+import 'package:stripes_ui/Providers/Test/test_progress_provider.dart';
+import 'package:stripes_ui/Providers/Test/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/card_layout_helper.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
-import 'package:stripes_ui/Util/breakpoint.dart';
+import 'package:stripes_ui/Util/Design/breakpoint.dart';
 import 'package:stripes_ui/Util/extensions.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 
 class RecordingsView extends ConsumerWidget {
   final Function? next;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:stripes_ui/Providers/display_data_provider.dart';
+import 'package:stripes_ui/Providers/history/display_data_provider.dart';
 
 void main() {
   group('DisplayDataSettings', () {

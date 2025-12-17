@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 
 class RecordEntryController extends ChangeNotifier {
   String _title;

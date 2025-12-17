@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
-import 'package:stripes_ui/Providers/auth_provider.dart';
-import 'package:stripes_ui/Util/breakpoint.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Providers/Auth/auth_provider.dart';
+import 'package:stripes_ui/Util/Design/breakpoint.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 
 /// Provider for study onboarding state.
 final studyOnboardingProvider =

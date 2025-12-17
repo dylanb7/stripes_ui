@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/RepositoryBase/TestBase/base_test_repo.dart';
 import 'package:stripes_backend_helper/RepositoryBase/TestBase/test_state.dart';
-import 'package:stripes_ui/Providers/test_provider.dart';
+import 'package:stripes_ui/Providers/Test/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/Util/extensions.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 
 class TestScreen extends ConsumerStatefulWidget {
   const TestScreen({super.key});

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stripes_ui/UI/CommonWidgets/styled_tooltip.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 
 class TypeTag extends StatelessWidget {
   final String text;

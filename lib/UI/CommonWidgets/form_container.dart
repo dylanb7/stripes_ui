@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 
 class FormContainer extends StatefulWidget {
   static const duration = Duration(milliseconds: 200);

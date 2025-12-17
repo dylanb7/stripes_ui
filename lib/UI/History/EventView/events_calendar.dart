@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
-import 'package:stripes_ui/Providers/display_data_provider.dart';
+import 'package:stripes_ui/Providers/History/display_data_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/History/EventView/calendar_day.dart';
-import 'package:stripes_ui/Util/breakpoint.dart';
+import 'package:stripes_ui/Util/Design/breakpoint.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-import '../../../Util/paddings.dart';
+import '../../../Util/Design/paddings.dart';
 
 class EventsCalendar extends ConsumerStatefulWidget {
   final bool sixWeeks;

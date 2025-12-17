@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:stripes_ui/Util/easy_snack.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Widgets/easy_snack.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 
 class SegmentedDraggablePage<T> extends Equatable {
   final String? id;

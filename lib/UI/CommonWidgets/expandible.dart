@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:stripes_ui/UI/CommonWidgets/styled_tooltip.dart';
-import 'package:stripes_ui/Util/mouse_hover.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Widgets/mouse_hover.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 
 class Expandible extends StatefulWidget {
   final Widget header;

@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
-import 'package:stripes_ui/Providers/display_data_provider.dart';
-import 'package:stripes_ui/Providers/questions_provider.dart';
-import 'package:stripes_ui/Util/breakpoint.dart';
+import 'package:stripes_ui/Providers/History/display_data_provider.dart';
+import 'package:stripes_ui/Providers/questions/questions_provider.dart';
+import 'package:stripes_ui/Util/Design/breakpoint.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
 import 'package:stripes_ui/Util/extensions.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
 
 class EventGrid extends ConsumerWidget {
@@ -133,46 +133,27 @@ class EventGrid extends ConsumerWidget {
             .build(context, ref),
       ));
 
-      // Add Grid Content (using Rows for expansion)
+      // Calculate grid item width based on screen size
       int crossAxisCount = (MediaQuery.of(context).size.width / 400).ceil();
       if (crossAxisCount < 1) crossAxisCount = 1;
 
-      // Chunk responses into rows
-      final List<List<Response>> chunks = [];
-      for (var i = 0; i < daySymptoms.length; i += crossAxisCount) {
-        chunks.add(daySymptoms.sublist(
-            i,
-            (i + crossAxisCount) > daySymptoms.length
-                ? daySymptoms.length
-                : i + crossAxisCount));
-      }
-
-      slivers.add(SliverList.builder(
-        itemCount: chunks.length,
-        itemBuilder: (context, index) {
-          final chunk = chunks[index];
-          return Padding(
-            padding: const EdgeInsets.only(bottom: AppPadding.small),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: chunk
-                  .map((e) => Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: AppPadding.tiny),
-                          child: EntryDisplay(event: e),
-                        ),
-                      ))
-                  .toList()
-                ..addAll(List.generate(
-                    crossAxisCount - chunk.length,
-                    (index) => const Expanded(
-                            child: SizedBox(
-                          height: 10,
-                        )))), // Fill empty spaces
-            ),
-          );
-        },
+      slivers.add(SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: AppPadding.medium),
+          child: Wrap(
+            spacing: AppPadding.small,
+            runSpacing: AppPadding.small,
+            children: daySymptoms
+                .map((e) => SizedBox(
+                      width: (MediaQuery.of(context).size.width -
+                              AppPadding.xl * 2 -
+                              AppPadding.small * (crossAxisCount - 1)) /
+                          crossAxisCount,
+                      child: EntryDisplay(event: e),
+                    ))
+                .toList(),
+          ),
+        ),
       ));
 
       // Add Divider if not last day

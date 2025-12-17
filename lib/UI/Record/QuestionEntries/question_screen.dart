@@ -3,10 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/baseline_id.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_resolver.dart';
-import 'package:stripes_ui/Providers/baseline_version_provider.dart';
-import 'package:stripes_ui/Providers/questions_provider.dart';
+import 'package:stripes_ui/Providers/questions/baseline_version_provider.dart';
+import 'package:stripes_ui/Providers/questions/questions_provider.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/base.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
 

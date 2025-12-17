@@ -8,8 +8,8 @@ import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_list
 import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/question_entry_scope.dart';
 
-import 'package:stripes_ui/UI/Record/severity_slider.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/UI/Record/QuestionEntries/severity_slider.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 
 class MultiChoiceEntry extends ConsumerWidget {
   final MultipleChoice question;

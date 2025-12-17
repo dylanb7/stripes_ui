@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:stripes_ui/Providers/contribution_data_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/contribution_graph.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 
 /// Dashboard screen showing entry activity visualizations.
 class DashboardScreen extends ConsumerWidget {

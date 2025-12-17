@@ -5,17 +5,17 @@ import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:markdown_widget/widget/markdown_block.dart';
 import 'package:stripes_backend_helper/RepositoryBase/AuthBase/auth_user.dart';
-import 'package:stripes_ui/Providers/auth_provider.dart';
-import 'package:stripes_ui/Providers/sheet_provider.dart';
-import 'package:stripes_ui/Providers/test_progress_provider.dart';
+import 'package:stripes_ui/Providers/Auth/auth_provider.dart';
+import 'package:stripes_ui/Providers/Navigation/sheet_provider.dart';
+import 'package:stripes_ui/Providers/Test/test_progress_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/scroll_assisted_list.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/card_layout_helper.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
-import 'package:stripes_ui/Util/breakpoint.dart';
-import 'package:stripes_ui/Util/easy_snack.dart';
+import 'package:stripes_ui/Util/Design/breakpoint.dart';
+import 'package:stripes_ui/Util/Widgets/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class BlueMealPreStudy extends StatefulWidget {

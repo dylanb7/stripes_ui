@@ -1,14 +1,20 @@
-import 'dart:io';
+import 'dart:io' if (dart.library.html) 'dart:io';
 
 import 'package:csv/csv.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
-import 'package:stripes_ui/Providers/display_data_provider.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Providers/History/display_data_provider.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
+
+// Web-specific import for downloads
+import 'package:stripes_ui/Services/web_download_stub.dart'
+    if (dart.library.html) 'package:stripes_ui/Services/web_download.dart'
+    as web_download;
 
 /// CSV export preview sheet
 /// Shows a preview of the data to be exported and allows sharing
@@ -389,31 +395,62 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
     setState(() => _isExporting = true);
 
     try {
-      final List<XFile> files = [];
-      final Directory tempDir = await getTemporaryDirectory();
-
       // Generate detail responses CSV
       final detailResponses =
           widget.responses.whereType<DetailResponse>().toList();
+      String? detailCsv;
       if (detailResponses.isNotEmpty) {
-        final detailCsv = _generateDetailCsv(detailResponses);
-        final detailFile = File('${tempDir.path}/detail_responses.csv');
-        await detailFile.writeAsString(detailCsv);
-        files.add(XFile(detailFile.path));
+        detailCsv = _generateDetailCsv(detailResponses);
       }
 
       // Generate blue dye responses CSV
       final blueDyeResponses =
           widget.responses.whereType<BlueDyeResp>().toList();
+      String? blueDyeCsv;
       if (blueDyeResponses.isNotEmpty) {
-        final blueDyeCsv = _generateBlueDyeCsv(blueDyeResponses);
-        final blueDyeFile = File('${tempDir.path}/test_responses.csv');
-        await blueDyeFile.writeAsString(blueDyeCsv);
-        files.add(XFile(blueDyeFile.path));
+        blueDyeCsv = _generateBlueDyeCsv(blueDyeResponses);
       }
 
-      if (files.isNotEmpty) {
-        await Share.shareXFiles(files);
+      if (kIsWeb) {
+        // Web: Download files directly to browser
+        if (detailCsv != null) {
+          web_download.downloadFile(
+              detailCsv, 'detail_responses.csv', 'text/csv');
+        }
+        if (blueDyeCsv != null) {
+          // Small delay to avoid browser blocking multiple downloads
+          await Future.delayed(const Duration(milliseconds: 500));
+          web_download.downloadFile(
+              blueDyeCsv, 'test_responses.csv', 'text/csv');
+        }
+      } else {
+        // Native: Use share dialog
+        final List<XFile> files = [];
+        final Directory tempDir = await getTemporaryDirectory();
+
+        if (detailCsv != null) {
+          final detailFile = File('${tempDir.path}/detail_responses.csv');
+          await detailFile.writeAsString(detailCsv);
+          files.add(XFile(detailFile.path));
+        }
+
+        if (blueDyeCsv != null) {
+          final blueDyeFile = File('${tempDir.path}/test_responses.csv');
+          await blueDyeFile.writeAsString(blueDyeCsv);
+          files.add(XFile(blueDyeFile.path));
+        }
+
+        if (files.isNotEmpty) {
+          // Get share position for iPad
+          final RenderBox? box = context.findRenderObject() as RenderBox?;
+          final Rect? sharePositionOrigin =
+              box != null ? box.localToGlobal(Offset.zero) & box.size : null;
+
+          await Share.shareXFiles(
+            files,
+            sharePositionOrigin: sharePositionOrigin,
+          );
+        }
       }
 
       if (mounted) {

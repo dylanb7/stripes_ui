@@ -1,7 +1,7 @@
 import 'package:badges/badges.dart' as b;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class CalendarDay extends StatelessWidget {

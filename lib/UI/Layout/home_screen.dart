@@ -11,7 +11,7 @@ import 'package:stripes_ui/UI/AccountManagement/add_first_profile.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
 import 'package:stripes_ui/Util/extensions.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 @immutable

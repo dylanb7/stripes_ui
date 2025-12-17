@@ -7,8 +7,8 @@ import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/base.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/question_entry_scope.dart';
 import 'package:stripes_ui/Util/extensions.dart';
-import 'package:stripes_ui/Util/mouse_hover.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Widgets/mouse_hover.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 
 class VerticalPainFaces extends ConsumerStatefulWidget {
   final QuestionsListener questionsListener;

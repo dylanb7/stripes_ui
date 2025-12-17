@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 
 typedef ScrollBuilder = Widget Function(
     BuildContext context, ScrollViewProperties properties);

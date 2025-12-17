@@ -4,12 +4,12 @@ import 'package:go_router/go_router.dart';
 
 import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
 import 'package:stripes_ui/Models/baseline_trigger.dart';
-import 'package:stripes_ui/Providers/baseline_trigger_provider.dart';
+import 'package:stripes_ui/Providers/questions/baseline_trigger_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
-import 'package:stripes_ui/Util/breakpoint.dart';
+import 'package:stripes_ui/Util/Design/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
-import 'package:stripes_ui/Util/paddings.dart';
-import 'package:stripes_ui/Providers/stamps_provider.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
+import 'package:stripes_ui/Providers/History/stamps_provider.dart';
 
 class BaselineGate extends ConsumerWidget {
   final Widget child;

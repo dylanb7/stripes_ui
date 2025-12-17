@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:stripes_ui/Providers/display_data_provider.dart';
+import 'package:stripes_ui/Providers/History/display_data_provider.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/config.dart';
 
 import 'add_event.dart';
-import 'export.dart';
+import '../Export/export.dart';
 
 class ActionRow extends ConsumerWidget {
   const ActionRow({super.key});

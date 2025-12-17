@@ -10,10 +10,10 @@ import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
 import 'package:stripes_ui/UI/Layout/home_screen.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
-import 'package:stripes_ui/Util/breakpoint.dart';
+import 'package:stripes_ui/Util/Design/breakpoint.dart';
 
 import 'package:stripes_ui/Util/constants.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:stripes_ui/config.dart';
 import 'package:stripes_ui/entry.dart';
 

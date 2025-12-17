@@ -3,15 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Models/baseline_trigger.dart';
-import 'package:stripes_ui/Providers/baseline_trigger_provider.dart';
-import 'package:stripes_ui/Providers/baseline_version_provider.dart';
-import 'package:stripes_ui/Providers/stamps_provider.dart';
+import 'package:stripes_ui/Providers/Questions/baseline_trigger_provider.dart';
+import 'package:stripes_ui/Providers/Questions/baseline_version_provider.dart';
+import 'package:stripes_ui/Providers/History/stamps_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/baseline_gate.dart';
 import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/Util/constants.dart';
-import 'package:stripes_ui/Util/date_helper.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Helpers/date_helper.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
 
 class BaselinesScreen extends ConsumerWidget {

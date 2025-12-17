@@ -5,11 +5,11 @@ import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 import 'package:stripes_ui/UI/AccountManagement/birth_year_selector.dart';
 import 'package:stripes_ui/UI/AccountManagement/gender_dropdown.dart';
-import 'package:stripes_ui/Util/breakpoint.dart';
-import 'package:stripes_ui/Util/form_input.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Design/breakpoint.dart';
+import 'package:stripes_ui/Util/Helpers/form_input.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 
-import 'package:stripes_ui/Util/validators.dart';
+import 'package:stripes_ui/Util/Helpers/validators.dart';
 import 'package:stripes_ui/config.dart';
 import 'package:stripes_ui/entry.dart';
 

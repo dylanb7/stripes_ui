@@ -10,6 +10,7 @@ import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_geometry.da
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_hit_tester.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_style.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/dataset_painter.dart';
+import 'package:stripes_ui/UI/History/GraphView/ChartRendering/trend_line_painter.dart';
 
 class RenderChart<T, D> extends StatefulWidget {
   final List<ChartSeriesData<T, D>> datasets;
@@ -31,6 +32,8 @@ class RenderChart<T, D> extends StatefulWidget {
   final List<ChartAnnotation<D>>? verticalAnnotations;
   final List<ChartAnnotation<dynamic>>? horizontalAnnotations;
 
+  final TrendLine? trendLine;
+
   const RenderChart.multi({
     super.key,
     required this.datasets,
@@ -47,6 +50,7 @@ class RenderChart<T, D> extends StatefulWidget {
     this.stackBars = false,
     this.verticalAnnotations,
     this.horizontalAnnotations,
+    this.trendLine,
   });
 
   RenderChart({
@@ -64,6 +68,7 @@ class RenderChart<T, D> extends StatefulWidget {
     this.style,
     this.verticalAnnotations,
     this.horizontalAnnotations,
+    this.trendLine,
   })  : datasets = [data],
         stackBars = false;
 
@@ -245,10 +250,6 @@ class _RenderChartState<T, D> extends State<RenderChart<T, D>>
 
     if (annotationHit != null) {
       annotationHit.onTap?.call();
-      // If annotation hit, we might still want to trigger chart tap or not?
-      // Usually annotation tap is specific. Let's return if annotation is handled?
-      // Or let it fall through?
-      // If user provided onTap for annotation, they probably expect that to be the primary action.
       if (annotationHit.onTap != null) return;
     }
 
@@ -364,6 +365,7 @@ class _RenderChartState<T, D> extends State<RenderChart<T, D>>
                     verticalAnnotations: widget.verticalAnnotations ?? [],
                     horizontalAnnotations: widget.horizontalAnnotations ?? [],
                     hoverPosition: _hoverPosition,
+                    trendLine: widget.trendLine,
                   ),
                 );
               },
@@ -388,6 +390,7 @@ class _ChartPainter<T, D> extends CustomPainter {
   final List<ChartAnnotation<D>> verticalAnnotations;
   final List<ChartAnnotation<dynamic>> horizontalAnnotations;
   final Offset? hoverPosition;
+  final TrendLine? trendLine;
 
   _ChartPainter({
     required this.datasets,
@@ -402,6 +405,7 @@ class _ChartPainter<T, D> extends CustomPainter {
     required this.verticalAnnotations,
     required this.horizontalAnnotations,
     this.hoverPosition,
+    this.trendLine,
   });
 
   @override
@@ -464,9 +468,23 @@ class _ChartPainter<T, D> extends CustomPainter {
       );
     }
 
+    if (trendLine != null) {
+      for (int dsIndex = 0; dsIndex < datasets.length; dsIndex++) {
+        final data = datasets[dsIndex];
+        if (data.data.length < 3) continue;
+
+        TrendLinePainter.paint(
+          canvas,
+          geometry,
+          data,
+          xAxis,
+          trendLine!,
+        );
+      }
+    }
+
     canvas.restore();
 
-    // Paint crosshair lines if enabled
     final crosshairStyle = style.crosshairStyle;
     if (crosshairStyle != null && hoverPosition != null) {
       final Paint crosshairPaint = Paint()
@@ -501,6 +519,7 @@ class _ChartPainter<T, D> extends CustomPainter {
         oldDelegate.stackBars != stackBars ||
         oldDelegate.verticalAnnotations != verticalAnnotations ||
         oldDelegate.horizontalAnnotations != horizontalAnnotations ||
-        oldDelegate.hoverPosition != hoverPosition;
+        oldDelegate.hoverPosition != hoverPosition ||
+        oldDelegate.trendLine != trendLine;
   }
 }

@@ -2,9 +2,9 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:stripes_ui/Util/breakpoint.dart';
-import 'package:stripes_ui/Util/expand_collapse_icon.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Design/breakpoint.dart';
+import 'package:stripes_ui/Util/Widgets/expand_collapse_icon.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 
 enum NotificationType { info, error }
 

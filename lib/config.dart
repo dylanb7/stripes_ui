@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_backend_helper/RepositoryBase/AuthBase/auth_user.dart';
-import 'package:stripes_ui/UI/History/EventView/export.dart';
+import 'package:stripes_ui/UI/History/Export/export.dart';
 
 enum AuthStrategy {
   accessCodeEmail,

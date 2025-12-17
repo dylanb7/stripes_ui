@@ -6,12 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/RepositoryBase/TestBase/BlueDye/blue_dye_impl.dart';
 import 'package:stripes_backend_helper/RepositoryBase/TestBase/base_test_repo.dart';
-import 'package:stripes_ui/Providers/test_progress_provider.dart';
-import 'package:stripes_ui/Providers/test_provider.dart';
+import 'package:stripes_ui/Providers/Test/test_progress_provider.dart';
+import 'package:stripes_ui/Providers/Test/test_provider.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
-import 'package:stripes_ui/Util/easy_snack.dart';
+import 'package:stripes_ui/Util/Widgets/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 
 class TimerWidget extends ConsumerWidget {
   const TimerWidget({super.key});

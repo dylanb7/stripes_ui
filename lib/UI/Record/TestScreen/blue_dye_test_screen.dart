@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
-import 'package:stripes_ui/Providers/test_progress_provider.dart';
-import 'package:stripes_ui/Providers/test_provider.dart';
+import 'package:stripes_ui/Providers/Test/test_progress_provider.dart';
+import 'package:stripes_ui/Providers/Test/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/CommonWidgets/scroll_assisted_list.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
@@ -10,12 +10,12 @@ import 'package:stripes_ui/UI/Record/TestScreen/amount_consumed.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/recordings_state.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
-import 'package:stripes_ui/Util/breakpoint.dart';
+import 'package:stripes_ui/Util/Design/breakpoint.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:stripes_ui/Util/easy_snack.dart';
+import 'package:stripes_ui/Util/Widgets/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
-import 'package:stripes_ui/Util/mouse_hover.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Widgets/mouse_hover.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 
 class BlueDyeTestScreen extends ConsumerStatefulWidget {
   const BlueDyeTestScreen({super.key});

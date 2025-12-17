@@ -7,17 +7,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 
-import 'package:stripes_ui/Providers/display_data_provider.dart';
+import 'package:stripes_ui/Providers/History/display_data_provider.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_axis.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_data.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_hit_tester.dart';
-import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_annotation.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_style.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/render_chart.dart';
 import 'package:stripes_ui/UI/History/GraphView/graph_point.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 
-import 'package:stripes_ui/Util/palette.dart';
+import 'package:stripes_ui/Util/Design/palette.dart';
 
 import 'package:stripes_ui/UI/History/GraphView/graph_tooltip.dart';
 

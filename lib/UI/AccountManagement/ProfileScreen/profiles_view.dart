@@ -7,9 +7,9 @@ import 'package:stripes_ui/UI/AccountManagement/ProfileScreen/edit_profile.dart'
 import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 
-import 'package:stripes_ui/Util/breakpoint.dart';
-import 'package:stripes_ui/Util/easy_snack.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Design/breakpoint.dart';
+import 'package:stripes_ui/Util/Widgets/easy_snack.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 
 class ProfileView extends ConsumerWidget {
   final SubUser subUser;

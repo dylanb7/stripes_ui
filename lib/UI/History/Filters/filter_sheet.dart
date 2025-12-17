@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart' hide TimeOfDay;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
-import 'package:stripes_ui/Providers/display_data_provider.dart';
+import 'package:stripes_ui/Providers/History/display_data_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/History/Filters/filter_logic.dart';
 import 'package:stripes_ui/Util/extensions.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
 
 final setsProvider =

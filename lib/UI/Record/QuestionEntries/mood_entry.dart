@@ -3,9 +3,9 @@ import 'package:stripes_backend_helper/QuestionModel/question.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_backend_helper/date_format.dart';
-import 'package:stripes_ui/UI/Record/severity_slider.dart';
+import 'package:stripes_ui/UI/Record/QuestionEntries/severity_slider.dart';
 import 'package:stripes_ui/Util/extensions.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 
 class MoodScreenWidget extends StatefulWidget {
   final QuestionsListener listener;

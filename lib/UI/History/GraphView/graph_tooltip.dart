@@ -3,10 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:collection/collection.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
-import 'package:stripes_ui/Providers/display_data_provider.dart';
+import 'package:stripes_ui/Providers/History/display_data_provider.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_hit_tester.dart';
 import 'package:stripes_ui/UI/History/GraphView/graph_point.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
 
 class GraphTooltip extends ConsumerWidget {

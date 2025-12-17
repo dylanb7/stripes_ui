@@ -48,6 +48,7 @@ dependencies:
   path_provider: ^2.1.5
   pdf: ^3.11.1
   printing: ^5.13.3
+  web: ^1.1.0
   stripes_backend_helper:
     path: ../stripes_backend_helper
 

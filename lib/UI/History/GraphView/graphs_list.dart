@@ -10,18 +10,18 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
 
-import 'package:stripes_ui/Providers/display_data_provider.dart';
-import 'package:stripes_ui/Providers/sheet_provider.dart';
+import 'package:stripes_ui/Providers/History/display_data_provider.dart';
+import 'package:stripes_ui/Providers/Navigation/sheet_provider.dart';
 import 'package:stripes_ui/UI/AccountManagement/profile_changer.dart';
 import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
 import 'package:stripes_ui/UI/History/GraphView/graph_symptom.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
-import 'package:stripes_ui/Util/breakpoint.dart';
+import 'package:stripes_ui/Util/Design/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/extensions.dart';
-import 'package:stripes_ui/Util/palette.dart';
+import 'package:stripes_ui/Util/Design/palette.dart';
 
-import '../../../Util/paddings.dart';
+import '../../../Util/Design/paddings.dart';
 
 class GraphsList extends ConsumerWidget {
   const GraphsList({super.key});
@@ -447,7 +447,7 @@ class GraphSliverList extends ConsumerWidget {
             ),
           );
         }
-        // ADAPTIVE LAYOUT
+
         final bool isLargeScreen =
             MediaQuery.of(context).size.width > Breakpoint.large.value;
 
@@ -462,8 +462,8 @@ class GraphSliverList extends ConsumerWidget {
             itemCount: rowCount,
             itemBuilder: (context, rowIndex) {
               final int startIndex = rowIndex * crossAxisCount;
-              final int endIndex = (startIndex + crossAxisCount)
-                  .coerceAtMost(keys.length); // Requires extension or math.min
+              final int endIndex =
+                  (startIndex + crossAxisCount).coerceAtMost(keys.length);
               final List<GraphKey> rowKeys = keys.sublist(startIndex, endIndex);
 
               return Padding(
@@ -486,12 +486,11 @@ class GraphSliverList extends ConsumerWidget {
                                 child: GraphSymptomRow(
                                   responses: withKeysRemoved[key]!,
                                   graphKey: key,
-                                  compact: false, // Use card style for grid
+                                  compact: false,
                                 ),
                               ),
                             ),
                           )),
-                      // Fill empty space if row is not full
                       ...List.generate(
                         crossAxisCount - rowKeys.length,
                         (_) => const Expanded(child: SizedBox()),
@@ -659,6 +658,8 @@ class GraphSymptomRow extends StatelessWidget {
                 Expanded(
                   child: Text(
                     graphKey.toLocalizedString(context),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),

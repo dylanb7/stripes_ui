@@ -3,18 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:stripes_ui/Models/baseline_trigger.dart';
-import 'package:stripes_ui/Providers/auth_provider.dart';
-import 'package:stripes_ui/Providers/baseline_trigger_provider.dart';
+import 'package:stripes_ui/Providers/Auth/auth_provider.dart';
+import 'package:stripes_ui/Providers/questions/baseline_trigger_provider.dart';
 
-import 'package:stripes_ui/Providers/route_provider.dart';
+import 'package:stripes_ui/Providers/Navigation/route_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
-import 'package:stripes_ui/Util/breakpoint.dart';
+import 'package:stripes_ui/Util/Design/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
-import 'package:stripes_ui/Util/easy_snack.dart';
+import 'package:stripes_ui/Util/Widgets/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:stripes_ui/config.dart';
 import 'package:stripes_ui/entry.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/baseline_entry.dart';

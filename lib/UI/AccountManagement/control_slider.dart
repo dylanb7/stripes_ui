@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:stripes_ui/Util/paddings.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
 
 String? empty(String? val) {
   return val == null ? 'Not set' : null;
