@@ -1,126 +1,148 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:stripes_ui/Providers/contribution_data_provider.dart';
-import 'package:stripes_ui/UI/CommonWidgets/contribution_graph.dart';
-import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
-import 'package:stripes_ui/Util/Design/paddings.dart';
+import 'package:stripes_ui/Providers/Dashboard/dashboard_data_provider.dart';
+import 'package:stripes_ui/Providers/Dashboard/dashboard_state_provider.dart';
+import 'package:stripes_ui/Providers/Dashboard/dashboard_stats.dart';
+import 'package:stripes_ui/Providers/Dashboard/insight_provider.dart';
+import 'package:stripes_ui/Providers/Navigation/sheet_provider.dart';
+import 'package:stripes_ui/UI/CommonWidgets/date_range_selector.dart';
 
-/// Dashboard screen showing entry activity visualizations.
+import 'package:stripes_ui/UI/History/Timeline/bottom_sheet_calendar.dart';
+import 'package:stripes_ui/Util/Design/paddings.dart';
+import 'package:stripes_ui/Util/Helpers/date_range_utils.dart';
+
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<Map<DateTime, int>> contributionData =
-        ref.watch(contributionDataProvider);
-    final AsyncValue<DashboardStats> statsData =
-        ref.watch(dashboardStatsProvider);
+    final List<DashboardStat> stats = ref.watch(dashboardStatsProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dashboard'),
-      ),
-      body: contributionData.when(
-        loading: () => const Center(child: LoadingWidget()),
-        error: (error, stack) => Center(child: Text('Error: $error')),
-        data: (data) => SingleChildScrollView(
-          padding: const EdgeInsets.all(AppPadding.large),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Stats Cards Row
-              statsData.when(
-                loading: () => const SizedBox.shrink(),
-                error: (_, __) => const SizedBox.shrink(),
-                data: (stats) => _StatsRow(stats: stats),
-              ),
-              const SizedBox(height: AppPadding.xl),
+    final List<Insight> insights = ref.watch(dashboardInsightsProvider);
 
-              // Contribution Graph Section
-              const _SectionHeader(
-                title: 'Activity',
-                subtitle: 'Your entry history',
-              ),
-              const SizedBox(height: AppPadding.medium),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(AppPadding.medium),
-                  child: ContributionGraph(
-                    data: data,
-                    onDateTapped: (date, count) {
-                      _showDateDetails(context, date, count);
-                    },
-                  ),
-                ),
-              ),
-              const SizedBox(height: AppPadding.xl),
+    final colors = Theme.of(context).colorScheme;
 
-              // Weekly Activity Chart
-              const _SectionHeader(
-                title: 'Weekly Pattern',
-                subtitle: 'Entries by day of week',
-              ),
-              const SizedBox(height: AppPadding.medium),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(AppPadding.medium),
-                  child: _WeeklyActivityChart(data: data),
-                ),
-              ),
-              const SizedBox(height: AppPadding.xl),
-
-              // Time of Day Distribution
-              const _SectionHeader(
-                title: 'Time Distribution',
-                subtitle: 'When you log entries',
-              ),
-              const SizedBox(height: AppPadding.medium),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(AppPadding.medium),
-                  child: _TimeDistributionChart(),
-                ),
-              ),
-            ],
+    return ListView(
+      padding: const EdgeInsets.symmetric(
+          vertical: AppPadding.small, horizontal: AppPadding.medium),
+      children: [
+        const _TimeRangeHeader(),
+        const SizedBox(height: AppPadding.medium),
+        _StatsRow(stats: stats, colors: colors),
+        const SizedBox(height: AppPadding.medium),
+        const _SectionTitle(title: 'Activity'),
+        const SizedBox(height: AppPadding.small),
+        const _ActivityHeatmap(),
+        const SizedBox(height: AppPadding.large),
+        if (insights.isNotEmpty) ...[
+          InsightsList(
+            insights: insights,
           ),
-        ),
-      ),
-    );
-  }
-
-  void _showDateDetails(BuildContext context, DateTime date, int count) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${DateFormat.yMMMd().format(date)}: $count entries'),
-        duration: const Duration(seconds: 2),
-      ),
+          const SizedBox(
+            height: AppPadding.xl,
+          )
+        ]
+      ],
     );
   }
 }
 
-class _SectionHeader extends StatelessWidget {
+class _SectionTitle extends StatelessWidget {
   final String title;
-  final String subtitle;
 
-  const _SectionHeader({required this.title, required this.subtitle});
+  const _SectionTitle({required this.title});
 
   @override
   Widget build(BuildContext context) {
+    return Text(
+      title,
+      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+    );
+  }
+}
+
+class _TimeRangeHeader extends ConsumerWidget {
+  const _TimeRangeHeader();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final DashboardState state = ref.watch(dashboardStateProvider);
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+        SizedBox(
+          height: 48,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            children: [
+              TimeCycle.week,
+              TimeCycle.month,
+              TimeCycle.quarter,
+              TimeCycle.year,
+              TimeCycle.all
+            ].map((cycle) {
+              final isSelected = state.cycle == cycle;
+              return Padding(
+                padding: const EdgeInsets.only(right: AppPadding.small),
+                child: ChoiceChip(
+                  label: Text(cycle.label),
+                  selected: isSelected,
+                  onSelected: (selected) {
+                    if (selected) {
+                      ref.read(dashboardStateProvider.notifier).setCycle(cycle);
+                    }
+                  },
+                  showCheckmark: false,
+                  padding: EdgeInsets.zero,
+                  visualDensity: VisualDensity.compact,
+                ),
+              );
+            }).toList(),
+          ),
         ),
-        Text(
-          subtitle,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+        const SizedBox(height: AppPadding.tiny),
+        Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerHigh,
+            borderRadius: BorderRadius.circular(AppRounding.small),
+            border: Border.all(
+              color:
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+            ),
+          ),
+          padding: const EdgeInsets.all(4),
+          child: DateRangeSelector(
+            rangeText: state.getRangeString(),
+            canGoPrev: state.canGoPrev,
+            canGoNext: state.canGoNext,
+            onPrev: () =>
+                ref.read(dashboardStateProvider.notifier).shift(forward: false),
+            onNext: () =>
+                ref.read(dashboardStateProvider.notifier).shift(forward: true),
+            onTap: () async {
+              ref.read(sheetControllerProvider).show(
+                  scrollControlled: true,
+                  context: context,
+                  sheetBuilder: (context, controller) {
+                    return BottomSheetCalendar(
+                      initialRange: state.range,
+                      ignoreFilters: true,
+                      onRangeSelected: (range) {
+                        ref
+                            .read(dashboardStateProvider.notifier)
+                            .setRange(range);
+                      },
+                    );
+                  });
+            },
+            getPreviewText: (forward) {
+              return ref
+                  .read(dashboardStateProvider.notifier)
+                  .getPreviewString(forward: forward);
+            },
+          ),
         ),
       ],
     );
@@ -128,210 +150,508 @@ class _SectionHeader extends StatelessWidget {
 }
 
 class _StatsRow extends StatelessWidget {
-  final DashboardStats stats;
+  final List<DashboardStat> stats;
+  final ColorScheme colors;
 
-  const _StatsRow({required this.stats});
+  const _StatsRow({required this.stats, required this.colors});
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          _StatCard(
-            icon: Icons.note_alt_outlined,
-            label: 'This Month',
-            value: stats.totalEntriesThisMonth.toString(),
-            color: Theme.of(context).colorScheme.primary,
-          ),
-          const SizedBox(width: AppPadding.medium),
-          _StatCard(
-            icon: Icons.local_fire_department_outlined,
-            label: 'Current Streak',
-            value: '${stats.currentStreak} days',
-            color: Colors.orange,
-          ),
-          const SizedBox(width: AppPadding.medium),
-          _StatCard(
-            icon: Icons.emoji_events_outlined,
-            label: 'Best Streak',
-            value: '${stats.bestStreakThisMonth} days',
-            color: Colors.amber,
-          ),
-          const SizedBox(width: AppPadding.medium),
-          _StatCard(
-            icon: Icons.calendar_today_outlined,
-            label: 'This Week',
-            value: stats.entriesThisWeek.toString(),
-            color: Theme.of(context).colorScheme.secondary,
-          ),
-          const SizedBox(width: AppPadding.medium),
-          _StatCard(
-            icon: Icons.trending_up,
-            label: 'Avg/Day',
-            value: stats.averagePerDay.toStringAsFixed(1),
-            color: Theme.of(context).colorScheme.tertiary,
-          ),
-        ],
-      ),
+    return Row(
+      children: stats.map((stat) {
+        final index = stats.indexOf(stat);
+        final color = stat.color ?? _getDefaultColor(index, colors);
+        return Expanded(
+          child: _StatTile(stat: stat, color: color),
+        );
+      }).toList(),
     );
+  }
+
+  Color _getDefaultColor(int index, ColorScheme colors) {
+    if (index == 3) {
+      return Colors.amber.shade900; // Best/Max stat - darker for visibility
+    }
+    return colors.primary;
   }
 }
 
-class _StatCard extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
+class _StatTile extends StatelessWidget {
+  final DashboardStat stat;
   final Color color;
 
-  const _StatCard({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.color,
-  });
+  const _StatTile({required this.stat, required this.color});
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppPadding.large,
-          vertical: AppPadding.medium,
+    final colors = Theme.of(context).colorScheme;
+
+    // Parse numeric value for animation
+    final numericValue =
+        double.tryParse(stat.value.replaceAll(RegExp(r'[^0-9.]'), '')) ?? 0;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(AppPadding.small),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(stat.icon, color: color, size: 28),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(icon, color: color, size: 20),
-                const SizedBox(width: AppPadding.small),
-                Text(
-                  label,
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppPadding.tiny),
-            Text(
-              value,
+        const SizedBox(height: AppPadding.tiny),
+        TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0, end: numericValue),
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+          builder: (context, value, _) {
+            // Format based on original value format
+            String displayValue;
+            if (stat.value.contains('.')) {
+              displayValue = value.toStringAsFixed(1);
+            } else {
+              displayValue = value.round().toString();
+            }
+            return Text(
+              displayValue,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: color,
                   ),
-            ),
-          ],
+            );
+          },
         ),
-      ),
+        Text(
+          stat.label,
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
+        ),
+      ],
     );
   }
 }
 
-class _WeeklyActivityChart extends StatelessWidget {
-  final Map<DateTime, int> data;
-
-  const _WeeklyActivityChart({required this.data});
+class InsightsList extends StatelessWidget {
+  final List<Insight> insights;
+  const InsightsList({super.key, required this.insights});
 
   @override
   Widget build(BuildContext context) {
-    // Aggregate by day of week
-    final Map<int, int> byDayOfWeek = {
-      for (var i = 1; i <= 7; i++) i: 0,
-    };
-
-    for (final entry in data.entries) {
-      final int weekday = entry.key.weekday;
-      byDayOfWeek[weekday] = byDayOfWeek[weekday]! + entry.value;
-    }
-
-    final int maxValue = byDayOfWeek.values.reduce((a, b) => a > b ? a : b);
-    final double effectiveMax = maxValue > 0 ? maxValue.toDouble() : 1.0;
-
-    final List<String> dayNames = [
-      'Mon',
-      'Tue',
-      'Wed',
-      'Thu',
-      'Fri',
-      'Sat',
-      'Sun'
-    ];
-
-    return SizedBox(
-      height: 120,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: List.generate(7, (index) {
-          final int weekday = index + 1;
-          final int count = byDayOfWeek[weekday]!;
-          final double heightPercent = count / effectiveMax;
-
-          return Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppPadding.tiny),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    count.toString(),
-                    style: Theme.of(context).textTheme.labelSmall,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              'Insights',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
                   ),
-                  const SizedBox(height: AppPadding.tiny),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppPadding.small),
+        ...insights.map((insight) => Padding(
+              padding: const EdgeInsets.only(bottom: AppPadding.small),
+              child: _InsightCard(insight: insight),
+            )),
+      ],
+    );
+  }
+}
+
+class _InsightCard extends StatefulWidget {
+  final Insight insight;
+
+  const _InsightCard({required this.insight});
+
+  @override
+  State<_InsightCard> createState() => _InsightCardState();
+}
+
+class _InsightCardState extends State<_InsightCard> {
+  bool _isExpanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colors = Theme.of(context).colorScheme;
+    final Widget? visualization = widget.insight.buildVisualization(context);
+    final bool hasVisualization = visualization != null;
+
+    return GestureDetector(
+      onTap: hasVisualization
+          ? () => setState(() => _isExpanded = !_isExpanded)
+          : null,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+        decoration: BoxDecoration(
+          color: colors.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(AppRounding.small),
+          border: _isExpanded
+              ? Border.all(color: colors.primary.withValues(alpha: 0.3))
+              : null,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(AppPadding.small),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    widget.insight.icon ?? Icons.circle,
+                    size: 18,
+                    color: colors.primary,
+                  ),
+                  const SizedBox(width: AppPadding.small),
                   Expanded(
-                    child: Align(
-                      alignment: Alignment.bottomCenter,
-                      child: FractionallySizedBox(
-                        heightFactor: heightPercent.clamp(0.05, 1.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .primary
-                                .withValues(alpha: 0.3 + (heightPercent * 0.7)),
-                            borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(4),
-                            ),
-                          ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.insight.getTitle(context),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
                         ),
-                      ),
+                        const SizedBox(height: 2),
+                        Text.rich(
+                          widget.insight.getDescriptionSpan(context),
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: AppPadding.tiny),
-                  Text(
-                    dayNames[index],
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                  ),
+                  if (hasVisualization)
+                    AnimatedRotation(
+                      turns: _isExpanded ? 0.5 : 0,
+                      duration: const Duration(milliseconds: 200),
+                      child: Icon(
+                        Icons.keyboard_arrow_down,
+                        size: 20,
+                        color: colors.onSurfaceVariant,
+                      ),
+                    ),
                 ],
               ),
-            ),
-          );
-        }),
+              // Expandable visualization
+              AnimatedSize(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeInOut,
+                child: _isExpanded && hasVisualization
+                    ? Padding(
+                        padding: const EdgeInsets.only(
+                          top: AppPadding.small,
+                          left: 26, // Align with text after icon
+                        ),
+                        child: visualization,
+                      )
+                    : const SizedBox.shrink(),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 }
 
-class _TimeDistributionChart extends ConsumerWidget {
+class _ActivityHeatmap extends ConsumerStatefulWidget {
+  const _ActivityHeatmap();
+
+  @override
+  ConsumerState<_ActivityHeatmap> createState() => _ActivityHeatmapState();
+}
+
+class _ActivityHeatmapState extends ConsumerState<_ActivityHeatmap> {
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colors = Theme.of(context).colorScheme;
+
+    final Map<DateTime, int> dailyCounts =
+        ref.watch(dashboardDailyCountsProvider);
+    final DashboardState state = ref.read(dashboardStateProvider);
+
+    final int daysDiff =
+        state.range.end.difference(state.range.start).inDays + 1;
+    final int weeksToShow = (daysDiff / 7).ceil().clamp(1, 53);
+    final bool isCompact = weeksToShow <= 2;
+
+    final int maxCount = dailyCounts.values.fold(0, (a, b) => a > b ? a : b);
+
+    final DateFormat dateFormat = DateFormat.E();
+    final List<String> dayLabels = List.generate(7, (i) {
+      final date = DateTime(2024, 1, 1 + i);
+      return dateFormat.format(date)[0];
+    });
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: colors.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(AppRounding.small),
+          ),
+          padding: const EdgeInsets.all(AppPadding.small),
+          child: isCompact
+              ? CompactActivityLayout(dayLabels: dayLabels)
+              : StandardActivityLayout(
+                  dayLabels: dayLabels,
+                  weeksToShow: weeksToShow,
+                  maxCount: maxCount,
+                ),
+        ),
+        const SizedBox(height: AppPadding.small),
+        if (state.cycle != TimeCycle.week)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text('0', style: Theme.of(context).textTheme.labelSmall),
+              const SizedBox(width: 4),
+              ...List.generate(5, (i) {
+                final intensity = i / 4;
+                return Container(
+                  width: 12,
+                  height: 12,
+                  margin: const EdgeInsets.symmetric(horizontal: 1),
+                  decoration: BoxDecoration(
+                    color: intensity == 0
+                        ? colors.surfaceContainerHighest
+                        : colors.primary
+                            .withValues(alpha: 0.2 + intensity * 0.8),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                );
+              }),
+              const SizedBox(width: 4),
+              Text(maxCount.toString(),
+                  style: Theme.of(context).textTheme.labelSmall),
+            ],
+          ),
+      ],
+    );
+  }
+}
+
+class StandardActivityLayout extends ConsumerWidget {
+  final List<String> dayLabels;
+  final int weeksToShow, maxCount;
+  const StandardActivityLayout(
+      {super.key,
+      required this.dayLabels,
+      required this.weeksToShow,
+      required this.maxCount});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // This is a placeholder - would need actual timestamp data
-    // For now, show a simple message
-    return SizedBox(
-      height: 80,
-      child: Center(
-        child: Text(
-          'Coming soon: Time of day distribution',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+    final DashboardState state = ref.read(dashboardStateProvider);
+    final Map<DateTime, int> dailyCounts =
+        ref.watch(dashboardDailyCountsProvider);
+    final DateTime today = DateTime(
+        state.range.end.year, state.range.end.month, state.range.end.day);
+    final DateFormat monthFormat = DateFormat.MMM();
+    final ColorScheme colors = Theme.of(context).colorScheme;
+
+    const double cellSize = 16.0;
+    const double cellSpacing = 2.0;
+    final double gridWidth = weeksToShow * (cellSize + cellSpacing);
+
+    final List<(int weekIndex, String monthName)> monthMarkers = [];
+    String? lastMonth;
+
+    for (int weekIndex = 0; weekIndex < weeksToShow; weekIndex++) {
+      final daysBack = (weeksToShow - 1 - weekIndex) * 7;
+      final weekStart = today.subtract(Duration(days: daysBack));
+      final checkDate = weekStart.add(const Duration(days: 0));
+
+      final monthName = monthFormat.format(checkDate);
+      if (monthName != lastMonth) {
+        monthMarkers.add((weekIndex, monthName));
+        lastMonth = monthName;
+      }
+    }
+
+    if (monthMarkers.length >= 2) {
+      if (monthMarkers[1].$1 - monthMarkers[0].$1 < 3) {
+        monthMarkers.removeAt(0);
+      }
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Column(
+          children: [
+            const SizedBox(height: 16),
+            ...List.generate(7, (i) {
+              final bool show = i % 2 == 0;
+              return SizedBox(
+                height: cellSize + cellSpacing,
+                child: Center(
+                  child: Text(
+                    show ? dayLabels[i] : '',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: colors.onSurfaceVariant,
+                          fontSize: 10,
+                        ),
+                  ),
+                ),
+              );
+            }),
+          ],
         ),
-      ),
+        const SizedBox(width: 4),
+        Expanded(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            reverse: true,
+            child: SizedBox(
+              width: gridWidth,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: 16,
+                    child: Stack(
+                      children: monthMarkers.map((marker) {
+                        return Positioned(
+                          left: marker.$1 * (cellSize + cellSpacing),
+                          child: Text(
+                            marker.$2,
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(
+                                  color: colors.onSurfaceVariant,
+                                  fontSize: 10,
+                                ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  ...List.generate(7, (dayIndex) {
+                    return Row(
+                      children: List.generate(weeksToShow, (weekIndex) {
+                        final daysBack =
+                            (weeksToShow - 1 - weekIndex) * 7 + (6 - dayIndex);
+                        final cellDate =
+                            today.subtract(Duration(days: daysBack));
+
+                        if (cellDate.isBefore(state.range.start)) {
+                          return const SizedBox(
+                            width: cellSize + cellSpacing,
+                            height: cellSize + cellSpacing,
+                          );
+                        }
+
+                        final count = dailyCounts[cellDate] ?? 0;
+                        final intensity = maxCount > 0 ? count / maxCount : 0.0;
+
+                        return Container(
+                          width: cellSize,
+                          height: cellSize,
+                          margin: const EdgeInsets.all(cellSpacing / 2),
+                          decoration: BoxDecoration(
+                            color: count == 0
+                                ? colors.surfaceContainerHighest
+                                : colors.primary
+                                    .withValues(alpha: 0.2 + intensity * 0.8),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        );
+                      }),
+                    );
+                  }),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class CompactActivityLayout extends ConsumerWidget {
+  final List<String> dayLabels;
+  const CompactActivityLayout({super.key, required this.dayLabels});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final DashboardState state = ref.read(dashboardStateProvider);
+    final Map<DateTime, int> dailyCounts =
+        ref.watch(dashboardDailyCountsProvider);
+    final ColorScheme colors = Theme.of(context).colorScheme;
+    final int maxCount = dailyCounts.values.fold(0, (a, b) => a > b ? a : b);
+    final int startWeekday = state.range.start.weekday;
+    final DateTime viewStart =
+        state.range.start.subtract(Duration(days: startWeekday - 1));
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(7, (d) {
+        final cellDate = viewStart.add(Duration(days: d));
+        final count = dailyCounts[cellDate] ?? 0;
+        final widthFactor = maxCount > 0 ? count / maxCount : 0.0;
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 16,
+                child: Text(
+                  dayLabels[d],
+                  style: Theme.of(context)
+                      .textTheme
+                      .labelSmall
+                      ?.copyWith(fontSize: 10),
+                ),
+              ),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Container(
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: colors.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                  child: FractionallySizedBox(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: widthFactor > 0 ? widthFactor : 0.0,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: count > 0 ? colors.primary : Colors.transparent,
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 4),
+              SizedBox(
+                width: 20,
+                child: Text(
+                  count > 0 ? count.toString() : '',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        fontSize: 10,
+                        color: colors.onSurfaceVariant,
+                      ),
+                  textAlign: TextAlign.end,
+                ),
+              ),
+            ],
+          ),
+        );
+      }),
     );
   }
 }

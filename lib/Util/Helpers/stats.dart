@@ -13,31 +13,21 @@ class PeakWindow {
     required this.count,
   });
 
-  /// Duration of the window in hours
-  int get duration => (endHour - startHour + 1);
+  /// Duration in hours, handles wraparound (e.g., 10pm-2am = 5 hours)
+  int get duration {
+    if (startHour <= endHour) {
+      return endHour - startHour + 1;
+    } else {
+      // Wraparound case: hours from start to midnight + midnight to end
+      return (24 - startHour) + (endHour + 1);
+    }
+  }
 
   @override
   String toString() =>
       'PeakWindow($startHour:00-$endHour:00, count: $count, score: $score)';
 }
 
-/// Finds the optimal contiguous time window with highest activity using
-/// a modified Kadane's algorithm with a per-hour cost penalty.
-///
-/// The algorithm finds the window that maximizes:
-///   score = Σ(counts in window) - (costPerHour × window size)
-///
-/// This naturally balances finding high-activity periods while
-/// penalizing overly wide ranges.
-///
-/// [hourlyCounts] should be a 24-element list where index 0 = midnight,
-/// index 12 = noon, etc.
-///
-/// [costPerHour] is automatically calculated based on data if null.
-/// Higher values favor smaller, more concentrated windows.
-/// Lower values allow wider windows to be selected.
-///
-/// Returns the optimal [PeakWindow], or a default if all counts are zero.
 PeakWindow findPeakWindow(
   List<int> hourlyCounts, {
   double? costPerHour,
@@ -50,9 +40,12 @@ PeakWindow findPeakWindow(
     return const PeakWindow(startHour: 0, endHour: 23, score: 0, count: 0);
   }
 
-  final effectiveCost = costPerHour ?? (totalEntries / 24.0);
+  // Cost = average entries per hour * 1.5 (to favor more constrained peaks).
+  final effectiveCost = costPerHour ?? (totalEntries / 24.0) * 1.5;
 
-  final profits = hourlyCounts.map((c) => c - effectiveCost).toList();
+  // Double the array to handle wraparound (e.g., 10pm-2am peaks)
+  final doubled = [...hourlyCounts, ...hourlyCounts];
+  final profits = doubled.map((c) => c - effectiveCost).toList();
 
   double maxScore = double.negativeInfinity;
   int bestStart = 0;
@@ -61,8 +54,15 @@ PeakWindow findPeakWindow(
   double currentScore = 0;
   int currentStart = 0;
 
-  for (int i = 0; i < 24; i++) {
+  // Scan through 48 hours but limit window size to 24 hours
+  for (int i = 0; i < 48; i++) {
     currentScore += profits[i];
+
+    // Shrink window if it exceeds 24 hours
+    while (i - currentStart >= 24) {
+      currentScore -= profits[currentStart];
+      currentStart++;
+    }
 
     if (currentScore > maxScore) {
       maxScore = currentScore;
@@ -76,14 +76,28 @@ PeakWindow findPeakWindow(
     }
   }
 
+  // Map back to 0-23 range
+  final startHour = bestStart % 24;
+  final endHour = bestEnd % 24;
+
   int windowCount = 0;
-  for (int i = bestStart; i <= bestEnd; i++) {
-    windowCount += hourlyCounts[i];
+  if (startHour <= endHour) {
+    for (int i = startHour; i <= endHour; i++) {
+      windowCount += hourlyCounts[i];
+    }
+  } else {
+    // Wraparound case
+    for (int i = startHour; i < 24; i++) {
+      windowCount += hourlyCounts[i];
+    }
+    for (int i = 0; i <= endHour; i++) {
+      windowCount += hourlyCounts[i];
+    }
   }
 
   return PeakWindow(
-    startHour: bestStart,
-    endHour: bestEnd,
+    startHour: startHour,
+    endHour: endHour,
     score: maxScore,
     count: windowCount,
   );
@@ -337,7 +351,7 @@ class CoOccurrenceResult {
 }
 
 CoOccurrenceResult? findTopCoOccurrence(
-    Map<dynamic, Set<String>> itemsByGroup) {
+    Map<dynamic, Iterable<String>> itemsByGroup) {
   final Map<String, int> pairCounts = {};
 
   for (final items in itemsByGroup.values) {
@@ -365,4 +379,17 @@ CoOccurrenceResult? findTopCoOccurrence(
     occurrences: topPair.value,
     totalInstances: itemsByGroup.length,
   );
+}
+
+double calculateMean(Iterable<num> values) {
+  if (values.isEmpty) return 0;
+  return values.fold(0.0, (sum, v) => sum + v) / values.length;
+}
+
+double calculateStandardDeviation(Iterable<num> values) {
+  if (values.length < 2) return 0;
+  final mean = calculateMean(values);
+  final squaredDiffs = values.map((v) => pow(v - mean, 2));
+  final variance = squaredDiffs.fold(0.0, (sum, v) => sum + v) / values.length;
+  return sqrt(variance);
 }

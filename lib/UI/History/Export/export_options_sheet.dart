@@ -6,10 +6,9 @@ import 'package:stripes_ui/Providers/History/display_data_provider.dart';
 import 'package:stripes_ui/Providers/Navigation/sheet_provider.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
 
-import '../EventView/csv_preview_sheet.dart';
+import 'csv_preview_sheet.dart';
 import 'report_sheet.dart';
 
-/// Bottom sheet showing export format options (CSV or Report)
 class ExportOptionsSheet extends ConsumerWidget {
   final List<Response> responses;
 
@@ -28,7 +27,6 @@ class ExportOptionsSheet extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Header
           Row(
             children: [
               Text(
@@ -46,7 +44,6 @@ class ExportOptionsSheet extends ConsumerWidget {
           ),
           const SizedBox(height: AppPadding.tiny),
 
-          // Date range info
           Container(
             padding: const EdgeInsets.symmetric(
               horizontal: AppPadding.medium,

@@ -15,7 +15,7 @@ import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Services/web_download_stub.dart'
     if (dart.library.html) 'package:stripes_ui/Services/web_download.dart'
     as web_download;
-import 'package:stripes_ui/Util/Helpers/stats.dart';
+import 'package:stripes_ui/Providers/Dashboard/insight_provider.dart';
 
 class ReportGenerator {
   static Future<Uint8List> generatePdf({
@@ -28,7 +28,7 @@ class ReportGenerator {
 
     final stats = _calculateStats(responses);
     final blueDyeResults = _extractBlueDyeResults(responses);
-    final insights = _calculateInsights(responses, dateRange);
+    final List<Insight> insights = Insight.fromResponses(responses);
     final questionBreakdown = _buildQuestionBreakdown(responses);
 
     final font = await PdfGoogleFonts.interRegular();
@@ -236,7 +236,7 @@ class ReportGenerator {
     );
   }
 
-  static pw.Widget _buildInsightsSection(List<_Insight> insights) {
+  static pw.Widget _buildInsightsSection(List<Insight> insights) {
     return pw.Container(
       padding: const pw.EdgeInsets.all(12),
       decoration: pw.BoxDecoration(
@@ -253,7 +253,7 @@ class ReportGenerator {
                     text: pw.TextSpan(
                       children: [
                         pw.TextSpan(
-                          text: '${insight.title}: ',
+                          text: '${insight.getTitle(null)}: ',
                           style: pw.TextStyle(
                             fontSize: 10,
                             fontWeight: pw.FontWeight.bold,
@@ -261,7 +261,7 @@ class ReportGenerator {
                           ),
                         ),
                         pw.TextSpan(
-                          text: insight.description,
+                          text: insight.getDescription(null),
                           style: const pw.TextStyle(
                             fontSize: 10,
                             color: PdfColors.grey700,
@@ -552,275 +552,6 @@ class ReportGenerator {
     );
   }
 
-  static List<_Insight> _calculateInsights(
-      List<Response> responses, DateTimeRange range) {
-    final List<_Insight> insights = [];
-    if (responses.isEmpty) return insights;
-
-    // Calculate time of day distribution
-    final Map<int, int> hourCounts = {};
-    final Map<int, int> dayCounts = {}; // 1=Monday, 7=Sunday
-    final Map<DateTime, int> dailyCounts = {};
-
-    for (final response in responses) {
-      final date = dateFromStamp(response.stamp);
-      final hour = date.hour;
-      final dayOfWeek = date.weekday;
-      final dayOnly = DateTime(date.year, date.month, date.day);
-
-      hourCounts[hour] = (hourCounts[hour] ?? 0) + 1;
-      dayCounts[dayOfWeek] = (dayCounts[dayOfWeek] ?? 0) + 1;
-      dailyCounts[dayOnly] = (dailyCounts[dayOnly] ?? 0) + 1;
-    }
-
-    // Peak hours - use Kadane's algorithm to find optimal contiguous window
-    if (hourCounts.isNotEmpty) {
-      final List<int> hourlyList = List.generate(24, (h) => hourCounts[h] ?? 0);
-      final PeakWindow peak = findPeakWindow(hourlyList);
-
-      if (peak.count > 0) {
-        final int percentage = (peak.count / responses.length * 100).round();
-        final double expectedCount = responses.length * peak.duration / 24;
-        final double timesExpected =
-            expectedCount > 0 ? peak.count / expectedCount : 1.0;
-
-        String hourRange =
-            '${_formatHour(peak.startHour)} - ${_formatHour(peak.endHour + 1)}';
-        insights.add(_Insight(
-          title: 'Peak Activity',
-          description:
-              '$hourRange ($percentage% of entries, ${timesExpected.toStringAsFixed(1)}× expected)',
-        ));
-      }
-    }
-
-    if (dayCounts.isNotEmpty) {
-      final List<MapEntry<int, int>> sortedDays = dayCounts.entries.toList()
-        ..sort((a, b) => b.value.compareTo(a.value));
-      final int peakDay = sortedDays.first.key;
-      final String peakDayName = _dayName(peakDay);
-      final int peakDayCount = sortedDays.first.value;
-      final int dayPercentage = (peakDayCount / responses.length * 100).round();
-      final double expectedDayCount = responses.length / 7;
-      final double timesExpected =
-          expectedDayCount > 0 ? peakDayCount / expectedDayCount : 1.0;
-
-      insights.add(_Insight(
-        title: 'Most Active Day',
-        description:
-            '$peakDayName ($dayPercentage% of entries, ${timesExpected.toStringAsFixed(1)}× expected)',
-      ));
-    }
-
-    if (dailyCounts.isNotEmpty) {
-      final List<DateTime> sortedDates = dailyCounts.keys.toList()..sort();
-      int maxStreak = 1;
-      int currentStreak = 1;
-
-      for (int i = 1; i < sortedDates.length; i++) {
-        final diff = sortedDates[i].difference(sortedDates[i - 1]).inDays;
-        if (diff == 1) {
-          currentStreak++;
-          if (currentStreak > maxStreak) maxStreak = currentStreak;
-        } else {
-          currentStreak = 1;
-        }
-      }
-
-      if (maxStreak > 1) {
-        insights.add(_Insight(
-          title: 'Longest Streak',
-          description: '$maxStreak consecutive days',
-        ));
-      }
-    }
-
-    // Weekend vs Weekday pattern
-    if (dayCounts.isNotEmpty) {
-      int weekdayCount = 0;
-      int weekendCount = 0;
-      for (final entry in dayCounts.entries) {
-        if (entry.key >= 6) {
-          weekendCount += entry.value;
-        } else {
-          weekdayCount += entry.value;
-        }
-      }
-      final double weekdayAvg = weekdayCount / 5;
-      final double weekendAvg = weekendCount / 2;
-
-      if (weekdayAvg > 0 || weekendAvg > 0) {
-        final bool moreOnWeekend = weekendAvg > weekdayAvg;
-        final double higher = moreOnWeekend ? weekendAvg : weekdayAvg;
-        final double lower = moreOnWeekend ? weekdayAvg : weekendAvg;
-        final double ratio = lower > 0 ? higher / lower : 1.0;
-
-        if (ratio >= 1.3) {
-          insights.add(_Insight(
-            title: 'Weekly Pattern',
-            description:
-                '${ratio.toStringAsFixed(1)}× more active on ${moreOnWeekend ? "weekends" : "weekdays"}',
-          ));
-        }
-      }
-    }
-
-    // Trend direction
-    if (dailyCounts.length >= 3) {
-      final List<DateTime> sortedDates = dailyCounts.keys.toList()..sort();
-      final DateTime firstDay = sortedDates.first;
-
-      final List<double> xValues = sortedDates
-          .map((d) => d.difference(firstDay).inDays.toDouble())
-          .toList();
-      final List<double> yValues =
-          sortedDates.map((d) => dailyCounts[d]!.toDouble()).toList();
-
-      final LinearRegressionResult? regression =
-          linearRegression(xValues, yValues);
-      if (regression != null && regression.percentChangePerUnit.abs() >= 10) {
-        final String direction =
-            regression.slope > 0 ? 'increasing' : 'decreasing';
-        insights.add(_Insight(
-          title: 'Activity Trend',
-          description:
-              '${direction.substring(0, 1).toUpperCase()}${direction.substring(1)} ~${regression.percentChangePerUnit.abs().toStringAsFixed(0)}% per day',
-        ));
-      }
-    }
-
-    // Category co-occurrence
-    if (responses.length >= 10) {
-      final Map<DateTime, Set<String>> categoriesByDay = {};
-      for (final response in responses) {
-        if (response is DetailResponse) {
-          final DateTime date = dateFromStamp(response.stamp);
-          final DateTime dayOnly = DateTime(date.year, date.month, date.day);
-          categoriesByDay.putIfAbsent(dayOnly, () => {}).add(response.type);
-        }
-      }
-
-      final CoOccurrenceResult? coOccurrence =
-          findTopCoOccurrence(categoriesByDay);
-      if (coOccurrence != null &&
-          coOccurrence.occurrences >= 3 &&
-          coOccurrence.percentage >= 30) {
-        insights.add(_Insight(
-          title: 'Common Pairing',
-          description:
-              '${coOccurrence.item1} + ${coOccurrence.item2} appear together ${coOccurrence.percentage.round()}% of days',
-        ));
-      }
-    }
-
-    // Symptom correlation (Spearman) - find related numeric symptoms
-    if (responses.length >= 10) {
-      // Group numeric values by symptom (question prompt) per day
-      final Map<DateTime, Map<String, List<double>>> symptomsByDay = {};
-
-      for (final response in responses) {
-        if (response is DetailResponse) {
-          final DateTime date = dateFromStamp(response.stamp);
-          final DateTime dayOnly = DateTime(date.year, date.month, date.day);
-          symptomsByDay.putIfAbsent(dayOnly, () => {});
-
-          for (final r in response.responses) {
-            if (r is NumericResponse) {
-              // Use question prompt as symptom identifier
-              final String symptom = r.question.prompt.isNotEmpty
-                  ? r.question.prompt
-                  : r.question.id;
-              symptomsByDay[dayOnly]!
-                  .putIfAbsent(symptom, () => [])
-                  .add(r.response.toDouble());
-            }
-          }
-        }
-      }
-
-      // Average values per day per symptom
-      final Map<String, List<double>> symptomDailyAvgs = {};
-      final List<DateTime> sortedDays = symptomsByDay.keys.toList()..sort();
-
-      for (final day in sortedDays) {
-        final dayData = symptomsByDay[day]!;
-        for (final symptom in dayData.keys) {
-          final values = dayData[symptom]!;
-          final avg = values.reduce((a, b) => a + b) / values.length;
-          symptomDailyAvgs.putIfAbsent(symptom, () => []).add(avg);
-        }
-      }
-
-      // Find strongest correlation between symptom pairs
-      SpearmanResult? bestCorrelation;
-      String? bestPair;
-
-      final symptoms = symptomDailyAvgs.keys.toList();
-      for (int i = 0; i < symptoms.length - 1; i++) {
-        for (int j = i + 1; j < symptoms.length; j++) {
-          final symptom1 = symptoms[i];
-          final symptom2 = symptoms[j];
-          final vals1 = symptomDailyAvgs[symptom1]!;
-          final vals2 = symptomDailyAvgs[symptom2]!;
-
-          // Need matching lengths - use minimum
-          final minLen =
-              vals1.length < vals2.length ? vals1.length : vals2.length;
-          if (minLen < 5) continue;
-
-          final result = spearmanCorrelation(
-            vals1.sublist(0, minLen),
-            vals2.sublist(0, minLen),
-          );
-
-          if (result != null && result.isMeaningful) {
-            if (bestCorrelation == null ||
-                result.rho.abs() > bestCorrelation.rho.abs()) {
-              bestCorrelation = result;
-              bestPair = '$symptom1 & $symptom2';
-            }
-          }
-        }
-      }
-
-      if (bestCorrelation != null &&
-          bestPair != null &&
-          bestCorrelation.rho.abs() >= 0.4) {
-        // Only show moderate+ correlations
-        final String linkType = bestCorrelation.rho > 0
-            ? 'tend to increase together'
-            : 'move in opposite directions';
-        insights.add(_Insight(
-          title: 'Symptom Link',
-          description: '$bestPair $linkType (${bestCorrelation.strength})',
-        ));
-      }
-    }
-
-    return insights;
-  }
-
-  static String _formatHour(int hour) {
-    if (hour == 0 || hour == 24) return '12am';
-    if (hour == 12) return '12pm';
-    if (hour < 12) return '${hour}am';
-    return '${hour - 12}pm';
-  }
-
-  static String _dayName(int weekday) {
-    const days = [
-      '',
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
-      'Sunday'
-    ];
-    return days[weekday];
-  }
-
   static Map<String, _CategoryBreakdown> _buildQuestionBreakdown(
       List<Response> responses) {
     final Map<String, _CategoryBreakdown> breakdown = {};
@@ -1017,16 +748,6 @@ class _BlueDyeResult {
     required this.mealDuration,
     required this.transitTime,
     required this.lagPhase,
-  });
-}
-
-class _Insight {
-  final String title;
-  final String description;
-
-  const _Insight({
-    required this.title,
-    required this.description,
   });
 }
 

@@ -19,8 +19,10 @@ class QuestionEntryController extends ChangeNotifier {
     listener.addListener(_onListenerChanged);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_disposed && question.isRequired && !hasResponse) {
-        listener.addPending(question);
+      if (!_disposed && !hasResponse) {
+        // Initialize pending state
+        listener.setResponse(question,
+            response: listener.fromQuestion(question));
       }
     });
   }
@@ -42,17 +44,11 @@ class QuestionEntryController extends ChangeNotifier {
   Response? get response => listener.fromQuestion(question);
 
   void addResponse(Response response) {
-    if (question.isRequired) {
-      listener.removePending(question);
-    }
-    listener.addResponse(response);
+    listener.setResponse(question, response: response);
   }
 
   void removeResponse() {
-    if (question.isRequired) {
-      listener.addPending(question);
-    }
-    listener.removeResponse(question);
+    listener.setResponse(question, response: null);
   }
 
   void toggleResponse(Response Function() createResponse) {
@@ -217,8 +213,6 @@ class _QuestionEntryCardState extends State<QuestionEntryCard>
 
   @override
   Widget build(BuildContext context) {
-    if (!widget.styled) return widget.child;
-
     final controller = QuestionEntryScope.of(context);
 
     return ListenableBuilder(
@@ -233,16 +227,47 @@ class _QuestionEntryCardState extends State<QuestionEntryCard>
         }
         _wasError = hasError;
 
-        final colors = Theme.of(context).colorScheme;
-        final BorderSide border;
+        Widget content = widget.child;
 
-        if (hasResponse) {
-          border = BorderSide(width: 3.0, color: colors.primary);
-        } else if (hasError) {
-          border = BorderSide(width: 3.0, color: colors.error);
-        } else {
-          border =
-              BorderSide(width: 3.0, color: Theme.of(context).dividerColor);
+        if (widget.styled) {
+          final colors = Theme.of(context).colorScheme;
+          final BorderSide border;
+
+          if (hasResponse) {
+            border = BorderSide(width: 3.0, color: colors.primary);
+          } else if (hasError) {
+            border = BorderSide(width: 3.0, color: colors.error);
+          } else {
+            border =
+                BorderSide(width: 3.0, color: Theme.of(context).dividerColor);
+          }
+
+          content = Padding(
+            padding: widget.margin ??
+                const EdgeInsets.symmetric(vertical: AppPadding.tiny),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius:
+                    const BorderRadius.all(Radius.circular(AppRounding.medium)),
+                border: Border.fromBorderSide(border),
+                boxShadow: isHighlighted
+                    ? [
+                        BoxShadow(
+                          color: colors.primary.withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          spreadRadius: 1,
+                        )
+                      ]
+                    : null,
+              ),
+              child: Padding(
+                padding: widget.padding ?? EdgeInsets.zero,
+                child: widget.child,
+              ),
+            ),
+          );
         }
 
         return AnimatedBuilder(
@@ -256,32 +281,7 @@ class _QuestionEntryCardState extends State<QuestionEntryCard>
           child: AnimatedScale(
             scale: isHighlighted ? 1.02 : 1.0,
             duration: const Duration(milliseconds: 150),
-            child: Padding(
-              padding: widget.margin ??
-                  const EdgeInsets.symmetric(vertical: AppPadding.tiny),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 150),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                  borderRadius: const BorderRadius.all(
-                      Radius.circular(AppRounding.medium)),
-                  border: Border.fromBorderSide(border),
-                  boxShadow: isHighlighted
-                      ? [
-                          BoxShadow(
-                            color: colors.primary.withValues(alpha: 0.3),
-                            blurRadius: 8,
-                            spreadRadius: 1,
-                          )
-                        ]
-                      : null,
-                ),
-                child: Padding(
-                  padding: widget.padding ?? EdgeInsets.zero,
-                  child: widget.child,
-                ),
-              ),
-            ),
+            child: content,
           ),
         );
       },

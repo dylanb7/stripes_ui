@@ -17,7 +17,10 @@ import 'package:stripes_ui/Util/Widgets/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:stripes_ui/UI/AccountManagement/SymptomManagement/dependency_editor.dart';
+import 'package:stripes_ui/UI/CommonWidgets/Conditions/condition_editor.dart';
+import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/condition.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
+import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/requirement.dart';
 
 class SymptomTypeManagement extends ConsumerStatefulWidget {
   final String? category;
@@ -794,6 +797,45 @@ class SymptomEditSheetState extends ConsumerState<SymptomEditSheet> {
                         textAlign: TextAlign.center,
                       ),
                     ),
+                  const Divider(),
+                  ListTile(
+                    title: Text("Validation Rules",
+                        style: Theme.of(context).textTheme.titleMedium),
+                    subtitle: Text(
+                        question.requirement == null
+                            ? "No rules defined"
+                            : "Custom rules defined",
+                        style: Theme.of(context).textTheme.bodySmall),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () async {
+                      final allQuestions =
+                          await ref.read(questionHomeProvider.future);
+                      if (!context.mounted) return;
+                      // Filter out self to avoid recursion
+                      final validQuestions = allQuestions
+                          .byType()
+                          .values
+                          .expand((l) => l)
+                          .where((q) => q.id != question.id)
+                          .toList();
+
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        useSafeArea: true,
+                        builder: (context) => _RequirementEditorSheet(
+                          initialRequirement: question.requirement,
+                          availableQuestions: [question],
+                          onSave: (newRequirement) async {
+                            final repo =
+                                await ref.read(questionsProvider.future);
+                            if (repo == null) return;
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                  const Divider(),
                   Center(
                     child: GestureDetector(
                       onTap: () {
@@ -865,23 +907,138 @@ class SymptomInfoDisplay extends StatelessWidget {
         ),
         RichText(
           text: TextSpan(
-              text: type.value,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withValues(alpha: 0.75),
-                  ),
-              children: [
-                if (question.isRequired)
-                  const TextSpan(
-                    text: '*',
-                    style: TextStyle(color: Colors.red),
-                  ),
-              ]),
+            text: type.value,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withValues(alpha: 0.75),
+                ),
+          ),
         ),
       ],
     );
+  }
+}
+
+class _RequirementEditorSheet extends StatefulWidget {
+  final Requirement? initialRequirement;
+  final List<Question> availableQuestions;
+  final Function(Requirement?) onSave;
+
+  const _RequirementEditorSheet({
+    required this.initialRequirement,
+    required this.availableQuestions,
+    required this.onSave,
+  });
+
+  @override
+  State<_RequirementEditorSheet> createState() =>
+      _RequirementEditorSheetState();
+}
+
+class _RequirementEditorSheetState extends State<_RequirementEditorSheet> {
+  Condition? _root;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialRequirement == null) {
+      _root = null;
+    } else {
+      final groups = widget.initialRequirement!.groups;
+      if (groups.isEmpty) {
+        _root = null;
+      } else if (groups.length == 1) {
+        final group = groups.first;
+        if (group.conditions.length == 1 &&
+            group.conditions.first is! ConditionGroup &&
+            group.op == GroupOp.all) {
+          _root = group.conditions.first;
+        } else {
+          _root = group;
+        }
+      } else {
+        _root = ConditionGroup(conditions: groups, op: GroupOp.all);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(AppPadding.large),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              Text(
+                "Validation Rules",
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const Spacer(),
+              IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.close),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppPadding.medium),
+          Flexible(
+            child: SingleChildScrollView(
+              child: ConditionEditor(
+                initialCondition: _root,
+                availableQuestions: widget.availableQuestions,
+                localizations: QuestionsLocalizations.of(context),
+                onChanged: (condition) {
+                  setState(() {
+                    _root = condition;
+                  });
+                },
+              ),
+            ),
+          ),
+          const SizedBox(height: AppPadding.large),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              if (_root != null)
+                TextButton(
+                  onPressed: () {
+                    setState(() => _root = null);
+                  },
+                  child: const Text("Clear"),
+                ),
+              const SizedBox(width: AppPadding.small),
+              FilledButton(
+                onPressed: _save,
+                child: const Text("Save Rules"),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _save() {
+    if (_root == null) {
+      widget.onSave(null);
+      return;
+    }
+
+    Requirement requirement;
+    if (_root is ConditionGroup) {
+      requirement = Requirement([_root as ConditionGroup]);
+    } else {
+      requirement = Requirement([
+        ConditionGroup(conditions: [_root!], op: GroupOp.all)
+      ]);
+    }
+
+    widget.onSave(requirement);
   }
 }
 
@@ -908,7 +1065,7 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-  bool isLoading = false, submitSuccess = false, isRequired = false;
+  bool isLoading = false, submitSuccess = false;
 
   QuestionType selectedQuestionType = QuestionType.check;
 
@@ -1103,20 +1260,6 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
                           },
                           initialValue: choices,
                         ),
-                      const SizedBox(
-                        height: AppPadding.large,
-                      ),
-                      CheckboxListTile(
-                          title: const Text(
-                            "Is required",
-                          ),
-                          value: isRequired,
-                          onChanged: (value) {
-                            if (value == null) return;
-                            setState(() {
-                              isRequired = value;
-                            });
-                          }),
                     ],
                   ),
                 ),
@@ -1162,32 +1305,19 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
     switch (selectedQuestionType) {
       case QuestionType.check:
         question = Check(
-            id: "",
-            prompt: prompt.text,
-            type: widget.type,
-            isRequired: isRequired,
-            userCreated: true);
+            id: "", prompt: prompt.text, type: widget.type, userCreated: true);
       case QuestionType.freeResponse:
         question = FreeResponse(
-            id: "",
-            prompt: prompt.text,
-            type: widget.type,
-            isRequired: isRequired,
-            userCreated: true);
+            id: "", prompt: prompt.text, type: widget.type, userCreated: true);
       case QuestionType.slider:
         question = Numeric(
-            id: "",
-            prompt: prompt.text,
-            type: widget.type,
-            isRequired: isRequired,
-            userCreated: true);
+            id: "", prompt: prompt.text, type: widget.type, userCreated: true);
       case QuestionType.multipleChoice:
         question = MultipleChoice(
             id: "",
             prompt: prompt.text,
             type: widget.type,
             choices: choices,
-            isRequired: isRequired,
             userCreated: true);
       case QuestionType.allThatApply:
         question = AllThatApply(
@@ -1195,7 +1325,6 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
             prompt: prompt.text,
             type: widget.type,
             choices: choices,
-            isRequired: isRequired,
             userCreated: true);
     }
     final bool added =

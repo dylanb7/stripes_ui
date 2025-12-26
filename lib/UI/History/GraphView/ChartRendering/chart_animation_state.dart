@@ -103,31 +103,13 @@ class ChartAnimationState<T, D> {
       value = bounds.labelMinX;
     }
 
-    while (value < bounds.labelMaxX) {
+    while (value <= bounds.labelMaxX + 0.0001) {
       if (value < bounds.labelMinX) {
         value += bounds.xAxisTickSize;
         continue;
       }
 
-      String text = "";
-      switch (axis) {
-        case DateTimeAxis():
-          text = (axis as DateTimeAxis)
-              .format(DateTime.fromMillisecondsSinceEpoch(value.toInt()));
-          break;
-        case NumberAxis():
-          text = (axis as NumberAxis).format(value);
-          break;
-        case CategoryAxis(categories: final List<String> categories):
-          final index = value.round();
-          if (index >= 0 && index < categories.length) {
-            text = categories[index];
-          }
-          break;
-        default:
-          text = value.toStringAsFixed(1);
-          break;
-      }
+      final text = axis.formatFromDouble(value);
 
       if (text.isNotEmpty) {
         final normalizedPos = (value - bounds.minX) / xRange;
@@ -152,7 +134,7 @@ class ChartAnimationState<T, D> {
 
     double value = bounds.minY;
     while (value <= bounds.maxY + 0.0001) {
-      final text = axis.format(value);
+      final text = axis.formatFromDouble(value);
       final normalizedPos = (value - bounds.minY) / yRange;
       labels.add(AnimatedAxisLabel(
         normalizedPosition: normalizedPos,

@@ -13,35 +13,17 @@ import 'package:stripes_ui/UI/History/EventView/sig_dates.dart';
 import 'package:stripes_ui/UI/History/Filters/filter_logic.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
+import 'package:stripes_ui/Util/Helpers/date_range_utils.dart';
 
-enum DisplayTimeCycle {
-  day,
-  week,
-  month,
-  custom;
-
-  String get value {
-    switch (this) {
-      case DisplayTimeCycle.day:
-        return "Day";
-      case DisplayTimeCycle.week:
-        return "Week";
-      case DisplayTimeCycle.month:
-        return "Month";
-      case DisplayTimeCycle.custom:
-        return "Custom";
-    }
-  }
-}
-
-enum ViewMode { events, graph }
+// TimeCycle is now imported from date_range_utils.dart\n
+enum ViewMode { events, reviews, graph }
 
 final viewModeProvider = StateProvider<ViewMode>((ref) => ViewMode.events);
 
 @immutable
 class DisplayDataSettings extends Equatable {
   final DateTimeRange range;
-  final DisplayTimeCycle cycle;
+  final TimeCycle cycle;
   final List<LabeledFilter> filters;
   final GraphYAxis axis;
   final bool groupSymptoms, groupBars;
@@ -57,7 +39,7 @@ class DisplayDataSettings extends Equatable {
 
   DisplayDataSettings copyWith({
     DateTimeRange? range,
-    DisplayTimeCycle? cycle,
+    TimeCycle? cycle,
     List<LabeledFilter>? filters,
     GraphYAxis? axis,
     bool? groupSymptoms,
@@ -72,29 +54,33 @@ class DisplayDataSettings extends Equatable {
   }
 
   bool isSingleDay() {
-    return cycle == DisplayTimeCycle.day ||
-        cycle == DisplayTimeCycle.custom && _sameDay(range.start, range.end);
+    return cycle == TimeCycle.day ||
+        cycle == TimeCycle.custom && _sameDay(range.start, range.end);
   }
 
   String getRangeString(BuildContext context) {
     String locale = Localizations.localeOf(context).languageCode;
 
     switch (cycle) {
-      case DisplayTimeCycle.day:
+      case TimeCycle.day:
         if (range.start.year == DateTime.now().year) {
           return DateFormat.MMMd(locale).format(range.start);
         }
         return DateFormat.yMMMd(locale).format(range.start);
-      case DisplayTimeCycle.week:
+      case TimeCycle.week:
         return getSmartRangeString(range, locale);
 
-      case DisplayTimeCycle.month:
+      case TimeCycle.month:
         if (range.start.year == DateTime.now().year) {
           return DateFormat.MMMM(locale).format(range.start);
         }
         return DateFormat.yMMM(locale).format(range.start);
-      case DisplayTimeCycle.custom:
+      case TimeCycle.custom:
         return getSmartRangeString(range, locale);
+      case TimeCycle.quarter:
+      case TimeCycle.year:
+      case TimeCycle.all:
+        return DateRangeUtils.formatRange(range, cycle, locale);
     }
   }
 
@@ -102,59 +88,77 @@ class DisplayDataSettings extends Equatable {
     String locale = Localizations.localeOf(context).languageCode;
 
     switch (cycle) {
-      case DisplayTimeCycle.day:
+      case TimeCycle.day:
         if (range.start.year == DateTime.now().year) {
           return DateFormat.MMMd(locale).format(range.start);
         }
         return DateFormat.yMMMd(locale).format(range.start);
-      case DisplayTimeCycle.week:
+      case TimeCycle.week:
         return getSmartRangeString(range, locale);
 
-      case DisplayTimeCycle.month:
+      case TimeCycle.month:
         if (range.start.year == DateTime.now().year) {
           return DateFormat.MMMM(locale).format(range.start);
         }
         return DateFormat.yMMM(locale).format(range.start);
-      case DisplayTimeCycle.custom:
+      case TimeCycle.custom:
         return getSmartRangeString(range, locale);
+      case TimeCycle.quarter:
+      case TimeCycle.year:
+      case TimeCycle.all:
+        return DateRangeUtils.formatRange(range, cycle, locale);
     }
   }
 
   Duration get duration {
     switch (cycle) {
-      case DisplayTimeCycle.day:
+      case TimeCycle.day:
         return const Duration(days: 1);
-      case DisplayTimeCycle.week:
+      case TimeCycle.week:
         return const Duration(days: 7);
-      case DisplayTimeCycle.month:
+      case TimeCycle.month:
         return const Duration(days: 30);
-      case DisplayTimeCycle.custom:
+      case TimeCycle.custom:
+        return range.end.difference(range.start);
+      case TimeCycle.quarter:
+        return const Duration(days: 90);
+      case TimeCycle.year:
+        return const Duration(days: 365);
+      case TimeCycle.all:
         return range.end.difference(range.start);
     }
   }
 
   DateFormat getFormat() {
     switch (cycle) {
-      case DisplayTimeCycle.day:
+      case TimeCycle.day:
         return DateFormat.H();
-      case DisplayTimeCycle.week:
+      case TimeCycle.week:
         return DateFormat.E();
-      case DisplayTimeCycle.month:
+      case TimeCycle.month:
         return DateFormat.d();
-      case DisplayTimeCycle.custom:
+      case TimeCycle.custom:
+        return _getSmartLayout().format;
+      case TimeCycle.quarter:
+      case TimeCycle.year:
+      case TimeCycle.all:
         return _getSmartLayout().format;
     }
   }
 
   int getBuckets() {
     switch (cycle) {
-      case DisplayTimeCycle.day:
+      case TimeCycle.day:
         return 24;
-      case DisplayTimeCycle.week:
+      case TimeCycle.week:
         return 7;
-      case DisplayTimeCycle.month:
+      case TimeCycle.month:
         return DateUtils.getDaysInMonth(range.start.year, range.start.month);
-      case DisplayTimeCycle.custom:
+      case TimeCycle.custom:
+        return _getSmartLayout().buckets;
+      case TimeCycle.quarter:
+      case TimeCycle.year:
+      case TimeCycle.all:
         return _getSmartLayout().buckets;
     }
   }
@@ -221,26 +225,34 @@ class DisplayDataSettings extends Equatable {
 
   int getTitles() {
     switch (cycle) {
-      case DisplayTimeCycle.day:
+      case TimeCycle.day:
         return 4;
-      case DisplayTimeCycle.week:
+      case TimeCycle.week:
         return 7;
-      case DisplayTimeCycle.month:
+      case TimeCycle.month:
         return 4;
-      case DisplayTimeCycle.custom:
+      case TimeCycle.custom:
+        return 4;
+      case TimeCycle.quarter:
+      case TimeCycle.year:
+      case TimeCycle.all:
         return 4;
     }
   }
 
   double getBarSpacing() {
     switch (cycle) {
-      case DisplayTimeCycle.day:
+      case TimeCycle.day:
         return 2.0;
-      case DisplayTimeCycle.week:
+      case TimeCycle.week:
         return 2.0;
-      case DisplayTimeCycle.month:
+      case TimeCycle.month:
         return 2.0;
-      case DisplayTimeCycle.custom:
+      case TimeCycle.custom:
+        return 2.0;
+      case TimeCycle.quarter:
+      case TimeCycle.year:
+      case TimeCycle.all:
         return 2.0;
     }
   }
@@ -258,45 +270,25 @@ class DisplayDataProvider extends StateNotifier<DisplayDataSettings> {
           range: DateTimeRange(
               start: DateTime.now(),
               end: DateTime.now().add(const Duration(days: 1))),
-          cycle: DisplayTimeCycle.day,
+          cycle: TimeCycle.day,
           groupSymptoms: false,
           axis: GraphYAxis.number,
         )) {
-    setCycle(DisplayTimeCycle.day);
+    setCycle(TimeCycle.day);
   }
 
-  void setCycle(DisplayTimeCycle cycle, {DateTime? seedStartTime}) {
+  void setCycle(TimeCycle cycle, {DateTime? seedStartTime}) {
     final DateTime seed = seedStartTime ?? DateTime.now();
     DateTimeRange newRange;
-    switch (cycle) {
-      case DisplayTimeCycle.day:
-        final start = DateTime(seed.year, seed.month, seed.day);
-        newRange = DateTimeRange(
-          start: start,
-          end: start.add(
-            const Duration(days: 1),
-          ),
-        );
-        break;
-      case DisplayTimeCycle.week:
-        final start = seed.subtract(Duration(days: seed.weekday - 1));
-        final startDay = DateTime(start.year, start.month, start.day);
-        newRange = DateTimeRange(
-            start: startDay, end: startDay.add(const Duration(days: 7)));
-        break;
-      case DisplayTimeCycle.month:
-        final start = DateTime(seed.year, seed.month);
-        final end = DateTime(seed.year, seed.month + 1, 0);
-        newRange = DateTimeRange(start: start, end: end);
-        break;
-      case DisplayTimeCycle.custom:
-        newRange = state.range;
-        break;
+    if (cycle == TimeCycle.custom) {
+      newRange = state.range;
+    } else {
+      newRange = DateRangeUtils.calculateRange(cycle, seed);
     }
     state = state.copyWith(cycle: cycle, range: newRange);
   }
 
-  void setRange(DateTimeRange range, {DisplayTimeCycle? cycle}) {
+  void setRange(DateTimeRange range, {TimeCycle? cycle}) {
     state = state.copyWith(range: range, cycle: cycle ?? state.cycle);
   }
 
@@ -322,43 +314,11 @@ class DisplayDataProvider extends StateNotifier<DisplayDataSettings> {
   }
 
   DateTimeRange getNextRange({required bool forward}) {
-    DateTime start = state.range.start;
-
-    DateTime newStart;
-    DateTime newEnd;
-
-    switch (state.cycle) {
-      case DisplayTimeCycle.day:
-        const delta = Duration(days: 1);
-        newStart = forward ? start.add(delta) : start.subtract(delta);
-        newEnd = newStart.add(delta);
-        break;
-      case DisplayTimeCycle.week:
-        const delta = Duration(days: 7);
-        newStart = forward ? start.add(delta) : start.subtract(delta);
-        newEnd = newStart.add(delta);
-        break;
-      case DisplayTimeCycle.month:
-        if (forward) {
-          newStart = DateTime(start.year, start.month + 1);
-        } else {
-          newStart = DateTime(start.year, start.month - 1);
-        }
-        newEnd = DateTime(newStart.year, newStart.month + 1, 0);
-        break;
-      case DisplayTimeCycle.custom:
-        // Use the full duration of the custom range for shifting
-        final duration = state.range.duration;
-        // Ensure at least 1 day shift to prevent stuck ranges
-        final shiftDuration =
-            duration.inDays > 0 ? duration : const Duration(days: 1);
-        newStart =
-            forward ? start.add(shiftDuration) : start.subtract(shiftDuration);
-        newEnd = newStart.add(shiftDuration);
-        break;
-    }
-
-    return DateTimeRange(start: newStart, end: newEnd);
+    return DateRangeUtils.shiftRange(
+      state.range,
+      state.cycle,
+      forward,
+    );
   }
 
   getNextRangeString({required bool forward, required BuildContext context}) {
@@ -487,6 +447,15 @@ final eventsMapProvider =
   }).toList();
 
   return generateEventMap(filtered);
+});
+
+final unfilteredEventsMapProvider =
+    FutureProvider<Map<DateTime, List<Response>>>((ref) async {
+  final stamps = await ref.watch(stampHolderProvider.future);
+
+  final allResponses = stamps.whereType<Response>().toList();
+
+  return generateEventMap(allResponses);
 });
 
 List<Response> _flattenedResponses(Iterable<Response> input) {
@@ -623,7 +592,21 @@ class GraphKey extends Equatable {
 
   String toLocalizedString(BuildContext context) {
     QuestionsLocalizations? localizations = QuestionsLocalizations.of(context);
-    return "${isCategory ? "Category · " : ""} ${localizations?.value(title) ?? title}";
+    final String localized = localizations?.value(title) ?? title;
+
+    if (!isCategory &&
+        (localized.toLowerCase().contains("all that apply") ||
+            localized.toLowerCase().contains("multiple choice") ||
+            localized.toLowerCase().contains("how often") ||
+            localized.toLowerCase().contains("how much") ||
+            localized.isEmpty)) {
+      if (qid != null && qid!.contains('.')) {
+        final symptomPart = qid!.split('.').first;
+        return localizations?.value(symptomPart) ?? symptomPart;
+      }
+    }
+
+    return localized;
   }
 
   @override

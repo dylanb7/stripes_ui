@@ -9,6 +9,7 @@ import 'package:stripes_ui/UI/AccountManagement/SymptomManagement/symptom_type_m
 import 'package:stripes_ui/UI/AccountManagement/account_management_screen.dart';
 import 'package:stripes_ui/UI/AccountManagement/baselines_section.dart';
 import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
+import 'package:stripes_ui/UI/History/DashboardView/dashboard_screen.dart';
 import 'package:stripes_ui/UI/History/GraphView/graphs_list.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/baseline_entry.dart';
 
@@ -155,13 +156,13 @@ class RouteNotifier extends ChangeNotifier {
                           state: state);
                     },
                   ),
-                  /*GoRoute(
+                  GoRoute(
                     parentNavigatorKey: _shellNavigatorKey,
                     name: RouteName.DASHBOARD,
                     path: Routes.DASHBOARD,
                     pageBuilder: (context, state) =>
                         FadeIn(child: const DashboardScreen(), state: state),
-                  ),*/
+                  ),
                   GoRoute(
                       parentNavigatorKey: _shellNavigatorKey,
                       name: RouteName.SYMPTOMS,

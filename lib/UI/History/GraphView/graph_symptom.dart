@@ -11,6 +11,7 @@ import 'package:stripes_ui/Providers/History/display_data_provider.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_axis.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_data.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_hit_tester.dart';
+import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_selection_controller.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_style.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/render_chart.dart';
 import 'package:stripes_ui/UI/History/GraphView/graph_point.dart';
@@ -26,6 +27,8 @@ class GraphSymptom extends ConsumerStatefulWidget {
 
   final Map<GraphKey, Color>? colorKeys;
   final Map<GraphKey, String>? customLabels;
+  final ChartSelectionController<GraphPoint, DateTime>? selectionController;
+
   const GraphSymptom({
     super.key,
     required this.responses,
@@ -33,6 +36,7 @@ class GraphSymptom extends ConsumerStatefulWidget {
     this.forExport = false,
     this.colorKeys,
     this.customLabels,
+    this.selectionController,
   });
 
   @override
@@ -67,6 +71,7 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
   }
 
   void _showTooltip(ChartHitTestResult<GraphPoint, DateTime>? hit) {
+    if (widget.forExport || widget.selectionController != null) return;
     if (hit == null) {
       _removeTooltip();
       return;
@@ -89,67 +94,21 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
     final entry = OverlayEntry(
       builder: (context) {
         if (_selectedHit == null) return const SizedBox.shrink();
-
-        final currentHit = _selectedHit!;
+        final RenderBox? currentBox =
+            _chartKey.currentContext?.findRenderObject() as RenderBox?;
         final currentKey =
-            widget.responses.keys.elementAt(currentHit.datasetIndex);
+            widget.responses.keys.elementAt(_selectedHit!.datasetIndex);
         String? currentLabel;
         if (widget.responses.keys.length > 1) {
           currentLabel = widget.customLabels?[currentKey] ??
               currentKey.toLocalizedString(context);
         }
 
-        final RenderBox? currentBox =
-            _chartKey.currentContext?.findRenderObject() as RenderBox?;
-
-        final settings = ref.read(displayDataProvider);
-        final bool scatter = settings.axis == GraphYAxis.entrytime;
-
-        double currentShiftX = 0;
-        bool currentShowAbove = !scatter;
-
-        if (currentBox != null) {
-          final Offset local = currentHit.screenPosition;
-          final Offset global = currentBox.localToGlobal(local);
-          final mq = MediaQuery.of(context);
-          final double sw = mq.size.width;
-          const double tw = 200.0;
-          final double le = global.dx - (tw / 2);
-          final double re = global.dx + (tw / 2);
-
-          if (le < 16) {
-            currentShiftX = 16 - le;
-          } else if (re > sw - 16) {
-            currentShiftX = (sw - 16) - re;
-          }
-          if (!scatter && global.dy < mq.padding.top + 180) {
-            currentShowAbove = false;
-          }
-        }
-
-        return Stack(
-          children: [
-            Positioned(
-              width: 200,
-              child: CompositedTransformFollower(
-                link: _layerLink,
-                offset: currentHit.screenPosition,
-                showWhenUnlinked: false,
-                child: Transform.translate(
-                  offset: Offset(currentShiftX, 0),
-                  child: FractionalTranslation(
-                    translation: Offset(-0.5, currentShowAbove ? -1.05 : 0.05),
-                    child: GraphTooltip(
-                      hit: currentHit,
-                      label: currentLabel,
-                      isAbove: currentShowAbove,
-                      arrowOffset: -currentShiftX,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
+        return TooltipOverlay(
+          selectedHit: _selectedHit!,
+          layerLink: _layerLink,
+          chartRenderBox: currentBox,
+          label: currentLabel,
         );
       },
     );
@@ -282,12 +241,26 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
                 formatter: NumberFormat.compact(), showing: widget.isDetailed),
         stackBars: true,
         onTap: widget.isDetailed ? _showTooltip : null,
+        selectionController: widget.selectionController,
+        xAxisLabel: null,
+        yAxisLabel: widget.isDetailed
+            ? (settings.axis == GraphYAxis.number
+                ? "Frequency"
+                : (settings.axis == GraphYAxis.average
+                    ? "Avg Intensity"
+                    : "Time of Day"))
+            : null,
       );
+
+      final String semanticLabel =
+          _getSemanticLabel(context, settings, datasets);
 
       Widget chartWidget = AspectRatio(
           aspectRatio: 2.0,
-          child: CompositedTransformTarget(
-              key: _chartKey, link: _layerLink, child: chart));
+          child: Semantics(
+              label: semanticLabel,
+              child: CompositedTransformTarget(
+                  key: _chartKey, link: _layerLink, child: chart)));
 
       if (widget.forExport) {
         return GraphWithKeys(
@@ -300,6 +273,61 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
 
       return chartWidget;
     });
+  }
+
+  String _getSemanticLabel(BuildContext context, DisplayDataSettings settings,
+      List<ChartSeriesData<GraphPoint, DateTime>> datasets) {
+    if (datasets.isEmpty) return 'No data available for the selected range.';
+
+    final StringBuffer buffer = StringBuffer();
+    final bool isMulti = datasets.length > 1;
+
+    buffer.write('Chart displaying ');
+    if (settings.axis == GraphYAxis.entrytime) {
+      buffer.write('entry times ');
+    } else if (settings.axis == GraphYAxis.number) {
+      buffer.write('number of entries ');
+    } else {
+      buffer.write('average values ');
+    }
+    buffer.write('over ${settings.getRangeString(context)}. ');
+
+    for (int i = 0; i < datasets.length; i++) {
+      final dataset = datasets[i];
+      final key = widget.responses.keys.elementAt(i);
+      final String label =
+          widget.customLabels?[key] ?? key.toLocalizedString(context);
+
+      final points = dataset.data;
+      final nonZeroPoints = points.where((p) => p.y > 0).toList();
+
+      if (isMulti) buffer.write('$label: ');
+
+      if (nonZeroPoints.isEmpty) {
+        buffer.write('No entries recorded. ');
+        continue;
+      }
+
+      buffer.write('${nonZeroPoints.length} points. ');
+
+      if (settings.axis != GraphYAxis.entrytime) {
+        final values = nonZeroPoints.map((p) => p.y).toList();
+        final maxVal = values.reduce(max);
+        final minVal = values.reduce(min);
+        final avgVal = values.average;
+
+        if (settings.axis == GraphYAxis.average) {
+          buffer.write(
+              'Average: ${avgVal.toStringAsFixed(1)}, Peak: ${maxVal.toStringAsFixed(1)}, Low: ${minVal.toStringAsFixed(1)}. ');
+        } else {
+          buffer.write(
+              'Total entries: ${values.sum.toInt()}, Peak: ${maxVal.toInt()}, Low: ${minVal.toInt()}. ');
+        }
+      }
+      if (i < datasets.length - 1) buffer.write('; ');
+    }
+
+    return buffer.toString();
   }
 
   List<List<Stamp>>? bucketEvents(
@@ -327,6 +355,78 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
       eventLists.add(valuesInRange);
     }
     return eventLists;
+  }
+}
+
+class TooltipOverlay extends ConsumerWidget {
+  final ChartHitTestResult<GraphPoint, DateTime> selectedHit;
+
+  final LayerLink layerLink;
+
+  final RenderBox? chartRenderBox;
+
+  final String? label;
+
+  const TooltipOverlay(
+      {super.key,
+      required this.selectedHit,
+      required this.layerLink,
+      required this.chartRenderBox,
+      required this.label});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.read(displayDataProvider);
+    final bool scatter = settings.axis == GraphYAxis.entrytime;
+
+    double currentShiftX = 0;
+    bool currentShowAbove = !scatter;
+
+    if (chartRenderBox != null) {
+      final Offset local = selectedHit.screenPosition;
+      final Offset global = chartRenderBox!.localToGlobal(local);
+
+      final Size size = MediaQuery.sizeOf(context);
+      final EdgeInsets insets = MediaQuery.paddingOf(context);
+      final double sw = size.width;
+      const double tw = 200.0;
+      final double le = global.dx - (tw / 2);
+      final double re = global.dx + (tw / 2);
+
+      if (le < 16) {
+        currentShiftX = 16 - le;
+      } else if (re > sw - 16) {
+        currentShiftX = (sw - 16) - re;
+      }
+      if (!scatter && global.dy < insets.top + 180) {
+        currentShowAbove = false;
+      }
+    }
+
+    return Stack(
+      children: [
+        Positioned(
+          width: 200,
+          child: CompositedTransformFollower(
+            link: layerLink,
+            offset: selectedHit.screenPosition,
+            showWhenUnlinked: false,
+            child: Transform.translate(
+              offset: Offset(currentShiftX, 0),
+              child: FractionalTranslation(
+                translation: Offset(-0.5, currentShowAbove ? -1.05 : 0.05),
+                child: GraphTooltip(
+                  hit: selectedHit,
+                  label: label,
+                  isAbove: currentShowAbove,
+                  arrowOffset: -currentShiftX,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -371,28 +471,33 @@ class GraphWithKeys extends ConsumerWidget {
         runSpacing: AppPadding.tiny,
         children: responses.keys.map((key) {
           final Color color = colorKeys?[key] ?? forGraphKey(key);
-          return Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 12.0,
-                height: 12.0,
-                decoration: BoxDecoration(
-                  color: color,
-                  shape: BoxShape.circle,
+          final String label =
+              customLabels?[key] ?? key.toLocalizedString(context);
+          return Semantics(
+            label: 'Legend: $label',
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 12.0,
+                  height: 12.0,
+                  decoration: BoxDecoration(
+                    color: color,
+                    shape: BoxShape.circle,
+                  ),
                 ),
-              ),
-              const SizedBox(width: AppPadding.tiny),
-              Flexible(
-                child: Text(
-                  customLabels?[key] ?? key.toLocalizedString(context),
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w500,
-                      ),
-                  overflow: TextOverflow.ellipsis,
+                const SizedBox(width: AppPadding.tiny),
+                Flexible(
+                  child: Text(
+                    label,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           );
         }).toList(),
       ),

@@ -18,17 +18,16 @@ class AnnotationPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
 
-    // Draw VERTICAL annotations (X-axis)
     for (final annotation in verticalAnnotations) {
-      final double? x = xAxis.toDouble(annotation.value);
-      if (x == null || x < geometry.bounds.minX || x > geometry.bounds.maxX) {
+      final double x = xAxis.toDouble(annotation.value);
+      if (x < geometry.bounds.minX || x > geometry.bounds.maxX) {
         continue;
       }
 
       final double xPos = geometry
           .normalizedXToScreen((x - geometry.bounds.minX) / geometry.xRange);
 
-      paint.color = annotation.color.withValues(alpha: 0.5);
+      paint.color = annotation.color;
       _drawDashedLine(
         canvas,
         paint,
@@ -53,7 +52,6 @@ class AnnotationPainter {
       );
     }
 
-    // Draw HORIZONTAL annotations (Y-axis)
     for (final annotation in horizontalAnnotations) {
       final double y = yAxis.toDouble(annotation.value);
       if (y < geometry.bounds.minY || y > geometry.bounds.maxY) {
@@ -82,7 +80,6 @@ class AnnotationPainter {
         textDirection: TextDirection.ltr,
       )..layout();
 
-      // Draw label on the left, slightly above line
       tp.paint(
         canvas,
         Offset(geometry.leftMargin + 4, yPos - tp.height - 2),
@@ -130,7 +127,6 @@ class AnnotationPainter {
   }) {
     const double hitThreshold = 10.0;
 
-    // Check VERTICAL annotations
     for (final annotation in verticalAnnotations) {
       final double x = xAxis.toDouble(annotation.value);
       if (x < geometry.bounds.minX || x > geometry.bounds.maxX) {
@@ -146,7 +142,6 @@ class AnnotationPainter {
       }
     }
 
-    // Check HORIZONTAL annotations
     for (final annotation in horizontalAnnotations) {
       final double y = yAxis.toDouble(annotation.value);
       if (y < geometry.bounds.minY || y > geometry.bounds.maxY) {

@@ -27,14 +27,14 @@ class ChartHitTestResult<T, D> {
 }
 
 class ChartHitTester {
-  static ChartHitTestResult<T, D>? hitTest<T, D>({
+  static List<ChartHitTestResult<T, D>> hitTest<T, D>({
     required Offset position,
     required ChartGeometry geometry,
     required List<ChartSeriesData<T, D>> datasets,
     required ChartAxis<D> xAxis,
     required ChartStyle style,
   }) {
-    if (datasets.isEmpty) return null;
+    if (datasets.isEmpty) return const [];
 
     final Map<double, double> stackBottoms = {};
 
@@ -42,7 +42,7 @@ class ChartHitTester {
       final data = datasets[dsIndex];
 
       if (data is BarChartData<T, D>) {
-        final result = _hitTestBar(
+        final result = _hitTestBarSingle(
           position: position,
           geometry: geometry,
           data: data,
@@ -52,23 +52,83 @@ class ChartHitTester {
           style: style,
           stackBottoms: style.barChartStyle.stackBars ? stackBottoms : null,
         );
-        if (result != null) return result;
+        if (result != null) {
+          return _collectAllAtX(
+            targetXValue: result.xValue,
+            geometry: geometry,
+            datasets: datasets,
+            xAxis: xAxis,
+            style: style,
+          );
+        }
       } else {
-        final result = _hitTestPoint(
+        final result = _hitTestPointSingle(
           position: position,
           geometry: geometry,
           data: data,
           xAxis: xAxis,
           datasetIndex: dsIndex,
         );
-        if (result != null) return result;
+        if (result != null) {
+          return _collectAllAtX(
+            targetXValue: result.xValue,
+            geometry: geometry,
+            datasets: datasets,
+            xAxis: xAxis,
+            style: style,
+          );
+        }
       }
     }
 
-    return null;
+    return const [];
   }
 
-  static ChartHitTestResult<T, D>? _hitTestBar<T, D>({
+  static List<ChartHitTestResult<T, D>> _collectAllAtX<T, D>({
+    required D targetXValue,
+    required ChartGeometry geometry,
+    required List<ChartSeriesData<T, D>> datasets,
+    required ChartAxis<D> xAxis,
+    required ChartStyle style,
+  }) {
+    final List<ChartHitTestResult<T, D>> results = [];
+    final double targetX = xAxis.toDouble(targetXValue);
+    final Map<double, double> stackBottoms = {};
+
+
+    for (int dsIndex = 0; dsIndex < datasets.length; dsIndex++) {
+      final data = datasets[dsIndex];
+      for (int i = 0; i < data.data.length; i++) {
+        final item = data.data[i];
+        final xValue = data.getPointX(item, i);
+        final x = xAxis.toDouble(xValue);
+
+        final y = data.getPointY(item, i);
+        double currentYBottom = 0;
+        if (style.barChartStyle.stackBars) {
+          currentYBottom = stackBottoms[x] ?? 0;
+          stackBottoms[x] = currentYBottom + y;
+        }
+
+        if (x == targetX) {
+          final centerOffset = geometry.dataToScreen(x, currentYBottom);
+          final top = geometry.dataToScreen(x, currentYBottom + y);
+
+          results.add(ChartHitTestResult(
+            item: item,
+            datasetIndex: dsIndex,
+            itemIndex: i,
+            xValue: xValue,
+            yValue: y,
+            screenPosition: Offset(centerOffset.dx, top.dy),
+          ));
+        }
+      }
+    }
+    return results;
+  }
+
+  static ChartHitTestResult<T, D>? _hitTestBarSingle<T, D>({
     required Offset position,
     required ChartGeometry geometry,
     required BarChartData<T, D> data,
@@ -127,7 +187,7 @@ class ChartHitTester {
     return null;
   }
 
-  static ChartHitTestResult<T, D>? _hitTestPoint<T, D>({
+  static ChartHitTestResult<T, D>? _hitTestPointSingle<T, D>({
     required Offset position,
     required ChartGeometry geometry,
     required ChartSeriesData<T, D> data,

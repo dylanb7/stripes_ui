@@ -264,29 +264,56 @@ class _ReportSheetState extends ConsumerState<ReportSheet> {
       // Build localization map from responses
       final Map<String, String> localizedStrings = {};
 
-      for (final response in widget.responses) {
-        // Localize category/type names
-        localizedStrings[response.type] =
-            questionsL10n?.value(response.type) ?? response.type;
+      void collectLocalization(Response r) {
+        // Localize type/category
+        localizedStrings[r.type] = questionsL10n?.value(r.type) ?? r.type;
 
-        if (response is DetailResponse) {
-          for (final r in response.responses) {
-            // Localize question prompts
-            if (r.question.prompt.isNotEmpty) {
-              localizedStrings[r.question.prompt] =
-                  questionsL10n?.value(r.question.prompt) ?? r.question.prompt;
-            }
-            localizedStrings[r.type] = questionsL10n?.value(r.type) ?? r.type;
+        // Localize question prompt
+        if (r.question.prompt.isNotEmpty) {
+          localizedStrings[r.question.prompt] =
+              questionsL10n?.value(r.question.prompt) ?? r.question.prompt;
+        }
 
-            // Localize choices for multiple choice questions
-            if (r is MultiResponse) {
-              for (final choice in r.question.choices) {
-                localizedStrings[choice] =
-                    questionsL10n?.value(choice) ?? choice;
-              }
+        // Handle specific response types
+        if (r is DetailResponse) {
+          for (final subR in r.responses) {
+            collectLocalization(subR);
+          }
+        } else if (r is MultiResponse) {
+          for (final choice in r.question.choices) {
+            // Map raw key to translated value
+            final translated = questionsL10n?.value(choice) ?? choice;
+            localizedStrings[choice] = translated;
+            // Also map translated value to itself (in case response stored translated)
+            if (translated != choice) {
+              localizedStrings[translated] = translated;
             }
           }
+        } else if (r is AllResponse) {
+          for (final choice in r.question.choices) {
+            // Map raw key to translated value
+            final translated = questionsL10n?.value(choice) ?? choice;
+            localizedStrings[choice] = translated;
+            // Also map translated value to itself (in case response stored translated)
+            if (translated != choice) {
+              localizedStrings[translated] = translated;
+            }
+          }
+        } else if (r is BlueDyeResp) {
+          // Add static strings used in report generator
+          const blueDyeKeys = [
+            'Blue Dye Test',
+            'Transit Time (hours)',
+            'Lag Phase (hours)'
+          ];
+          for (final key in blueDyeKeys) {
+            localizedStrings[key] = questionsL10n?.value(key) ?? key;
+          }
         }
+      }
+
+      for (final response in widget.responses) {
+        collectLocalization(response);
       }
 
       // Generate the PDF

@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_axis.dart';
@@ -17,6 +18,7 @@ class DatasetPainter {
     int maxBarsInDataset,
     ChartStyle style, {
     Map<double, double>? stackBottoms,
+    Set<int>? selectedIndices,
   }) {
     double widthToUse;
     if (geometry.bounds.minDataStep > 0) {
@@ -54,22 +56,55 @@ class DatasetPainter {
       final bottomOffset = geometry.dataToScreen(x, bottomY);
       final topOffset = geometry.dataToScreen(x, topY);
 
-      // dataToScreen: Y=0 is at bottom (high dy). Y=Max is at top (low dy).
-      // So TopY (higher value) -> lower dy.
-      // Rect Top should be min(dy), Bottom max(dy).
-
       final rect = Rect.fromCenter(
         center: Offset(bottomOffset.dx, (topOffset.dy + bottomOffset.dy) / 2),
         width: barWidth,
         height: (bottomOffset.dy - topOffset.dy).abs(),
       );
 
-      canvas.drawRect(
+      final isSelected = selectedIndices?.contains(i) ?? false;
+
+      final RRect rrect = RRect.fromRectAndCorners(
         rect,
-        Paint()
-          ..color = color
-          ..style = PaintingStyle.fill,
+        topLeft: const Radius.circular(4),
+        topRight: const Radius.circular(4),
       );
+
+      // Subtle gradient for more "pop"
+      final Paint paint = Paint()
+        ..shader = ui.Gradient.linear(
+          rect.topCenter,
+          rect.bottomCenter,
+          [
+            color,
+            color.withValues(alpha: 0.8),
+          ],
+        )
+        ..style = PaintingStyle.fill;
+
+      if (isSelected) {
+        paint.maskFilter = const MaskFilter.blur(BlurStyle.outer, 6);
+        canvas.drawRRect(rrect, paint);
+        paint.maskFilter = null;
+      }
+
+      if (rect.height > 0) {
+        canvas.drawRRect(rrect, paint);
+      }
+
+      if (isSelected) {
+        final borderColor = style.barChartStyle.selectionBorderColor ??
+            (ThemeData.estimateBrightnessForColor(color) == Brightness.dark
+                ? Colors.white
+                : Colors.black);
+        canvas.drawRRect(
+          rrect,
+          Paint()
+            ..color = borderColor
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = style.barChartStyle.selectionBorderWidth,
+        );
+      }
     }
   }
 
@@ -165,11 +200,12 @@ class DatasetPainter {
     int maxBarsInDataset,
     ChartStyle style, {
     Map<double, double>? stackBottoms,
+    Set<int>? selectedIndices,
   }) {
     if (data is BarChartData<T, D>) {
       paintBarChart(canvas, geometry, data, xAxis, datasetIndex, getAnimatedY,
           maxBarsInDataset, style,
-          stackBottoms: stackBottoms);
+          stackBottoms: stackBottoms, selectedIndices: selectedIndices);
     } else if (data is LineChartData<T, D>) {
       paintLineChart(
           canvas, geometry, data, xAxis, datasetIndex, getAnimatedY, style);

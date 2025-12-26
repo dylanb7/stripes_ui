@@ -11,7 +11,7 @@ import 'package:stripes_ui/Providers/Test/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
 import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
 import 'package:stripes_ui/UI/Layout/home_screen.dart';
-import 'package:stripes_ui/UI/Record/QuestionEntries/question_screen.dart';
+import 'package:stripes_ui/UI/Record/Screens/question_screen.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/layout_helper.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/record_layout_shell.dart';
 import 'package:stripes_ui/UI/Record/Screens/submit_screen.dart';
@@ -151,23 +151,23 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                 deferCleanup: true,
               );
 
-              int pending() {
-                if (currentIndex > evaluatedPages.length - 1) return 0;
-                final List<Question> pageQuestions =
-                    evaluatedPages[currentIndex].questions;
-                return widget.questionListener.pending
-                    .where((pending) => pageQuestions.contains(pending))
-                    .length;
-              }
+              final validation = LayoutHelper.validatePage(
+                pages: evaluatedPages,
+                currentIndex: currentIndex,
+                listener: widget.questionListener,
+              );
 
-              final int pendingCount = pending();
+              final progress = LayoutHelper.calculateProgress(
+                pages: evaluatedPages,
+                currentIndex: currentIndex,
+                listener: widget.questionListener,
+              );
 
-              // Compute the Primary Action Button properties
               final bool isSubmit = currentIndex == evaluatedPages.length;
               final VoidCallback? onPressed;
               if (isSubmit) {
                 final bool canSubmit =
-                    pendingCount == 0 && !isLoading && edited;
+                    validation.pendingCount == 0 && !isLoading && edited;
 
                 onPressed = submitSuccess
                     ? () {}
@@ -175,8 +175,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                         ? () => _submitEntry(context, ref, isEdit)
                         : null;
               } else {
-                // Next Button
-                onPressed = pendingCount == 0
+                onPressed = validation.canProceed
                     ? () {
                         widget.questionListener.tried = false;
                         pageController.nextPage(
@@ -186,24 +185,33 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
               }
 
               // Wrapper for error handling on tap
-              final VoidCallback effectiveOnPressed =
-                  onPressed == null && pendingCount != 0 && !isLoading
-                      ? () {
-                          widget.questionListener.tried = true;
-                          setState(() {
-                            _errorMessage = context.translate.nLevelError(
-                                widget.questionListener.pending.length);
-                          });
+              final VoidCallback effectiveOnPressed = onPressed == null &&
+                      !validation.canProceed &&
+                      !isLoading
+                  ? () {
+                      widget.questionListener.tried = true;
+                      setState(() {
+                        if (validation.pendingCount > 0) {
+                          _errorMessage = context.translate.nLevelError(
+                              widget.questionListener.pending.length);
+                        } else if (validation.pendingRequirement != null) {
+                          _errorMessage =
+                              validation.pendingRequirement!.toReadableString(
+                            (qid) => LayoutHelper.resolveQuestionPrompt(
+                                qid, evaluatedPages),
+                          );
                         }
-                      : () {
-                          // Clear error when proceeding
-                          if (_errorMessage != null) {
-                            setState(() {
-                              _errorMessage = null;
-                            });
-                          }
-                          onPressed?.call();
-                        };
+                      });
+                    }
+                  : () {
+                      // Clear error when proceeding
+                      if (_errorMessage != null) {
+                        setState(() {
+                          _errorMessage = null;
+                        });
+                      }
+                      onPressed?.call();
+                    };
 
               final SubUser? currentUser =
                   ref.read(subHolderProvider).valueOrNull?.selected;
@@ -212,50 +220,6 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                       ? null
                       : context.translate
                           .recordUsername(localizedType, currentUser.name);
-
-              // Calculate question progress for current page
-              // This includes both static questions and generated questions (with :: in ID)
-              int totalQuestions = 0;
-              int answeredQuestions = 0;
-              int pendingRequiredCount = 0;
-
-              if (currentIndex < evaluatedPages.length) {
-                final pageQuestions = evaluatedPages[currentIndex].questions;
-
-                // Filter to only visible questions logic same as _buildContent
-                final visibleQuestions = pageQuestions.where((q) {
-                  return q.dependsOn == null ||
-                      q.dependsOn!.eval(widget.questionListener);
-                }).toList();
-
-                final pageQuestionIds =
-                    visibleQuestions.map((q) => q.id).toSet();
-
-                // Helper to check if a question ID belongs to this page
-                // Generated questions have IDs like "sourceId::index"
-                bool belongsToPage(String questionId) {
-                  if (pageQuestionIds.contains(questionId)) return true;
-                  // Check if it's a generated question from a page question
-                  final parts = questionId.split('::');
-                  if (parts.length > 1) {
-                    return pageQuestionIds.contains(parts.first);
-                  }
-                  return false;
-                }
-
-                // Count all answered questions (static + generated) for this page
-                answeredQuestions = widget.questionListener.questions.keys
-                    .where((qId) => belongsToPage(qId))
-                    .length;
-
-                // Count all pending required questions for this page
-                pendingRequiredCount = widget.questionListener.pending
-                    .where((q) => belongsToPage(q.id))
-                    .length;
-
-                // Total is simply the number of visible questions
-                totalQuestions = visibleQuestions.length;
-              }
 
               final controller = RecordEntryController(
                 title: context.translate.recordHeader(localizedType),
@@ -270,7 +234,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                 controlLabel: isSubmit
                     ? context.translate.submitButtonText
                     : context.translate.nextButton,
-                isReady: pendingCount == 0 && !isLoading,
+                isReady: validation.canProceed && !isLoading,
                 isSubmit: isSubmit,
                 errorMessage: _errorMessage,
                 onDismissError: () {
@@ -278,9 +242,9 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                     _errorMessage = null;
                   });
                 },
-                totalQuestions: totalQuestions,
-                answeredQuestions: answeredQuestions,
-                pendingRequiredCount: pendingRequiredCount,
+                totalQuestions: progress.total,
+                answeredQuestions: progress.answered,
+                pendingRequiredCount: progress.pendingRequired,
               );
 
               return RecordEntryProvider(

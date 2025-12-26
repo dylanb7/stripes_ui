@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/History/display_data_provider.dart';
+import 'package:stripes_ui/Util/Helpers/date_range_utils.dart';
 import 'package:stripes_ui/Providers/questions/questions_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/History/EventView/calendar_day.dart';
@@ -12,7 +13,16 @@ import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class BottomSheetCalendar extends ConsumerStatefulWidget {
-  const BottomSheetCalendar({super.key});
+  final DateTimeRange? initialRange;
+  final void Function(DateTimeRange)? onRangeSelected;
+  final bool ignoreFilters;
+
+  const BottomSheetCalendar({
+    super.key,
+    this.initialRange,
+    this.onRangeSelected,
+    this.ignoreFilters = false,
+  });
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
@@ -33,14 +43,19 @@ class _BottomSheetCalendarState extends ConsumerState<BottomSheetCalendar> {
   @override
   void initState() {
     super.initState();
-    final settings = ref.read(displayDataProvider);
-    _rangeStart = settings.range.start;
-    _rangeEnd = settings.range.end;
+    if (widget.initialRange != null) {
+      _rangeStart = widget.initialRange!.start;
+      _rangeEnd = widget.initialRange!.end;
+    } else {
+      final settings = ref.read(displayDataProvider);
+      _rangeStart = settings.range.start;
+      _rangeEnd = settings.range.end;
 
-    if (settings.cycle != DisplayTimeCycle.month &&
-        _rangeEnd != null &&
-        !_dateAltered(_rangeEnd)) {
-      _rangeEnd = _rangeEnd!.subtract(const Duration(milliseconds: 1));
+      if (settings.cycle != TimeCycle.month &&
+          _rangeEnd != null &&
+          !_dateAltered(_rangeEnd)) {
+        _rangeEnd = _rangeEnd!.subtract(const Duration(milliseconds: 1));
+      }
     }
     focusedDay = _rangeEnd ?? DateTime.now();
   }
@@ -62,7 +77,9 @@ class _BottomSheetCalendarState extends ConsumerState<BottomSheetCalendar> {
   Widget build(BuildContext context) {
     final Locale locale = Localizations.localeOf(context);
     final AsyncValue<Map<DateTime, List<Response>>> eventsValue =
-        ref.watch(eventsMapProvider);
+        widget.ignoreFilters
+            ? ref.watch(unfilteredEventsMapProvider)
+            : ref.watch(eventsMapProvider);
 
     final bool waiting = eventsValue.isLoading || eventsValue.hasError;
     final Map<DateTime, List<Response>> eventMap =
@@ -73,7 +90,7 @@ class _BottomSheetCalendarState extends ConsumerState<BottomSheetCalendar> {
 
     final checkinPaths = ref
         .watch(recordPaths(const RecordPathProps(
-            filterEnabled: true, type: PathProviderType.checkin)))
+            filterEnabled: true, type: PathProviderType.review)))
         .valueOrNull;
 
     final Set<DateTime> checkInCoverage = {};
@@ -229,9 +246,16 @@ class _BottomSheetCalendarState extends ConsumerState<BottomSheetCalendar> {
                                   .add(const Duration(days: 1))
                                   .subtract(const Duration(milliseconds: 1));
                             }
-                            ref.read(displayDataProvider.notifier).setRange(
-                                DateTimeRange(start: _rangeStart!, end: end),
-                                cycle: DisplayTimeCycle.custom);
+                            final range =
+                                DateTimeRange(start: _rangeStart!, end: end);
+
+                            if (widget.onRangeSelected != null) {
+                              widget.onRangeSelected!(range);
+                            } else {
+                              ref
+                                  .read(displayDataProvider.notifier)
+                                  .setRange(range, cycle: TimeCycle.custom);
+                            }
                             Navigator.of(context).pop();
                           }
                         : null,
@@ -260,7 +284,8 @@ class _BottomSheetCalendarState extends ConsumerState<BottomSheetCalendar> {
             );
           },
         ),
-        Flexible(
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 380),
           child: Stack(
             children: [
               Visibility(

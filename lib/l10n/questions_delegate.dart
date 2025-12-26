@@ -75,8 +75,8 @@ extension QuestionsLocalizationsExtensions on QuestionsLocalizations {
     return path.copyWith(name: value(path.name) ?? path.name);
   }
 
-  CheckinItem translateCheckin(CheckinItem item) {
-    return CheckinItem(
+  ReviewItem translateReview(ReviewItem item) {
+    return ReviewItem(
         path: translatePath(item.path),
         type: item.type,
         response: item.response);

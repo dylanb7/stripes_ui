@@ -262,4 +262,50 @@ class AxisPainter {
       }
     }
   }
+
+  static void paintAxisTitles(
+    Canvas canvas,
+    ChartGeometry geometry,
+    ChartStyle style,
+    String? xAxisLabel,
+    String? yAxisLabel,
+  ) {
+    if (xAxisLabel != null) {
+      final textPainter = TextPainter(
+        text: TextSpan(text: xAxisLabel, style: style.axisTitleStyle),
+        textDirection: TextDirection.ltr,
+      )..layout();
+
+      final x =
+          geometry.leftMargin + (geometry.drawWidth - textPainter.width) / 2;
+      final y = geometry.size.height - bottomMargin(geometry, style);
+
+      textPainter.paint(canvas, Offset(x, y));
+    }
+
+    if (yAxisLabel != null) {
+      final textPainter = TextPainter(
+        text: TextSpan(text: yAxisLabel, style: style.axisTitleStyle),
+        textDirection: TextDirection.ltr,
+      )..layout();
+
+      final x = style.axisLabelPadding;
+      final y =
+          geometry.topMargin + (geometry.drawHeight + textPainter.width) / 2;
+
+      canvas.save();
+      canvas.translate(x, y);
+      canvas.rotate(-1.5708); // -90 degrees in radians
+      textPainter.paint(canvas, Offset.zero);
+      canvas.restore();
+    }
+  }
+
+  static double bottomMargin(ChartGeometry geometry, ChartStyle style) {
+    final tp = TextPainter(
+      text: TextSpan(text: 'Xy', style: style.axisLabelStyle),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    return tp.height + style.axisLabelPadding;
+  }
 }

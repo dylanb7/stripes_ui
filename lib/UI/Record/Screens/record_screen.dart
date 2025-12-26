@@ -52,9 +52,9 @@ class Options extends ConsumerWidget {
     // Use availableRecordPaths to filter out baseline-dependent paths if baseline is missing
     final AsyncValue<List<BaselineRecordItem>> paths =
         ref.watch(availableRecordPaths);
-    final AsyncValue<List<CheckinItem>> checkins = ref.watch(
-      checkInPaths(
-        const CheckInPathsProps(),
+    final AsyncValue<List<ReviewItem>> checkins = ref.watch(
+      reviewPaths(
+        const ReviewPathsProps(),
       ),
     );
 
@@ -68,13 +68,13 @@ class Options extends ConsumerWidget {
         ),
         AsyncValueDefaults(
             value: checkins,
-            onData: (loadedCheckins) {
-              final List<CheckinItem> translatedCheckins = loadedCheckins
-                  .map((checkin) =>
-                      localizations?.translateCheckin(checkin) ?? checkin)
+            onData: (loadedReviews) {
+              final List<ReviewItem> translatedReviews = loadedReviews
+                  .map((review) =>
+                      localizations?.translateReview(review) ?? review)
                   .toList();
-              return CheckinsPageView(
-                checkins: translatedCheckins,
+              return ReviewsPageView(
+                reviews: translatedReviews,
                 additions: (item) {
                   return repo.valueOrNull?.getPathAdditions(context, item.type);
                 },
@@ -162,26 +162,26 @@ class Options extends ConsumerWidget {
   }
 }
 
-class CheckinsPageView extends StatefulWidget {
-  final List<CheckinItem> checkins;
+class ReviewsPageView extends StatefulWidget {
+  final List<ReviewItem> reviews;
 
-  final List<Widget>? Function(CheckinItem) additions;
+  final List<Widget>? Function(ReviewItem) additions;
 
-  const CheckinsPageView(
-      {super.key, required this.checkins, required this.additions});
+  const ReviewsPageView(
+      {super.key, required this.reviews, required this.additions});
 
   @override
   State<StatefulWidget> createState() {
-    return _CheckinsPageViewState();
+    return _ReviewsPageViewState();
   }
 }
 
-class _CheckinsPageViewState extends State<CheckinsPageView> {
+class _ReviewsPageViewState extends State<ReviewsPageView> {
   late ExpansibleController expansionController;
   PageController? _pageController;
   double? _lastViewportFraction;
 
-  late List<CheckinItem> sorted;
+  late List<ReviewItem> sorted;
   late bool hasCheckin;
   int currentPage = 0;
   late int count;
@@ -192,7 +192,7 @@ class _CheckinsPageViewState extends State<CheckinsPageView> {
     hasCheckin = false;
     count = 0;
     sorted = [];
-    for (final CheckinItem item in widget.checkins) {
+    for (final ReviewItem item in widget.reviews) {
       if (item.response == null) {
         hasCheckin = true;
         count++;
@@ -240,15 +240,25 @@ class _CheckinsPageViewState extends State<CheckinsPageView> {
                   },
                   child: Row(
                     children: [
-                      AnimatedDefaultTextStyle(
-                        duration: Durations.medium1,
-                        style: expansionController.isExpanded
-                            ? Theme.of(context).textTheme.titleMedium!
-                            : Theme.of(context).textTheme.bodySmall!,
-                        child: Text(
-                          "${context.translate.checkInLabel} (${widget.checkins.length - count}/${widget.checkins.length})",
-                          textAlign: TextAlign.left,
-                        ),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.event_repeat,
+                            size: 16,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          const SizedBox(width: AppPadding.tiny),
+                          AnimatedDefaultTextStyle(
+                            duration: Durations.medium1,
+                            style: expansionController.isExpanded
+                                ? Theme.of(context).textTheme.titleMedium!
+                                : Theme.of(context).textTheme.bodySmall!,
+                            child: Text(
+                              "${context.translate.checkInLabel} (${widget.reviews.length - count}/${widget.reviews.length})",
+                              textAlign: TextAlign.left,
+                            ),
+                          ),
+                        ],
                       ),
                       Icon(expansionController.isExpanded
                           ? Icons.keyboard_arrow_up
@@ -271,7 +281,7 @@ class _CheckinsPageViewState extends State<CheckinsPageView> {
         },
         bodyBuilder: (context, animation) {
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppPadding.medium),
+            padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
             child: LayoutBuilder(
               builder: (context, constraints) {
                 // Use available width for full-width items, or fixed width if smaller
@@ -309,13 +319,13 @@ class _CheckinsPageViewState extends State<CheckinsPageView> {
                       });
                     },
                     itemBuilder: (context, index) {
-                      final CheckinItem item = sorted[index];
+                      final ReviewItem item = sorted[index];
                       // Add padding to simulate gap, adjusted by viewport fraction logic implicitly
                       return Padding(
                         padding: const EdgeInsets.only(right: AppPadding.small),
                         child: SizedBox(
                           width: itemWidth,
-                          child: CheckInButton(
+                          child: ReviewButton(
                             item: item,
                             additions: widget.additions(item) ?? [],
                           ),
@@ -377,11 +387,11 @@ class LastEntryText extends ConsumerWidget {
   }
 }
 
-class CheckInButton extends ConsumerWidget {
-  final CheckinItem item;
+class ReviewButton extends ConsumerWidget {
+  final ReviewItem item;
   final List<Widget> additions;
 
-  const CheckInButton({required this.item, required this.additions, super.key});
+  const ReviewButton({required this.item, required this.additions, super.key});
 
   String _formatTimeRemaining(Duration duration, BuildContext context) {
     if (duration.isNegative) return '';

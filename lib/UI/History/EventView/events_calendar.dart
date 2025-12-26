@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_ui/Providers/History/display_data_provider.dart';
+import 'package:stripes_ui/Util/Helpers/date_range_utils.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/History/EventView/calendar_day.dart';
 import 'package:stripes_ui/Util/Design/breakpoint.dart';
@@ -74,7 +75,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
     final DisplayDataSettings filters = ref.read(displayDataProvider);
     rangeSelection = CustomSegmentedController(value: RangeSelection.end);
     dateRangeSelectionListener = DateRangeSelectionListener(
-        filters.cycle == DisplayTimeCycle.day
+        filters.cycle == TimeCycle.day
             ? RangeStatus.disabled
             : RangeStatus.enabled);
   }
@@ -83,9 +84,9 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
     if (!mounted) return;
     if (dateRangeSelectionListener.selectingRange) {
       rangeSelection.value = RangeSelection.end;
-      ref.read(displayDataProvider.notifier).setCycle(DisplayTimeCycle.custom);
+      ref.read(displayDataProvider.notifier).setCycle(TimeCycle.custom);
     } else {
-      ref.read(displayDataProvider.notifier).setCycle(DisplayTimeCycle.day);
+      ref.read(displayDataProvider.notifier).setCycle(TimeCycle.day);
     }
   }
 
@@ -100,13 +101,13 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
     final bool waiting = eventsValue.isLoading || eventsValue.hasError;
     final Map<DateTime, List<Response>> eventMap =
         eventsValue.valueOrNull ?? {};
-    final DateTime? selected = calendarSelection.cycle == DisplayTimeCycle.day
+    final DateTime? selected = calendarSelection.cycle == TimeCycle.day
         ? calendarSelection.range.start
         : null;
-    final DateTime? rangeStart = calendarSelection.cycle != DisplayTimeCycle.day
+    final DateTime? rangeStart = calendarSelection.cycle != TimeCycle.day
         ? calendarSelection.range.start
         : null;
-    final DateTime? rangeEnd = calendarSelection.cycle != DisplayTimeCycle.day
+    final DateTime? rangeEnd = calendarSelection.cycle != TimeCycle.day
         ? calendarSelection.range.end.subtract(const Duration(days: 1))
         : null;
     final DateTime now = DateTime.now();
@@ -127,7 +128,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
       setState(() {
         dateRangeSelectionListener.setMode(selectingRange: false);
         focusedDay = DateTime.now();
-        ref.read(displayDataProvider.notifier).setCycle(DisplayTimeCycle.day);
+        ref.read(displayDataProvider.notifier).setCycle(TimeCycle.day);
         ref.read(displayDataProvider.notifier).setRange(DateTimeRange(
             start: focusedDay, end: focusedDay.add(const Duration(days: 1))));
       });
@@ -330,7 +331,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
 
     final DisplayDataSettings settings = ref.read(displayDataProvider);
 
-    if (settings.cycle == DisplayTimeCycle.day) {
+    if (settings.cycle == TimeCycle.day) {
       if (!sameDay(selectedDay, settings.range.start)) {
         ref.read(displayDataProvider.notifier).setRange(DateTimeRange(
             start: selectedDay, end: selectedDay.add(const Duration(days: 1))));
@@ -347,12 +348,12 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
             DateTimeRange(
                 start: selectedDay,
                 end: selectedDay.add(const Duration(days: 1))),
-            cycle: DisplayTimeCycle.custom);
+            cycle: TimeCycle.custom);
         rangeSelection.value = RangeSelection.end;
       } else {
         ref.read(displayDataProvider.notifier).setRange(
             DateTimeRange(start: selectedDay, end: currentRange.end),
-            cycle: DisplayTimeCycle.custom);
+            cycle: TimeCycle.custom);
       }
     } else if (selection == RangeSelection.end) {
       if (selectedDay.isBefore(currentRange.start)) {
@@ -360,14 +361,14 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
             DateTimeRange(
                 start: selectedDay,
                 end: selectedDay.add(const Duration(days: 1))),
-            cycle: DisplayTimeCycle.custom);
+            cycle: TimeCycle.custom);
       } else {
         // Add 1 day to include the selected end day
         ref.read(displayDataProvider.notifier).setRange(
             DateTimeRange(
                 start: currentRange.start,
                 end: selectedDay.add(const Duration(days: 1))),
-            cycle: DisplayTimeCycle.custom);
+            cycle: TimeCycle.custom);
       }
     }
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class ChartStyle {
   final TextStyle axisLabelStyle;
+  final TextStyle axisTitleStyle;
   final Color axisLineColor;
   final double axisLineWidth;
   final double axisLabelPadding;
@@ -22,6 +23,8 @@ class ChartStyle {
 
   const ChartStyle({
     this.axisLabelStyle = const TextStyle(color: Colors.grey, fontSize: 10),
+    this.axisTitleStyle = const TextStyle(
+        color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold),
     this.axisLineColor = Colors.grey,
     this.axisLineWidth = 1.0,
     this.axisLabelPadding = 5.0,
@@ -53,6 +56,16 @@ class ChartStyle {
             fontSize: 10,
             color: colorScheme.onSurfaceVariant,
           ),
+      axisTitleStyle: theme.textTheme.labelSmall?.copyWith(
+            color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.1,
+          ) ??
+          TextStyle(
+            fontSize: 10,
+            color: colorScheme.onSurfaceVariant,
+            fontWeight: FontWeight.bold,
+          ),
       axisLineColor: colorScheme.outlineVariant,
       annotationLabelStyle: theme.textTheme.labelSmall?.copyWith(
             color: colorScheme.onSurface.withValues(alpha: 0.8),
@@ -65,6 +78,7 @@ class ChartStyle {
 
   ChartStyle copyWith({
     TextStyle? axisLabelStyle,
+    TextStyle? axisTitleStyle,
     Color? axisLineColor,
     double? axisLineWidth,
     double? axisLabelPadding,
@@ -83,6 +97,7 @@ class ChartStyle {
   }) {
     return ChartStyle(
       axisLabelStyle: axisLabelStyle ?? this.axisLabelStyle,
+      axisTitleStyle: axisTitleStyle ?? this.axisTitleStyle,
       axisLineColor: axisLineColor ?? this.axisLineColor,
       axisLineWidth: axisLineWidth ?? this.axisLineWidth,
       axisLabelPadding: axisLabelPadding ?? this.axisLabelPadding,
@@ -104,11 +119,16 @@ class BarChartStyle {
   final double barWidthRatio;
   final double barMaxWidth;
   final bool stackBars;
+  final Color? selectionBorderColor;
+  final double selectionBorderWidth;
 
-  const BarChartStyle(
-      {this.barWidthRatio = 0.8,
-      this.barMaxWidth = 50.0,
-      this.stackBars = false});
+  const BarChartStyle({
+    this.barWidthRatio = 0.8,
+    this.barMaxWidth = 50.0,
+    this.stackBars = false,
+    this.selectionBorderColor,
+    this.selectionBorderWidth = 2.0,
+  });
 }
 
 class CrosshairStyle {

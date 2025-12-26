@@ -10,9 +10,9 @@ import 'package:stripes_ui/Providers/History/stamps_provider.dart';
 import 'package:stripes_ui/Providers/Test/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
 import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
-import 'package:stripes_ui/UI/Record/QuestionEntries/question_screen.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/layout_helper.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/record_layout_shell.dart';
+import 'package:stripes_ui/UI/Record/Screens/question_screen.dart';
 import 'package:stripes_ui/Util/Design/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/Widgets/easy_snack.dart';
@@ -167,8 +167,8 @@ class _BaselineEntryState extends ConsumerState<BaselineEntry> {
                           .toList();
 
                       final pendingRequired = currentQuestions.where((q) =>
-                          q.isRequired &&
-                          !widget.questionListener.questions.containsKey(q.id));
+                          q.requirement?.eval(widget.questionListener) ??
+                          false);
 
                       if (pendingRequired.isNotEmpty) {
                         widget.questionListener.tried = true;
@@ -187,41 +187,11 @@ class _BaselineEntryState extends ConsumerState<BaselineEntry> {
                           curve: Curves.easeInOut);
                     };
 
-              // Calculate question progress for current page
-              // This includes both static questions and generated questions (with :: in ID)
-              int totalQuestions = 0;
-              int answeredQuestions = 0;
-              int pendingRequiredCount = 0;
-
-              if (_currentIndex < filteredLayouts.length) {
-                final pageQuestions = filteredLayouts[_currentIndex].questions;
-                final pageQuestionIds = pageQuestions.map((q) => q.id).toSet();
-
-                // Helper to check if a question ID belongs to this page
-                // Generated questions have IDs like "sourceId::index"
-                bool belongsToPage(String questionId) {
-                  if (pageQuestionIds.contains(questionId)) return true;
-                  // Check if it's a generated question from a page question
-                  final parts = questionId.split('::');
-                  if (parts.length > 1) {
-                    return pageQuestionIds.contains(parts.first);
-                  }
-                  return false;
-                }
-
-                // Count all answered questions (static + generated) for this page
-                answeredQuestions = widget.questionListener.questions.keys
-                    .where((qId) => belongsToPage(qId))
-                    .length;
-
-                // Count all pending required questions for this page
-                pendingRequiredCount = widget.questionListener.pending
-                    .where((q) => belongsToPage(q.id))
-                    .length;
-
-                // Total = answered + pending (includes both static and generated)
-                totalQuestions = answeredQuestions + pendingRequiredCount;
-              }
+              final progress = LayoutHelper.calculateProgress(
+                pages: filteredLayouts,
+                currentIndex: _currentIndex,
+                listener: widget.questionListener,
+              );
 
               final controller = RecordEntryController(
                 title: localizations?.value(widget.recordPath) ??
@@ -247,9 +217,9 @@ class _BaselineEntryState extends ConsumerState<BaselineEntry> {
                     _errorMessage = null;
                   });
                 },
-                totalQuestions: totalQuestions,
-                answeredQuestions: answeredQuestions,
-                pendingRequiredCount: pendingRequiredCount,
+                totalQuestions: progress.total,
+                answeredQuestions: progress.answered,
+                pendingRequiredCount: progress.pendingRequired,
               );
 
               return RecordEntryProvider(

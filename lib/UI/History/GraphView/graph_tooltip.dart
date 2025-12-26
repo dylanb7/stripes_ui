@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:collection/collection.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/History/display_data_provider.dart';
+import 'package:stripes_ui/Util/Helpers/date_range_utils.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_hit_tester.dart';
 import 'package:stripes_ui/UI/History/GraphView/graph_point.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
@@ -134,9 +135,9 @@ class GraphTooltip extends ConsumerWidget {
     final DateTime date =
         scatter ? dateFromStamp(hit.item.data.first.stamp) : hit.xValue;
     DateFormat format = DateFormat.MMMEd();
-    final bool shortCustom = (settings.cycle == DisplayTimeCycle.custom &&
+    final bool shortCustom = (settings.cycle == TimeCycle.custom &&
         settings.range.duration < const Duration(days: 5));
-    if (settings.cycle == DisplayTimeCycle.day || scatter || shortCustom) {
+    if (settings.cycle == TimeCycle.day || scatter || shortCustom) {
       format.add_jm();
     }
     final String dateStr = format.format(date);

@@ -9,7 +9,7 @@ class AppLocalizationsEs extends AppLocalizations {
   AppLocalizationsEs([String locale = 'es']) : super(locale);
 
   @override
-  String get checkInLabel => 'Check-ins';
+  String get checkInLabel => 'Revisiones';
 
   @override
   String get signupWithAccessCode => 'Sign up with access code';

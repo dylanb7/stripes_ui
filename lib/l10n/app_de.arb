@@ -1,6 +1,6 @@
 {
     "@@locale": "de",
-    "checkInLabel": "Ankunft",
+    "checkInLabel": "Überprüfungen",
     "signupWithAccessCode": "Mit Zugangscode anmelden",
     "loginButtonPrefix": "Sie haben schon ein Benutzerkonto? ",
     "loginButtonText": "Anmelden",

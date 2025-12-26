@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/QuestionModel/question.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
-import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/question_entry_scope.dart';
 
 import 'package:stripes_ui/UI/Record/QuestionEntries/severity_slider.dart';
@@ -90,15 +89,11 @@ class MultiChoiceEntry extends ConsumerWidget {
   }
 
   void _onTap(QuestionEntryController controller, bool isSelected, int index) {
-    if (isSelected) {
-      controller.removeResponse();
-    } else {
-      controller.addResponse(MultiResponse(
-        question: question,
-        stamp: controller.stamp,
-        index: index,
-      ));
-    }
+    controller.toggleResponse(() => MultiResponse(
+          question: question,
+          stamp: controller.stamp,
+          index: index,
+        ));
   }
 }
 
@@ -188,18 +183,17 @@ class AllThatApplyEntry extends StatelessWidget {
     int index,
     List<int>? selectedIndices,
   ) {
+    final List<int> current = [...(selectedIndices ?? [])];
     if (isSelected) {
-      final int currentCount = selectedIndices?.length ?? 0;
-      if (currentCount <= 1) {
-        // Last item - remove entirely
+      current.remove(index);
+      if (current.isEmpty) {
         controller.removeResponse();
       } else {
-        // Remove just this index but keep others
         controller.addResponse(
           AllResponse(
             question: question,
             stamp: controller.stamp,
-            responses: selectedIndices!..remove(index),
+            responses: current,
           ),
         );
       }
@@ -208,7 +202,7 @@ class AllThatApplyEntry extends StatelessWidget {
         AllResponse(
           question: question,
           stamp: controller.stamp,
-          responses: [...(selectedIndices ?? []), index],
+          responses: [...current, index],
         ),
       );
     }
@@ -299,7 +293,7 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
     value = (((max - min) / 2) + min).roundToDouble();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final num? val = _getResponse();
+      final num? val = _getResponseStatic();
       if (val != null) {
         value = val.toDouble();
         _sliderListener.interacted();
@@ -310,33 +304,34 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
     _sliderListener.addListener(_onSliderInteract);
   }
 
-  void _onSliderInteract() {
-    widget.questionsListener.removePending(widget.question);
-  }
-
   @override
   void dispose() {
     _sliderListener.removeListener(_onSliderInteract);
     super.dispose();
   }
 
-  num? _getResponse() {
+  void _onSliderInteract() {
+    // This is historically used to remove pending, but controller handles it.
+    // Keeping it for the listener interface if needed.
+  }
+
+  num? _getResponseStatic() {
     final Response? res =
         widget.questionsListener.fromQuestion(widget.question);
     if (res == null) return null;
     return (res as NumericResponse).response;
   }
 
-  void _saveValue() {
-    widget.questionsListener.addResponse(NumericResponse(
+  void _saveValue(QuestionEntryController controller) {
+    controller.addResponse(NumericResponse(
       question: widget.question,
-      stamp: dateToStamp(DateTime.now()),
+      stamp: controller.stamp,
       response: value,
     ));
   }
 
-  void _clearValue() {
-    widget.questionsListener.removeResponse(widget.question);
+  void _clearValue(QuestionEntryController controller) {
+    controller.removeResponse();
     _sliderListener.hasInteracted = false;
     setState(() {});
   }
@@ -346,72 +341,75 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
     return QuestionEntryScope(
       question: widget.question,
       listener: widget.questionsListener,
-      child: Stack(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(
-              top: AppPadding.small,
-              right: AppPadding.tiny,
-              left: AppPadding.tiny,
-            ),
-            child: QuestionEntryCard(
-              padding: const EdgeInsets.all(AppPadding.small),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.question.prompt,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  if (widget.question.userCreated) ...[
-                    const SizedBox(height: AppPadding.tiny),
+      child: Builder(builder: (context) {
+        final controller = QuestionEntryScope.of(context);
+        return Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(
+                top: AppPadding.small,
+                right: AppPadding.tiny,
+                left: AppPadding.tiny,
+              ),
+              child: QuestionEntryCard(
+                padding: const EdgeInsets.all(AppPadding.small),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
-                      "custom symptom",
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).disabledColor.darken(),
-                          ),
+                      widget.question.prompt,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    if (widget.question.userCreated) ...[
+                      const SizedBox(height: AppPadding.tiny),
+                      Text(
+                        "custom symptom",
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).disabledColor.darken(),
+                            ),
+                      ),
+                    ],
+                    const SizedBox(height: AppPadding.small),
+                    StripesSlider(
+                      initial: value.toInt(),
+                      min: widget.question.min?.toInt() ?? 1,
+                      max: widget.question.max?.toInt() ?? 5,
+                      hasInstruction: false,
+                      onChange: (val) {
+                        setState(() {
+                          value = val;
+                          _saveValue(controller);
+                        });
+                      },
+                      listener: _sliderListener,
                     ),
                   ],
-                  const SizedBox(height: AppPadding.small),
-                  StripesSlider(
-                    initial: value.toInt(),
-                    min: widget.question.min?.toInt() ?? 1,
-                    max: widget.question.max?.toInt() ?? 5,
-                    hasInstruction: false,
-                    onChange: (val) {
-                      setState(() {
-                        value = val;
-                        _saveValue();
-                      });
-                    },
-                    listener: _sliderListener,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          if (_sliderListener.hasInteracted)
-            Positioned(
-              right: 0.0,
-              top: AppPadding.tiny,
-              child: GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                onTap: _clearValue,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(),
-                    color: Theme.of(context).colorScheme.surface,
-                  ),
-                  child: const Padding(
-                    padding: EdgeInsets.all(AppPadding.tiny),
-                    child: Icon(Icons.close, size: 14.0),
-                  ),
                 ),
               ),
             ),
-        ],
-      ),
+            if (_sliderListener.hasInteracted)
+              Positioned(
+                right: 0.0,
+                top: AppPadding.tiny,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: () => _clearValue(controller),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(),
+                      color: Theme.of(context).colorScheme.surface,
+                    ),
+                    child: const Padding(
+                      padding: EdgeInsets.all(AppPadding.tiny),
+                      child: Icon(Icons.close, size: 14.0),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        );
+      }),
     );
   }
 }

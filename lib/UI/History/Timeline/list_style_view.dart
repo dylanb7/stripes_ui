@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:stripes_ui/Providers/Dashboard/insight_provider.dart';
+import 'package:stripes_ui/UI/History/DashboardView/dashboard_screen.dart';
 import 'package:stripes_ui/Util/Helpers/date_helper.dart';
 import 'package:stripes_ui/Providers/History/display_data_provider.dart';
+import 'package:stripes_ui/Util/Helpers/date_range_utils.dart';
 import 'package:stripes_ui/Providers/questions/questions_provider.dart';
 import 'package:stripes_ui/Providers/History/stamps_provider.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/UI/AccountManagement/profile_changer.dart';
 import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
+import 'package:stripes_ui/UI/CommonWidgets/date_range_selector.dart';
 import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
 import 'package:stripes_ui/UI/History/EventView/event_grid.dart';
 import 'package:stripes_ui/UI/History/Export/export.dart';
@@ -32,6 +36,8 @@ class EventsView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final ViewMode mode = ref.watch(viewModeProvider);
     final StripesConfig config = ref.watch(configProvider);
+    final List<Insight> insights =
+        ref.watch(insightsProvider(const InsightsProps()));
     return AddIndicator(builder: (context, hasIndicator) {
       return RefreshWidget(
         depth: RefreshDepth.authuser,
@@ -60,16 +66,59 @@ class EventsView extends ConsumerWidget {
                               width: AppPadding.tiny,
                             ),
                             if (config.hasGraphing)
-                              IconButton.outlined(
-                                  onPressed: () {
-                                    ref.read(viewModeProvider.notifier).state =
-                                        mode == ViewMode.graph
-                                            ? ViewMode.events
-                                            : ViewMode.graph;
-                                  },
-                                  icon: mode == ViewMode.graph
-                                      ? const Icon(Icons.list)
-                                      : const Icon(Icons.bar_chart))
+                              PopupMenuButton<ViewMode>(
+                                initialValue: mode,
+                                tooltip: 'Switch View Mode',
+                                onSelected: (newMode) {
+                                  ref.read(viewModeProvider.notifier).state =
+                                      newMode;
+                                },
+                                icon: DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(
+                                        AppRounding.small),
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                                  child: Padding(
+                                    padding:
+                                        const EdgeInsets.all(AppPadding.small),
+                                    child: Icon(
+                                      switch (mode) {
+                                        ViewMode.events => Icons.list,
+                                        ViewMode.reviews => Icons.event_repeat,
+                                        ViewMode.graph => Icons.bar_chart,
+                                      },
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
+                                    ),
+                                  ),
+                                ),
+                                itemBuilder: (context) => [
+                                  const PopupMenuItem(
+                                    value: ViewMode.events,
+                                    child: ListTile(
+                                      leading: Icon(Icons.list),
+                                      title: Text('Events'),
+                                    ),
+                                  ),
+                                  const PopupMenuItem(
+                                    value: ViewMode.reviews,
+                                    child: ListTile(
+                                      leading: Icon(Icons.event_repeat),
+                                      title: Text('Reviews'),
+                                    ),
+                                  ),
+                                  const PopupMenuItem(
+                                    value: ViewMode.graph,
+                                    child: ListTile(
+                                      leading: Icon(Icons.bar_chart),
+                                      title: Text('Graphs'),
+                                    ),
+                                  ),
+                                ],
+                              )
                           ],
                         ),
                       ),
@@ -83,62 +132,102 @@ class EventsView extends ConsumerWidget {
                   child: FiltersRow(),
                 )),*/
 
-              const SliverPadding(
-                padding: EdgeInsetsGeometry.only(
-                    left: AppPadding.xl,
-                    right: AppPadding.xl,
-                    bottom: AppPadding.tiny),
-                sliver: SliverToBoxAdapter(
-                  child: FiltersRow(),
-                ),
+              SliverCrossAxisGroup(
+                slivers: [
+                  SliverPadding(
+                    padding: const EdgeInsets.only(
+                        left: AppPadding.xl,
+                        right: AppPadding.xl,
+                        bottom: AppPadding.tiny),
+                    sliver: SliverConstrainedCrossAxis(
+                      maxExtent: Breakpoint.medium.value,
+                      sliver: SliverToBoxAdapter(
+                        child: FiltersRow(),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SliverToBoxAdapter(
                 child: CurrentFilters(),
               ),
               PinnedHeaderSliver(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface),
-                  child: const Column(
-                    children: [
-                      DateRangeButton(),
-                      Divider(
-                        height: 1.0,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppPadding.medium,
+                    vertical: AppPadding.small,
+                  ),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                      borderRadius: BorderRadius.circular(AppRounding.small),
+                      border: Border.all(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .primary
+                            .withValues(alpha: 0.1),
                       ),
-                    ],
+                    ),
+                    child: const DateRangeButton(),
                   ),
                 ),
+              ),
+              SliverCrossAxisGroup(
+                slivers: [
+                  SliverPadding(
+                    padding: const EdgeInsets.only(
+                        left: AppPadding.xl,
+                        right: AppPadding.xl,
+                        bottom: AppPadding.tiny),
+                    sliver: SliverConstrainedCrossAxis(
+                      maxExtent: Breakpoint.medium.value,
+                      sliver: SliverToBoxAdapter(
+                        child: InsightsList(
+                          insights: insights,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               SliverPadding(
                 padding: const EdgeInsets.only(top: AppPadding.tiny),
                 sliver: SliverToBoxAdapter(
-                  child: mode == ViewMode.events
-                      ? const EventGridHeader()
-                      : const GraphHeader(),
+                  child: switch (mode) {
+                    ViewMode.events => const EventGridHeader(),
+                    ViewMode.reviews => const ReviewsHeader(),
+                    ViewMode.graph => const GraphHeader(),
+                  },
                 ),
               ),
-              mode == ViewMode.events
-                  ? SliverCrossAxisGroup(
-                      slivers: [
-                        SliverConstrainedCrossAxis(
-                          maxExtent: Breakpoint.medium.value,
-                          sliver: const CheckinSection(),
-                        ),
-                      ],
-                    )
-                  : const SliverToBoxAdapter(child: SizedBox.shrink()),
-              mode == ViewMode.events
-                  ? SliverCrossAxisGroup(
+              // Content slivers based on mode
+              ...switch (mode) {
+                ViewMode.events => [
+                    SliverCrossAxisGroup(
                       slivers: [
                         SliverConstrainedCrossAxis(
                           maxExtent: Breakpoint.large.value,
                           sliver: const EventGrid(),
                         ),
                       ],
-                    )
-                  : GraphSliverList(onSelect: (key) {
+                    ),
+                  ],
+                ViewMode.reviews => [
+                    SliverCrossAxisGroup(
+                      slivers: [
+                        SliverConstrainedCrossAxis(
+                          maxExtent: Breakpoint.large.value,
+                          sliver: const ReviewsView(),
+                        ),
+                      ],
+                    ),
+                  ],
+                ViewMode.graph => [
+                    GraphSliverList(onSelect: (key) {
                       context.pushNamed(RouteName.SYMPTOMTREND, extra: key);
                     }),
+                  ],
+              },
             ]),
       );
     });
@@ -232,11 +321,11 @@ class FiltersRow extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        SegmentedButton<DisplayTimeCycle>(
+        SegmentedButton<TimeCycle>(
             segments: [
-              DisplayTimeCycle.day,
-              DisplayTimeCycle.week,
-              DisplayTimeCycle.month,
+              TimeCycle.day,
+              TimeCycle.week,
+              TimeCycle.month,
             ]
                 .map(
                   (cycle) => ButtonSegment(
@@ -256,9 +345,8 @@ class FiltersRow extends ConsumerWidget {
                 ref.read(displayDataProvider.notifier).setCycle(newValue.first);
               }
             },
-            selected: settings.cycle == DisplayTimeCycle.custom
-                ? {}
-                : {settings.cycle}),
+            selected:
+                settings.cycle == TimeCycle.custom ? {} : {settings.cycle}),
         const Spacer(),
         IconButton.filled(
           style: const ButtonStyle(
@@ -273,6 +361,7 @@ class FiltersRow extends ConsumerWidget {
                       FilterSheet(scrollController: controller),
                 );
           },
+          tooltip: 'Filters',
           icon: const Icon(Icons.filter_list),
         ),
       ],
@@ -280,164 +369,31 @@ class FiltersRow extends ConsumerWidget {
   }
 }
 
-class DateRangeButton extends ConsumerStatefulWidget {
+class DateRangeButton extends ConsumerWidget {
   const DateRangeButton({super.key});
 
   @override
-  ConsumerState<DateRangeButton> createState() => _DateRangeButtonState();
-}
-
-class _DateRangeButtonState extends ConsumerState<DateRangeButton> {
-  double _dragOffset = 0.0;
-  String? _previewText;
-  static const double _threshold = 80.0;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final DisplayDataSettings settings = ref.watch(displayDataProvider);
-    final bool hasPreview = _previewText != null;
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        IconButton(
-          visualDensity: VisualDensity.comfortable,
-          style: const ButtonStyle(
-            tapTargetSize: MaterialTapTargetSize.padded,
-          ),
-          icon: const Icon(Icons.keyboard_arrow_left),
-          onPressed: !settings.canGoPrev
-              ? null
-              : () {
-                  ref.read(displayDataProvider.notifier).shift(forward: false);
-                },
-        ),
-        const SizedBox(
-          width: AppPadding.tiny,
-        ),
-        Expanded(
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onHorizontalDragUpdate: (details) {
-              setState(() {
-                _dragOffset += details.delta.dx;
-                final bool forward = _dragOffset < 0;
-                if (forward && !settings.canGoNext) {
-                  _dragOffset = 0;
-                  return;
-                }
-                if (!forward && !settings.canGoPrev) {
-                  _dragOffset = 0;
-                  return;
-                }
-
-                if (_dragOffset.abs() > _threshold) {
-                  final nextRange = ref
-                      .read(displayDataProvider.notifier)
-                      .getNextRangeString(forward: forward, context: context);
-                  _previewText = nextRange;
-                } else {
-                  _previewText = null;
-                }
-              });
-            },
-            onHorizontalDragEnd: (details) {
-              if (_dragOffset.abs() > _threshold) {
-                ref
-                    .read(displayDataProvider.notifier)
-                    .shift(forward: _dragOffset < 0);
-              } else if (details.primaryVelocity != null &&
-                  details.primaryVelocity!.abs() > 1000) {
-                // Fast swipe support
-                final bool forward = details.primaryVelocity! < 0;
-                if ((forward && settings.canGoNext) ||
-                    (!forward && settings.canGoPrev)) {
-                  ref
-                      .read(displayDataProvider.notifier)
-                      .shift(forward: forward);
-                }
-              }
-              setState(() {
-                _dragOffset = 0;
-                _previewText = null;
-              });
-            },
-            onHorizontalDragCancel: () {
-              setState(() {
-                _dragOffset = 0;
-                _previewText = null;
-              });
-            },
-            child: Transform.translate(
-              offset: Offset(_dragOffset, 0),
-              child: Opacity(
-                opacity: 1.0 -
-                    (_dragOffset.abs() / (_threshold * 2)).clamp(0.0, 0.5),
-                child: InkWell(
-                  onTap: () {
-                    ref.read(sheetControllerProvider).show(
-                        context: context,
-                        scrollControlled: true,
-                        child: (context) => const BottomSheetCalendar());
-                  },
-                  borderRadius: BorderRadius.circular(AppRounding.small),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: AppPadding.small,
-                        vertical: AppPadding.medium),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        AnimatedSwitcher(
-                          duration: Durations.short3,
-                          child: Text(
-                            _previewText ?? settings.getRangeString(context),
-                            key: ValueKey(_previewText ?? settings.range),
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                  color: hasPreview
-                                      ? Theme.of(context).colorScheme.primary
-                                      : null,
-                                  fontWeight: hasPreview
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
-                                ),
-                          ),
-                        ),
-                        const SizedBox(width: AppPadding.tiny),
-                        Icon(
-                          Icons.keyboard_arrow_down,
-                          color: hasPreview
-                              ? Theme.of(context).colorScheme.primary
-                              : null,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(
-          width: AppPadding.tiny,
-        ),
-        IconButton(
-          visualDensity: VisualDensity.comfortable,
-          style: const ButtonStyle(
-            tapTargetSize: MaterialTapTargetSize.padded,
-          ),
-          icon: const Icon(Icons.keyboard_arrow_right),
-          onPressed: !settings.canGoNext
-              ? null
-              : () {
-                  ref.read(displayDataProvider.notifier).shift(forward: true);
-                },
-        ),
-      ],
+    return DateRangeSelector(
+      rangeText: settings.getRangeString(context),
+      canGoPrev: settings.canGoPrev,
+      canGoNext: settings.canGoNext,
+      onPrev: () =>
+          ref.read(displayDataProvider.notifier).shift(forward: false),
+      onNext: () => ref.read(displayDataProvider.notifier).shift(forward: true),
+      onTap: () {
+        ref.read(sheetControllerProvider).show(
+            context: context,
+            scrollControlled: true,
+            child: (context) => const BottomSheetCalendar());
+      },
+      getPreviewText: (forward) {
+        return ref
+            .read(displayDataProvider.notifier)
+            .getNextRangeString(forward: forward, context: context);
+      },
     );
   }
 }
@@ -453,7 +409,7 @@ class CheckinSection extends ConsumerWidget {
 
     // Get check-in path types and periods
     const RecordPathProps pathProps =
-        RecordPathProps(filterEnabled: true, type: PathProviderType.checkin);
+        RecordPathProps(filterEnabled: true, type: PathProviderType.review);
     final AsyncValue<List<RecordPath>> pathsAsync =
         ref.watch(recordPaths(pathProps));
 
@@ -905,6 +861,227 @@ class _CheckinDetailPagerState extends ConsumerState<CheckinDetailPager> {
                 ],
               ),
             ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Header for reviews view
+class ReviewsHeader extends ConsumerWidget {
+  const ReviewsHeader({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            "Reviews",
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.primary),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Period-based reviews view - groups by period type
+class ReviewsView extends ConsumerWidget {
+  const ReviewsView({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final DisplayDataSettings settings = ref.watch(displayDataProvider);
+
+    const RecordPathProps pathProps =
+        RecordPathProps(filterEnabled: true, type: PathProviderType.review);
+    final AsyncValue<List<RecordPath>> pathsAsync =
+        ref.watch(recordPaths(pathProps));
+    final AsyncValue<List<Stamp>> allStampsAsync =
+        ref.watch(stampsStreamProvider);
+
+    if (allStampsAsync.isLoading || pathsAsync.isLoading) {
+      return const SliverToBoxAdapter(
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    final List<RecordPath> paths = pathsAsync.valueOrNull ?? [];
+    final List<Stamp> allStamps = allStampsAsync.valueOrNull ?? [];
+
+    if (paths.isEmpty) {
+      return SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.all(AppPadding.xl),
+          child: Center(
+            child: Text(
+              "No reviews configured",
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Group paths by period duration
+    final Map<String, List<RecordPath>> pathsByPeriodType = {};
+    for (final path in paths) {
+      final String periodType = _getPeriodTypeName(path.period!);
+      pathsByPeriodType.putIfAbsent(periodType, () => []).add(path);
+    }
+
+    // Collect all review entries within range
+    final Map<String, dynamic> typeToPeriod = {
+      for (var path in paths) path.name: path.period!
+    };
+
+    final List<Response> reviewStamps = [];
+    for (final stamp in allStamps) {
+      if (stamp is! Response) continue;
+      final dynamic period = typeToPeriod[stamp.type];
+      if (period == null) continue;
+
+      final DateTime stampDate = dateFromStamp(stamp.stamp);
+      final DateTimeRange reviewRange = period.getRange(stampDate);
+      if (reviewRange.overlaps(settings.range)) {
+        reviewStamps.add(stamp);
+      }
+    }
+
+    reviewStamps.sort((a, b) => b.stamp.compareTo(a.stamp));
+
+    final QuestionsLocalizations? localizations =
+        QuestionsLocalizations.of(context);
+    final ColorScheme colors = Theme.of(context).colorScheme;
+
+    // Order: Daily, Weekly, Monthly, Annual
+    final List<String> orderedTypes = ['Daily', 'Weekly', 'Monthly', 'Annual'];
+    final List<String> sortedKeys = pathsByPeriodType.keys.toList()
+      ..sort((a, b) {
+        final aIdx = orderedTypes.indexOf(a);
+        final bIdx = orderedTypes.indexOf(b);
+        if (aIdx == -1 && bIdx == -1) return a.compareTo(b);
+        if (aIdx == -1) return 1;
+        if (bIdx == -1) return -1;
+        return aIdx.compareTo(bIdx);
+      });
+
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(
+          horizontal: AppPadding.xl, vertical: AppPadding.small),
+      sliver: SliverList.builder(
+        itemCount: sortedKeys.length,
+        itemBuilder: (context, index) {
+          final String periodType = sortedKeys[index];
+          final List<RecordPath> typePaths = pathsByPeriodType[periodType]!;
+
+          return _ReviewPeriodSection(
+            periodType: periodType,
+            paths: typePaths,
+            reviewStamps: reviewStamps,
+            typeToPeriod: typeToPeriod,
+            localizations: localizations,
+            colors: colors,
+          );
+        },
+      ),
+    );
+  }
+
+  String _getPeriodTypeName(dynamic period) {
+    // Infer from period duration
+    final DateTimeRange range = period.getRange(DateTime.now());
+    final int days = range.duration.inDays;
+    if (days <= 1) return 'Daily';
+    if (days <= 7) return 'Weekly';
+    if (days <= 31) return 'Monthly';
+    return 'Annual';
+  }
+}
+
+class _ReviewPeriodSection extends ConsumerWidget {
+  final String periodType;
+  final List<RecordPath> paths;
+  final List<Response> reviewStamps;
+  final Map<String, dynamic> typeToPeriod;
+  final QuestionsLocalizations? localizations;
+  final ColorScheme colors;
+
+  const _ReviewPeriodSection({
+    required this.periodType,
+    required this.paths,
+    required this.reviewStamps,
+    required this.typeToPeriod,
+    required this.localizations,
+    required this.colors,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppPadding.medium),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Period type header
+          Text(
+            '$periodType Reviews',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+          const SizedBox(height: AppPadding.small),
+          // List of review types in this period
+          ...paths.map((path) {
+            final String name = localizations?.value(path.name) ?? path.name;
+            final List<Response> typeStamps =
+                reviewStamps.where((s) => s.type == path.name).toList();
+            final int count = typeStamps.length;
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: AppPadding.tiny),
+              child: Card(
+                margin: EdgeInsets.zero,
+                child: ListTile(
+                  leading: Icon(
+                    count > 0
+                        ? Icons.check_circle
+                        : Icons.radio_button_unchecked,
+                    color: count > 0 ? colors.primary : colors.outline,
+                  ),
+                  title: Text(name),
+                  subtitle: count > 0
+                      ? Text('$count in range')
+                      : Text(
+                          'Not completed',
+                          style: TextStyle(color: colors.outline),
+                        ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: count > 0
+                      ? () {
+                          ref.read(sheetControllerProvider).show(
+                                context: context,
+                                scrollControlled: true,
+                                child: (context) => CheckinDetailPager(
+                                  stamps: typeStamps,
+                                  initialIndex: 0,
+                                  typeToPeriod: typeToPeriod,
+                                ),
+                              );
+                        }
+                      : null,
+                ),
+              ),
+            );
+          }),
+          const Divider(),
         ],
       ),
     );

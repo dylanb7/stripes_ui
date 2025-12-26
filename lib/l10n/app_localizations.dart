@@ -103,7 +103,7 @@ abstract class AppLocalizations {
   /// No description provided for @checkInLabel.
   ///
   /// In en, this message translates to:
-  /// **'Check-ins'**
+  /// **'Reviews'**
   String get checkInLabel;
 
   /// No description provided for @signupWithAccessCode.

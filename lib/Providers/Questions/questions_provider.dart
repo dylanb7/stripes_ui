@@ -129,6 +129,7 @@ final pagesByPath = FutureProvider.autoDispose
     }
     if (questions.isEmpty) continue;
     loadedLayouts.add(LoadedPageLayout(
+        requirement: layout.requirement,
         questions: questions,
         dependsOn: layout.dependsOn,
         header: layout.header));
@@ -137,7 +138,7 @@ final pagesByPath = FutureProvider.autoDispose
 });
 
 enum PathProviderType {
-  checkin,
+  review,
   record,
   both;
 }
@@ -158,7 +159,7 @@ final recordPaths = FutureProvider.family<List<RecordPath>, RecordPathProps>(
 
   return layouts.where((layout) {
     if (props.filterEnabled && !layout.enabled) return false;
-    if (props.type == PathProviderType.checkin && layout.period == null) {
+    if (props.type == PathProviderType.review && layout.period == null) {
       return false;
     }
     if (props.type == PathProviderType.record && layout.period != null) {
@@ -169,23 +170,23 @@ final recordPaths = FutureProvider.family<List<RecordPath>, RecordPathProps>(
 });
 
 @immutable
-class CheckinItem {
+class ReviewItem {
   final RecordPath path;
   final String type;
   final DetailResponse? response;
 
-  const CheckinItem(
+  const ReviewItem(
       {required this.path, required this.type, required this.response});
 }
 
-class CheckInPathsProps {
+class ReviewPathsProps {
   final DateTime? searchDate;
-  const CheckInPathsProps({this.searchDate});
+  const ReviewPathsProps({this.searchDate});
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    if (other is! CheckInPathsProps) return false;
+    if (other is! ReviewPathsProps) return false;
     // Compare by day only (not time) for date-based caching
     final a = searchDate;
     final b = other.searchDate;
@@ -202,19 +203,18 @@ class CheckInPathsProps {
   }
 }
 
-final checkInPaths =
-    FutureProvider.family<List<CheckinItem>, CheckInPathsProps>(
-        (ref, props) async {
+final reviewPaths = FutureProvider.family<List<ReviewItem>, ReviewPathsProps>(
+    (ref, props) async {
   const pathProps = RecordPathProps(
     filterEnabled: true,
-    type: PathProviderType.checkin,
+    type: PathProviderType.review,
   );
 
   final List<RecordPath> paths = await ref.watch(recordPaths(pathProps).future);
   final QuestionHome home = await ref.watch(questionHomeProvider.future);
   final List<Stamp> baselines = await ref.watch(baselinesStreamProvider.future);
 
-  List<CheckinItem> checkins = [];
+  List<ReviewItem> reviews = [];
   final DateTime date = props.searchDate ?? DateTime.now();
   final List<Stamp> stamps = await ref.watch(stampsStreamProvider.future);
   for (final RecordPath recordPath in paths) {
@@ -250,12 +250,12 @@ final checkInPaths =
               stampTime.isAtSameMomentAs(range.start));
     }).toList();
 
-    checkins.add(CheckinItem(
+    reviews.add(ReviewItem(
         path: recordPath,
         type: searchType,
         response: valid.isEmpty ? null : valid.first as DetailResponse));
   }
-  return checkins
+  return reviews
     ..sort((first, second) => first.response == null
         ? -1
         : second.response == null

@@ -116,7 +116,14 @@ class _PainAreaWidgetState extends ConsumerState<PainAreaWidget> {
   // We can remove the listener in initState because we use QuestionEntryScope
   // which rebuilds/notifies. Or we can use the scope controller.
 
-  List<Area>? _getResponse() {
+  List<Area>? _getResponse([QuestionEntryController? controller]) {
+    if (controller != null) {
+      final res = controller.response;
+      if (res is AllResponse) {
+        return res.responses.map((value) => Area.fromValue(value)).toList();
+      }
+      return null;
+    }
     final Response? res =
         widget.questionsListener.fromQuestion(widget.question);
     if (res == null) return null;
@@ -124,160 +131,145 @@ class _PainAreaWidgetState extends ConsumerState<PainAreaWidget> {
     return index.map((value) => Area.fromValue(value)).toList();
   }
 
-  void _setResponse(Area newValue) {
-    // We can use the controller if we access it via context or pass it.
-    // However, the logic here is specific.
-    // We'll mimic the old logic but use standard listener calls or controller calls.
-    // Using listener directly is fine as long as we use QuestionEntryScope for wrapper.
-    // Actually, QuestionEntryController methods are cleaner if they support this.
-    // But for AllThatApply with custom exclusive logic (Area.none), exact control is better.
-    // We will assume QuestionEntryScope handles the "pending" state via listener updates?
-    // Yes, QuestionEntryController listens to the listener.
-
-    final List<Area>? current = _getResponse();
+  void _setResponse(QuestionEntryController controller, Area newValue) {
+    final List<Area>? current = _getResponse(controller);
 
     if (newValue == Area.none) {
       if (current?.contains(newValue) ?? false) {
-        widget.questionsListener.removeResponse(widget.question);
-        widget.questionsListener.addPending(widget.question);
+        controller.removeResponse();
       } else {
-        widget.questionsListener.addResponse(
+        controller.addResponse(
           AllResponse(
             question: widget.question,
-            stamp: dateToStamp(DateTime.now()),
+            stamp: controller.stamp,
             responses: [newValue.toIndex()],
           ),
         );
-        widget.questionsListener.removePending(widget.question);
       }
       return;
     }
 
     if (current == null) {
-      widget.questionsListener.addResponse(AllResponse(
+      controller.addResponse(AllResponse(
           question: widget.question,
-          stamp: dateToStamp(DateTime.now()),
+          stamp: controller.stamp,
           responses: [newValue.toIndex()]));
-      widget.questionsListener.removePending(widget.question);
     } else if (current.contains(newValue)) {
       if (current.length == 1) {
-        widget.questionsListener.removeResponse(widget.question);
-        widget.questionsListener.addPending(widget.question);
+        controller.removeResponse();
       } else {
         current.remove(newValue);
-        widget.questionsListener.addResponse(
+        controller.addResponse(
           AllResponse(
             question: widget.question,
-            stamp: dateToStamp(DateTime.now()),
+            stamp: controller.stamp,
             responses: current.map((val) => val.toIndex()).toList(),
           ),
         );
-        widget.questionsListener.removePending(widget.question);
       }
     } else {
       current.add(newValue);
       if (current.contains(Area.none)) current.remove(Area.none);
-      widget.questionsListener.addResponse(
+      controller.addResponse(
         AllResponse(
           question: widget.question,
-          stamp: dateToStamp(DateTime.now()),
-          responses: current
-              .map(
-                (val) => val.toIndex(),
-              )
-              .toList(),
+          stamp: controller.stamp,
+          responses: current.map((val) => val.toIndex()).toList(),
         ),
       );
-      widget.questionsListener.removePending(widget.question);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final List<Area>? selected = _getResponse();
-
     return QuestionEntryScope(
       question: widget.question,
       listener: widget.questionsListener,
-      child: QuestionEntryCard(
-        styled: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppPadding.medium),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              const SizedBox(height: AppPadding.medium),
-              IntrinsicHeight(
-                child: Stack(children: [
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                          color: Theme.of(context).colorScheme.onSurface),
-                      borderRadius: BorderRadius.circular(AppRounding.medium),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(AppRounding.medium),
-                      clipBehavior: Clip.hardEdge,
-                      child: Image.asset(
-                        'packages/stripes_ui/assets/images/abdomin.png',
-                        fit: BoxFit.fill,
+      child: Builder(builder: (context) {
+        final controller = QuestionEntryScope.of(context);
+        final List<Area>? selected = _getResponse(controller);
+
+        return QuestionEntryCard(
+          styled: false,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppPadding.medium),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                const SizedBox(height: AppPadding.medium),
+                IntrinsicHeight(
+                  child: Stack(children: [
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                            color: Theme.of(context).colorScheme.onSurface),
+                        borderRadius: BorderRadius.circular(AppRounding.medium),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(AppRounding.medium),
+                        clipBehavior: Clip.hardEdge,
+                        child: Image.asset(
+                          'packages/stripes_ui/assets/images/abdomin.png',
+                          fit: BoxFit.fill,
+                        ),
                       ),
                     ),
-                  ),
-                  Positioned.fill(
-                    child: FractionallySizedBox(
-                        widthFactor: 0.55,
-                        heightFactor: 0.7,
-                        child: Column(
-                          children: [
-                            ...List.generate(
-                              3,
-                              (colIndex) => Expanded(
-                                child: Row(
-                                  children: [
-                                    ...List.generate(3, (rowIndex) {
-                                      final int index =
-                                          (colIndex * 3) + rowIndex;
-                                      final Area area =
-                                          Area.fromValue(index + 1);
-                                      return Expanded(
-                                        child: SelectableTile(
-                                            row: rowIndex,
-                                            col: colIndex,
-                                            index: index,
-                                            selected:
-                                                (selected?.contains(area) ??
-                                                        false)
-                                                    ? area
-                                                    : null,
-                                            onSelect: (newValue) {
-                                              _setResponse(newValue);
-                                            }),
-                                      );
-                                    })
-                                  ],
+                    Positioned.fill(
+                      child: FractionallySizedBox(
+                          widthFactor: 0.55,
+                          heightFactor: 0.7,
+                          child: Column(
+                            children: [
+                              ...List.generate(
+                                3,
+                                (colIndex) => Expanded(
+                                  child: Row(
+                                    children: [
+                                      ...List.generate(3, (rowIndex) {
+                                        final int index =
+                                            (colIndex * 3) + rowIndex;
+                                        final Area area =
+                                            Area.fromValue(index + 1);
+                                        return Expanded(
+                                          child: SelectableTile(
+                                              row: rowIndex,
+                                              col: colIndex,
+                                              index: index,
+                                              selected:
+                                                  (selected?.contains(area) ??
+                                                          false)
+                                                      ? area
+                                                      : null,
+                                              onSelect: (newValue) {
+                                                _setResponse(
+                                                    controller, newValue);
+                                              }),
+                                        );
+                                      })
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            )
-                          ],
-                        )),
-                  ),
-                ]),
-              ),
-              const SizedBox(height: AppPadding.medium),
-              Selection(
-                  text: "Unable to determine pain location",
-                  onClick: () {
-                    _setResponse(Area.none);
-                  },
-                  selected: selected?.contains(Area.none) ?? false),
-              const SizedBox(height: AppPadding.medium)
-            ],
+                              )
+                            ],
+                          )),
+                    ),
+                  ]),
+                ),
+                const SizedBox(height: AppPadding.medium),
+                Selection(
+                    text: "Unable to determine pain location",
+                    onClick: () {
+                      _setResponse(controller, Area.none);
+                    },
+                    selected: selected?.contains(Area.none) ?? false),
+                const SizedBox(height: AppPadding.medium)
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      }),
     );
   }
 }

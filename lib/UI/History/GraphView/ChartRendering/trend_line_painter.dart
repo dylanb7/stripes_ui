@@ -149,15 +149,12 @@ class TrendLinePainter {
         linearRegression(xValues, yValues);
     if (regression == null) return;
 
-    // Get x range
     final double minX = xValues.reduce((a, b) => a < b ? a : b);
     final double maxX = xValues.reduce((a, b) => a > b ? a : b);
 
-    // Calculate y values at endpoints: y = slope * x + intercept
     final double y1 = regression.slope * minX + regression.intercept;
     final double y2 = regression.slope * maxX + regression.intercept;
 
-    // Draw simple line from start to end
     _drawTrendPath(
       canvas,
       geometry,
@@ -176,10 +173,8 @@ class TrendLinePainter {
     Color datasetColor,
     TrendLine config,
   ) {
-    // Determine line color
     final Color lineColor = config.color ?? datasetColor.withValues(alpha: 0.7);
 
-    // Create paint
     final paint = Paint()
       ..color = lineColor
       ..strokeWidth = config.strokeWidth
@@ -197,7 +192,6 @@ class TrendLinePainter {
       points.add(geometry.dataToScreen(xValues[idx], yValues[idx]));
     }
 
-    // Use smooth curve for LOESS, straight segments for Linear
     if (config is LoessTrendLine && points.length >= 3) {
       _drawSmoothPath(canvas, points, paint, config);
     } else {
@@ -237,14 +231,12 @@ class TrendLinePainter {
     final path = Path();
     path.moveTo(points.first.dx, points.first.dy);
 
-    // Use Catmull-Rom spline for smooth curves
     for (int i = 0; i < points.length - 1; i++) {
       final p0 = i > 0 ? points[i - 1] : points[i];
       final p1 = points[i];
       final p2 = points[i + 1];
       final p3 = i < points.length - 2 ? points[i + 2] : points[i + 1];
 
-      // Convert Catmull-Rom to cubic bezier control points
       final cp1 = Offset(
         p1.dx + (p2.dx - p0.dx) / 6,
         p1.dy + (p2.dy - p0.dy) / 6,

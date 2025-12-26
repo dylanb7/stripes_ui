@@ -569,50 +569,56 @@ class RecordEntryErrorBanner extends StatelessWidget {
       listenable: controller,
       builder: (context, _) {
         final message = controller.errorMessage;
-        if (message.isEmpty) return const SizedBox.shrink();
 
-        return Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(
-              vertical: AppPadding.tiny, horizontal: AppPadding.small),
-          decoration: BoxDecoration(
-            color: colors.errorContainer,
-            border: Border(
-              bottom: BorderSide(
-                color: colors.error.withValues(alpha: 0.3),
-                width: 1,
-              ),
-            ),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                Icons.warning_amber_rounded,
-                color: colors.onErrorContainer,
-                size: 20,
-              ),
-              const SizedBox(width: AppPadding.small),
-              Expanded(
-                child: Text(
-                  message,
-                  style: textTheme.bodyMedium?.copyWith(
-                    color: colors.onErrorContainer,
+        return AnimatedSize(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+          alignment: Alignment.topCenter,
+          child: message.isEmpty
+              ? const SizedBox(width: double.infinity, height: 0)
+              : Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                      vertical: AppPadding.tiny, horizontal: AppPadding.small),
+                  decoration: BoxDecoration(
+                    color: colors.errorContainer,
+                    border: Border(
+                      bottom: BorderSide(
+                        color: colors.error.withValues(alpha: 0.3),
+                        width: 1,
+                      ),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.warning_amber_rounded,
+                        color: colors.onErrorContainer,
+                        size: 20,
+                      ),
+                      const SizedBox(width: AppPadding.small),
+                      Expanded(
+                        child: Text(
+                          message,
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: colors.onErrorContainer,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        visualDensity: VisualDensity.compact,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        onPressed: controller.dismissError,
+                        icon: Icon(
+                          Icons.close,
+                          color: colors.onErrorContainer,
+                          size: 18,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-              IconButton(
-                visualDensity: VisualDensity.compact,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                onPressed: controller.dismissError,
-                icon: Icon(
-                  Icons.close,
-                  color: colors.onErrorContainer,
-                  size: 18,
-                ),
-              ),
-            ],
-          ),
         );
       },
     );

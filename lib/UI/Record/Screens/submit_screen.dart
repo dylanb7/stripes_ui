@@ -8,7 +8,8 @@ import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/questions/questions_provider.dart';
 import 'package:stripes_ui/Providers/test/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/date_time_entry.dart';
-import 'package:stripes_ui/UI/Record/QuestionEntries/question_screen.dart';
+import 'package:stripes_ui/UI/Record/Screens/question_screen.dart';
+
 import 'package:stripes_ui/Util/Design/breakpoint.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';

@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/annotation_painter.dart';
@@ -8,6 +9,7 @@ import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_axis.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_data.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_geometry.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_hit_tester.dart';
+import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_selection_controller.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_style.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/dataset_painter.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/trend_line_painter.dart';
@@ -33,6 +35,10 @@ class RenderChart<T, D> extends StatefulWidget {
   final List<ChartAnnotation<dynamic>>? horizontalAnnotations;
 
   final TrendLine? trendLine;
+  final String? xAxisLabel;
+  final String? yAxisLabel;
+
+  final ChartSelectionController<T, D>? selectionController;
 
   const RenderChart.multi({
     super.key,
@@ -51,6 +57,9 @@ class RenderChart<T, D> extends StatefulWidget {
     this.verticalAnnotations,
     this.horizontalAnnotations,
     this.trendLine,
+    this.xAxisLabel,
+    this.yAxisLabel,
+    this.selectionController,
   });
 
   RenderChart({
@@ -69,6 +78,9 @@ class RenderChart<T, D> extends StatefulWidget {
     this.verticalAnnotations,
     this.horizontalAnnotations,
     this.trendLine,
+    this.xAxisLabel,
+    this.yAxisLabel,
+    this.selectionController,
   })  : datasets = [data],
         stackBars = false;
 
@@ -79,10 +91,9 @@ class RenderChart<T, D> extends StatefulWidget {
 class _RenderChartState<T, D> extends State<RenderChart<T, D>>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _animation;
   late ChartAnimationState<T, D> _animState;
 
-  ChartHitTestResult<T, D>? _lastHoverResult;
+  List<ChartHitTestResult<T, D>>? _lastHoverResults;
   Offset? _hoverPosition;
 
   @override
@@ -92,8 +103,6 @@ class _RenderChartState<T, D> extends State<RenderChart<T, D>>
       vsync: this,
       duration: widget.animationDuration,
     );
-    _animation =
-        CurvedAnimation(parent: _controller, curve: widget.animationCurve);
 
     _animState = ChartAnimationState<T, D>();
     _animState.initializeFromDatasets(widget.datasets);
@@ -226,7 +235,7 @@ class _RenderChartState<T, D> extends State<RenderChart<T, D>>
     );
   }
 
-  ChartHitTestResult<T, D>? _hitTest(
+  List<ChartHitTestResult<T, D>> _hitTest(
       Offset position, ChartGeometry geometry, ChartStyle style) {
     return ChartHitTester.hitTest(
       position: position,
@@ -255,9 +264,9 @@ class _RenderChartState<T, D> extends State<RenderChart<T, D>>
 
     if (widget.onTap == null) return;
 
-    final hit = _hitTest(position, geometry, style);
-    if (hit != null) {
-      widget.onTap!(hit);
+    final hits = _hitTest(position, geometry, style);
+    if (hits.isNotEmpty) {
+      widget.onTap!(hits.first);
     }
   }
 
@@ -270,10 +279,19 @@ class _RenderChartState<T, D> extends State<RenderChart<T, D>>
 
     if (widget.onHover == null) return;
 
-    final hit = _hitTest(position, geometry, style);
-    if (hit != _lastHoverResult) {
-      _lastHoverResult = hit;
-      widget.onHover!(hit);
+    final List<ChartHitTestResult<T, D>> hits =
+        _hitTest(position, geometry, style);
+
+    // Simple equality check for multi-hits (check if count and first hit match)
+    final bool changed = hits.length != (_lastHoverResults?.length ?? 0) ||
+        (hits.isNotEmpty &&
+            _lastHoverResults?.isNotEmpty == true &&
+            hits.first != _lastHoverResults!.first);
+
+    if (changed || _hoverPosition != position) {
+      _lastHoverResults = hits;
+      widget.selectionController?.select(hits, position: position);
+      widget.onHover?.call(hits.isNotEmpty ? hits.first : null);
     }
   }
 
@@ -284,10 +302,11 @@ class _RenderChartState<T, D> extends State<RenderChart<T, D>>
       });
     }
 
+    widget.selectionController?.clear();
     if (widget.onHover == null) return;
 
-    if (_lastHoverResult != null) {
-      _lastHoverResult = null;
+    if (_lastHoverResults?.isNotEmpty == true) {
+      _lastHoverResults = null;
       widget.onHover!(null);
     }
   }
@@ -327,6 +346,8 @@ class _RenderChartState<T, D> extends State<RenderChart<T, D>>
           showYAxis: widget.yAxis.showing,
           showXAxis: widget.xAxis.showing,
           style: style,
+          xAxisLabel: widget.xAxisLabel,
+          yAxisLabel: widget.yAxisLabel,
         );
 
         return MouseRegion(
@@ -348,25 +369,36 @@ class _RenderChartState<T, D> extends State<RenderChart<T, D>>
             onHorizontalDragEnd:
                 widget.onHover != null ? (_) => _handleHoverExit() : null,
             child: AnimatedBuilder(
-              animation: _animation,
+              animation: _controller,
               builder: (context, child) {
-                return CustomPaint(
-                  size: Size.infinite,
-                  painter: _ChartPainter(
-                    datasets: widget.datasets,
-                    bounds: bounds,
-                    animState: _animState,
-                    animationValue: _animation.value,
-                    xAxis: widget.xAxis,
-                    yAxis: widget.yAxis,
-                    geometry: geometry,
-                    style: style,
-                    stackBars: widget.stackBars,
-                    verticalAnnotations: widget.verticalAnnotations ?? [],
-                    horizontalAnnotations: widget.horizontalAnnotations ?? [],
-                    hoverPosition: _hoverPosition,
-                    trendLine: widget.trendLine,
-                  ),
+                return ValueListenableBuilder<ChartSelectionState<T, D>>(
+                  valueListenable: widget.selectionController ??
+                      ChartSelectionController<T, D>(),
+                  builder: (context, selectionState, _) {
+                    final selection = selectionState.results;
+                    return CustomPaint(
+                      size: Size.infinite,
+                      painter: _ChartPainter(
+                        datasets: widget.datasets,
+                        bounds: bounds,
+                        animState: _animState,
+                        animationValue: _controller.value,
+                        xAxis: widget.xAxis,
+                        yAxis: widget.yAxis,
+                        geometry: geometry,
+                        style: style,
+                        stackBars: widget.stackBars,
+                        verticalAnnotations: widget.verticalAnnotations ?? [],
+                        horizontalAnnotations:
+                            widget.horizontalAnnotations ?? [],
+                        hoverPosition: _hoverPosition,
+                        trendLine: widget.trendLine,
+                        xAxisLabel: widget.xAxisLabel,
+                        yAxisLabel: widget.yAxisLabel,
+                        selection: selection,
+                      ),
+                    );
+                  },
                 );
               },
             ),
@@ -391,6 +423,9 @@ class _ChartPainter<T, D> extends CustomPainter {
   final List<ChartAnnotation<dynamic>> horizontalAnnotations;
   final Offset? hoverPosition;
   final TrendLine? trendLine;
+  final String? xAxisLabel;
+  final String? yAxisLabel;
+  final List<ChartHitTestResult<T, D>> selection;
 
   _ChartPainter({
     required this.datasets,
@@ -404,8 +439,11 @@ class _ChartPainter<T, D> extends CustomPainter {
     required this.stackBars,
     required this.verticalAnnotations,
     required this.horizontalAnnotations,
+    this.selection = const [],
     this.hoverPosition,
     this.trendLine,
+    this.xAxisLabel,
+    this.yAxisLabel,
   });
 
   @override
@@ -435,6 +473,9 @@ class _ChartPainter<T, D> extends CustomPainter {
           canvas, geometry, animState.xAxis, animationValue, style);
     }
 
+    AxisPainter.paintAxisTitles(
+        canvas, geometry, style, xAxisLabel, yAxisLabel);
+
     canvas.save();
     canvas.clipRect(Rect.fromLTWH(
       geometry.leftMargin,
@@ -454,6 +495,11 @@ class _ChartPainter<T, D> extends CustomPainter {
       final data = datasets[dsIndex];
       if (data.data.isEmpty) continue;
 
+      final Set<int> selectedIndices = selection
+          .where((hit) => hit.datasetIndex == dsIndex)
+          .map((hit) => hit.itemIndex)
+          .toSet();
+
       DatasetPainter.paint(
         canvas,
         geometry,
@@ -465,6 +511,7 @@ class _ChartPainter<T, D> extends CustomPainter {
         maxBarsInDataset,
         style,
         stackBottoms: stackBottoms,
+        selectedIndices: selectedIndices,
       );
     }
 
@@ -520,6 +567,8 @@ class _ChartPainter<T, D> extends CustomPainter {
         oldDelegate.verticalAnnotations != verticalAnnotations ||
         oldDelegate.horizontalAnnotations != horizontalAnnotations ||
         oldDelegate.hoverPosition != hoverPosition ||
-        oldDelegate.trendLine != trendLine;
+        oldDelegate.trendLine != trendLine ||
+        oldDelegate.xAxisLabel != xAxisLabel ||
+        oldDelegate.yAxisLabel != yAxisLabel;
   }
 }

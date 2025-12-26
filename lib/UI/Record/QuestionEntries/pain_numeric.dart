@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/QuestionModel/question.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
-import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/base.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/question_entry_scope.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/severity_slider.dart';
@@ -40,7 +39,7 @@ class _PainFacesWidgetState extends ConsumerState<PainFacesWidget> {
   }
 
   void _onSliderInteract() {
-    widget.questionsListener.removePending(widget.question);
+    // Controller handles pending state automatically
   }
 
   @override
@@ -49,30 +48,33 @@ class _PainFacesWidgetState extends ConsumerState<PainFacesWidget> {
     super.dispose();
   }
 
-  num? _getResponse() {
+  num? _getResponse([QuestionEntryController? controller]) {
+    if (controller != null) {
+      final res = controller.response;
+      if (res is NumericResponse) return res.response;
+      return null;
+    }
     final Response? res =
         widget.questionsListener.fromQuestion(widget.question);
     if (res == null) return null;
     return (res as NumericResponse).response;
   }
 
-  void _saveValue(double newValue) {
-    widget.questionsListener.addResponse(NumericResponse(
+  void _saveValue(QuestionEntryController controller, double newValue) {
+    controller.addResponse(NumericResponse(
       question: widget.question,
-      stamp: dateToStamp(DateTime.now()),
+      stamp: controller.stamp,
       response: newValue,
     ));
   }
 
-  void _setUnableToDetermine() {
-    if (_getResponse() == -1) {
-      widget.questionsListener.removeResponse(widget.question);
-      widget.questionsListener.addPending(widget.question);
+  void _setUnableToDetermine(QuestionEntryController controller) {
+    if (_getResponse(controller) == -1) {
+      controller.removeResponse();
       _sliderListener.hasInteracted = false;
     } else {
       _sliderListener.hasInteracted = false;
-      widget.questionsListener.removePending(widget.question);
-      _saveValue(-1);
+      _saveValue(controller, -1);
     }
     setState(() {});
   }
@@ -82,35 +84,38 @@ class _PainFacesWidgetState extends ConsumerState<PainFacesWidget> {
     return QuestionEntryScope(
       question: widget.question,
       listener: widget.questionsListener,
-      child: QuestionEntryCard(
-        styled: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppPadding.small),
-          child: Column(
-            children: [
-              PainSlider(
-                initial: _getResponse()?.toInt() ?? 0,
-                onChange: (val) {
-                  setState(() => _saveValue(val));
-                },
-                onSlide: (val) {
-                  setState(() {
-                    widget.questionsListener.removePending(widget.question);
-                    _saveValue(val);
-                  });
-                },
-                listener: _sliderListener,
-              ),
-              const SizedBox(height: AppPadding.small),
-              Selection(
-                text: "Unable to determine pain level",
-                onClick: _setUnableToDetermine,
-                selected: _getResponse() == -1,
-              ),
-            ],
+      child: Builder(builder: (context) {
+        final controller = QuestionEntryScope.of(context);
+        return QuestionEntryCard(
+          styled: false,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppPadding.small),
+            child: Column(
+              children: [
+                PainSlider(
+                  initial: _getResponse(controller)?.toInt() ?? 0,
+                  onChange: (val) {
+                    setState(() => _saveValue(controller, val));
+                  },
+                  onSlide: (val) {
+                    setState(() {
+                      // Pending handled by controller
+                      _saveValue(controller, val);
+                    });
+                  },
+                  listener: _sliderListener,
+                ),
+                const SizedBox(height: AppPadding.small),
+                Selection(
+                  text: "Unable to determine pain level",
+                  onClick: () => _setUnableToDetermine(controller),
+                  selected: _getResponse(controller) == -1,
+                ),
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      }),
     );
   }
 }
@@ -148,7 +153,7 @@ class _PainNumericWidgetState extends ConsumerState<PainNumericWidget> {
   }
 
   void _onSliderInteract() {
-    widget.listener.removePending(widget.question);
+    // Pending handled by controller
   }
 
   @override
@@ -157,16 +162,21 @@ class _PainNumericWidgetState extends ConsumerState<PainNumericWidget> {
     super.dispose();
   }
 
-  num? _getResponse() {
+  num? _getResponse([QuestionEntryController? controller]) {
+    if (controller != null) {
+      final res = controller.response;
+      if (res is NumericResponse) return res.response;
+      return null;
+    }
     final Response? res = widget.listener.fromQuestion(widget.question);
     if (res == null) return null;
     return (res as NumericResponse).response;
   }
 
-  void _saveValue(double newValue) {
-    widget.listener.addResponse(NumericResponse(
+  void _saveValue(QuestionEntryController controller, double newValue) {
+    controller.addResponse(NumericResponse(
       question: widget.question,
-      stamp: dateToStamp(DateTime.now()),
+      stamp: controller.stamp,
       response: newValue,
     ));
   }
@@ -176,29 +186,32 @@ class _PainNumericWidgetState extends ConsumerState<PainNumericWidget> {
     return QuestionEntryScope(
       question: widget.question,
       listener: widget.listener,
-      child: Column(
-        children: [
-          const SizedBox(height: AppPadding.xxl),
-          QuestionEntryCard(
-            styled: false,
-            child: StripesSlider(
-              onChange: (p0) {},
-              onSlide: (val) {
-                setState(() {
-                  _value = val;
-                  _saveValue(val);
-                });
-              },
-              listener: _sliderListener,
-              min: 0,
-              max: 10,
-              minLabel: context.translate.painLevelZero,
-              maxLabel: context.translate.painLevelFive,
-              initial: _value.toInt(),
+      child: Builder(builder: (context) {
+        final controller = QuestionEntryScope.of(context);
+        return Column(
+          children: [
+            const SizedBox(height: AppPadding.xxl),
+            QuestionEntryCard(
+              styled: false,
+              child: StripesSlider(
+                onChange: (p0) {},
+                onSlide: (val) {
+                  setState(() {
+                    _value = val;
+                    _saveValue(controller, val);
+                  });
+                },
+                listener: _sliderListener,
+                min: 0,
+                max: 10,
+                minLabel: context.translate.painLevelZero,
+                maxLabel: context.translate.painLevelFive,
+                initial: _value.toInt(),
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        );
+      }),
     );
   }
 }

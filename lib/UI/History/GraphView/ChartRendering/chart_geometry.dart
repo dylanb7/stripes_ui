@@ -58,6 +58,8 @@ class ChartGeometry {
     required bool showYAxis,
     required bool showXAxis,
     required ChartStyle style,
+    String? xAxisLabel,
+    String? yAxisLabel,
   }) {
     double leftMargin = 0.0;
     if (showYAxis && bounds.yAxisTickSize > 0) {
@@ -70,6 +72,14 @@ class ChartGeometry {
         if (tp.width > maxWidth) maxWidth = tp.width;
       }
       leftMargin = maxWidth + style.axisLabelPadding;
+
+      if (yAxisLabel != null) {
+        final tp = TextPainter(
+          text: TextSpan(text: yAxisLabel, style: style.axisTitleStyle),
+          textDirection: TextDirection.ltr,
+        )..layout();
+        leftMargin += tp.height + style.axisLabelPadding;
+      }
     }
 
     double bottomMargin = 0.0;
@@ -79,6 +89,14 @@ class ChartGeometry {
         textDirection: TextDirection.ltr,
       )..layout();
       bottomMargin = tp.height + style.axisLabelPadding;
+
+      if (xAxisLabel != null) {
+        final tp = TextPainter(
+          text: TextSpan(text: xAxisLabel, style: style.axisTitleStyle),
+          textDirection: TextDirection.ltr,
+        )..layout();
+        bottomMargin += tp.height + style.axisLabelPadding;
+      }
     }
 
     return ChartGeometry(

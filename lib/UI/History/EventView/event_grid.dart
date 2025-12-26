@@ -24,8 +24,8 @@ class EventGrid extends ConsumerWidget {
         ref.watch(availableStampsProvider);
 
     // Get check-in path types to filter them out
-    final AsyncValue<List<CheckinItem>> checkins =
-        ref.watch(checkInPaths(const CheckInPathsProps()));
+    final AsyncValue<List<ReviewItem>> checkins =
+        ref.watch(reviewPaths(const ReviewPathsProps()));
     final Set<String> checkinTypes =
         checkins.valueOrNull?.map((item) => item.type).toSet() ?? {};
 

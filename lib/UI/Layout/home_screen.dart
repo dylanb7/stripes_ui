@@ -89,25 +89,25 @@ class _PageWrapState extends ConsumerState<PageWrap> {
   @override
   Widget build(BuildContext context) {
     final bool shouldHide = widget.floating && _hideNavBar;
+    final double topPadding = MediaQuery.of(context).padding.top;
+    final double headerHeight = kToolbarHeight + topPadding;
 
     return BaselineGate(
       child: SafeArea(
+        top: false,
         child: GestureDetector(
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
           child: Scaffold(
             appBar: PreferredSize(
-              preferredSize: const Size.fromHeight(kToolbarHeight),
+              preferredSize: Size.fromHeight(headerHeight),
               child: AnimatedContainer(
                 duration: Durations.medium1,
-                height: shouldHide ? 0 : kToolbarHeight,
+                height: shouldHide ? 0 : headerHeight,
                 child: ClipRect(
                   child: AppBar(
                     automaticallyImplyLeading: false,
                     leading: widget.leading,
                     scrolledUnderElevation: 0,
-                    shape: RoundedRectangleBorder(
-                        side:
-                            BorderSide(color: Theme.of(context).dividerColor)),
                     titleSpacing:
                         widget.leading != null ? AppPadding.tiny : null,
                     title: Padding(
@@ -125,6 +125,7 @@ class _PageWrapState extends ConsumerState<PageWrap> {
                         ),
                       ),
                     ),
+                    backgroundColor: Theme.of(context).colorScheme.surface,
                     centerTitle: false,
                     actions: widget.actions != null
                         ? [

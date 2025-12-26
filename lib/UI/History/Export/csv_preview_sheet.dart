@@ -16,8 +16,6 @@ import 'package:stripes_ui/Services/web_download_stub.dart'
     if (dart.library.html) 'package:stripes_ui/Services/web_download.dart'
     as web_download;
 
-/// CSV export preview sheet
-/// Shows a preview of the data to be exported and allows sharing
 class CsvPreviewSheet extends ConsumerStatefulWidget {
   final List<Response> responses;
   final ScrollController scrollController;
@@ -42,7 +40,6 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
     final TextTheme textTheme = Theme.of(context).textTheme;
     final AppLocalizations l10n = AppLocalizations.of(context)!;
 
-    // Calculate stats for preview
     final csvStats = _calculateStats();
 
     return Container(
@@ -395,7 +392,6 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
     setState(() => _isExporting = true);
 
     try {
-      // Generate detail responses CSV
       final detailResponses =
           widget.responses.whereType<DetailResponse>().toList();
       String? detailCsv;
@@ -403,7 +399,6 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
         detailCsv = _generateDetailCsv(detailResponses);
       }
 
-      // Generate blue dye responses CSV
       final blueDyeResponses =
           widget.responses.whereType<BlueDyeResp>().toList();
       String? blueDyeCsv;
@@ -412,13 +407,11 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
       }
 
       if (kIsWeb) {
-        // Web: Download files directly to browser
         if (detailCsv != null) {
           web_download.downloadFile(
               detailCsv, 'detail_responses.csv', 'text/csv');
         }
         if (blueDyeCsv != null) {
-          // Small delay to avoid browser blocking multiple downloads
           await Future.delayed(const Duration(milliseconds: 500));
           web_download.downloadFile(
               blueDyeCsv, 'test_responses.csv', 'text/csv');
@@ -453,11 +446,11 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
         }
       }
 
-      if (mounted) {
+      if (context.mounted) {
         Navigator.of(context).pop();
       }
     } catch (e) {
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(l10n.csvExportFailed(e.toString())),

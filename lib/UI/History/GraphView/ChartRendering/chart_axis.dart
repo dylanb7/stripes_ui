@@ -15,6 +15,7 @@ abstract class ChartAxis<D> extends Equatable {
   });
 
   String format(D value);
+  String formatFromDouble(double value) => format(value as D);
   double toDouble(D value);
   double? maxValue() => max != null ? toDouble(max as D) : null;
   double? minValue() => min != null ? toDouble(min as D) : null;
@@ -43,6 +44,11 @@ class DateTimeAxis extends ChartAxis<DateTime> {
   double toDouble(DateTime value) {
     return value.millisecondsSinceEpoch.toDouble();
   }
+
+  @override
+  String formatFromDouble(double value) {
+    return format(DateTime.fromMillisecondsSinceEpoch(value.toInt()));
+  }
 }
 
 class NumberAxis extends ChartAxis<num> {
@@ -65,6 +71,9 @@ class NumberAxis extends ChartAxis<num> {
   double toDouble(num value) {
     return value.toDouble();
   }
+
+  @override
+  String formatFromDouble(double value) => format(value);
 }
 
 class CategoryAxis extends ChartAxis<String> {
@@ -87,6 +96,15 @@ class CategoryAxis extends ChartAxis<String> {
   double toDouble(String value) {
     return categories.indexOf(value).toDouble();
   }
+
+  @override
+  String formatFromDouble(double value) {
+    final index = value.round();
+    if (index >= 0 && index < categories.length) {
+      return format(categories[index]);
+    }
+    return '';
+  }
 }
 
 class HourAxis extends ChartAxis<num> {
@@ -108,4 +126,7 @@ class HourAxis extends ChartAxis<num> {
   double toDouble(num value) {
     return value.toDouble();
   }
+
+  @override
+  String formatFromDouble(double value) => format(value);
 }

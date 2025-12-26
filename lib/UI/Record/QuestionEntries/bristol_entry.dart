@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/QuestionModel/question.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
-import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/severity_slider.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
@@ -42,8 +41,6 @@ class _BMSliderState extends ConsumerState<BMSlider> {
     ];
     images = paths.map((path) => Image.asset(path)).toList();
 
-    _sliderListener.addListener(_onSliderInteract);
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final num? val = _getResponse();
       if (val != null) {
@@ -52,10 +49,6 @@ class _BMSliderState extends ConsumerState<BMSlider> {
         if (mounted) setState(() {});
       }
     });
-  }
-
-  void _onSliderInteract() {
-    widget.listener.removePending(widget.question);
   }
 
   @override
@@ -68,7 +61,7 @@ class _BMSliderState extends ConsumerState<BMSlider> {
 
   @override
   void dispose() {
-    _sliderListener.removeListener(_onSliderInteract);
+    _sliderListener.dispose();
     super.dispose();
   }
 
@@ -78,10 +71,10 @@ class _BMSliderState extends ConsumerState<BMSlider> {
     return (res as NumericResponse).response;
   }
 
-  void _saveValue(double newValue) {
-    widget.listener.addResponse(NumericResponse(
+  void _saveValue(QuestionEntryController controller, double newValue) {
+    controller.addResponse(NumericResponse(
       question: widget.question,
-      stamp: dateToStamp(DateTime.now()),
+      stamp: controller.stamp,
       response: newValue,
     ));
   }
@@ -101,72 +94,77 @@ class _BMSliderState extends ConsumerState<BMSlider> {
     return QuestionEntryScope(
       question: widget.question,
       listener: widget.listener,
-      child: Column(
-        children: [
-          QuestionEntryCard(
-            styled: false,
-            child: Column(
-              children: [
-                Center(
-                  child: AspectRatio(
-                    aspectRatio: 2.2,
-                    child: images[_value.toInt() - 1],
-                  ),
-                ),
-                if (_sliderListener.hasInteracted) ...[
-                  SizedBox(
-                    height: AppPadding.xxxl,
-                    child: Text(
-                      descriptors[_value.toInt() - 1],
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.titleMedium,
+      child: Builder(builder: (context) {
+        final controller = QuestionEntryScope.of(context);
+        return Column(
+          children: [
+            QuestionEntryCard(
+              styled: false,
+              child: Column(
+                children: [
+                  Center(
+                    child: AspectRatio(
+                      aspectRatio: 2.2,
+                      child: images[_value.toInt() - 1],
                     ),
                   ),
-                ] else
-                  const SizedBox(height: AppPadding.xl),
-                const SizedBox(height: AppPadding.tiny),
-                StripesSlider(
-                  onChange: (p0) {},
-                  onSlide: (val) {
-                    setState(() {
-                      _value = val;
-                      _saveValue(val);
-                    });
-                  },
-                  listener: _sliderListener,
-                  hasLevelReminder: !_sliderListener.hasInteracted,
-                  min: 1,
-                  max: 7,
-                  initial: _value.toInt(),
-                ),
-                const SizedBox(height: AppPadding.tiny),
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: AppPadding.small),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        context.translate.hardTag,
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: Theme.of(context).primaryColor,
-                            ),
+                  if (_sliderListener.hasInteracted) ...[
+                    SizedBox(
+                      height: AppPadding.xxxl,
+                      child: Text(
+                        descriptors[_value.toInt() - 1],
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      Text(
-                        context.translate.softTag,
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: Theme.of(context).primaryColor,
-                            ),
-                      ),
-                    ],
+                    ),
+                  ] else
+                    const SizedBox(height: AppPadding.xl),
+                  const SizedBox(height: AppPadding.tiny),
+                  StripesSlider(
+                    onChange: (p0) {},
+                    onSlide: (val) {
+                      setState(() {
+                        _value = val;
+                        _saveValue(controller, val);
+                      });
+                    },
+                    listener: _sliderListener,
+                    hasLevelReminder: !_sliderListener.hasInteracted,
+                    min: 1,
+                    max: 7,
+                    initial: _value.toInt(),
                   ),
-                ),
-              ],
+                  const SizedBox(height: AppPadding.tiny),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: AppPadding.small),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          context.translate.hardTag,
+                          style:
+                              Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                        ),
+                        Text(
+                          context.translate.softTag,
+                          style:
+                              Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        );
+      }),
     );
   }
 }

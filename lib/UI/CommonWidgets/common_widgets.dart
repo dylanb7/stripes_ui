@@ -1,9 +1,7 @@
-/// Common widget exports for Stripes UI
 export 'async_value_defaults.dart';
 export 'baseline_gate.dart';
 export 'button_loading_indicator.dart';
 export 'confirmation_popup.dart';
-export 'contribution_graph.dart';
 export 'date_time_entry.dart';
 export 'expandible.dart';
 export 'form_container.dart';

@@ -1,16 +1,22 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:stripes_backend_helper/QuestionModel/response.dart';
+import 'package:intl/intl.dart';
+import 'package:stripes_backend_helper/stripes_backend_helper.dart';
+import 'package:collection/collection.dart';
 
 import 'package:stripes_ui/Providers/History/display_data_provider.dart';
+import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_hit_tester.dart';
+import 'package:stripes_ui/Util/Helpers/date_range_utils.dart';
 import 'package:stripes_ui/Providers/Navigation/sheet_provider.dart';
 import 'package:stripes_ui/UI/AccountManagement/profile_changer.dart';
 import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
@@ -20,6 +26,9 @@ import 'package:stripes_ui/Util/Design/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/Design/palette.dart';
+import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_selection_controller.dart';
+import 'package:stripes_ui/UI/History/GraphView/graph_point.dart';
+import 'package:stripes_ui/l10n/questions_delegate.dart';
 
 import '../../../Util/Design/paddings.dart';
 
@@ -53,6 +62,14 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
   final List<GraphKey> additions = [];
   final Map<GraphKey, Color> colorKeys = {};
   final Map<GraphKey, String> customLabels = {};
+  final ChartSelectionController<GraphPoint, DateTime> _selectionController =
+      ChartSelectionController();
+
+  @override
+  void dispose() {
+    _selectionController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,37 +88,14 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
     return GraphScreenWrap(
         scrollable: ListView(
       children: [
-        Padding(
-          padding: const EdgeInsets.only(
-              left: AppPadding.large,
-              right: AppPadding.large,
-              top: AppPadding.large),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              IconButton(
-                  onPressed: () {
-                    context.pop();
-                  },
-                  icon: const Icon(Icons.keyboard_arrow_left)),
-              const SizedBox(
-                width: AppPadding.tiny,
-              ),
-              Expanded(
-                child: Text(
-                  settings.getRangeString(context),
-                  style: Theme.of(context).textTheme.titleMedium,
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              const SizedBox(
-                width: AppPadding.tiny,
-              ),
-              SizedBox(
-                width: IconTheme.of(context).size ?? 24.0 + 16.0,
-              ),
-            ],
-          ),
+        GraphViewHeader(
+          graphData: graphData,
+          selectionController: _selectionController,
+          settings: settings,
+          baseKey: widget.graphKey,
+          additions: additions,
+          customLabels: customLabels,
+          colorKeys: colorKeys,
         ),
         Padding(
           padding: const EdgeInsets.only(
@@ -134,6 +128,7 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
                       isDetailed: true,
                       forExport: false,
                       colorKeys: colorKeys,
+                      selectionController: _selectionController,
                     ),
                   ),
                 );
@@ -184,22 +179,25 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
                 onLoading: (_) => addLayerButton(),
                 onError: (_) => addLayerButton(),
               ),
-              FilledButton.icon(
-                onPressed: () {
-                  ref.read(sheetControllerProvider).show(
-                        context: context,
-                        scrollControlled: true,
-                        child: (context) => GraphExportSheet(
-                          graphKey: widget.graphKey,
-                          additions: additions,
-                          colorKeys: colorKeys,
-                          customLabels: customLabels,
-                        ),
-                      );
-                },
-                label: const Text("Share"),
-                icon: const Icon(
-                  Icons.ios_share,
+              Tooltip(
+                message: 'Share Graph',
+                child: FilledButton.icon(
+                  onPressed: () {
+                    ref.read(sheetControllerProvider).show(
+                          context: context,
+                          scrollControlled: true,
+                          child: (context) => GraphExportSheet(
+                            graphKey: widget.graphKey,
+                            additions: additions,
+                            colorKeys: colorKeys,
+                            customLabels: customLabels,
+                          ),
+                        );
+                  },
+                  label: const Text("Share"),
+                  icon: const Icon(
+                    Icons.ios_share,
+                  ),
                 ),
               ),
             ],
@@ -223,111 +221,113 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
         ),
         ...[widget.graphKey, ...additions].map(
           (key) {
-            return InkWell(
-              onTap: () async {
-                final GraphEditResult? result = await ref
-                    .read(sheetControllerProvider)
-                    .show<GraphEditResult>(
-                      context: context,
-                      scrollControlled: true,
-                      child: (context) => ColorPickerSheet(
-                        currentColor: colorKeys[key] ?? forGraphKey(key),
-                        currentLabel:
-                            customLabels[key] ?? key.toLocalizedString(context),
-                      ),
-                    );
+            final String label =
+                customLabels[key] ?? key.toLocalizedString(context);
+            return Tooltip(
+              message: 'Edit color and label for $label',
+              child: InkWell(
+                onTap: () async {
+                  final GraphEditResult? result = await ref
+                      .read(sheetControllerProvider)
+                      .show<GraphEditResult>(
+                        context: context,
+                        scrollControlled: true,
+                        child: (context) => ColorPickerSheet(
+                          currentColor: colorKeys[key] ?? forGraphKey(key),
+                          currentLabel: customLabels[key] ??
+                              key.toLocalizedString(context),
+                        ),
+                      );
 
-                if (result != null) {
-                  setState(() {
-                    colorKeys[key] = result.color;
-                    if (result.label != null) {
-                      customLabels[key] = result.label!;
-                    }
-                  });
-                }
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppPadding.large,
-                  vertical: AppPadding.tiny,
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 28.0,
-                      height: 28.0,
-                      decoration: BoxDecoration(
-                          color: colorKeys[key] ?? forGraphKey(key),
-                          shape: BoxShape.circle),
-                      child: Center(
-                        child: Icon(
-                          Icons.edit,
-                          size: 16,
-                          color: (colorKeys[key] ?? forGraphKey(key))
-                                      .computeLuminance() >
-                                  0.5
-                              ? Colors.black
-                              : Colors.white,
+                  if (result != null) {
+                    setState(() {
+                      colorKeys[key] = result.color;
+                      if (result.label != null) {
+                        customLabels[key] = result.label!;
+                      }
+                    });
+                  }
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppPadding.large,
+                    vertical: AppPadding.tiny,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 28.0,
+                        height: 28.0,
+                        decoration: BoxDecoration(
+                            color: colorKeys[key] ?? forGraphKey(key),
+                            shape: BoxShape.circle),
+                        child: Center(
+                          child: Icon(
+                            Icons.edit,
+                            size: 16,
+                            color: (colorKeys[key] ?? forGraphKey(key))
+                                        .computeLuminance() >
+                                    0.5
+                                ? Colors.black
+                                : Colors.white,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(
-                      width: AppPadding.medium,
-                    ),
-                    Expanded(
-                      child: AsyncValueDefaults(
-                        value: graphData,
-                        onData: (loadedData) {
-                          final bool hasData = loadedData.containsKey(key);
+                      const SizedBox(
+                        width: AppPadding.medium,
+                      ),
+                      Expanded(
+                        child: AsyncValueDefaults(
+                          value: graphData,
+                          onData: (loadedData) {
+                            final bool hasData = loadedData.containsKey(key);
 
-                          return Text(
-                            customLabels[key] ?? key.toLocalizedString(context),
+                            return Text(
+                              label,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: hasData
+                                          ? null
+                                          : Theme.of(context).disabledColor),
+                            );
+                          },
+                          onError: (_) => Text(
+                            key.toString(),
                             style: Theme.of(context)
                                 .textTheme
                                 .bodyMedium
-                                ?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: hasData
-                                        ? null
-                                        : Theme.of(context).disabledColor),
-                          );
-                        },
-                        onError: (_) => Text(
-                          key.toString(),
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                        ),
-                        onLoading: (_) => Text(
-                          key.toString(),
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(fontWeight: FontWeight.w600),
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                          onLoading: (_) => Text(
+                            key.toString(),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(
-                      width: AppPadding.medium,
-                    ),
-                    if (key != widget.graphKey)
-                      IconButton(
-                        onPressed: () {
-                          setState(() {
-                            additions.remove(key);
-                            colorKeys.remove(key);
-                            customLabels.remove(key);
-                          });
-                        },
-                        icon: const Icon(Icons.remove_circle),
-                        style: const ButtonStyle(
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          visualDensity: VisualDensity.compact,
-                        ),
-                      )
-                  ],
+                      const SizedBox(
+                        width: AppPadding.medium,
+                      ),
+                      if (key != widget.graphKey)
+                        IconButton(
+                          tooltip: 'Remove symtpom from graph',
+                          onPressed: () {
+                            setState(() {
+                              additions.remove(key);
+                              colorKeys.remove(key);
+                              customLabels.remove(key);
+                            });
+                          },
+                          icon: const Icon(Icons.remove_circle),
+                        )
+                    ],
+                  ),
                 ),
               ),
             );
@@ -511,12 +511,15 @@ class GraphSliverList extends ConsumerWidget {
               onTap: () {
                 onSelect(key);
               },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
-                child: GraphSymptomRow(
-                  responses: withKeysRemoved[key]!,
-                  graphKey: key,
-                  compact: true,
+              child: MergeSemantics(
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: AppPadding.xl),
+                  child: GraphSymptomRow(
+                    responses: withKeysRemoved[key]!,
+                    graphKey: key,
+                    compact: true,
+                  ),
                 ),
               ),
             );
@@ -790,6 +793,7 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         IconButton(
+                          tooltip: 'Previous Range',
                           onPressed: settings.canGoPrev
                               ? () {
                                   ref
@@ -804,6 +808,7 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         IconButton(
+                          tooltip: 'Next Range',
                           onPressed: settings.canGoNext
                               ? () {
                                   ref
@@ -840,9 +845,9 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
               padding: const EdgeInsets.symmetric(horizontal: AppPadding.large),
               child: SizedBox(
                 width: double.infinity,
-                child: SegmentedButton<DisplayTimeCycle>(
-                  segments: DisplayTimeCycle.values
-                      .map((cycle) => ButtonSegment<DisplayTimeCycle>(
+                child: SegmentedButton<TimeCycle>(
+                  segments: TimeCycle.values
+                      .map((cycle) => ButtonSegment<TimeCycle>(
                             value: cycle,
                             label: Text(cycle.value),
                           ))
@@ -1165,33 +1170,39 @@ class _GraphExportSheetState extends ConsumerState<GraphExportSheet> {
               child: SingleChildScrollView(
                 child: RepaintBoundary(
                   key: _globalKey,
-                  child: Container(
-                    color: Theme.of(context).scaffoldBackgroundColor,
-                    padding: const EdgeInsets.all(AppPadding.medium),
-                    child: AsyncValueDefaults(
-                      value: graphData,
-                      onData: (loadedData) {
-                        Map<GraphKey, List<Response>> forGraph = {};
-                        for (final GraphKey key in [
-                          widget.graphKey,
-                          ...widget.additions
-                        ]) {
-                          if (loadedData.containsKey(key)) {
-                            forGraph[key] = loadedData[key]!;
-                          }
-                        }
-                        return GraphSymptom(
-                          responses: forGraph,
-                          isDetailed: true,
-                          forExport: true,
-                          colorKeys: widget.colorKeys,
-                          customLabels: widget.customLabels,
-                        );
-                      },
-                      onLoading: (_) =>
-                          const Center(child: CircularProgressIndicator()),
-                      onError: (_) =>
-                          const Center(child: Text("Error loading data")),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints:
+                          BoxConstraints(maxWidth: Breakpoint.medium.value),
+                      child: Container(
+                        color: Theme.of(context).scaffoldBackgroundColor,
+                        padding: const EdgeInsets.all(AppPadding.medium),
+                        child: AsyncValueDefaults(
+                          value: graphData,
+                          onData: (loadedData) {
+                            Map<GraphKey, List<Response>> forGraph = {};
+                            for (final GraphKey key in [
+                              widget.graphKey,
+                              ...widget.additions
+                            ]) {
+                              if (loadedData.containsKey(key)) {
+                                forGraph[key] = loadedData[key]!;
+                              }
+                            }
+                            return GraphSymptom(
+                              responses: forGraph,
+                              isDetailed: true,
+                              forExport: true,
+                              colorKeys: widget.colorKeys,
+                              customLabels: widget.customLabels,
+                            );
+                          },
+                          onLoading: (_) =>
+                              const Center(child: CircularProgressIndicator()),
+                          onError: (_) =>
+                              const Center(child: Text("Error loading data")),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -1215,5 +1226,306 @@ class _GraphExportSheetState extends ConsumerState<GraphExportSheet> {
         ],
       ),
     );
+  }
+}
+
+class GraphViewHeader extends StatelessWidget {
+  final AsyncValue<Map<GraphKey, List<Response>>> graphData;
+  final ChartSelectionController<GraphPoint, DateTime> selectionController;
+  final DisplayDataSettings settings;
+  final GraphKey baseKey;
+  final List<GraphKey> additions;
+  final Map<GraphKey, String> customLabels;
+  final Map<GraphKey, Color> colorKeys;
+
+  const GraphViewHeader({
+    super.key,
+    required this.graphData,
+    required this.selectionController,
+    required this.settings,
+    required this.baseKey,
+    required this.additions,
+    required this.customLabels,
+    required this.colorKeys,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(
+          left: AppPadding.large,
+          right: AppPadding.large,
+          top: AppPadding.large),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          IconButton(
+              tooltip: 'Back',
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              icon: const Icon(Icons.keyboard_arrow_left)),
+          const SizedBox(
+            width: AppPadding.tiny,
+          ),
+          Expanded(
+            child: AsyncValueDefaults(
+              value: graphData,
+              onData: (loadedData) {
+                return ValueListenableBuilder<
+                    ChartSelectionState<GraphPoint, DateTime>>(
+                  valueListenable: selectionController,
+                  builder: (context, selectionState, child) {
+                    final List<ChartHitTestResult<GraphPoint, DateTime>> hits =
+                        selectionState.results;
+                    final Offset? hoverPos = selectionState.hoverPosition;
+
+                    if (hits.isEmpty) {
+                      String titleText = "Symptom Trends";
+                      if (additions.isEmpty) {
+                        titleText = baseKey.toLocalizedString(context);
+                      } else if (additions.length == 1) {
+                        titleText = "Symptom Comparison";
+                      } else {
+                        titleText = "Combined Insights";
+                      }
+
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            titleText,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                            textAlign: TextAlign.center,
+                          ),
+                          Text(
+                            settings.getRangeString(context),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
+                                    ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      );
+                    }
+
+                    final ChartHitTestResult<GraphPoint, DateTime> hit =
+                        hits.first;
+                    final bool isScatter =
+                        settings.axis == GraphYAxis.entrytime;
+                    final DateTime date = isScatter
+                        ? dateFromStamp(hit.item.data.first.stamp)
+                        : hit.xValue;
+                    DateFormat format = DateFormat.MMMEd();
+                    if (settings.cycle == TimeCycle.day || isScatter) {
+                      format.add_jm();
+                    }
+
+                    final List<Widget> detailLines = [];
+                    for (final h in hits) {
+                      final String valStr = isScatter
+                          ? h.yValue.toStringAsFixed(1)
+                          : h.yValue.toInt().toString();
+
+                      final GraphKey graphKey =
+                          loadedData.keys.elementAt(h.datasetIndex);
+                      final String label = customLabels[graphKey] ??
+                          graphKey.toLocalizedString(context);
+
+                      final List<Stamp> stamps = h.item.data;
+                      List<Response> flat = [];
+                      for (final s in stamps) {
+                        if (s case DetailResponse(:List<Response> responses)) {
+                          flat.addAll(responses);
+                        } else if (s case Response()) {
+                          flat.add(s);
+                        }
+                      }
+                      if (flat.isEmpty &&
+                          stamps.isNotEmpty &&
+                          stamps.first is Response) {
+                        flat = stamps.whereType<Response>().toList();
+                      }
+
+                      String? detailLine;
+                      if (flat.isNotEmpty) {
+                        detailLine = _formatResponseSummary(
+                            context, flat, stamps.length);
+                      }
+                      final color =
+                          colorKeys[graphKey] ?? forGraphKey(graphKey);
+                      detailLines.add(
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 2.0),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                  color: color,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Flexible(
+                                child: Text(
+                                  "$label: $valStr${detailLine != null ? ' ($detailLine)' : ''}",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurfaceVariant,
+                                      ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+
+                    final Widget details = IntrinsicWidth(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: detailLines,
+                      ),
+                    );
+
+                    final dateTag = Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withValues(alpha: 0.15),
+                            blurRadius: 8,
+                            spreadRadius: 1,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        format.format(date),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onPrimaryContainer,
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                    );
+
+                    return LayoutBuilder(builder: (context, constraints) {
+                      final double halfWidth = constraints.maxWidth / 2;
+
+                      // Correction factor: Chart is indented by (P.large + P.tiny) = 20
+                      // Header Expanded starts after (P.tiny + button + P.tiny) = 56
+                      // Diff is 36. To align hoverPos.dx (relative to chart) with header x:
+                      // headerX = hoverPos.dx - 36
+                      final double xInHeader =
+                          hoverPos != null ? hoverPos.dx - 36 : halfWidth;
+
+                      final double shift = xInHeader - halfWidth;
+
+                      // Clamp shift to keep pill within header
+                      // Pill is approx 100px wide
+                      const double pillHalfWidth = 50.0;
+                      final double maxShift = halfWidth - pillHalfWidth - 8;
+                      final double clampedShift =
+                          shift.clamp(-maxShift, maxShift);
+
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Transform.translate(
+                            offset: Offset(clampedShift, 0),
+                            child: dateTag,
+                          ),
+                          const SizedBox(height: 6),
+                          details,
+                        ],
+                      );
+                    });
+                  },
+                );
+              },
+            ),
+          ),
+          const SizedBox(
+            width: AppPadding.tiny,
+          ),
+          SizedBox(
+            width: IconTheme.of(context).size ?? 24.0 + 16.0,
+          ),
+        ],
+      ),
+    );
+  }
+
+  String? _formatResponseSummary(
+      BuildContext context, List<Response> flat, int totalStamps) {
+    if (flat.isEmpty) return null;
+
+    final QuestionsLocalizations? localizations =
+        QuestionsLocalizations.of(context);
+
+    final first = flat.first;
+    switch (first) {
+      case NumericResponse():
+        final double avg =
+            flat.whereType<NumericResponse>().map((e) => e.response).average;
+        return "Avg: ${avg.toStringAsFixed(1)}";
+      case MultiResponse():
+      case AllResponse():
+        final Map<String, int> counts = {};
+        for (final res in flat) {
+          if (res is MultiResponse) {
+            if (res.index < res.question.choices.length) {
+              final choice = res.question.choices[res.index];
+              counts[choice] = (counts[choice] ?? 0) + 1;
+            }
+          } else if (res is AllResponse) {
+            for (final index in res.responses) {
+              if (index < res.question.choices.length) {
+                final choice = res.question.choices[index];
+                counts[choice] = (counts[choice] ?? 0) + 1;
+              }
+            }
+          }
+        }
+        final sorted = counts.entries.toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
+        final String tops = sorted.take(2).map((e) {
+          final String choiceLabel = localizations?.value(e.key) ?? e.key;
+          return "$choiceLabel: ${e.value}";
+        }).join(", ");
+        return tops;
+      case BlueDyeResp():
+      case OpenResponse():
+      case Selected():
+      default:
+        return "Total: $totalStamps";
+    }
   }
 }
