@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -12,31 +11,41 @@ import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_axis.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_data.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_hit_tester.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_selection_controller.dart';
-import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_style.dart';
-import 'package:stripes_ui/UI/History/GraphView/ChartRendering/render_chart.dart';
+import 'package:stripes_ui/UI/History/GraphView/ChartRendering/shared_axis_chart.dart';
+import 'package:stripes_ui/UI/History/GraphView/graph_data_processor.dart';
 import 'package:stripes_ui/UI/History/GraphView/graph_point.dart';
-import 'package:stripes_ui/Util/Design/paddings.dart';
+import 'package:stripes_ui/UI/History/GraphView/graph_with_keys.dart';
 
 import 'package:stripes_ui/Util/Design/palette.dart';
 
 import 'package:stripes_ui/UI/History/GraphView/graph_tooltip.dart';
 
+enum GraphOverviewMode { stacked, shared, overlayed }
+
 class GraphSymptom extends ConsumerStatefulWidget {
   final Map<GraphKey, List<Response>> responses;
   final bool isDetailed, forExport;
+  final GraphOverviewMode mode;
 
   final Map<GraphKey, Color>? colorKeys;
   final Map<GraphKey, String>? customLabels;
   final ChartSelectionController<GraphPoint, DateTime>? selectionController;
+
+  /// Map of category/type names to RecordPaths for resolving review periods
+  final Map<String, RecordPath>? reviewPaths;
+  final double? height;
 
   const GraphSymptom({
     super.key,
     required this.responses,
     required this.isDetailed,
     this.forExport = false,
+    this.mode = GraphOverviewMode.stacked,
     this.colorKeys,
     this.customLabels,
     this.selectionController,
+    this.reviewPaths,
+    this.height,
   });
 
   @override
@@ -122,146 +131,195 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
     final DisplayDataSettings settings = ref.watch(displayDataProvider);
 
     return LayoutBuilder(builder: (context, constraints) {
-      final List<ChartSeriesData<GraphPoint, DateTime>> datasets = [];
-      final int buckets = settings.getBuckets();
-      final double stepSizeMs =
-          settings.range.duration.inMilliseconds / buckets;
-      final int startTime = settings.range.start.millisecondsSinceEpoch;
+      final datasets = GraphDataProcessor.processData(
+        responses: widget.responses,
+        settings: settings,
+        mode: widget.mode,
+        colorResolver: forGraphKey,
+        constraints: constraints,
+        colorKeys: widget.colorKeys,
+        reviewPaths: widget.reviewPaths,
+      );
 
-      for (final GraphKey key in widget.responses.keys) {
-        final List<List<Stamp>>? bucketsData =
-            bucketEvents(widget.responses[key]!, settings.range, buckets);
+      final highlightedDatasets = <ChartSeriesData<GraphPoint, DateTime>>[];
 
-        if (bucketsData == null) continue;
+      for (int i = 0; i < datasets.length; i++) {
+        final dataset = datasets[i];
+        final currentDatasetIndex = i;
 
-        final Color color = widget.colorKeys?[key] ?? forGraphKey(key);
-        final int currentDatasetIndex = datasets.length;
-
-        if (settings.axis == GraphYAxis.entrytime) {
-          final List<GraphPoint> points = [];
-          for (int i = 0; i < bucketsData.length; i++) {
-            // Group stamps by their Y value (time) to merge overlapping points
-            final Map<double, List<Stamp>> grouped = {};
-            for (final stamp in bucketsData[i]) {
-              final date = dateFromStamp(stamp.stamp);
-              final double y = date.hour + (date.minute / 60.0);
-              grouped.putIfAbsent(y, () => []).add(stamp);
-            }
-
-            final x = startTime + (i * stepSizeMs) + (stepSizeMs / 2);
-            for (final entry in grouped.entries) {
-              final double y = entry.key;
-              final List<Stamp> stamps = entry.value;
-              points.add(GraphPoint(x, y, color, stamps));
-            }
+        final originalColorGetter = dataset.getPointColor;
+        Color selectionColorGetter(GraphPoint p, int index) {
+          if (_selectedHit != null &&
+              _selectedHit!.datasetIndex == currentDatasetIndex &&
+              _selectedHit!.itemIndex == index) {
+            return Color.lerp(p.color, Colors.white, 0.5) ?? p.color;
           }
+          return originalColorGetter(p, index);
+        }
 
-          double spotRadius =
-              min((constraints.maxWidth / buckets.toDouble() / 2) * 0.6, 6.0);
-
-          datasets.add(ScatterChartData<GraphPoint, DateTime>(
-            data: points,
-            getPointX: (p, i) =>
-                DateTime.fromMillisecondsSinceEpoch(p.x.toInt()),
-            getPointY: (p, i) => p.y,
-            getPointColor: (p, i) {
-              if (_selectedHit != null &&
-                  _selectedHit!.datasetIndex == currentDatasetIndex &&
-                  _selectedHit!.itemIndex == i) {
-                return Color.lerp(p.color, Colors.white, 0.5) ?? p.color;
-              }
-              return p.color;
-            },
-            getRadius: (_) => spotRadius,
-          ));
-        } else {
-          final List<GraphPoint> points = [];
-          for (int i = 0; i < bucketsData.length; i++) {
-            final List<Stamp> bucket = bucketsData[i];
-            double y = 0;
-            if (settings.axis == GraphYAxis.number) {
-              y = bucket.length.toDouble();
-            } else {
-              final numerics = bucket.whereType<NumericResponse>();
-              if (numerics.isNotEmpty) {
-                y = numerics.map((e) => e.response).average;
-              }
-            }
-
-            final x = startTime + (i * stepSizeMs) + (stepSizeMs / 2);
-            points.add(GraphPoint(x, y, color, bucket));
-          }
-          datasets.add(BarChartData<GraphPoint, DateTime>(
-            data: points,
-            getPointX: (p, i) {
-              return DateTime.fromMillisecondsSinceEpoch(p.x.toInt());
-            },
-            getPointY: (p, i) => p.y,
-            getPointColor: (p, i) {
-              if (_selectedHit != null &&
-                  _selectedHit!.datasetIndex == currentDatasetIndex &&
-                  _selectedHit!.itemIndex == i) {
-                return Color.lerp(p.color, Colors.white, 0.5) ?? p.color;
-              }
-              return p.color;
-            },
-          ));
+        // We need to clone the dataset with the new color getter.
+        // Since ChartSeriesData subclasses don't have a copyWith, we check type.
+        switch (dataset) {
+          case BarChartData<GraphPoint, DateTime>(
+              data: final data,
+              getPointX: final getPointX,
+              getPointY: final getPointY
+            ):
+            highlightedDatasets.add(BarChartData(
+              data: data,
+              getPointX: getPointX,
+              getPointY: getPointY,
+              getPointColor: selectionColorGetter,
+            ));
+            break;
+          case LineChartData<GraphPoint, DateTime>(
+              data: final data,
+              getPointX: final getPointX,
+              getPointY: final getPointY
+            ):
+            highlightedDatasets.add(LineChartData(
+              data: data,
+              getPointX: getPointX,
+              getPointY: getPointY,
+              getPointColor: selectionColorGetter,
+            ));
+            break;
+          case ScatterChartData<GraphPoint, DateTime>(
+              data: final data,
+              getPointX: final getPointX,
+              getPointY: final getPointY,
+              getRadius: final getRadius
+            ):
+            highlightedDatasets.add(ScatterChartData(
+              data: data,
+              getPointX: getPointX,
+              getPointY: getPointY,
+              getPointColor: selectionColorGetter,
+              getRadius: getRadius,
+            ));
+            break;
+          case RangeChartData<GraphPoint, DateTime>(
+              data: final data,
+              getPointX: final getPointX,
+              getPointXEnd: final getPointXEnd,
+              getPointY: final getPointY
+            ):
+            highlightedDatasets.add(RangeChartData(
+              data: data,
+              getPointX: getPointX,
+              getPointXEnd: getPointXEnd,
+              getPointY: getPointY,
+              getPointColor: selectionColorGetter,
+            ));
+            break;
         }
       }
 
-      final chart = RenderChart<GraphPoint, DateTime>.multi(
-        datasets: datasets,
-        height: 200,
-        animate: widget.isDetailed,
-        onHover: widget.isDetailed ? _showTooltip : null,
+      final double globalMax = highlightedDatasets
+          .map((d) => d.data.isEmpty ? 0.0 : d.data.map((p) => p.y).reduce(max))
+          .fold(0.0, max)
+          .ceilToDouble()
+          .clamp(1.0, double.infinity);
+
+      const double topOverhead = 5.0;
+      const double xAxisOverhead = 20.0;
+      final double refHeight = widget.height ?? 80.0;
+      final double refDrawHeight = refHeight - topOverhead;
+
+      final double ppuSqrt = refDrawHeight / sqrt(globalMax);
+
+      final lanes = <ChartLane<GraphPoint, DateTime>>[];
+      final List<ChartSeriesData<GraphPoint, DateTime>> overlaySymptoms = [];
+      final List<GraphKey> overlayKeys = [];
+
+      int datasetIdx = 0;
+      for (final key in widget.responses.keys) {
+        if (datasetIdx >= highlightedDatasets.length) break;
+        final dataset = highlightedDatasets[datasetIdx];
+        final bool isReview = dataset is RangeChartData;
+
+        if (widget.mode == GraphOverviewMode.shared || isReview) {
+          final label =
+              widget.customLabels?[key] ?? key.toLocalizedString(context);
+          final color = widget.colorKeys?[key] ?? forGraphKey(key);
+          final laneMax = dataset.data.isEmpty
+              ? 0.0
+              : dataset.data.map((p) => p.y).reduce(max);
+          final laneMaxY = laneMax.ceilToDouble().clamp(1.0, double.infinity);
+          final drawHeight = sqrt(laneMaxY) * ppuSqrt;
+
+          lanes.add(ChartLane.single(
+            data: dataset,
+            label: label,
+            labelColor: color,
+            height: isReview ? 40.0 : max(30.0, drawHeight + topOverhead),
+            hideYAxis: isReview,
+            yAxis: NumberAxis(
+              max: laneMaxY,
+              showing: !isReview && widget.isDetailed,
+              formatter: NumberFormat.compact(),
+            ),
+          ));
+        } else {
+          overlaySymptoms.add(dataset);
+          overlayKeys.add(key);
+        }
+        datasetIdx++;
+      }
+
+      if (overlaySymptoms.isNotEmpty) {
+        final double laneMax = overlaySymptoms
+            .map((d) =>
+                d.data.isEmpty ? 0.0 : d.data.map((p) => p.y).reduce(max))
+            .fold(0.0, max);
+        final double laneMaxY =
+            laneMax.ceilToDouble().clamp(1.0, double.infinity);
+        final double drawHeight = sqrt(laneMaxY) * ppuSqrt;
+
+        lanes.add(ChartLane(
+          datasets: overlaySymptoms,
+          label: overlayKeys.length > 2
+              ? "Combined Trends"
+              : (overlayKeys.length == 2
+                  ? "Symptom Comparison"
+                  : overlayKeys.first.toLocalizedString(context)),
+          height: max(30.0, drawHeight + topOverhead),
+          stackBars: widget.mode == GraphOverviewMode.stacked,
+          yAxis: NumberAxis(
+            max: laneMaxY,
+            showing: widget.isDetailed,
+            formatter: NumberFormat.compact(),
+          ),
+        ));
+      }
+
+      // Adjust lane heights for the last lane to include xAxisOverhead
+      if (lanes.isNotEmpty && widget.isDetailed) {
+        final lastLane = lanes.last;
+        lanes[lanes.length - 1] = ChartLane(
+          datasets: lastLane.datasets,
+          label: lastLane.label,
+          labelColor: lastLane.labelColor,
+          height: (lastLane.height ?? 0) + xAxisOverhead,
+          yAxis: lastLane.yAxis,
+          hideYAxis: lastLane.hideYAxis,
+          stackBars: lastLane.stackBars,
+        );
+      }
+
+      final chartWidget = SharedAxisChart<GraphPoint, DateTime>(
+        lanes: lanes,
+        showLaneLabels: false,
         xAxis: DateTimeAxis(
           formatter: settings.getFormat(),
           min: settings.range.start,
           max: settings.range.end,
-          showing: widget.isDetailed,
-          interval:
-              settings.range.duration.inMilliseconds / settings.getTitles(),
         ),
-        style: ChartStyle.fromTheme(context).copyWith(
-          showGridLines: widget.isDetailed,
-          gridLineColor: Theme.of(context).colorScheme.outline,
-          gridLineWidth: 0.5,
-          crosshairStyle: widget.isDetailed
-              ? CrosshairStyle(
-                  color: Theme.of(context).colorScheme.outline,
-                  strokeWidth: 2.0,
-                  showX: true,
-                  showY: false,
-                )
-              : null,
-        ),
-        yAxis: settings.axis == GraphYAxis.entrytime
-            ? HourAxis(showing: widget.isDetailed, interval: 6.0)
-            : NumberAxis(
-                formatter: NumberFormat.compact(), showing: widget.isDetailed),
-        stackBars: true,
-        onTap: widget.isDetailed ? _showTooltip : null,
-        selectionController: widget.selectionController,
-        xAxisLabel: null,
-        yAxisLabel: widget.isDetailed
-            ? (settings.axis == GraphYAxis.number
-                ? "Frequency"
-                : (settings.axis == GraphYAxis.average
-                    ? "Avg Intensity"
-                    : "Time of Day"))
-            : null,
+        onHover:
+            widget.isDetailed ? (laneIndex, hit) => _showTooltip(hit) : null,
+        onTap: widget.isDetailed ? (laneIndex, hit) => _showTooltip(hit) : null,
+        compact: !widget.isDetailed,
       );
-
-      final String semanticLabel =
-          _getSemanticLabel(context, settings, datasets);
-
-      Widget chartWidget = AspectRatio(
-          aspectRatio: 2.0,
-          child: Semantics(
-              label: semanticLabel,
-              child: CompositedTransformTarget(
-                  key: _chartKey, link: _layerLink, child: chart)));
-
       if (widget.forExport) {
         return GraphWithKeys(
           chartWidget: chartWidget,
@@ -270,91 +328,19 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
           customLabels: widget.customLabels,
         );
       }
-
-      return chartWidget;
+      // UnconstrainedBox allows the chart to size naturally without layout errors
+      // ClipRect clips any visual overflow during Hero animations
+      return ClipRect(
+        child: UnconstrainedBox(
+          alignment: Alignment.topCenter,
+          clipBehavior: Clip.hardEdge,
+          child: SizedBox(
+            width: constraints.maxWidth,
+            child: chartWidget,
+          ),
+        ),
+      );
     });
-  }
-
-  String _getSemanticLabel(BuildContext context, DisplayDataSettings settings,
-      List<ChartSeriesData<GraphPoint, DateTime>> datasets) {
-    if (datasets.isEmpty) return 'No data available for the selected range.';
-
-    final StringBuffer buffer = StringBuffer();
-    final bool isMulti = datasets.length > 1;
-
-    buffer.write('Chart displaying ');
-    if (settings.axis == GraphYAxis.entrytime) {
-      buffer.write('entry times ');
-    } else if (settings.axis == GraphYAxis.number) {
-      buffer.write('number of entries ');
-    } else {
-      buffer.write('average values ');
-    }
-    buffer.write('over ${settings.getRangeString(context)}. ');
-
-    for (int i = 0; i < datasets.length; i++) {
-      final dataset = datasets[i];
-      final key = widget.responses.keys.elementAt(i);
-      final String label =
-          widget.customLabels?[key] ?? key.toLocalizedString(context);
-
-      final points = dataset.data;
-      final nonZeroPoints = points.where((p) => p.y > 0).toList();
-
-      if (isMulti) buffer.write('$label: ');
-
-      if (nonZeroPoints.isEmpty) {
-        buffer.write('No entries recorded. ');
-        continue;
-      }
-
-      buffer.write('${nonZeroPoints.length} points. ');
-
-      if (settings.axis != GraphYAxis.entrytime) {
-        final values = nonZeroPoints.map((p) => p.y).toList();
-        final maxVal = values.reduce(max);
-        final minVal = values.reduce(min);
-        final avgVal = values.average;
-
-        if (settings.axis == GraphYAxis.average) {
-          buffer.write(
-              'Average: ${avgVal.toStringAsFixed(1)}, Peak: ${maxVal.toStringAsFixed(1)}, Low: ${minVal.toStringAsFixed(1)}. ');
-        } else {
-          buffer.write(
-              'Total entries: ${values.sum.toInt()}, Peak: ${maxVal.toInt()}, Low: ${minVal.toInt()}. ');
-        }
-      }
-      if (i < datasets.length - 1) buffer.write('; ');
-    }
-
-    return buffer.toString();
-  }
-
-  List<List<Stamp>>? bucketEvents(
-      List<Stamp> events, DateTimeRange range, int buckets) {
-    if (events.isEmpty) return null;
-    List<List<Stamp>> eventLists = [];
-    final double startValue = range.start.millisecondsSinceEpoch.toDouble();
-    final double endValue = range.end.millisecondsSinceEpoch.toDouble();
-    final double totalRange = endValue - startValue;
-    final double stepSize = totalRange / buckets.toDouble();
-
-    events.sort((first, second) => first.stamp.compareTo(second.stamp));
-    int furthestReach = 0;
-    for (double start = startValue; start < endValue; start += stepSize) {
-      final double end = start + stepSize;
-      List<Stamp> valuesInRange = [];
-      while (furthestReach < events.length) {
-        final Stamp current = events[furthestReach];
-        if (current.stamp < start.floor() || current.stamp > end.ceil()) {
-          break;
-        }
-        valuesInRange.add(current);
-        furthestReach++;
-      }
-      eventLists.add(valuesInRange);
-    }
-    return eventLists;
   }
 }
 
@@ -427,80 +413,5 @@ class TooltipOverlay extends ConsumerWidget {
         ),
       ],
     );
-  }
-}
-
-class GraphWithKeys extends ConsumerWidget {
-  final Widget chartWidget;
-  final Map<GraphKey, Color>? colorKeys;
-  final Map<GraphKey, List<Response<Question>>> responses;
-  final Map<GraphKey, String>? customLabels;
-
-  const GraphWithKeys({
-    super.key,
-    required this.chartWidget,
-    required this.colorKeys,
-    required this.responses,
-    this.customLabels,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final settings = ref.watch(displayDataProvider);
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(
-        "Symptom Report",
-        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-      ),
-      const SizedBox(height: AppPadding.tiny),
-      Text(
-        settings.getRangeString(context),
-        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: Theme.of(context)
-                  .colorScheme
-                  .onSurface
-                  .withValues(alpha: 0.7),
-            ),
-      ),
-      const SizedBox(height: AppPadding.tiny),
-      chartWidget,
-      Wrap(
-        spacing: AppRounding.small,
-        runSpacing: AppPadding.tiny,
-        children: responses.keys.map((key) {
-          final Color color = colorKeys?[key] ?? forGraphKey(key);
-          final String label =
-              customLabels?[key] ?? key.toLocalizedString(context);
-          return Semantics(
-            label: 'Legend: $label',
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 12.0,
-                  height: 12.0,
-                  decoration: BoxDecoration(
-                    color: color,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(width: AppPadding.tiny),
-                Flexible(
-                  child: Text(
-                    label,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          );
-        }).toList(),
-      ),
-    ]);
   }
 }

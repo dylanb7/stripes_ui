@@ -217,6 +217,8 @@ class BlueMealInfoButton extends ConsumerWidget {
     ref.read(sheetControllerProvider).show(
         context: context,
         scrollControlled: true,
+        initialChildSize: 0.95,
+        maxChildSize: 1.0,
         sheetBuilder: (context, controller) {
           return BlueMealInfoSheet(scrollController: controller);
         });

@@ -2,16 +2,16 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/Auth/auth_provider.dart';
+import 'package:stripes_ui/Providers/base_providers.dart';
 import 'package:stripes_ui/Providers/questions/questions_provider.dart';
 import 'package:stripes_ui/Providers/shared_service_provider.dart';
 import 'package:stripes_ui/Providers/History/stamps_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/Services/shared_service.dart';
-import 'package:stripes_ui/entry.dart';
 
 final testProvider = FutureProvider<TestsRepo?>((ref) async {
   final auth = await ref.watch(authStream.future);
@@ -45,9 +45,8 @@ class TestsNotifier extends AsyncNotifier<TestsState> {
   FutureOr<TestsState> build() async {
     final SharedService service = ref.watch(sharedSeviceProvider);
     final TestsRepo? testsRepo = await ref.watch(testProvider.future);
-
-    final List<TestState> testStates =
-        ref.watch(testStreamProvider).valueOrNull ?? [];
+    final testStatesAsync = ref.watch(testStreamProvider);
+    final List<TestState> testStates = testStatesAsync.valueOrNull ?? [];
 
     if (testsRepo == null || testsRepo.tests.isEmpty) return TestsState.empty();
     final String? currentTestName = await service.getCurrentTest();
@@ -77,6 +76,27 @@ class TestsNotifier extends AsyncNotifier<TestsState> {
       state = AsyncData(current.copyWith(selected: changedTo));
     }
     return setTest;
+  }
+
+  Future<List<Question>> getRecordAdditions(
+      BuildContext context, String type) async {
+    final TestsState current = await future;
+    if (current.testsRepo == null || current.selected == null) return [];
+    if (context.mounted) {
+      return current.testsRepo!.getRecordAdditions(context, type);
+    }
+    return [];
+  }
+
+  Future<List<Widget>> getPathAdditions(
+      BuildContext context, String type) async {
+    final TestsState current = await future;
+    if (current.testsRepo == null || current.selected == null) return [];
+
+    if (context.mounted) {
+      return current.testsRepo!.getPathAdditions(context, type);
+    }
+    return [];
   }
 
   Future<T?> getTest<T extends Test>() async {

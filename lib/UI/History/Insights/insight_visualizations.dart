@@ -287,7 +287,8 @@ class CommonPairingVisualization extends StatelessWidget {
 
     final totalDays = insight.totalDays;
     // Width ratio of the gradient bar to the total bar
-    final overlapRatio = totalDays > 0 ? insight.occurrences / totalDays : 1.0;
+    final overlapRatio =
+        (totalDays > 0 ? insight.occurrences / totalDays : 1.0).clamp(0.0, 1.0);
 
     return SizedBox(
       height: 56,

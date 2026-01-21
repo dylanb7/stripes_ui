@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stripes_ui/Providers/History/display_data_provider.dart';
 import 'package:stripes_ui/Providers/Navigation/sheet_provider.dart';
+import 'package:stripes_ui/Providers/base_providers.dart';
 import 'package:stripes_ui/UI/AccountManagement/profile_changer.dart';
 import 'package:stripes_ui/UI/History/EventView/action_row.dart';
 import 'package:stripes_ui/UI/History/EventView/event_grid.dart';
@@ -13,7 +14,6 @@ import 'package:stripes_ui/Util/Design/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:stripes_ui/config.dart';
-import 'package:stripes_ui/entry.dart';
 
 class EventsView extends ConsumerWidget {
   const EventsView({super.key});

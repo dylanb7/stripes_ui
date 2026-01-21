@@ -35,6 +35,9 @@ class SheetController {
     DraggableSheetBuilder? sheetBuilder,
     double elevation = 2.0,
     bool safeArea = true,
+    double initialChildSize = 0.55,
+    double maxChildSize = 0.9,
+    List<double>? snapSizes,
   }) {
     assert(child != null || sheetBuilder != null);
     final double height = MediaQuery.of(context).size.height;
@@ -104,9 +107,10 @@ class SheetController {
           if (draggableScrollableSheet) {
             return DraggableScrollableSheet(
               expand: false,
-              initialChildSize: 0.55,
-              maxChildSize: 0.9,
-              snapSizes: const [0.55, 0.9],
+              initialChildSize: initialChildSize,
+              minChildSize: 0.4,
+              maxChildSize: maxChildSize,
+              snapSizes: snapSizes ?? [initialChildSize, maxChildSize],
               snap: true,
               builder: sheetBuilder,
             );

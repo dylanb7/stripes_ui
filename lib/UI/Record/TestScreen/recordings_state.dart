@@ -19,6 +19,7 @@ import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/Util/Design/breakpoint.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
+import 'package:stripes_ui/Util/helpers/repo_result_handler.dart';
 
 class RecordingsView extends ConsumerWidget {
   final Function? next;
@@ -36,7 +37,8 @@ class RecordingsView extends ConsumerWidget {
     if (progress.isLoading) return const LoadingWidget();
     final Color panelColor =
         Theme.of(context).primaryColor.withValues(alpha: 0.2);
-    final List<BMTestLog> logs = clicked == BlueDyeProgression.stepFour &&
+    final List<BMTestLog> logs = (clicked == BlueDyeProgression.stepFour ||
+                clicked == BlueDyeProgression.stepFive) &&
             (progress.valueOrNull?.orderedTests.length ?? 0) >= 2
         ? progress.valueOrNull?.orderedTests[1].test.logs ?? []
         : progress.valueOrNull?.orderedTests[0].test.logs ?? [];
@@ -390,17 +392,29 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
       isLoading = true;
     });
     final DateTime start = DateTime.now();
-    await ref
+    final test = await ref
         .read(testsHolderProvider.notifier)
-        .getTest<Test<BlueDyeState>>()
-        .then((test) {
-      test?.setTestState(BlueDyeState(
+        .getTest<Test<BlueDyeState>>();
+
+    if (test != null) {
+      final result = await test.setTestState(BlueDyeState(
           startTime: start, timerStart: start, pauseTime: start, logs: []));
-    });
-    setState(() {
-      isLoading = false;
-    });
-    widget.next();
+
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+        result.handle(context, onSuccess: (_) {
+          widget.next();
+        });
+      }
+    } else {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
   }
 
   String _from(Duration duration, BuildContext context) {
@@ -583,16 +597,29 @@ class _RecordingsWaitingState extends ConsumerState<RecordingsWaiting> {
       isLoading = true;
     });
     final DateTime start = DateTime.now();
-    await ref
+    final test = await ref
         .read(testsHolderProvider.notifier)
-        .getTest<Test<BlueDyeState>>()
-        .then((test) {
-      test?.setTestState(BlueDyeState(
+        .getTest<Test<BlueDyeState>>();
+
+    if (test != null) {
+      final result = await test.setTestState(BlueDyeState(
           startTime: start, timerStart: start, pauseTime: start, logs: []));
-    });
-    setState(() {
-      isLoading = false;
-    });
+
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+        result.handle(context); // No .next() call here in original?
+        // Original: function ends. No navigation?
+        // Wait, Reviewing original code for _RecordingsWaitingState
+      }
+    } else {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
   }
 
   @override

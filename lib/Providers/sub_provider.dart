@@ -8,9 +8,9 @@ import 'package:stripes_backend_helper/RepositoryBase/AuthBase/auth_user.dart';
 import 'package:stripes_backend_helper/RepositoryBase/SubBase/base_sub_repo.dart';
 import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
 import 'package:stripes_ui/Providers/Auth/auth_provider.dart';
+import 'package:stripes_ui/Providers/base_providers.dart';
 import 'package:stripes_ui/Providers/shared_service_provider.dart';
 import 'package:stripes_ui/Services/shared_service.dart';
-import 'package:stripes_ui/entry.dart';
 
 final subProvider = FutureProvider<SubUserRepo?>(
   (ref) async {
@@ -37,7 +37,14 @@ class SubNotifier extends AsyncNotifier<SubState> {
   @override
   FutureOr<SubState> build() async {
     final SharedService service = ref.watch(sharedSeviceProvider);
-    final List<SubUser> subUsers = await ref.watch(subStream.future);
+    final subUsersAsync = ref.watch(subStream);
+
+    // If loading and no data, keep the notifier in loading state
+    if (subUsersAsync.isLoading && !subUsersAsync.hasValue) {
+      return Completer<SubState>().future;
+    }
+
+    final List<SubUser> subUsers = subUsersAsync.valueOrNull ?? [];
     if (subUsers.isEmpty) return SubState.empty();
     final String? currentId = await service.getCurrentUser();
     final SubUser? currentUser =

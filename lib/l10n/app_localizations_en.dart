@@ -1131,10 +1131,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get csvTotalRows => 'Total Rows';
 
   @override
-  String get csvDetailEntries => 'Detail Entries';
+  String get csvDetailEntries => 'Responses';
 
   @override
-  String get csvBlueDyeTests => 'Blue Dye Tests';
+  String get csvBlueDyeTests => 'Blue Dye Transits';
 
   @override
   String get csvFilesToGenerate => 'Files to Generate';
@@ -1146,7 +1146,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String csvBlueDyeTestResults(int count) {
-    return '$count Blue Dye test results';
+    return '$count Blue Dye Transits';
   }
 
   @override
@@ -1206,7 +1206,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tableHeaderDate => 'Date';
 
   @override
-  String get tableHeaderType => 'Type';
+  String get tableHeaderType => 'Category';
 
   @override
   String get tableHeaderResponse => 'Response';

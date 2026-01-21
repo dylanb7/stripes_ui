@@ -147,18 +147,45 @@ class AxisPainter {
       ..color = style.axisLineColor
       ..strokeWidth = style.axisLineWidth;
 
-    canvas.drawLine(
-      Offset(geometry.leftMargin, geometry.topMargin),
-      Offset(geometry.leftMargin, geometry.size.height - geometry.bottomMargin),
-      axisPaint,
-    );
+    // Left (Y) axis line
+    if (style.drawYAxisLine) {
+      canvas.drawLine(
+        Offset(geometry.leftMargin, geometry.topMargin),
+        Offset(
+            geometry.leftMargin, geometry.size.height - geometry.bottomMargin),
+        axisPaint,
+      );
+    }
 
-    canvas.drawLine(
-      Offset(geometry.leftMargin, geometry.size.height - geometry.bottomMargin),
-      Offset(geometry.size.width - geometry.rightMargin,
-          geometry.size.height - geometry.bottomMargin),
-      axisPaint,
-    );
+    // Bottom (X) axis line
+    if (style.drawXAxisLine) {
+      canvas.drawLine(
+        Offset(
+            geometry.leftMargin, geometry.size.height - geometry.bottomMargin),
+        Offset(geometry.size.width - geometry.rightMargin,
+            geometry.size.height - geometry.bottomMargin),
+        axisPaint,
+      );
+    }
+
+    // Top axis line
+    if (style.drawTopAxisLine) {
+      canvas.drawLine(
+        Offset(geometry.leftMargin, geometry.topMargin),
+        Offset(geometry.size.width - geometry.rightMargin, geometry.topMargin),
+        axisPaint,
+      );
+    }
+
+    // Right axis line
+    if (style.drawRightAxisLine) {
+      canvas.drawLine(
+        Offset(geometry.size.width - geometry.rightMargin, geometry.topMargin),
+        Offset(geometry.size.width - geometry.rightMargin,
+            geometry.size.height - geometry.bottomMargin),
+        axisPaint,
+      );
+    }
   }
 
   static void paintGridLines(

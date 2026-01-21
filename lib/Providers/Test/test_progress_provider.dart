@@ -15,7 +15,7 @@ final blueDyeTestProgressProvider =
 
   final String? group = user.attributes["custom:group"];
   final List<BlueDyeResp> testResponses = await ref.watch(
-      stampHolderProvider.selectAsync((responses) => responses
+      stampsStreamProvider.selectAsync((responses) => responses
           .whereType<BlueDyeResp>()
           .where((test) => test.group == group)
           .toList()));
@@ -23,11 +23,12 @@ final blueDyeTestProgressProvider =
   final List<TestDate> mostRecent = _getOrderedTests(testResponses);
 
   final int iterations = testResponses.length;
+  final stage = stageFromTestState(blueDyeState);
 
-  return BlueDyeTestProgress(
-      stage: stageFromTestState(blueDyeState),
-      testIteration: iterations,
-      orderedTests: mostRecent);
+  final progress = BlueDyeTestProgress(
+      stage: stage, testIteration: iterations, orderedTests: mostRecent);
+
+  return progress;
 });
 
 @immutable
@@ -67,23 +68,51 @@ class BlueDyeTestProgress {
   final int testIteration;
   final List<TestDate> orderedTests;
 
+  /// Returns the current progression step based on test state and iterations.
+  ///
+  /// Progression flow:
+  /// - null: No tests started (initial state, 0 iterations)
+  /// - stepOne: Test 1 meal in progress (started/amountConsumed, 0 iterations)
+  /// - stepTwo: Test 1 logging BMs (logs/logsSubmit stages, 0 iterations)
+  /// - stepThree: Waiting period between tests (1 completed test, no test in progress)
+  /// - stepFour: Test 2 meal in progress (started/amountConsumed, 1 iteration)
+  /// - stepFive: Test 2 logging BMs (logs/logsSubmit stages, 1 iteration)
+  /// - completed: Study complete (2+ tests, no test in progress)
   BlueDyeProgression? getProgression() {
+    // No tests started, no submissions
     if (stage == BlueDyeTestStage.initial && testIteration == 0) return null;
-    if (testIteration == 0 &&
-        (stage == BlueDyeTestStage.started ||
-            stage == BlueDyeTestStage.amountConsumed)) {
-      return BlueDyeProgression.stepOne;
-    }
-    if (testIteration == 0) {
+
+    // Test 1: Started or entering amount (iteration 0, test in progress)
+    if (testIteration == 0 && stage.testInProgress) {
+      if (stage == BlueDyeTestStage.started ||
+          stage == BlueDyeTestStage.amountConsumed) {
+        return BlueDyeProgression.stepOne;
+      }
+      // Logging BMs for test 1
       return BlueDyeProgression.stepTwo;
     }
-    if (!stage.testInProgress && orderedTests.length == 1) {
+
+    // Test 1 complete, waiting for test 2 (1 test submitted, no test in progress)
+    if (testIteration == 1 && !stage.testInProgress) {
       return BlueDyeProgression.stepThree;
     }
-    if (stage == BlueDyeTestStage.amountConsumed ||
-        stage == BlueDyeTestStage.started) {
-      return BlueDyeProgression.stepFour;
+
+    // Test 2: Started or entering amount (1 test submitted, test in progress)
+    if (testIteration == 1 && stage.testInProgress) {
+      if (stage == BlueDyeTestStage.started ||
+          stage == BlueDyeTestStage.amountConsumed) {
+        return BlueDyeProgression.stepFour;
+      }
+      // Logging BMs for test 2
+      return BlueDyeProgression.stepFive;
     }
+
+    // Study complete: 2+ tests submitted, no test in progress
+    if (testIteration >= 2 && !stage.testInProgress) {
+      return BlueDyeProgression.completed;
+    }
+
+    // Fallback: in-progress test (shouldn't normally reach here)
     return BlueDyeProgression.stepFive;
   }
 
@@ -110,7 +139,8 @@ enum BlueDyeProgression {
   stepTwo(1),
   stepThree(2),
   stepFour(3),
-  stepFive(4);
+  stepFive(4),
+  completed(5);
 
   final int value;
 
@@ -128,6 +158,8 @@ enum BlueDyeProgression {
         return context.translate.studyProgessionThree;
       case BlueDyeProgression.stepFive:
         return context.translate.studyProgessionFour;
+      case BlueDyeProgression.completed:
+        return "Complete";
     }
   }
 }

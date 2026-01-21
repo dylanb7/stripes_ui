@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
+import 'package:stripes_ui/Providers/Dashboard/insight_provider.dart';
 import 'package:stripes_ui/Providers/History/display_data_provider.dart';
 import 'package:stripes_ui/UI/History/Export/report_generator.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
@@ -103,30 +104,39 @@ class _ReportSheetState extends ConsumerState<ReportSheet> {
                 _SectionHeader(title: l10n.reportPreview),
                 const SizedBox(height: AppPadding.medium),
 
-                // Stats cards
-                Wrap(
-                  spacing: AppPadding.medium,
-                  runSpacing: AppPadding.medium,
-                  children: [
-                    _StatCard(
-                      icon: Icons.note_alt_outlined,
-                      label: l10n.reportTotalEntries,
-                      value: reportStats.totalEntries.toString(),
-                      color: colors.primary,
-                    ),
-                    _StatCard(
-                      icon: Icons.calendar_today_outlined,
-                      label: l10n.reportDaysWithData,
-                      value: reportStats.uniqueDays.toString(),
-                      color: colors.secondary,
-                    ),
-                    _StatCard(
-                      icon: Icons.category_outlined,
-                      label: l10n.reportCategories,
-                      value: reportStats.categoryCount.toString(),
-                      color: colors.tertiary,
-                    ),
-                  ],
+                // Stats cards - wrapped in IntrinsicHeight for equal heights
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: _StatCard(
+                          icon: Icons.note_alt_outlined,
+                          label: l10n.reportTotalEntries,
+                          value: reportStats.totalEntries.toString(),
+                          color: colors.primary,
+                        ),
+                      ),
+                      const SizedBox(width: AppPadding.medium),
+                      Expanded(
+                        child: _StatCard(
+                          icon: Icons.calendar_today_outlined,
+                          label: l10n.reportDaysWithData,
+                          value: reportStats.uniqueDays.toString(),
+                          color: colors.secondary,
+                        ),
+                      ),
+                      const SizedBox(width: AppPadding.medium),
+                      Expanded(
+                        child: _StatCard(
+                          icon: Icons.category_outlined,
+                          label: l10n.reportCategories,
+                          value: reportStats.categoryCount.toString(),
+                          color: colors.tertiary,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
 
                 const SizedBox(height: AppPadding.xl),
@@ -261,66 +271,12 @@ class _ReportSheetState extends ConsumerState<ReportSheet> {
     try {
       final DisplayDataSettings settings = ref.read(displayDataProvider);
 
-      // Build localization map from responses
-      final Map<String, String> localizedStrings = {};
-
-      void collectLocalization(Response r) {
-        // Localize type/category
-        localizedStrings[r.type] = questionsL10n?.value(r.type) ?? r.type;
-
-        // Localize question prompt
-        if (r.question.prompt.isNotEmpty) {
-          localizedStrings[r.question.prompt] =
-              questionsL10n?.value(r.question.prompt) ?? r.question.prompt;
-        }
-
-        // Handle specific response types
-        if (r is DetailResponse) {
-          for (final subR in r.responses) {
-            collectLocalization(subR);
-          }
-        } else if (r is MultiResponse) {
-          for (final choice in r.question.choices) {
-            // Map raw key to translated value
-            final translated = questionsL10n?.value(choice) ?? choice;
-            localizedStrings[choice] = translated;
-            // Also map translated value to itself (in case response stored translated)
-            if (translated != choice) {
-              localizedStrings[translated] = translated;
-            }
-          }
-        } else if (r is AllResponse) {
-          for (final choice in r.question.choices) {
-            // Map raw key to translated value
-            final translated = questionsL10n?.value(choice) ?? choice;
-            localizedStrings[choice] = translated;
-            // Also map translated value to itself (in case response stored translated)
-            if (translated != choice) {
-              localizedStrings[translated] = translated;
-            }
-          }
-        } else if (r is BlueDyeResp) {
-          // Add static strings used in report generator
-          const blueDyeKeys = [
-            'Blue Dye Test',
-            'Transit Time (hours)',
-            'Lag Phase (hours)'
-          ];
-          for (final key in blueDyeKeys) {
-            localizedStrings[key] = questionsL10n?.value(key) ?? key;
-          }
-        }
-      }
-
-      for (final response in widget.responses) {
-        collectLocalization(response);
-      }
-
       // Generate the PDF
       final pdfBytes = await ReportGenerator.generatePdf(
         responses: widget.responses,
         dateRange: settings.range,
-        localizedStrings: localizedStrings,
+        questionsL10n: questionsL10n,
+        filters: settings.filters,
       );
 
       if (!mounted) return;
@@ -349,6 +305,7 @@ class _ReportSheetState extends ConsumerState<ReportSheet> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(l10n.reportGenerationFailed(e.toString())),
+            duration: const Duration(seconds: 4),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
@@ -409,7 +366,6 @@ class _StatCard extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
 
     return Container(
-      width: 100,
       padding: const EdgeInsets.all(AppPadding.medium),
       decoration: BoxDecoration(
         color: colors.surfaceContainerLow,

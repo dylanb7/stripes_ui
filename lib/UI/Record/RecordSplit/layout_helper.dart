@@ -42,20 +42,31 @@ class LayoutHelper {
   }) {
     if (loadedLayouts == null) return [];
 
-    // First filter pages by page-level dependsOn
-    final pagesWithDependsOn =
-        loadedLayouts.where((page) => page.dependsOn.eval(listener)).toList();
+    final List<LoadedPageLayout> visiblePages = [];
+    final List<LoadedPageLayout> hiddenPages = [];
 
-    // Then filter questions within each page
+    // Separate visible and hidden pages based on page.dependsOn
+    for (final page in loadedLayouts) {
+      if (page.dependsOn.eval(listener)) {
+        visiblePages.add(page);
+      } else {
+        hiddenPages.add(page);
+      }
+    }
+
     final List<LoadedPageLayout> filteredLayouts = [];
     final List<Question> allHiddenQuestions = [];
 
-    for (final page in pagesWithDependsOn) {
+    // Collect all questions from hidden pages for cleanup
+    for (final page in hiddenPages) {
+      allHiddenQuestions.addAll(page.questions);
+    }
+
+    for (final page in visiblePages) {
       final List<Question> visibleQuestions = [];
       final List<Question> hiddenQuestions = [];
 
       for (final question in page.questions) {
-        // If a whitelist is provided, only show questions in the list
         if (whiteList != null && !whiteList.any((q) => q.id == question.id)) {
           continue;
         }
@@ -71,13 +82,11 @@ class LayoutHelper {
 
       allHiddenQuestions.addAll(hiddenQuestions);
 
-      // Only add page if it has visible questions
       if (visibleQuestions.isNotEmpty) {
         filteredLayouts.add(page.copyWith(questions: visibleQuestions));
       }
     }
 
-    // Cleanup: Remove data for hidden questions
     void performCleanup() {
       for (final question in allHiddenQuestions) {
         if (listener.fromQuestion(question) != null) {
@@ -98,7 +107,6 @@ class LayoutHelper {
     return filteredLayouts;
   }
 
-  /// Validates page at the given index, returning pending count and requirement status.
   static PageValidation validatePage({
     required List<LoadedPageLayout> pages,
     required int currentIndex,
@@ -111,13 +119,13 @@ class LayoutHelper {
       );
     }
 
-    final pageQuestions = pages[currentIndex].questions;
-    final pendingCount = listener.pending
+    final List<Question> pageQuestions = pages[currentIndex].questions;
+    final int pendingCount = listener.pending
         .where((pending) => pageQuestions.contains(pending))
         .length;
 
-    final requirement = pages[currentIndex].requirement;
-    final requirementMet = requirement.eval(listener);
+    final Requirement requirement = pages[currentIndex].requirement;
+    final bool requirementMet = requirement.eval(listener);
 
     return PageValidation(
       pendingCount: pendingCount,
@@ -126,7 +134,6 @@ class LayoutHelper {
     );
   }
 
-  /// Calculates question progress for the current page.
   static QuestionProgress calculateProgress({
     required List<LoadedPageLayout> pages,
     required int currentIndex,
@@ -136,16 +143,15 @@ class LayoutHelper {
       return const QuestionProgress(total: 0, answered: 0, pendingRequired: 0);
     }
 
-    final pageQuestions = pages[currentIndex].questions;
+    final List<Question> pageQuestions = pages[currentIndex].questions;
 
-    final visibleQuestions = pageQuestions.where((q) {
+    final List<Question> visibleQuestions = pageQuestions.where((q) {
       return q.dependsOn == null || q.dependsOn!.eval(listener);
     }).toList();
 
-    final pageQuestionIds = visibleQuestions.map((q) => q.id).toSet();
+    final Set<String> pageQuestionIds =
+        visibleQuestions.map((q) => q.id).toSet();
 
-    // Helper to check if a question ID belongs to this page
-    // Generated questions have IDs like "sourceId::index"
     bool belongsToPage(String questionId) {
       if (pageQuestionIds.contains(questionId)) return true;
       final parts = questionId.split('::');
@@ -167,7 +173,6 @@ class LayoutHelper {
     );
   }
 
-  /// Resolves a question ID to its prompt text for error messages.
   static String? resolveQuestionPrompt(
     String questionId,
     List<LoadedPageLayout> pages,
@@ -179,5 +184,37 @@ class LayoutHelper {
       } catch (_) {}
     }
     return null;
+  }
+
+  static PageValidation validateSubmitScreen({
+    required List<Question> submitQuestions,
+    required QuestionsListener listener,
+  }) {
+    if (submitQuestions.isEmpty) {
+      return const PageValidation(
+        pendingCount: 0,
+        requirementMet: true,
+      );
+    }
+
+    int unansweredCount = 0;
+    for (final question in submitQuestions) {
+      // Skip questions where dependsOn evaluates to false
+      final bool shouldShow = question.dependsOn?.eval(listener) ?? true;
+      if (!shouldShow) continue;
+
+      final bool isRequired = question.requirement?.eval(listener) ?? true;
+      if (isRequired) {
+        final response = listener.fromQuestion(question);
+        if (response == null) {
+          unansweredCount++;
+        }
+      }
+    }
+
+    return PageValidation(
+      pendingCount: unansweredCount,
+      requirementMet: unansweredCount == 0,
+    );
   }
 }

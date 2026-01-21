@@ -1969,13 +1969,13 @@ abstract class AppLocalizations {
   /// No description provided for @csvDetailEntries.
   ///
   /// In en, this message translates to:
-  /// **'Detail Entries'**
+  /// **'Responses'**
   String get csvDetailEntries;
 
   /// No description provided for @csvBlueDyeTests.
   ///
   /// In en, this message translates to:
-  /// **'Blue Dye Tests'**
+  /// **'Blue Dye Transits'**
   String get csvBlueDyeTests;
 
   /// No description provided for @csvFilesToGenerate.
@@ -1993,7 +1993,7 @@ abstract class AppLocalizations {
   /// No description provided for @csvBlueDyeTestResults.
   ///
   /// In en, this message translates to:
-  /// **'{count} Blue Dye test results'**
+  /// **'{count} Blue Dye Transits'**
   String csvBlueDyeTestResults(int count);
 
   /// No description provided for @csvSampleData.
@@ -2101,7 +2101,7 @@ abstract class AppLocalizations {
   /// No description provided for @tableHeaderType.
   ///
   /// In en, this message translates to:
-  /// **'Type'**
+  /// **'Category'**
   String get tableHeaderType;
 
   /// No description provided for @tableHeaderResponse.

@@ -82,13 +82,14 @@ class TrendLinePainter {
     ChartGeometry geometry,
     ChartSeriesData<T, D> data,
     ChartAxis<D> xAxis,
+    ChartAxis<dynamic> yAxis,
     TrendLine config,
   ) {
     switch (config) {
       case LoessTrendLine():
-        _paintLoess(canvas, geometry, data, xAxis, config);
+        _paintLoess(canvas, geometry, data, xAxis, yAxis, config);
       case LinearTrendLine():
-        _paintLinear(canvas, geometry, data, xAxis, config);
+        _paintLinear(canvas, geometry, data, xAxis, yAxis, config);
     }
   }
 
@@ -97,6 +98,7 @@ class TrendLinePainter {
     ChartGeometry geometry,
     ChartSeriesData<T, D> data,
     ChartAxis<D> xAxis,
+    ChartAxis<dynamic> yAxis,
     LoessTrendLine config,
   ) {
     if (data.data.length < 3) return;
@@ -123,6 +125,8 @@ class TrendLinePainter {
       xValues,
       result.smoothedY,
       data.getPointColor(data.data.first, 0),
+      xAxis,
+      yAxis,
       config,
     );
   }
@@ -132,6 +136,7 @@ class TrendLinePainter {
     ChartGeometry geometry,
     ChartSeriesData<T, D> data,
     ChartAxis<D> xAxis,
+    ChartAxis<dynamic> yAxis,
     LinearTrendLine config,
   ) {
     if (data.data.length < 2) return;
@@ -161,6 +166,8 @@ class TrendLinePainter {
       [minX, maxX],
       [y1, y2],
       data.getPointColor(data.data.first, 0),
+      xAxis,
+      yAxis,
       config,
     );
   }
@@ -171,6 +178,8 @@ class TrendLinePainter {
     List<double> xValues,
     List<double> yValues,
     Color datasetColor,
+    ChartAxis<dynamic> xAxis,
+    ChartAxis<dynamic> yAxis,
     TrendLine config,
   ) {
     final Color lineColor = config.color ?? datasetColor.withValues(alpha: 0.7);
@@ -189,7 +198,8 @@ class TrendLinePainter {
     final List<Offset> points = [];
     for (int i = 0; i < sortedIndices.length; i++) {
       final idx = sortedIndices[i];
-      points.add(geometry.dataToScreen(xValues[idx], yValues[idx]));
+      points
+          .add(geometry.dataToScreen(xValues[idx], yValues[idx], xAxis, yAxis));
     }
 
     if (config is LoessTrendLine && points.length >= 3) {
@@ -277,10 +287,9 @@ class TrendLinePainter {
           final extractPath = metric.extractPath(distance, end);
           canvas.drawPath(extractPath, paint);
         }
-
+        draw = !draw;
         distance = end;
         dashIndex++;
-        draw = !draw;
       }
     }
   }

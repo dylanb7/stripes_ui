@@ -9,13 +9,15 @@ import 'package:stripes_ui/UI/History/Insights/insight_features.dart';
 
 export 'package:stripes_ui/UI/History/Insights/insight_features.dart';
 
-typedef InsightBuilder = List<Insight> Function(InsightContext);
+typedef InsightBuilder = List<Insight> Function(HistoryContext);
 
 class InsightRegistration {
   final InsightBuilder builder;
   final Set<ReducibleFeature> features;
   const InsightRegistration(this.builder, this.features);
 }
+
+enum InsightPurpose { dashboard, report }
 
 abstract class Insight {
   int get priority;
@@ -26,31 +28,42 @@ abstract class Insight {
       TextSpan(text: getDescription(context));
   IconData? get icon;
   Widget? buildVisualization(BuildContext context) => null;
+
+  Set<InsightPurpose> get purposes =>
+      {InsightPurpose.dashboard, InsightPurpose.report};
+
   const Insight();
 
   static List<Insight> fromResponses(
     List<Response> responses, {
     TimeCycle? timeCycle,
     DateTimeRange? range,
+    InsightPurpose? filter,
   }) {
     final Set<ReducibleFeature> allFeatures = <ReducibleFeature>{};
     for (final reg in _registrations) {
       allFeatures.addAll(reg.features);
     }
 
-    final InsightContext ctx = InsightContext.build(
+    final HistoryContext ctx = HistoryContext.build(
       responses: responses,
       features: allFeatures.toList(),
       timeCycle: timeCycle ?? TimeCycle.custom,
       range: range,
     );
-    return tryBuildAll(ctx);
+    return tryBuildAll(ctx, filter: filter);
   }
 
-  static List<Insight> tryBuildAll(InsightContext ctx) {
+  static List<Insight> tryBuildAll(HistoryContext ctx,
+      {InsightPurpose? filter}) {
     final List<Insight> results = [];
     for (final reg in _registrations) {
-      results.addAll(reg.builder(ctx));
+      final List<Insight> insights = reg.builder(ctx);
+      if (filter != null) {
+        results.addAll(insights.where((i) => i.purposes.contains(filter)));
+      } else {
+        results.addAll(insights);
+      }
     }
     // Combined rank: Lower is better (Higher in list)
     // Category priority provides the base, Significance allows bubbling (up to 20 points)
@@ -134,7 +147,7 @@ class PeakActivityInsight extends Insight {
   Widget buildVisualization(BuildContext context) =>
       PeakActivityVisualization(insight: this);
 
-  static List<PeakActivityInsight> tryBuild(InsightContext ctx) {
+  static List<PeakActivityInsight> tryBuild(HistoryContext ctx) {
     final hourCounts = ctx.use(const HourlyCountFeature());
     if (hourCounts.isEmpty) return [];
     final hourlyList = List.generate(24, (h) => hourCounts[h] ?? 0);
@@ -222,7 +235,7 @@ class MostActiveDayInsight extends Insight {
   Widget buildVisualization(BuildContext context) =>
       MostActiveDayVisualization(insight: this);
 
-  static List<MostActiveDayInsight> tryBuild(InsightContext ctx) {
+  static List<MostActiveDayInsight> tryBuild(HistoryContext ctx) {
     final dayCounts = ctx.use(const WeekdayCountFeature());
     if (dayCounts.isEmpty) return [];
     if (ctx.timeCycle == TimeCycle.day) return [];
@@ -326,7 +339,7 @@ class ActivityTrendInsight extends Insight {
   Widget buildVisualization(BuildContext context) =>
       ActivityTrendVisualization(insight: this);
 
-  static List<ActivityTrendInsight> tryBuild(InsightContext ctx) {
+  static List<ActivityTrendInsight> tryBuild(HistoryContext ctx) {
     final dailyCounts = ctx.use(const DailyCountFeature());
     if (dailyCounts.length < 3) return [];
     // Activity trends require multiple days of data
@@ -410,7 +423,7 @@ class WeeklyPatternInsight extends Insight {
   Widget buildVisualization(BuildContext context) =>
       WeeklyPatternVisualization(insight: this);
 
-  static List<WeeklyPatternInsight> tryBuild(InsightContext ctx) {
+  static List<WeeklyPatternInsight> tryBuild(HistoryContext ctx) {
     final dayCounts = ctx.use(const WeekdayCountFeature());
     if (dayCounts.isEmpty) return [];
     // Need multiple weeks to detect a weekly pattern
@@ -525,9 +538,9 @@ class CommonPairingInsight extends Insight {
   Widget buildVisualization(BuildContext context) =>
       CommonPairingVisualization(insight: this);
 
-  static List<CommonPairingInsight> tryBuild(InsightContext ctx) {
+  static List<CommonPairingInsight> tryBuild(HistoryContext ctx) {
     if (ctx.totalResponses < 10) return [];
-    // Common pairing doesn't make sense for a single day
+
     if (ctx.timeCycle == TimeCycle.day) return [];
 
     final Map<DateTime, Map<String, int>> categoriesByDay =
@@ -538,13 +551,10 @@ class CommonPairingInsight extends Insight {
       return [];
     }
 
-    // Calculate percentage based on total days in range, not just days with data
     final totalDays = ctx.totalDaysInRange;
     final percentage = totalDays > 0
         ? (coOccurrence.occurrences / totalDays * 100).round()
         : coOccurrence.percentage.round();
-
-    // Filter if percentage is too low
     if (percentage < 30) return [];
 
     int item1Count = 0;
@@ -650,7 +660,7 @@ class SymptomLinkInsight extends Insight {
   Widget buildVisualization(BuildContext context) =>
       SymptomLinkVisualization(insight: this);
 
-  static List<SymptomLinkInsight> tryBuild(InsightContext ctx) {
+  static List<SymptomLinkInsight> tryBuild(HistoryContext ctx) {
     if (ctx.totalResponses < 10) return [];
     // Symptom correlations require multiple days of data
     if (ctx.timeCycle == TimeCycle.day) return [];
@@ -789,7 +799,7 @@ class SymptomTrendInsight extends Insight {
   Widget buildVisualization(BuildContext context) =>
       SymptomTrendVisualization(insight: this);
 
-  static List<SymptomTrendInsight> tryBuild(InsightContext ctx) {
+  static List<SymptomTrendInsight> tryBuild(HistoryContext ctx) {
     final symptomsByDay = ctx.use(const DaySymptomFeature());
     if (symptomsByDay.isEmpty || symptomsByDay.length < 5) return [];
     if (ctx.timeCycle == TimeCycle.day) return [];
@@ -907,7 +917,7 @@ class MostTrackedCategoryInsight extends Insight {
   Widget buildVisualization(BuildContext context) =>
       MostTrackedCategoryVisualization(insight: this);
 
-  static List<MostTrackedCategoryInsight> tryBuild(InsightContext ctx) {
+  static List<MostTrackedCategoryInsight> tryBuild(HistoryContext ctx) {
     final Map<DateTime, Map<String, int>> categoriesByDay =
         ctx.use(const DayCategoryFeature());
     if (categoriesByDay.isEmpty) return [];
@@ -991,7 +1001,7 @@ class AbnormalEntryInsight extends Insight {
   Widget? buildVisualization(BuildContext context) =>
       AbnormalEntryVisualization(insight: this);
 
-  static List<AbnormalEntryInsight> tryBuild(InsightContext ctx) {
+  static List<AbnormalEntryInsight> tryBuild(HistoryContext ctx) {
     final categoryCounts = ctx.use(const DayCategoryFeature());
     final totalDays = ctx.daysWithData;
     if (totalDays > 10) {
@@ -1161,7 +1171,7 @@ class TimeRelationInsight extends Insight {
   Widget? buildVisualization(BuildContext context) =>
       TimeRelationVisualization(insight: this);
 
-  static List<TimeRelationInsight> tryBuild(InsightContext ctx) {
+  static List<TimeRelationInsight> tryBuild(HistoryContext ctx) {
     final timestampsMap = ctx.use(const CategoryTimestampFeature());
     if (timestampsMap.length < 2) return [];
 

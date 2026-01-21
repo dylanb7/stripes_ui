@@ -16,6 +16,7 @@ import 'package:stripes_ui/Util/Widgets/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/Widgets/mouse_hover.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
+import 'package:stripes_ui/Util/helpers/repo_result_handler.dart';
 
 class BlueDyeTestScreen extends ConsumerStatefulWidget {
   const BlueDyeTestScreen({super.key});
@@ -73,16 +74,27 @@ class _BlueDyeTestScreenState extends ConsumerState<BlueDyeTestScreen> {
       isLoading = true;
     });
     final DateTime start = DateTime.now();
-    await ref
+    final test = await ref
         .read(testsHolderProvider.notifier)
-        .getTest<Test<BlueDyeState>>()
-        .then((test) {
-      test?.setTestState(BlueDyeState(
+        .getTest<Test<BlueDyeState>>();
+
+    if (test != null) {
+      final result = await test.setTestState(BlueDyeState(
           startTime: start, timerStart: start, pauseTime: start, logs: []));
-    });
-    setState(() {
-      isLoading = false;
-    });
+
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+        result.handle(context);
+      }
+    } else {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
   }
 
   toggleBottomSheet(BuildContext context) {
@@ -202,13 +214,30 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
     }
 
     Widget getDisplayedWidget() {
+      // When study is completed, all steps are viewable as "previous"
+      final bool isStudyCompleted =
+          currentProgression == BlueDyeProgression.completed;
+
+      // Handle activeStage being 'completed' (shouldn't happen with filtered carousel)
+      if (activeStage == BlueDyeProgression.completed) {
+        return const RecordingsView(
+          next: null,
+          clicked: BlueDyeProgression.stepFive,
+        );
+      }
+
       final bool isStepFour = activeStage == BlueDyeProgression.stepFour;
+
+      // Step 1 or Step 4 (meal entry steps)
       if (activeStage == BlueDyeProgression.stepOne || isStepFour) {
-        if (isPrevious) {
+        // When study is complete or step is previous, show finished display
+        if (isStudyCompleted || isPrevious) {
           return MealFinishedDisplay(
-            next: () {
-              _changePage(currentIndex + 1);
-            },
+            next: isStudyCompleted
+                ? null
+                : () {
+                    _changePage(currentIndex + 1);
+                  },
             displaying: activeStage,
           );
         }
@@ -217,36 +246,60 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
         );
       }
 
-      if (!isPrevious && activeStage == BlueDyeProgression.stepThree) {
+      // Step 3 (waiting time)
+      if (activeStage == BlueDyeProgression.stepThree) {
+        if (isStudyCompleted || isPrevious) {
+          // Show as completed waiting period
+          return RecordingsView(
+            next: isStudyCompleted
+                ? null
+                : () {
+                    _changePage(currentIndex + 1);
+                  },
+            clicked: activeStage,
+          );
+        }
         return WaitingTime(
           next: () {
             _changePage(currentIndex + 1);
           },
         );
       }
-      if (isPrevious ||
+
+      // Step 2 or Step 5 (BM logging steps)
+      if (isStudyCompleted ||
+          isPrevious ||
           (loaded?.testIteration == 2 && !loaded!.stage.testInProgress)) {
         return RecordingsView(
-          next: currentProgression == BlueDyeProgression.stepThree && isPrevious
+          next: isStudyCompleted
               ? null
-              : () {
-                  if (activeStage == BlueDyeProgression.stepTwo) {
-                    _changePage(currentIndex + 2);
-                  } else {
-                    _changePage(currentIndex + 1);
-                  }
-                },
+              : (currentProgression == BlueDyeProgression.stepThree &&
+                      isPrevious)
+                  ? null
+                  : () {
+                      if (activeStage == BlueDyeProgression.stepTwo) {
+                        _changePage(currentIndex + 2);
+                      } else {
+                        _changePage(currentIndex + 1);
+                      }
+                    },
           clicked: activeStage,
         );
       }
+
       return const RecordingsInProgress();
     }
+
+    // Filter out 'completed' since it's a terminal state, not a selectable step
+    final displayableSteps = BlueDyeProgression.values
+        .where((step) => step != BlueDyeProgression.completed)
+        .toList();
 
     final Widget pageView = PageView(
       controller: _pageController,
       scrollDirection: Axis.horizontal,
       physics: const ClampingScrollPhysics(),
-      children: BlueDyeProgression.values
+      children: displayableSteps
           .map(
             (step) => Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppPadding.small),
@@ -319,7 +372,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                             : Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 mainAxisAlignment: MainAxisAlignment.center,
-                                children: BlueDyeProgression.values
+                                children: displayableSteps
                                     .map<Widget>(
                                       (step) => _buildScrollStep(
                                           context, index, currentIndex, step),
@@ -397,7 +450,13 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
       return GestureDetector(
         onTap: () {
           if (currentIndex == step.value) return;
-          if (activeIndex == step.value) {
+          // When study is completed, allow navigation to any step
+          final bool isCompleted = ref
+                  .read(blueDyeTestProgressProvider)
+                  .valueOrNull
+                  ?.getProgression() ==
+              BlueDyeProgression.completed;
+          if (isCompleted || activeIndex >= step.value) {
             _changePage(step.value);
           }
         },
@@ -462,7 +521,14 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
         child: GestureDetector(
           onTap: () {
             if (currentIndex == step.value) return;
-            if (step.value > activeIndex) {
+            // When study is completed, allow navigation to any previous step
+            // Otherwise, only allow navigation to completed/active steps
+            final bool isCompleted = ref
+                    .read(blueDyeTestProgressProvider)
+                    .valueOrNull
+                    ?.getProgression() ==
+                BlueDyeProgression.completed;
+            if (!isCompleted && step.value > activeIndex) {
               showSnack(
                   context,
                   context.translate.stepClickWarning(

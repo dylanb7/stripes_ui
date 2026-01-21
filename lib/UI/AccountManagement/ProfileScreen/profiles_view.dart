@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:stripes_backend_helper/RepositoryBase/repo_result.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 
 import 'package:stripes_ui/Providers/sub_provider.dart';
@@ -243,16 +244,19 @@ class DeleteConfirmation extends ConsumerWidget {
       cancel: 'Cancel',
       confirm: 'Confirm',
       onConfirm: () async {
-        if (!await _deleteSubUser(ref) && context.mounted) {
-          showSnack(context, "Failed to delete ${toDelete.name}");
+        final RepoResult<void> deleteResult = await _deleteSubUser(ref);
+        if (context.mounted) {
+          if (deleteResult case Failure(:final message)) {
+            showSnack(context, message);
+          }
         }
       },
     );
   }
 
-  Future<bool> _deleteSubUser(WidgetRef ref) async {
+  Future<RepoResult<void>> _deleteSubUser(WidgetRef ref) async {
     final SubUserRepo? repo = await ref.read(subProvider.future);
-    if (repo == null) return false;
+    if (repo == null) return const Failure(message: 'No repo found');
     return repo.deleteSubUser(toDelete);
   }
 }

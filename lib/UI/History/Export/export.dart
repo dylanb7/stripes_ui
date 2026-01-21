@@ -8,6 +8,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/History/display_data_provider.dart';
 import 'package:stripes_ui/Providers/Navigation/sheet_provider.dart';
+import 'package:stripes_ui/Providers/base_providers.dart';
 
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/History/Export/export_options_sheet.dart';
@@ -15,7 +16,6 @@ import 'package:stripes_ui/Util/Widgets/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:stripes_ui/config.dart';
-import 'package:stripes_ui/entry.dart';
 import 'package:path_provider/path_provider.dart';
 
 class Export extends ConsumerWidget {
@@ -155,7 +155,7 @@ Future<void> fileShare(BuildContext context, List<Response> responses,
     await detailsFile.writeAsString(detailsCsv);
   }
   if (testsCsv != null) {
-    testsFile = File('${tempDir.path}/test_responses.csv');
+    testsFile = File('${tempDir.path}/transit_responses.csv');
     await testsFile.writeAsString(testsCsv);
   }
 

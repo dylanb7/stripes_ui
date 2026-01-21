@@ -32,3 +32,4 @@ export 'Test/test_progress_provider.dart';
 /// Other
 export 'shared_service_provider.dart';
 export 'sub_provider.dart';
+export 'base_providers.dart';

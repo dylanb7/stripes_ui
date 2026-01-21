@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/Auth/auth_provider.dart';
 import 'package:stripes_ui/Providers/History/stamps_provider.dart';
+import 'package:stripes_ui/Providers/base_providers.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/Providers/Test/test_provider.dart';
 import 'package:stripes_ui/UI/History/Timeline/list_style_view.dart';
@@ -19,7 +20,6 @@ import 'package:stripes_ui/Util/Widgets/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
 
-import 'package:stripes_ui/entry.dart';
 import 'package:stripes_ui/Providers/Navigation/sheet_provider.dart';
 import 'package:stripes_ui/Providers/Navigation/navigation_provider.dart';
 
@@ -39,9 +39,14 @@ class TabContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (selected == TabOption.record) return const RecordScreenContent();
-    if (selected == TabOption.tests) return const TestScreenContent();
-    return const HistoryScreenContent();
+    return IndexedStack(
+      index: selected.index,
+      children: const [
+        RecordScreenContent(),
+        TestScreenContent(),
+        HistoryScreenContent(),
+      ],
+    );
   }
 }
 
@@ -141,9 +146,7 @@ class RefreshWidgetState extends ConsumerState<RefreshWidget> {
           navBarHeaderKey.currentState?.setLoading(isLoading: true);
           const String timeout = "Time Out";
           final Object? completed = await Future.any([
-            if (widget.depth == RefreshDepth.authuser) authFuture(),
-            if (widget.depth == RefreshDepth.subuser) subFuture(),
-            if (widget.depth == RefreshDepth.stamp) stampFuture(),
+            _refresh(),
             Future.delayed(const Duration(seconds: 5), () => timeout),
           ]);
           if (completed == timeout && context.mounted) {
@@ -154,21 +157,58 @@ class RefreshWidgetState extends ConsumerState<RefreshWidget> {
         child: widget.scrollable);
   }
 
+  Future<void> _refresh() async {
+    switch (widget.depth) {
+      case RefreshDepth.authuser:
+        await Future.wait([
+          authFuture(),
+          subFuture(),
+          stampFuture(),
+          testFuture(),
+        ]);
+        break;
+      case RefreshDepth.subuser:
+        await Future.wait([
+          subFuture(),
+          stampFuture(),
+          testFuture(),
+        ]);
+        break;
+      case RefreshDepth.stamp:
+        await stampFuture();
+        break;
+    }
+  }
+
   Future<AuthUser> authFuture() {
     ref.invalidate(authProvider);
     Completer<AuthUser> completer = Completer();
     ref.read(authProvider).user.listen((data) {
+      if (completer.isCompleted) return;
       completer.complete(data);
     });
     return completer.future;
   }
 
   Future<SubUserRepo?> subFuture() async {
-    return ref.refresh(subProvider.future);
+    final SubUserRepo? repo = await ref.read(subProvider.future);
+    await repo?.refresh();
+    return repo;
   }
 
-  Future<StampRepo<Stamp>?> stampFuture() {
-    return ref.refresh(stampProvider.future);
+  Future<StampRepo<Stamp>?> stampFuture() async {
+    final StampRepo<Stamp>? repo = await ref.read(stampProvider.future);
+    await repo?.refresh();
+    return repo;
+  }
+
+  Future<void> testFuture() async {
+    final TestsState? holder = ref.read(testsHolderProvider).valueOrNull;
+    final List<Test>? tests = holder?.testsRepo?.tests;
+    if (tests == null) return;
+    for (final test in tests) {
+      await test.refresh();
+    }
   }
 }
 

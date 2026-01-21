@@ -10,6 +10,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/History/display_data_provider.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
+import 'package:stripes_ui/l10n/questions_delegate.dart';
 
 // Web-specific import for downloads
 import 'package:stripes_ui/Services/web_download_stub.dart'
@@ -108,30 +109,39 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
                 _SectionHeader(title: l10n.csvExportPreview),
                 const SizedBox(height: AppPadding.medium),
 
-                // Stats cards
-                Wrap(
-                  spacing: AppPadding.medium,
-                  runSpacing: AppPadding.medium,
-                  children: [
-                    _StatCard(
-                      icon: Icons.table_rows_outlined,
-                      label: l10n.csvTotalRows,
-                      value: csvStats.totalRows.toString(),
-                      color: colors.primary,
-                    ),
-                    _StatCard(
-                      icon: Icons.note_alt_outlined,
-                      label: l10n.csvDetailEntries,
-                      value: csvStats.detailCount.toString(),
-                      color: colors.secondary,
-                    ),
-                    _StatCard(
-                      icon: Icons.science_outlined,
-                      label: l10n.csvBlueDyeTests,
-                      value: csvStats.blueDyeCount.toString(),
-                      color: colors.tertiary,
-                    ),
-                  ],
+                // Stats cards - wrapped in IntrinsicHeight for equal heights
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: _StatCard(
+                          icon: Icons.table_rows_outlined,
+                          label: l10n.csvTotalRows,
+                          value: csvStats.totalRows.toString(),
+                          color: colors.primary,
+                        ),
+                      ),
+                      const SizedBox(width: AppPadding.medium),
+                      Expanded(
+                        child: _StatCard(
+                          icon: Icons.note_alt_outlined,
+                          label: l10n.csvDetailEntries,
+                          value: csvStats.detailCount.toString(),
+                          color: colors.secondary,
+                        ),
+                      ),
+                      const SizedBox(width: AppPadding.medium),
+                      Expanded(
+                        child: _StatCard(
+                          icon: Icons.science_outlined,
+                          label: l10n.csvBlueDyeTests,
+                          value: csvStats.blueDyeCount.toString(),
+                          color: colors.tertiary,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
 
                 const SizedBox(height: AppPadding.xl),
@@ -143,7 +153,7 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
                 if (csvStats.detailCount > 0)
                   _FileInfoTile(
                     icon: Icons.description_outlined,
-                    filename: 'detail_responses.csv',
+                    filename: 'responses.csv',
                     description: l10n.csvEntriesWithRows(
                         csvStats.detailCount, csvStats.totalDetailRows),
                     columns: const [
@@ -161,17 +171,17 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
                   const SizedBox(height: AppPadding.medium),
                   _FileInfoTile(
                     icon: Icons.science_outlined,
-                    filename: 'test_responses.csv',
+                    filename: 'transit_responses.csv',
                     description:
                         l10n.csvBlueDyeTestResults(csvStats.blueDyeCount),
                     columns: const [
-                      'id',
-                      'meal start',
-                      'meal duration',
-                      'brown bms',
-                      'blue bms',
-                      'transit time',
-                      'lag phase'
+                      'ID',
+                      'Transit Start',
+                      'Transit Duration',
+                      'Lag Phase',
+                      'BM Date',
+                      'Is Blue',
+                      '...'
                     ],
                   ),
                 ],
@@ -248,7 +258,6 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
       );
     }
 
-    // Build simple list-based preview instead of DataTable for better display
     return Container(
       decoration: BoxDecoration(
         border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.5)),
@@ -302,6 +311,7 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
           ),
           // Data rows
           ...detailResponses.expand((detail) {
+            final questionsL10n = QuestionsLocalizations.of(context);
             final date = dateFromStamp(detail.stamp);
             final dateStr = '${date.month}/${date.day}/${date.year}';
             return detail.responses.take(2).map((r) => Container(
@@ -328,7 +338,7 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
                       Expanded(
                         flex: 2,
                         child: Text(
-                          r.type,
+                          questionsL10n?.value(r.type) ?? r.type,
                           style: textTheme.bodySmall,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -336,7 +346,7 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
                       Expanded(
                         flex: 3,
                         child: Text(
-                          _formatResponse(r),
+                          _formatResponse(r, questionsL10n),
                           style: textTheme.bodySmall,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -350,7 +360,10 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
     );
   }
 
-  String _formatResponse(Response response) {
+  String _formatResponse(Response response,
+      [QuestionsLocalizations? questionsL10n]) {
+    String localize(String key) => questionsL10n?.value(key) ?? key;
+
     if (response is NumericResponse) {
       return '${response.response}';
     }
@@ -359,12 +372,12 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
     }
     if (response is MultiResponse) {
       if (response.index < response.question.choices.length) {
-        return response.question.choices[response.index];
+        return localize(response.question.choices[response.index]);
       }
       return 'Unknown';
     }
     if (response is AllResponse) {
-      return response.choices.join(', ');
+      return response.choices.map((c) => localize(c)).join(', ');
     }
     return 'Selected';
   }
@@ -389,6 +402,7 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
 
   Future<void> _exportCsv(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
+    final questionsL10n = QuestionsLocalizations.of(context);
     setState(() => _isExporting = true);
 
     try {
@@ -396,7 +410,7 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
           widget.responses.whereType<DetailResponse>().toList();
       String? detailCsv;
       if (detailResponses.isNotEmpty) {
-        detailCsv = _generateDetailCsv(detailResponses);
+        detailCsv = _generateDetailCsv(detailResponses, questionsL10n);
       }
 
       final blueDyeResponses =
@@ -408,13 +422,12 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
 
       if (kIsWeb) {
         if (detailCsv != null) {
-          web_download.downloadFile(
-              detailCsv, 'detail_responses.csv', 'text/csv');
+          web_download.downloadFile(detailCsv, 'responses.csv', 'text/csv');
         }
         if (blueDyeCsv != null) {
           await Future.delayed(const Duration(milliseconds: 500));
           web_download.downloadFile(
-              blueDyeCsv, 'test_responses.csv', 'text/csv');
+              blueDyeCsv, 'transit_responses.csv', 'text/csv');
         }
       } else {
         // Native: Use share dialog
@@ -422,18 +435,18 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
         final Directory tempDir = await getTemporaryDirectory();
 
         if (detailCsv != null) {
-          final detailFile = File('${tempDir.path}/detail_responses.csv');
+          final detailFile = File('${tempDir.path}/responses.csv');
           await detailFile.writeAsString(detailCsv);
           files.add(XFile(detailFile.path));
         }
 
         if (blueDyeCsv != null) {
-          final blueDyeFile = File('${tempDir.path}/test_responses.csv');
+          final blueDyeFile = File('${tempDir.path}/transit_responses.csv');
           await blueDyeFile.writeAsString(blueDyeCsv);
           files.add(XFile(blueDyeFile.path));
         }
 
-        if (files.isNotEmpty) {
+        if (files.isNotEmpty && context.mounted) {
           // Get share position for iPad
           final RenderBox? box = context.findRenderObject() as RenderBox?;
           final Rect? sharePositionOrigin =
@@ -454,6 +467,7 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(l10n.csvExportFailed(e.toString())),
+            duration: const Duration(seconds: 4),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
@@ -465,17 +479,20 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
     }
   }
 
-  String _generateDetailCsv(List<DetailResponse> responses) {
+  String _generateDetailCsv(
+      List<DetailResponse> responses, QuestionsLocalizations? questionsL10n) {
     const headers = [
       'id',
       'date',
       'group',
-      'type',
+      'category',
       'prompt',
       'response',
       'description'
     ];
     final rows = <List<dynamic>>[headers];
+
+    String localize(String key) => questionsL10n?.value(key) ?? key;
 
     for (final detail in responses) {
       final date = dateFromStamp(detail.stamp);
@@ -484,10 +501,10 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
         rows.add([
           detail.id ?? '',
           dateStr,
-          detail.group,
-          r.type,
-          r.question.prompt,
-          _formatResponse(r),
+          detail.group != null ? localize(detail.group!) : '',
+          localize(r.type),
+          localize(r.question.prompt),
+          _formatResponse(r, questionsL10n),
           detail.description ?? '',
         ]);
       }
@@ -498,31 +515,68 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
 
   String _generateBlueDyeCsv(List<BlueDyeResp> responses) {
     const headers = [
-      'id',
-      'meal start',
-      'meal duration',
-      'brown bms',
-      'blue bms',
-      'transit time',
-      'lag phase'
+      'ID',
+      'Amount Consumed',
+      'Test Start',
+      'Eating Duration',
+      'Finished Eating',
+      'Transit Duration',
+      'Lag Phase',
+      'BM Date',
+      'BMID',
+      'Description',
+      'Is Blue',
+      'Prompt',
+      'Response'
     ];
     final rows = <List<dynamic>>[headers];
 
     for (final resp in responses) {
-      final transitTime = resp.firstBlue.difference(
-        resp.startEating.add(resp.eatingDuration),
-      );
+      // Correct calculations:
+      // Transit Duration = time from START of eating to first blue BM
+      final transitDuration = resp.firstBlue.difference(resp.startEating);
+      // Lag Phase = time from first blue BM to last blue BM
       final lagPhase = resp.lastBlue.difference(resp.firstBlue);
 
-      rows.add([
-        resp.id ?? '',
-        resp.startEating.toIso8601String(),
-        resp.eatingDuration.inMinutes,
-        resp.normalBowelMovements,
-        resp.blueBowelMovements,
-        transitTime.inMinutes,
-        lagPhase.inMinutes,
-      ]);
+      final finishedEatingTime =
+          resp.finishedEatingTime ?? resp.startEating.add(resp.eatingDuration);
+
+      // One row per response within each BM log (nested: Test -> Log -> Response)
+      for (final log in resp.logs) {
+        final bmDate = dateFromStamp(log.stamp);
+
+        for (final logResponse in log.response.responses) {
+          String prompt = logResponse.question.prompt;
+          String responseValue = '';
+
+          if (logResponse is NumericResponse) {
+            responseValue = '${logResponse.response}';
+          } else if (logResponse is OpenResponse) {
+            responseValue = logResponse.response;
+          } else if (logResponse is MultiResponse &&
+              logResponse.index < logResponse.question.choices.length) {
+            responseValue = logResponse.question.choices[logResponse.index];
+          } else if (logResponse is AllResponse) {
+            responseValue = logResponse.choices.join(', ');
+          }
+
+          rows.add([
+            resp.id ?? '',
+            resp.amountConsumed.name,
+            resp.startEating.toIso8601String(),
+            resp.eatingDuration.inMinutes,
+            finishedEatingTime.toIso8601String(),
+            transitDuration.inMinutes,
+            lagPhase.inMinutes,
+            bmDate.toIso8601String(),
+            log.id ?? '',
+            log.response.description ?? '',
+            log.isBlue ? 'true' : 'false',
+            prompt,
+            responseValue,
+          ]);
+        }
+      }
     }
 
     return const ListToCsvConverter().convert(rows);
@@ -577,7 +631,6 @@ class _StatCard extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
 
     return Container(
-      width: 100,
       padding: const EdgeInsets.all(AppPadding.medium),
       decoration: BoxDecoration(
         color: colors.surfaceContainerLow,

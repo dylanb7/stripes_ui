@@ -1,6 +1,8 @@
 import 'dart:collection';
 
+import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -14,6 +16,7 @@ import 'package:stripes_ui/UI/History/Filters/filter_logic.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
 import 'package:stripes_ui/Util/Helpers/date_range_utils.dart';
+import 'package:stripes_ui/UI/History/Timeline/review_period_data.dart';
 
 // TimeCycle is now imported from date_range_utils.dart\n
 enum ViewMode { events, reviews, graph }
@@ -132,7 +135,7 @@ class DisplayDataSettings extends Equatable {
   DateFormat getFormat() {
     switch (cycle) {
       case TimeCycle.day:
-        return DateFormat.H();
+        return DateFormat.j();
       case TimeCycle.week:
         return DateFormat.E();
       case TimeCycle.month:
@@ -265,7 +268,9 @@ class DisplayDataSettings extends Equatable {
 }
 
 class DisplayDataProvider extends StateNotifier<DisplayDataSettings> {
-  DisplayDataProvider()
+  final Ref ref;
+
+  DisplayDataProvider(this.ref)
       : super(DisplayDataSettings(
           range: DateTimeRange(
               start: DateTime.now(),
@@ -285,10 +290,17 @@ class DisplayDataProvider extends StateNotifier<DisplayDataSettings> {
     } else {
       newRange = DateRangeUtils.calculateRange(cycle, seed);
     }
+
+    changeEarliestDate(ref, newRange.start);
     state = state.copyWith(cycle: cycle, range: newRange);
   }
 
+  void ensureDate(DateTime date) {
+    changeEarliestDate(ref, date);
+  }
+
   void setRange(DateTimeRange range, {TimeCycle? cycle}) {
+    changeEarliestDate(ref, range.start);
     state = state.copyWith(range: range, cycle: cycle ?? state.cycle);
   }
 
@@ -310,6 +322,7 @@ class DisplayDataProvider extends StateNotifier<DisplayDataSettings> {
     if (forward && newRange.start.isAfter(DateTime.now())) return;
     if (!forward && newRange.end.isBefore(SigDates.minDate)) return;
 
+    changeEarliestDate(ref, newRange.start);
     state = state.copyWith(range: newRange);
   }
 
@@ -331,12 +344,12 @@ class DisplayDataProvider extends StateNotifier<DisplayDataSettings> {
 
 final displayDataProvider =
     StateNotifierProvider<DisplayDataProvider, DisplayDataSettings>((ref) {
-  return DisplayDataProvider();
+  return DisplayDataProvider(ref);
 });
 
 final inRangeProvider = FutureProvider.autoDispose<List<Response>>((ref) async {
   final DisplayDataSettings settings = ref.watch(displayDataProvider);
-  final List<Stamp> stamps = await ref.watch(stampHolderProvider.future);
+  final List<Stamp> stamps = await ref.watch(stampsStreamProvider.future);
 
   return stamps.whereType<Response>().where((response) {
     final date = dateFromStamp(response.stamp);
@@ -378,6 +391,9 @@ final graphStampsProvider =
   final settings = ref.watch(displayDataProvider);
   final available = await ref.watch(availableStampsProvider.future);
 
+  // Watch review paths to determine which types are reviews
+  final reviewPathsMap = await ref.watch(reviewPathsByTypeProvider.future);
+
   final SplayTreeMap<GraphKey, List<Response>> byType = SplayTreeMap(
     (a, b) => a.title.compareTo(b.title),
   );
@@ -396,10 +412,17 @@ final graphStampsProvider =
       flattened = flattened.whereType<NumericResponse>().toList();
     }
     for (final Response response in flattened) {
+      // Check if this type is a review (has a period)
+      final reviewPath = reviewPathsMap[response.type];
+      final bool isReview = reviewPath?.period != null;
+
       final GraphKey key = GraphKey(
-          title: response.question.prompt,
-          isCategory: false,
-          qid: response.question.id);
+        title: response.question.prompt,
+        isCategory: false,
+        qid: response.question.id,
+        type: response.type,
+        isReview: isReview,
+      );
       if (byQuestion.containsKey(key)) {
         byQuestion[key]!.add(response);
       } else {
@@ -408,6 +431,8 @@ final graphStampsProvider =
       final GraphKey categoryKey = GraphKey(
         title: response.type,
         isCategory: true,
+        type: response.type,
+        isReview: isReview,
       );
       if (byType.containsKey(categoryKey)) {
         byType[categoryKey]!.add(response);
@@ -416,14 +441,37 @@ final graphStampsProvider =
       }
     }
   }
-  byType.addAll(byQuestion);
-  return byType..addAll(byQuestion);
+  // Create a combined map but avoid adding redundant category keys
+  // if they only contain a single symptom with the same name/prompt.
+  final Map<GraphKey, List<Response>> combined = {};
+
+  // Group byCategory keys and see if they are redundant
+  for (final catEntry in byType.entries) {
+    final catKey = catEntry.key;
+    final catResponses = catEntry.value;
+
+    // Find if there's an exact matching question key
+    final matchingQuestion = byQuestion.entries.firstWhereOrNull((q) =>
+        q.key.title == catKey.title &&
+        q.value.length == catResponses.length &&
+        listEquals(q.value, catResponses));
+
+    if (matchingQuestion == null) {
+      combined[catKey] = catResponses;
+    }
+  }
+
+  combined.addAll(byQuestion);
+  return SplayTreeMap<GraphKey, List<Response>>.from(
+    combined,
+    (a, b) => a.title.compareTo(b.title),
+  );
 });
 
 final eventsMapProvider =
     FutureProvider<Map<DateTime, List<Response>>>((ref) async {
   final settings = ref.watch(displayDataProvider);
-  final stamps = await ref.watch(stampHolderProvider.future);
+  final stamps = ref.watch(stampsStreamProvider).valueOrNull ?? [];
 
   // Group filters by type (same logic as availableStampsProvider)
   final Map<String, List<LabeledFilter>> groupedFilters =
@@ -451,7 +499,7 @@ final eventsMapProvider =
 
 final unfilteredEventsMapProvider =
     FutureProvider<Map<DateTime, List<Response>>>((ref) async {
-  final stamps = await ref.watch(stampHolderProvider.future);
+  final stamps = await ref.watch(stampsStreamProvider.future);
 
   final allResponses = stamps.whereType<Response>().toList();
 
@@ -587,30 +635,44 @@ class GraphKey extends Equatable {
   final bool isCategory;
   final String title;
   final String? qid;
+  final String? type;
+  final bool isReview;
 
-  const GraphKey({required this.title, required this.isCategory, this.qid});
+  const GraphKey({
+    required this.title,
+    required this.isCategory,
+    this.qid,
+    this.type,
+    this.isReview = false,
+  });
 
   String toLocalizedString(BuildContext context) {
     QuestionsLocalizations? localizations = QuestionsLocalizations.of(context);
-    final String localized = localizations?.value(title) ?? title;
+    return "${isCategory ? "Category · " : ""} ${localizations?.value(title) ?? title}";
+  }
 
-    if (!isCategory &&
-        (localized.toLowerCase().contains("all that apply") ||
-            localized.toLowerCase().contains("multiple choice") ||
-            localized.toLowerCase().contains("how often") ||
-            localized.toLowerCase().contains("how much") ||
-            localized.isEmpty)) {
-      if (qid != null && qid!.contains('.')) {
-        final symptomPart = qid!.split('.').first;
-        return localizations?.value(symptomPart) ?? symptomPart;
-      }
-    }
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'isCategory': isCategory,
+      'qid': qid,
+      'type': type,
+      'isReview': isReview,
+    };
+  }
 
-    return localized;
+  factory GraphKey.fromJson(Map<String, dynamic> map) {
+    return GraphKey(
+      title: map['title'] as String,
+      isCategory: map['isCategory'] as bool,
+      qid: map['qid'] as String?,
+      type: map['type'] as String?,
+      isReview: map['isReview'] as bool? ?? false,
+    );
   }
 
   @override
-  List<Object?> get props => [isCategory, title, qid];
+  List<Object?> get props => [isCategory, title, qid, type, isReview];
 }
 
 typedef StampFilter = bool Function(Stamp);

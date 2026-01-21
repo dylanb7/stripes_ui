@@ -4,8 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/Auth/auth_provider.dart';
 import 'package:stripes_ui/Providers/History/stamps_provider.dart';
+import 'package:stripes_ui/Providers/base_providers.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
-import 'package:stripes_ui/entry.dart';
 
 final questionsProvider = FutureProvider<QuestionRepo?>((ref) async {
   final AuthUser user = await ref.watch(authStream.future);

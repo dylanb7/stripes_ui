@@ -113,9 +113,9 @@ class DateRangeUtils {
         return current;
 
       case TimeCycle.custom:
-        final duration = current.duration;
+        final totalDaysInRange = DateRangeUtils.calendarDays(current);
         final shiftDuration =
-            duration.inDays > 0 ? duration : const Duration(days: 1);
+            Duration(days: totalDaysInRange > 0 ? totalDaysInRange : 1);
         newStart =
             forward ? start.add(shiftDuration) : start.subtract(shiftDuration);
         newEnd = newStart.add(shiftDuration);
@@ -208,5 +208,28 @@ class DateRangeUtils {
   static bool canGoNext(TimeCycle cycle, DateTimeRange range) {
     if (cycle == TimeCycle.all) return false;
     return range.end.isBefore(DateTime.now());
+  }
+
+  /// Returns the number of calendar days spanned by the range.
+  static int calendarDays(DateTimeRange range) {
+    if (range.start == range.end) return 1;
+    final startDay =
+        DateTime(range.start.year, range.start.month, range.start.day);
+    final endDay = DateTime(range.end.year, range.end.month, range.end.day);
+
+    // inDays is duration/24h. We want calendar days.
+    // E.g. Jan 1 23:59 to Jan 2 00:01 spans 2 calendar days.
+    // diff.inDays would be 0.
+    final count = endDay.difference(startDay).inDays;
+
+    // If end is at exact midnight of a day, we usually don't count that day as it's the exclusive end.
+    if (range.end.hour == 0 &&
+        range.end.minute == 0 &&
+        range.end.second == 0 &&
+        range.end.millisecond == 0) {
+      return count > 0 ? count : 1;
+    }
+
+    return count + 1;
   }
 }

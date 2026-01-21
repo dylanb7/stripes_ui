@@ -3,14 +3,16 @@ import 'dart:math';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_axis.dart';
+import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_style.dart';
 
 @immutable
 class DataBounds extends Equatable {
   final double minX, maxX, minY, maxY;
 
   final double labelMinX, labelMaxX;
-  final double yAxisTickSize, xAxisTickSize;
+  final double? yAxisTickSize, xAxisTickSize;
   final double minDataStep;
+  final LabelAlignment alignment;
 
   const DataBounds({
     required this.minX,
@@ -19,8 +21,9 @@ class DataBounds extends Equatable {
     required this.maxY,
     double? labelMinX,
     double? labelMaxX,
-    this.yAxisTickSize = 1.0,
-    this.xAxisTickSize = 1.0,
+    this.yAxisTickSize,
+    this.xAxisTickSize,
+    this.alignment = LabelAlignment.start,
     this.minDataStep = 0.0,
   })  : labelMinX = labelMinX ?? minX,
         labelMaxX = labelMaxX ?? maxX;
@@ -34,26 +37,38 @@ class DataBounds extends Equatable {
       minY: range.lowerBound,
       maxY: range.upperBound,
       yAxisTickSize: range.tickSize,
+      alignment: alignment,
     );
   }
 
   static DataBounds combined(Iterable<DataBounds> dataBounds) {
     if (dataBounds.isEmpty) {
-      return const DataBounds(minX: 0.0, maxX: 1.0, minY: 0.0, maxY: 1.0);
+      return const DataBounds(
+          minX: 0.0,
+          maxX: 1.0,
+          minY: 0.0,
+          maxY: 1.0,
+          yAxisTickSize: 1.0,
+          xAxisTickSize: 1.0);
     }
     double minX = double.infinity;
     double maxX = double.negativeInfinity;
     double minY = double.infinity;
     double maxY = double.negativeInfinity;
-    double minStep = double.infinity;
+    double? minDataStep;
+    LabelAlignment alignment = LabelAlignment.start;
 
-    for (var item in dataBounds) {
+    for (final item in dataBounds) {
       if (item.minX < minX) minX = item.minX;
       if (item.maxX > maxX) maxX = item.maxX;
       if (item.minY < minY) minY = item.minY;
       if (item.maxY > maxY) maxY = item.maxY;
-      if (item.minDataStep > 0 && item.minDataStep < minStep) {
-        minStep = item.minDataStep;
+      if (item.minDataStep > 0 &&
+          (minDataStep == null || item.minDataStep < minDataStep)) {
+        minDataStep = item.minDataStep;
+      }
+      if (item.alignment == LabelAlignment.center) {
+        alignment = LabelAlignment.center;
       }
     }
 
@@ -62,7 +77,8 @@ class DataBounds extends Equatable {
       maxX: maxX,
       minY: minY,
       maxY: maxY,
-      minDataStep: minStep == double.infinity ? 0.0 : minStep,
+      minDataStep: minDataStep ?? 0.0,
+      alignment: alignment,
     );
   }
 
@@ -85,7 +101,13 @@ sealed class ChartSeriesData<T, D> extends Equatable {
 
   DataBounds calculateRanges(ChartAxis<D> axis) {
     if (data.isEmpty) {
-      return const DataBounds(minX: 0.0, maxX: 1.0, minY: 0.0, maxY: 1.0);
+      return const DataBounds(
+          minX: 0.0,
+          maxX: 1.0,
+          minY: 0.0,
+          maxY: 1.0,
+          yAxisTickSize: 1.0,
+          xAxisTickSize: 1.0);
     }
     double minX = double.infinity;
     double maxX = double.negativeInfinity;
@@ -119,7 +141,8 @@ class BarChartData<T, D> extends ChartSeriesData<T, D> {
   @override
   DataBounds calculateRanges(ChartAxis<D> axis) {
     final DataBounds bounds = super.calculateRanges(axis);
-    final DataBounds withY = bounds.withNormalizedYRange(ticks: data.length);
+    // Use a reasonable target for Y ticks, not just data.length
+    final DataBounds withY = bounds.withNormalizedYRange(ticks: 3);
 
     double minStep = double.infinity;
     if (data.length > 1) {
@@ -130,7 +153,7 @@ class BarChartData<T, D> extends ChartSeriesData<T, D> {
         if (diff < minStep && diff > 0) minStep = diff;
       }
     }
-    if (minStep == double.infinity) minStep = 1.0;
+    if (minStep == double.infinity) minStep = 0.0;
 
     return DataBounds(
       minX: withY.minX,
@@ -140,6 +163,7 @@ class BarChartData<T, D> extends ChartSeriesData<T, D> {
       yAxisTickSize: withY.yAxisTickSize,
       xAxisTickSize: withY.xAxisTickSize,
       minDataStep: minStep,
+      alignment: LabelAlignment.center,
     );
   }
 }
@@ -171,6 +195,70 @@ class ScatterChartData<T, D> extends ChartSeriesData<T, D> {
 
   @override
   List<Object?> get props => [data]; // getRadius excluded as it is a function
+}
+
+/// Chart data for rendering horizontal range segments (e.g., review periods).
+///
+/// Unlike point data (bars, lines, scatter), range data represents spans
+/// with both a start and end X value.
+class RangeChartData<T, D> extends ChartSeriesData<T, D> {
+  /// Function to get the end X value of the range
+  final D Function(T, int index) getPointXEnd;
+
+  /// Optional label for the range
+  final String Function(T, int index)? getRangeLabel;
+
+  const RangeChartData({
+    required super.data,
+    required super.getPointY,
+    required super.getPointX,
+    required this.getPointXEnd,
+    required super.getPointColor,
+    this.getRangeLabel,
+  });
+
+  @override
+  DataBounds calculateRanges(ChartAxis<D> axis) {
+    if (data.isEmpty) {
+      return const DataBounds(
+        minX: 0.0,
+        maxX: 1.0,
+        minY: 0.0,
+        maxY: 1.0,
+        yAxisTickSize: 1.0,
+        xAxisTickSize: 1.0,
+      );
+    }
+
+    double minX = double.infinity;
+    double maxX = double.negativeInfinity;
+    double minY = double.infinity;
+    double maxY = double.negativeInfinity;
+
+    for (int i = 0; i < data.length; i++) {
+      final D pointXStart = getPointX(data[i], i);
+      final D pointXEnd = getPointXEnd(data[i], i);
+      final xStart = axis.toDouble(pointXStart);
+      final xEnd = axis.toDouble(pointXEnd);
+      final y = getPointY(data[i], i);
+
+      if (xStart < minX) minX = xStart;
+      if (xEnd > maxX) maxX = xEnd;
+      if (y < minY) minY = y;
+      if (y > maxY) maxY = y;
+    }
+
+    return DataBounds(
+      minX: minX,
+      maxX: maxX,
+      minY: minY,
+      maxY: maxY,
+      alignment: LabelAlignment.center,
+    );
+  }
+
+  @override
+  List<Object?> get props => [data];
 }
 
 @immutable

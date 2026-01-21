@@ -112,7 +112,6 @@ class _TimeRangeHeader extends ConsumerWidget {
                   Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
             ),
           ),
-          padding: const EdgeInsets.all(4),
           child: DateRangeSelector(
             rangeText: state.getRangeString(),
             canGoPrev: state.canGoPrev,

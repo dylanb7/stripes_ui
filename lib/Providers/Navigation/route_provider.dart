@@ -1,17 +1,18 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:stripes_backend_helper/stripes_backend_helper.dart';
+import 'package:stripes_ui/Providers/Questions/questions_provider.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_ui/Providers/History/display_data_provider.dart';
 import 'package:stripes_ui/UI/AccountManagement/SymptomManagement/symptom_management_screen.dart';
 import 'package:stripes_ui/UI/AccountManagement/SymptomManagement/symptom_type_management.dart';
 import 'package:stripes_ui/UI/AccountManagement/account_management_screen.dart';
-import 'package:stripes_ui/UI/AccountManagement/baselines_section.dart';
 import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
-import 'package:stripes_ui/UI/History/DashboardView/dashboard_screen.dart';
+import 'package:stripes_ui/UI/History/GraphView/graph_view_screen.dart';
 import 'package:stripes_ui/UI/History/GraphView/graphs_list.dart';
-import 'package:stripes_ui/UI/Record/RecordSplit/baseline_entry.dart';
 
 import 'package:stripes_ui/Providers/Auth/auth_provider.dart';
 import 'package:stripes_ui/UI/AccountManagement/ProfileScreen/profile_screen.dart';
@@ -34,6 +35,7 @@ final routeProvider = Provider<GoRouter>((ref) {
       refreshListenable: router,
       /*redirect: router._redirect,*/
       initialLocation: Routes.HOME,
+      extraCodec: MainExtraCodec(ref),
       routes: router._routes);
 });
 
@@ -73,6 +75,8 @@ class RouteNotifier extends ChangeNotifier {
 
               final List<String> pathSegments = state.uri.pathSegments;
 
+              bool inAccount = pathSegments[0] == RouteName.ACCOUNT;
+
               if (pathSegments.length == 1) {
                 final int currentTabIndex = [
                   RouteName.HOME,
@@ -83,10 +87,6 @@ class RouteNotifier extends ChangeNotifier {
                     ? null
                     : TabOption.values[currentTabIndex];
               }
-
-              bool inRecording = pathSegments[0] == RouteName.ACCOUNT;
-
-              bool inAccount = pathSegments[0] == RouteName.ACCOUNT;
 
               return NoTransitionPage(
                   child: PageWrap(
@@ -123,7 +123,7 @@ class RouteNotifier extends ChangeNotifier {
                     pageBuilder: (context, state) =>
                         FadeIn(child: const PatientScreen(), state: state),
                   ),
-                  GoRoute(
+                  /*GoRoute(
                     parentNavigatorKey: _shellNavigatorKey,
                     name: RouteName.BASELINES,
                     path: Routes.BASELINES,
@@ -155,14 +155,14 @@ class RouteNotifier extends ChangeNotifier {
                           ),
                           state: state);
                     },
-                  ),
-                  GoRoute(
+                  ),*/
+                  /*GoRoute(
                     parentNavigatorKey: _shellNavigatorKey,
                     name: RouteName.DASHBOARD,
                     path: Routes.DASHBOARD,
                     pageBuilder: (context, state) =>
                         FadeIn(child: const DashboardScreen(), state: state),
-                  ),
+                  ),*/
                   GoRoute(
                       parentNavigatorKey: _shellNavigatorKey,
                       name: RouteName.SYMPTOMS,
@@ -287,34 +287,6 @@ class RouteNotifier extends ChangeNotifier {
                 ),
               ),
             ]),
-
-        /*
-        GoRoute(
-          name: Routes.BM,
-          path: '${Routes.HOME}/${Routes.BM}',
-          pageBuilder: (context, state) =>
-              FadeIn(child: BowelMovementLog(data: _data(state)), state: state),
-        ),
-        GoRoute(
-          name: Routes.NB,
-          path: '${Routes.HOME}/${Routes.NB}',
-          pageBuilder: (context, state) => FadeIn(
-              child: NeurologicalBehaviorsLog(data: _data(state)),
-              state: state),
-        ),
-        GoRoute(
-          name: Routes.PAIN,
-          path: '${Routes.HOME}/${Routes.PAIN}',
-          pageBuilder: (context, state) =>
-              FadeIn(child: PainLog(data: _data(state)), state: state),
-        ),
-        GoRoute(
-          name: Routes.REFLUX,
-          path: '${Routes.HOME}/${Routes.REFLUX}',
-          pageBuilder: (context, state) =>
-              FadeIn(child: RefluxLog(data: _data(state)), state: state),
-        ),
-        */
       ];
 
   QuestionsListener? _data(GoRouterState state) {
@@ -347,4 +319,59 @@ class FadeIn extends CustomTransitionPage<void> {
                 ));
 
   static final CurveTween _curveTween = CurveTween(curve: Curves.easeIn);
+}
+
+class MainExtraCodec extends Codec<Object?, Object?> {
+  final Ref ref;
+
+  const MainExtraCodec(this.ref);
+
+  @override
+  Converter<Object?, Object?> get decoder => _MainExtraDecoder(ref);
+
+  @override
+  Converter<Object?, Object?> get encoder => const _MainExtraEncoder();
+}
+
+class _MainExtraDecoder extends Converter<Object?, Object?> {
+  final Ref ref;
+
+  const _MainExtraDecoder(this.ref);
+
+  @override
+  Object? convert(Object? input) {
+    if (input == null) {
+      return null;
+    }
+    if (input is Map<String, dynamic>) {
+      if (input['__type'] == 'GraphKey') {
+        return GraphKey.fromJson(input);
+      }
+      if (input['__type'] == 'QuestionsListener') {
+        final QuestionHome? home = ref.read(questionHomeProvider).valueOrNull;
+        if (home != null) {
+          return QuestionsListener.fromJson(input, home);
+        }
+      }
+    }
+    return null;
+  }
+}
+
+class _MainExtraEncoder extends Converter<Object?, Object?> {
+  const _MainExtraEncoder();
+
+  @override
+  Object? convert(Object? input) {
+    if (input == null) {
+      return null;
+    }
+    if (input is QuestionsListener) {
+      return input.toJson()..['__type'] = 'QuestionsListener';
+    }
+    if (input is GraphKey) {
+      return input.toJson()..['__type'] = 'GraphKey';
+    }
+    return input;
+  }
 }

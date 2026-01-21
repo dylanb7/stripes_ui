@@ -4,18 +4,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
+import 'package:stripes_ui/Providers/base_providers.dart';
 
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
-import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
-import 'package:stripes_ui/UI/Layout/home_screen.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/Util/Design/breakpoint.dart';
 
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:stripes_ui/config.dart';
-import 'package:stripes_ui/entry.dart';
 
 import 'add_profile_widget.dart';
 import 'profiles_view.dart';

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart' hide TimeOfDay;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_ui/Providers/History/display_data_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
@@ -8,24 +7,52 @@ import 'package:stripes_ui/UI/History/Filters/filter_logic.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
+import 'package:stripes_ui/Util/Helpers/history_reducer.dart';
 
-final setsProvider =
-    FutureProvider.autoDispose<Map<FilterType, FilterContext>>((ref) async {
+final historyContextProvider =
+    FutureProvider.autoDispose<HistoryContext>((ref) async {
   final List<Response> stamps = await ref.watch(inRangeProvider.future);
 
+  final List<ReducibleFeature> features = [
+    const AllCategoriesFeature(),
+    const AvailableGroupsFeature(),
+    const DescriptionCheckFeature(),
+    const NumericResponsesFeature(),
+    const DailyCountFeature(),
+    const TotalResponsesFeature(),
+  ];
+
+  return HistoryContext.build(
+    responses: stamps,
+    features: features,
+  );
+});
+
+final setsProvider =
+    Provider.autoDispose<Map<FilterType, FilterContext>>((ref) {
   final Map<FilterType, FilterContext> contexts = {};
 
   for (final type in FilterType.getValues()) {
     contexts[type] = type.createContext();
   }
 
-  for (final stamp in stamps) {
-    for (final type in FilterType.getValues()) {
-      contexts[type]!.buildContext(stamp);
+  return contexts;
+});
+
+/// Provider that checks if any filter types have available data
+final hasAvailableFiltersProvider =
+    FutureProvider.autoDispose<bool>((ref) async {
+  final HistoryContext historyCtx =
+      await ref.watch(historyContextProvider.future);
+  final Map<FilterType, FilterContext> contexts = ref.watch(setsProvider);
+
+  for (final type in FilterType.getValues()) {
+    final FilterContext? filterContext = contexts[type];
+    if (filterContext != null && filterContext.hasData(historyCtx)) {
+      return true;
     }
   }
-
-  return contexts;
+  return false;
 });
 
 class FilterSheet extends ConsumerStatefulWidget {
@@ -130,57 +157,46 @@ class _FilterSheetState extends ConsumerState<FilterSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final AsyncValue<Map<FilterType, FilterContext>> available =
-        ref.watch(setsProvider);
+    final Map<FilterType, FilterContext> contexts = ref.watch(setsProvider);
+    final AsyncValue<HistoryContext> historyCtx =
+        ref.watch(historyContextProvider);
 
     return AsyncValueDefaults(
-      value: available,
+      value: historyCtx,
       onLoading: (_) => const LoadingWidget(),
       onError: (error) => ErrorWidget(error),
-      onData: (contexts) {
+      onData: (hCtx) {
         _initializeStates(contexts);
 
         List<Widget> visibleFilters = [];
-
         List<Widget> advancedFilters = [];
 
         for (final type in FilterType.getValues()) {
           final FilterContext? filterContext = contexts[type];
-          if (filterContext == null || !filterContext.hasData) continue;
+          if (filterContext == null || !filterContext.hasData(hCtx)) continue;
           final FilterState? filterState = filterStates[type];
           if (filterState == null) continue;
 
           final bool isVisible =
               !type.isAdvanced() || initiallyActiveFilters.contains(type);
 
+          final Widget ui = Builder(builder: (context) {
+            return filterContext.buildUI(
+              context: context,
+              historyContext: hCtx,
+              state: filterState,
+              onStateChanged: (newState) {
+                setState(() {
+                  filterStates[type] = newState;
+                });
+              },
+            );
+          });
+
           if (isVisible) {
-            visibleFilters.add(
-              Builder(builder: (context) {
-                return filterContext.buildUI(
-                  context: context,
-                  state: filterState,
-                  onStateChanged: (newState) {
-                    setState(() {
-                      filterStates[type] = newState;
-                    });
-                  },
-                );
-              }),
-            );
+            visibleFilters.add(ui);
           } else {
-            advancedFilters.add(
-              Builder(builder: (context) {
-                return filterContext.buildUI(
-                  context: context,
-                  state: filterState,
-                  onStateChanged: (newState) {
-                    setState(() {
-                      filterStates[type] = newState;
-                    });
-                  },
-                );
-              }),
-            );
+            advancedFilters.add(ui);
           }
         }
 

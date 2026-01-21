@@ -45,11 +45,8 @@ class Options extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(testsHolderProvider);
-
     final QuestionsLocalizations? localizations =
         QuestionsLocalizations.of(context);
-    // Use availableRecordPaths to filter out baseline-dependent paths if baseline is missing
     final AsyncValue<List<BaselineRecordItem>> paths =
         ref.watch(availableRecordPaths);
     final AsyncValue<List<ReviewItem>> checkins = ref.watch(
@@ -58,7 +55,8 @@ class Options extends ConsumerWidget {
       ),
     );
 
-    final AsyncValue<TestsRepo?> repo = ref.watch(testProvider);
+    final AsyncValue<TestsState> testsState = ref.watch(testsHolderProvider);
+    final TestsRepo? repo = testsState.valueOrNull?.testsRepo;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,7 +74,7 @@ class Options extends ConsumerWidget {
               return ReviewsPageView(
                 reviews: translatedReviews,
                 additions: (item) {
-                  return repo.valueOrNull?.getPathAdditions(context, item.type);
+                  return repo?.getPathAdditions(context, item.type);
                 },
               );
             }),
@@ -136,15 +134,14 @@ class Options extends ConsumerWidget {
                         textAlign: TextAlign.left,
                       ),
                       ...translatedItems.mapIndexed((index, item) {
-                        final List<Widget> additions = repo.valueOrNull
-                                ?.getPathAdditions(context, item.path.name) ??
+                        final String unlocalizedPathName =
+                            loadedItems[index].path.name;
+                        final List<Widget> additions = repo?.getPathAdditions(
+                                context, unlocalizedPathName) ??
                             [];
-
                         return RecordButton(item.path.name, (context) async {
                           await context.pushNamed('recordType',
-                              pathParameters: {
-                                'type': loadedItems[index].path.name
-                              },
+                              pathParameters: {'type': unlocalizedPathName},
                               extra: item.baseline);
                           if (context.mounted) {
                             ref.invalidate(stampsStreamProvider);
@@ -366,7 +363,7 @@ class LastEntryText extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<List<Stamp>> stamps = ref.watch(stampHolderProvider);
+    final AsyncValue<List<Stamp>> stamps = ref.watch(stampsStreamProvider);
     return stamps.map(
         data: (data) {
           final String lastEntry = data.value.isEmpty
@@ -432,7 +429,7 @@ class ReviewButton extends ConsumerWidget {
                         responses: item.response!.responses,
                         editId: item.response?.id,
                         submitTime: dateFromStamp(item.response!.stamp),
-                        desc: item.response!.description));
+                        description: item.response!.description));
               } else {
                 await context.pushNamed(
                   'recordType',

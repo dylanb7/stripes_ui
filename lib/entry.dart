@@ -7,6 +7,7 @@ import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/Auth/auth_provider.dart';
 import 'package:stripes_ui/Providers/Navigation/route_provider.dart';
 import 'package:stripes_ui/Providers/History/stamps_provider.dart';
+import 'package:stripes_ui/Providers/base_providers.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/Providers/test/test_provider.dart';
 import 'package:stripes_ui/Util/Design/custom_themes.dart';
@@ -45,10 +46,9 @@ class Logger extends ProviderObserver {
   }
 }
 
-final reposProvider = Provider<StripesRepoPackage>((ref) => LocalRepoPackage());
-
-final configProvider =
-    Provider<StripesConfig>((ref) => const StripesConfig.sandbox());
+/// Global key for ScaffoldMessenger to show snackbars that persist across navigation
+final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
 
 class StripesApp extends StatelessWidget {
   final StripesRepoPackage? repos;
@@ -63,7 +63,7 @@ class StripesApp extends StatelessWidget {
     return ProviderScope(
       overrides: [
         configProvider.overrideWith((ref) => config),
-        if (repos != null) reposProvider.overrideWith((ref) => repos!)
+        if (repos != null) reposProvider.overrideWith((ref) => repos!),
       ],
       observers: [if (config.hasLogging) const Logger()],
       child: StripesHome(
@@ -99,6 +99,7 @@ class StripesHome extends ConsumerWidget {
         if (delegates != null) ...delegates!
       ],
       supportedLocales: AppLocalizations.supportedLocales,
+      scaffoldMessengerKey: rootScaffoldMessengerKey,
       theme: light.copyWith(
         tooltipTheme: tooltipTheme(context),
       ),
@@ -119,7 +120,7 @@ class _EarlyInit extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(authStream);
     ref.watch(subHolderProvider);
-    ref.watch(stampHolderProvider);
+    ref.watch(stampsStreamProvider);
     ref.watch(testStreamProvider);
 
     return child;

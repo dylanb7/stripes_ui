@@ -28,7 +28,7 @@ typedef ExportAction = Future<void> Function(
 
 @immutable
 class StripesConfig {
-  final bool hasGraphing, hasLogging, hasSymptomEditing;
+  final bool hasGraphing, hasLogging, hasSymptomEditing, allowsSummaryReport;
 
   final ExportAction? export;
 
@@ -54,6 +54,7 @@ class StripesConfig {
       {required this.profileType,
       required this.hasGraphing,
       required this.hasLogging,
+      required this.allowsSummaryReport,
       this.hasSymptomEditing = true,
       this.locale,
       this.authStrategy,
@@ -69,6 +70,7 @@ class StripesConfig {
       : hasGraphing = true,
         hasLogging = true,
         hasSymptomEditing = true,
+        allowsSummaryReport = true,
         profileType = ProfileType.username,
         export = fileShare,
         builder = null,

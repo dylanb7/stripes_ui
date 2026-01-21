@@ -129,22 +129,28 @@ class _DateRangeSelectorState extends State<DateRangeSelector> {
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          AnimatedSwitcher(
-                            duration: Durations.short3,
-                            child: Text(
-                              _previewText ?? widget.rangeText,
-                              key: ValueKey(_previewText ?? widget.rangeText),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(
-                                    color: hasPreview
-                                        ? Theme.of(context).colorScheme.primary
-                                        : null,
-                                    fontWeight: hasPreview
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
-                                  ),
+                          Flexible(
+                            child: AnimatedSwitcher(
+                              duration: Durations.short3,
+                              child: Text(
+                                _previewText ?? widget.rangeText,
+                                key: ValueKey(_previewText ?? widget.rangeText),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
+                                      color: hasPreview
+                                          ? Theme.of(context)
+                                              .colorScheme
+                                              .primary
+                                          : null,
+                                      fontWeight: hasPreview
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                    ),
+                              ),
                             ),
                           ),
                           const SizedBox(width: AppPadding.tiny),

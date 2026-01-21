@@ -74,6 +74,7 @@ class DateWidget extends ConsumerWidget {
 
   _showDatePicker(BuildContext context, WidgetRef ref) async {
     final DateTime now = DateTime.now();
+
     DateTime? res = await showDatePicker(
         context: context,
         initialDate: dateListener.date,

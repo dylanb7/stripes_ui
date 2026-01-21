@@ -13,6 +13,8 @@ import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:stripes_ui/UI/CommonWidgets/sync_indicator.dart';
+import 'package:stripes_ui/Providers/Navigation/sheet_provider.dart';
 
 @immutable
 class NavPath {
@@ -133,6 +135,13 @@ class _PageWrapState extends ConsumerState<PageWrap> {
                             const SizedBox(width: AppPadding.small)
                           ]
                         : null,
+                    bottom: PreferredSize(
+                      preferredSize: const Size.fromHeight(1.0),
+                      child: Container(
+                        height: 1.0,
+                        color: Theme.of(context).colorScheme.outlineVariant,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -159,7 +168,7 @@ class _PageWrapState extends ConsumerState<PageWrap> {
                 }
                 return true;
               },
-              child: widget.child,
+              child: RepaintBoundary(child: widget.child),
             ),
             bottomNavigationBar: AnimatedContainer(
               duration: Durations.medium1,
@@ -176,28 +185,15 @@ class _PageWrapState extends ConsumerState<PageWrap> {
   }
 
   _toggleBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-        context: context,
-        useSafeArea: true,
-        isScrollControlled: true,
-        showDragHandle: false,
-        shape: RoundedRectangleBorder(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(AppRounding.large),
-            topRight: Radius.circular(AppRounding.large),
+    ref.read(sheetControllerProvider).show(
+          context: context,
+          scrollControlled: true,
+          initialChildSize: 0.95,
+          maxChildSize: 1.0,
+          sheetBuilder: (context, controller) => StripesInfoSheet(
+            scrollController: controller,
           ),
-          side: BorderSide(color: Theme.of(context).colorScheme.outline),
-        ),
-        builder: (context) {
-          return DraggableScrollableSheet(
-              initialChildSize: 1.0,
-              minChildSize: 1.0,
-              builder: (context, controller) {
-                return StripesInfoSheet(
-                  scrollController: controller,
-                );
-              });
-        });
+        );
   }
 }
 

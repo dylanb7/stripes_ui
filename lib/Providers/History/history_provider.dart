@@ -1,3 +1,4 @@
+/*
 import 'dart:collection';
 
 import 'package:equatable/equatable.dart';
@@ -13,7 +14,7 @@ import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/history/stamps_provider.dart';
 import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
 
-/*
+
 enum Loc {
   day,
   graph;

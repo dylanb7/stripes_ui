@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:stripes_backend_helper/QuestionModel/question.dart';
-import 'package:stripes_backend_helper/QuestionModel/response.dart';
-import 'package:stripes_backend_helper/RepositoryBase/StampBase/stamp.dart';
-import 'package:stripes_backend_helper/date_format.dart';
+import 'package:stripes_ui/Util/Helpers/history_reducer.dart';
 import 'package:stripes_ui/Providers/History/display_data_provider.dart';
 import 'package:stripes_ui/UI/History/Filters/filter_components.dart';
 import 'package:stripes_ui/Util/extensions.dart';
@@ -33,10 +30,10 @@ enum FilterType {
 
   bool isAdvanced() {
     switch (this) {
-      case FilterType.timeOfDay:
+      /*case FilterType.timeOfDay:
       //case FilterType.numericRange:
       case FilterType.group:
-        return true;
+        return true;*/
       default:
         return false;
     }
@@ -45,40 +42,86 @@ enum FilterType {
   FilterContext createContext() {
     switch (this) {
       case FilterType.category:
-        return CategoryContext();
+        return const CategoryContext();
       case FilterType.group:
-        return GroupContext();
+        return const GroupContext();
       case FilterType.timeOfDay:
-        return TimeOfDayContext();
+        return const TimeOfDayContext();
       case FilterType.description:
-        return DescriptionContext();
+        return const DescriptionContext();
       case FilterType.numericRange:
-        return NumericRangeContext();
+        return const NumericRangeContext();
     }
   }
 
-  static List<FilterType> getValues() => [
-        FilterType.category,
-        FilterType.description,
-        FilterType.timeOfDay,
-        FilterType.group
-      ];
+  static List<FilterType> getValues() =>
+      [FilterType.category, FilterType.group];
 }
 
 sealed class FilterContext<T extends FilterState> {
-  void buildContext(Stamp stamp);
+  const FilterContext();
 
-  bool get hasData;
+  bool hasData(HistoryContext ctx);
 
   T createInitialState();
 
   Widget buildUI({
     required BuildContext context,
+    required HistoryContext historyContext,
     required T state,
     required Function(T) onStateChanged,
   });
 
   List<LabeledFilter> createFilters(T state);
+}
+
+// =============================================================================
+// Filter-Specific Features
+// =============================================================================
+
+class AvailableGroupsFeature extends ReducibleFeature<Set<String>> {
+  const AvailableGroupsFeature();
+  @override
+  Set<String> createInitialState() => {};
+  @override
+  Set<String> reduce(Set<String> state, Response response) {
+    if (response is DetailResponse && response.group != null) {
+      state.add(response.group!);
+    }
+    return state;
+  }
+}
+
+class DescriptionCheckFeature extends ReducibleFeature<bool> {
+  const DescriptionCheckFeature();
+  @override
+  bool createInitialState() => false;
+  @override
+  bool reduce(bool state, Response response) {
+    if (state) return true;
+    if (response is DetailResponse &&
+        (response.description?.isNotEmpty ?? false)) {
+      return true;
+    }
+    return false;
+  }
+}
+
+class NumericResponsesFeature extends ReducibleFeature<Set<NumericResponse>> {
+  const NumericResponsesFeature();
+  @override
+  Set<NumericResponse> createInitialState() => {};
+  @override
+  Set<NumericResponse> reduce(Set<NumericResponse> state, Response response) {
+    if (response is DetailResponse) {
+      for (final r in response.responses) {
+        if (r is NumericResponse) {
+          state.add(r);
+        }
+      }
+    }
+    return state;
+  }
 }
 
 abstract class FilterState {}
@@ -163,32 +206,26 @@ class NumericRangeState extends FilterState {
 }
 
 class CategoryContext extends FilterContext<CategoryState> {
-  final Set<String> categories = {};
-  CategoryContext();
-
-  @override
-  void buildContext(Stamp stamp) {
-    if (stamp case DetailResponse(type: String type)) {
-      categories.add(type);
-    }
-  }
+  const CategoryContext();
 
   @override
   CategoryState createInitialState() => CategoryState();
 
   @override
-  bool get hasData => categories.length > 1;
+  bool hasData(HistoryContext ctx) =>
+      ctx.use(const AllCategoriesFeature()).length > 1;
 
   @override
   Widget buildUI({
     required BuildContext context,
+    required HistoryContext historyContext,
     required CategoryState state,
     required Function(CategoryState) onStateChanged,
   }) {
     final QuestionsLocalizations? localizations =
         QuestionsLocalizations.of(context);
 
-    // Create mappings for ALL categories, not just selected ones
+    final categories = historyContext.use(const AllCategoriesFeature());
     // localized name → raw value (for looking up what was selected)
     final Map<String, String> localizedToRaw = {};
     // raw value → localized name (for displaying selected items)
@@ -244,28 +281,23 @@ class CategoryContext extends FilterContext<CategoryState> {
 }
 
 class GroupContext extends FilterContext<GroupState> {
-  final Set<String> groups = {};
-  GroupContext();
-
-  @override
-  void buildContext(Stamp stamp) {
-    if (stamp case DetailResponse(group: String? group)) {
-      if (group != null) groups.add(group);
-    }
-  }
+  const GroupContext();
 
   @override
   GroupState createInitialState() => GroupState();
 
   @override
-  bool get hasData => groups.isNotEmpty;
+  bool hasData(HistoryContext ctx) =>
+      ctx.use(const AvailableGroupsFeature()).isNotEmpty;
 
   @override
   Widget buildUI({
     required BuildContext context,
+    required HistoryContext historyContext,
     required GroupState state,
     required Function(GroupState) onStateChanged,
   }) {
+    final groups = historyContext.use(const AvailableGroupsFeature());
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppPadding.medium),
       child: FilterChipSection(
@@ -298,24 +330,18 @@ class GroupContext extends FilterContext<GroupState> {
 }
 
 class TimeOfDayContext extends FilterContext<TimeOfDayState> {
-  final Set<TimeOfDayFilter> times = {};
-  TimeOfDayContext();
-
-  @override
-  void buildContext(Stamp stamp) {
-    final DateTime date = dateFromStamp(stamp.stamp);
-    times.add(TimeOfDayFilter.fromHour(date.hour));
-  }
+  const TimeOfDayContext();
 
   @override
   TimeOfDayState createInitialState() => TimeOfDayState();
 
   @override
-  bool get hasData => true; // Always show time of day filter
+  bool hasData(HistoryContext ctx) => true; // Always show time of day filter
 
   @override
   Widget buildUI({
     required BuildContext context,
+    required HistoryContext historyContext,
     required TimeOfDayState state,
     required Function(TimeOfDayState) onStateChanged,
   }) {
@@ -356,26 +382,18 @@ class TimeOfDayContext extends FilterContext<TimeOfDayState> {
 }
 
 class DescriptionContext extends FilterContext<DescriptionState> {
-  bool hasDescription = false;
-  DescriptionContext();
-
-  @override
-  void buildContext(Stamp stamp) {
-    if (hasDescription) return;
-    if (stamp case DetailResponse(description: String? description)) {
-      hasDescription = description?.isNotEmpty ?? false;
-    }
-  }
+  const DescriptionContext();
 
   @override
   DescriptionState createInitialState() => DescriptionState();
 
   @override
-  bool get hasData => hasDescription;
+  bool hasData(HistoryContext ctx) => ctx.use(const DescriptionCheckFeature());
 
   @override
   Widget buildUI({
     required BuildContext context,
+    required HistoryContext historyContext,
     required DescriptionState state,
     required Function(DescriptionState) onStateChanged,
   }) {
@@ -439,32 +457,24 @@ class DescriptionContext extends FilterContext<DescriptionState> {
 }
 
 class NumericRangeContext extends FilterContext<NumericRangeState> {
-  final Set<NumericResponse> numericResponses = {};
-  NumericRangeContext();
-
-  @override
-  void buildContext(Stamp stamp) {
-    if (stamp case DetailResponse(responses: List<Response> responses)) {
-      for (final response in responses) {
-        if (response is NumericResponse) {
-          numericResponses.add(response);
-        }
-      }
-    }
-  }
+  const NumericRangeContext();
 
   @override
   NumericRangeState createInitialState() => NumericRangeState();
 
   @override
-  bool get hasData => numericResponses.isNotEmpty;
+  bool hasData(HistoryContext ctx) =>
+      ctx.use(const NumericResponsesFeature()).isNotEmpty;
 
   @override
   Widget buildUI({
     required BuildContext context,
+    required HistoryContext historyContext,
     required NumericRangeState state,
     required Function(NumericRangeState) onStateChanged,
   }) {
+    final numericResponses =
+        historyContext.use(const NumericResponsesFeature());
     final Map<String, Question> questionMap = {};
     final Map<String, (num, num)> numericRanges = {};
 

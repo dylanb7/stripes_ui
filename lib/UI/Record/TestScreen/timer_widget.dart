@@ -12,6 +12,7 @@ import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
 import 'package:stripes_ui/Util/Widgets/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
+import 'package:stripes_ui/Util/helpers/repo_result_handler.dart';
 
 class TimerWidget extends ConsumerWidget {
   const TimerWidget({super.key});
@@ -225,17 +226,30 @@ class _TimerPortionState extends ConsumerState<TimerPortion> {
       isLoading = true;
     });
     final DateTime setTime = DateTime.now();
-    await ref
+    final test = await ref
         .read(testsHolderProvider.notifier)
-        .getTest<Test<BlueDyeState>>()
-        .then((test) async {
-      await test?.setTestState(blueDyeState.copyWith(pauseTime: setTime));
-    });
-    setState(() {
-      isLoading = false;
-    });
-    await _startTimer(
-        state: TimerState(start: timerState!.start, pauseTime: setTime));
+        .getTest<Test<BlueDyeState>>();
+
+    if (test != null) {
+      final result =
+          await test.setTestState(blueDyeState.copyWith(pauseTime: setTime));
+
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+        result.handle(context, onSuccess: (_) async {
+          await _startTimer(
+              state: TimerState(start: timerState!.start, pauseTime: setTime));
+        });
+      }
+    } else {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
   }
 
   Future<void> _resume(BlueDyeState? blueDyeState) async {
@@ -251,23 +265,34 @@ class _TimerPortionState extends ConsumerState<TimerPortion> {
     final Duration timePaused =
         DateTime.now().difference(timerState!.pauseTime!);
     final DateTime adjustedStart = timerState!.start.add(timePaused);
-    await ref
+    final test = await ref
         .read(testsHolderProvider.notifier)
-        .getTest<Test<BlueDyeState>>()
-        .then((test) async {
-      await test?.setTestState(BlueDyeState(
+        .getTest<Test<BlueDyeState>>();
+
+    if (test != null) {
+      final result = await test.setTestState(BlueDyeState(
           id: blueDyeState.id,
           startTime: blueDyeState.startTime,
           timerStart: adjustedStart,
           pauseTime: null,
           logs: blueDyeState.logs));
-    });
 
-    setState(() {
-      isLoading = false;
-    });
-
-    await _startTimer(state: TimerState(start: adjustedStart, pauseTime: null));
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+        result.handle(context, onSuccess: (_) async {
+          await _startTimer(
+              state: TimerState(start: adjustedStart, pauseTime: null));
+        });
+      }
+    } else {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
   }
 
   Future<void> _reset(BlueDyeState? blueDyeState) async {
@@ -281,17 +306,30 @@ class _TimerPortionState extends ConsumerState<TimerPortion> {
       isLoading = true;
     });
     final DateTime newStart = DateTime.now();
-    await ref
+    final test = await ref
         .read(testsHolderProvider.notifier)
-        .getTest<Test<BlueDyeState>>()
-        .then((test) async {
-      await test?.setTestState(
+        .getTest<Test<BlueDyeState>>();
+
+    if (test != null) {
+      final result = await test.setTestState(
           blueDyeState.copyWith(pauseTime: newStart, timerStart: newStart));
-    });
-    setState(() {
-      isLoading = false;
-    });
-    await _startTimer(state: TimerState(start: newStart, pauseTime: newStart));
+
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+        result.handle(context, onSuccess: (_) async {
+          await _startTimer(
+              state: TimerState(start: newStart, pauseTime: newStart));
+        });
+      }
+    } else {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
   }
 
   Future<void> _next(BlueDyeState? blueDyeState) async {
@@ -308,21 +346,32 @@ class _TimerPortionState extends ConsumerState<TimerPortion> {
     final Duration timePaused = mealEnd.difference(timerState!.pauseTime!);
     final DateTime adjustedStart = timerState!.start.add(timePaused);
     final Duration mealDuration = mealEnd.difference(adjustedStart);
-    await ref
+    final test = await ref
         .read(testsHolderProvider.notifier)
-        .getTest<Test<BlueDyeState>>()
-        .then((test) async {
-      await test?.setTestState(
+        .getTest<Test<BlueDyeState>>();
+
+    if (test != null) {
+      final result = await test.setTestState(
         blueDyeState.copyWith(
             finishedEating: mealDuration,
             finishedEatingTime: mealEnd,
             pauseTime: null,
             timerStart: null),
       );
-    });
-    setState(() {
-      isLoading = false;
-    });
+
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+        result.handle(context);
+      }
+    } else {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
   }
 
   @override

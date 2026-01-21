@@ -20,8 +20,17 @@ class ChartStyle {
   final Color annotationLineColor;
   final BarChartStyle barChartStyle;
   final CrosshairStyle? crosshairStyle;
+  final bool drawXAxisLine;
+  final bool drawYAxisLine;
+  final bool drawTopAxisLine;
+  final bool drawRightAxisLine;
+  final bool hasHalfStepPadding;
 
   const ChartStyle({
+    this.drawXAxisLine = true,
+    this.drawYAxisLine = true,
+    this.drawTopAxisLine = false,
+    this.drawRightAxisLine = false,
     this.axisLabelStyle = const TextStyle(color: Colors.grey, fontSize: 10),
     this.axisTitleStyle = const TextStyle(
         color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold),
@@ -39,6 +48,7 @@ class ChartStyle {
         const TextStyle(color: Colors.grey, fontSize: 10),
     this.annotationLineColor = Colors.grey,
     this.crosshairStyle,
+    this.hasHalfStepPadding = false,
   });
 
   Color get effectiveGridColor =>
@@ -88,12 +98,17 @@ class ChartStyle {
     double? pointRadius,
     EdgeInsets? chartPadding,
     bool? showGridLines,
+    bool? drawXAxisLine,
+    bool? drawYAxisLine,
+    bool? drawTopAxisLine,
+    bool? drawRightAxisLine,
     Color? gridLineColor,
     double? gridLineWidth,
     BarChartStyle? barChartStyle,
     TextStyle? annotationLabelStyle,
     Color? annotationLineColor,
     CrosshairStyle? crosshairStyle,
+    bool? hasHalfStepPadding,
   }) {
     return ChartStyle(
       axisLabelStyle: axisLabelStyle ?? this.axisLabelStyle,
@@ -106,11 +121,16 @@ class ChartStyle {
       pointRadius: pointRadius ?? this.pointRadius,
       chartPadding: chartPadding ?? this.chartPadding,
       showGridLines: showGridLines ?? this.showGridLines,
+      drawXAxisLine: drawXAxisLine ?? this.drawXAxisLine,
+      drawYAxisLine: drawYAxisLine ?? this.drawYAxisLine,
+      drawTopAxisLine: drawTopAxisLine ?? this.drawTopAxisLine,
+      drawRightAxisLine: drawRightAxisLine ?? this.drawRightAxisLine,
       gridLineColor: gridLineColor ?? this.gridLineColor,
       gridLineWidth: gridLineWidth ?? this.gridLineWidth,
       annotationLabelStyle: annotationLabelStyle ?? this.annotationLabelStyle,
       annotationLineColor: annotationLineColor ?? this.annotationLineColor,
       crosshairStyle: crosshairStyle ?? this.crosshairStyle,
+      hasHalfStepPadding: hasHalfStepPadding ?? this.hasHalfStepPadding,
     );
   }
 }
@@ -121,14 +141,19 @@ class BarChartStyle {
   final bool stackBars;
   final Color? selectionBorderColor;
   final double selectionBorderWidth;
+  final Color? selectionHighlightColor;
 
   const BarChartStyle({
-    this.barWidthRatio = 0.8,
+    this.barWidthRatio = 0.95,
     this.barMaxWidth = 50.0,
     this.stackBars = false,
     this.selectionBorderColor,
     this.selectionBorderWidth = 2.0,
+    this.selectionHighlightColor,
   });
+
+  Color get effectiveHighlightColor =>
+      selectionHighlightColor ?? Colors.grey.withValues(alpha: 0.2);
 }
 
 class CrosshairStyle {
@@ -143,4 +168,10 @@ class CrosshairStyle {
     this.showX = true,
     this.showY = true,
   });
+}
+
+enum LabelAlignment {
+  start,
+  center,
+  end,
 }

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:stripes_ui/Models/baseline_trigger.dart';
 import 'package:stripes_ui/Providers/Auth/auth_provider.dart';
+import 'package:stripes_ui/Providers/base_providers.dart';
 import 'package:stripes_ui/Providers/questions/baseline_trigger_provider.dart';
 
 import 'package:stripes_ui/Providers/Navigation/route_provider.dart';
@@ -16,9 +17,8 @@ import 'package:stripes_ui/Util/Widgets/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:stripes_ui/config.dart';
-import 'package:stripes_ui/entry.dart';
-import 'package:stripes_ui/UI/Record/RecordSplit/baseline_entry.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
+import 'package:stripes_ui/UI/AccountManagement/Sync/sync_debug_screen.dart';
 
 class AccountManagementScreen extends ConsumerWidget {
   const AccountManagementScreen({super.key});
@@ -81,18 +81,18 @@ class AccountManagementScreen extends ConsumerWidget {
                 context.pushNamed(RouteName.USERS);
               },
             ),
-            const Divider(
+            /*const Divider(
               endIndent: AppPadding.small,
               indent: AppPadding.small,
             ),
             // Baselines navigation with pending count
-            const _BaselinesNavTile(),
+            const _BaselinesNavTile(),*/
             const Divider(
               endIndent: AppPadding.small,
               indent: AppPadding.small,
             ),
             // Dashboard navigation
-            ListTile(
+            /*ListTile(
               dense: false,
               visualDensity: VisualDensity.comfortable,
               leading: const Icon(Icons.dashboard_outlined),
@@ -106,7 +106,7 @@ class AccountManagementScreen extends ConsumerWidget {
             const Divider(
               endIndent: AppPadding.small,
               indent: AppPadding.small,
-            ),
+            ),*/
             if (config.hasSymptomEditing) ...[
               ListTile(
                 dense: false,
@@ -131,6 +131,20 @@ class AccountManagementScreen extends ConsumerWidget {
                 },
               ),*/
             ],
+            const Divider(
+              endIndent: AppPadding.small,
+              indent: AppPadding.small,
+            ),
+            ListTile(
+              dense: false,
+              visualDensity: VisualDensity.comfortable,
+              title: const Text("Sync Status (Debug)"),
+              trailing: const Icon(Icons.keyboard_arrow_right),
+              onTap: () {
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const SyncDebugScreen()));
+              },
+            ),
 
             const SizedBox(
               height: AppPadding.medium,

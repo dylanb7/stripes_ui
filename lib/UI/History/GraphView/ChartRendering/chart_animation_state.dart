@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_axis.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_data.dart';
+import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_style.dart';
 
 class AnimatedAxisLabel {
   final double normalizedPosition;
@@ -72,11 +73,11 @@ class ChartAnimationState<T, D> {
     DataBounds bounds,
     ChartAxis<D> xAxisConfig,
     ChartAxis<dynamic> yAxisConfig, {
-    double anchor = 0.0,
+    LabelAlignment alignment = LabelAlignment.start,
   }) {
     if (_lastBounds == bounds) return;
 
-    xAxis.update(_generateXLabels(bounds, xAxisConfig, anchor));
+    xAxis.update(_generateXLabels(bounds, xAxisConfig, alignment));
     yAxis.update(_generateYLabels(bounds, yAxisConfig));
     _lastBounds = bounds;
   }
@@ -87,25 +88,29 @@ class ChartAnimationState<T, D> {
   }
 
   List<AnimatedAxisLabel> _generateXLabels(
-      DataBounds bounds, ChartAxis<D> axis, double anchor) {
+      DataBounds bounds, ChartAxis<D> axis, LabelAlignment alignment) {
     final labels = <AnimatedAxisLabel>[];
-    if (!axis.showing || bounds.xAxisTickSize <= 0) return labels;
+    if (!axis.showing || (bounds.xAxisTickSize ?? 0) <= 0) return labels;
 
     final xRange = bounds.maxX - bounds.minX;
     if (xRange <= 0) return labels;
 
     double value;
     if (axis is DateTimeAxis) {
+      double anchor = 0.0;
+      // Use epsilon to prevent floating point issues from skipping the first label
+      const double epsilon = 0.001;
       final int multiple =
-          ((bounds.labelMinX - anchor) / bounds.xAxisTickSize).ceil();
-      value = anchor + (multiple * bounds.xAxisTickSize);
+          ((bounds.labelMinX - anchor - epsilon) / bounds.xAxisTickSize!)
+              .ceil();
+      value = anchor + (multiple * bounds.xAxisTickSize!);
     } else {
       value = bounds.labelMinX;
     }
 
     while (value <= bounds.labelMaxX + 0.0001) {
       if (value < bounds.labelMinX) {
-        value += bounds.xAxisTickSize;
+        value += bounds.xAxisTickSize!;
         continue;
       }
 
@@ -119,7 +124,7 @@ class ChartAnimationState<T, D> {
           value: value,
         ));
       }
-      value += bounds.xAxisTickSize;
+      value += bounds.xAxisTickSize!;
     }
     return labels;
   }
@@ -127,7 +132,7 @@ class ChartAnimationState<T, D> {
   List<AnimatedAxisLabel> _generateYLabels(
       DataBounds bounds, ChartAxis<dynamic> axis) {
     final labels = <AnimatedAxisLabel>[];
-    if (!axis.showing || bounds.yAxisTickSize <= 0) return labels;
+    if (!axis.showing || (bounds.yAxisTickSize ?? 0) <= 0) return labels;
 
     final yRange = bounds.maxY - bounds.minY;
     if (yRange <= 0) return labels;
@@ -141,7 +146,7 @@ class ChartAnimationState<T, D> {
         text: text,
         value: value,
       ));
-      value += bounds.yAxisTickSize;
+      value += bounds.yAxisTickSize!;
     }
     return labels;
   }

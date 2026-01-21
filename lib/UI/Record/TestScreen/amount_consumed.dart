@@ -12,14 +12,14 @@ import 'package:stripes_ui/Util/Design/breakpoint.dart';
 import 'package:stripes_ui/Util/Widgets/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
+import 'package:stripes_ui/Util/helpers/repo_result_handler.dart';
 
 class MealFinishedDisplay extends ConsumerWidget {
-  final Function next;
+  final Function? next;
 
   final BlueDyeProgression displaying;
 
-  const MealFinishedDisplay(
-      {required this.next, required this.displaying, super.key});
+  const MealFinishedDisplay({this.next, required this.displaying, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -215,14 +215,15 @@ class MealFinishedDisplay extends ConsumerWidget {
             const SizedBox(
               height: AppPadding.medium,
             ),
-            Center(
-              child: FilledButton(
-                onPressed: () {
-                  next();
-                },
-                child: Text(context.translate.nextButton),
+            if (next != null)
+              Center(
+                child: FilledButton(
+                  onPressed: () {
+                    next!();
+                  },
+                  child: Text(context.translate.nextButton),
+                ),
               ),
-            ),
             const SizedBox(
               height: AppPadding.xl,
             ),
@@ -405,15 +406,26 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
     setState(() {
       isLoading = true;
     });
-    await ref
+    final test = await ref
         .read(testsHolderProvider.notifier)
-        .getTest<Test<BlueDyeState>>()
-        .then((test) {
-      test?.setTestState(state!.copyWith(amountConsumed: value));
-    });
-    setState(() {
-      isLoading = false;
-    });
+        .getTest<Test<BlueDyeState>>();
+
+    if (test != null) {
+      final result =
+          await test.setTestState(state!.copyWith(amountConsumed: value));
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+        result.handle(context);
+      }
+    } else {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
   }
 }
 
@@ -789,18 +801,29 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
     setState(() {
       isLoading = true;
     });
-    await ref
+    final test = await ref
         .read(testsHolderProvider.notifier)
-        .getTest<Test<BlueDyeState>>()
-        .then((test) {
-      test?.setTestState(state!.copyWith(
+        .getTest<Test<BlueDyeState>>();
+
+    if (test != null) {
+      final result = await test.setTestState(state!.copyWith(
           amountConsumed: amountConsumed.value,
           finishedEatingTime: DateTime.now(),
           finishedEating: mealTime.value!.toDuration()));
-    });
-    setState(() {
-      isLoading = false;
-    });
+
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+        result.handle(context);
+      }
+    } else {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
   }
 
   @override

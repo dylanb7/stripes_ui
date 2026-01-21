@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/annotation_painter.dart';
@@ -39,6 +38,12 @@ class RenderChart<T, D> extends StatefulWidget {
   final String? yAxisLabel;
 
   final ChartSelectionController<T, D>? selectionController;
+  final double? forcedLeftMargin;
+
+  final double? minX;
+  final double? maxX;
+  final double? xAxisTickSize;
+  final double? forcedHalfStep;
 
   const RenderChart.multi({
     super.key,
@@ -60,6 +65,11 @@ class RenderChart<T, D> extends StatefulWidget {
     this.xAxisLabel,
     this.yAxisLabel,
     this.selectionController,
+    this.forcedLeftMargin,
+    this.minX,
+    this.maxX,
+    this.xAxisTickSize,
+    this.forcedHalfStep,
   });
 
   RenderChart({
@@ -81,6 +91,11 @@ class RenderChart<T, D> extends StatefulWidget {
     this.xAxisLabel,
     this.yAxisLabel,
     this.selectionController,
+    this.forcedLeftMargin,
+    this.minX,
+    this.maxX,
+    this.xAxisTickSize,
+    this.forcedHalfStep,
   })  : datasets = [data],
         stackBars = false;
 
@@ -152,8 +167,8 @@ class _RenderChartState<T, D> extends State<RenderChart<T, D>>
 
     final DataBounds calculated = DataBounds.combined(
         widget.datasets.map((d) => d.calculateRanges(widget.xAxis)));
-    double minX = widget.xAxis.minValue() ?? calculated.minX;
-    double maxX = widget.xAxis.maxValue() ?? calculated.maxX;
+    double minX = widget.minX ?? widget.xAxis.minValue() ?? calculated.minX;
+    double maxX = widget.maxX ?? widget.xAxis.maxValue() ?? calculated.maxX;
     double minY = widget.yAxis.minValue() ?? calculated.minY;
     double maxY = widget.yAxis.maxValue() ?? calculated.maxY;
 
@@ -182,10 +197,12 @@ class _RenderChartState<T, D> extends State<RenderChart<T, D>>
     final double labelMinX = minX;
     final double labelMaxX = maxX;
 
-    final bool hasBarChart = widget.datasets.any((d) => d is BarChartData);
-    double xAxisTickSize = widget.xAxis.interval ?? calculated.xAxisTickSize;
+    double xAxisTickSize = widget.xAxisTickSize ??
+        widget.xAxis.interval ??
+        calculated.xAxisTickSize ??
+        1.0;
 
-    if (widget.xAxis.interval == null) {
+    if (widget.xAxisTickSize == null && widget.xAxis.interval == null) {
       if (widget.xAxis is DateTimeAxis) {
         final double rangeMs =
             labelMaxX - (widget.xAxis.minValue() ?? calculated.minX);
@@ -204,20 +221,22 @@ class _RenderChartState<T, D> extends State<RenderChart<T, D>>
       }
     }
 
-    if (hasBarChart) {
-      final double interval =
-          calculated.minDataStep > 0 ? calculated.minDataStep : xAxisTickSize;
+    // Add half-step padding for bar charts to prevent clipping at edges
+    final bool hasBarData = widget.datasets.any((d) => d is BarChartData);
+    final double halfStep = widget.forcedHalfStep ??
+        (hasBarData && calculated.minDataStep > 0
+            ? calculated.minDataStep * 0.5
+            : 0);
 
-      if (interval > 0) {
-        final halfInterval = interval * 0.5;
-        minX -= halfInterval;
-        maxX += halfInterval;
-      }
-    }
+    minX = (widget.minX ?? (widget.xAxis.minValue() ?? calculated.minX)) -
+        halfStep;
+    maxX = (widget.maxX ?? (widget.xAxis.maxValue() ?? calculated.maxX)) +
+        halfStep;
 
     double yAxisTickSize = widget.yAxis.interval ?? 1.0;
     if (widget.yAxis.interval == null) {
-      final yAxisRange = calculateYAxisRange(ticks: 3, max: maxY, min: minY);
+      // Use 2 ticks for simpler Y-axis labels, especially for small chart heights
+      final yAxisRange = calculateYAxisRange(ticks: 2, max: maxY, min: minY);
       yAxisTickSize = yAxisRange.tickSize < 1.0 ? 1.0 : yAxisRange.tickSize;
     }
 
@@ -232,6 +251,7 @@ class _RenderChartState<T, D> extends State<RenderChart<T, D>>
       yAxisTickSize: yAxisTickSize,
       minDataStep:
           calculated.minDataStep > 0 ? calculated.minDataStep : xAxisTickSize,
+      alignment: LabelAlignment.center,
     );
   }
 
@@ -242,6 +262,7 @@ class _RenderChartState<T, D> extends State<RenderChart<T, D>>
       geometry: geometry,
       datasets: widget.datasets,
       xAxis: widget.xAxis,
+      yAxis: widget.yAxis,
       style: style,
     );
   }
@@ -330,14 +351,8 @@ class _RenderChartState<T, D> extends State<RenderChart<T, D>>
         final DataBounds bounds =
             _computeCombinedBounds(constraints.maxWidth, style);
 
-        double anchor = 0.0;
-        if (widget.datasets.any((d) => d is BarChartData) &&
-            bounds.minDataStep > 0) {
-          anchor = bounds.labelMinX + bounds.minDataStep * 0.5;
-        }
-
         _animState.updateAxisLabels(bounds, widget.xAxis, widget.yAxis,
-            anchor: anchor);
+            alignment: bounds.alignment);
 
         final ChartGeometry geometry = ChartGeometry.compute(
           size: constraints.biggest,
@@ -348,6 +363,7 @@ class _RenderChartState<T, D> extends State<RenderChart<T, D>>
           style: style,
           xAxisLabel: widget.xAxisLabel,
           yAxisLabel: widget.yAxisLabel,
+          forcedLeftMargin: widget.forcedLeftMargin,
         );
 
         return MouseRegion(
@@ -491,28 +507,80 @@ class _ChartPainter<T, D> extends CustomPainter {
 
     final Map<double, double>? stackBottoms = stackBars ? {} : null;
 
-    for (int dsIndex = 0; dsIndex < datasets.length; dsIndex++) {
-      final data = datasets[dsIndex];
-      if (data.data.isEmpty) continue;
+    if (!stackBars) {
+      final List<BarChartData<T, D>> barDatasets = [];
+      final List<int> barOriginalIndices = [];
+      final Map<int, Set<int>> barSelectedIndices = {};
 
-      final Set<int> selectedIndices = selection
-          .where((hit) => hit.datasetIndex == dsIndex)
-          .map((hit) => hit.itemIndex)
-          .toSet();
+      for (int dsIndex = 0; dsIndex < datasets.length; dsIndex++) {
+        final data = datasets[dsIndex];
+        if (data is BarChartData<T, D>) {
+          barDatasets.add(data);
+          barOriginalIndices.add(dsIndex);
+          barSelectedIndices[dsIndex] = selection
+              .where((hit) => hit.datasetIndex == dsIndex)
+              .map((hit) => hit.itemIndex)
+              .toSet();
+        }
+      }
 
-      DatasetPainter.paint(
-        canvas,
-        geometry,
-        data,
-        xAxis,
-        dsIndex,
-        (di, pi, targetY) =>
-            animState.getAnimatedY(di, pi, targetY, animationValue),
-        maxBarsInDataset,
-        style,
-        stackBottoms: stackBottoms,
-        selectedIndices: selectedIndices,
-      );
+      if (barDatasets.isNotEmpty) {
+        DatasetPainter.paintBars(
+          canvas,
+          geometry,
+          barDatasets,
+          barOriginalIndices,
+          xAxis,
+          yAxis,
+          (di, pi, targetY) =>
+              animState.getAnimatedY(di, pi, targetY, animationValue),
+          style,
+          selectedIndices: barSelectedIndices,
+        );
+      }
+
+      for (int dsIndex = 0; dsIndex < datasets.length; dsIndex++) {
+        final data = datasets[dsIndex];
+        if (data is! BarChartData<T, D>) {
+          DatasetPainter.paint(
+            canvas,
+            geometry,
+            data,
+            xAxis,
+            yAxis,
+            dsIndex,
+            (di, pi, targetY) =>
+                animState.getAnimatedY(di, pi, targetY, animationValue),
+            maxBarsInDataset,
+            style,
+          );
+        }
+      }
+    } else {
+      for (int dsIndex = 0; dsIndex < datasets.length; dsIndex++) {
+        final data = datasets[dsIndex];
+        if (data.data.isEmpty) continue;
+
+        final Set<int> selectedIndices = selection
+            .where((hit) => hit.datasetIndex == dsIndex)
+            .map((hit) => hit.itemIndex)
+            .toSet();
+
+        DatasetPainter.paint(
+          canvas,
+          geometry,
+          data,
+          xAxis,
+          yAxis,
+          dsIndex,
+          (di, pi, targetY) =>
+              animState.getAnimatedY(di, pi, targetY, animationValue),
+          maxBarsInDataset,
+          style,
+          stackBottoms: stackBottoms,
+          selectedIndices: selectedIndices,
+        );
+      }
     }
 
     if (trendLine != null) {
@@ -525,6 +593,7 @@ class _ChartPainter<T, D> extends CustomPainter {
           geometry,
           data,
           xAxis,
+          yAxis,
           trendLine!,
         );
       }

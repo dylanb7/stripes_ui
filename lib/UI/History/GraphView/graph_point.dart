@@ -13,3 +13,19 @@ class GraphPoint extends Equatable {
   @override
   List<Object?> get props => [x, y, color];
 }
+
+/// A graph point that represents a range (start to end) instead of a single point.
+class RangeGraphPoint extends GraphPoint {
+  final double xEnd;
+
+  const RangeGraphPoint(
+    super.x,
+    this.xEnd,
+    super.y,
+    super.color,
+    super.data,
+  );
+
+  @override
+  List<Object?> get props => [x, xEnd, y, color];
+}

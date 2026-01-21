@@ -179,38 +179,7 @@ class QuestionEntryCard extends StatefulWidget {
   State<QuestionEntryCard> createState() => _QuestionEntryCardState();
 }
 
-class _QuestionEntryCardState extends State<QuestionEntryCard>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _shakeController;
-  late Animation<double> _shakeAnimation;
-  bool _wasError = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _shakeController = AnimationController(
-      duration: const Duration(milliseconds: 400),
-      vsync: this,
-    );
-    _shakeAnimation = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 0, end: 8), weight: 1),
-      TweenSequenceItem(tween: Tween(begin: 8, end: -8), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: -8, end: 6), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: 6, end: -4), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: -4, end: 2), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: 2, end: 0), weight: 1),
-    ]).animate(CurvedAnimation(
-      parent: _shakeController,
-      curve: Curves.easeInOut,
-    ));
-  }
-
-  @override
-  void dispose() {
-    _shakeController.dispose();
-    super.dispose();
-  }
-
+class _QuestionEntryCardState extends State<QuestionEntryCard> {
   @override
   Widget build(BuildContext context) {
     final controller = QuestionEntryScope.of(context);
@@ -222,24 +191,24 @@ class _QuestionEntryCardState extends State<QuestionEntryCard>
         final bool hasError = controller.hasError;
         final bool isHighlighted = controller.isHighlighted;
 
-        if (hasError && !_wasError) {
-          _shakeController.forward(from: 0);
-        }
-        _wasError = hasError;
-
         Widget content = widget.child;
 
         if (widget.styled) {
           final colors = Theme.of(context).colorScheme;
           final BorderSide border;
+          final Color backgroundColor;
 
           if (hasResponse) {
             border = BorderSide(width: 3.0, color: colors.primary);
+            backgroundColor = Theme.of(context).cardColor;
           } else if (hasError) {
             border = BorderSide(width: 3.0, color: colors.error);
+            // Subtle error background tint
+            backgroundColor = colors.errorContainer.withValues(alpha: 0.3);
           } else {
             border =
                 BorderSide(width: 3.0, color: Theme.of(context).dividerColor);
+            backgroundColor = Theme.of(context).cardColor;
           }
 
           content = Padding(
@@ -248,7 +217,7 @@ class _QuestionEntryCardState extends State<QuestionEntryCard>
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 150),
               decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
+                color: backgroundColor,
                 borderRadius:
                     const BorderRadius.all(Radius.circular(AppRounding.medium)),
                 border: Border.fromBorderSide(border),
@@ -270,19 +239,10 @@ class _QuestionEntryCardState extends State<QuestionEntryCard>
           );
         }
 
-        return AnimatedBuilder(
-          animation: _shakeAnimation,
-          builder: (context, child) {
-            return Transform.translate(
-              offset: Offset(_shakeAnimation.value, 0),
-              child: child,
-            );
-          },
-          child: AnimatedScale(
-            scale: isHighlighted ? 1.02 : 1.0,
-            duration: const Duration(milliseconds: 150),
-            child: content,
-          ),
+        return AnimatedScale(
+          scale: isHighlighted ? 1.02 : 1.0,
+          duration: const Duration(milliseconds: 150),
+          child: content,
         );
       },
     );

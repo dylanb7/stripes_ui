@@ -27,19 +27,15 @@ class DashboardState extends Equatable {
   @override
   List<Object?> get props => [range, cycle];
 
-  /// Whether we can navigate to the previous period
   bool get canGoPrev => DateRangeUtils.canGoPrev(cycle, range);
 
-  /// Whether we can navigate to the next period
   bool get canGoNext => DateRangeUtils.canGoNext(cycle, range);
 
-  /// Get formatted range string
   String getRangeString({String locale = 'en'}) {
     return DateRangeUtils.formatRange(range, cycle, locale);
   }
 }
 
-/// State notifier for dashboard date controls.
 class DashboardStateNotifier extends StateNotifier<DashboardState> {
   DashboardStateNotifier()
       : super(DashboardState(
@@ -60,7 +56,6 @@ class DashboardStateNotifier extends StateNotifier<DashboardState> {
     final newRange =
         DateRangeUtils.shiftRange(state.range, state.cycle, forward);
 
-    // Prevent shifting start into future
     if (forward && newRange.start.isAfter(DateTime.now())) return;
 
     state = state.copyWith(range: newRange);
@@ -73,7 +68,6 @@ class DashboardStateNotifier extends StateNotifier<DashboardState> {
   }
 }
 
-/// Provider for dashboard state.
 final dashboardStateProvider =
     StateNotifierProvider<DashboardStateNotifier, DashboardState>((ref) {
   return DashboardStateNotifier();

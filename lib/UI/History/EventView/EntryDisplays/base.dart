@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_resolver.dart';
+import 'package:stripes_backend_helper/RepositoryBase/repo_result.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 
 import 'package:stripes_ui/Providers/questions/questions_provider.dart';
@@ -432,7 +433,7 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
             responses: event.responses,
             editId: event.id,
             submitTime: date,
-            desc: event.description));
+            description: event.description));
   }
 
   _delete(WidgetRef ref) {
@@ -445,11 +446,18 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
               isLoading = true;
             });
           }
-          await ref.read(stampProvider).valueOrNull?.removeStamp(widget.event);
-          await ref
-              .read(testProvider)
+
+          RepoResult<void>? result = await ref
+              .read(stampProvider)
               .valueOrNull
-              ?.onResponseDelete(widget.event, widget.event.type);
+              ?.removeStamp(widget.event);
+          if (result case Success()) {
+            await ref
+                .read(testProvider)
+                .valueOrNull
+                ?.onResponseDelete(widget.event, widget.event.type);
+          }
+
           if (mounted) {
             setState(() {
               isLoading = false;

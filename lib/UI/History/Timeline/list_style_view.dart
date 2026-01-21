@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stripes_ui/Providers/Dashboard/insight_provider.dart';
+import 'package:stripes_ui/Providers/base_providers.dart';
 import 'package:stripes_ui/UI/History/DashboardView/dashboard_screen.dart';
 import 'package:stripes_ui/Util/Helpers/date_helper.dart';
 import 'package:stripes_ui/Providers/History/display_data_provider.dart';
@@ -24,156 +25,235 @@ import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:stripes_ui/Providers/Navigation/sheet_provider.dart';
 import 'package:stripes_ui/config.dart';
-import 'package:stripes_ui/entry.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
-import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 
-class EventsView extends ConsumerWidget {
+class EventsView extends ConsumerStatefulWidget {
   const EventsView({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<EventsView> createState() => _EventsViewState();
+}
+
+class _EventsViewState extends ConsumerState<EventsView> {
+  final GlobalKey _dateRangeKey = GlobalKey();
+  bool _showBottomBar = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final ScrollController controller =
+          ref.read(historyScrollControllerProvider);
+      controller.addListener(_onScroll);
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!mounted) return;
+    final ScrollController controller =
+        ref.read(historyScrollControllerProvider);
+
+    final bool shouldShow = controller.offset > 350;
+
+    if (shouldShow != _showBottomBar) {
+      setState(() {
+        _showBottomBar = shouldShow;
+      });
+    }
+  }
+
+  void _recalculateBottomBar() {
+    if (!mounted) return;
+    final ScrollController controller =
+        ref.read(historyScrollControllerProvider);
+
+    if (!controller.hasClients || !controller.position.hasContentDimensions) {
+      if (_showBottomBar) {
+        setState(() {
+          _showBottomBar = false;
+        });
+      }
+      return;
+    }
+
+    final bool hasEnoughScroll = controller.offset > 350;
+    final bool hasEnoughContent = controller.position.maxScrollExtent > 350;
+
+    final bool shouldShow = hasEnoughScroll && hasEnoughContent;
+
+    if (shouldShow != _showBottomBar) {
+      setState(() {
+        _showBottomBar = shouldShow;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final ViewMode mode = ref.watch(viewModeProvider);
     final StripesConfig config = ref.watch(configProvider);
-    final List<Insight> insights =
-        ref.watch(insightsProvider(const InsightsProps()));
+    ref.watch(stampsStreamProvider);
+    /*final List<Insight> insights =
+        ref.watch(insightsProvider(const InsightsProps(maxInsights: 3)));*/
+
+    ref.listen(displayDataProvider, (previous, next) {
+      if (previous?.range != next.range) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _recalculateBottomBar();
+        });
+      }
+    });
+
+    ref.listen(stampProvider, (previous, next) {
+      if (next.hasValue && next.value != null) {
+        changeEarliestDateWidget(
+            ref, ref.read(displayDataProvider).range.start);
+      }
+    });
+
     return AddIndicator(builder: (context, hasIndicator) {
       return RefreshWidget(
         depth: RefreshDepth.authuser,
-        scrollable: CustomScrollView(
-            controller: ref.watch(historyScrollControllerProvider),
-            slivers: [
-              SliverCrossAxisGroup(
-                slivers: [
-                  SliverPadding(
-                    padding: const EdgeInsets.only(
-                        left: AppPadding.xl,
-                        right: AppPadding.xl,
-                        top: AppPadding.xl,
-                        bottom: AppPadding.medium),
-                    sliver: SliverConstrainedCrossAxis(
-                      maxExtent: Breakpoint.medium.value,
-                      sliver: SliverToBoxAdapter(
-                        child: Row(
-                          children: [
-                            const Expanded(
-                              child: PatientChanger(
-                                tab: TabOption.history,
-                              ),
-                            ),
-                            const SizedBox(
-                              width: AppPadding.tiny,
-                            ),
-                            if (config.hasGraphing)
-                              PopupMenuButton<ViewMode>(
-                                initialValue: mode,
-                                tooltip: 'Switch View Mode',
-                                onSelected: (newMode) {
-                                  ref.read(viewModeProvider.notifier).state =
-                                      newMode;
-                                },
-                                icon: DecoratedBox(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(
-                                        AppRounding.small),
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                  ),
-                                  child: Padding(
-                                    padding:
-                                        const EdgeInsets.all(AppPadding.small),
-                                    child: Icon(
-                                      switch (mode) {
-                                        ViewMode.events => Icons.list,
-                                        ViewMode.reviews => Icons.event_repeat,
-                                        ViewMode.graph => Icons.bar_chart,
-                                      },
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimary,
-                                    ),
-                                  ),
+        scrollable: Stack(
+          children: [
+            CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              controller: ref.watch(historyScrollControllerProvider),
+              slivers: [
+                SliverCrossAxisGroup(
+                  slivers: [
+                    SliverPadding(
+                      padding: const EdgeInsets.only(
+                          left: AppPadding.xl,
+                          right: AppPadding.xl,
+                          top: AppPadding.xl,
+                          bottom: AppPadding.medium),
+                      sliver: SliverConstrainedCrossAxis(
+                        maxExtent: Breakpoint.medium.value,
+                        sliver: SliverToBoxAdapter(
+                          child: Row(
+                            children: [
+                              const Expanded(
+                                child: PatientChanger(
+                                  tab: TabOption.history,
                                 ),
-                                itemBuilder: (context) => [
-                                  const PopupMenuItem(
-                                    value: ViewMode.events,
-                                    child: ListTile(
-                                      leading: Icon(Icons.list),
-                                      title: Text('Events'),
+                              ),
+                              const SizedBox(
+                                width: AppPadding.tiny,
+                              ),
+                              if (config.hasGraphing)
+                                PopupMenuButton<ViewMode>(
+                                  initialValue: mode,
+                                  tooltip: 'Switch View Mode',
+                                  onSelected: (newMode) {
+                                    ref.read(viewModeProvider.notifier).state =
+                                        newMode;
+                                  },
+                                  icon: DecoratedBox(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(
+                                          AppRounding.small),
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(
+                                          AppPadding.small),
+                                      child: Icon(
+                                        switch (mode) {
+                                          ViewMode.events => Icons.list,
+                                          ViewMode.reviews =>
+                                            Icons.event_repeat,
+                                          ViewMode.graph => Icons.bar_chart,
+                                        },
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary,
+                                      ),
                                     ),
                                   ),
-                                  const PopupMenuItem(
-                                    value: ViewMode.reviews,
-                                    child: ListTile(
-                                      leading: Icon(Icons.event_repeat),
-                                      title: Text('Reviews'),
+                                  itemBuilder: (context) => [
+                                    const PopupMenuItem(
+                                      value: ViewMode.events,
+                                      child: ListTile(
+                                        leading: Icon(Icons.list),
+                                        title: Text('Events'),
+                                      ),
                                     ),
-                                  ),
-                                  const PopupMenuItem(
-                                    value: ViewMode.graph,
-                                    child: ListTile(
-                                      leading: Icon(Icons.bar_chart),
-                                      title: Text('Graphs'),
+                                    const PopupMenuItem(
+                                      value: ViewMode.reviews,
+                                      child: ListTile(
+                                        leading: Icon(Icons.event_repeat),
+                                        title: Text('Reviews'),
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              )
-                          ],
+                                    const PopupMenuItem(
+                                      value: ViewMode.graph,
+                                      child: ListTile(
+                                        leading: Icon(Icons.bar_chart),
+                                        title: Text('Graphs'),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
 
-              /*const SliverFloatingHeader(
-                    child: SizedBox.expand(
-                  child: FiltersRow(),
-                )),*/
-
-              SliverCrossAxisGroup(
-                slivers: [
-                  SliverPadding(
-                    padding: const EdgeInsets.only(
-                        left: AppPadding.xl,
-                        right: AppPadding.xl,
-                        bottom: AppPadding.tiny),
-                    sliver: SliverConstrainedCrossAxis(
-                      maxExtent: Breakpoint.medium.value,
-                      sliver: SliverToBoxAdapter(
-                        child: FiltersRow(),
+                SliverCrossAxisGroup(
+                  slivers: [
+                    SliverPadding(
+                      padding: const EdgeInsets.only(
+                          left: AppPadding.xl,
+                          right: AppPadding.xl,
+                          bottom: AppPadding.tiny),
+                      sliver: SliverConstrainedCrossAxis(
+                        maxExtent: Breakpoint.medium.value,
+                        sliver: const SliverToBoxAdapter(
+                          child: FiltersRow(),
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const SliverToBoxAdapter(
-                child: CurrentFilters(),
-              ),
-              PinnedHeaderSliver(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppPadding.medium,
-                    vertical: AppPadding.small,
-                  ),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                      borderRadius: BorderRadius.circular(AppRounding.small),
-                      border: Border.all(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .primary
-                            .withValues(alpha: 0.1),
-                      ),
+                  ],
+                ),
+                const SliverToBoxAdapter(
+                  child: CurrentFilters(),
+                ),
+                // Date range section (scrolls with content)
+                SliverToBoxAdapter(
+                  key: _dateRangeKey,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppPadding.medium,
+                      vertical: AppPadding.small,
                     ),
-                    child: const DateRangeButton(),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color:
+                            Theme.of(context).colorScheme.surfaceContainerHigh,
+                        borderRadius: BorderRadius.circular(AppRounding.small),
+                        border: Border.all(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withValues(alpha: 0.1),
+                        ),
+                      ),
+                      child: const DateRangeButton(),
+                    ),
                   ),
                 ),
-              ),
-              SliverCrossAxisGroup(
-                slivers: [
+                /*if (insights.isNotEmpty)
                   SliverPadding(
                     padding: const EdgeInsets.only(
                         left: AppPadding.xl,
@@ -187,50 +267,123 @@ class EventsView extends ConsumerWidget {
                         ),
                       ),
                     ),
+                  ),*/
+
+                SliverPadding(
+                  padding: const EdgeInsets.only(top: AppPadding.tiny),
+                  sliver: SliverToBoxAdapter(
+                    child: switch (mode) {
+                      ViewMode.events => const EventGridHeader(),
+                      ViewMode.reviews => const ReviewsHeader(),
+                      ViewMode.graph => const GraphHeader(),
+                    },
                   ),
-                ],
-              ),
-              SliverPadding(
-                padding: const EdgeInsets.only(top: AppPadding.tiny),
-                sliver: SliverToBoxAdapter(
-                  child: switch (mode) {
-                    ViewMode.events => const EventGridHeader(),
-                    ViewMode.reviews => const ReviewsHeader(),
-                    ViewMode.graph => const GraphHeader(),
-                  },
+                ),
+                // Content slivers based on mode
+                ...switch (mode) {
+                  ViewMode.events => [
+                      SliverCrossAxisGroup(
+                        slivers: [
+                          SliverConstrainedCrossAxis(
+                            maxExtent: Breakpoint.large.value,
+                            sliver: const EventGrid(),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ViewMode.reviews => [
+                      SliverCrossAxisGroup(
+                        slivers: [
+                          SliverConstrainedCrossAxis(
+                            maxExtent: Breakpoint.large.value,
+                            sliver: const ReviewsView(),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ViewMode.graph => [
+                      GraphSliverList(onSelect: (key) {
+                        context.pushNamed(RouteName.SYMPTOMTREND, extra: key);
+                      }),
+                    ],
+                },
+
+                if (_showBottomBar)
+                  const SliverToBoxAdapter(
+                    child: SizedBox(height: 72),
+                  ),
+              ],
+            ),
+            // Persistent bottom bar
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: AnimatedSlide(
+                duration: Durations.medium1,
+                curve: Curves.easeOut,
+                offset: _showBottomBar ? Offset.zero : const Offset(0, 1),
+                child: AnimatedOpacity(
+                  duration: Durations.medium1,
+                  opacity: _showBottomBar ? 1.0 : 0.0,
+                  child: const _PersistentDateBar(),
                 ),
               ),
-              // Content slivers based on mode
-              ...switch (mode) {
-                ViewMode.events => [
-                    SliverCrossAxisGroup(
-                      slivers: [
-                        SliverConstrainedCrossAxis(
-                          maxExtent: Breakpoint.large.value,
-                          sliver: const EventGrid(),
-                        ),
-                      ],
-                    ),
-                  ],
-                ViewMode.reviews => [
-                    SliverCrossAxisGroup(
-                      slivers: [
-                        SliverConstrainedCrossAxis(
-                          maxExtent: Breakpoint.large.value,
-                          sliver: const ReviewsView(),
-                        ),
-                      ],
-                    ),
-                  ],
-                ViewMode.graph => [
-                    GraphSliverList(onSelect: (key) {
-                      context.pushNamed(RouteName.SYMPTOMTREND, extra: key);
-                    }),
-                  ],
-              },
-            ]),
+            ),
+          ],
+        ),
       );
     });
+  }
+}
+
+class _PersistentDateBar extends StatelessWidget {
+  const _PersistentDateBar();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 8,
+            offset: const Offset(0, -2),
+          ),
+        ],
+        border: Border(
+          top: BorderSide(
+            color: Theme.of(context)
+                .colorScheme
+                .outlineVariant
+                .withValues(alpha: 0.5),
+          ),
+        ),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppPadding.medium,
+            vertical: AppPadding.small,
+          ),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerHigh,
+              borderRadius: BorderRadius.circular(AppRounding.small),
+              border: Border.all(
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withValues(alpha: 0.1),
+              ),
+            ),
+            child: const DateRangeButton(),
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -316,6 +469,10 @@ class FiltersRow extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final DisplayDataSettings settings = ref.watch(displayDataProvider);
+    final AsyncValue<bool> hasFilters = ref.watch(hasAvailableFiltersProvider);
+
+    // Disable button if loading or no filters available
+    final bool filtersEnabled = hasFilters.valueOrNull ?? false;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -353,15 +510,17 @@ class FiltersRow extends ConsumerWidget {
             visualDensity: VisualDensity.compact,
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
-          onPressed: () {
-            ref.read(sheetControllerProvider).show(
-                  context: context,
-                  scrollControlled: true,
-                  sheetBuilder: (context, controller) =>
-                      FilterSheet(scrollController: controller),
-                );
-          },
-          tooltip: 'Filters',
+          onPressed: filtersEnabled
+              ? () {
+                  ref.read(sheetControllerProvider).show(
+                        context: context,
+                        scrollControlled: true,
+                        sheetBuilder: (context, controller) =>
+                            FilterSheet(scrollController: controller),
+                      );
+                }
+              : null,
+          tooltip: filtersEnabled ? 'Filters' : 'No filters available',
           icon: const Icon(Icons.filter_list),
         ),
       ],
@@ -398,22 +557,18 @@ class DateRangeButton extends ConsumerWidget {
   }
 }
 
-/// Displays completed check-ins within the selected date range.
 class CheckinSection extends ConsumerWidget {
   const CheckinSection({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Get display settings for range
     final DisplayDataSettings settings = ref.watch(displayDataProvider);
 
-    // Get check-in path types and periods
     const RecordPathProps pathProps =
         RecordPathProps(filterEnabled: true, type: PathProviderType.review);
     final AsyncValue<List<RecordPath>> pathsAsync =
         ref.watch(recordPaths(pathProps));
 
-    // Get all stamps (unfiltered by date, because we need custom overlap logic)
     final AsyncValue<List<Stamp>> allStampsAsync =
         ref.watch(stampsStreamProvider);
 
@@ -428,15 +583,12 @@ class CheckinSection extends ConsumerWidget {
       for (var path in paths) path.name: path.period!
     };
 
-    // Filter stamps: Must be a check-in type AND its period range must overlap the selected range
     final List<Response> checkinStamps = [];
     for (final stamp in allStamps) {
       if (stamp is! Response) continue;
-      // Is it a check-in type?
       final dynamic period = typeToPeriod[stamp.type];
       if (period == null) continue;
 
-      // Check overlap
       final DateTime stampDate = dateFromStamp(stamp.stamp);
       final DateTimeRange checkinRange = period.getRange(stampDate);
 
@@ -449,10 +601,8 @@ class CheckinSection extends ConsumerWidget {
       return const SliverToBoxAdapter(child: SizedBox.shrink());
     }
 
-    // Sort all stamps by date descending (newest first)
     checkinStamps.sort((a, b) => b.stamp.compareTo(a.stamp));
 
-    // 1. Group by Period String
     final Map<String, List<Response>> stampsByPeriodGroup = {};
     final Map<String, DateTime> periodStartForSorting = {};
 
@@ -771,7 +921,7 @@ class _CheckinDetailPagerState extends ConsumerState<CheckinDetailPager> {
                             responses: detailStamp.responses,
                             editId: detailStamp.id,
                             submitTime: stampDate,
-                            desc: detailStamp.description,
+                            description: detailStamp.description,
                           ),
                         );
                       },

@@ -195,12 +195,22 @@ class RecordEntryProvider extends InheritedNotifier<RecordEntryController> {
   }
 }
 
+/// Control style for RecordEntryShell
+enum RecordControlStyle {
+  /// Floating action button positioned in bottom-right
+  fab,
+
+  /// Full-width bottom bar docked at bottom
+  bottomBar,
+}
+
 class RecordEntryShell extends StatelessWidget {
   final Widget content;
   final Widget? header;
   final Widget? divider;
   final Widget? control;
   final Widget? footer;
+  final RecordControlStyle controlStyle;
 
   const RecordEntryShell({
     super.key,
@@ -209,6 +219,7 @@ class RecordEntryShell extends StatelessWidget {
     this.divider,
     this.control,
     this.footer,
+    this.controlStyle = RecordControlStyle.fab,
   });
 
   @override
@@ -218,6 +229,13 @@ class RecordEntryShell extends StatelessWidget {
     return ListenableBuilder(
       listenable: controller,
       builder: (context, _) {
+        final Widget effectiveControl = control ??
+            (controlStyle == RecordControlStyle.bottomBar
+                ? const RecordEntryBottomBar()
+                : const RecordEntryFab());
+
+        final bool isBottomBar = controlStyle == RecordControlStyle.bottomBar;
+
         return Stack(
           children: [
             Column(
@@ -238,13 +256,15 @@ class RecordEntryShell extends StatelessWidget {
                   ),
                 ),
                 if (footer != null) footer!,
+                if (isBottomBar) effectiveControl,
               ],
             ),
-            Positioned(
-              bottom: AppPadding.medium,
-              right: AppPadding.medium,
-              child: control ?? const RecordEntryFab(),
-            ),
+            if (!isBottomBar)
+              Positioned(
+                bottom: AppPadding.medium,
+                right: AppPadding.medium,
+                child: effectiveControl,
+              ),
           ],
         );
       },
@@ -400,6 +420,84 @@ class RecordEntryFab extends StatelessWidget {
           icon: controller.isLoading
               ? null
               : Icon(controller.isSubmit ? Icons.check : Icons.arrow_forward),
+        );
+      },
+    );
+  }
+}
+
+/// A bottom bar control styled like DateRangeSelector.
+/// Can be used as an alternative to RecordEntryFab by passing it as `control` to RecordEntryShell.
+class RecordEntryBottomBar extends StatelessWidget {
+  const RecordEntryBottomBar({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = RecordEntryProvider.of(context);
+    final colors = Theme.of(context).colorScheme;
+
+    return ListenableBuilder(
+      listenable: controller,
+      builder: (context, _) {
+        final bool isReady = controller.isReady;
+        final bool isLoading = controller.isLoading;
+
+        return Container(
+          decoration: BoxDecoration(
+            color: colors.surface,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 8,
+                offset: const Offset(0, -2),
+              ),
+            ],
+            border: Border(
+              top: BorderSide(
+                color: colors.outlineVariant.withValues(alpha: 0.5),
+              ),
+            ),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppPadding.medium,
+                vertical: AppPadding.small,
+              ),
+              child: Row(
+                children: [
+                  // Next/Submit button - expanded to fill width
+                  Expanded(
+                    child: FilledButton.icon(
+                      onPressed: isLoading ? null : controller.onControl,
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppPadding.medium,
+                          horizontal: AppPadding.large,
+                        ),
+                        backgroundColor: isReady
+                            ? colors.primary
+                            : colors.surfaceContainerHigh,
+                        foregroundColor: isReady
+                            ? colors.onPrimary
+                            : colors.onSurface.withValues(alpha: 0.6),
+                      ),
+                      icon: isLoading
+                          ? const ButtonLoadingIndicator()
+                          : Icon(
+                              controller.isSubmit
+                                  ? Icons.check
+                                  : Icons.arrow_forward,
+                              size: 18,
+                            ),
+                      label: Text(controller.controlLabel),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         );
       },
     );

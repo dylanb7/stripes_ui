@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:stripes_ui/Providers/base_providers.dart';
+import 'package:stripes_ui/config.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/History/display_data_provider.dart';
@@ -20,6 +22,7 @@ class ExportOptionsSheet extends ConsumerWidget {
     final ColorScheme colors = Theme.of(context).colorScheme;
     final TextTheme textTheme = Theme.of(context).textTheme;
     final AppLocalizations l10n = AppLocalizations.of(context)!;
+    final StripesConfig config = ref.watch(configProvider);
 
     return Container(
       padding: const EdgeInsets.all(AppPadding.large),
@@ -87,12 +90,15 @@ class ExportOptionsSheet extends ConsumerWidget {
             description: l10n.exportOptionCsvDesc,
             onTap: () => _handleExport(context, ref, _ExportFormat.csv),
           ),
-          _ExportOptionTile(
-            icon: Icons.assessment_outlined,
-            title: l10n.exportOptionReport,
-            description: l10n.exportOptionReportDesc,
-            onTap: () => _handleExport(context, ref, _ExportFormat.report),
-          ),
+          config.allowsSummaryReport
+              ? _ExportOptionTile(
+                  icon: Icons.assessment_outlined,
+                  title: l10n.exportOptionReport,
+                  description: l10n.exportOptionReportDesc,
+                  onTap: () =>
+                      _handleExport(context, ref, _ExportFormat.report),
+                )
+              : const SizedBox.shrink(),
 
           const SizedBox(height: AppPadding.medium),
         ],

@@ -1,5 +1,7 @@
+import 'dart:ui' as ui;
 import 'package:flutter/painting.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_animation_state.dart';
+import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_axis.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_data.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_style.dart';
 
@@ -33,9 +35,10 @@ class ChartGeometry {
     return range == 0 ? 1.0 : range;
   }
 
-  Offset dataToScreen(double x, double y) {
-    final normalizedX = (x - bounds.minX) / xRange;
-    final normalizedY = (y - bounds.minY) / yRange;
+  Offset dataToScreen(
+      double x, double y, ChartAxis<dynamic> xAxis, ChartAxis<dynamic> yAxis) {
+    final normalizedX = xAxis.normalizeDouble(x, bounds.minX, bounds.maxX);
+    final normalizedY = yAxis.normalizeDouble(y, bounds.minY, bounds.maxY);
 
     return Offset(
       leftMargin + normalizedX * drawWidth,
@@ -60,14 +63,17 @@ class ChartGeometry {
     required ChartStyle style,
     String? xAxisLabel,
     String? yAxisLabel,
+    double? forcedLeftMargin,
   }) {
     double leftMargin = 0.0;
-    if (showYAxis && bounds.yAxisTickSize > 0) {
+    if (forcedLeftMargin != null) {
+      leftMargin = forcedLeftMargin;
+    } else if (showYAxis && (bounds.yAxisTickSize ?? 0) > 0) {
       double maxWidth = 0.0;
       for (final label in yAxisState.current) {
         final tp = TextPainter(
           text: TextSpan(text: label.text, style: style.axisLabelStyle),
-          textDirection: TextDirection.ltr,
+          textDirection: ui.TextDirection.ltr,
         )..layout();
         if (tp.width > maxWidth) maxWidth = tp.width;
       }
@@ -76,14 +82,14 @@ class ChartGeometry {
       if (yAxisLabel != null) {
         final tp = TextPainter(
           text: TextSpan(text: yAxisLabel, style: style.axisTitleStyle),
-          textDirection: TextDirection.ltr,
+          textDirection: ui.TextDirection.ltr,
         )..layout();
         leftMargin += tp.height + style.axisLabelPadding;
       }
     }
 
     double bottomMargin = 0.0;
-    if (showXAxis && bounds.xAxisTickSize > 0) {
+    if (showXAxis && (bounds.xAxisTickSize ?? 0) > 0) {
       final tp = TextPainter(
         text: TextSpan(text: 'Xy', style: style.axisLabelStyle),
         textDirection: TextDirection.ltr,
@@ -93,7 +99,7 @@ class ChartGeometry {
       if (xAxisLabel != null) {
         final tp = TextPainter(
           text: TextSpan(text: xAxisLabel, style: style.axisTitleStyle),
-          textDirection: TextDirection.ltr,
+          textDirection: ui.TextDirection.ltr,
         )..layout();
         bottomMargin += tp.height + style.axisLabelPadding;
       }

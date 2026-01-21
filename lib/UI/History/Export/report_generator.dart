@@ -16,25 +16,31 @@ import 'package:stripes_ui/Services/web_download_stub.dart'
     if (dart.library.html) 'package:stripes_ui/Services/web_download.dart'
     as web_download;
 import 'package:stripes_ui/Providers/Dashboard/insight_provider.dart';
+import 'package:stripes_ui/Providers/History/display_data_provider.dart';
+import 'package:stripes_ui/l10n/questions_delegate.dart';
 
 class ReportGenerator {
   static Future<Uint8List> generatePdf({
     required List<Response> responses,
     required DateTimeRange dateRange,
-    required Map<String, String> localizedStrings,
+    QuestionsLocalizations? questionsL10n,
+    List<LabeledFilter> filters = const [],
     String? patientName,
   }) async {
     final pdf = pw.Document();
 
     final stats = _calculateStats(responses);
     final blueDyeResults = _extractBlueDyeResults(responses);
-    final List<Insight> insights = Insight.fromResponses(responses);
+    final List<Insight> insights = Insight.fromResponses(
+      responses,
+      filter: InsightPurpose.report,
+    );
     final questionBreakdown = _buildQuestionBreakdown(responses);
 
     final font = await PdfGoogleFonts.interRegular();
     final fontBold = await PdfGoogleFonts.interBold();
 
-    String localize(String key) => localizedStrings[key] ?? key;
+    String localize(String key) => questionsL10n?.value(key) ?? key;
 
     pdf.addPage(
       pw.MultiPage(
@@ -46,6 +52,8 @@ class ReportGenerator {
         header: (context) => _buildHeader(
           dateRange: dateRange,
           patientName: patientName,
+          filters: filters,
+          localize: localize,
           fontBold: fontBold,
         ),
         footer: (context) => _buildFooter(context, font),
@@ -57,7 +65,7 @@ class ReportGenerator {
           if (insights.isNotEmpty) ...[
             _buildSectionTitle('Insights', fontBold),
             pw.SizedBox(height: 8),
-            _buildInsightsSection(insights),
+            _buildInsightsSection(insights, localize),
             pw.SizedBox(height: 20),
           ],
           _buildSectionTitle('Entries by Category', fontBold),
@@ -84,6 +92,8 @@ class ReportGenerator {
   static pw.Widget _buildHeader({
     required DateTimeRange dateRange,
     String? patientName,
+    List<LabeledFilter> filters = const [],
+    required String Function(String) localize,
     required pw.Font fontBold,
   }) {
     final dateFormat = DateFormat.yMMMd();
@@ -98,53 +108,83 @@ class ReportGenerator {
           bottom: pw.BorderSide(color: PdfColors.grey300, width: 1),
         ),
       ),
-      child: pw.Row(
-        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+      child: pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
-          pw.Column(
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text(
-                'Summary Report',
-                style: pw.TextStyle(
-                  font: fontBold,
-                  fontSize: 24,
-                  color: PdfColors.blueGrey800,
-                ),
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text(
+                    'Summary Report',
+                    style: pw.TextStyle(
+                      font: fontBold,
+                      fontSize: 24,
+                      color: PdfColors.blueGrey800,
+                    ),
+                  ),
+                  if (patientName != null) ...[
+                    pw.SizedBox(height: 4),
+                    pw.Text(
+                      patientName,
+                      style: const pw.TextStyle(
+                        fontSize: 14,
+                        color: PdfColors.grey700,
+                      ),
+                    ),
+                  ],
+                ],
               ),
-              if (patientName != null) ...[
-                pw.SizedBox(height: 4),
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.end,
+                children: [
+                  pw.Text(
+                    'Report Period',
+                    style: const pw.TextStyle(
+                      fontSize: 10,
+                      color: PdfColors.grey600,
+                    ),
+                  ),
+                  pw.Text(
+                    rangeString,
+                    style: pw.TextStyle(
+                      font: fontBold,
+                      fontSize: 12,
+                      color: PdfColors.blueGrey700,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          if (filters.isNotEmpty) ...[
+            pw.SizedBox(height: 10),
+            pw.Row(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
                 pw.Text(
-                  patientName,
-                  style: const pw.TextStyle(
-                    fontSize: 14,
+                  'Active Filters: ',
+                  style: pw.TextStyle(
+                    font: fontBold,
+                    fontSize: 10,
                     color: PdfColors.grey700,
                   ),
                 ),
+                pw.Expanded(
+                  child: pw.Text(
+                    filters.map((f) => localize(f.name)).join(', '),
+                    style: const pw.TextStyle(
+                      fontSize: 10,
+                      color: PdfColors.grey600,
+                    ),
+                  ),
+                ),
               ],
-            ],
-          ),
-          pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.end,
-            children: [
-              pw.Text(
-                'Report Period',
-                style: const pw.TextStyle(
-                  fontSize: 10,
-                  color: PdfColors.grey600,
-                ),
-              ),
-              pw.Text(
-                rangeString,
-                style: pw.TextStyle(
-                  font: fontBold,
-                  fontSize: 12,
-                  color: PdfColors.blueGrey700,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ],
       ),
     );
@@ -236,7 +276,8 @@ class ReportGenerator {
     );
   }
 
-  static pw.Widget _buildInsightsSection(List<Insight> insights) {
+  static pw.Widget _buildInsightsSection(
+      List<Insight> insights, String Function(String) localize) {
     return pw.Container(
       padding: const pw.EdgeInsets.all(12),
       decoration: pw.BoxDecoration(
@@ -253,7 +294,7 @@ class ReportGenerator {
                     text: pw.TextSpan(
                       children: [
                         pw.TextSpan(
-                          text: '${insight.getTitle(null)}: ',
+                          text: '${localize(insight.getTitle(null))}: ',
                           style: pw.TextStyle(
                             fontSize: 10,
                             fontWeight: pw.FontWeight.bold,
@@ -261,7 +302,7 @@ class ReportGenerator {
                           ),
                         ),
                         pw.TextSpan(
-                          text: insight.getDescription(null),
+                          text: localize(insight.getDescription(null)),
                           style: const pw.TextStyle(
                             fontSize: 10,
                             color: PdfColors.grey700,

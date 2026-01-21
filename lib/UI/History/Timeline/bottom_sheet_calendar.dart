@@ -4,9 +4,10 @@ import 'package:intl/intl.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/History/display_data_provider.dart';
+
 import 'package:stripes_ui/Util/Helpers/date_range_utils.dart';
 import 'package:stripes_ui/Providers/questions/questions_provider.dart';
-import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
+
 import 'package:stripes_ui/UI/History/EventView/calendar_day.dart';
 import 'package:stripes_ui/UI/History/EventView/sig_dates.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
@@ -209,161 +210,172 @@ class _BottomSheetCalendarState extends ConsumerState<BottomSheetCalendar> {
       );
     }
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(
-              horizontal: AppPadding.medium, vertical: AppPadding.small),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Select Range",
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              Row(
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text("Cancel"),
-                  ),
-                  const SizedBox(width: AppPadding.small),
-                  FilledButton(
-                    onPressed: validRange
-                        ? () {
-                            DateTime end = _rangeEnd!;
-                            if (end.hour == 0 &&
-                                end.minute == 0 &&
-                                end.second == 0 &&
-                                end.millisecond == 0) {
-                              end = end
-                                  .add(const Duration(days: 1))
-                                  .subtract(const Duration(milliseconds: 1));
-                            }
-                            final range =
-                                DateTimeRange(start: _rangeStart!, end: end);
-
-                            if (widget.onRangeSelected != null) {
-                              widget.onRangeSelected!(range);
-                            } else {
-                              ref
-                                  .read(displayDataProvider.notifier)
-                                  .setRange(range, cycle: TimeCycle.custom);
-                            }
-                            Navigator.of(context).pop();
-                          }
-                        : null,
-                    child: const Text("Apply"),
-                  ),
-                ],
-              )
-            ],
-          ),
-        ),
-        const Divider(height: 1),
-        _CalendarHeader(
-          onYearChange: _onYearChange,
-          focusedDay: focusedDay,
-          showingYearPicker: _showYearPicker,
-          onLeftArrowTap: () {
-            _pageController?.previousPage(
-              duration: Durations.medium1,
-              curve: Curves.easeOut,
-            );
-          },
-          onRightArrowTap: () {
-            _pageController?.nextPage(
-              duration: Durations.medium1,
-              curve: Curves.easeOut,
-            );
-          },
-        ),
-        ConstrainedBox(
-          constraints: const BoxConstraints(maxHeight: 380),
-          child: Stack(
-            children: [
-              Visibility(
-                visible: !_showYearPicker,
-                maintainState: true,
-                child: Stack(
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppPadding.medium, vertical: AppPadding.small),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    IgnorePointer(
-                      ignoring: waiting,
-                      child: Opacity(
-                        opacity: waiting ? 0.6 : 1.0,
-                        child: TableCalendar(
-                          locale: locale.languageCode,
-                          onCalendarCreated: (controller) {
-                            _pageController = controller;
-                          },
-                          daysOfWeekHeight: 25.0,
-                          focusedDay: focusedDay.isAfter(lastDay)
-                              ? lastDay
-                              : focusedDay,
-                          firstDay: DateTime(2020),
-                          lastDay: lastDay,
-                          rangeSelectionMode: RangeSelectionMode.toggledOn,
-                          rangeStartDay: _rangeStart,
-                          rangeEndDay: _rangeEnd,
-                          headerVisible: false,
-                          availableGestures: AvailableGestures.horizontalSwipe,
-                          calendarStyle: calendarStyle,
-                          onRangeSelected: _onRangeSelected,
-                          onPageChanged: (newFocus) {
-                            setState(() {
-                              focusedDay = newFocus;
-                            });
-                          },
-                          calendarBuilders: CalendarBuilders(
-                            defaultBuilder: builder,
-                            todayBuilder: builder,
-                            rangeStartBuilder: builder,
-                            rangeEndBuilder: builder,
-                            withinRangeBuilder: builder,
-                            disabledBuilder: builder,
-                            dowBuilder: dowBuilder,
-                          ),
-                        ),
-                      ),
+                    Text(
+                      "Select Range",
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     if (waiting)
-                      Center(
-                        child: eventsValue.isLoading
-                            ? const LoadingWidget()
-                            : Text(
-                                eventsValue.error.toString(),
-                              ),
+                      const Padding(
+                        padding: EdgeInsets.only(left: AppPadding.small),
+                        child: SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
                       ),
                   ],
                 ),
-              ),
-              if (_showYearPicker)
-                Container(
-                  color: Theme.of(context).colorScheme.surface,
-                  child: YearPicker(
-                    currentDate: focusedDay,
-                    firstDate: SigDates.minDate,
-                    lastDate: DateTime.now(),
-                    selectedDate: focusedDay,
-                    onChanged: (val) {
-                      setState(() {
-                        focusedDay = DateTime(
-                            val.year, focusedDay.month, focusedDay.day);
-                        _showYearPicker = false;
-                      });
-                    },
+                Row(
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text("Cancel"),
+                    ),
+                    const SizedBox(width: AppPadding.small),
+                    FilledButton(
+                      onPressed: validRange
+                          ? () {
+                              DateTime end = _rangeEnd!;
+                              if (end.hour == 0 &&
+                                  end.minute == 0 &&
+                                  end.second == 0 &&
+                                  end.millisecond == 0) {
+                                end = end
+                                    .add(const Duration(days: 1))
+                                    .subtract(const Duration(milliseconds: 1));
+                              }
+                              final range =
+                                  DateTimeRange(start: _rangeStart!, end: end);
+
+                              if (widget.onRangeSelected != null) {
+                                widget.onRangeSelected!(range);
+                              } else {
+                                ref
+                                    .read(displayDataProvider.notifier)
+                                    .setRange(range, cycle: TimeCycle.custom);
+                              }
+                              Navigator.of(context).pop();
+                            }
+                          : null,
+                      child: const Text("Apply"),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          _CalendarHeader(
+            onYearChange: _onYearChange,
+            focusedDay: focusedDay,
+            showingYearPicker: _showYearPicker,
+            onLeftArrowTap: () {
+              _pageController?.previousPage(
+                duration: Durations.medium1,
+                curve: Curves.easeOut,
+              );
+            },
+            onRightArrowTap: () {
+              _pageController?.nextPage(
+                duration: Durations.medium1,
+                curve: Curves.easeOut,
+              );
+            },
+          ),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 380),
+            child: Stack(
+              children: [
+                Visibility(
+                  visible: !_showYearPicker,
+                  maintainState: true,
+                  child: Stack(
+                    children: [
+                      // Removed IgnorePointer and Opacity to allow interaction
+                      TableCalendar(
+                        locale: locale.languageCode,
+                        onCalendarCreated: (controller) {
+                          _pageController = controller;
+                        },
+                        daysOfWeekHeight: 25.0,
+                        focusedDay:
+                            focusedDay.isAfter(lastDay) ? lastDay : focusedDay,
+                        firstDay: DateTime(2020),
+                        lastDay: lastDay,
+                        rangeSelectionMode: RangeSelectionMode.toggledOn,
+                        rangeStartDay: _rangeStart,
+                        rangeEndDay: _rangeEnd,
+                        headerVisible: false,
+                        availableGestures: AvailableGestures.horizontalSwipe,
+                        calendarStyle: calendarStyle,
+                        onRangeSelected: _onRangeSelected,
+                        onPageChanged: (newFocus) {
+                          // Update earliest date when navigating to earlier months
+                          ref.read(displayDataProvider.notifier).ensureDate(
+                              DateTime(newFocus.year, newFocus.month, 1));
+                          setState(() {
+                            focusedDay = newFocus;
+                          });
+                        },
+                        calendarBuilders: CalendarBuilders(
+                          defaultBuilder: builder,
+                          todayBuilder: builder,
+                          rangeStartBuilder: builder,
+                          rangeEndBuilder: builder,
+                          withinRangeBuilder: builder,
+                          disabledBuilder: builder,
+                          dowBuilder: dowBuilder,
+                        ),
+                      ),
+                      if (eventsValue.hasError)
+                        Center(
+                          child: Text(
+                            eventsValue.error.toString(),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
-            ],
+                if (_showYearPicker)
+                  Container(
+                    color: Theme.of(context).colorScheme.surface,
+                    child: YearPicker(
+                      currentDate: focusedDay,
+                      firstDate: SigDates.minDate,
+                      lastDate: DateTime.now(),
+                      selectedDate: focusedDay,
+                      onChanged: (val) {
+                        setState(() {
+                          focusedDay = DateTime(
+                              val.year, focusedDay.month, focusedDay.day);
+                          _showYearPicker = false;
+                        });
+                      },
+                    ),
+                  ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

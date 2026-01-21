@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:equatable/equatable.dart';
 import 'package:intl/intl.dart';
 
@@ -19,6 +20,12 @@ abstract class ChartAxis<D> extends Equatable {
   double toDouble(D value);
   double? maxValue() => max != null ? toDouble(max as D) : null;
   double? minValue() => min != null ? toDouble(min as D) : null;
+
+  double normalizeDouble(double value, double min, double max) {
+    final range = max - min;
+    if (range == 0) return 0.0;
+    return (value - min) / range;
+  }
 
   @override
   List<Object?> get props => [min, max, interval, showing];
@@ -47,7 +54,19 @@ class DateTimeAxis extends ChartAxis<DateTime> {
 
   @override
   String formatFromDouble(double value) {
-    return format(DateTime.fromMillisecondsSinceEpoch(value.toInt()));
+    // Guard against NaN, infinity, or values that would overflow DateTime
+    if (!value.isFinite) return '';
+    final ms = value.toInt();
+    // DateTime can handle dates roughly between years -271821 and 275760
+    // Use a safe range for milliseconds (roughly 1900-2100)
+    const minMs = -2208988800000; // ~1900
+    const maxMs = 4102444800000; // ~2100
+    if (ms < minMs || ms > maxMs) return '';
+    try {
+      return format(DateTime.fromMillisecondsSinceEpoch(ms));
+    } catch (_) {
+      return '';
+    }
   }
 }
 
@@ -74,6 +93,28 @@ class NumberAxis extends ChartAxis<num> {
 
   @override
   String formatFromDouble(double value) => format(value);
+}
+
+class SqrtNumberAxis extends NumberAxis {
+  const SqrtNumberAxis({
+    super.min,
+    super.max,
+    super.showing,
+    super.interval,
+    super.formatter,
+  });
+
+  @override
+  double normalizeDouble(double value, double min, double max) {
+    // Ensure we don't take sqrt of negative
+    final v = value < 0 ? 0.0 : value;
+    final mn = min < 0 ? 0.0 : min;
+    final mx = max < 0 ? 0.0 : max;
+
+    final range = sqrt(mx) - sqrt(mn);
+    if (range == 0) return 0.0;
+    return (sqrt(v) - sqrt(mn)) / range;
+  }
 }
 
 class CategoryAxis extends ChartAxis<String> {

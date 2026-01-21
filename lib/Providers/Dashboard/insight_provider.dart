@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/History/display_data_provider.dart';
 import 'package:stripes_ui/UI/History/Insights/insights.dart';
 
@@ -81,6 +80,7 @@ final insightsProvider =
     responses,
     timeCycle: settings.cycle,
     range: settings.range,
+    filter: InsightPurpose.dashboard,
   );
 
   if (props.maxInsights != null && insights.length > props.maxInsights!) {

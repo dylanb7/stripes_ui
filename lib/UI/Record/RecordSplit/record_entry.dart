@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
+import 'package:stripes_backend_helper/RepositoryBase/repo_result.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/Navigation/navigation_provider.dart';
 import 'package:stripes_ui/Providers/questions/questions_provider.dart';
@@ -166,8 +167,23 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
               final bool isSubmit = currentIndex == evaluatedPages.length;
               final VoidCallback? onPressed;
               if (isSubmit) {
-                final bool canSubmit =
-                    validation.pendingCount == 0 && !isLoading && edited;
+                // Get test additions for submit screen validation
+                final testProviderValue = ref.watch(testProvider);
+                final List<Question> testAdditions = testProviderValue
+                        .valueOrNull
+                        ?.getRecordAdditions(context, widget.type) ??
+                    [];
+
+                final submitValidation = LayoutHelper.validateSubmitScreen(
+                  submitQuestions: testAdditions,
+                  listener: widget.questionListener,
+                );
+
+                // Don't allow submit if provider is loading or has required unanswered questions
+                final bool canSubmit = !testProviderValue.isLoading &&
+                    submitValidation.requirementMet &&
+                    !isLoading &&
+                    edited;
 
                 onPressed = submitSuccess
                     ? () {}
@@ -184,19 +200,33 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                     : null;
               }
 
+              // Use the appropriate validation based on page
+              final effectiveValidation = isSubmit
+                  ? LayoutHelper.validateSubmitScreen(
+                      submitQuestions: ref
+                              .read(testProvider)
+                              .valueOrNull
+                              ?.getRecordAdditions(context, widget.type) ??
+                          [],
+                      listener: widget.questionListener,
+                    )
+                  : validation;
+
               // Wrapper for error handling on tap
               final VoidCallback effectiveOnPressed = onPressed == null &&
-                      !validation.canProceed &&
+                      !effectiveValidation.canProceed &&
                       !isLoading
                   ? () {
                       widget.questionListener.tried = true;
                       setState(() {
-                        if (validation.pendingCount > 0) {
-                          _errorMessage = context.translate.nLevelError(
-                              widget.questionListener.pending.length);
-                        } else if (validation.pendingRequirement != null) {
-                          _errorMessage =
-                              validation.pendingRequirement!.toReadableString(
+                        if (effectiveValidation.pendingCount > 0) {
+                          _errorMessage = context.translate
+                              .nLevelError(effectiveValidation.pendingCount);
+                        } else if (effectiveValidation.pendingRequirement !=
+                            null) {
+                          _errorMessage = effectiveValidation
+                              .pendingRequirement!
+                              .toReadableString(
                             (qid) => LayoutHelper.resolveQuestionPrompt(
                                 qid, evaluatedPages),
                           );
@@ -251,6 +281,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                 controller: controller,
                 child: RecordEntryShell(
                   divider: const ComboDivider(),
+                  controlStyle: RecordControlStyle.bottomBar,
                   content: PageView.builder(
                     onPageChanged: (value) {
                       setState(() {
@@ -427,17 +458,25 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     );
 
     if (isEdit) {
-      await repo?.updateStamp(detailResponse);
-      await ((await ref.read(testProvider.future))
-          ?.onResponseEdit(detailResponse, widget.type));
+      RepoResult<Stamp?>? result = await repo?.updateStamp(detailResponse);
+      if (result case Success()) {
+        await ((await ref.read(testProvider.future))
+            ?.onResponseEdit(detailResponse, widget.type));
+      }
     } else {
-      await repo?.addStamp(detailResponse);
-      await (await ref.read(testProvider.future))
-          ?.onResponseSubmit(detailResponse, widget.type);
+      RepoResult<Stamp?>? result = await repo?.addStamp(detailResponse);
+      if (result case Success()) {
+        await (await ref.read(testProvider.future))
+            ?.onResponseSubmit(detailResponse, widget.type);
+      }
     }
     setState(() {
       submitSuccess = true;
     });
+
+    // Stream should naturally emit new values when stamps are added/updated
+    // No invalidation needed if repo.stamps stream is reactive
+
     await Future.delayed(const Duration(milliseconds: 600));
     setState(() {
       isLoading = false;
@@ -454,6 +493,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
           await repo?.removeStamp(detailResponse);
           await (await ref.read(testProvider.future))
               ?.onResponseDelete(detailResponse, widget.type);
+          // Stream should naturally emit after removeStamp
         });
       }
       if (context.canPop()) {
