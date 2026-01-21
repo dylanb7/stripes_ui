@@ -131,20 +131,6 @@ class AccountManagementScreen extends ConsumerWidget {
                 },
               ),*/
             ],
-            const Divider(
-              endIndent: AppPadding.small,
-              indent: AppPadding.small,
-            ),
-            ListTile(
-              dense: false,
-              visualDensity: VisualDensity.comfortable,
-              title: const Text("Sync Status (Debug)"),
-              trailing: const Icon(Icons.keyboard_arrow_right),
-              onTap: () {
-                Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const SyncDebugScreen()));
-              },
-            ),
 
             const SizedBox(
               height: AppPadding.medium,
