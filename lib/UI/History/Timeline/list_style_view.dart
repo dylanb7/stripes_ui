@@ -168,8 +168,6 @@ class _EventsViewState extends ConsumerState<EventsView> {
                                       child: Icon(
                                         switch (mode) {
                                           ViewMode.events => Icons.list,
-                                          ViewMode.reviews =>
-                                            Icons.event_repeat,
                                           ViewMode.graph => Icons.bar_chart,
                                         },
                                         color: Theme.of(context)
@@ -184,13 +182,6 @@ class _EventsViewState extends ConsumerState<EventsView> {
                                       child: ListTile(
                                         leading: Icon(Icons.list),
                                         title: Text('Events'),
-                                      ),
-                                    ),
-                                    const PopupMenuItem(
-                                      value: ViewMode.reviews,
-                                      child: ListTile(
-                                        leading: Icon(Icons.event_repeat),
-                                        title: Text('Reviews'),
                                       ),
                                     ),
                                     const PopupMenuItem(
@@ -274,7 +265,6 @@ class _EventsViewState extends ConsumerState<EventsView> {
                   sliver: SliverToBoxAdapter(
                     child: switch (mode) {
                       ViewMode.events => const EventGridHeader(),
-                      ViewMode.reviews => const ReviewsHeader(),
                       ViewMode.graph => const GraphHeader(),
                     },
                   ),
@@ -287,16 +277,6 @@ class _EventsViewState extends ConsumerState<EventsView> {
                           SliverConstrainedCrossAxis(
                             maxExtent: Breakpoint.large.value,
                             sliver: const EventGrid(),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ViewMode.reviews => [
-                      SliverCrossAxisGroup(
-                        slivers: [
-                          SliverConstrainedCrossAxis(
-                            maxExtent: Breakpoint.large.value,
-                            sliver: const ReviewsView(),
                           ),
                         ],
                       ),
@@ -1011,227 +991,6 @@ class _CheckinDetailPagerState extends ConsumerState<CheckinDetailPager> {
                 ],
               ),
             ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Header for reviews view
-class ReviewsHeader extends ConsumerWidget {
-  const ReviewsHeader({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            "Reviews",
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.primary),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Period-based reviews view - groups by period type
-class ReviewsView extends ConsumerWidget {
-  const ReviewsView({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final DisplayDataSettings settings = ref.watch(displayDataProvider);
-
-    const RecordPathProps pathProps =
-        RecordPathProps(filterEnabled: true, type: PathProviderType.review);
-    final AsyncValue<List<RecordPath>> pathsAsync =
-        ref.watch(recordPaths(pathProps));
-    final AsyncValue<List<Stamp>> allStampsAsync =
-        ref.watch(stampsStreamProvider);
-
-    if (allStampsAsync.isLoading || pathsAsync.isLoading) {
-      return const SliverToBoxAdapter(
-        child: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    final List<RecordPath> paths = pathsAsync.valueOrNull ?? [];
-    final List<Stamp> allStamps = allStampsAsync.valueOrNull ?? [];
-
-    if (paths.isEmpty) {
-      return SliverToBoxAdapter(
-        child: Padding(
-          padding: const EdgeInsets.all(AppPadding.xl),
-          child: Center(
-            child: Text(
-              "No reviews configured",
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-            ),
-          ),
-        ),
-      );
-    }
-
-    // Group paths by period duration
-    final Map<String, List<RecordPath>> pathsByPeriodType = {};
-    for (final path in paths) {
-      final String periodType = _getPeriodTypeName(path.period!);
-      pathsByPeriodType.putIfAbsent(periodType, () => []).add(path);
-    }
-
-    // Collect all review entries within range
-    final Map<String, dynamic> typeToPeriod = {
-      for (var path in paths) path.name: path.period!
-    };
-
-    final List<Response> reviewStamps = [];
-    for (final stamp in allStamps) {
-      if (stamp is! Response) continue;
-      final dynamic period = typeToPeriod[stamp.type];
-      if (period == null) continue;
-
-      final DateTime stampDate = dateFromStamp(stamp.stamp);
-      final DateTimeRange reviewRange = period.getRange(stampDate);
-      if (reviewRange.overlaps(settings.range)) {
-        reviewStamps.add(stamp);
-      }
-    }
-
-    reviewStamps.sort((a, b) => b.stamp.compareTo(a.stamp));
-
-    final QuestionsLocalizations? localizations =
-        QuestionsLocalizations.of(context);
-    final ColorScheme colors = Theme.of(context).colorScheme;
-
-    // Order: Daily, Weekly, Monthly, Annual
-    final List<String> orderedTypes = ['Daily', 'Weekly', 'Monthly', 'Annual'];
-    final List<String> sortedKeys = pathsByPeriodType.keys.toList()
-      ..sort((a, b) {
-        final aIdx = orderedTypes.indexOf(a);
-        final bIdx = orderedTypes.indexOf(b);
-        if (aIdx == -1 && bIdx == -1) return a.compareTo(b);
-        if (aIdx == -1) return 1;
-        if (bIdx == -1) return -1;
-        return aIdx.compareTo(bIdx);
-      });
-
-    return SliverPadding(
-      padding: const EdgeInsets.symmetric(
-          horizontal: AppPadding.xl, vertical: AppPadding.small),
-      sliver: SliverList.builder(
-        itemCount: sortedKeys.length,
-        itemBuilder: (context, index) {
-          final String periodType = sortedKeys[index];
-          final List<RecordPath> typePaths = pathsByPeriodType[periodType]!;
-
-          return _ReviewPeriodSection(
-            periodType: periodType,
-            paths: typePaths,
-            reviewStamps: reviewStamps,
-            typeToPeriod: typeToPeriod,
-            localizations: localizations,
-            colors: colors,
-          );
-        },
-      ),
-    );
-  }
-
-  String _getPeriodTypeName(dynamic period) {
-    // Infer from period duration
-    final DateTimeRange range = period.getRange(DateTime.now());
-    final int days = range.duration.inDays;
-    if (days <= 1) return 'Daily';
-    if (days <= 7) return 'Weekly';
-    if (days <= 31) return 'Monthly';
-    return 'Annual';
-  }
-}
-
-class _ReviewPeriodSection extends ConsumerWidget {
-  final String periodType;
-  final List<RecordPath> paths;
-  final List<Response> reviewStamps;
-  final Map<String, dynamic> typeToPeriod;
-  final QuestionsLocalizations? localizations;
-  final ColorScheme colors;
-
-  const _ReviewPeriodSection({
-    required this.periodType,
-    required this.paths,
-    required this.reviewStamps,
-    required this.typeToPeriod,
-    required this.localizations,
-    required this.colors,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppPadding.medium),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Period type header
-          Text(
-            '$periodType Reviews',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-          ),
-          const SizedBox(height: AppPadding.small),
-          // List of review types in this period
-          ...paths.map((path) {
-            final String name = localizations?.value(path.name) ?? path.name;
-            final List<Response> typeStamps =
-                reviewStamps.where((s) => s.type == path.name).toList();
-            final int count = typeStamps.length;
-
-            return Padding(
-              padding: const EdgeInsets.only(bottom: AppPadding.tiny),
-              child: Card(
-                margin: EdgeInsets.zero,
-                child: ListTile(
-                  leading: Icon(
-                    count > 0
-                        ? Icons.check_circle
-                        : Icons.radio_button_unchecked,
-                    color: count > 0 ? colors.primary : colors.outline,
-                  ),
-                  title: Text(name),
-                  subtitle: count > 0
-                      ? Text('$count in range')
-                      : Text(
-                          'Not completed',
-                          style: TextStyle(color: colors.outline),
-                        ),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: count > 0
-                      ? () {
-                          ref.read(sheetControllerProvider).show(
-                                context: context,
-                                scrollControlled: true,
-                                child: (context) => CheckinDetailPager(
-                                  stamps: typeStamps,
-                                  initialIndex: 0,
-                                  typeToPeriod: typeToPeriod,
-                                ),
-                              );
-                        }
-                      : null,
-                ),
-              ),
-            );
-          }),
-          const Divider(),
         ],
       ),
     );

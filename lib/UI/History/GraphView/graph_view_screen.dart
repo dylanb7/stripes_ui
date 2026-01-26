@@ -41,16 +41,19 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
   GraphOverviewMode _overviewMode = GraphOverviewMode.stacked;
   bool _heroComplete = false;
 
+  Animation<double>? _routeAnimation;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Listen for route animation to complete
-    final animation = ModalRoute.of(context)?.animation;
-    if (animation != null && !_heroComplete) {
-      if (animation.isCompleted) {
+    _routeAnimation?.removeStatusListener(_onAnimationStatus);
+    _routeAnimation = ModalRoute.of(context)?.animation;
+    if (_routeAnimation != null && !_heroComplete) {
+      if (_routeAnimation!.isCompleted) {
         _heroComplete = true;
       } else {
-        animation.addStatusListener(_onAnimationStatus);
+        _routeAnimation!.addStatusListener(_onAnimationStatus);
       }
     }
   }
@@ -60,15 +63,13 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
       setState(() {
         _heroComplete = true;
       });
-      ModalRoute.of(context)
-          ?.animation
-          ?.removeStatusListener(_onAnimationStatus);
+      _routeAnimation?.removeStatusListener(_onAnimationStatus);
     }
   }
 
   @override
   void dispose() {
-    ModalRoute.of(context)?.animation?.removeStatusListener(_onAnimationStatus);
+    _routeAnimation?.removeStatusListener(_onAnimationStatus);
     _selectionController.dispose();
     super.dispose();
   }

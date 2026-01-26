@@ -19,7 +19,7 @@ import 'package:stripes_ui/Util/Helpers/date_range_utils.dart';
 import 'package:stripes_ui/UI/History/Timeline/review_period_data.dart';
 
 // TimeCycle is now imported from date_range_utils.dart\n
-enum ViewMode { events, reviews, graph }
+enum ViewMode { events, graph }
 
 final viewModeProvider = StateProvider<ViewMode>((ref) => ViewMode.events);
 
