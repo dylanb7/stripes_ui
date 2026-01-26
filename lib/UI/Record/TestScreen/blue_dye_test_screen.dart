@@ -456,7 +456,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
                   .valueOrNull
                   ?.getProgression() ==
               BlueDyeProgression.completed;
-          if (isCompleted || activeIndex >= step.value) {
+          if (!isCompleted && activeIndex == step.value) {
             _changePage(step.value);
           }
         },
