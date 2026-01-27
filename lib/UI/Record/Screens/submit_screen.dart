@@ -124,12 +124,18 @@ class SubmitScreenState extends ConsumerState<SubmitScreen> {
         ?.path
         ?.period;
 
-    final List<Question> testAdditions = ref
+    List<Question> testAdditions = ref
             .watch(testsHolderProvider)
             .valueOrNull
             ?.testsRepo
             ?.getRecordAdditions(context, widget.type) ??
         [];
+
+    if (isEdit) {
+      testAdditions = testAdditions
+          .where((q) => widget.questionsListener.fromQuestion(q) != null)
+          .toList();
+    }
 
     return Column(
       children: [

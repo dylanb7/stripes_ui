@@ -169,10 +169,16 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
               if (isSubmit) {
                 // Get test additions for submit screen validation
                 final testProviderValue = ref.watch(testProvider);
-                final List<Question> testAdditions = testProviderValue
-                        .valueOrNull
+                List<Question> testAdditions = testProviderValue.valueOrNull
                         ?.getRecordAdditions(context, widget.type) ??
                     [];
+
+                if (isEdit) {
+                  testAdditions = testAdditions
+                      .where((q) =>
+                          widget.questionListener.fromQuestion(q) != null)
+                      .toList();
+                }
 
                 final submitValidation = LayoutHelper.validateSubmitScreen(
                   submitQuestions: testAdditions,
@@ -201,13 +207,21 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
               }
 
               // Use the appropriate validation based on page
+              List<Question> submitQuestions = ref
+                      .read(testProvider)
+                      .valueOrNull
+                      ?.getRecordAdditions(context, widget.type) ??
+                  [];
+              if (isEdit) {
+                submitQuestions = submitQuestions
+                    .where(
+                        (q) => widget.questionListener.fromQuestion(q) != null)
+                    .toList();
+              }
+
               final effectiveValidation = isSubmit
                   ? LayoutHelper.validateSubmitScreen(
-                      submitQuestions: ref
-                              .read(testProvider)
-                              .valueOrNull
-                              ?.getRecordAdditions(context, widget.type) ??
-                          [],
+                      submitQuestions: submitQuestions,
                       listener: widget.questionListener,
                     )
                   : validation;

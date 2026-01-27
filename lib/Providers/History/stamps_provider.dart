@@ -45,7 +45,6 @@ final baselinesStreamProvider = StreamProvider<List<Stamp>>((ref) async* {
 void _updateRepoEarliest(StampRepo repo, DateTime time) {
   if (repo.earliest == null || time.isBefore(repo.earliest!)) {
     repo.earliestDate = time;
-    print("Changed earliest date to $time");
   }
 }
 
