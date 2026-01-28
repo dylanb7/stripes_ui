@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:stripes_backend_helper/RepositoryBase/repo_result.dart';
+import 'package:stripes_ui/Util/helpers/repo_result_handler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
-import 'package:stripes_backend_helper/RepositoryBase/repo_result.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/Navigation/navigation_provider.dart';
 import 'package:stripes_ui/Providers/questions/questions_provider.dart';
@@ -472,48 +473,58 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
     );
 
     if (isEdit) {
-      RepoResult<Stamp?>? result = await repo?.updateStamp(detailResponse);
+      RepoResult<Stamp?>? result = await repo?.updateStamp(detailResponse) ??
+          const Failure(message: 'Stamp repo not found');
       if (result case Success()) {
         await ((await ref.read(testProvider.future))
             ?.onResponseEdit(detailResponse, widget.type));
       }
+      if (context.mounted) {
+        result.handle(context);
+      }
     } else {
-      RepoResult<Stamp?>? result = await repo?.addStamp(detailResponse);
+      RepoResult<Stamp?>? result = await repo?.addStamp(detailResponse) ??
+          const Failure(message: 'Stamp repo not found');
       if (result case Success()) {
         await (await ref.read(testProvider.future))
             ?.onResponseSubmit(detailResponse, widget.type);
       }
-    }
-    setState(() {
-      submitSuccess = true;
-    });
-
-    // Stream should naturally emit new values when stamps are added/updated
-    // No invalidation needed if repo.stamps stream is reactive
-
-    await Future.delayed(const Duration(milliseconds: 600));
-    setState(() {
-      isLoading = false;
-    });
-
-    navBarHeaderKey.currentState?.trigger();
-    if (context.mounted) {
-      if (!isEdit) {
-        showSnack(
-            context,
-            context.translate
-                .undoEntry(detailType, submissionEntry, submissionEntry),
-            action: () async {
-          await repo?.removeStamp(detailResponse);
-          await (await ref.read(testProvider.future))
-              ?.onResponseDelete(detailResponse, widget.type);
-          // Stream should naturally emit after removeStamp
-        });
+      if (context.mounted) {
+        result.handle(context);
       }
-      if (context.canPop()) {
-        context.pop();
-      } else {
-        context.go(Routes.HOME);
+
+      setState(() {
+        submitSuccess = true;
+      });
+
+      await Future.delayed(const Duration(milliseconds: 600));
+      setState(() {
+        isLoading = false;
+      });
+
+      navBarHeaderKey.currentState?.trigger();
+      if (context.mounted) {
+        if (!isEdit) {
+          showSnack(
+              context,
+              context.translate
+                  .undoEntry(detailType, submissionEntry, submissionEntry),
+              action: () async {
+            final RepoResult result = await repo?.removeStamp(detailResponse) ??
+                Failure(message: 'Repo not found');
+            await (await ref.read(testProvider.future))
+                ?.onResponseDelete(detailResponse, widget.type);
+            if (context.mounted) {
+              result.handle(context);
+            }
+            // Stream should naturally emit after removeStamp
+          });
+        }
+        if (context.canPop()) {
+          context.pop();
+        } else {
+          context.go(Routes.HOME);
+        }
       }
     }
   }

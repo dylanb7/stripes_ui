@@ -11,6 +11,8 @@ import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_reso
 import 'package:stripes_backend_helper/RepositoryBase/repo_result.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 
+import 'package:stripes_ui/Util/helpers/repo_result_handler.dart';
+
 import 'package:stripes_ui/Providers/questions/questions_provider.dart';
 import 'package:stripes_ui/Providers/History/stamps_provider.dart';
 import 'package:stripes_ui/Providers/Test/test_provider.dart';
@@ -448,14 +450,20 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
           }
 
           RepoResult<void>? result = await ref
-              .read(stampProvider)
-              .valueOrNull
-              ?.removeStamp(widget.event);
-          if (result case Success()) {
+                  .read(stampProvider)
+                  .valueOrNull
+                  ?.removeStamp(widget.event) ??
+              const Failure(message: 'Stamp repo not found');
+
+          if (result is Success) {
             await ref
                 .read(testProvider)
                 .valueOrNull
                 ?.onResponseDelete(widget.event, widget.event.type);
+          }
+
+          if (context.mounted) {
+            result.handle(context);
           }
 
           if (mounted) {

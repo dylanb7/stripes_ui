@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/baseline_id.dart';
+import 'package:stripes_backend_helper/RepositoryBase/repo_result.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
+import 'package:stripes_ui/Util/helpers/repo_result_handler.dart';
 import 'package:stripes_ui/Providers/questions/baseline_version_provider.dart';
 import 'package:stripes_ui/Providers/questions/questions_provider.dart';
 import 'package:stripes_ui/Providers/History/stamps_provider.dart';
@@ -325,13 +327,22 @@ class _BaselineEntryState extends ConsumerState<BaselineEntry> {
     );
 
     if (isEdit) {
-      await repo?.updateStamp(detailResponse);
+      final RepoResult result = await repo?.updateStamp(detailResponse) ??
+          const Failure(message: 'Stamp repo not found');
       await ((await ref.read(testProvider.future))
           ?.onResponseEdit(detailResponse, widget.recordPath));
+      if (context.mounted) {
+        result.handle(context);
+      }
     } else {
-      await repo?.addStamp(detailResponse);
+      final RepoResult result = await repo?.addStamp(detailResponse) ??
+          const Failure(message: 'Stamp repo not found');
       await (await ref.read(testProvider.future))
           ?.onResponseSubmit(detailResponse, widget.recordPath);
+      if (context.mounted) {
+        result.handle(context);
+        if (result is! Success) return;
+      }
     }
 
     if (mounted) {
@@ -348,9 +359,13 @@ class _BaselineEntryState extends ConsumerState<BaselineEntry> {
               context.translate.undoEntry(
                   widget.recordPath, submissionEntry, submissionEntry),
               action: () async {
-            await repo?.removeStamp(detailResponse);
+            final RepoResult result = await repo?.removeStamp(detailResponse) ??
+                Failure(message: 'Repo not found');
             await (await ref.read(testProvider.future))
                 ?.onResponseDelete(detailResponse, widget.recordPath);
+            if (context.mounted) {
+              result.handle(context);
+            }
           });
         }
         if (context.canPop()) {
