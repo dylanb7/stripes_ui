@@ -568,8 +568,6 @@ class DetailDisplay extends StatelessWidget {
     );
   }
 
-  /// Resolves generator questions to produce proper prompts for display.
-  /// Returns a map of question ID to resolved Question.
   Map<String, Question> _resolveQuestions() {
     final Map<String, Question> resolved = {};
 
@@ -577,7 +575,6 @@ class DetailDisplay extends StatelessWidget {
       final question = response.question;
 
       if (question.transform != null) {
-        // This question has a transform - resolve it to get generated questions
         final resolvedQuestions = question.resolve(current: detail);
         for (final resolvedQ in resolvedQuestions) {
           if (resolvedQ.prompt.isNotEmpty) {
@@ -589,20 +586,16 @@ class DetailDisplay extends StatelessWidget {
     return resolved;
   }
 
-  /// Filters responses for display, returns list of (response, resolvedQuestion) pairs
   List<(Response, Question?)> _getDisplayableResponses(
       Map<String, Question> resolvedQuestions) {
     final List<(Response, Question?)> result = [];
 
-    // Track which resolved questions have been used
     final Set<String> usedResolvedIds = {};
 
-    // First pass: match responses with proper IDs
     for (final response in detail.responses) {
       final question = response.question;
       final prompt = question.prompt;
 
-      // If prompt is valid (not empty and not a template), use as-is
       if (prompt.isNotEmpty &&
           !prompt.startsWith('{{') &&
           !prompt.contains('{value}')) {
@@ -610,7 +603,6 @@ class DetailDisplay extends StatelessWidget {
         continue;
       }
 
-      // Check if this is a generated question (ID contains '::')
       if (question.id.contains(generatedIdDelimiter)) {
         final resolvedQ = resolvedQuestions[question.id];
         if (resolvedQ != null && resolvedQ.prompt.isNotEmpty) {
@@ -620,10 +612,7 @@ class DetailDisplay extends StatelessWidget {
         }
       }
 
-      // Check if question ID is 'empty' - try to match by response index
-      // This handles cases where the generated question ID wasn't properly saved
       if (question.id == 'empty' && prompt.isEmpty) {
-        // Find an unused resolved question to use
         for (final entry in resolvedQuestions.entries) {
           if (!usedResolvedIds.contains(entry.key)) {
             result.add((response, entry.value));
@@ -633,8 +622,6 @@ class DetailDisplay extends StatelessWidget {
         }
         continue;
       }
-
-      // Skip responses with blank prompts that couldn't be resolved
     }
 
     return result;

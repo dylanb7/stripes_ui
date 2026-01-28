@@ -27,6 +27,7 @@ final stampsStreamProvider = StreamProvider<List<Stamp>>((ref) async* {
   if (repo == null) {
     yield [];
   } else {
+    print("repo.stamps: ${repo.stamps}");
     yield* repo.stamps;
   }
 });
