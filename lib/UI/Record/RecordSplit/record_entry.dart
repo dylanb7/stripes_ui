@@ -69,13 +69,46 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
   }
 
   _changedUpdate() {
-    final bool change = original != widget.questionListener;
+    final bool change = !_areListenersEqual(original, widget.questionListener);
 
-    if (mounted) {
+    if (mounted && change != hasChanged) {
       setState(() {
         hasChanged = change;
       });
     }
+  }
+
+  bool _areListenersEqual(QuestionsListener a, QuestionsListener b) {
+    if (a.submitTime != b.submitTime) {
+      debugPrint('Diff submitTime: ${a.submitTime} vs ${b.submitTime}');
+      return false;
+    }
+    if (a.description != b.description) {
+      debugPrint('Diff description: ${a.description} vs ${b.description}');
+      return false;
+    }
+    if (a.questions.length != b.questions.length) {
+      debugPrint('Diff length: ${a.questions.length} vs ${b.questions.length}');
+      // Print keys difference
+      final aKeys = a.questions.keys.toSet();
+      final bKeys = b.questions.keys.toSet();
+      debugPrint('Missing in B: ${aKeys.difference(bKeys)}');
+      debugPrint('Missing in A: ${bKeys.difference(aKeys)}');
+      return false;
+    }
+
+    for (final key in a.questions.keys) {
+      if (!b.questions.containsKey(key)) {
+        debugPrint('B missing key: $key');
+        return false;
+      }
+      if (a.questions[key] != b.questions[key]) {
+        debugPrint(
+            'Diff value for $key: ${a.questions[key]} vs ${b.questions[key]}');
+        return false;
+      }
+    }
+    return true;
   }
 
   Future<bool> _handleNavigation(BuildContext context) async {
@@ -114,7 +147,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
 
     final bool isEdit = widget.questionListener.editId != null;
 
-    final bool edited = !isEdit || isEdit && hasChanged;
+    final bool edited = !isEdit || hasChanged;
 
     return PopScope(
       canPop: _allowPop,
