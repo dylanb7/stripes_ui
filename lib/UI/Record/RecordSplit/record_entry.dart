@@ -79,34 +79,13 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
   }
 
   bool _areListenersEqual(QuestionsListener a, QuestionsListener b) {
-    if (a.submitTime != b.submitTime) {
-      debugPrint('Diff submitTime: ${a.submitTime} vs ${b.submitTime}');
-      return false;
-    }
-    if (a.description != b.description) {
-      debugPrint('Diff description: ${a.description} vs ${b.description}');
-      return false;
-    }
-    if (a.questions.length != b.questions.length) {
-      debugPrint('Diff length: ${a.questions.length} vs ${b.questions.length}');
-      // Print keys difference
-      final aKeys = a.questions.keys.toSet();
-      final bKeys = b.questions.keys.toSet();
-      debugPrint('Missing in B: ${aKeys.difference(bKeys)}');
-      debugPrint('Missing in A: ${bKeys.difference(aKeys)}');
-      return false;
-    }
+    if (a.submitTime != b.submitTime) return false;
+    if (a.description != b.description) return false;
+    if (a.questions.length != b.questions.length) return false;
 
     for (final key in a.questions.keys) {
-      if (!b.questions.containsKey(key)) {
-        debugPrint('B missing key: $key');
-        return false;
-      }
-      if (a.questions[key] != b.questions[key]) {
-        debugPrint(
-            'Diff value for $key: ${a.questions[key]} vs ${b.questions[key]}');
-        return false;
-      }
+      if (!b.questions.containsKey(key)) return false;
+      if (a.questions[key] != b.questions[key]) return false;
     }
     return true;
   }
@@ -201,7 +180,6 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
               final bool isSubmit = currentIndex == evaluatedPages.length;
               final VoidCallback? onPressed;
               if (isSubmit) {
-                // Get test additions for submit screen validation
                 final testProviderValue = ref.watch(testProvider);
                 List<Question> testAdditions = testProviderValue.valueOrNull
                         ?.getRecordAdditions(context, widget.type) ??
@@ -219,7 +197,6 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                   listener: widget.questionListener,
                 );
 
-                // Don't allow submit if provider is loading or has required unanswered questions
                 final bool canSubmit = !testProviderValue.isLoading &&
                     submitValidation.requirementMet &&
                     !isLoading &&
@@ -240,7 +217,6 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                     : null;
               }
 
-              // Use the appropriate validation based on page
               List<Question> submitQuestions = ref
                       .read(testProvider)
                       .valueOrNull
@@ -260,7 +236,6 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                     )
                   : validation;
 
-              // Wrapper for error handling on tap
               final VoidCallback effectiveOnPressed = onPressed == null &&
                       !effectiveValidation.canProceed &&
                       !isLoading
@@ -282,7 +257,6 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
                       });
                     }
                   : () {
-                      // Clear error when proceeding
                       if (_errorMessage != null) {
                         setState(() {
                           _errorMessage = null;
