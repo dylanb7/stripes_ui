@@ -424,7 +424,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
   }
 
   void close(WidgetRef ref, BuildContext context) async {
-    if (!hasChanged) {
+    if (!hasChanged || submitSuccess) {
       if (context.canPop()) {
         context.pop();
       } else {
@@ -492,39 +492,37 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
       if (context.mounted) {
         result.handle(context);
       }
+    }
+    setState(() {
+      submitSuccess = true;
+    });
 
-      setState(() {
-        submitSuccess = true;
-      });
+    await Future.delayed(const Duration(milliseconds: 600));
+    setState(() {
+      isLoading = false;
+    });
 
-      await Future.delayed(const Duration(milliseconds: 600));
-      setState(() {
-        isLoading = false;
-      });
-
-      navBarHeaderKey.currentState?.trigger();
-      if (context.mounted) {
-        if (!isEdit) {
-          showSnack(
-              context,
-              context.translate
-                  .undoEntry(detailType, submissionEntry, submissionEntry),
-              action: () async {
-            final RepoResult result = await repo?.removeStamp(detailResponse) ??
-                Failure(message: 'Repo not found');
-            await (await ref.read(testProvider.future))
-                ?.onResponseDelete(detailResponse, widget.type);
-            if (context.mounted) {
-              result.handle(context);
-            }
-            // Stream should naturally emit after removeStamp
-          });
-        }
-        if (context.canPop()) {
-          context.pop();
-        } else {
-          context.go(Routes.HOME);
-        }
+    navBarHeaderKey.currentState?.trigger();
+    if (context.mounted) {
+      if (!isEdit) {
+        showSnack(
+            context,
+            context.translate
+                .undoEntry(detailType, submissionEntry, submissionEntry),
+            action: () async {
+          final RepoResult result = await repo?.removeStamp(detailResponse) ??
+              const Failure(message: 'Repo not found');
+          await (await ref.read(testProvider.future))
+              ?.onResponseDelete(detailResponse, widget.type);
+          if (context.mounted) {
+            result.handle(context);
+          }
+        });
+      }
+      if (context.canPop()) {
+        context.pop();
+      } else {
+        context.go(Routes.HOME);
       }
     }
   }
