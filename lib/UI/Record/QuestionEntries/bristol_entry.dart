@@ -41,14 +41,11 @@ class _BMSliderState extends ConsumerState<BMSlider> {
     ];
     images = paths.map((path) => Image.asset(path)).toList();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final num? val = _getResponse();
-      if (val != null) {
-        _sliderListener.interacted();
-        _value = val.toDouble();
-        if (mounted) setState(() {});
-      }
-    });
+    final num? val = _getResponse();
+    if (val != null) {
+      _sliderListener.interacted();
+      _value = val.toDouble();
+    }
   }
 
   @override
