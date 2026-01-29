@@ -417,7 +417,8 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
           widget.responses.whereType<BlueDyeResp>().toList();
       String? blueDyeCsv;
       if (blueDyeResponses.isNotEmpty) {
-        blueDyeCsv = _generateBlueDyeCsv(blueDyeResponses);
+        blueDyeCsv =
+            _generateBlueDyeCsv(blueDyeResponses, questionsL10n: questionsL10n);
       }
 
       if (kIsWeb) {
@@ -513,7 +514,8 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
     return const ListToCsvConverter().convert(rows);
   }
 
-  String _generateBlueDyeCsv(List<BlueDyeResp> responses) {
+  String _generateBlueDyeCsv(List<BlueDyeResp> responses,
+      {QuestionsLocalizations? questionsL10n}) {
     const headers = [
       'ID',
       'Amount Consumed',
@@ -531,6 +533,8 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
     ];
     final rows = <List<dynamic>>[headers];
 
+    String localize(String key) => questionsL10n?.value(key) ?? key;
+
     for (final resp in responses) {
       // Correct calculations:
       // Transit Duration = time from START of eating to first blue BM
@@ -546,7 +550,7 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
         final bmDate = dateFromStamp(log.stamp);
 
         for (final logResponse in log.response.responses) {
-          String prompt = logResponse.question.prompt;
+          String prompt = localize(logResponse.question.prompt);
           String responseValue = '';
 
           if (logResponse is NumericResponse) {
@@ -555,9 +559,11 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
             responseValue = logResponse.response;
           } else if (logResponse is MultiResponse &&
               logResponse.index < logResponse.question.choices.length) {
-            responseValue = logResponse.question.choices[logResponse.index];
+            responseValue =
+                localize(logResponse.question.choices[logResponse.index]);
           } else if (logResponse is AllResponse) {
-            responseValue = logResponse.choices.join(', ');
+            responseValue =
+                logResponse.choices.map((c) => localize(c)).join(', ');
           }
 
           rows.add([

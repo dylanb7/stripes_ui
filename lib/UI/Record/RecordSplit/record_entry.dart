@@ -71,7 +71,7 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
   _changedUpdate() {
     final bool change = !_areListenersEqual(original, widget.questionListener);
 
-    if (mounted && change != hasChanged) {
+    if (mounted) {
       setState(() {
         hasChanged = change;
       });
