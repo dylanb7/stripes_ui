@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/baseline_id.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
-import 'package:stripes_ui/Providers/history/stamps_provider.dart';
+import 'package:stripes_ui/Providers/History/stamps_provider.dart';
 
 const String _baselineVersionPrefKey = 'baseline_version_preference';
 

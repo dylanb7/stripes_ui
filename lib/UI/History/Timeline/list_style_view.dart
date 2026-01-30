@@ -7,7 +7,7 @@ import 'package:stripes_ui/UI/History/DashboardView/dashboard_screen.dart';
 import 'package:stripes_ui/Util/Helpers/date_helper.dart';
 import 'package:stripes_ui/Providers/History/display_data_provider.dart';
 import 'package:stripes_ui/Util/Helpers/date_range_utils.dart';
-import 'package:stripes_ui/Providers/questions/questions_provider.dart';
+import 'package:stripes_ui/Providers/Questions/questions_provider.dart';
 import 'package:stripes_ui/Providers/History/stamps_provider.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/UI/AccountManagement/profile_changer.dart';

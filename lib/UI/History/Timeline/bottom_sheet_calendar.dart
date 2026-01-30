@@ -6,7 +6,7 @@ import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/History/display_data_provider.dart';
 
 import 'package:stripes_ui/Util/Helpers/date_range_utils.dart';
-import 'package:stripes_ui/Providers/questions/questions_provider.dart';
+import 'package:stripes_ui/Providers/Questions/questions_provider.dart';
 
 import 'package:stripes_ui/UI/History/EventView/calendar_day.dart';
 import 'package:stripes_ui/UI/History/EventView/sig_dates.dart';

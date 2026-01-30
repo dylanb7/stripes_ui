@@ -279,7 +279,7 @@ class _ReportSheetState extends ConsumerState<ReportSheet> {
         filters: settings.filters,
       );
 
-      if (!mounted) return;
+      if (!context.mounted) return;
 
       // Share the PDF
       final dateFormat = DateFormat('yyyy-MM-dd');
@@ -297,11 +297,11 @@ class _ReportSheetState extends ConsumerState<ReportSheet> {
         sharePositionOrigin: sharePositionOrigin,
       );
 
-      if (mounted) {
+      if (context.mounted) {
         Navigator.of(context).pop();
       }
     } catch (e) {
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(l10n.reportGenerationFailed(e.toString())),

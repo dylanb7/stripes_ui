@@ -10,7 +10,7 @@ import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_backend_helper/RepositoryBase/StampBase/stamp.dart';
 
 import 'package:stripes_backend_helper/date_format.dart';
-import 'package:stripes_ui/Providers/history/stamps_provider.dart';
+import 'package:stripes_ui/Providers/History/stamps_provider.dart';
 import 'package:stripes_ui/UI/History/EventView/sig_dates.dart';
 import 'package:stripes_ui/UI/History/Filters/filter_logic.dart';
 import 'package:stripes_ui/Util/extensions.dart';

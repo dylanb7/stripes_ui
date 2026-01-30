@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/Providers/Dashboard/dashboard_state_provider.dart';
 import 'package:stripes_ui/Providers/Dashboard/dashboard_stats.dart';
 import 'package:stripes_ui/Providers/Dashboard/insight_provider.dart';
-import 'package:stripes_ui/Providers/history/stamps_provider.dart';
+import 'package:stripes_ui/Providers/History/stamps_provider.dart';
 import 'package:stripes_ui/Util/Helpers/date_range_utils.dart';
 
 final dashboardResponsesProvider =

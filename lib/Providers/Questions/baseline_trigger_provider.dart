@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Models/baseline_trigger.dart';
-import 'package:stripes_ui/Providers/history/stamps_provider.dart';
-import 'package:stripes_ui/Providers/questions/questions_provider.dart';
+import 'package:stripes_ui/Providers/History/stamps_provider.dart';
+import 'package:stripes_ui/Providers/Questions/questions_provider.dart';
 
 /// Provides the list of incomplete baselines, dynamically generated
 /// from the question repo's baseline layout paths.

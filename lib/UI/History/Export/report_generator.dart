@@ -9,7 +9,6 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 
 // Web-specific import for downloads
 import 'package:stripes_ui/Services/web_download_stub.dart'

@@ -1,7 +1,7 @@
 /*import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
-import 'package:stripes_ui/Providers/test/test_provider.dart';
+import 'package:stripes_ui/Providers/Test/test_provider.dart';
 
 import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
 

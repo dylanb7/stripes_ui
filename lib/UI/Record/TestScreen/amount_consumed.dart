@@ -12,7 +12,7 @@ import 'package:stripes_ui/Util/Design/breakpoint.dart';
 import 'package:stripes_ui/Util/Widgets/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
-import 'package:stripes_ui/Util/helpers/repo_result_handler.dart';
+import 'package:stripes_ui/Util/Helpers/repo_result_handler.dart';
 
 class MealFinishedDisplay extends ConsumerWidget {
   final Function? next;

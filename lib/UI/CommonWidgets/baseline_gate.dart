@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
 import 'package:stripes_ui/Models/baseline_trigger.dart';
-import 'package:stripes_ui/Providers/questions/baseline_trigger_provider.dart';
+import 'package:stripes_ui/Providers/Questions/baseline_trigger_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/Util/Design/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';

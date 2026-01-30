@@ -9,7 +9,7 @@ import 'package:stripes_ui/Providers/Navigation/route_provider.dart';
 import 'package:stripes_ui/Providers/History/stamps_provider.dart';
 import 'package:stripes_ui/Providers/base_providers.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
-import 'package:stripes_ui/Providers/test/test_provider.dart';
+import 'package:stripes_ui/Providers/Test/test_provider.dart';
 import 'package:stripes_ui/Util/Design/custom_themes.dart';
 import 'package:stripes_ui/Util/Design/palette.dart';
 import 'package:stripes_ui/config.dart';

@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:stripes_ui/Models/baseline_trigger.dart';
 import 'package:stripes_ui/Providers/Auth/auth_provider.dart';
 import 'package:stripes_ui/Providers/base_providers.dart';
-import 'package:stripes_ui/Providers/questions/baseline_trigger_provider.dart';
+import 'package:stripes_ui/Providers/Questions/baseline_trigger_provider.dart';
 
 import 'package:stripes_ui/Providers/Navigation/route_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';

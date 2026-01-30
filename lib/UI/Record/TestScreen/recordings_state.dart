@@ -19,7 +19,7 @@ import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/Util/Design/breakpoint.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
-import 'package:stripes_ui/Util/helpers/repo_result_handler.dart';
+import 'package:stripes_ui/Util/Helpers/repo_result_handler.dart';
 
 class RecordingsView extends ConsumerWidget {
   final Function? next;
