@@ -155,7 +155,7 @@ class PeakActivityInsight extends Insight {
     if (peak.count <= 0) return [];
     final totalResponses = ctx.totalResponses;
     final percentage = (peak.count / totalResponses * 100).round();
-    final expectedCount = totalResponses * peak.duration / 24;
+    final expectedCount = totalResponses * peak.duration / 12;
     final timesExpected = expectedCount > 0 ? peak.count / expectedCount : 1.0;
     return [
       PeakActivityInsight(

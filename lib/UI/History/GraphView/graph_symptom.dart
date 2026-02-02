@@ -109,7 +109,7 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
   }
 
   void _showTooltip(ChartHitTestResult<GraphPoint, DateTime>? hit) {
-    if (widget.forExport || widget.selectionController != null) return;
+    if (widget.forExport) return;
     if (hit == null) {
       _removeTooltip();
       return;
@@ -346,9 +346,15 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
           min: settings.range.start,
           max: settings.range.end,
         ),
-        onHover:
-            widget.isDetailed ? (laneIndex, hit) => _showTooltip(hit) : null,
+        // Hover updates selection controller; tap shows tooltip
+        onHover: widget.isDetailed
+            ? (laneIndex, hit) {
+                // Let selectionController handle hover for header display
+                // The actual selection is handled by SharedAxisChart internally
+              }
+            : null,
         onTap: widget.isDetailed ? (laneIndex, hit) => _showTooltip(hit) : null,
+        selectionController: widget.selectionController,
         compact: !widget.isDetailed,
       );
       if (widget.forExport) {
@@ -361,13 +367,18 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
       }
       // UnconstrainedBox allows the chart to size naturally without layout errors
       // ClipRect clips any visual overflow during Hero animations
+      // For non-detailed views, constrain max height for better layout on large screens
+      final double maxHeight = widget.isDetailed ? double.infinity : 100.0;
       return ClipRect(
-        child: UnconstrainedBox(
-          alignment: Alignment.topCenter,
-          clipBehavior: Clip.hardEdge,
-          child: SizedBox(
-            width: constraints.maxWidth,
-            child: chartWidget,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: maxHeight),
+          child: UnconstrainedBox(
+            alignment: Alignment.topCenter,
+            clipBehavior: Clip.hardEdge,
+            child: SizedBox(
+              width: constraints.maxWidth,
+              child: chartWidget,
+            ),
           ),
         ),
       );

@@ -95,6 +95,10 @@ class ChartAnimationState<T, D> {
     final xRange = bounds.maxX - bounds.minX;
     if (xRange <= 0) return labels;
 
+    // For center alignment (bar charts), offset labels to align with bucket centers
+    final double halfStep =
+        alignment == LabelAlignment.center ? bounds.xAxisTickSize! / 2 : 0;
+
     double value;
     if (axis is DateTimeAxis) {
       double anchor = 0.0;
@@ -103,12 +107,12 @@ class ChartAnimationState<T, D> {
       final int multiple =
           ((bounds.labelMinX - anchor - epsilon) / bounds.xAxisTickSize!)
               .ceil();
-      value = anchor + (multiple * bounds.xAxisTickSize!);
+      value = anchor + (multiple * bounds.xAxisTickSize!) + halfStep;
     } else {
-      value = bounds.labelMinX;
+      value = bounds.labelMinX + halfStep;
     }
 
-    while (value <= bounds.labelMaxX + 0.0001) {
+    while (value <= bounds.labelMaxX + bounds.xAxisTickSize! * 0.5 + 0.0001) {
       if (value < bounds.labelMinX) {
         value += bounds.xAxisTickSize!;
         continue;
