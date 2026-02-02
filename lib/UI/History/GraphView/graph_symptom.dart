@@ -369,12 +369,13 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
           customLabels: widget.customLabels,
         );
       }
-      // For non-detailed views, lanes now use laneHeight directly
+      // For non-detailed views, lanes use laneHeight directly
+      // ClipRect prevents overflow during Hero animation transition
       if (!widget.isDetailed) {
         return SizedBox(
           height: compactHeight,
           width: constraints.maxWidth,
-          child: chartWidget,
+          child: ClipRect(child: chartWidget),
         );
       }
       // Detailed view
