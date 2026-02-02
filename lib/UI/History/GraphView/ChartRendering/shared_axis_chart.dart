@@ -136,28 +136,14 @@ class SharedAxisChart<T, D> extends StatelessWidget {
       }
 
       // Ensure tick size isn't too small for multi-day ranges to avoid duplicated day labels
-      // Ensure tick size isn't too small for multi-day ranges to avoid duplicated day labels
       if (xAxis is DateTimeAxis) {
-        final double dayMs = 24 * 3600 * 1000;
+        const double dayMs = 24 * 3600 * 1000;
+        const double sixHoursMs = 6 * 3600 * 1000;
         if (range >= dayMs && globalTickSize < dayMs) {
           globalTickSize = dayMs;
-        } else if (range < dayMs && range > 3600 * 1000) {
-          // For intra-day ranges (like 24h view), try to find a nice divisor
-          // (1, 2, 3, 4, 6, 8, 12 hours)
-          final double h = 3600 * 1000;
-          final double hoursInRange = range / h;
-          final double currentTickHours = globalTickSize / h;
-
-          if (hoursInRange <= 24.1) {
-            // Prefer 3, 4, 6 hours intervals if they fit
-            if (currentTickHours > 6) {
-              globalTickSize = 6 * h;
-            } else if (currentTickHours > 4) {
-              globalTickSize = 4 * h;
-            } else if (currentTickHours > 3) {
-              globalTickSize = 3 * h; // 3h is often better than 2h or 4h
-            }
-          }
+        } else if (range < dayMs) {
+          // Intra-day: always use 6h intervals to match HourAxis format
+          globalTickSize = sixHoursMs;
         }
       }
     }

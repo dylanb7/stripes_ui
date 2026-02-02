@@ -338,7 +338,7 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
         );
       }
 
-      final double compactHeight = 80.0;
+      const double compactHeight = 80.0;
       final chartWidget = SharedAxisChart<GraphPoint, DateTime>(
         lanes: lanes,
         showLaneLabels: false,
@@ -347,15 +347,10 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
           min: settings.range.start,
           max: settings.range.end,
         ),
-        // Hover clears tap selection when moving away
-        onHover: widget.isDetailed
-            ? (laneIndex, hit) {
-                if (hit == null && _selectedHit != null) {
-                  _removeTooltip();
-                }
-              }
-            : null,
-        // Tap shows detailed tooltip overlay
+        // Unified behavior: both tap and hover update selection
+        // null hit clears selection (tap outside or pan away)
+        onHover:
+            widget.isDetailed ? (laneIndex, hit) => _showTooltip(hit) : null,
         onTap: widget.isDetailed ? (laneIndex, hit) => _showTooltip(hit) : null,
         selectionController: widget.selectionController,
         compact: !widget.isDetailed,
@@ -372,10 +367,12 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
       // For non-detailed views, use fixed height matching chart laneHeight
       // For detailed views, allow natural sizing
       if (!widget.isDetailed) {
-        return SizedBox(
-          height: compactHeight,
-          width: constraints.maxWidth,
-          child: chartWidget,
+        return ClipRect(
+          child: SizedBox(
+            height: compactHeight,
+            width: constraints.maxWidth,
+            child: chartWidget,
+          ),
         );
       }
       // Detailed view: allow natural height with Hero animation support

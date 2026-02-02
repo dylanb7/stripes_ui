@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 
+import 'package:intl/intl.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_axis.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_data.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_style.dart';
@@ -95,12 +96,14 @@ class ChartAnimationState<T, D> {
     final xRange = bounds.maxX - bounds.minX;
     if (xRange <= 0) return labels;
 
+    const double dayMs = 24 * 3600 * 1000;
+    final bool isIntraDay =
+        axis is DateTimeAxis && bounds.xAxisTickSize! < dayMs;
+
     double value;
     if (axis is DateTimeAxis) {
       // For intra-day views, use labelMinX as anchor to align with day start
       // For multi-day views, use epoch (0) to snap to day boundaries
-      final double dayMs = 24 * 3600 * 1000;
-      final bool isIntraDay = bounds.xAxisTickSize! < dayMs;
       final double anchor = isIntraDay ? bounds.labelMinX : 0.0;
 
       // Use epsilon to prevent floating point issues from skipping the first label
@@ -119,7 +122,14 @@ class ChartAnimationState<T, D> {
         continue;
       }
 
-      final text = axis.formatFromDouble(value);
+      String text;
+      if (isIntraDay) {
+        // Use HourAxis-style format for intra-day views
+        final DateTime dt = DateTime.fromMillisecondsSinceEpoch(value.toInt());
+        text = DateFormat.j().format(dt);
+      } else {
+        text = axis.formatFromDouble(value);
+      }
 
       if (text.isNotEmpty) {
         final normalizedPos = (value - bounds.minX) / xRange;
