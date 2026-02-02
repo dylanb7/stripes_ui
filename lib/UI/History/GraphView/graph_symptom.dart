@@ -346,7 +346,14 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
           min: settings.range.start,
           max: settings.range.end,
         ),
-        // Hover is handled natively by selectionController (updates header)
+        // Hover clears tap selection when moving away
+        onHover: widget.isDetailed
+            ? (laneIndex, hit) {
+                if (hit == null && _selectedHit != null) {
+                  _removeTooltip();
+                }
+              }
+            : null,
         // Tap shows detailed tooltip overlay
         onTap: widget.isDetailed ? (laneIndex, hit) => _showTooltip(hit) : null,
         selectionController: widget.selectionController,
@@ -360,20 +367,23 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
           customLabels: widget.customLabels,
         );
       }
-      // UnconstrainedBox allows the chart to size naturally without layout errors
-      // ClipRect clips any visual overflow during Hero animations
-      // For non-detailed views, constrain max height for better layout on large screens
-      final double maxHeight = widget.isDetailed ? double.infinity : 100.0;
+      // For non-detailed views, use fixed height to constrain graph size
+      // For detailed views, allow natural sizing
+      if (!widget.isDetailed) {
+        return SizedBox(
+          height: 80.0,
+          width: constraints.maxWidth,
+          child: ClipRect(child: chartWidget),
+        );
+      }
+      // Detailed view: allow natural height with Hero animation support
       return ClipRect(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: maxHeight),
-          child: UnconstrainedBox(
-            alignment: Alignment.topCenter,
-            clipBehavior: Clip.hardEdge,
-            child: SizedBox(
-              width: constraints.maxWidth,
-              child: chartWidget,
-            ),
+        child: UnconstrainedBox(
+          alignment: Alignment.topCenter,
+          clipBehavior: Clip.hardEdge,
+          child: SizedBox(
+            width: constraints.maxWidth,
+            child: chartWidget,
           ),
         ),
       );
