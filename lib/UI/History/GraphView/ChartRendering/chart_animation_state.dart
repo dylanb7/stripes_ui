@@ -95,8 +95,9 @@ class ChartAnimationState<T, D> {
     final xRange = bounds.maxX - bounds.minX;
     if (xRange <= 0) return labels;
 
-    // For center alignment (bar charts), offset labels to align with bucket centers
-    final double halfStep =
+    // For center alignment (bar charts), offset label position to align with bucket centers
+    // Only affects screen position, not the date value used for formatting
+    final double positionOffset =
         alignment == LabelAlignment.center ? bounds.xAxisTickSize! / 2 : 0;
 
     double value;
@@ -107,12 +108,12 @@ class ChartAnimationState<T, D> {
       final int multiple =
           ((bounds.labelMinX - anchor - epsilon) / bounds.xAxisTickSize!)
               .ceil();
-      value = anchor + (multiple * bounds.xAxisTickSize!) + halfStep;
+      value = anchor + (multiple * bounds.xAxisTickSize!);
     } else {
-      value = bounds.labelMinX + halfStep;
+      value = bounds.labelMinX;
     }
 
-    while (value <= bounds.labelMaxX + bounds.xAxisTickSize! * 0.5 + 0.0001) {
+    while (value <= bounds.labelMaxX + 0.0001) {
       if (value < bounds.labelMinX) {
         value += bounds.xAxisTickSize!;
         continue;
@@ -121,7 +122,8 @@ class ChartAnimationState<T, D> {
       final text = axis.formatFromDouble(value);
 
       if (text.isNotEmpty) {
-        final normalizedPos = (value - bounds.minX) / xRange;
+        // Position label at bucket center for bar charts
+        final normalizedPos = (value + positionOffset - bounds.minX) / xRange;
         labels.add(AnimatedAxisLabel(
           normalizedPosition: normalizedPos,
           text: text,

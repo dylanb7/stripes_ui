@@ -346,13 +346,8 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
           min: settings.range.start,
           max: settings.range.end,
         ),
-        // Hover updates selection controller; tap shows tooltip
-        onHover: widget.isDetailed
-            ? (laneIndex, hit) {
-                // Let selectionController handle hover for header display
-                // The actual selection is handled by SharedAxisChart internally
-              }
-            : null,
+        // Hover is handled natively by selectionController (updates header)
+        // Tap shows detailed tooltip overlay
         onTap: widget.isDetailed ? (laneIndex, hit) => _showTooltip(hit) : null,
         selectionController: widget.selectionController,
         compact: !widget.isDetailed,
