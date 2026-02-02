@@ -369,24 +369,15 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
         return SizedBox(
           height: compactHeight,
           width: constraints.maxWidth,
-          child: ClipRect(
-            child: Align(
-              alignment: Alignment.topCenter,
-              heightFactor: null,
-              child: chartWidget,
-            ),
+          child: OverflowBox(
+            alignment: Alignment.topCenter,
+            maxHeight: double.infinity,
+            child: chartWidget,
           ),
         );
       }
-      // Detailed view: wrap in GestureDetector to deselect on tap outside chart
-      return GestureDetector(
-        onTap: () {
-          // Tap on background (not handled by chart) clears selection
-          _removeTooltip();
-        },
-        behavior: HitTestBehavior.translucent,
-        child: chartWidget,
-      );
+      // Detailed view: wrap entire widget in GestureDetector for tap-to-deselect
+      return chartWidget;
     });
   }
 }

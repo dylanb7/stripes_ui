@@ -52,7 +52,7 @@ class SharedAxisChart<T, D> extends StatelessWidget {
   final double lanePadding;
   final bool showLaneLabels;
 
-  final void Function(int laneIndex, ChartHitTestResult<T, D> hit)? onTap;
+  final void Function(int laneIndex, ChartHitTestResult<T, D>? hit)? onTap;
   final void Function(int laneIndex, ChartHitTestResult<T, D>? hit)? onHover;
 
   final ChartAxis<D> xAxis;
@@ -260,6 +260,12 @@ class SharedAxisChart<T, D> extends StatelessWidget {
                   : null,
               onTap: onTap != null || selectionController != null
                   ? (hit) {
+                      if (hit == null) {
+                        // Tapped empty area - clear selection and notify
+                        selectionController?.clear();
+                        onTap?.call(i, null);
+                        return;
+                      }
                       final allHits =
                           _findAllHitsAtX(hit.xValue, hit.screenPosition);
                       if (selectionController != null) {

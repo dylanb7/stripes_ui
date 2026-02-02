@@ -22,7 +22,7 @@ class RenderChart<T, D> extends StatefulWidget {
   final Curve animationCurve;
   final bool animate;
 
-  final void Function(ChartHitTestResult<T, D> hit)? onTap;
+  final void Function(ChartHitTestResult<T, D>? hit)? onTap;
 
   final void Function(ChartHitTestResult<T, D>? hit)? onHover;
 
@@ -283,11 +283,13 @@ class _RenderChartState<T, D> extends State<RenderChart<T, D>>
       if (annotationHit.onTap != null) return;
     }
 
-    if (widget.onTap == null) return;
-
     final hits = _hitTest(position, geometry, style);
     if (hits.isNotEmpty) {
-      widget.onTap!(hits.first);
+      widget.onTap?.call(hits.first);
+    } else {
+      // Tapped empty area - clear selection
+      widget.selectionController?.clear();
+      widget.onTap?.call(null);
     }
   }
 
