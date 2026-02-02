@@ -67,6 +67,35 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
     super.dispose();
   }
 
+  /// Returns the base reference height based on the current display mode.
+  /// Lanes mode uses less height per lane; stacked/overlay uses more for single chart.
+  double _getRefHeight() {
+    switch (widget.mode) {
+      case GraphOverviewMode.shared:
+        return 70.0; // Per-lane height (more compact)
+      case GraphOverviewMode.stacked:
+      case GraphOverviewMode.overlayed:
+        return 120.0; // Single combined chart (more space)
+    }
+  }
+
+  /// Returns the appropriate Y-axis based on display settings.
+  /// Uses HourAxis for entry time view, NumberAxis otherwise.
+  ChartAxis<num> _getYAxis({
+    required DisplayDataSettings settings,
+    required double laneMaxY,
+    required bool showing,
+  }) {
+    if (settings.axis == GraphYAxis.entrytime) {
+      return HourAxis(min: 0, max: 24, showing: showing);
+    }
+    return NumberAxis(
+      max: laneMaxY,
+      showing: showing,
+      formatter: NumberFormat.compact(),
+    );
+  }
+
   void _removeTooltip({bool disposing = false}) {
     _closeTimer?.cancel();
     _closeTimer = null;
@@ -221,9 +250,10 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
           .ceilToDouble()
           .clamp(1.0, double.infinity);
 
-      const double topOverhead = 5.0;
-      const double xAxisOverhead = 20.0;
-      final double refHeight = widget.height ?? 80.0;
+      const double topOverhead = 8.0;
+      const double xAxisOverhead = 24.0;
+      // Mode-specific base heights for better readability
+      final double refHeight = widget.height ?? _getRefHeight();
       final double refDrawHeight = refHeight - topOverhead;
 
       final double ppuSqrt = refDrawHeight / sqrt(globalMax);
@@ -252,12 +282,13 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
             data: dataset,
             label: label,
             labelColor: color,
-            height: isReview ? 40.0 : max(30.0, drawHeight + topOverhead),
+            height:
+                isReview ? 40.0 : max(50.0, drawHeight + topOverhead + 10.0),
             hideYAxis: isReview,
-            yAxis: NumberAxis(
-              max: laneMaxY,
+            yAxis: _getYAxis(
+              settings: settings,
+              laneMaxY: laneMaxY,
               showing: !isReview && widget.isDetailed,
-              formatter: NumberFormat.compact(),
             ),
           ));
         } else {
@@ -283,12 +314,12 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
               : (overlayKeys.length == 2
                   ? "Symptom Comparison"
                   : overlayKeys.first.toLocalizedString(context)),
-          height: max(30.0, drawHeight + topOverhead),
+          height: max(50.0, drawHeight + topOverhead + 10.0),
           stackBars: widget.mode == GraphOverviewMode.stacked,
-          yAxis: NumberAxis(
-            max: laneMaxY,
+          yAxis: _getYAxis(
+            settings: settings,
+            laneMaxY: laneMaxY,
             showing: widget.isDetailed,
-            formatter: NumberFormat.compact(),
           ),
         ));
       }

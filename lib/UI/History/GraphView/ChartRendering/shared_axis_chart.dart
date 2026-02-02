@@ -67,7 +67,7 @@ class SharedAxisChart<T, D> extends StatelessWidget {
     required this.lanes,
     this.width,
     this.laneHeight = 100,
-    this.lanePadding = 16,
+    this.lanePadding = 20,
     this.showLaneLabels = true,
     required this.xAxis,
     ChartAxis<dynamic>? yAxis,
