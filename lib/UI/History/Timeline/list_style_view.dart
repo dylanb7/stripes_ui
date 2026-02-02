@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stripes_ui/Providers/Dashboard/insight_provider.dart';
 import 'package:stripes_ui/Providers/base_providers.dart';
-import 'package:stripes_ui/UI/History/DashboardView/dashboard_screen.dart';
+import 'package:stripes_ui/UI/History/Insights/insight_widgets.dart';
 import 'package:stripes_ui/Util/Helpers/date_helper.dart';
 import 'package:stripes_ui/Providers/History/display_data_provider.dart';
 import 'package:stripes_ui/Util/Helpers/date_range_utils.dart';
@@ -99,8 +99,7 @@ class _EventsViewState extends ConsumerState<EventsView> {
     final ViewMode mode = ref.watch(viewModeProvider);
     final StripesConfig config = ref.watch(configProvider);
     ref.watch(stampsStreamProvider);
-    /*final List<Insight> insights =
-        ref.watch(insightsProvider(const InsightsProps(maxInsights: 3)));*/
+    final List<Insight> insights = ref.watch(historyInsightsProvider);
 
     ref.listen(displayDataProvider, (previous, next) {
       if (previous?.range != next.range) {
@@ -244,7 +243,7 @@ class _EventsViewState extends ConsumerState<EventsView> {
                     ),
                   ),
                 ),
-                /*if (insights.isNotEmpty)
+                if (insights.isNotEmpty)
                   SliverPadding(
                     padding: const EdgeInsets.only(
                         left: AppPadding.xl,
@@ -258,7 +257,7 @@ class _EventsViewState extends ConsumerState<EventsView> {
                         ),
                       ),
                     ),
-                  ),*/
+                  ),
 
                 SliverPadding(
                   padding: const EdgeInsets.only(top: AppPadding.tiny),
