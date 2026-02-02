@@ -282,8 +282,10 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
             data: dataset,
             label: label,
             labelColor: color,
-            height:
-                isReview ? 40.0 : max(50.0, drawHeight + topOverhead + 10.0),
+            // Only set explicit height for detailed view; compact uses laneHeight
+            height: widget.isDetailed
+                ? (isReview ? 40.0 : max(50.0, drawHeight + topOverhead + 10.0))
+                : null,
             hideYAxis: isReview,
             yAxis: _getYAxis(
               settings: settings,
@@ -314,7 +316,10 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
               : (overlayKeys.length == 2
                   ? "Symptom Comparison"
                   : overlayKeys.first.toLocalizedString(context)),
-          height: max(50.0, drawHeight + topOverhead + 10.0),
+          // Only set explicit height for detailed view; compact uses laneHeight
+          height: widget.isDetailed
+              ? max(50.0, drawHeight + topOverhead + 10.0)
+              : null,
           stackBars: widget.mode == GraphOverviewMode.stacked,
           yAxis: _getYAxis(
             settings: settings,
@@ -364,19 +369,15 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
           customLabels: widget.customLabels,
         );
       }
-      // For non-detailed views, use fixed height with overflow clipping
+      // For non-detailed views, lanes now use laneHeight directly
       if (!widget.isDetailed) {
         return SizedBox(
           height: compactHeight,
           width: constraints.maxWidth,
-          child: OverflowBox(
-            alignment: Alignment.topCenter,
-            maxHeight: double.infinity,
-            child: chartWidget,
-          ),
+          child: chartWidget,
         );
       }
-      // Detailed view: wrap entire widget in GestureDetector for tap-to-deselect
+      // Detailed view
       return chartWidget;
     });
   }
