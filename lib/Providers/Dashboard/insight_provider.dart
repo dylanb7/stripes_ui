@@ -93,3 +93,8 @@ final insightsProvider =
 final allInsightsProvider = Provider<List<Insight>>((ref) {
   return ref.watch(insightsProvider(const InsightsProps()));
 });
+
+/// Provider for insights shown in the History tab (compact, max 3)
+final historyInsightsProvider = Provider<List<Insight>>((ref) {
+  return ref.watch(insightsProvider(const InsightsProps(maxInsights: 3)));
+});

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:stripes_ui/Providers/Dashboard/insight_provider.dart';
 import 'package:stripes_ui/Providers/History/display_data_provider.dart';
 import 'package:stripes_ui/Providers/Navigation/sheet_provider.dart';
 import 'package:stripes_ui/Providers/base_providers.dart';
@@ -9,6 +10,7 @@ import 'package:stripes_ui/UI/History/EventView/action_row.dart';
 import 'package:stripes_ui/UI/History/EventView/event_grid.dart';
 import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
 import 'package:stripes_ui/UI/History/Filters/filter_sheet.dart';
+import 'package:stripes_ui/UI/History/Insights/insight_widgets.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/Util/Design/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
@@ -79,6 +81,7 @@ class EventsView extends ConsumerWidget {
                       const SizedBox(
                         height: AppPadding.large,
                       ),
+                      const _HistoryInsights(),
                       const ActionRow()
                     ],
                   ),
@@ -128,6 +131,23 @@ class _FiltersRow extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Compact insights section for the history tab
+class _HistoryInsights extends ConsumerWidget {
+  const _HistoryInsights();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final List<Insight> insights = ref.watch(historyInsightsProvider);
+
+    if (insights.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppPadding.medium),
+      child: InsightsList(insights: insights),
     );
   }
 }
