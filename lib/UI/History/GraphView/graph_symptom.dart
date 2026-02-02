@@ -338,6 +338,7 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
         );
       }
 
+      final double compactHeight = 80.0;
       final chartWidget = SharedAxisChart<GraphPoint, DateTime>(
         lanes: lanes,
         showLaneLabels: false,
@@ -358,6 +359,7 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
         onTap: widget.isDetailed ? (laneIndex, hit) => _showTooltip(hit) : null,
         selectionController: widget.selectionController,
         compact: !widget.isDetailed,
+        laneHeight: widget.isDetailed ? 100 : compactHeight,
       );
       if (widget.forExport) {
         return GraphWithKeys(
@@ -367,13 +369,13 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
           customLabels: widget.customLabels,
         );
       }
-      // For non-detailed views, use fixed height to constrain graph size
+      // For non-detailed views, use fixed height matching chart laneHeight
       // For detailed views, allow natural sizing
       if (!widget.isDetailed) {
         return SizedBox(
-          height: 80.0,
+          height: compactHeight,
           width: constraints.maxWidth,
-          child: ClipRect(child: chartWidget),
+          child: chartWidget,
         );
       }
       // Detailed view: allow natural height with Hero animation support

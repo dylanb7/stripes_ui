@@ -97,7 +97,12 @@ class ChartAnimationState<T, D> {
 
     double value;
     if (axis is DateTimeAxis) {
-      double anchor = 0.0;
+      // For intra-day views, use labelMinX as anchor to align with day start
+      // For multi-day views, use epoch (0) to snap to day boundaries
+      final double dayMs = 24 * 3600 * 1000;
+      final bool isIntraDay = bounds.xAxisTickSize! < dayMs;
+      final double anchor = isIntraDay ? bounds.labelMinX : 0.0;
+
       // Use epsilon to prevent floating point issues from skipping the first label
       const double epsilon = 0.001;
       final int multiple =
