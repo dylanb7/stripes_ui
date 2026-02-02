@@ -364,27 +364,28 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
           customLabels: widget.customLabels,
         );
       }
-      // For non-detailed views, use fixed height matching chart laneHeight
-      // For detailed views, allow natural sizing
+      // For non-detailed views, use fixed height with overflow clipping
       if (!widget.isDetailed) {
-        return ClipRect(
-          child: SizedBox(
-            height: compactHeight,
-            width: constraints.maxWidth,
-            child: chartWidget,
+        return SizedBox(
+          height: compactHeight,
+          width: constraints.maxWidth,
+          child: ClipRect(
+            child: Align(
+              alignment: Alignment.topCenter,
+              heightFactor: null,
+              child: chartWidget,
+            ),
           ),
         );
       }
-      // Detailed view: allow natural height with Hero animation support
-      return ClipRect(
-        child: UnconstrainedBox(
-          alignment: Alignment.topCenter,
-          clipBehavior: Clip.hardEdge,
-          child: SizedBox(
-            width: constraints.maxWidth,
-            child: chartWidget,
-          ),
-        ),
+      // Detailed view: wrap in GestureDetector to deselect on tap outside chart
+      return GestureDetector(
+        onTap: () {
+          // Tap on background (not handled by chart) clears selection
+          _removeTooltip();
+        },
+        behavior: HitTestBehavior.translucent,
+        child: chartWidget,
       );
     });
   }
