@@ -100,6 +100,11 @@ class ChartAnimationState<T, D> {
     final bool isIntraDay =
         axis is DateTimeAxis && bounds.xAxisTickSize! < dayMs;
 
+    // For bar charts (center alignment), offset label position by half tick size
+    // This centers labels under bars which are placed at bucket centers
+    final double positionOffset =
+        alignment == LabelAlignment.center ? bounds.xAxisTickSize! / 2 : 0;
+
     double value;
     if (axis is DateTimeAxis) {
       // For intra-day views, use labelMinX as anchor to align with day start
@@ -132,7 +137,8 @@ class ChartAnimationState<T, D> {
       }
 
       if (text.isNotEmpty) {
-        final normalizedPos = (value - bounds.minX) / xRange;
+        // Offset position for bar chart center alignment
+        final normalizedPos = (value + positionOffset - bounds.minX) / xRange;
         labels.add(AnimatedAxisLabel(
           normalizedPosition: normalizedPos,
           text: text,

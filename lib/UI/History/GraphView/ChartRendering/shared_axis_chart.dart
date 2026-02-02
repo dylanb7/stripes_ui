@@ -139,10 +139,11 @@ class SharedAxisChart<T, D> extends StatelessWidget {
       if (xAxis is DateTimeAxis) {
         const double dayMs = 24 * 3600 * 1000;
         const double sixHoursMs = 6 * 3600 * 1000;
-        if (range >= dayMs && globalTickSize < dayMs) {
+        // Multi-day (strictly more than 1 day): use daily ticks
+        // Single day or less: use 6h intervals to match HourAxis format
+        if (range > dayMs && globalTickSize < dayMs) {
           globalTickSize = dayMs;
-        } else if (range < dayMs) {
-          // Intra-day: always use 6h intervals to match HourAxis format
+        } else if (range <= dayMs) {
           globalTickSize = sixHoursMs;
         }
       }
