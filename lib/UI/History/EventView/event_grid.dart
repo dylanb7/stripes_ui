@@ -44,8 +44,8 @@ class EventGrid extends ConsumerWidget {
         .where((response) => !checkinTypes.contains(response.type))
         .toList();
 
-    // Use SliverGrid for large screens
-    if (MediaQuery.of(context).size.width > Breakpoint.large.value) {
+    // Use SliverGrid for medium and large screens
+    if (MediaQuery.of(context).size.width > Breakpoint.medium.value) {
       if (!daysSeparated) {
         return SliverPadding(
           padding: const EdgeInsets.only(

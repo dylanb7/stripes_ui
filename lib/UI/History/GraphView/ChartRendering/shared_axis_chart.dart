@@ -135,16 +135,32 @@ class SharedAxisChart<T, D> extends StatelessWidget {
         globalTickSize = multiple * minDataStep;
       }
 
-      // Ensure tick size isn't too small for multi-day ranges to avoid duplicated day labels
+      // Ensure tick size isn't too small for multi-day ranges to avoid crowded labels
       if (xAxis is DateTimeAxis) {
         const double dayMs = 24 * 3600 * 1000;
         const double sixHoursMs = 6 * 3600 * 1000;
-        // Multi-day (strictly more than 1 day): use daily ticks
+        const double weekMs = 7 * dayMs;
+        const int maxLabels = 7; // Target maximum number of x-axis labels
+
         // Single day or less: use 6h intervals to match HourAxis format
-        if (range > dayMs && globalTickSize < dayMs) {
-          globalTickSize = dayMs;
-        } else if (range <= dayMs) {
+        if (range <= dayMs) {
           globalTickSize = sixHoursMs;
+        } else {
+          // For multi-day ranges, calculate optimal tick size based on max labels
+          final double optimalTickSize = range / maxLabels;
+
+          // Round to nice day boundaries
+          if (optimalTickSize >= weekMs) {
+            // For ranges over 7 weeks, use weekly ticks
+            globalTickSize = weekMs;
+          } else if (optimalTickSize >= dayMs) {
+            // For ranges of 7+ days, calculate how many days between labels
+            final int daysPerTick = (optimalTickSize / dayMs).ceil();
+            globalTickSize = daysPerTick * dayMs;
+          } else {
+            // For small multi-day ranges, use daily ticks
+            globalTickSize = dayMs;
+          }
         }
       }
     }

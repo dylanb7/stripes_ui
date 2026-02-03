@@ -372,8 +372,13 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
       // For non-detailed views, lanes use laneHeight directly
       // ClipRect prevents overflow during Hero animation transition
       if (!widget.isDetailed) {
+        // Use available height from parent if bounded (e.g., inside AspectRatio),
+        // otherwise use fallback compact height
+        final double effectiveHeight = constraints.maxHeight.isFinite
+            ? constraints.maxHeight
+            : compactHeight;
         return SizedBox(
-          height: compactHeight,
+          height: effectiveHeight,
           width: constraints.maxWidth,
           child: ClipRect(child: chartWidget),
         );

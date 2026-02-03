@@ -162,12 +162,12 @@ class _EventsViewState extends ConsumerState<EventsView> {
                     ),
                   ),
                 ),
-                // Insights - constrained width, left-aligned
+                // Insights - constrained width, aligned with date controls
                 if (insights.isNotEmpty)
                   SliverPadding(
                     padding: const EdgeInsets.only(
-                        left: AppPadding.xl,
-                        right: AppPadding.xl,
+                        left: AppPadding.medium,
+                        right: AppPadding.medium,
                         bottom: AppPadding.tiny),
                     sliver: SliverToBoxAdapter(
                       child: Align(
@@ -381,13 +381,14 @@ class _ResponsiveHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool isDesktop =
-        getBreakpoint(context).isGreaterThan(Breakpoint.small);
+        getBreakpoint(context).isGreaterThan(Breakpoint.large);
     final DisplayDataSettings settings = ref.watch(displayDataProvider);
     final AsyncValue<bool> hasFilters = ref.watch(hasAvailableFiltersProvider);
     final bool filtersEnabled = hasFilters.valueOrNull ?? false;
 
     // Builds the view mode toggle popup
     Widget buildViewModeToggle() => PopupMenuButton<ViewMode>(
+          padding: EdgeInsets.zero,
           initialValue: mode,
           tooltip: 'Switch View Mode',
           onSelected: onModeChanged,
@@ -473,8 +474,8 @@ class _ResponsiveHeader extends ConsumerWidget {
           selected: settings.cycle == TimeCycle.custom ? {} : {settings.cycle},
         );
 
-    // Desktop: Patient name + mode toggle + filter only
-    // D|W|M will be shown with date range below
+    // Desktop: Patient name + mode toggle only
+    // Filter moves to D|W|M row
     if (isDesktop) {
       return Row(
         children: [
@@ -484,18 +485,17 @@ class _ResponsiveHeader extends ConsumerWidget {
             ),
           ),
           if (hasGraphing) buildViewModeToggle(),
-          buildFilterButton(),
         ],
       );
     }
 
     // Mobile:
-    // Row 1: Patient name + view toggle
-    // Row 2: Day/Week/Month + filter (with Spacer)
+    // Row 1: Patient name + graph toggle
+    // Row 2: D|W|M toggle + filter
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Row 1: Patient name + view toggle
+        // Row 1: Patient name + graph toggle
         Row(
           children: [
             const Expanded(
@@ -507,7 +507,7 @@ class _ResponsiveHeader extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: AppPadding.small),
-        // Row 2: Day/Week/Month on left, filter on right
+        // Row 2: D|W|M toggle + filter
         Row(
           children: [
             buildTimeCycleToggle(),
@@ -520,62 +520,90 @@ class _ResponsiveHeader extends ConsumerWidget {
   }
 }
 
-/// Groups date-related controls: D|W|M toggle + date range selector
+/// Groups date-related controls: Filter + D|W|M toggle + date range selector on desktop
+/// On mobile, only shows date range (D|W|M and filter are in header)
 class _DateControlsRow extends ConsumerWidget {
   const _DateControlsRow();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final bool isDesktop =
+        getBreakpoint(context).isGreaterThan(Breakpoint.large);
     final DisplayDataSettings settings = ref.watch(displayDataProvider);
+    final AsyncValue<bool> hasFilters = ref.watch(hasAvailableFiltersProvider);
+    final bool filtersEnabled = hasFilters.valueOrNull ?? false;
 
-    return Row(
-      children: [
-        // D|W|M toggle
-        SegmentedButton<TimeCycle>(
-          segments: [
-            TimeCycle.day,
-            TimeCycle.week,
-            TimeCycle.month,
-          ]
-              .map(
-                (cycle) => ButtonSegment(
-                  value: cycle,
-                  label: Text(cycle.value),
-                ),
-              )
-              .toList(),
-          showSelectedIcon: false,
-          emptySelectionAllowed: true,
-          style: const ButtonStyle(
-            visualDensity: VisualDensity.compact,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          ),
-          onSelectionChanged: (newValue) {
-            if (newValue.isNotEmpty) {
-              ref.read(displayDataProvider.notifier).setCycle(newValue.first);
-            }
-          },
-          selected: settings.cycle == TimeCycle.custom ? {} : {settings.cycle},
+    final dateRangeBox = DecoratedBox(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(AppRounding.small),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
         ),
-        const SizedBox(width: AppPadding.small),
-        // Date range selector
-        Expanded(
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(AppRounding.small),
-              border: Border.all(
-                color: Theme.of(context)
-                    .colorScheme
-                    .primary
-                    .withValues(alpha: 0.1),
-              ),
-            ),
-            child: const DateRangeButton(),
-          ),
-        ),
-      ],
+      ),
+      child: const DateRangeButton(),
     );
+
+    // Desktop: Filter + D|W|M toggle + date range
+    if (isDesktop) {
+      return Row(
+        children: [
+          // Filter button at start
+          IconButton.filled(
+            style: const ButtonStyle(
+              visualDensity: VisualDensity.compact,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            onPressed: filtersEnabled
+                ? () {
+                    ref.read(sheetControllerProvider).show(
+                          context: context,
+                          scrollControlled: true,
+                          sheetBuilder: (context, controller) =>
+                              FilterSheet(scrollController: controller),
+                        );
+                  }
+                : null,
+            tooltip: filtersEnabled ? 'Filters' : 'No filters available',
+            icon: const Icon(Icons.filter_list),
+          ),
+          const SizedBox(width: AppPadding.small),
+          // D|W|M toggle
+          SegmentedButton<TimeCycle>(
+            segments: [
+              TimeCycle.day,
+              TimeCycle.week,
+              TimeCycle.month,
+            ]
+                .map(
+                  (cycle) => ButtonSegment(
+                    value: cycle,
+                    label: Text(cycle.value),
+                  ),
+                )
+                .toList(),
+            showSelectedIcon: false,
+            emptySelectionAllowed: true,
+            style: const ButtonStyle(
+              visualDensity: VisualDensity.compact,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            onSelectionChanged: (newValue) {
+              if (newValue.isNotEmpty) {
+                ref.read(displayDataProvider.notifier).setCycle(newValue.first);
+              }
+            },
+            selected:
+                settings.cycle == TimeCycle.custom ? {} : {settings.cycle},
+          ),
+          const SizedBox(width: AppPadding.small),
+          Expanded(child: dateRangeBox),
+        ],
+      );
+    }
+
+    // Mobile: Just date range (D|W|M and filter are in header)
+    return dateRangeBox;
   }
 }
 

@@ -376,13 +376,16 @@ class GraphSymptomRow extends StatelessWidget {
             ),
             const SizedBox(height: AppPadding.medium),
             AspectRatio(
-              aspectRatio: 2.0,
+              aspectRatio: 2.5,
               child: Container(
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(AppRounding.small),
                 ),
-                padding: const EdgeInsets.all(AppPadding.small),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppPadding.small,
+                  vertical: AppPadding.tiny,
+                ),
                 child: hasHero
                     ? Hero(
                         tag: graphKey,

@@ -100,35 +100,55 @@ class ChartAnimationState<T, D> {
     final bool isIntraDay =
         axis is DateTimeAxis && bounds.xAxisTickSize! < dayMs;
 
+    // For center-aligned labels (bar charts), calculate the offset to center
+    // labels under their bars. The data points are at bucket centers, so we
+    // need to offset labels by half the step size from the start of the range.
+    final bool useCenterOffset = alignment == LabelAlignment.center;
+
+    // Use minDataStep if available (actual step between data points),
+    // otherwise fall back to xAxisTickSize
+    final double dataStep =
+        bounds.minDataStep > 0 ? bounds.minDataStep : bounds.xAxisTickSize!;
+    final double halfStep = useCenterOffset ? dataStep / 2 : 0;
+
     double value;
     if (axis is DateTimeAxis) {
-      // For intra-day views, use labelMinX as anchor to align with day start
-      // For multi-day views, use epoch (0) to snap to day boundaries
-      final double anchor = isIntraDay ? bounds.labelMinX : 0.0;
+      if (useCenterOffset) {
+        // For bar charts, generate labels at bucket centers starting from
+        // the range start + halfStep (where the first bar is centered)
+        value = bounds.labelMinX + halfStep;
+      } else {
+        // For intra-day views, use labelMinX as anchor to align with day start
+        // For multi-day views, use epoch (0) to snap to day boundaries
+        final double anchor = isIntraDay ? bounds.labelMinX : 0.0;
 
-      // Use epsilon to prevent floating point issues from skipping the first label
-      const double epsilon = 0.001;
-      final int multiple =
-          ((bounds.labelMinX - anchor - epsilon) / bounds.xAxisTickSize!)
-              .ceil();
-      value = anchor + (multiple * bounds.xAxisTickSize!);
+        // Use epsilon to prevent floating point issues from skipping the first label
+        const double epsilon = 0.001;
+        final int multiple =
+            ((bounds.labelMinX - anchor - epsilon) / bounds.xAxisTickSize!)
+                .ceil();
+        value = anchor + (multiple * bounds.xAxisTickSize!);
+      }
     } else {
-      value = bounds.labelMinX;
+      value = bounds.labelMinX + halfStep;
     }
 
     while (value <= bounds.labelMaxX + 0.0001) {
-      if (value < bounds.labelMinX) {
+      if (value < bounds.labelMinX - 0.0001) {
         value += bounds.xAxisTickSize!;
         continue;
       }
 
       String text;
-      if (isIntraDay) {
+      if (isIntraDay && !useCenterOffset) {
         // Use HourAxis-style format for intra-day views
         final DateTime dt = DateTime.fromMillisecondsSinceEpoch(value.toInt());
         text = DateFormat.j().format(dt);
       } else {
-        text = axis.formatFromDouble(value);
+        // For center-aligned (bar charts), use the label value minus halfStep
+        // for formatting to show the correct date/time
+        final double formatValue = useCenterOffset ? value - halfStep : value;
+        text = axis.formatFromDouble(formatValue);
       }
 
       if (text.isNotEmpty) {
