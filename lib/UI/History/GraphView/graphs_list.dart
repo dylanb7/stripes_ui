@@ -438,7 +438,7 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
         padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            maxWidth: Breakpoint.tiny.value,
+            maxWidth: Breakpoint.small.value,
           ),
           child: child,
         ),

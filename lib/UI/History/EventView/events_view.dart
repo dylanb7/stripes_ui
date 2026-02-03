@@ -36,7 +36,7 @@ class EventsView extends ConsumerWidget {
                   top: AppPadding.xl,
                   bottom: AppPadding.medium),
               sliver: SliverConstrainedCrossAxis(
-                maxExtent: Breakpoint.large.value,
+                maxExtent: Breakpoint.medium.value,
                 sliver: SliverToBoxAdapter(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -68,7 +68,7 @@ class EventsView extends ConsumerWidget {
               padding:
                   const EdgeInsetsGeometry.symmetric(horizontal: AppPadding.xl),
               sliver: SliverConstrainedCrossAxis(
-                maxExtent: Breakpoint.large.value,
+                maxExtent: Breakpoint.medium.value,
                 sliver: SliverList(
                   delegate: SliverChildListDelegate(
                     [
@@ -88,9 +88,13 @@ class EventsView extends ConsumerWidget {
                 ),
               ),
             ),
-            SliverConstrainedCrossAxis(
-              maxExtent: Breakpoint.large.value,
-              sliver: const EventGrid(),
+            SliverPadding(
+              padding:
+                  const EdgeInsetsGeometry.symmetric(horizontal: AppPadding.xl),
+              sliver: SliverConstrainedCrossAxis(
+                maxExtent: Breakpoint.large.value,
+                sliver: const EventGrid(),
+              ),
             ),
           ],
         ),
