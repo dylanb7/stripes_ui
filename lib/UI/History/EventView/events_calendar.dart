@@ -812,7 +812,7 @@ class DateDispay extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool hasDate = selected != null;
     return SizedBox(
-        width: 120.0,
+        width: 95.0,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -821,12 +821,12 @@ class DateDispay extends StatelessWidget {
               hasDate ? DateFormat.yMd().format(selected!) : "select",
               textAlign: TextAlign.center,
               style: hovered
-                  ? Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  ? Theme.of(context).textTheme.bodySmall?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: hasDate
                           ? Theme.of(context).primaryColor
                           : Theme.of(context).disabledColor)
-                  : Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  : Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: !hasDate ? Theme.of(context).disabledColor : null),
             ),
             if (clear != null) ...[
@@ -839,7 +839,7 @@ class DateDispay extends StatelessWidget {
                 },
                 visualDensity: VisualDensity.compact,
                 padding: EdgeInsets.zero,
-                iconSize: 18.0,
+                iconSize: 16.0,
                 icon: const Icon(
                   Icons.clear,
                 ),

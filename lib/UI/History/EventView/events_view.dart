@@ -46,24 +46,12 @@ class EventsView extends ConsumerWidget {
                           tab: TabOption.history,
                         ),
                       ),
-                      if (config.hasGraphing) ...[
-                        IconButton(
-                          onPressed: () {
-                            context.pushNamed(RouteName.TRENDS);
-                          },
-                          icon: const Icon(Icons.trending_up),
-                        ),
-                      ],
+                      _ControlsRow(hasGraphing: config.hasGraphing),
                     ],
                   ),
                 ),
               ),
             ),
-
-            /*const SliverFloatingHeader(
-                    child: SizedBox.expand(
-                  child: FiltersRow(),
-                )),*/
             SliverPadding(
               padding:
                   const EdgeInsetsGeometry.symmetric(horizontal: AppPadding.xl),
@@ -72,7 +60,6 @@ class EventsView extends ConsumerWidget {
                 sliver: SliverList(
                   delegate: SliverChildListDelegate(
                     [
-                      _FiltersRow(),
                       const CurrentFilters(),
                       const SizedBox(
                         height: AppPadding.small,
@@ -103,43 +90,58 @@ class EventsView extends ConsumerWidget {
   }
 }
 
-class _FiltersRow extends ConsumerWidget {
+/// Compact controls row with graph toggle and filter button
+class _ControlsRow extends ConsumerWidget {
+  final bool hasGraphing;
+
+  const _ControlsRow({required this.hasGraphing});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final int filterCount = ref.watch(
         displayDataProvider.select((settings) => settings.filters.length));
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppPadding.small),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Badge(
-            isLabelVisible: filterCount > 0,
-            label: Text(filterCount.toString()),
-            child: IconButton.filled(
-              style: const ButtonStyle(
-                visualDensity: VisualDensity.compact,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              onPressed: () {
-                ref.read(sheetControllerProvider).show(
-                      context: context,
-                      scrollControlled: true,
-                      sheetBuilder: (context, controller) =>
-                          FilterSheet(scrollController: controller),
-                    );
-              },
-              icon: const Icon(Icons.filter_list),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (hasGraphing) ...[
+          IconButton.filled(
+            style: const ButtonStyle(
+              visualDensity: VisualDensity.compact,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
+            onPressed: () {
+              context.pushNamed(RouteName.TRENDS);
+            },
+            icon: const Icon(Icons.trending_up),
           ),
+          const SizedBox(width: AppPadding.small),
         ],
-      ),
+        Badge(
+          isLabelVisible: filterCount > 0,
+          label: Text(filterCount.toString()),
+          child: IconButton.filled(
+            style: const ButtonStyle(
+              visualDensity: VisualDensity.compact,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            onPressed: () {
+              ref.read(sheetControllerProvider).show(
+                    context: context,
+                    scrollControlled: true,
+                    sheetBuilder: (context, controller) =>
+                        FilterSheet(scrollController: controller),
+                  );
+            },
+            icon: const Icon(Icons.filter_list),
+          ),
+        ),
+      ],
     );
   }
 }
 
-/// Compact insights section for the history tab
+/// Compact insights section for the history tab - constrained width
 class _HistoryInsights extends ConsumerWidget {
   const _HistoryInsights();
 
@@ -151,7 +153,10 @@ class _HistoryInsights extends ConsumerWidget {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppPadding.medium),
-      child: InsightsList(insights: insights),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 500),
+        child: InsightsList(insights: insights),
+      ),
     );
   }
 }
