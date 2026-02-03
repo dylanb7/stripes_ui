@@ -132,26 +132,17 @@ class _EventsViewState extends ConsumerState<EventsView> {
                           left: AppPadding.xl,
                           right: AppPadding.xl,
                           top: AppPadding.xl,
-                          bottom: AppPadding.medium),
+                          bottom: AppPadding.small),
                       sliver: SliverConstrainedCrossAxis(
                         maxExtent: Breakpoint.medium.value,
                         sliver: SliverToBoxAdapter(
-                          child: Row(
-                            children: [
-                              const Expanded(
-                                child: PatientChanger(
-                                  tab: TabOption.history,
-                                ),
-                              ),
-                              _ControlsRow(
-                                hasGraphing: config.hasGraphing,
-                                mode: mode,
-                                onModeChanged: (newMode) {
-                                  ref.read(viewModeProvider.notifier).state =
-                                      newMode;
-                                },
-                              ),
-                            ],
+                          child: _ResponsiveHeader(
+                            hasGraphing: config.hasGraphing,
+                            mode: mode,
+                            onModeChanged: (newMode) {
+                              ref.read(viewModeProvider.notifier).state =
+                                  newMode;
+                            },
                           ),
                         ),
                       ),
@@ -161,30 +152,39 @@ class _EventsViewState extends ConsumerState<EventsView> {
                 const SliverToBoxAdapter(
                   child: CurrentFilters(),
                 ),
-                // Date range section (scrolls with content)
-                SliverToBoxAdapter(
-                  key: _dateRangeKey,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppPadding.medium,
-                      vertical: AppPadding.small,
-                    ),
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color:
-                            Theme.of(context).colorScheme.surfaceContainerHigh,
-                        borderRadius: BorderRadius.circular(AppRounding.small),
-                        border: Border.all(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .primary
-                              .withValues(alpha: 0.1),
+                // Date range section - constrained width, left-aligned
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppPadding.medium,
+                    vertical: AppPadding.small,
+                  ),
+                  sliver: SliverToBoxAdapter(
+                    key: _dateRangeKey,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 400),
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .surfaceContainerHigh,
+                            borderRadius:
+                                BorderRadius.circular(AppRounding.small),
+                            border: Border.all(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primary
+                                  .withValues(alpha: 0.1),
+                            ),
+                          ),
+                          child: const DateRangeButton(),
                         ),
                       ),
-                      child: const DateRangeButton(),
                     ),
                   ),
                 ),
+                // Insights - constrained width, left-aligned
                 if (insights.isNotEmpty)
                   SliverPadding(
                     padding: const EdgeInsets.only(
@@ -192,10 +192,13 @@ class _EventsViewState extends ConsumerState<EventsView> {
                         right: AppPadding.xl,
                         bottom: AppPadding.tiny),
                     sliver: SliverToBoxAdapter(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 500),
-                        child: InsightsList(
-                          insights: insights,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 450),
+                          child: InsightsList(
+                            insights: insights,
+                          ),
                         ),
                       ),
                     ),
@@ -380,6 +383,230 @@ class GraphHeader extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Responsive header that adapts layout based on screen size
+class _ResponsiveHeader extends ConsumerWidget {
+  final bool hasGraphing;
+  final ViewMode mode;
+  final ValueChanged<ViewMode> onModeChanged;
+
+  const _ResponsiveHeader({
+    required this.hasGraphing,
+    required this.mode,
+    required this.onModeChanged,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final bool isDesktop =
+        getBreakpoint(context).isGreaterThan(Breakpoint.small);
+    final DisplayDataSettings settings = ref.watch(displayDataProvider);
+    final AsyncValue<bool> hasFilters = ref.watch(hasAvailableFiltersProvider);
+    final bool filtersEnabled = hasFilters.valueOrNull ?? false;
+
+    // Desktop: All controls in one row
+    if (isDesktop) {
+      return Row(
+        children: [
+          const Expanded(
+            child: PatientChanger(
+              tab: TabOption.history,
+            ),
+          ),
+          // Day/Week/Month toggle
+          SegmentedButton<TimeCycle>(
+            segments: [
+              TimeCycle.day,
+              TimeCycle.week,
+              TimeCycle.month,
+            ]
+                .map(
+                  (cycle) => ButtonSegment(
+                    value: cycle,
+                    label: Text(cycle.value),
+                  ),
+                )
+                .toList(),
+            showSelectedIcon: false,
+            emptySelectionAllowed: true,
+            style: const ButtonStyle(
+              visualDensity: VisualDensity.compact,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            onSelectionChanged: (newValue) {
+              if (newValue.isNotEmpty) {
+                ref.read(displayDataProvider.notifier).setCycle(newValue.first);
+              }
+            },
+            selected:
+                settings.cycle == TimeCycle.custom ? {} : {settings.cycle},
+          ),
+          const SizedBox(width: AppPadding.small),
+          // View mode toggle (events/graph)
+          if (hasGraphing)
+            PopupMenuButton<ViewMode>(
+              initialValue: mode,
+              tooltip: 'Switch View Mode',
+              onSelected: onModeChanged,
+              icon: DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(AppRounding.small),
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(AppPadding.small),
+                  child: Icon(
+                    switch (mode) {
+                      ViewMode.events => Icons.list,
+                      ViewMode.graph => Icons.bar_chart,
+                    },
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                ),
+              ),
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: ViewMode.events,
+                  child: ListTile(
+                    leading: Icon(Icons.list),
+                    title: Text('Events'),
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: ViewMode.graph,
+                  child: ListTile(
+                    leading: Icon(Icons.bar_chart),
+                    title: Text('Graphs'),
+                  ),
+                ),
+              ],
+            ),
+          // Filter button
+          IconButton.filled(
+            style: const ButtonStyle(
+              visualDensity: VisualDensity.compact,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            onPressed: filtersEnabled
+                ? () {
+                    ref.read(sheetControllerProvider).show(
+                          context: context,
+                          scrollControlled: true,
+                          sheetBuilder: (context, controller) =>
+                              FilterSheet(scrollController: controller),
+                        );
+                  }
+                : null,
+            tooltip: filtersEnabled ? 'Filters' : 'No filters available',
+            icon: const Icon(Icons.filter_list),
+          ),
+        ],
+      );
+    }
+
+    // Mobile: Header with icons on first row, Day/Week/Month below
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Expanded(
+              child: PatientChanger(
+                tab: TabOption.history,
+              ),
+            ),
+            // View mode toggle
+            if (hasGraphing)
+              PopupMenuButton<ViewMode>(
+                initialValue: mode,
+                tooltip: 'Switch View Mode',
+                onSelected: onModeChanged,
+                icon: DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(AppRounding.small),
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppPadding.small),
+                    child: Icon(
+                      switch (mode) {
+                        ViewMode.events => Icons.list,
+                        ViewMode.graph => Icons.bar_chart,
+                      },
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
+                  ),
+                ),
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: ViewMode.events,
+                    child: ListTile(
+                      leading: Icon(Icons.list),
+                      title: Text('Events'),
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: ViewMode.graph,
+                    child: ListTile(
+                      leading: Icon(Icons.bar_chart),
+                      title: Text('Graphs'),
+                    ),
+                  ),
+                ],
+              ),
+            // Filter button
+            IconButton.filled(
+              style: const ButtonStyle(
+                visualDensity: VisualDensity.compact,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              onPressed: filtersEnabled
+                  ? () {
+                      ref.read(sheetControllerProvider).show(
+                            context: context,
+                            scrollControlled: true,
+                            sheetBuilder: (context, controller) =>
+                                FilterSheet(scrollController: controller),
+                          );
+                    }
+                  : null,
+              tooltip: filtersEnabled ? 'Filters' : 'No filters available',
+              icon: const Icon(Icons.filter_list),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppPadding.small),
+        // Day/Week/Month toggle on separate row for mobile
+        SegmentedButton<TimeCycle>(
+          segments: [
+            TimeCycle.day,
+            TimeCycle.week,
+            TimeCycle.month,
+          ]
+              .map(
+                (cycle) => ButtonSegment(
+                  value: cycle,
+                  label: Text(cycle.value),
+                ),
+              )
+              .toList(),
+          showSelectedIcon: false,
+          emptySelectionAllowed: true,
+          style: const ButtonStyle(
+            visualDensity: VisualDensity.compact,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          onSelectionChanged: (newValue) {
+            if (newValue.isNotEmpty) {
+              ref.read(displayDataProvider.notifier).setCycle(newValue.first);
+            }
+          },
+          selected: settings.cycle == TimeCycle.custom ? {} : {settings.cycle},
+        ),
+      ],
     );
   }
 }
