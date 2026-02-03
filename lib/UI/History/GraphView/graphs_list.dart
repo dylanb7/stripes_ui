@@ -138,11 +138,11 @@ class GraphSliverList extends ConsumerWidget {
         }
 
         final bool isLargeScreen =
-            MediaQuery.of(context).size.width > Breakpoint.large.value;
+            MediaQuery.of(context).size.width > Breakpoint.medium.value;
 
         if (isLargeScreen) {
-          int crossAxisCount = (MediaQuery.of(context).size.width / 500).ceil();
-          if (crossAxisCount < 1) crossAxisCount = 1;
+          int crossAxisCount = (MediaQuery.of(context).size.width / 400).ceil();
+          if (crossAxisCount < 2) crossAxisCount = 2;
 
           final List<GraphKey> keys = withKeysRemoved.keys.toList();
           final int rowCount = (keys.length / crossAxisCount).ceil();
