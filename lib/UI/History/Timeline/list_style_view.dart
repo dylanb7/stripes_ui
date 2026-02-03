@@ -144,7 +144,7 @@ class _EventsViewState extends ConsumerState<EventsView> {
                 const SliverToBoxAdapter(
                   child: CurrentFilters(),
                 ),
-                // Date range section - constrained width, left-aligned
+                // Date controls section - D|W|M toggle + date range (grouped together)
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppPadding.medium,
@@ -157,22 +157,7 @@ class _EventsViewState extends ConsumerState<EventsView> {
                       child: ConstrainedBox(
                         constraints:
                             BoxConstraints(maxWidth: Breakpoint.small.value),
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .surfaceContainerHigh,
-                            borderRadius:
-                                BorderRadius.circular(AppRounding.small),
-                            border: Border.all(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .primary
-                                  .withValues(alpha: 0.1),
-                            ),
-                          ),
-                          child: const DateRangeButton(),
-                        ),
+                        child: const _DateControlsRow(),
                       ),
                     ),
                   ),
@@ -488,7 +473,8 @@ class _ResponsiveHeader extends ConsumerWidget {
           selected: settings.cycle == TimeCycle.custom ? {} : {settings.cycle},
         );
 
-    // Desktop: All controls in one row, pushed to the right
+    // Desktop: Patient name + mode toggle + filter only
+    // D|W|M will be shown with date range below
     if (isDesktop) {
       return Row(
         children: [
@@ -497,9 +483,6 @@ class _ResponsiveHeader extends ConsumerWidget {
               tab: TabOption.history,
             ),
           ),
-          // Group all controls together on the right
-          buildTimeCycleToggle(),
-          const SizedBox(width: AppPadding.small),
           if (hasGraphing) buildViewModeToggle(),
           buildFilterButton(),
         ],
@@ -531,6 +514,65 @@ class _ResponsiveHeader extends ConsumerWidget {
             const Spacer(),
             buildFilterButton(),
           ],
+        ),
+      ],
+    );
+  }
+}
+
+/// Groups date-related controls: D|W|M toggle + date range selector
+class _DateControlsRow extends ConsumerWidget {
+  const _DateControlsRow();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final DisplayDataSettings settings = ref.watch(displayDataProvider);
+
+    return Row(
+      children: [
+        // D|W|M toggle
+        SegmentedButton<TimeCycle>(
+          segments: [
+            TimeCycle.day,
+            TimeCycle.week,
+            TimeCycle.month,
+          ]
+              .map(
+                (cycle) => ButtonSegment(
+                  value: cycle,
+                  label: Text(cycle.value),
+                ),
+              )
+              .toList(),
+          showSelectedIcon: false,
+          emptySelectionAllowed: true,
+          style: const ButtonStyle(
+            visualDensity: VisualDensity.compact,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          onSelectionChanged: (newValue) {
+            if (newValue.isNotEmpty) {
+              ref.read(displayDataProvider.notifier).setCycle(newValue.first);
+            }
+          },
+          selected: settings.cycle == TimeCycle.custom ? {} : {settings.cycle},
+        ),
+        const SizedBox(width: AppPadding.small),
+        // Date range selector
+        Expanded(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerHigh,
+              borderRadius: BorderRadius.circular(AppRounding.small),
+              border: Border.all(
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withValues(alpha: 0.1),
+              ),
+            ),
+            child: const DateRangeButton(),
+          ),
         ),
       ],
     );
