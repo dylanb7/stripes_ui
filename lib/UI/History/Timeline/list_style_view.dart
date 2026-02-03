@@ -163,7 +163,8 @@ class _EventsViewState extends ConsumerState<EventsView> {
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 400),
+                        constraints:
+                            BoxConstraints(maxWidth: Breakpoint.small.value),
                         child: DecoratedBox(
                           decoration: BoxDecoration(
                             color: Theme.of(context)
@@ -195,7 +196,8 @@ class _EventsViewState extends ConsumerState<EventsView> {
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 450),
+                          constraints:
+                              BoxConstraints(maxWidth: Breakpoint.small.value),
                           child: InsightsList(
                             insights: insights,
                           ),
@@ -407,180 +409,67 @@ class _ResponsiveHeader extends ConsumerWidget {
     final AsyncValue<bool> hasFilters = ref.watch(hasAvailableFiltersProvider);
     final bool filtersEnabled = hasFilters.valueOrNull ?? false;
 
-    // Desktop: All controls in one row
-    if (isDesktop) {
-      return Row(
-        children: [
-          const Expanded(
-            child: PatientChanger(
-              tab: TabOption.history,
+    // Builds the view mode toggle popup
+    Widget buildViewModeToggle() => PopupMenuButton<ViewMode>(
+          initialValue: mode,
+          tooltip: 'Switch View Mode',
+          onSelected: onModeChanged,
+          icon: DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppRounding.small),
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(AppPadding.small),
+              child: Icon(
+                switch (mode) {
+                  ViewMode.events => Icons.list,
+                  ViewMode.graph => Icons.bar_chart,
+                },
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
             ),
           ),
-          // Day/Week/Month toggle
-          SegmentedButton<TimeCycle>(
-            segments: [
-              TimeCycle.day,
-              TimeCycle.week,
-              TimeCycle.month,
-            ]
-                .map(
-                  (cycle) => ButtonSegment(
-                    value: cycle,
-                    label: Text(cycle.value),
-                  ),
-                )
-                .toList(),
-            showSelectedIcon: false,
-            emptySelectionAllowed: true,
-            style: const ButtonStyle(
-              visualDensity: VisualDensity.compact,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            onSelectionChanged: (newValue) {
-              if (newValue.isNotEmpty) {
-                ref.read(displayDataProvider.notifier).setCycle(newValue.first);
-              }
-            },
-            selected:
-                settings.cycle == TimeCycle.custom ? {} : {settings.cycle},
-          ),
-          const SizedBox(width: AppPadding.small),
-          // View mode toggle (events/graph)
-          if (hasGraphing)
-            PopupMenuButton<ViewMode>(
-              initialValue: mode,
-              tooltip: 'Switch View Mode',
-              onSelected: onModeChanged,
-              icon: DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(AppRounding.small),
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(AppPadding.small),
-                  child: Icon(
-                    switch (mode) {
-                      ViewMode.events => Icons.list,
-                      ViewMode.graph => Icons.bar_chart,
-                    },
-                    color: Theme.of(context).colorScheme.onPrimary,
-                  ),
-                ),
-              ),
-              itemBuilder: (context) => [
-                const PopupMenuItem(
-                  value: ViewMode.events,
-                  child: ListTile(
-                    leading: Icon(Icons.list),
-                    title: Text('Events'),
-                  ),
-                ),
-                const PopupMenuItem(
-                  value: ViewMode.graph,
-                  child: ListTile(
-                    leading: Icon(Icons.bar_chart),
-                    title: Text('Graphs'),
-                  ),
-                ),
-              ],
-            ),
-          // Filter button
-          IconButton.filled(
-            style: const ButtonStyle(
-              visualDensity: VisualDensity.compact,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            onPressed: filtersEnabled
-                ? () {
-                    ref.read(sheetControllerProvider).show(
-                          context: context,
-                          scrollControlled: true,
-                          sheetBuilder: (context, controller) =>
-                              FilterSheet(scrollController: controller),
-                        );
-                  }
-                : null,
-            tooltip: filtersEnabled ? 'Filters' : 'No filters available',
-            icon: const Icon(Icons.filter_list),
-          ),
-        ],
-      );
-    }
-
-    // Mobile: Header with icons on first row, Day/Week/Month below
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            const Expanded(
-              child: PatientChanger(
-                tab: TabOption.history,
+          itemBuilder: (context) => [
+            const PopupMenuItem(
+              value: ViewMode.events,
+              child: ListTile(
+                leading: Icon(Icons.list),
+                title: Text('Events'),
               ),
             ),
-            // View mode toggle
-            if (hasGraphing)
-              PopupMenuButton<ViewMode>(
-                initialValue: mode,
-                tooltip: 'Switch View Mode',
-                onSelected: onModeChanged,
-                icon: DecoratedBox(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(AppRounding.small),
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(AppPadding.small),
-                    child: Icon(
-                      switch (mode) {
-                        ViewMode.events => Icons.list,
-                        ViewMode.graph => Icons.bar_chart,
-                      },
-                      color: Theme.of(context).colorScheme.onPrimary,
-                    ),
-                  ),
-                ),
-                itemBuilder: (context) => [
-                  const PopupMenuItem(
-                    value: ViewMode.events,
-                    child: ListTile(
-                      leading: Icon(Icons.list),
-                      title: Text('Events'),
-                    ),
-                  ),
-                  const PopupMenuItem(
-                    value: ViewMode.graph,
-                    child: ListTile(
-                      leading: Icon(Icons.bar_chart),
-                      title: Text('Graphs'),
-                    ),
-                  ),
-                ],
+            const PopupMenuItem(
+              value: ViewMode.graph,
+              child: ListTile(
+                leading: Icon(Icons.bar_chart),
+                title: Text('Graphs'),
               ),
-            // Filter button
-            IconButton.filled(
-              style: const ButtonStyle(
-                visualDensity: VisualDensity.compact,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              onPressed: filtersEnabled
-                  ? () {
-                      ref.read(sheetControllerProvider).show(
-                            context: context,
-                            scrollControlled: true,
-                            sheetBuilder: (context, controller) =>
-                                FilterSheet(scrollController: controller),
-                          );
-                    }
-                  : null,
-              tooltip: filtersEnabled ? 'Filters' : 'No filters available',
-              icon: const Icon(Icons.filter_list),
             ),
           ],
-        ),
-        const SizedBox(height: AppPadding.small),
-        // Day/Week/Month toggle on separate row for mobile
-        SegmentedButton<TimeCycle>(
+        );
+
+    // Builds the filter button
+    Widget buildFilterButton() => IconButton.filled(
+          style: const ButtonStyle(
+            visualDensity: VisualDensity.compact,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          onPressed: filtersEnabled
+              ? () {
+                  ref.read(sheetControllerProvider).show(
+                        context: context,
+                        scrollControlled: true,
+                        sheetBuilder: (context, controller) =>
+                            FilterSheet(scrollController: controller),
+                      );
+                }
+              : null,
+          tooltip: filtersEnabled ? 'Filters' : 'No filters available',
+          icon: const Icon(Icons.filter_list),
+        );
+
+    // Builds the Day/Week/Month segmented button
+    Widget buildTimeCycleToggle() => SegmentedButton<TimeCycle>(
           segments: [
             TimeCycle.day,
             TimeCycle.week,
@@ -605,6 +494,51 @@ class _ResponsiveHeader extends ConsumerWidget {
             }
           },
           selected: settings.cycle == TimeCycle.custom ? {} : {settings.cycle},
+        );
+
+    // Desktop: All controls in one row, pushed to the right
+    if (isDesktop) {
+      return Row(
+        children: [
+          const Expanded(
+            child: PatientChanger(
+              tab: TabOption.history,
+            ),
+          ),
+          // Group all controls together on the right
+          buildTimeCycleToggle(),
+          const SizedBox(width: AppPadding.small),
+          if (hasGraphing) buildViewModeToggle(),
+          buildFilterButton(),
+        ],
+      );
+    }
+
+    // Mobile:
+    // Row 1: Patient name + view toggle
+    // Row 2: Day/Week/Month + filter (with Spacer)
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Row 1: Patient name + view toggle
+        Row(
+          children: [
+            const Expanded(
+              child: PatientChanger(
+                tab: TabOption.history,
+              ),
+            ),
+            if (hasGraphing) buildViewModeToggle(),
+          ],
+        ),
+        const SizedBox(height: AppPadding.small),
+        // Row 2: Day/Week/Month on left, filter on right
+        Row(
+          children: [
+            buildTimeCycleToggle(),
+            const Spacer(),
+            buildFilterButton(),
+          ],
         ),
       ],
     );
