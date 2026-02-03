@@ -125,29 +125,21 @@ class _EventsViewState extends ConsumerState<EventsView> {
               physics: const AlwaysScrollableScrollPhysics(),
               controller: ref.watch(historyScrollControllerProvider),
               slivers: [
-                SliverCrossAxisGroup(
-                  slivers: [
-                    SliverPadding(
-                      padding: const EdgeInsets.only(
-                          left: AppPadding.xl,
-                          right: AppPadding.xl,
-                          top: AppPadding.xl,
-                          bottom: AppPadding.small),
-                      sliver: SliverConstrainedCrossAxis(
-                        maxExtent: Breakpoint.medium.value,
-                        sliver: SliverToBoxAdapter(
-                          child: _ResponsiveHeader(
-                            hasGraphing: config.hasGraphing,
-                            mode: mode,
-                            onModeChanged: (newMode) {
-                              ref.read(viewModeProvider.notifier).state =
-                                  newMode;
-                            },
-                          ),
-                        ),
-                      ),
+                SliverPadding(
+                  padding: const EdgeInsets.only(
+                      left: AppPadding.xl,
+                      right: AppPadding.xl,
+                      top: AppPadding.xl,
+                      bottom: AppPadding.small),
+                  sliver: SliverToBoxAdapter(
+                    child: _ResponsiveHeader(
+                      hasGraphing: config.hasGraphing,
+                      mode: mode,
+                      onModeChanged: (newMode) {
+                        ref.read(viewModeProvider.notifier).state = newMode;
+                      },
                     ),
-                  ],
+                  ),
                 ),
                 const SliverToBoxAdapter(
                   child: CurrentFilters(),
