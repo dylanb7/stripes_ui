@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/History/display_data_provider.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
+import 'package:stripes_ui/Util/Design/palette.dart';
 
 class GraphWithKeys extends ConsumerWidget {
   final Widget chartWidget;
@@ -54,7 +55,8 @@ class GraphWithKeys extends ConsumerWidget {
         spacing: AppRounding.small,
         runSpacing: AppPadding.tiny,
         children: responses.keys.map((key) {
-          final Color color = colorKeys?[key] ?? Colors.grey; // Fallback color
+          // Use custom color if set, otherwise use the default color from palette
+          final Color color = colorKeys?[key] ?? forGraphKey(key);
           final String label =
               customLabels?[key] ?? key.toLocalizedString(context);
           return Semantics(

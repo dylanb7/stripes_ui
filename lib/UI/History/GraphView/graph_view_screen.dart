@@ -440,93 +440,95 @@ class _ColorPickerSheetState extends State<ColorPickerSheet> {
 
     return Container(
       padding: const EdgeInsets.all(AppPadding.large),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(children: [
-            Text(
-              'Edit Layer',
-              style: Theme.of(context).textTheme.titleMedium,
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(children: [
+              Text(
+                'Edit Layer',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const Spacer(),
+              IconButton(
+                icon: const Icon(Icons.keyboard_arrow_down),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ]),
+            const SizedBox(height: AppPadding.medium),
+            TextField(
+              controller: _controller,
+              decoration: const InputDecoration(
+                labelText: 'Label',
+                border: OutlineInputBorder(),
+              ),
+              textCapitalization: TextCapitalization.sentences,
             ),
-            const Spacer(),
-            IconButton(
-              icon: const Icon(Icons.keyboard_arrow_down),
-              onPressed: () {
-                Navigator.pop(context);
+            const SizedBox(height: AppPadding.medium),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 6,
+                crossAxisSpacing: AppPadding.small,
+                mainAxisSpacing: AppPadding.small,
+              ),
+              itemCount: colorPalette.length,
+              itemBuilder: (context, index) {
+                final color = colorPalette[index];
+                final isSelected =
+                    (selectedColor ?? widget.currentColor).toARGB32() ==
+                        color.toARGB32();
+                return InkWell(
+                  onTap: () {
+                    setState(() {
+                      selectedColor = color;
+                    });
+                  },
+                  borderRadius: BorderRadius.circular(AppRounding.small),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: color,
+                      borderRadius: BorderRadius.circular(AppRounding.small),
+                      border: Border.all(
+                        color: isSelected
+                            ? Theme.of(context).colorScheme.onSurface
+                            : Colors.transparent,
+                        width: 3,
+                      ),
+                    ),
+                    child: isSelected
+                        ? Icon(
+                            Icons.check,
+                            color: color.computeLuminance() > 0.5
+                                ? Colors.black
+                                : Colors.white,
+                          )
+                        : null,
+                  ),
+                );
               },
             ),
-          ]),
-          const SizedBox(height: AppPadding.medium),
-          TextField(
-            controller: _controller,
-            decoration: const InputDecoration(
-              labelText: 'Label',
-              border: OutlineInputBorder(),
-            ),
-            textCapitalization: TextCapitalization.sentences,
-          ),
-          const SizedBox(height: AppPadding.medium),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 6,
-              crossAxisSpacing: AppPadding.small,
-              mainAxisSpacing: AppPadding.small,
-            ),
-            itemCount: colorPalette.length,
-            itemBuilder: (context, index) {
-              final color = colorPalette[index];
-              final isSelected =
-                  (selectedColor ?? widget.currentColor).toARGB32() ==
-                      color.toARGB32();
-              return InkWell(
-                onTap: () {
-                  setState(() {
-                    selectedColor = color;
-                  });
-                },
-                borderRadius: BorderRadius.circular(AppRounding.small),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: BorderRadius.circular(AppRounding.small),
-                    border: Border.all(
-                      color: isSelected
-                          ? Theme.of(context).colorScheme.onSurface
-                          : Colors.transparent,
-                      width: 3,
-                    ),
+            const SizedBox(height: AppPadding.medium),
+            FilledButton(
+              onPressed: () {
+                Navigator.pop(
+                  context,
+                  GraphEditResult(
+                    color: selectedColor ?? widget.currentColor,
+                    label: _controller.text != widget.currentLabel
+                        ? _controller.text
+                        : null,
                   ),
-                  child: isSelected
-                      ? Icon(
-                          Icons.check,
-                          color: color.computeLuminance() > 0.5
-                              ? Colors.black
-                              : Colors.white,
-                        )
-                      : null,
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: AppPadding.medium),
-          FilledButton(
-            onPressed: () {
-              Navigator.pop(
-                context,
-                GraphEditResult(
-                  color: selectedColor ?? widget.currentColor,
-                  label: _controller.text != widget.currentLabel
-                      ? _controller.text
-                      : null,
-                ),
-              );
-            },
-            child: const Center(child: Text('Save')),
-          ),
-        ],
+                );
+              },
+              child: const Center(child: Text('Save')),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -344,6 +344,13 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
       }
 
       const double compactHeight = 80.0;
+      // For non-detailed views, calculate effective height early so the chart
+      // can use the actual available height from the parent container
+      final double effectiveCompactHeight =
+          !widget.isDetailed && constraints.maxHeight.isFinite
+              ? constraints.maxHeight
+              : compactHeight;
+
       final chartWidget = SharedAxisChart<GraphPoint, DateTime>(
         lanes: lanes,
         showLaneLabels: false,
@@ -359,7 +366,7 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
         onTap: widget.isDetailed ? (laneIndex, hit) => _showTooltip(hit) : null,
         selectionController: widget.selectionController,
         compact: !widget.isDetailed,
-        laneHeight: widget.isDetailed ? 100 : compactHeight,
+        laneHeight: widget.isDetailed ? 100 : effectiveCompactHeight,
       );
       if (widget.forExport) {
         return GraphWithKeys(
@@ -372,13 +379,8 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
       // For non-detailed views, lanes use laneHeight directly
       // ClipRect prevents overflow during Hero animation transition
       if (!widget.isDetailed) {
-        // Use available height from parent if bounded (e.g., inside AspectRatio),
-        // otherwise use fallback compact height
-        final double effectiveHeight = constraints.maxHeight.isFinite
-            ? constraints.maxHeight
-            : compactHeight;
         return SizedBox(
-          height: effectiveHeight,
+          height: effectiveCompactHeight,
           width: constraints.maxWidth,
           child: ClipRect(child: chartWidget),
         );
