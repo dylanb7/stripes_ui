@@ -143,74 +143,16 @@ class _EventsViewState extends ConsumerState<EventsView> {
                                   tab: TabOption.history,
                                 ),
                               ),
-                              const SizedBox(
-                                width: AppPadding.tiny,
+                              _ControlsRow(
+                                hasGraphing: config.hasGraphing,
+                                mode: mode,
+                                onModeChanged: (newMode) {
+                                  ref.read(viewModeProvider.notifier).state =
+                                      newMode;
+                                },
                               ),
-                              if (config.hasGraphing)
-                                PopupMenuButton<ViewMode>(
-                                  initialValue: mode,
-                                  tooltip: 'Switch View Mode',
-                                  onSelected: (newMode) {
-                                    ref.read(viewModeProvider.notifier).state =
-                                        newMode;
-                                  },
-                                  icon: DecoratedBox(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(
-                                          AppRounding.small),
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(
-                                          AppPadding.small),
-                                      child: Icon(
-                                        switch (mode) {
-                                          ViewMode.events => Icons.list,
-                                          ViewMode.graph => Icons.bar_chart,
-                                        },
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onPrimary,
-                                      ),
-                                    ),
-                                  ),
-                                  itemBuilder: (context) => [
-                                    const PopupMenuItem(
-                                      value: ViewMode.events,
-                                      child: ListTile(
-                                        leading: Icon(Icons.list),
-                                        title: Text('Events'),
-                                      ),
-                                    ),
-                                    const PopupMenuItem(
-                                      value: ViewMode.graph,
-                                      child: ListTile(
-                                        leading: Icon(Icons.bar_chart),
-                                        title: Text('Graphs'),
-                                      ),
-                                    ),
-                                  ],
-                                )
                             ],
                           ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                SliverCrossAxisGroup(
-                  slivers: [
-                    SliverPadding(
-                      padding: const EdgeInsets.only(
-                          left: AppPadding.xl,
-                          right: AppPadding.xl,
-                          bottom: AppPadding.tiny),
-                      sliver: SliverConstrainedCrossAxis(
-                        maxExtent: Breakpoint.medium.value,
-                        sliver: const SliverToBoxAdapter(
-                          child: FiltersRow(),
                         ),
                       ),
                     ),
@@ -249,9 +191,9 @@ class _EventsViewState extends ConsumerState<EventsView> {
                         left: AppPadding.xl,
                         right: AppPadding.xl,
                         bottom: AppPadding.tiny),
-                    sliver: SliverConstrainedCrossAxis(
-                      maxExtent: Breakpoint.medium.value,
-                      sliver: SliverToBoxAdapter(
+                    sliver: SliverToBoxAdapter(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 500),
                         child: InsightsList(
                           insights: insights,
                         ),
@@ -442,48 +384,96 @@ class GraphHeader extends ConsumerWidget {
   }
 }
 
-class FiltersRow extends ConsumerWidget {
-  const FiltersRow({super.key});
+/// Compact controls row with Day/Week/Month toggle, view mode, and filter button
+class _ControlsRow extends ConsumerWidget {
+  final bool hasGraphing;
+  final ViewMode mode;
+  final ValueChanged<ViewMode> onModeChanged;
+
+  const _ControlsRow({
+    required this.hasGraphing,
+    required this.mode,
+    required this.onModeChanged,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final DisplayDataSettings settings = ref.watch(displayDataProvider);
     final AsyncValue<bool> hasFilters = ref.watch(hasAvailableFiltersProvider);
-
-    // Disable button if loading or no filters available
     final bool filtersEnabled = hasFilters.valueOrNull ?? false;
 
     return Row(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.start,
       children: [
+        // Day/Week/Month toggle
         SegmentedButton<TimeCycle>(
-            segments: [
-              TimeCycle.day,
-              TimeCycle.week,
-              TimeCycle.month,
-            ]
-                .map(
-                  (cycle) => ButtonSegment(
-                    value: cycle,
-                    label: Text(cycle.value),
-                  ),
-                )
-                .toList(),
-            showSelectedIcon: false,
-            emptySelectionAllowed: true,
-            style: const ButtonStyle(
-              visualDensity: VisualDensity.compact,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          segments: [
+            TimeCycle.day,
+            TimeCycle.week,
+            TimeCycle.month,
+          ]
+              .map(
+                (cycle) => ButtonSegment(
+                  value: cycle,
+                  label: Text(cycle.value),
+                ),
+              )
+              .toList(),
+          showSelectedIcon: false,
+          emptySelectionAllowed: true,
+          style: const ButtonStyle(
+            visualDensity: VisualDensity.compact,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          onSelectionChanged: (newValue) {
+            if (newValue.isNotEmpty) {
+              ref.read(displayDataProvider.notifier).setCycle(newValue.first);
+            }
+          },
+          selected: settings.cycle == TimeCycle.custom ? {} : {settings.cycle},
+        ),
+        const SizedBox(width: AppPadding.small),
+        // View mode toggle (events/graph)
+        if (hasGraphing)
+          PopupMenuButton<ViewMode>(
+            initialValue: mode,
+            tooltip: 'Switch View Mode',
+            onSelected: onModeChanged,
+            icon: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(AppRounding.small),
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(AppPadding.small),
+                child: Icon(
+                  switch (mode) {
+                    ViewMode.events => Icons.list,
+                    ViewMode.graph => Icons.bar_chart,
+                  },
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
+              ),
             ),
-            onSelectionChanged: (newValue) {
-              if (newValue.isNotEmpty) {
-                ref.read(displayDataProvider.notifier).setCycle(newValue.first);
-              }
-            },
-            selected:
-                settings.cycle == TimeCycle.custom ? {} : {settings.cycle}),
-        const Spacer(),
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: ViewMode.events,
+                child: ListTile(
+                  leading: Icon(Icons.list),
+                  title: Text('Events'),
+                ),
+              ),
+              const PopupMenuItem(
+                value: ViewMode.graph,
+                child: ListTile(
+                  leading: Icon(Icons.bar_chart),
+                  title: Text('Graphs'),
+                ),
+              ),
+            ],
+          ),
+        // Filter button
         IconButton.filled(
           style: const ButtonStyle(
             visualDensity: VisualDensity.compact,
@@ -503,6 +493,23 @@ class FiltersRow extends ConsumerWidget {
           icon: const Icon(Icons.filter_list),
         ),
       ],
+    );
+  }
+}
+
+// Keep FiltersRow as a legacy alias for backward compatibility
+class FiltersRow extends ConsumerWidget {
+  const FiltersRow({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ViewMode mode = ref.watch(viewModeProvider);
+    return _ControlsRow(
+      hasGraphing: ref.watch(configProvider).hasGraphing,
+      mode: mode,
+      onModeChanged: (newMode) {
+        ref.read(viewModeProvider.notifier).state = newMode;
+      },
     );
   }
 }
