@@ -327,39 +327,83 @@ class GraphHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final DisplayDataSettings settings = ref.watch(displayDataProvider);
+    final bool isDesktop =
+        getBreakpoint(context).isGreaterThan(Breakpoint.medium);
+
     return Padding(
       padding: const EdgeInsets.symmetric(
           horizontal: AppPadding.xl, vertical: AppPadding.small),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Text("Name",
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.bold)),
-          const Spacer(),
-          Expanded(
-            child: DropdownButtonFormField<GraphYAxis>(
-              decoration: const InputDecoration(
-                  labelText: "Y Axis",
-                  border: OutlineInputBorder(),
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 10, vertical: 0)),
-              initialValue: settings.axis,
-              onChanged: (value) {
-                if (value == null) return;
-                ref.read(displayDataProvider.notifier).setAxis(value);
-              },
-              items: GraphYAxis.values
-                  .map((axis) => DropdownMenuItem(
+          if (isDesktop)
+            // Desktop: Compact segmented button, left-aligned
+            SegmentedButton<GraphYAxis>(
+              segments: GraphYAxis.values
+                  .map((axis) => ButtonSegment<GraphYAxis>(
                         value: axis,
-                        child: Text(axis.value),
+                        icon: Icon(axis.icon, size: 16),
+                        label: Text(axis.label),
+                        tooltip: axis.description,
                       ))
                   .toList(),
+              selected: {settings.axis},
+              onSelectionChanged: (newSelection) {
+                if (newSelection.isNotEmpty) {
+                  ref
+                      .read(displayDataProvider.notifier)
+                      .setAxis(newSelection.first);
+                }
+              },
+              showSelectedIcon: false,
+              style: const ButtonStyle(
+                visualDensity: VisualDensity.compact,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            )
+          else
+            // Mobile: Styled dropdown button
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppPadding.small,
+                vertical: AppPadding.tiny,
+              ),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                borderRadius: BorderRadius.circular(AppRounding.small),
+                border: Border.all(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .outline
+                      .withValues(alpha: 0.3),
+                ),
+              ),
+              child: DropdownButton<GraphYAxis>(
+                value: settings.axis,
+                underline: const SizedBox.shrink(),
+                isDense: true,
+                icon: const Icon(Icons.keyboard_arrow_down, size: 20),
+                borderRadius: BorderRadius.circular(AppRounding.small),
+                onChanged: (value) {
+                  if (value != null) {
+                    ref.read(displayDataProvider.notifier).setAxis(value);
+                  }
+                },
+                items: GraphYAxis.values
+                    .map((axis) => DropdownMenuItem(
+                          value: axis,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(axis.icon, size: 16),
+                              const SizedBox(width: AppPadding.tiny),
+                              Text(axis.label),
+                            ],
+                          ),
+                        ))
+                    .toList(),
+              ),
             ),
-          ),
         ],
       ),
     );

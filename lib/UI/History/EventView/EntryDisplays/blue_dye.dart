@@ -102,8 +102,10 @@ class BlueDyeVisualDisplay extends StatelessWidget {
         ),
         buildRow(
           "Eating Duration",
-          MealTime.fromDuration(resp.eatingDuration)?.value ??
-              from(resp.eatingDuration, context),
+          resp.eatingDuration == Duration.zero
+              ? "Tube Fed"
+              : MealTime.fromDuration(resp.eatingDuration)?.value ??
+                  from(resp.eatingDuration, context),
           icon: SvgPicture.asset(
             'packages/stripes_ui/assets/svg/muffin_icon.svg',
             width: iconSize,
@@ -117,11 +119,12 @@ class BlueDyeVisualDisplay extends StatelessWidget {
         const SizedBox(
           height: AppPadding.small,
         ),
-        buildRow(
-          "Amount Eaten",
-          amountText[resp.amountConsumed]!,
-          icon: const Icon(Icons.blur_linear, size: 20),
-        ),
+        if (resp.eatingDuration != Duration.zero)
+          buildRow(
+            "Amount Eaten",
+            amountText[resp.amountConsumed]!,
+            icon: const Icon(Icons.blur_linear, size: 20),
+          ),
         const SizedBox(
           height: AppPadding.medium,
         ),

@@ -587,15 +587,17 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
             Padding(
               padding: const EdgeInsets.only(left: AppPadding.large),
               child: Text(
-                "showing",
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                "Display Mode",
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
                       color: Theme.of(context)
                           .colorScheme
                           .onSurface
-                          .withValues(alpha: 0.6),
+                          .withValues(alpha: 0.7),
+                      fontWeight: FontWeight.w500,
                     ),
               ),
             ),
+            const SizedBox(height: AppPadding.tiny),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppPadding.large),
               child: SizedBox(
@@ -604,7 +606,9 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
                   segments: GraphYAxis.values
                       .map((axis) => ButtonSegment<GraphYAxis>(
                             value: axis,
-                            label: Text(axis.value),
+                            icon: Icon(axis.icon, size: 18),
+                            label: Text(axis.label),
+                            tooltip: axis.description,
                           ))
                       .toList(),
                   selected: {settings.axis},
@@ -619,6 +623,34 @@ class _GraphControlAreaState extends ConsumerState<GraphControlArea> {
                 ),
               ),
             ),
+            // Show notice when Average mode filters to numeric only
+            if (settings.axis == GraphYAxis.average)
+              Padding(
+                padding: const EdgeInsets.only(
+                  left: AppPadding.large,
+                  right: AppPadding.large,
+                  top: AppPadding.tiny,
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      size: 14,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    const SizedBox(width: AppPadding.tiny),
+                    Expanded(
+                      child: Text(
+                        "Showing numeric scale responses only",
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontStyle: FontStyle.italic,
+                            ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
           ],
           const SizedBox(
             height: AppPadding.tiny,

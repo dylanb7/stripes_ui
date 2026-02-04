@@ -153,7 +153,8 @@ class MealFinishedDisplay extends ConsumerWidget {
                         ],
                       ),
                     ],
-                    if (mealStats.duration != null) ...[
+                    if (mealStats.duration != null &&
+                        mealStats.duration != Duration.zero) ...[
                       const SizedBox(
                         height: AppPadding.small,
                       ),
@@ -174,7 +175,27 @@ class MealFinishedDisplay extends ConsumerWidget {
                         ],
                       ),
                     ],
-                    if (mealStats.amountConsumed != null) ...[
+                    if (mealStats.duration == Duration.zero) ...[
+                      const SizedBox(
+                        height: AppPadding.small,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          SvgPicture.asset(
+                            'packages/stripes_ui/assets/svg/muffin_icon.svg',
+                            width: iconSize,
+                            height: iconSize,
+                          ),
+                          const SizedBox(
+                            width: AppPadding.tiny,
+                          ),
+                          const Text("Tube Fed"),
+                        ],
+                      ),
+                    ],
+                    if (mealStats.amountConsumed != null &&
+                        mealStats.duration != Duration.zero) ...[
                       const SizedBox(
                         height: AppPadding.tiny,
                       ),
@@ -255,8 +276,25 @@ class AmountConsumedEntry extends ConsumerStatefulWidget {
   }
 }
 
+/// Feeding method options for the blue dye test
+enum FeedingMethod {
+  oral,
+  tubeFed;
+
+  String toDisplayString(BuildContext context) {
+    switch (this) {
+      case FeedingMethod.oral:
+        return "Oral (by mouth)";
+      case FeedingMethod.tubeFed:
+        return "Tube fed";
+    }
+  }
+}
+
 class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
   AmountConsumed? value;
+  FeedingMethod? feedingMethod;
+  DateTime? tubeFeedEndTime;
 
   bool isLoading = false;
 
@@ -278,6 +316,12 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
       AmountConsumed.moreThanHalf: context.translate.amountConsumedHalfOrMore,
       AmountConsumed.all: context.translate.amountConsumedAll,
     };
+
+    final Color cardColor = ElevationOverlay.applySurfaceTint(
+        Theme.of(context).cardColor,
+        Theme.of(context).colorScheme.surfaceTint,
+        3);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -293,105 +337,61 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
         const SizedBox(
           height: AppPadding.small,
         ),
+        // Feeding method selection
         Center(
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: Breakpoint.tiny.value),
-            child: Opacity(
-              opacity: isLoading ? 0.6 : 1,
-              child: IgnorePointer(
-                ignoring: isLoading,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(AppRounding.small),
-                    color: ElevationOverlay.applySurfaceTint(
-                        Theme.of(context).cardColor,
-                        Theme.of(context).colorScheme.surfaceTint,
-                        3),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(AppPadding.small),
-                    child: Column(
-                      children: [
-                        Text(
-                          context.translate.amountConsumedQuestion,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(color: Theme.of(context).primaryColor),
-                        ),
-                        const SizedBox(
-                          height: AppPadding.small,
-                        ),
-                        RadioGroup<AmountConsumed>(
-                          groupValue: value,
-                          onChanged: (newValue) {
-                            if (newValue == null) return;
-                            if (newValue == value) {
-                              setState(() {
-                                value = null;
-                              });
-                            } else {
-                              setState(() {
-                                value = newValue;
-                              });
-                            }
-                          },
-                          child: Column(
-                            children: amountText.keys.map<Widget>((amount) {
-                              return RadioListTile<AmountConsumed>(
-                                title: Text(amountText[amount]!),
-                                value: amount,
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: AppPadding.small,
-                        ),
-                        CheckboxListTile(
-                          value: value == AmountConsumed.undetermined,
-                          onChanged: (val) {
-                            if (val == null) return;
-                            if (value != AmountConsumed.undetermined) {
-                              setState(() {
-                                value = AmountConsumed.undetermined;
-                              });
-                            } else {
-                              setState(() {
-                                value = null;
-                              });
-                            }
-                          },
-                          title: Text(
-                            context.translate.amountConsumedUnable,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                    color: Theme.of(context).primaryColor),
-                          ),
-                        ),
-                      ],
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(AppRounding.small),
+                color: cardColor,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(AppPadding.small),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "How was the blue dye meal administered?",
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(color: Theme.of(context).primaryColor),
                     ),
-                  ),
+                    const SizedBox(height: AppPadding.small),
+                    RadioGroup<FeedingMethod>(
+                      groupValue: feedingMethod,
+                      onChanged: (newValue) {
+                        if (newValue == null) return;
+                        setState(() {
+                          feedingMethod =
+                              feedingMethod == newValue ? null : newValue;
+                          // Reset other values when switching
+                          value = null;
+                          tubeFeedEndTime = null;
+                        });
+                      },
+                      child: Column(
+                        children: FeedingMethod.values.map((method) {
+                          return RadioListTile<FeedingMethod>(
+                            title: Text(method.toDisplayString(context)),
+                            value: method,
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
         ),
-        const SizedBox(
-          height: AppPadding.medium,
-        ),
-        Center(
-          child: FilledButton(
-            onPressed: value != null && !isLoading
-                ? () {
-                    _next(testsState);
-                  }
-                : null,
-            child: Text(context.translate.nextButton),
-          ),
-        ),
+        const SizedBox(height: AppPadding.medium),
+        // Show appropriate flow based on feeding method
+        if (feedingMethod == FeedingMethod.tubeFed)
+          _buildTubeFedFlow(context, testsState, cardColor)
+        else if (feedingMethod == FeedingMethod.oral)
+          _buildOralFlow(context, testsState, cardColor, amountText),
         const SizedBox(
           height: AppPadding.xl,
         ),
@@ -399,6 +399,244 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
     );
   }
 
+  /// Simplified tube-fed flow - just capture end time
+  Widget _buildTubeFedFlow(
+      BuildContext context, BlueDyeState? testsState, Color cardColor) {
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: Breakpoint.tiny.value),
+        child: Opacity(
+          opacity: isLoading ? 0.6 : 1,
+          child: IgnorePointer(
+            ignoring: isLoading,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(AppRounding.small),
+                color: cardColor,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(AppPadding.small),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Tube Feeding Complete",
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(color: Theme.of(context).primaryColor),
+                    ),
+                    const SizedBox(height: AppPadding.small),
+                    Text(
+                      "Confirm that the feeding with blue dye has finished.",
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: AppPadding.medium),
+                    // End time picker
+                    Row(
+                      children: [
+                        const Icon(Icons.access_time),
+                        const SizedBox(width: AppPadding.small),
+                        Expanded(
+                          child: Text(
+                            "Feeding ended at:",
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ),
+                        TextButton.icon(
+                          onPressed: () async {
+                            final now = DateTime.now();
+                            final TimeOfDay? picked = await showTimePicker(
+                              context: context,
+                              initialTime: TimeOfDay.fromDateTime(
+                                  tubeFeedEndTime ?? now),
+                            );
+                            if (picked != null) {
+                              setState(() {
+                                tubeFeedEndTime = DateTime(
+                                  now.year,
+                                  now.month,
+                                  now.day,
+                                  picked.hour,
+                                  picked.minute,
+                                );
+                              });
+                            }
+                          },
+                          icon: const Icon(Icons.edit),
+                          label: Text(
+                            tubeFeedEndTime != null
+                                ? TimeOfDay.fromDateTime(tubeFeedEndTime!)
+                                    .format(context)
+                                : "Select time",
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppPadding.small),
+                    // Use current time button
+                    Center(
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            tubeFeedEndTime = DateTime.now();
+                          });
+                        },
+                        icon: const Icon(Icons.schedule),
+                        label: const Text("Use current time"),
+                      ),
+                    ),
+                    const SizedBox(height: AppPadding.medium),
+                    // Submit button
+                    Center(
+                      child: FilledButton(
+                        onPressed: tubeFeedEndTime != null && !isLoading
+                            ? () => _nextTubeFed(testsState)
+                            : null,
+                        child: Text(context.translate.nextButton),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Original oral feeding flow
+  Widget _buildOralFlow(BuildContext context, BlueDyeState? testsState,
+      Color cardColor, Map<AmountConsumed, String> amountText) {
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: Breakpoint.tiny.value),
+        child: Opacity(
+          opacity: isLoading ? 0.6 : 1,
+          child: IgnorePointer(
+            ignoring: isLoading,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(AppRounding.small),
+                color: cardColor,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(AppPadding.small),
+                child: Column(
+                  children: [
+                    Text(
+                      context.translate.amountConsumedQuestion,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(color: Theme.of(context).primaryColor),
+                    ),
+                    const SizedBox(
+                      height: AppPadding.small,
+                    ),
+                    RadioGroup<AmountConsumed>(
+                      groupValue: value,
+                      onChanged: (newValue) {
+                        if (newValue == null) return;
+                        if (newValue == value) {
+                          setState(() {
+                            value = null;
+                          });
+                        } else {
+                          setState(() {
+                            value = newValue;
+                          });
+                        }
+                      },
+                      child: Column(
+                        children: amountText.keys.map<Widget>((amount) {
+                          return RadioListTile<AmountConsumed>(
+                            title: Text(amountText[amount]!),
+                            value: amount,
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: AppPadding.small,
+                    ),
+                    CheckboxListTile(
+                      value: value == AmountConsumed.undetermined,
+                      onChanged: (val) {
+                        if (val == null) return;
+                        if (value != AmountConsumed.undetermined) {
+                          setState(() {
+                            value = AmountConsumed.undetermined;
+                          });
+                        } else {
+                          setState(() {
+                            value = null;
+                          });
+                        }
+                      },
+                      title: Text(
+                        context.translate.amountConsumedUnable,
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(color: Theme.of(context).primaryColor),
+                      ),
+                    ),
+                    const SizedBox(height: AppPadding.medium),
+                    FilledButton(
+                      onPressed: value != null && !isLoading
+                          ? () {
+                              _next(testsState);
+                            }
+                          : null,
+                      child: Text(context.translate.nextButton),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Handle tube-fed submission - set finishedEating to zero, amountConsumed to all
+  Future<void> _nextTubeFed(BlueDyeState? state) async {
+    if (state == null || tubeFeedEndTime == null) {
+      showSnack(context, "Could not go next");
+      return;
+    }
+    setState(() {
+      isLoading = true;
+    });
+    final test = await ref
+        .read(testsHolderProvider.notifier)
+        .getTest<Test<BlueDyeState>>();
+
+    if (test != null) {
+      final result = await test.setTestState(state.copyWith(
+        amountConsumed: AmountConsumed.all,
+        finishedEating: Duration.zero,
+        finishedEatingTime: tubeFeedEndTime,
+      ));
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+        result.handle(context);
+      }
+    } else {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
+  /// Handle oral feeding submission (original flow)
   Future<void> _next(BlueDyeState? state) async {
     if (state == null) {
       showSnack(context, "Could not go next");
@@ -456,6 +694,12 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
 
   final RestorableBoolN completedFast = RestorableBoolN(null);
 
+  final RestorableEnumN<FeedingMethod> feedingMethod =
+      RestorableEnumN(null, values: FeedingMethod.values);
+
+  // Storing as ISO string because RestorableDateTimeN is not standard
+  final RestorableStringN tubeFeedEndTime = RestorableStringN(null);
+
   @override
   Widget build(BuildContext context) {
     final Widget transitLabel = Text(
@@ -473,24 +717,6 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
         .select((holder) => holder.valueOrNull?.getTestState<BlueDyeState>()));
 
     if (progress.isLoading) return const LoadingWidget();
-
-    final BlueDyeProgression stage =
-        progress.valueOrNull?.getProgression() ?? BlueDyeProgression.stepOne;
-
-    final Map<AmountConsumed, String> amountText = {
-      AmountConsumed.halfOrLess: context.translate.amountConsumedHalfOrLess,
-      AmountConsumed.half: context.translate.amountConsumedHalf,
-      AmountConsumed.moreThanHalf: context.translate.amountConsumedHalfOrMore,
-      AmountConsumed.all: context.translate.amountConsumedAll,
-      AmountConsumed.undetermined: context.translate.amountConsumedUnable,
-    };
-
-    final Map<MealTime, String> mealTimesText = {
-      MealTime.fifteenOrLess: context.translate.blueMealDurationAnswerOne,
-      MealTime.fifteenToThrity: context.translate.blueMealDurationAnswerTwo,
-      MealTime.thirtyToHour: context.translate.blueMealDurationAnswerThree,
-      MealTime.hourOrMore: context.translate.blueMealDurationAnswerFour,
-    };
 
     final Color activeCard =
         Theme.of(context).primaryColor.withValues(alpha: 0.2);
@@ -526,272 +752,452 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
         const SizedBox(
           height: AppPadding.medium,
         ),
+        // Feeding Method Selection
         AdaptiveCardLayout(
-          key: fastQuestionKey,
           cardColor: activeCard,
           child: Padding(
             padding: const EdgeInsets.all(AppPadding.medium),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (!cardLayout) ...[
-                  Center(
-                    child: transitLabel,
-                  ),
-                  const Divider(),
-                ],
                 Text(
-                  context.translate.blueMealFastHeader,
+                  "How was the blue dye meal administered?",
                   style: Theme.of(context)
                       .textTheme
                       .bodyMedium
                       ?.copyWith(fontWeight: FontWeight.bold),
                 ),
-                RichText(
-                  text: TextSpan(
-                    text: '* ',
-                    style: const TextStyle(
-                      color: Colors.red,
-                    ),
-                    children: [
-                      TextSpan(
-                          text: context.translate.blueMealFastQuestion,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(
-                                  color: Theme.of(context).primaryColor)),
-                    ],
-                  ),
-                ),
-                const SizedBox(
-                  height: AppPadding.small,
-                ),
-                RadioGroup<bool>(
-                  groupValue: completedFast.value,
-                  onChanged: (selected) {
-                    if (selected == null) return;
-                    onFastTap(
-                        completedFast.value == selected ? null : selected);
+                const SizedBox(height: AppPadding.small),
+                RadioGroup<FeedingMethod>(
+                  groupValue: feedingMethod.value,
+                  onChanged: (newValue) {
+                    if (newValue == null) return;
+                    setState(() {
+                      if (feedingMethod.value != newValue) {
+                        feedingMethod.value = newValue;
+                        // Reset other values when switching
+                        amountConsumed.value = null;
+                        mealTime.value = null;
+                        completedFast.value = null;
+                        tubeFeedEndTime.value = null;
+                      } else {
+                        feedingMethod.value = null;
+                      }
+                    });
                   },
-                  child: ConstrainedBox(
-                    constraints:
-                        BoxConstraints(maxWidth: Breakpoint.tiny.value),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            onFastTap(
-                                completedFast.value == true ? null : true);
-                          },
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              const Radio<bool>(
-                                value: true,
-                              ),
-                              const SizedBox(
-                                width: AppPadding.tiny,
-                              ),
-                              Text(context.translate.blueQuestionYes),
-                            ],
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            onFastTap(
-                                completedFast.value == false ? null : false);
-                          },
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              const Radio<bool>(
-                                value: false,
-                              ),
-                              const SizedBox(
-                                width: AppPadding.tiny,
-                              ),
-                              Text(context.translate.blueQuestionNo),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                  child: Column(
+                    children: FeedingMethod.values.map((method) {
+                      return RadioListTile<FeedingMethod>(
+                        title: Text(method.toDisplayString(context)),
+                        value: method,
+                      );
+                    }).toList(),
                   ),
                 ),
-                LabeledList(
-                  strings: [
-                    context.translate.blueMealFastInstructionLineOne,
-                    context.translate.blueMealFastInstructionLineTwo,
-                    context.translate.blueMealFastInstructionLineThree
-                  ],
-                  highlight: false,
-                  mark: (index) => '${index + 1}.',
-                )
               ],
             ),
           ),
         ),
-        const SizedBox(
-          height: AppPadding.medium,
-        ),
-        IgnorePointer(
-          ignoring: completedFast.value == null || !completedFast.value!,
-          child: AdaptiveCardLayout(
-            key: mealTimeQuestionKey,
-            cardColor: completedFast.value == null || !completedFast.value!
-                ? disabledColor
-                : activeCard,
+        const SizedBox(height: AppPadding.medium),
+
+        // Tube Fed Flow
+        if (feedingMethod.value == FeedingMethod.tubeFed) ...[
+          AdaptiveCardLayout(
+            cardColor: activeCard,
             child: Padding(
               padding: const EdgeInsets.all(AppPadding.medium),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
-                    context.translate.blueMealDurationTitle,
+                    "Tube Feeding Complete",
                     style: Theme.of(context)
                         .textTheme
                         .bodyMedium
                         ?.copyWith(fontWeight: FontWeight.bold),
                   ),
+                  const SizedBox(height: AppPadding.small),
                   Text(
-                    context.translate.blueMealDurationQuestion,
+                    "Confirm that the feeding with blue dye has finished.",
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
-                  const SizedBox(
-                    height: AppPadding.small,
-                  ),
-                  RadioGroup<MealTime>(
-                    onChanged: (newValue) {
-                      if (newValue == null) return;
-                      if (newValue == mealTime.value) {
-                        setState(() {
-                          mealTime.value = null;
-                        });
-                      } else {
-                        setState(() {
-                          mealTime.value = newValue;
-                        });
-                      }
-                      if (mealAmountConsumedKey.currentContext != null &&
-                          mealTime.value != null) {
-                        Scrollable.ensureVisible(
-                          mealAmountConsumedKey.currentContext!,
-                          duration: Durations.medium1,
-                          alignmentPolicy:
-                              ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
-                        );
-                      }
-                    },
-                    groupValue: mealTime.value,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        ...mealTimesText.keys.map<Widget>((amount) {
-                          return RadioListTile<MealTime>(
-                            title: Text(mealTimesText[amount]!),
-                            value: amount,
+                  const SizedBox(height: AppPadding.medium),
+                  Row(
+                    children: [
+                      const Icon(Icons.access_time),
+                      const SizedBox(width: AppPadding.small),
+                      Expanded(
+                        child: Text(
+                          "Feeding ended at:",
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ),
+                      TextButton.icon(
+                        onPressed: () async {
+                          final now = DateTime.now();
+                          DateTime initial = now;
+                          if (tubeFeedEndTime.value != null) {
+                            initial = DateTime.parse(tubeFeedEndTime.value!);
+                          }
+                          final TimeOfDay? picked = await showTimePicker(
+                            context: context,
+                            initialTime: TimeOfDay.fromDateTime(initial),
                           );
-                        }),
+                          if (picked != null) {
+                            setState(() {
+                              final newDate = DateTime(
+                                now.year,
+                                now.month,
+                                now.day,
+                                picked.hour,
+                                picked.minute,
+                              );
+                              tubeFeedEndTime.value = newDate.toIso8601String();
+                            });
+                          }
+                        },
+                        icon: const Icon(Icons.edit),
+                        label: Text(
+                          tubeFeedEndTime.value != null
+                              ? TimeOfDay.fromDateTime(
+                                      DateTime.parse(tubeFeedEndTime.value!))
+                                  .format(context)
+                              : "Select time",
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppPadding.small),
+                  Center(
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          tubeFeedEndTime.value =
+                              DateTime.now().toIso8601String();
+                        });
+                      },
+                      icon: const Icon(Icons.schedule),
+                      label: const Text("Use current time"),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: AppPadding.medium),
+          Center(
+            child: FilledButton(
+              onPressed: tubeFeedEndTime.value != null && !isLoading
+                  ? () => _nextTubeFed(testsState)
+                  : null,
+              child: Text(context.translate.nextButton),
+            ),
+          ),
+          const SizedBox(height: AppPadding.medium),
+        ],
+
+        // Oral Flow
+        if (feedingMethod.value == FeedingMethod.oral) ...[
+          AdaptiveCardLayout(
+            key: fastQuestionKey,
+            cardColor: activeCard,
+            child: Padding(
+              padding: const EdgeInsets.all(AppPadding.medium),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (!cardLayout) ...[
+                    Center(
+                      child: transitLabel,
+                    ),
+                    const Divider(),
+                  ],
+                  Text(
+                    context.translate.blueMealFastHeader,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  RichText(
+                    text: TextSpan(
+                      text: '* ',
+                      style: const TextStyle(
+                        color: Colors.red,
+                      ),
+                      children: [
+                        TextSpan(
+                            text: context.translate.blueMealFastQuestion,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                    color: Theme.of(context).primaryColor)),
                       ],
                     ),
                   ),
-                ],
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(
-          height: AppPadding.medium,
-        ),
-        IgnorePointer(
-          ignoring: mealTime.value == null && (completedFast.value ?? false),
-          child: AdaptiveCardLayout(
-            key: mealAmountConsumedKey,
-            cardColor: mealTime.value == null ? disabledColor : activeCard,
-            child: Padding(
-              padding: const EdgeInsets.all(AppPadding.medium),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text(
-                    context.translate.blueMealAmountConsumedTitle,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    context.translate.amountConsumedQuestion,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
                   const SizedBox(
                     height: AppPadding.small,
                   ),
-                  RadioGroup<AmountConsumed>(
-                    onChanged: (newValue) {
-                      if (newValue == null) return;
-                      if (newValue == amountConsumed.value) {
-                        setState(() {
-                          amountConsumed.value = null;
-                        });
-                      } else {
-                        setState(() {
-                          amountConsumed.value = newValue;
-                        });
-                      }
-                      Scrollable.ensureVisible(context,
-                          duration: Durations.medium1,
-                          alignmentPolicy:
-                              ScrollPositionAlignmentPolicy.keepVisibleAtEnd);
+                  RadioGroup<bool>(
+                    groupValue: completedFast.value,
+                    onChanged: (selected) {
+                      if (selected == null) return;
+                      onFastTap(
+                          completedFast.value == selected ? null : selected);
                     },
-                    groupValue: amountConsumed.value,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: amountText.keys.map<Widget>((amount) {
-                        return RadioListTile<AmountConsumed>(
-                          title: Text(amountText[amount]!),
-                          value: amount,
-                        );
-                      }).toList(),
+                    child: ConstrainedBox(
+                      constraints:
+                          BoxConstraints(maxWidth: Breakpoint.tiny.value),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              onFastTap(
+                                  completedFast.value == true ? null : true);
+                            },
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const Radio<bool>(
+                                  value: true,
+                                ),
+                                const SizedBox(
+                                  width: AppPadding.tiny,
+                                ),
+                                Text(context.translate.blueQuestionYes),
+                              ],
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              onFastTap(
+                                  completedFast.value == false ? null : false);
+                            },
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const Radio<bool>(
+                                  value: false,
+                                ),
+                                const SizedBox(
+                                  width: AppPadding.tiny,
+                                ),
+                                Text(context.translate.blueQuestionNo),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
+                  LabeledList(
+                    strings: [
+                      context.translate.blueMealFastInstructionLineOne,
+                      context.translate.blueMealFastInstructionLineTwo,
+                      context.translate.blueMealFastInstructionLineThree
+                    ],
+                    highlight: false,
+                    mark: (index) => '${index + 1}.',
+                  )
                 ],
               ),
             ),
           ),
-        ),
-        const SizedBox(
-          height: AppPadding.small,
-        ),
-        Center(
-          child: FilledButton(
-            onPressed: mealTime.value != null &&
-                    amountConsumed.value != null &&
-                    (completedFast.value ?? false)
-                ? () {
-                    _next(testsState);
-                  }
-                : null,
-            child: Text(context.translate.nextButton),
+          const SizedBox(
+            height: AppPadding.medium,
           ),
-        ),
-        const SizedBox(
-          height: AppPadding.xl,
-        ),
+          IgnorePointer(
+            ignoring: completedFast.value == null || !completedFast.value!,
+            child: AdaptiveCardLayout(
+              key: mealTimeQuestionKey,
+              cardColor: completedFast.value == null || !completedFast.value!
+                  ? disabledColor
+                  : activeCard,
+              child: Padding(
+                padding: const EdgeInsets.all(AppPadding.medium),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.translate.blueMealDurationTitle,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      context.translate.blueMealDurationQuestion,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    const SizedBox(
+                      height: AppPadding.small,
+                    ),
+                    RadioGroup<MealTime>(
+                      onChanged: (newValue) {
+                        if (newValue == null) return;
+                        if (newValue == mealTime.value) {
+                          setState(() {
+                            mealTime.value = null;
+                          });
+                        } else {
+                          setState(() {
+                            mealTime.value = newValue;
+                          });
+                        }
+                        if (mealAmountConsumedKey.currentContext != null &&
+                            mealTime.value != null) {
+                          Scrollable.ensureVisible(
+                            mealAmountConsumedKey.currentContext!,
+                            duration: Durations.medium1,
+                            alignmentPolicy:
+                                ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+                          );
+                        }
+                      },
+                      groupValue: mealTime.value,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          ...MealTime.mealTimes.map<Widget>((amount) {
+                            return RadioListTile<MealTime>(
+                              title: Text(amount.value),
+                              value: amount,
+                            );
+                          }),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: AppPadding.medium,
+          ),
+          IgnorePointer(
+            ignoring: mealTime.value == null && (completedFast.value ?? false),
+            child: AdaptiveCardLayout(
+              key: mealAmountConsumedKey,
+              cardColor: mealTime.value == null ? disabledColor : activeCard,
+              child: Padding(
+                padding: const EdgeInsets.all(AppPadding.medium),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.translate.blueMealAmountConsumedTitle,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      context.translate.amountConsumedQuestion,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    const SizedBox(
+                      height: AppPadding.small,
+                    ),
+                    RadioGroup<AmountConsumed>(
+                      onChanged: (newValue) {
+                        if (newValue == null) return;
+                        if (newValue == amountConsumed.value) {
+                          setState(() {
+                            amountConsumed.value = null;
+                          });
+                        } else {
+                          setState(() {
+                            amountConsumed.value = newValue;
+                          });
+                        }
+                        Scrollable.ensureVisible(context,
+                            duration: Durations.medium1,
+                            alignmentPolicy:
+                                ScrollPositionAlignmentPolicy.keepVisibleAtEnd);
+                      },
+                      groupValue: amountConsumed.value,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: AmountConsumed.values.map<Widget>((amount) {
+                          return RadioListTile<AmountConsumed>(
+                            title: Text(amount.toString()),
+                            value: amount,
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: AppPadding.small,
+          ),
+          Center(
+            child: FilledButton(
+              onPressed: mealTime.value != null &&
+                      amountConsumed.value != null &&
+                      (completedFast.value ?? false)
+                  ? () {
+                      _next(testsState);
+                    }
+                  : null,
+              child: Text(context.translate.nextButton),
+            ),
+          ),
+          const SizedBox(
+            height: AppPadding.xl,
+          ),
+        ],
       ],
     );
+  }
+
+  Future<void> _nextTubeFed(BlueDyeState? state) async {
+    if (state == null || tubeFeedEndTime.value == null) {
+      showSnack(context, "Could not go next");
+      return;
+    }
+    setState(() {
+      isLoading = true;
+    });
+    final test = await ref
+        .read(testsHolderProvider.notifier)
+        .getTest<Test<BlueDyeState>>();
+
+    if (test != null) {
+      final result = await test.setTestState(state.copyWith(
+        amountConsumed: AmountConsumed.all,
+        finishedEating: Duration.zero,
+        finishedEatingTime: DateTime.parse(tubeFeedEndTime.value!),
+      ));
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+        result.handle(context);
+      }
+    } else {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
   }
 
   Future<void> _next(BlueDyeState? state) async {
@@ -834,6 +1240,8 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
     registerForRestoration(amountConsumed, "amount-consumed-entry");
     registerForRestoration(mealTime, "meal-time-entry");
     registerForRestoration(completedFast, "fasted-entry");
+    registerForRestoration(feedingMethod, "feeding-method-entry");
+    registerForRestoration(tubeFeedEndTime, "tube-feed-end-time-entry");
   }
 }
 

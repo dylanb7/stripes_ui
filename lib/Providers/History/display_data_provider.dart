@@ -621,13 +621,26 @@ String getSmartRangeString(DateTimeRange range, String locale,
 }
 
 enum GraphYAxis {
-  number("Number"),
-  average("Average"),
-  entrytime("Time");
+  number("Count", Icons.bar_chart),
+  average("Average", Icons.show_chart),
+  entrytime("Time of Day", Icons.schedule);
 
-  final String value;
+  final String label;
+  final IconData icon;
 
-  const GraphYAxis(this.value);
+  const GraphYAxis(this.label, this.icon);
+
+  /// Returns a description explaining what this mode shows
+  String get description {
+    switch (this) {
+      case GraphYAxis.number:
+        return "Shows count of entries per time period";
+      case GraphYAxis.average:
+        return "Shows average of numeric values (filters to scales only)";
+      case GraphYAxis.entrytime:
+        return "Shows when entries occurred during the day";
+    }
+  }
 }
 
 @immutable
