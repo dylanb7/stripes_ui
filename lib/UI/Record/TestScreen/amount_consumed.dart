@@ -280,13 +280,15 @@ class AmountConsumedEntry extends ConsumerStatefulWidget {
 enum FeedingMethod {
   oral,
   tubeFed;
+  /*Blue Formula (for tube feeding)
+ •  • Blue Muffins (for oral feeding) */
 
   String toDisplayString(BuildContext context) {
     switch (this) {
       case FeedingMethod.oral:
-        return "Oral (by mouth)";
+        return "Blue Muffins (for oral feeding)";
       case FeedingMethod.tubeFed:
-        return "Tube fed";
+        return "Blue Formula (for tube feeding)";
     }
   }
 }
@@ -761,7 +763,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "How was the blue dye meal administered?",
+                  "What type of blue meal is being used?",
                   style: Theme.of(context)
                       .textTheme
                       .bodyMedium
