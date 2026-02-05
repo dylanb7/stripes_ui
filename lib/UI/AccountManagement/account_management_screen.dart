@@ -81,12 +81,12 @@ class AccountManagementScreen extends ConsumerWidget {
                 context.pushNamed(RouteName.USERS);
               },
             ),
-            /*const Divider(
+            const Divider(
               endIndent: AppPadding.small,
               indent: AppPadding.small,
             ),
             // Baselines navigation with pending count
-            const _BaselinesNavTile(),*/
+            const _BaselinesNavTile(),
             const Divider(
               endIndent: AppPadding.small,
               indent: AppPadding.small,

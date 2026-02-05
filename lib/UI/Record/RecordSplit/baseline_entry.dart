@@ -138,59 +138,101 @@ class _BaselineEntryState extends ConsumerState<BaselineEntry> {
             onData: (loadedPages) {
               final PagesData translatedPage =
                   localizations?.translatePage(loadedPages) ?? loadedPages;
-              final List<LoadedPageLayout> filteredLayouts =
+              final List<LoadedPageLayout> processedLayouts =
                   LayoutHelper.processLayouts(
                 loadedLayouts: translatedPage.loadedLayouts,
                 listener: widget.questionListener,
                 deferCleanup: true,
               );
 
-              if (filteredLayouts.isEmpty) return const SizedBox();
+              final List<LoadedPageLayout> evaluatedPages;
+              if (widget.questions == null) {
+                evaluatedPages = processedLayouts;
+              } else {
+                evaluatedPages = [];
+                for (final layout in processedLayouts) {
+                  final qs = layout.questions
+                      .where(
+                          (q) => widget.questions!.any((wq) => wq.id == q.id))
+                      .toList();
+                  if (qs.isNotEmpty) {
+                    evaluatedPages.add(layout.copyWith(questions: qs));
+                  }
+                }
+              }
+
+              if (evaluatedPages.isEmpty) return const SizedBox();
+
+              final validation = LayoutHelper.validatePage(
+                pages: evaluatedPages,
+                currentIndex: _currentIndex,
+                listener: widget.questionListener,
+              );
+
+              // Ensure we don't go out of bounds if evaluatedPages changes
+              if (_currentIndex >= evaluatedPages.length) {
+                // reset to 0 or last page?
+                // Doing this in build might be risky but better than crash.
+                // Ideally handled in state, but logic here assumes _currentIndex is valid.
+                // Let's assume valid or clamped.
+              }
 
               final bool isLastPage =
-                  _currentIndex == filteredLayouts.length - 1;
-              final VoidCallback? onPressed = isLastPage
-                  ? (edited && !isLoading
-                      ? () async {
-                          setState(() => isLoading = true);
-                          try {
-                            await _submit(context, ref, true);
-                          } finally {
-                            if (mounted) setState(() => isLoading = false);
-                          }
-                        }
-                      : null)
-                  : () {
-                      final currentLayout = filteredLayouts[_currentIndex];
-                      final currentQuestions = currentLayout.questions
-                          .where((q) =>
-                              widget.questions == null ||
-                              widget.questions!.any((wq) => wq.id == q.id))
-                          .toList();
+                  _currentIndex == evaluatedPages.length - 1;
 
-                      final pendingRequired = currentQuestions.where((q) =>
-                          q.requirement?.eval(widget.questionListener) ??
-                          false);
+              final VoidCallback? onPressed;
+              if (isLastPage) {
+                final bool canSubmit =
+                    validation.canProceed && edited && !isLoading;
 
-                      if (pendingRequired.isNotEmpty) {
-                        widget.questionListener.tried = true;
+                onPressed = submitSuccess
+                    ? () {}
+                    : canSubmit
+                        ? () => _submit(context, ref, true)
+                        : null;
+              } else {
+                onPressed = validation.canProceed
+                    ? () {
+                        widget.questionListener.tried = false;
                         setState(() {
-                          _errorMessage = context.translate
-                              .nLevelError(pendingRequired.length);
+                          _errorMessage = null;
                         });
-                        return;
+                        _pageController.nextPage(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut);
                       }
+                    : null;
+              }
 
+              final VoidCallback effectiveOnPressed = onPressed == null &&
+                      !validation.canProceed &&
+                      !isLoading
+                  ? () {
+                      widget.questionListener.tried = true;
                       setState(() {
-                        _errorMessage = null;
+                        if (validation.pendingCount > 0) {
+                          _errorMessage = context.translate
+                              .nLevelError(validation.pendingCount);
+                        } else if (validation.pendingRequirement != null) {
+                          _errorMessage =
+                              validation.pendingRequirement!.toReadableString(
+                            (qid) => LayoutHelper.resolveQuestionPrompt(
+                                qid, evaluatedPages),
+                          );
+                        }
                       });
-                      _pageController.nextPage(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut);
+                    }
+                  : () {
+                      if (_errorMessage != null) {
+                        setState(() {
+                          _errorMessage = null;
+                        });
+                      }
+                      onPressed?.call();
                     };
 
               final progress = LayoutHelper.calculateProgress(
-                pages: filteredLayouts,
+                pages: evaluatedPages,
                 currentIndex: _currentIndex,
                 listener: widget.questionListener,
               );
@@ -199,7 +241,7 @@ class _BaselineEntryState extends ConsumerState<BaselineEntry> {
                 title: localizations?.value(widget.recordPath) ??
                     widget.recordPath,
                 currentIndex: _currentIndex,
-                totalPages: filteredLayouts.length,
+                totalPages: evaluatedPages.length,
                 pageController: _pageController,
                 onClose: () {
                   if (context.canPop()) {
@@ -209,9 +251,9 @@ class _BaselineEntryState extends ConsumerState<BaselineEntry> {
                   }
                 },
                 isLoading: isLoading,
-                onControl: onPressed,
+                onControl: effectiveOnPressed,
                 controlLabel: isLastPage ? 'Submit' : 'Next',
-                isReady: onPressed != null,
+                isReady: validation.canProceed && !isLoading,
                 isSubmit: isLastPage,
                 errorMessage: _errorMessage,
                 onDismissError: () {
@@ -231,7 +273,7 @@ class _BaselineEntryState extends ConsumerState<BaselineEntry> {
                   content: PageView.builder(
                     controller: _pageController,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: filteredLayouts.length,
+                    itemCount: evaluatedPages.length,
                     onPageChanged: (index) {
                       setState(() {
                         _currentIndex = index;
@@ -239,15 +281,10 @@ class _BaselineEntryState extends ConsumerState<BaselineEntry> {
                       });
                     },
                     itemBuilder: (context, index) {
-                      final layout = filteredLayouts[index];
+                      final layout = evaluatedPages[index];
                       if (!_scrollControllers.containsKey(index)) {
                         _scrollControllers[index] = ScrollController();
                       }
-
-                      final visibleQuestions = layout.questions.where((q) {
-                        return widget.questions == null ||
-                            widget.questions!.any((wq) => wq.id == q.id);
-                      }).toList();
 
                       return SingleChildScrollView(
                         controller: _scrollControllers[index],
@@ -268,7 +305,7 @@ class _BaselineEntryState extends ConsumerState<BaselineEntry> {
                                 ),
                               ),
                             RenderQuestions(
-                                questions: visibleQuestions,
+                                questions: layout.questions,
                                 questionsListener: widget.questionListener),
                             const SizedBox(height: 100),
                           ],
