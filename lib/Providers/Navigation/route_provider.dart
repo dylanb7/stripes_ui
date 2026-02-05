@@ -10,12 +10,14 @@ import 'package:stripes_ui/Providers/History/display_data_provider.dart';
 import 'package:stripes_ui/UI/AccountManagement/SymptomManagement/symptom_management_screen.dart';
 import 'package:stripes_ui/UI/AccountManagement/SymptomManagement/symptom_type_management.dart';
 import 'package:stripes_ui/UI/AccountManagement/account_management_screen.dart';
+import 'package:stripes_ui/UI/AccountManagement/baselines_section.dart';
 import 'package:stripes_ui/UI/CommonWidgets/user_profile_button.dart';
 import 'package:stripes_ui/UI/History/GraphView/graph_view_screen.dart';
 import 'package:stripes_ui/UI/History/GraphView/graphs_list.dart';
 
 import 'package:stripes_ui/Providers/Auth/auth_provider.dart';
 import 'package:stripes_ui/UI/AccountManagement/ProfileScreen/profile_screen.dart';
+import 'package:stripes_ui/UI/Record/RecordSplit/baseline_entry.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/record_entry.dart';
 
 import 'package:stripes_ui/UI/Layout/home_screen.dart';
@@ -123,7 +125,7 @@ class RouteNotifier extends ChangeNotifier {
                     pageBuilder: (context, state) =>
                         FadeIn(child: const PatientScreen(), state: state),
                   ),
-                  /*GoRoute(
+                  GoRoute(
                     parentNavigatorKey: _shellNavigatorKey,
                     name: RouteName.BASELINES,
                     path: Routes.BASELINES,
@@ -155,7 +157,7 @@ class RouteNotifier extends ChangeNotifier {
                           ),
                           state: state);
                     },
-                  ),*/
+                  ),
                   /*GoRoute(
                     parentNavigatorKey: _shellNavigatorKey,
                     name: RouteName.DASHBOARD,
