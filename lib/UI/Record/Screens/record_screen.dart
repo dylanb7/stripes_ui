@@ -67,15 +67,37 @@ class Options extends ConsumerWidget {
         AsyncValueDefaults(
             value: checkins,
             onData: (loadedReviews) {
-              final List<ReviewItem> translatedReviews = loadedReviews
-                  .map((review) =>
-                      localizations?.translateReview(review) ?? review)
-                  .toList();
-              return ReviewsPageView(
-                reviews: translatedReviews,
-                additions: (item) {
-                  return repo?.getPathAdditions(context, item.type);
-                },
+              var reviews = loadedReviews.map(
+                  (review) => localizations?.translateReview(review) ?? review);
+              final activeCheckins =
+                  reviews.where((item) => item.response == null).toList();
+              final completedCheckins =
+                  reviews.where((item) => item.response != null).toList();
+
+              return Column(
+                children: [
+                  if (completedCheckins.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: AppPadding.medium),
+                      child: ReviewsPageView(
+                        reviews: completedCheckins,
+                        title: "Completed Check-ins",
+                        initiallyExpanded: false,
+                        additions: (item) {
+                          return repo?.getPathAdditions(context, item.type);
+                        },
+                      ),
+                    ),
+                  if (activeCheckins.isNotEmpty)
+                    ReviewsPageView(
+                      reviews: activeCheckins,
+                      title: context.translate.checkInLabel,
+                      initiallyExpanded: true,
+                      additions: (item) {
+                        return repo?.getPathAdditions(context, item.type);
+                      },
+                    ),
+                ],
               );
             }),
         Padding(
@@ -164,8 +186,16 @@ class ReviewsPageView extends StatefulWidget {
 
   final List<Widget>? Function(ReviewItem) additions;
 
-  const ReviewsPageView(
-      {super.key, required this.reviews, required this.additions});
+  final String? title;
+  final bool initiallyExpanded;
+
+  const ReviewsPageView({
+    super.key,
+    required this.reviews,
+    required this.additions,
+    this.title,
+    this.initiallyExpanded = false,
+  });
 
   @override
   State<StatefulWidget> createState() {
@@ -178,30 +208,14 @@ class _ReviewsPageViewState extends State<ReviewsPageView> {
   PageController? _pageController;
   double? _lastViewportFraction;
 
-  late List<ReviewItem> sorted;
-  late bool hasCheckin;
   int currentPage = 0;
-  late int count;
   double itemWidth = 280;
 
   @override
   void initState() {
-    hasCheckin = false;
-    count = 0;
-    sorted = [];
-    for (final ReviewItem item in widget.reviews) {
-      if (item.response == null) {
-        hasCheckin = true;
-        count++;
-        sorted.insert(0, item);
-      } else {
-        sorted.add(item);
-      }
-    }
-
     expansionController = ExpansibleController();
 
-    if (!hasCheckin) {
+    if (!widget.initiallyExpanded) {
       expansionController.collapse();
     } else {
       expansionController.expand();
@@ -218,7 +232,7 @@ class _ReviewsPageViewState extends State<ReviewsPageView> {
 
   @override
   Widget build(BuildContext context) {
-    if (sorted.isEmpty) return const SizedBox();
+    if (widget.reviews.isEmpty) return const SizedBox();
 
     return Expansible(
         headerBuilder: (context, animation) {
@@ -251,7 +265,7 @@ class _ReviewsPageViewState extends State<ReviewsPageView> {
                                 ? Theme.of(context).textTheme.titleMedium!
                                 : Theme.of(context).textTheme.bodySmall!,
                             child: Text(
-                              "${context.translate.checkInLabel} (${widget.reviews.length - count}/${widget.reviews.length})",
+                              "${widget.title ?? context.translate.checkInLabel} (${widget.reviews.length})",
                               textAlign: TextAlign.left,
                             ),
                           ),
@@ -264,11 +278,9 @@ class _ReviewsPageViewState extends State<ReviewsPageView> {
                   ),
                 ),
                 if (expansionController.isExpanded &&
-                    currentPage < sorted.length)
+                    currentPage < widget.reviews.length)
                   Text(
-                    sorted[currentPage]
-                        .path
-                        .period!
+                    widget.reviews[currentPage].path.period!
                         .getRangeString(DateTime.now(), context),
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
@@ -282,11 +294,12 @@ class _ReviewsPageViewState extends State<ReviewsPageView> {
             child: LayoutBuilder(
               builder: (context, constraints) {
                 // Use available width for full-width items, or fixed width if smaller
-                itemWidth = constraints.maxWidth > 340
-                    ? constraints.maxWidth -
-                        (AppPadding.medium * 2) -
-                        AppPadding.small
-                    : 280;
+                itemWidth = (constraints.maxWidth > 340
+                        ? constraints.maxWidth -
+                            (AppPadding.medium * 2) -
+                            AppPadding.small
+                        : 280.0)
+                    .clamp(0.0, Breakpoint.small.value + AppPadding.small);
 
                 final double viewportFraction =
                     (itemWidth / constraints.maxWidth).clamp(0.1, 1.0);
@@ -308,7 +321,7 @@ class _ReviewsPageViewState extends State<ReviewsPageView> {
                   child: PageView.builder(
                     scrollDirection: Axis.horizontal,
                     controller: _pageController,
-                    itemCount: sorted.length,
+                    itemCount: widget.reviews.length,
                     padEnds: false, // Align start
                     onPageChanged: (index) {
                       setState(() {
@@ -316,7 +329,7 @@ class _ReviewsPageViewState extends State<ReviewsPageView> {
                       });
                     },
                     itemBuilder: (context, index) {
-                      final ReviewItem item = sorted[index];
+                      final ReviewItem item = widget.reviews[index];
                       // Add padding to simulate gap, adjusted by viewport fraction logic implicitly
                       return Padding(
                         padding: const EdgeInsets.only(right: AppPadding.small),

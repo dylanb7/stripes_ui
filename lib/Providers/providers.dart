@@ -6,7 +6,6 @@ export 'Auth/access_provider.dart';
 
 /// History & Display
 export 'History/display_data_provider.dart';
-export 'History/history_provider.dart';
 export 'History/stamps_provider.dart';
 
 /// Dashboard

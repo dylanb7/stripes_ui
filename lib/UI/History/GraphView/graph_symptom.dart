@@ -4,7 +4,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:collection/collection.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
+import 'package:stripes_backend_helper/QuestionModel/question.dart';
 
 import 'package:stripes_ui/Providers/History/display_data_provider.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_axis.dart';
@@ -34,6 +36,7 @@ class GraphSymptom extends ConsumerStatefulWidget {
   /// Map of category/type names to RecordPaths for resolving review periods
   final Map<String, RecordPath>? reviewPaths;
   final double? height;
+  final bool showTooltip;
 
   const GraphSymptom({
     super.key,
@@ -46,6 +49,7 @@ class GraphSymptom extends ConsumerStatefulWidget {
     this.selectionController,
     this.reviewPaths,
     this.height,
+    this.showTooltip = true,
   });
 
   @override
@@ -57,7 +61,7 @@ class GraphSymptom extends ConsumerStatefulWidget {
 class _GraphSymptomState extends ConsumerState<GraphSymptom> {
   final LayerLink _layerLink = LayerLink();
   final GlobalKey _chartKey = GlobalKey();
-  ChartHitTestResult<GraphPoint, DateTime>? _selectedHit;
+  List<ChartHitTestResult<GraphPoint, DateTime>>? _selectedHits;
   OverlayEntry? _tooltipEntry;
   Timer? _closeTimer;
 
@@ -67,29 +71,27 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
     super.dispose();
   }
 
-  /// Returns the base reference height based on the current display mode.
-  /// Lanes mode uses less height per lane; stacked/overlay uses more for single chart.
   double _getRefHeight() {
     switch (widget.mode) {
       case GraphOverviewMode.shared:
-        return 70.0; // Per-lane height (more compact)
+        return 70.0;
       case GraphOverviewMode.stacked:
       case GraphOverviewMode.overlayed:
-        return 120.0; // Single combined chart (more space)
+        return 120.0;
     }
   }
 
-  /// Returns the appropriate Y-axis based on display settings.
-  /// Uses HourAxis for entry time view, NumberAxis otherwise.
   ChartAxis<num> _getYAxis({
     required DisplayDataSettings settings,
     required double laneMaxY,
     required bool showing,
+    double? min,
   }) {
     if (settings.axis == GraphYAxis.entrytime) {
       return HourAxis(min: 0, max: 24, showing: showing);
     }
     return NumberAxis(
+      min: min,
       max: laneMaxY,
       showing: showing,
       formatter: NumberFormat.compact(),
@@ -101,10 +103,11 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
     _closeTimer = null;
     _tooltipEntry?.remove();
     _tooltipEntry = null;
-    if (!disposing && mounted && _selectedHit != null) {
+    if (!disposing && mounted && _selectedHits != null) {
       setState(() {
-        _selectedHit = null;
+        _selectedHits = null;
       });
+      widget.selectionController?.clear();
     }
   }
 
@@ -115,14 +118,25 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
       return;
     }
 
-    if (_selectedHit != hit) {
+    List<ChartHitTestResult<GraphPoint, DateTime>> hits = [hit];
+    if (widget.selectionController != null &&
+        widget.selectionController!.value.results.isNotEmpty) {
+      if (widget.selectionController!.value.results == hits) {
+      } else {
+        hits = widget.selectionController!.value.results;
+      }
+    }
+
+    if (!const ListEquality().equals(_selectedHits, hits)) {
       setState(() {
-        _selectedHit = hit;
+        _selectedHits = hits;
       });
     }
 
+    if (!widget.showTooltip) return;
+
     _closeTimer?.cancel();
-    _closeTimer = Timer(const Duration(seconds: 3), _removeTooltip);
+    _closeTimer = Timer(const Duration(seconds: 2), _removeTooltip);
 
     if (_tooltipEntry != null) {
       _tooltipEntry!.markNeedsBuild();
@@ -131,22 +145,28 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
 
     final entry = OverlayEntry(
       builder: (context) {
-        if (_selectedHit == null) return const SizedBox.shrink();
+        if (_selectedHits == null || _selectedHits!.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
         final RenderBox? currentBox =
             _chartKey.currentContext?.findRenderObject() as RenderBox?;
-        final currentKey =
-            widget.responses.keys.elementAt(_selectedHit!.datasetIndex);
-        String? currentLabel;
-        if (widget.responses.keys.length > 1) {
-          currentLabel = widget.customLabels?[currentKey] ??
-              currentKey.toLocalizedString(context);
+
+        // Resolve labels for all hits
+        final Map<int, String> labels = {};
+        for (final h in _selectedHits!) {
+          if (h.datasetIndex < widget.responses.keys.length) {
+            final key = widget.responses.keys.elementAt(h.datasetIndex);
+            labels[h.datasetIndex] =
+                widget.customLabels?[key] ?? key.toLocalizedString(context);
+          }
         }
 
         return TooltipOverlay(
-          selectedHit: _selectedHit!,
+          selectedHits: _selectedHits!,
           layerLink: _layerLink,
           chartRenderBox: currentBox,
-          label: currentLabel,
+          labels: labels,
         );
       },
     );
@@ -160,6 +180,9 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
     final DisplayDataSettings settings = ref.watch(displayDataProvider);
 
     return LayoutBuilder(builder: (context, constraints) {
+      final bool effectiveIsDetailed = widget.isDetailed &&
+          (constraints.maxHeight > 220 || !constraints.maxHeight.isFinite);
+
       final datasets = GraphDataProcessor.processData(
         responses: widget.responses,
         settings: settings,
@@ -178,16 +201,22 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
 
         final originalColorGetter = dataset.getPointColor;
         Color selectionColorGetter(GraphPoint p, int index) {
-          if (_selectedHit != null &&
-              _selectedHit!.datasetIndex == currentDatasetIndex &&
-              _selectedHit!.itemIndex == index) {
+          final selection = widget.selectionController?.value.results;
+          if (selection != null &&
+              selection.any((hit) =>
+                  hit.datasetIndex == currentDatasetIndex &&
+                  hit.itemIndex == index)) {
+            return Color.lerp(p.color, Colors.white, 0.5) ?? p.color;
+          }
+          if (_selectedHits != null &&
+              _selectedHits!.any((hit) =>
+                  hit.datasetIndex == currentDatasetIndex &&
+                  hit.itemIndex == index)) {
             return Color.lerp(p.color, Colors.white, 0.5) ?? p.color;
           }
           return originalColorGetter(p, index);
         }
 
-        // We need to clone the dataset with the new color getter.
-        // Since ChartSeriesData subclasses don't have a copyWith, we check type.
         switch (dataset) {
           case BarChartData<GraphPoint, DateTime>(
               data: final data,
@@ -244,19 +273,40 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
         }
       }
 
-      final double globalMax = highlightedDatasets
-          .map((d) => d.data.isEmpty ? 0.0 : d.data.map((p) => p.y).reduce(max))
-          .fold(0.0, max)
-          .ceilToDouble()
-          .clamp(1.0, double.infinity);
+      final List<double> laneMaxes = highlightedDatasets.map((d) {
+        double maxVal = 0.0;
+        if (d.data.isNotEmpty) {
+          maxVal = d.data.map((p) => p.y).reduce(max).ceilToDouble();
+        }
+        if (settings.axis == GraphYAxis.average) {
+          // Attempt to find the question max
+          for (final point in d.data) {
+            if (point.data.isNotEmpty) {
+              final first = point.data.first;
+              if (first is Response && first.question is Numeric) {
+                final q = first.question as Numeric;
+                if (q.max != null) {
+                  maxVal = max(maxVal, q.max!.toDouble());
+                }
+                break;
+              }
+            }
+          }
+        }
+        return maxVal;
+      }).toList();
+
+      final nonZeroMaxes = laneMaxes.where((m) => m > 0);
+      final double avgMax = nonZeroMaxes.isEmpty
+          ? 1.0
+          : nonZeroMaxes.reduce((a, b) => a + b) / nonZeroMaxes.length;
 
       const double topOverhead = 8.0;
       const double xAxisOverhead = 24.0;
-      // Mode-specific base heights for better readability
       final double refHeight = widget.height ?? _getRefHeight();
       final double refDrawHeight = refHeight - topOverhead;
 
-      final double ppuSqrt = refDrawHeight / sqrt(globalMax);
+      final double globalPPU = refDrawHeight / max(avgMax, 1.0);
 
       final lanes = <ChartLane<GraphPoint, DateTime>>[];
       final List<ChartSeriesData<GraphPoint, DateTime>> overlaySymptoms = [];
@@ -272,25 +322,43 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
           final label =
               widget.customLabels?[key] ?? key.toLocalizedString(context);
           final color = widget.colorKeys?[key] ?? forGraphKey(key);
-          final laneMax = dataset.data.isEmpty
-              ? 0.0
-              : dataset.data.map((p) => p.y).reduce(max);
-          final laneMaxY = laneMax.ceilToDouble().clamp(1.0, double.infinity);
-          final drawHeight = sqrt(laneMaxY) * ppuSqrt;
+          final laneMax = laneMaxes[datasetIdx];
+          final laneMaxY = laneMax.clamp(1.0, double.infinity);
+
+          final double proportionalHeight = laneMaxY * globalPPU;
+
+          const double minDrawHeight = 50.0;
+          final double targetDrawHeight =
+              max(minDrawHeight, proportionalHeight);
+
+          final double visibleAxisMax = targetDrawHeight / globalPPU;
 
           lanes.add(ChartLane.single(
             data: dataset,
             label: label,
             labelColor: color,
-            // Only set explicit height for detailed view; compact uses laneHeight
-            height: widget.isDetailed
-                ? (isReview ? 40.0 : max(50.0, drawHeight + topOverhead + 10.0))
+            height: effectiveIsDetailed
+                ? (isReview ? 40.0 : targetDrawHeight + topOverhead + 10.0)
                 : null,
             hideYAxis: isReview,
+            yAxisLabel: effectiveIsDetailed ? settings.axis.label : null,
             yAxis: _getYAxis(
               settings: settings,
-              laneMaxY: laneMaxY,
-              showing: !isReview && widget.isDetailed,
+              laneMaxY: visibleAxisMax,
+              showing: !isReview && effectiveIsDetailed,
+              min: (() {
+                if (settings.axis == GraphYAxis.average) {
+                  for (final point in dataset.data) {
+                    if (point.data.isNotEmpty) {
+                      final first = point.data.first;
+                      if (first is Response && first.question is Numeric) {
+                        return (first.question as Numeric).min?.toDouble();
+                      }
+                    }
+                  }
+                }
+                return null;
+              })(),
             ),
           ));
         } else {
@@ -307,7 +375,10 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
             .fold(0.0, max);
         final double laneMaxY =
             laneMax.ceilToDouble().clamp(1.0, double.infinity);
-        final double drawHeight = sqrt(laneMaxY) * ppuSqrt;
+
+        final double proportionalHeight = laneMaxY * globalPPU;
+        final double targetDrawHeight = max(50.0, proportionalHeight);
+        final double visibleAxisMax = targetDrawHeight / globalPPU;
 
         lanes.add(ChartLane(
           datasets: overlaySymptoms,
@@ -316,21 +387,37 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
               : (overlayKeys.length == 2
                   ? "Symptom Comparison"
                   : overlayKeys.first.toLocalizedString(context)),
-          // Only set explicit height for detailed view; compact uses laneHeight
-          height: widget.isDetailed
-              ? max(50.0, drawHeight + topOverhead + 10.0)
+          yAxisLabel: effectiveIsDetailed ? settings.axis.label : null,
+          height: effectiveIsDetailed
+              ? targetDrawHeight + topOverhead + 10.0
               : null,
           stackBars: widget.mode == GraphOverviewMode.stacked,
           yAxis: _getYAxis(
             settings: settings,
-            laneMaxY: laneMaxY,
-            showing: widget.isDetailed,
+            laneMaxY: visibleAxisMax,
+            showing: effectiveIsDetailed,
+            min: (() {
+              // For overlay/stacked, we might have multiple questions.
+              // Taking min of the first valid one or maybe min of all?
+              // Assuming consistent scale for overlay of same type, or just using first.
+              if (settings.axis == GraphYAxis.average &&
+                  overlaySymptoms.isNotEmpty) {
+                for (final point in overlaySymptoms.first.data) {
+                  if (point.data.isNotEmpty) {
+                    final first = point.data.first;
+                    if (first is Response && first.question is Numeric) {
+                      return (first.question as Numeric).min?.toDouble();
+                    }
+                  }
+                }
+              }
+              return null;
+            })(),
           ),
         ));
       }
 
-      // Adjust lane heights for the last lane to include xAxisOverhead
-      if (lanes.isNotEmpty && widget.isDetailed) {
+      if (lanes.isNotEmpty && effectiveIsDetailed) {
         final lastLane = lanes.last;
         lanes[lanes.length - 1] = ChartLane(
           datasets: lastLane.datasets,
@@ -347,7 +434,7 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
       // For non-detailed views, calculate effective height early so the chart
       // can use the actual available height from the parent container
       final double effectiveCompactHeight =
-          !widget.isDetailed && constraints.maxHeight.isFinite
+          !effectiveIsDetailed && constraints.maxHeight.isFinite
               ? constraints.maxHeight
               : compactHeight;
 
@@ -358,15 +445,17 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
           formatter: settings.getFormat(),
           min: settings.range.start,
           max: settings.range.end,
+          interval: settings.getLabelInterval(),
         ),
-        // Unified behavior: both tap and hover update selection
-        // null hit clears selection (tap outside or pan away)
         onHover:
-            widget.isDetailed ? (laneIndex, hit) => _showTooltip(hit) : null,
-        onTap: widget.isDetailed ? (laneIndex, hit) => _showTooltip(hit) : null,
+            effectiveIsDetailed ? (laneIndex, hit) => _showTooltip(hit) : null,
+        onTap:
+            effectiveIsDetailed ? (laneIndex, hit) => _showTooltip(hit) : null,
         selectionController: widget.selectionController,
-        compact: !widget.isDetailed,
-        laneHeight: widget.isDetailed ? 100 : effectiveCompactHeight,
+        compact: !effectiveIsDetailed,
+        laneHeight: effectiveIsDetailed ? 100 : effectiveCompactHeight,
+        showSelectionLabels: false,
+        yAxisLabel: effectiveIsDetailed ? settings.axis.label : null,
       );
       if (widget.forExport) {
         return GraphWithKeys(
@@ -378,7 +467,7 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
       }
       // For non-detailed views, lanes use laneHeight directly
       // ClipRect prevents overflow during Hero animation transition
-      if (!widget.isDetailed) {
+      if (!effectiveIsDetailed) {
         return SizedBox(
           height: effectiveCompactHeight,
           width: constraints.maxWidth,
@@ -392,23 +481,27 @@ class _GraphSymptomState extends ConsumerState<GraphSymptom> {
 }
 
 class TooltipOverlay extends ConsumerWidget {
-  final ChartHitTestResult<GraphPoint, DateTime> selectedHit;
+  final List<ChartHitTestResult<GraphPoint, DateTime>> selectedHits;
 
   final LayerLink layerLink;
 
   final RenderBox? chartRenderBox;
 
-  final String? label;
+  final Map<int, String> labels;
 
   const TooltipOverlay(
       {super.key,
-      required this.selectedHit,
+      required this.selectedHits,
       required this.layerLink,
       required this.chartRenderBox,
-      required this.label});
+      required this.labels});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (selectedHits.isEmpty) return const SizedBox.shrink();
+
+    final primaryHit = selectedHits.first;
+
     final settings = ref.read(displayDataProvider);
     final bool scatter = settings.axis == GraphYAxis.entrytime;
 
@@ -416,7 +509,7 @@ class TooltipOverlay extends ConsumerWidget {
     bool currentShowAbove = !scatter;
 
     if (chartRenderBox != null) {
-      final Offset local = selectedHit.screenPosition;
+      final Offset local = primaryHit.screenPosition;
       final Offset global = chartRenderBox!.localToGlobal(local);
 
       final Size size = MediaQuery.sizeOf(context);
@@ -431,6 +524,7 @@ class TooltipOverlay extends ConsumerWidget {
       } else if (re > sw - 16) {
         currentShiftX = (sw - 16) - re;
       }
+
       if (!scatter && global.dy < insets.top + 180) {
         currentShowAbove = false;
       }
@@ -442,15 +536,15 @@ class TooltipOverlay extends ConsumerWidget {
           width: 200,
           child: CompositedTransformFollower(
             link: layerLink,
-            offset: selectedHit.screenPosition,
+            offset: primaryHit.screenPosition,
             showWhenUnlinked: false,
             child: Transform.translate(
               offset: Offset(currentShiftX, 0),
               child: FractionalTranslation(
                 translation: Offset(-0.5, currentShowAbove ? -1.05 : 0.05),
                 child: GraphTooltip(
-                  hit: selectedHit,
-                  label: label,
+                  hits: selectedHits,
+                  labels: labels,
                   isAbove: currentShowAbove,
                   arrowOffset: -currentShiftX,
                 ),

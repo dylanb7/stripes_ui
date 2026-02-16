@@ -6,7 +6,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:stripes_backend_helper/QuestionModel/question.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
+import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo_base.dart';
 import 'package:stripes_backend_helper/RepositoryBase/StampBase/stamp.dart';
 
 import 'package:stripes_backend_helper/date_format.dart';
@@ -120,7 +122,7 @@ class DisplayDataSettings extends Equatable {
       case TimeCycle.week:
         return const Duration(days: 7);
       case TimeCycle.month:
-        return const Duration(days: 30);
+        return range.end.difference(range.start);
       case TimeCycle.custom:
         return range.end.difference(range.start);
       case TimeCycle.quarter:
@@ -260,6 +262,19 @@ class DisplayDataSettings extends Equatable {
     }
   }
 
+  double? getLabelInterval() {
+    if (cycle == TimeCycle.all) return null;
+    final double baseInterval = duration.inMilliseconds / getBuckets();
+    switch (cycle) {
+      case TimeCycle.day:
+        return baseInterval * 6; // Label every 6th bucket (e.g. 6 hours)
+      case TimeCycle.month:
+        return baseInterval * 7; // Label every 7th bucket (e.g. 1 week)
+      default:
+        return baseInterval;
+    }
+  }
+
   @override
   List<Object?> get props => [range, cycle, filters, axis];
 
@@ -272,15 +287,11 @@ class DisplayDataProvider extends StateNotifier<DisplayDataSettings> {
 
   DisplayDataProvider(this.ref)
       : super(DisplayDataSettings(
-          range: DateTimeRange(
-              start: DateTime.now(),
-              end: DateTime.now().add(const Duration(days: 1))),
+          range: DateRangeUtils.calculateRange(TimeCycle.day, DateTime.now()),
           cycle: TimeCycle.day,
           groupSymptoms: false,
           axis: GraphYAxis.number,
-        )) {
-    setCycle(TimeCycle.day);
-  }
+        ));
 
   void setCycle(TimeCycle cycle, {DateTime? seedStartTime}) {
     final DateTime seed = seedStartTime ?? DateTime.now();
@@ -388,11 +399,12 @@ final availableStampsProvider =
 
 final graphStampsProvider =
     FutureProvider<Map<GraphKey, List<Response>>>((ref) async {
-  final settings = ref.watch(displayDataProvider);
-  final available = await ref.watch(availableStampsProvider.future);
+  final DisplayDataSettings settings = ref.watch(displayDataProvider);
+  final List<Response<Question>> available =
+      await ref.watch(availableStampsProvider.future);
 
-  // Watch review paths to determine which types are reviews
-  final reviewPathsMap = await ref.watch(reviewPathsByTypeProvider.future);
+  final Map<String, RecordPath> reviewPathsMap =
+      await ref.watch(reviewPathsByTypeProvider.future);
 
   final SplayTreeMap<GraphKey, List<Response>> byType = SplayTreeMap(
     (a, b) => a.title.compareTo(b.title),
@@ -401,6 +413,8 @@ final graphStampsProvider =
     (a, b) => a.title.compareTo(b.title),
   );
 
+  final GraphYAxis axis = settings.axis;
+
   for (final Response wrappedResponse in available) {
     final date = dateFromStamp(wrappedResponse.stamp);
     if (date.isBefore(settings.range.start) ||
@@ -408,14 +422,14 @@ final graphStampsProvider =
       continue;
     }
     List<Response> flattened = _flattenedResponse(wrappedResponse);
-    if (settings.axis == GraphYAxis.average) {
+    if (axis == GraphYAxis.average) {
       flattened = flattened.whereType<NumericResponse>().toList();
     }
     for (final Response response in flattened) {
-      // Check if this type is a review (has a period)
       final reviewPath = reviewPathsMap[response.type];
       final bool isReview = reviewPath?.period != null;
 
+      if (isReview && axis != GraphYAxis.number) continue;
       final GraphKey key = GraphKey(
         title: response.question.prompt,
         isCategory: false,
@@ -423,11 +437,14 @@ final graphStampsProvider =
         type: response.type,
         isReview: isReview,
       );
+
       if (byQuestion.containsKey(key)) {
         byQuestion[key]!.add(response);
       } else {
         byQuestion[key] = [response];
       }
+
+      if (axis == GraphYAxis.average) continue;
       final GraphKey categoryKey = GraphKey(
         title: response.type,
         isCategory: true,
@@ -441,16 +458,12 @@ final graphStampsProvider =
       }
     }
   }
-  // Create a combined map but avoid adding redundant category keys
-  // if they only contain a single symptom with the same name/prompt.
   final Map<GraphKey, List<Response>> combined = {};
 
-  // Group byCategory keys and see if they are redundant
   for (final catEntry in byType.entries) {
     final catKey = catEntry.key;
     final catResponses = catEntry.value;
 
-    // Find if there's an exact matching question key
     final matchingQuestion = byQuestion.entries.firstWhereOrNull((q) =>
         q.key.title == catKey.title &&
         q.value.length == catResponses.length &&
@@ -479,7 +492,6 @@ final eventsMapProvider =
 
   final filtered = stamps.whereType<Response>().where((response) {
     if (settings.filters.isNotEmpty) {
-      // AND between filter groups, OR within each group
       for (final filterGroup in groupedFilters.values) {
         bool matches = false;
         for (final filter in filterGroup) {

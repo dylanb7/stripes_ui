@@ -12,6 +12,7 @@ import 'package:stripes_ui/Providers/History/stamps_provider.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/UI/AccountManagement/profile_changer.dart';
 import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
+import 'package:stripes_ui/UI/CommonWidgets/control_bar.dart';
 import 'package:stripes_ui/UI/CommonWidgets/date_range_selector.dart';
 import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
 import 'package:stripes_ui/UI/History/EventView/event_grid.dart';
@@ -98,8 +99,9 @@ class _EventsViewState extends ConsumerState<EventsView> {
   Widget build(BuildContext context) {
     final ViewMode mode = ref.watch(viewModeProvider);
     final StripesConfig config = ref.watch(configProvider);
-    ref.watch(stampsStreamProvider);
     final List<Insight> insights = ref.watch(historyInsightsProvider);
+    final bool shouldUseToolbar =
+        getBreakpoint(context).isGreaterThan(Breakpoint.medium);
 
     ref.listen(displayDataProvider, (previous, next) {
       if (previous?.range != next.range) {
@@ -141,57 +143,104 @@ class _EventsViewState extends ConsumerState<EventsView> {
                     ),
                   ),
                 ),
-                const SliverToBoxAdapter(
-                  child: CurrentFilters(),
-                ),
-                // Date controls section - D|W|M toggle + date range (grouped together)
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppPadding.medium,
-                    vertical: AppPadding.small,
-                  ),
-                  sliver: SliverToBoxAdapter(
-                    key: _dateRangeKey,
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: ConstrainedBox(
-                        constraints:
-                            BoxConstraints(maxWidth: Breakpoint.small.value),
-                        child: const _DateControlsRow(),
+                if (shouldUseToolbar) ...[
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppPadding.medium,
+                      vertical: AppPadding.small,
+                    ),
+                    sliver: SliverToBoxAdapter(
+                      key: _dateRangeKey,
+                      child: _DesktopControlBar(
+                        hasGraphing: config.hasGraphing,
+                        mode: mode,
+                        onModeChanged: (newMode) {
+                          ref.read(viewModeProvider.notifier).state = newMode;
+                        },
                       ),
                     ),
                   ),
-                ),
-                // Insights - constrained width, aligned with date controls
-                if (insights.isNotEmpty)
+                  if (insights.isNotEmpty)
+                    SliverPadding(
+                      padding: const EdgeInsets.only(
+                          left: AppPadding.medium,
+                          right: AppPadding.medium,
+                          bottom: AppPadding.tiny),
+                      sliver: SliverToBoxAdapter(
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                                maxWidth: Breakpoint.small.value),
+                            child: InsightsList(
+                              insights: insights,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  // Desktop content header (results + export, or graph axis selector)
                   SliverPadding(
-                    padding: const EdgeInsets.only(
-                        left: AppPadding.medium,
-                        right: AppPadding.medium,
-                        bottom: AppPadding.tiny),
+                    padding: const EdgeInsets.only(top: AppPadding.tiny),
                     sliver: SliverToBoxAdapter(
+                      child: switch (mode) {
+                        ViewMode.events => const EventGridHeader(),
+                        ViewMode.graph => const GraphHeader(),
+                      },
+                    ),
+                  ),
+                ] else ...[
+                  // Mobile: ControlBar with just date range + filter chips
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppPadding.medium,
+                      vertical: AppPadding.small,
+                    ),
+                    sliver: SliverToBoxAdapter(
+                      key: _dateRangeKey,
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: ConstrainedBox(
                           constraints:
                               BoxConstraints(maxWidth: Breakpoint.small.value),
-                          child: InsightsList(
-                            insights: insights,
+                          child: const ControlBar(
+                            children: [
+                              Expanded(child: DateRangeButton()),
+                            ],
                           ),
                         ),
                       ),
                     ),
                   ),
-
-                SliverPadding(
-                  padding: const EdgeInsets.only(top: AppPadding.tiny),
-                  sliver: SliverToBoxAdapter(
-                    child: switch (mode) {
-                      ViewMode.events => const EventGridHeader(),
-                      ViewMode.graph => const GraphHeader(),
-                    },
+                  if (insights.isNotEmpty)
+                    SliverPadding(
+                      padding: const EdgeInsets.only(
+                          left: AppPadding.medium,
+                          right: AppPadding.medium,
+                          bottom: AppPadding.tiny),
+                      sliver: SliverToBoxAdapter(
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                                maxWidth: Breakpoint.small.value),
+                            child: InsightsList(
+                              insights: insights,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  SliverPadding(
+                    padding: const EdgeInsets.only(top: AppPadding.tiny),
+                    sliver: SliverToBoxAdapter(
+                      child: switch (mode) {
+                        ViewMode.events => const EventGridHeader(),
+                        ViewMode.graph => const GraphHeader(),
+                      },
+                    ),
                   ),
-                ),
+                ],
                 // Content slivers based on mode
                 ...switch (mode) {
                   ViewMode.events => [
@@ -332,12 +381,11 @@ class GraphHeader extends ConsumerWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(
-          horizontal: AppPadding.xl, vertical: AppPadding.small),
+          horizontal: AppPadding.large, vertical: AppPadding.small),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           if (isDesktop)
-            // Desktop: Compact segmented button, left-aligned
             SegmentedButton<GraphYAxis>(
               segments: GraphYAxis.values
                   .map((axis) => ButtonSegment<GraphYAxis>(
@@ -362,47 +410,16 @@ class GraphHeader extends ConsumerWidget {
               ),
             )
           else
-            // Mobile: Styled dropdown button
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppPadding.small,
-                vertical: AppPadding.tiny,
-              ),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                borderRadius: BorderRadius.circular(AppRounding.small),
-                border: Border.all(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .outline
-                      .withValues(alpha: 0.3),
-                ),
-              ),
-              child: DropdownButton<GraphYAxis>(
-                value: settings.axis,
-                underline: const SizedBox.shrink(),
-                isDense: true,
-                icon: const Icon(Icons.keyboard_arrow_down, size: 20),
-                borderRadius: BorderRadius.circular(AppRounding.small),
-                onChanged: (value) {
-                  if (value != null) {
-                    ref.read(displayDataProvider.notifier).setAxis(value);
-                  }
-                },
-                items: GraphYAxis.values
-                    .map((axis) => DropdownMenuItem(
-                          value: axis,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(axis.icon, size: 16),
-                              const SizedBox(width: AppPadding.tiny),
-                              Text(axis.label),
-                            ],
-                          ),
-                        ))
-                    .toList(),
-              ),
+            _DropdownChip<GraphYAxis>(
+              value: settings.axis,
+              items: GraphYAxis.values,
+              labelBuilder: (axis) => axis.label,
+              iconBuilder: (axis) => axis.icon,
+              onChanged: (value) {
+                if (value != null) {
+                  ref.read(displayDataProvider.notifier).setAxis(value);
+                }
+              },
             ),
         ],
       ),
@@ -410,7 +427,35 @@ class GraphHeader extends ConsumerWidget {
   }
 }
 
-/// Responsive header that adapts layout based on screen size
+class _FilterButton extends ConsumerWidget {
+  const _FilterButton();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final AsyncValue<bool> hasFilters = ref.watch(hasAvailableFiltersProvider);
+    final bool filtersEnabled = hasFilters.valueOrNull ?? false;
+
+    return IconButton.filled(
+      style: const ButtonStyle(
+        visualDensity: VisualDensity.compact,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+      onPressed: filtersEnabled
+          ? () {
+              ref.read(sheetControllerProvider).show(
+                    context: context,
+                    scrollControlled: true,
+                    sheetBuilder: (context, controller) =>
+                        FilterSheet(scrollController: controller),
+                  );
+            }
+          : null,
+      tooltip: filtersEnabled ? 'Filters' : 'No filters available',
+      icon: const Icon(Icons.filter_list),
+    );
+  }
+}
+
 class _ResponsiveHeader extends ConsumerWidget {
   final bool hasGraphing;
   final ViewMode mode;
@@ -424,73 +469,27 @@ class _ResponsiveHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bool isDesktop =
-        getBreakpoint(context).isGreaterThan(Breakpoint.large);
+    final bool shouldUseToolbar =
+        getBreakpoint(context).isGreaterThan(Breakpoint.medium);
+    final bool isTiny = getBreakpoint(context).isLessThan(Breakpoint.tiny);
     final DisplayDataSettings settings = ref.watch(displayDataProvider);
-    final AsyncValue<bool> hasFilters = ref.watch(hasAvailableFiltersProvider);
-    final bool filtersEnabled = hasFilters.valueOrNull ?? false;
 
-    // Builds the view mode toggle popup
-    Widget buildViewModeToggle() => PopupMenuButton<ViewMode>(
-          padding: EdgeInsets.zero,
-          initialValue: mode,
-          tooltip: 'Switch View Mode',
-          onSelected: onModeChanged,
-          icon: DecoratedBox(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppRounding.small),
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(AppPadding.small),
-              child: Icon(
-                switch (mode) {
-                  ViewMode.events => Icons.list,
-                  ViewMode.graph => Icons.bar_chart,
-                },
-                color: Theme.of(context).colorScheme.onPrimary,
-              ),
-            ),
-          ),
-          itemBuilder: (context) => [
-            const PopupMenuItem(
-              value: ViewMode.events,
-              child: ListTile(
-                leading: Icon(Icons.list),
-                title: Text('Events'),
-              ),
-            ),
-            const PopupMenuItem(
-              value: ViewMode.graph,
-              child: ListTile(
-                leading: Icon(Icons.bar_chart),
-                title: Text('Graphs'),
-              ),
-            ),
-          ],
+    Widget buildViewModeToggle() => _DropdownChip<ViewMode>(
+          value: mode,
+          items: ViewMode.values,
+          labelBuilder: (m) => switch (m) {
+            ViewMode.events => 'List',
+            ViewMode.graph => 'Graph',
+          },
+          iconBuilder: (m) => switch (m) {
+            ViewMode.events => Icons.list,
+            ViewMode.graph => Icons.bar_chart,
+          },
+          onChanged: (m) {
+            if (m != null) onModeChanged(m);
+          },
         );
 
-    // Builds the filter button
-    Widget buildFilterButton() => IconButton.filled(
-          style: const ButtonStyle(
-            visualDensity: VisualDensity.compact,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          ),
-          onPressed: filtersEnabled
-              ? () {
-                  ref.read(sheetControllerProvider).show(
-                        context: context,
-                        scrollControlled: true,
-                        sheetBuilder: (context, controller) =>
-                            FilterSheet(scrollController: controller),
-                      );
-                }
-              : null,
-          tooltip: filtersEnabled ? 'Filters' : 'No filters available',
-          icon: const Icon(Icons.filter_list),
-        );
-
-    // Builds the Day/Week/Month segmented button
     Widget buildTimeCycleToggle() => SegmentedButton<TimeCycle>(
           segments: [
             TimeCycle.day,
@@ -518,45 +517,45 @@ class _ResponsiveHeader extends ConsumerWidget {
           selected: settings.cycle == TimeCycle.custom ? {} : {settings.cycle},
         );
 
-    // Desktop: Patient name + mode toggle only
-    // Filter moves to D|W|M row
-    if (isDesktop) {
-      return Row(
-        children: [
-          const Expanded(
-            child: PatientChanger(
-              tab: TabOption.history,
-            ),
-          ),
-          if (hasGraphing) buildViewModeToggle(),
-        ],
+    if (shouldUseToolbar) {
+      return const PatientChanger(
+        tab: TabOption.history,
       );
     }
 
-    // Mobile:
-    // Row 1: Patient name + graph toggle
-    // Row 2: D|W|M toggle + filter
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Row 1: Patient name + graph toggle
-        Row(
-          children: [
-            const Expanded(
-              child: PatientChanger(
-                tab: TabOption.history,
-              ),
-            ),
-            if (hasGraphing) buildViewModeToggle(),
-          ],
+        const PatientChanger(
+          tab: TabOption.history,
         ),
         const SizedBox(height: AppPadding.small),
-        // Row 2: D|W|M toggle + filter
+        // Row 2: filter + D|W|M on left, view mode on right
         Row(
           children: [
-            buildTimeCycleToggle(),
+            const _FilterButton(),
+            const SizedBox(width: AppPadding.small),
+            if (isTiny)
+              _DropdownChip<TimeCycle>(
+                iconBuilder: (_) => Icons.date_range,
+                value:
+                    settings.cycle == TimeCycle.custom ? null : settings.cycle,
+                items: const [
+                  TimeCycle.day,
+                  TimeCycle.week,
+                  TimeCycle.month,
+                ],
+                labelBuilder: (cycle) => cycle.value,
+                onChanged: (cycle) {
+                  if (cycle != null) {
+                    ref.read(displayDataProvider.notifier).setCycle(cycle);
+                  }
+                },
+              )
+            else
+              buildTimeCycleToggle(),
             const Spacer(),
-            buildFilterButton(),
+            if (hasGraphing) buildViewModeToggle(),
           ],
         ),
       ],
@@ -564,67 +563,38 @@ class _ResponsiveHeader extends ConsumerWidget {
   }
 }
 
-/// Groups date-related controls: Filter + D|W|M toggle + date range selector on desktop
-/// On mobile, only shows date range (D|W|M and filter are in header)
-class _DateControlsRow extends ConsumerWidget {
-  const _DateControlsRow();
+class _DesktopControlBar extends ConsumerWidget {
+  final bool hasGraphing;
+  final ViewMode mode;
+  final ValueChanged<ViewMode> onModeChanged;
+
+  const _DesktopControlBar({
+    required this.hasGraphing,
+    required this.mode,
+    required this.onModeChanged,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bool isDesktop =
-        getBreakpoint(context).isGreaterThan(Breakpoint.large);
     final DisplayDataSettings settings = ref.watch(displayDataProvider);
-    final AsyncValue<bool> hasFilters = ref.watch(hasAvailableFiltersProvider);
-    final bool filtersEnabled = hasFilters.valueOrNull ?? false;
 
-    final dateRangeBox = DecoratedBox(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(AppRounding.small),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-        ),
-      ),
-      child: const DateRangeButton(),
-    );
+    final bool isLarge = getBreakpoint(context).isGreaterThan(Breakpoint.large);
 
-    // Desktop: Filter + D|W|M toggle + date range
-    if (isDesktop) {
-      return Row(
+    if (isLarge) {
+      return ControlBar(
         children: [
-          // Filter button at start
-          IconButton.filled(
-            style: const ButtonStyle(
-              visualDensity: VisualDensity.compact,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            onPressed: filtersEnabled
-                ? () {
-                    ref.read(sheetControllerProvider).show(
-                          context: context,
-                          scrollControlled: true,
-                          sheetBuilder: (context, controller) =>
-                              FilterSheet(scrollController: controller),
-                        );
-                  }
-                : null,
-            tooltip: filtersEnabled ? 'Filters' : 'No filters available',
-            icon: const Icon(Icons.filter_list),
-          ),
+          const _FilterButton(),
           const SizedBox(width: AppPadding.small),
-          // D|W|M toggle
           SegmentedButton<TimeCycle>(
             segments: [
               TimeCycle.day,
               TimeCycle.week,
               TimeCycle.month,
             ]
-                .map(
-                  (cycle) => ButtonSegment(
-                    value: cycle,
-                    label: Text(cycle.value),
-                  ),
-                )
+                .map((cycle) => ButtonSegment(
+                      value: cycle,
+                      label: Text(cycle.value),
+                    ))
                 .toList(),
             showSelectedIcon: false,
             emptySelectionAllowed: true,
@@ -640,143 +610,152 @@ class _DateControlsRow extends ConsumerWidget {
             selected:
                 settings.cycle == TimeCycle.custom ? {} : {settings.cycle},
           ),
-          const SizedBox(width: AppPadding.small),
-          Expanded(child: dateRangeBox),
+          Expanded(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 400),
+                child: const DateRangeButton(),
+              ),
+            ),
+          ),
+          if (hasGraphing)
+            _DropdownChip<ViewMode>(
+              iconBuilder: (m) => switch (m) {
+                ViewMode.events => Icons.list,
+                ViewMode.graph => Icons.bar_chart,
+              },
+              value: mode,
+              items: ViewMode.values,
+              labelBuilder: (m) => switch (m) {
+                ViewMode.events => 'List',
+                ViewMode.graph => 'Graph',
+              },
+              onChanged: (m) {
+                if (m != null) onModeChanged(m);
+              },
+            ),
         ],
       );
     }
 
-    // Mobile: Just date range (D|W|M and filter are in header)
-    return dateRangeBox;
-  }
-}
-
-/// Compact controls row with Day/Week/Month toggle, view mode, and filter button
-class _ControlsRow extends ConsumerWidget {
-  final bool hasGraphing;
-  final ViewMode mode;
-  final ValueChanged<ViewMode> onModeChanged;
-
-  const _ControlsRow({
-    required this.hasGraphing,
-    required this.mode,
-    required this.onModeChanged,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final DisplayDataSettings settings = ref.watch(displayDataProvider);
-    final AsyncValue<bool> hasFilters = ref.watch(hasAvailableFiltersProvider);
-    final bool filtersEnabled = hasFilters.valueOrNull ?? false;
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
+    return ControlBar(
       children: [
-        // Day/Week/Month toggle
-        SegmentedButton<TimeCycle>(
-          segments: [
-            TimeCycle.day,
-            TimeCycle.week,
-            TimeCycle.month,
-          ]
-              .map(
-                (cycle) => ButtonSegment(
-                  value: cycle,
-                  label: Text(cycle.value),
-                ),
-              )
-              .toList(),
-          showSelectedIcon: false,
-          emptySelectionAllowed: true,
-          style: const ButtonStyle(
-            visualDensity: VisualDensity.compact,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          ),
-          onSelectionChanged: (newValue) {
-            if (newValue.isNotEmpty) {
-              ref.read(displayDataProvider.notifier).setCycle(newValue.first);
+        const _FilterButton(),
+        const SizedBox(width: AppPadding.small),
+        _DropdownChip<TimeCycle>(
+          iconBuilder: (_) => Icons.date_range,
+          value: settings.cycle == TimeCycle.custom ? null : settings.cycle,
+          items: const [TimeCycle.day, TimeCycle.week, TimeCycle.month],
+          labelBuilder: (cycle) => cycle.value,
+          onChanged: (cycle) {
+            if (cycle != null) {
+              ref.read(displayDataProvider.notifier).setCycle(cycle);
             }
           },
-          selected: settings.cycle == TimeCycle.custom ? {} : {settings.cycle},
         ),
-        const SizedBox(width: AppPadding.small),
-        // View mode toggle (events/graph)
-        if (hasGraphing)
-          PopupMenuButton<ViewMode>(
-            initialValue: mode,
-            tooltip: 'Switch View Mode',
-            onSelected: onModeChanged,
-            icon: DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(AppRounding.small),
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(AppPadding.small),
-                child: Icon(
-                  switch (mode) {
-                    ViewMode.events => Icons.list,
-                    ViewMode.graph => Icons.bar_chart,
-                  },
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
-              ),
+        Expanded(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 300),
+              child: const DateRangeButton(),
             ),
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: ViewMode.events,
-                child: ListTile(
-                  leading: Icon(Icons.list),
-                  title: Text('Events'),
-                ),
-              ),
-              const PopupMenuItem(
-                value: ViewMode.graph,
-                child: ListTile(
-                  leading: Icon(Icons.bar_chart),
-                  title: Text('Graphs'),
-                ),
-              ),
-            ],
           ),
-        // Filter button
-        IconButton.filled(
-          style: const ButtonStyle(
-            visualDensity: VisualDensity.compact,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          ),
-          onPressed: filtersEnabled
-              ? () {
-                  ref.read(sheetControllerProvider).show(
-                        context: context,
-                        scrollControlled: true,
-                        sheetBuilder: (context, controller) =>
-                            FilterSheet(scrollController: controller),
-                      );
-                }
-              : null,
-          tooltip: filtersEnabled ? 'Filters' : 'No filters available',
-          icon: const Icon(Icons.filter_list),
         ),
+        if (hasGraphing)
+          _DropdownChip<ViewMode>(
+            iconBuilder: (m) => switch (m) {
+              ViewMode.events => Icons.list,
+              ViewMode.graph => Icons.bar_chart,
+            },
+            value: mode,
+            items: ViewMode.values,
+            labelBuilder: (m) => switch (m) {
+              ViewMode.events => 'List',
+              ViewMode.graph => 'Graph',
+            },
+            onChanged: (m) {
+              if (m != null) onModeChanged(m);
+            },
+          ),
       ],
     );
   }
 }
 
-// Keep FiltersRow as a legacy alias for backward compatibility
-class FiltersRow extends ConsumerWidget {
-  const FiltersRow({super.key});
+class _DropdownChip<T> extends StatelessWidget {
+  final T? value;
+  final List<T> items;
+  final String Function(T) labelBuilder;
+  final IconData Function(T) iconBuilder;
+  final ValueChanged<T?> onChanged;
+
+  const _DropdownChip({
+    required this.value,
+    required this.items,
+    required this.labelBuilder,
+    required this.iconBuilder,
+    required this.onChanged,
+    super.key,
+  });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final ViewMode mode = ref.watch(viewModeProvider);
-    return _ControlsRow(
-      hasGraphing: ref.watch(configProvider).hasGraphing,
-      mode: mode,
-      onModeChanged: (newMode) {
-        ref.read(viewModeProvider.notifier).state = newMode;
-      },
+  Widget build(BuildContext context) {
+    final ColorScheme colors = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppPadding.small,
+        vertical: AppPadding.tiny,
+      ),
+      decoration: BoxDecoration(
+        color: colors.primary,
+        borderRadius: BorderRadius.circular(100),
+      ),
+      child: DropdownButton<T>(
+        value: value,
+        underline: const SizedBox.shrink(),
+        isDense: true,
+        icon: Icon(
+          Icons.keyboard_arrow_down,
+          size: 18,
+          color: colors.onPrimary,
+        ),
+        dropdownColor: colors.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(AppRounding.medium),
+        onChanged: onChanged,
+        selectedItemBuilder: (context) => items
+            .map((item) => Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(iconBuilder(item), size: 16, color: colors.onPrimary),
+                    const SizedBox(width: AppPadding.tiny),
+                    Text(
+                      labelBuilder(item),
+                      style: Theme.of(context)
+                          .textTheme
+                          .labelMedium
+                          ?.copyWith(color: colors.onPrimary),
+                    ),
+                  ],
+                ))
+            .toList(),
+        items: items
+            .map((item) => DropdownMenuItem<T>(
+                  value: item,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(iconBuilder(item), size: 16),
+                      const SizedBox(width: AppPadding.tiny),
+                      Text(
+                        labelBuilder(item),
+                        style: Theme.of(context).textTheme.labelMedium,
+                      ),
+                    ],
+                  ),
+                ))
+            .toList(),
+      ),
     );
   }
 }

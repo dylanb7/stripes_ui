@@ -245,7 +245,7 @@ class _FilterSheetState extends ConsumerState<FilterSheet> {
               padding: EdgeInsets.symmetric(horizontal: AppPadding.medium),
               child: Divider(
                 thickness: 1.0,
-                height: 1.0,
+                height: AppPadding.small,
               ),
             ),
             Flexible(

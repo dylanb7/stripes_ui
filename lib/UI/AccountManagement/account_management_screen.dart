@@ -86,11 +86,11 @@ class AccountManagementScreen extends ConsumerWidget {
               indent: AppPadding.small,
             ),
             // Baselines navigation with pending count
-            const _BaselinesNavTile(),
+            /*const _BaselinesNavTile(),
             const Divider(
               endIndent: AppPadding.small,
               indent: AppPadding.small,
-            ),
+            ),*/
             // Dashboard navigation
             /*ListTile(
               dense: false,

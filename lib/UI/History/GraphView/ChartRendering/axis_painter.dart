@@ -317,8 +317,15 @@ class AxisPainter {
       )..layout();
 
       final x = style.axisLabelPadding;
+      // Center vertically.
+      // Rotation -90 means text starts at (x,y) and draws UP.
+      // So y should be the bottom of the text.
+      // Center of drawHeight is topMargin + drawHeight/2.
+      // Text length is textPainter.width.
+      // We want the middle of the text (width/2) to align with middle of drawHeight.
+      // So bottom of text (y) = middle of drawHeight + width/2.
       final y =
-          geometry.topMargin + (geometry.drawHeight + textPainter.width) / 2;
+          geometry.topMargin + geometry.drawHeight / 2 + textPainter.width / 2;
 
       canvas.save();
       canvas.translate(x, y);

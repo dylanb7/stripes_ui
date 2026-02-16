@@ -13,7 +13,6 @@ import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:stripes_ui/UI/CommonWidgets/sync_indicator.dart';
 import 'package:stripes_ui/Providers/Navigation/sheet_provider.dart';
 
 @immutable

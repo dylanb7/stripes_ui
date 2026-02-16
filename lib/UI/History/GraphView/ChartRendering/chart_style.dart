@@ -83,6 +83,7 @@ class ChartStyle {
           ) ??
           const TextStyle(),
       annotationLineColor: colorScheme.secondary,
+      crosshairStyle: const CrosshairStyle(),
     );
   }
 
@@ -166,7 +167,7 @@ class CrosshairStyle {
     this.color = Colors.grey,
     this.strokeWidth = 1.0,
     this.showX = true,
-    this.showY = true,
+    this.showY = false,
   });
 }
 

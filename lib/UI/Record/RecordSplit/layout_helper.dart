@@ -120,9 +120,16 @@ class LayoutHelper {
     }
 
     final List<Question> pageQuestions = pages[currentIndex].questions;
-    final int pendingCount = listener.pending
-        .where((pending) => pageQuestions.contains(pending))
-        .length;
+    final Set<String> pageQuestionIds = pageQuestions.map((q) => q.id).toSet();
+
+    final int pendingCount = listener.pending.where((pending) {
+      if (pageQuestionIds.contains(pending.id)) return true;
+      final parts = pending.id.split('::');
+      if (parts.length > 1) {
+        return pageQuestionIds.contains(parts.first);
+      }
+      return false;
+    }).length;
 
     final Requirement requirement = pages[currentIndex].requirement;
     final bool requirementMet = requirement.eval(listener);
@@ -161,13 +168,19 @@ class LayoutHelper {
       return false;
     }
 
+    final allQuestions = listener.questions.keys.toSet()
+      ..addAll(listener.pending.map((q) => q.id));
+
+    final totalCount = allQuestions.where((qId) => belongsToPage(qId)).length +
+        visibleQuestions.where((q) => !allQuestions.contains(q.id)).length;
+
     final answeredCount =
         listener.questions.keys.where((qId) => belongsToPage(qId)).length;
     final pendingRequiredCount =
         listener.pending.where((q) => belongsToPage(q.id)).length;
 
     return QuestionProgress(
-      total: visibleQuestions.length,
+      total: totalCount,
       answered: answeredCount,
       pendingRequired: pendingRequiredCount,
     );

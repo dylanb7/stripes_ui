@@ -22,9 +22,11 @@ import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/UI/History/GraphView/ChartRendering/chart_selection_controller.dart';
 import 'package:stripes_ui/UI/History/GraphView/graph_point.dart';
 import 'package:stripes_ui/UI/History/Timeline/review_period_data.dart';
-import 'package:stripes_ui/l10n/questions_delegate.dart';
+
+import 'package:stripes_ui/UI/History/GraphView/graph_tooltip_helper.dart';
 
 import '../../../Util/Design/paddings.dart';
+import 'package:stripes_ui/Util/Design/palette.dart' as palette;
 
 class GraphsList extends ConsumerWidget {
   const GraphsList({super.key});
@@ -321,6 +323,7 @@ class GraphSymptomRow extends StatelessWidget {
                     Radius.circular(AppRounding.tiny),
                   ),
                 ),
+                clipBehavior: Clip.antiAlias,
                 child: hasHero
                     ? Hero(
                         tag: graphKey,
@@ -382,6 +385,7 @@ class GraphSymptomRow extends StatelessWidget {
                   color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(AppRounding.small),
                 ),
+                clipBehavior: Clip.antiAlias,
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppPadding.small,
                   vertical: AppPadding.tiny,
@@ -717,7 +721,6 @@ class GraphViewHeader extends StatelessWidget {
 
     return Stack(
       children: [
-        // Top-right Close Button
         Positioned(
           top: 0,
           right: AppPadding.small,
@@ -728,7 +731,7 @@ class GraphViewHeader extends StatelessWidget {
         ),
         Padding(
           padding: const EdgeInsets.only(
-              left: AppPadding.large, right: 48, top: AppPadding.small),
+              left: AppPadding.small, top: AppPadding.small),
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 50),
             child: Column(
@@ -749,80 +752,185 @@ class GraphViewHeader extends StatelessWidget {
                   builder: (context, selectionState, child) {
                     final hits = selectionState.results;
 
+                    Widget content;
+
                     if (hits.isEmpty) {
-                      return SizedBox(
-                        height: 28,
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            settings.getRangeString(context),
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                      content = Column(
+                        key: const ValueKey('range_title'),
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            height: AppPadding.xxl,
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                settings.getRangeString(context),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
                                       color: Theme.of(context)
                                           .colorScheme
                                           .onSurfaceVariant,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                          ),
-                        ),
-                      );
-                    }
-
-                    final Offset? hoverPos = selectionState.hoverPosition;
-                    final ChartHitTestResult<GraphPoint, DateTime> hit =
-                        hits.first;
-                    final bool isScatter =
-                        settings.axis == GraphYAxis.entrytime;
-                    final DateTime date = isScatter
-                        ? dateFromStamp(hit.item.data.first.stamp)
-                        : hit.xValue;
-                    DateFormat format = DateFormat.MMMEd();
-                    if (settings.cycle == TimeCycle.day || isScatter) {
-                      format.add_jm();
-                    }
-
-                    final dateTag = Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primaryContainer,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        format.format(date),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onPrimaryContainer,
-                              fontWeight: FontWeight.bold,
-                            ),
-                        maxLines: 1,
-                      ),
-                    );
-
-                    return LayoutBuilder(builder: (context, constraints) {
-                      final double xInHeader = hoverPos?.dx ?? 0;
-
-                      const double tagHalfWidth = 55.0;
-                      final double clampedCenter = xInHeader.clamp(
-                          tagHalfWidth, constraints.maxWidth - tagHalfWidth);
-                      final double shiftFromCenter =
-                          clampedCenter - (constraints.maxWidth / 2);
-
-                      return SizedBox(
-                        height: 28,
-                        child: Stack(
-                          clipBehavior: Clip.none,
-                          children: [
-                            Transform.translate(
-                              offset: Offset(shiftFromCenter, 0),
-                              child: Center(
-                                child: dateTag,
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(height: AppPadding.tiny),
+                          const SizedBox(height: 28),
+                        ],
                       );
-                    });
+                    } else {
+                      final Offset? hoverPos = selectionState.hoverPosition;
+                      final ChartHitTestResult<GraphPoint, DateTime> hit =
+                          hits.first;
+                      final bool isScatter =
+                          settings.axis == GraphYAxis.entrytime;
+                      DateTime date = isScatter
+                          ? dateFromStamp(hit.item.data.first.stamp)
+                          : hit.xValue;
+                      DateFormat format = DateFormat.MMMEd();
+                      if (settings.cycle == TimeCycle.day || isScatter) {
+                        format.add_jm();
+                        // For day view bar charts, buckets are 1 hour wide and centered at XX:30.
+                        // We subtract 30 minutes to show the start of the bucket (XX:00) which aligns with axis labels.
+                        if (!isScatter && settings.cycle == TimeCycle.day) {
+                          date = date.subtract(const Duration(minutes: 30));
+                        }
+                      }
+                      content = LayoutBuilder(
+                        key: const ValueKey('active_data'),
+                        builder: (context, constraints) {
+                          final double xInHeader = hoverPos?.dx ?? 0;
+                          const double tagHalfWidth = 50.0;
+                          final double clampedCenter = xInHeader.clamp(
+                              tagHalfWidth,
+                              constraints.maxWidth - tagHalfWidth);
+                          final double shiftFromCenter =
+                              clampedCenter - (constraints.maxWidth / 2);
+
+                          final dateTag = Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primaryContainer,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              format.format(date),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onPrimaryContainer,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          );
+
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                height: AppPadding.xxl,
+                                child: Stack(
+                                  clipBehavior: Clip.none,
+                                  children: [
+                                    Transform.translate(
+                                      offset: Offset(shiftFromCenter, 0),
+                                      child: Center(
+                                        child: dateTag,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: AppPadding.tiny),
+                              // Min height constraint to ensure stability if wrap is empty or small
+                              ConstrainedBox(
+                                constraints:
+                                    const BoxConstraints(minHeight: 28),
+                                child: Wrap(
+                                  spacing: 8,
+                                  runSpacing: 4,
+                                  children: hits.map((hit) {
+                                    final allKeys = [baseKey, ...additions];
+                                    if (hit.datasetIndex >= allKeys.length) {
+                                      return const SizedBox.shrink();
+                                    }
+                                    final key = allKeys[hit.datasetIndex];
+                                    final color = colorKeys[key] ??
+                                        palette.forGraphKey(key);
+                                    final label = customLabels[key] ??
+                                        key.toLocalizedString(context);
+
+                                    final isInt = hit.yValue % 1 == 0;
+                                    final valueStr = isInt
+                                        ? hit.yValue.toInt().toString()
+                                        : hit.yValue.toStringAsFixed(1);
+
+                                    return Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Container(
+                                          width: 8,
+                                          height: 8,
+                                          decoration: BoxDecoration(
+                                            color: color,
+                                            shape: BoxShape.circle,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          "$label: ",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurfaceVariant,
+                                              ),
+                                        ),
+                                        Text(
+                                          valueStr,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                        ),
+                                      ],
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    }
+
+                    return AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: content,
+                      transitionBuilder: (child, animation) {
+                        return FadeTransition(
+                          opacity: animation,
+                          child: child,
+                        );
+                      },
+                    );
                   },
                 ),
               ],
@@ -907,42 +1015,17 @@ class SymptomListItem extends StatelessWidget {
                         String detailText = "";
 
                         if (hits.isNotEmpty) {
-                          for (final h in hits) {
-                            final myResponses = loadedData[graphKey];
-                            if (myResponses != null &&
-                                myResponses
-                                    .any((r) => h.item.data.contains(r))) {
-                              final isScatter = h.yValue > 0 &&
-                                  h.yValue.toInt() != h.yValue.toDouble();
-                              final String valStr = isScatter
-                                  ? h.yValue.toStringAsFixed(1)
-                                  : h.yValue.toInt().toString();
-
-                              final List<Stamp> stamps = h.item.data;
-                              List<Response> flat = [];
-                              for (final s in stamps) {
-                                if (s
-                                    case DetailResponse(
-                                      :List<Response> responses
-                                    )) {
-                                  flat.addAll(responses);
-                                } else if (s case Response()) {
-                                  flat.add(s);
-                                }
-                              }
-                              if (flat.isEmpty &&
-                                  stamps.isNotEmpty &&
-                                  stamps.first is Response) {
-                                flat = stamps.whereType<Response>().toList();
-                              }
-
-                              String? summary;
-                              if (flat.isNotEmpty) {
-                                summary = _formatResponseSummary(context, flat);
-                              }
-                              detailText =
-                                  "$valStr${summary != null ? ' ($summary)' : ''}";
-                              break;
+                          final List<String>? val =
+                              GraphTooltipHelper.getTooltipValue(
+                            context: context,
+                            graphKey: graphKey,
+                            loadedData: loadedData,
+                            hits: hits,
+                          );
+                          if (val != null && val.isNotEmpty) {
+                            detailText = val.first;
+                            if (val.length > 1) {
+                              detailText += " (${val.sublist(1).join(', ')})";
                             }
                           }
                         }
@@ -964,7 +1047,6 @@ class SymptomListItem extends StatelessWidget {
                           ),
                         );
 
-                        // Only show detail if present, no reserved space
                         if (detailText.isEmpty) return labelText;
 
                         return Column(
@@ -1027,53 +1109,5 @@ class SymptomListItem extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String? _formatResponseSummary(BuildContext context, List<Response> flat) {
-    if (flat.isEmpty) return null;
-
-    final QuestionsLocalizations? localizations =
-        QuestionsLocalizations.of(context);
-
-    final first = flat.first;
-    if (first is NumericResponse) {
-      if (flat.length > 1) {
-        final double avg = flat
-                .whereType<NumericResponse>()
-                .map((e) => e.response)
-                .reduce((a, b) => a + b) /
-            flat.length;
-        return "Avg: ${avg.toStringAsFixed(1)}";
-      }
-      return null;
-    }
-
-    final Map<String, int> counts = {};
-    for (final res in flat) {
-      if (res is MultiResponse) {
-        if (res.index < res.question.choices.length) {
-          final choice = res.question.choices[res.index];
-          counts[choice] = (counts[choice] ?? 0) + 1;
-        }
-      } else if (res is AllResponse) {
-        for (final index in res.responses) {
-          if (index < res.question.choices.length) {
-            final choice = res.question.choices[index];
-            counts[choice] = (counts[choice] ?? 0) + 1;
-          }
-        }
-      }
-    }
-
-    if (counts.isEmpty) return null;
-
-    final sorted = counts.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-    final String tops = sorted.take(2).map((e) {
-      final String choiceLabel = localizations?.value(e.key) ?? e.key;
-      return "$choiceLabel: ${e.value}";
-    }).join(", ");
-
-    return tops.isEmpty ? null : tops;
   }
 }

@@ -117,6 +117,10 @@ class ChartAnimationState<T, D> {
         // For bar charts, generate labels at bucket centers starting from
         // the range start + halfStep (where the first bar is centered)
         value = bounds.labelMinX + halfStep;
+      } else if (axis.interval != null) {
+        // If an explicit interval is set (e.g. from GraphSymptom based on buckets),
+        // start exactly at the labelMinX (start of range).
+        value = bounds.labelMinX;
       } else {
         // For intra-day views, use labelMinX as anchor to align with day start
         // For multi-day views, use epoch (0) to snap to day boundaries
@@ -140,15 +144,27 @@ class ChartAnimationState<T, D> {
       }
 
       String text;
-      if (isIntraDay && !useCenterOffset) {
+      if (isIntraDay && !useCenterOffset && axis.interval == null) {
         // Use HourAxis-style format for intra-day views
         final DateTime dt = DateTime.fromMillisecondsSinceEpoch(value.toInt());
         text = DateFormat.j().format(dt);
       } else {
-        // For center-aligned (bar charts), use the label value minus halfStep
-        // for formatting to show the correct date/time
-        final double formatValue = useCenterOffset ? value - halfStep : value;
-        text = axis.formatFromDouble(formatValue);
+        // For center-aligned (bar charts), calculate the text value from the start of the bucket.
+        // We use labelMinX + multiple * tickSize to avoid floating point errors from (Start + Half) - Half.
+        // Even if we are using value = bounds.labelMinX + halfStep, we want text to simply represent the bucket start.
+        // Calculate 'multiple' relative to the anchor (which is labelMinX for interval-based charts).
+
+        // If useCenterOffset is true, value is offset by halfStep. Remove it to find the bucket start index.
+        double effectiveValueForIndex =
+            useCenterOffset ? value - halfStep : value;
+        // Use round to snap to nearest index
+        int index = ((effectiveValueForIndex - bounds.labelMinX) /
+                bounds.xAxisTickSize!)
+            .round();
+
+        // Reconstruct exact bucket start
+        double textValue = bounds.labelMinX + (index * bounds.xAxisTickSize!);
+        text = axis.formatFromDouble(textValue);
       }
 
       if (text.isNotEmpty) {

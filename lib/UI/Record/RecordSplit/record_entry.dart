@@ -151,175 +151,182 @@ class RecordSplitterState extends ConsumerState<RecordSplitter> {
       },
       child: Center(
         child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: Breakpoint.large.value),
-          child: AsyncValueDefaults(
-            value: pagesData,
-            onData: (loadedPages) {
-              final PagesData translatedPage =
-                  localizations?.translatePage(loadedPages) ?? loadedPages;
+          constraints: BoxConstraints(maxWidth: Breakpoint.medium.value),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              border: Border.symmetric(
+                  vertical: BorderSide(color: Theme.of(context).dividerColor)),
+            ),
+            child: AsyncValueDefaults(
+              value: pagesData,
+              onData: (loadedPages) {
+                final PagesData translatedPage =
+                    localizations?.translatePage(loadedPages) ?? loadedPages;
 
-              final List<LoadedPageLayout> evaluatedPages =
-                  LayoutHelper.processLayouts(
-                loadedLayouts: translatedPage.loadedLayouts,
-                listener: widget.questionListener,
-                deferCleanup: true,
-              );
+                final List<LoadedPageLayout> evaluatedPages =
+                    LayoutHelper.processLayouts(
+                  loadedLayouts: translatedPage.loadedLayouts,
+                  listener: widget.questionListener,
+                  deferCleanup: true,
+                );
 
-              final validation = LayoutHelper.validatePage(
-                pages: evaluatedPages,
-                currentIndex: currentIndex,
-                listener: widget.questionListener,
-              );
+                final validation = LayoutHelper.validatePage(
+                  pages: evaluatedPages,
+                  currentIndex: currentIndex,
+                  listener: widget.questionListener,
+                );
 
-              final progress = LayoutHelper.calculateProgress(
-                pages: evaluatedPages,
-                currentIndex: currentIndex,
-                listener: widget.questionListener,
-              );
+                final progress = LayoutHelper.calculateProgress(
+                  pages: evaluatedPages,
+                  currentIndex: currentIndex,
+                  listener: widget.questionListener,
+                );
 
-              final bool isSubmit = currentIndex == evaluatedPages.length;
-              final VoidCallback? onPressed;
-              if (isSubmit) {
-                final testProviderValue = ref.watch(testProvider);
-                List<Question> testAdditions = testProviderValue.valueOrNull
+                final bool isSubmit = currentIndex == evaluatedPages.length;
+                final VoidCallback? onPressed;
+                if (isSubmit) {
+                  final testProviderValue = ref.watch(testProvider);
+                  List<Question> testAdditions = testProviderValue.valueOrNull
+                          ?.getRecordAdditions(context, widget.type) ??
+                      [];
+
+                  if (isEdit) {
+                    testAdditions = testAdditions
+                        .where((q) =>
+                            widget.questionListener.fromQuestion(q) != null)
+                        .toList();
+                  }
+
+                  final submitValidation = LayoutHelper.validateSubmitScreen(
+                    submitQuestions: testAdditions,
+                    listener: widget.questionListener,
+                  );
+
+                  final bool canSubmit = !testProviderValue.isLoading &&
+                      submitValidation.requirementMet &&
+                      !isLoading &&
+                      edited;
+
+                  onPressed = submitSuccess
+                      ? () {}
+                      : canSubmit
+                          ? () => _submitEntry(context, ref, isEdit)
+                          : null;
+                } else {
+                  onPressed = validation.canProceed
+                      ? () {
+                          widget.questionListener.tried = false;
+                          pageController.nextPage(
+                              duration: Durations.medium1,
+                              curve: Curves.linear);
+                        }
+                      : null;
+                }
+
+                List<Question> submitQuestions = ref
+                        .read(testProvider)
+                        .valueOrNull
                         ?.getRecordAdditions(context, widget.type) ??
                     [];
-
                 if (isEdit) {
-                  testAdditions = testAdditions
+                  submitQuestions = submitQuestions
                       .where((q) =>
                           widget.questionListener.fromQuestion(q) != null)
                       .toList();
                 }
 
-                final submitValidation = LayoutHelper.validateSubmitScreen(
-                  submitQuestions: testAdditions,
-                  listener: widget.questionListener,
-                );
+                final effectiveValidation = isSubmit
+                    ? LayoutHelper.validateSubmitScreen(
+                        submitQuestions: submitQuestions,
+                        listener: widget.questionListener,
+                      )
+                    : validation;
 
-                final bool canSubmit = !testProviderValue.isLoading &&
-                    submitValidation.requirementMet &&
-                    !isLoading &&
-                    edited;
-
-                onPressed = submitSuccess
-                    ? () {}
-                    : canSubmit
-                        ? () => _submitEntry(context, ref, isEdit)
-                        : null;
-              } else {
-                onPressed = validation.canProceed
+                final VoidCallback effectiveOnPressed = onPressed == null &&
+                        !effectiveValidation.canProceed &&
+                        !isLoading
                     ? () {
-                        widget.questionListener.tried = false;
-                        pageController.nextPage(
-                            duration: Durations.medium1, curve: Curves.linear);
-                      }
-                    : null;
-              }
-
-              List<Question> submitQuestions = ref
-                      .read(testProvider)
-                      .valueOrNull
-                      ?.getRecordAdditions(context, widget.type) ??
-                  [];
-              if (isEdit) {
-                submitQuestions = submitQuestions
-                    .where(
-                        (q) => widget.questionListener.fromQuestion(q) != null)
-                    .toList();
-              }
-
-              final effectiveValidation = isSubmit
-                  ? LayoutHelper.validateSubmitScreen(
-                      submitQuestions: submitQuestions,
-                      listener: widget.questionListener,
-                    )
-                  : validation;
-
-              final VoidCallback effectiveOnPressed = onPressed == null &&
-                      !effectiveValidation.canProceed &&
-                      !isLoading
-                  ? () {
-                      widget.questionListener.tried = true;
-                      setState(() {
-                        if (effectiveValidation.pendingCount > 0) {
-                          _errorMessage = context.translate
-                              .nLevelError(effectiveValidation.pendingCount);
-                        } else if (effectiveValidation.pendingRequirement !=
-                            null) {
-                          _errorMessage = effectiveValidation
-                              .pendingRequirement!
-                              .toReadableString(
-                            (qid) => LayoutHelper.resolveQuestionPrompt(
-                                qid, evaluatedPages),
-                          );
-                        }
-                      });
-                    }
-                  : () {
-                      if (_errorMessage != null) {
+                        widget.questionListener.tried = true;
                         setState(() {
-                          _errorMessage = null;
+                          if (effectiveValidation.pendingCount > 0) {
+                            _errorMessage = context.translate
+                                .nLevelError(effectiveValidation.pendingCount);
+                          } else if (effectiveValidation.pendingRequirement !=
+                              null) {
+                            _errorMessage = effectiveValidation
+                                .pendingRequirement!
+                                .toReadableString(
+                              (qid) => LayoutHelper.resolveQuestionPrompt(
+                                  qid, evaluatedPages),
+                            );
+                          }
                         });
                       }
-                      onPressed?.call();
-                    };
+                    : () {
+                        if (_errorMessage != null) {
+                          setState(() {
+                            _errorMessage = null;
+                          });
+                        }
+                        onPressed?.call();
+                      };
 
-              final SubUser? currentUser =
-                  ref.read(subHolderProvider).valueOrNull?.selected;
-              final String? subtitle =
-                  currentUser == null || SubUser.isEmpty(currentUser)
-                      ? null
-                      : context.translate
-                          .recordUsername(localizedType, currentUser.name);
+                final SubUser? currentUser =
+                    ref.read(subHolderProvider).valueOrNull?.selected;
+                final String? subtitle =
+                    currentUser == null || SubUser.isEmpty(currentUser)
+                        ? null
+                        : context.translate
+                            .recordUsername(localizedType, currentUser.name);
 
-              final controller = RecordEntryController(
-                title: context.translate.recordHeader(localizedType),
-                subtitle: subtitle,
-                currentIndex: currentIndex,
-                totalPages: evaluatedPages.length + 1,
-                pageController: pageController,
-                onClose: () => close(ref, context),
-                isCollapsed: _isScrolled,
-                isLoading: isLoading,
-                onControl: effectiveOnPressed,
-                controlLabel: isSubmit
-                    ? context.translate.submitButtonText
-                    : context.translate.nextButton,
-                isReady: validation.canProceed && !isLoading,
-                isSubmit: isSubmit,
-                errorMessage: _errorMessage,
-                onDismissError: () {
-                  setState(() {
-                    _errorMessage = null;
-                  });
-                },
-                totalQuestions: progress.total,
-                answeredQuestions: progress.answered,
-                pendingRequiredCount: progress.pendingRequired,
-              );
+                final controller = RecordEntryController(
+                  title: context.translate.recordHeader(localizedType),
+                  subtitle: subtitle,
+                  currentIndex: currentIndex,
+                  totalPages: evaluatedPages.length + 1,
+                  pageController: pageController,
+                  onClose: () => close(ref, context),
+                  isCollapsed: _isScrolled,
+                  isLoading: isLoading,
+                  onControl: effectiveOnPressed,
+                  controlLabel: isSubmit
+                      ? context.translate.submitButtonText
+                      : context.translate.nextButton,
+                  isReady: validation.canProceed && !isLoading,
+                  isSubmit: isSubmit,
+                  errorMessage: _errorMessage,
+                  onDismissError: () {
+                    setState(() {
+                      _errorMessage = null;
+                    });
+                  },
+                  totalQuestions: progress.total,
+                  answeredQuestions: progress.answered,
+                  pendingRequiredCount: progress.pendingRequired,
+                );
 
-              return RecordEntryProvider(
-                controller: controller,
-                child: RecordEntryShell(
-                  divider: const ComboDivider(),
-                  controlStyle: RecordControlStyle.bottomBar,
-                  content: PageView.builder(
-                    onPageChanged: (value) {
-                      setState(() {
-                        currentIndex = value;
-                        _errorMessage = null;
-                      });
-                    },
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, index) =>
-                        _buildContent(context, index, evaluatedPages, false),
-                    itemCount: evaluatedPages.length + 1,
-                    controller: pageController,
+                return RecordEntryProvider(
+                  controller: controller,
+                  child: RecordEntryShell(
+                    divider: const ComboDivider(),
+                    controlStyle: RecordControlStyle.bottomBar,
+                    content: PageView.builder(
+                      onPageChanged: (value) {
+                        setState(() {
+                          currentIndex = value;
+                          _errorMessage = null;
+                        });
+                      },
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) =>
+                          _buildContent(context, index, evaluatedPages, false),
+                      itemCount: evaluatedPages.length + 1,
+                      controller: pageController,
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
       ),

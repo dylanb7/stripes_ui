@@ -44,6 +44,7 @@ class RenderChart<T, D> extends StatefulWidget {
   final double? maxX;
   final double? xAxisTickSize;
   final double? forcedHalfStep;
+  final bool showSelectionLabels;
 
   const RenderChart.multi({
     super.key,
@@ -70,6 +71,7 @@ class RenderChart<T, D> extends StatefulWidget {
     this.maxX,
     this.xAxisTickSize,
     this.forcedHalfStep,
+    this.showSelectionLabels = true,
   });
 
   RenderChart({
@@ -96,6 +98,7 @@ class RenderChart<T, D> extends StatefulWidget {
     this.maxX,
     this.xAxisTickSize,
     this.forcedHalfStep,
+    this.showSelectionLabels = true,
   })  : datasets = [data],
         stackBars = false;
 
@@ -110,6 +113,7 @@ class _RenderChartState<T, D> extends State<RenderChart<T, D>>
 
   List<ChartHitTestResult<T, D>>? _lastHoverResults;
   Offset? _hoverPosition;
+  bool _isDragging = false;
 
   @override
   void initState() {
@@ -374,18 +378,39 @@ class _RenderChartState<T, D> extends State<RenderChart<T, D>>
               : null,
           onExit: widget.onHover != null ? (_) => _handleHoverExit() : null,
           child: GestureDetector(
+            onTapDown: widget.onHover != null
+                ? (details) =>
+                    _handleHover(details.localPosition, geometry, style)
+                : null,
+            onTapCancel: widget.onHover != null
+                ? () {
+                    if (!_isDragging) _handleHoverExit();
+                  }
+                : null,
             onTapUp: (details) =>
                 _handleTap(details.localPosition, geometry, style),
             onHorizontalDragStart: widget.onHover != null
-                ? (details) =>
-                    _handleHover(details.localPosition, geometry, style)
+                ? (details) {
+                    _isDragging = true;
+                    _handleHover(details.localPosition, geometry, style);
+                  }
                 : null,
             onHorizontalDragUpdate: widget.onHover != null
                 ? (details) =>
                     _handleHover(details.localPosition, geometry, style)
                 : null,
-            onHorizontalDragEnd:
-                widget.onHover != null ? (_) => _handleHoverExit() : null,
+            onHorizontalDragEnd: widget.onHover != null
+                ? (_) {
+                    _isDragging = false;
+                    _handleHoverExit();
+                  }
+                : null,
+            onHorizontalDragCancel: widget.onHover != null
+                ? () {
+                    _isDragging = false;
+                    _handleHoverExit();
+                  }
+                : null,
             child: AnimatedBuilder(
               animation: _controller,
               builder: (context, child) {
@@ -414,6 +439,8 @@ class _RenderChartState<T, D> extends State<RenderChart<T, D>>
                         xAxisLabel: widget.xAxisLabel,
                         yAxisLabel: widget.yAxisLabel,
                         selection: selection,
+                        selectionState: selectionState,
+                        showSelectionLabels: widget.showSelectionLabels,
                       ),
                     );
                   },
@@ -444,6 +471,8 @@ class _ChartPainter<T, D> extends CustomPainter {
   final String? xAxisLabel;
   final String? yAxisLabel;
   final List<ChartHitTestResult<T, D>> selection;
+  final ChartSelectionState<T, D> selectionState;
+  final bool showSelectionLabels;
 
   _ChartPainter({
     required this.datasets,
@@ -457,11 +486,13 @@ class _ChartPainter<T, D> extends CustomPainter {
     required this.stackBars,
     required this.verticalAnnotations,
     required this.horizontalAnnotations,
+    required this.selectionState,
     this.selection = const [],
     this.hoverPosition,
     this.trendLine,
     this.xAxisLabel,
     this.yAxisLabel,
+    this.showSelectionLabels = true,
   });
 
   @override
@@ -481,7 +512,6 @@ class _ChartPainter<T, D> extends CustomPainter {
       style,
     );
 
-    AxisPainter.paintAxisLines(canvas, geometry, style);
     if (yAxis.showing) {
       AxisPainter.paintYAxis(
           canvas, geometry, animState.yAxis, animationValue, style);
@@ -603,6 +633,8 @@ class _ChartPainter<T, D> extends CustomPainter {
 
     canvas.restore();
 
+    AxisPainter.paintAxisLines(canvas, geometry, style);
+
     final crosshairStyle = style.crosshairStyle;
     if (crosshairStyle != null && hoverPosition != null) {
       final Paint crosshairPaint = Paint()
@@ -626,6 +658,64 @@ class _ChartPainter<T, D> extends CustomPainter {
         );
       }
     }
+
+    // Draw value labels for selected items
+    if (showSelectionLabels && selectionState.results.isNotEmpty) {
+      for (final hit in selectionState.results) {
+        // Filter hits: Only draw if this painter owns the dataset/item
+        bool isMyHit = false;
+        for (final ds in datasets) {
+          if (ds.data.contains(hit.item)) {
+            isMyHit = true;
+            break;
+          }
+        }
+        if (!isMyHit) continue;
+
+        if (hit.yValue == 0 && !style.barChartStyle.stackBars) continue;
+
+        final isInt = hit.yValue % 1 == 0;
+        final text = isInt
+            ? hit.yValue.toInt().toString()
+            : hit.yValue.toStringAsFixed(1);
+
+        final textSpan = TextSpan(
+          text: text,
+          style: style.axisLabelStyle.copyWith(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: 10,
+          ),
+        );
+
+        final textPainter = TextPainter(
+          text: textSpan,
+          textDirection: TextDirection.ltr,
+        );
+        textPainter.layout();
+
+        // Position the label centered horizontally on the bar/point
+        final double xPos = hit.screenPosition.dx - textPainter.width / 2;
+        // Position vertically: lightly above the top of the segment
+        final double yPos =
+            hit.screenPosition.dy - textPainter.height - 2; // 2px padding
+
+        // Draw a small background for readability
+        final bgRect = Rect.fromLTWH(
+          xPos - 2,
+          yPos - 1,
+          textPainter.width + 4,
+          textPainter.height + 2,
+        );
+
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(bgRect, const Radius.circular(4)),
+          Paint()..color = Colors.white.withValues(alpha: 0.7),
+        );
+
+        textPainter.paint(canvas, Offset(xPos, yPos));
+      }
+    }
   }
 
   @override
@@ -640,6 +730,10 @@ class _ChartPainter<T, D> extends CustomPainter {
         oldDelegate.hoverPosition != hoverPosition ||
         oldDelegate.trendLine != trendLine ||
         oldDelegate.xAxisLabel != xAxisLabel ||
+        oldDelegate.selection != selection ||
+        oldDelegate.selectionState != selectionState ||
+        oldDelegate.selection != selection ||
+        oldDelegate.selectionState != selectionState ||
         oldDelegate.yAxisLabel != yAxisLabel;
   }
 }

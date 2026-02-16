@@ -16,61 +16,56 @@ enum TimeCycle {
   final int? fixedDays;
   const TimeCycle(this.label, this.fixedDays);
 
-  /// Alias for label, for backward compatibility.
   String get value => label;
 }
 
-/// Shared utilities for date range calculations.
 class DateRangeUtils {
   DateRangeUtils._();
 
-  /// Calculate a date range for the given cycle, anchored to the seed date.
   static DateTimeRange calculateRange(TimeCycle cycle, DateTime seed) {
-    final today = DateTime(seed.year, seed.month, seed.day);
+    final seedDay = DateTime(seed.year, seed.month, seed.day);
 
     switch (cycle) {
       case TimeCycle.day:
         return DateTimeRange(
-          start: today,
-          end: today.add(const Duration(days: 1)),
+          start: seedDay,
+          end: seedDay.add(const Duration(days: 1)),
         );
 
       case TimeCycle.week:
         // ISO week: Monday = 1, Sunday = 7
-        final start = today.subtract(Duration(days: today.weekday - 1));
+        final start = seedDay.subtract(Duration(days: seedDay.weekday - 1));
         final end = start.add(const Duration(days: 7));
         return DateTimeRange(start: start, end: end);
 
       case TimeCycle.month:
-        final start = DateTime(today.year, today.month, 1);
-        final end = DateTime(today.year, today.month + 1, 1);
+        final start = DateTime(seedDay.year, seedDay.month, 1);
+        final end = DateTime(seedDay.year, seedDay.month + 1, 1);
         return DateTimeRange(start: start, end: end);
 
       case TimeCycle.quarter:
-        final quarterIndex = (today.month - 1) ~/ 3;
+        final quarterIndex = (seedDay.month - 1) ~/ 3;
         final startMonth = quarterIndex * 3 + 1;
-        final start = DateTime(today.year, startMonth, 1);
-        final end = DateTime(today.year, startMonth + 3, 1);
+        final start = DateTime(seedDay.year, startMonth, 1);
+        final end = DateTime(seedDay.year, startMonth + 3, 1);
         return DateTimeRange(start: start, end: end);
 
       case TimeCycle.year:
-        final start = DateTime(today.year, 1, 1);
-        final end = DateTime(today.year + 1, 1, 1);
+        final start = DateTime(seedDay.year, 1, 1);
+        final end = DateTime(seedDay.year + 1, 1, 1);
         return DateTimeRange(start: start, end: end);
 
       case TimeCycle.all:
         return DateTimeRange(
           start: SigDates.minDate,
-          end: today,
+          end: seedDay,
         );
 
       case TimeCycle.custom:
-        // Custom cycle returns the seed date as a single day
-        return DateTimeRange(start: today, end: today);
+        return DateTimeRange(start: seedDay, end: seedDay);
     }
   }
 
-  /// Shift a date range forward or backward by one cycle period.
   static DateTimeRange shiftRange(
     DateTimeRange current,
     TimeCycle cycle,
@@ -95,7 +90,7 @@ class DateRangeUtils {
         newStart = forward
             ? DateTime(start.year, start.month + 1, 1)
             : DateTime(start.year, start.month - 1, 1);
-        newEnd = DateTime(newStart.year, newStart.month + 1, 0);
+        newEnd = DateTime(newStart.year, newStart.month + 1, 1);
 
       case TimeCycle.quarter:
         newStart = forward
@@ -124,7 +119,6 @@ class DateRangeUtils {
     return DateTimeRange(start: newStart, end: newEnd);
   }
 
-  /// Format a date range for display.
   static String formatRange(
     DateTimeRange range,
     TimeCycle cycle,
@@ -156,12 +150,10 @@ class DateRangeUtils {
     }
   }
 
-  /// Smart range string formatting.
   static String _getSmartRangeString(DateTimeRange range, String locale) {
     final start = range.start;
     DateTime end = range.end;
 
-    // Adjust end if it's at midnight (exclusive end)
     if (end.hour == 0 &&
         end.minute == 0 &&
         end.second == 0 &&
@@ -217,12 +209,8 @@ class DateRangeUtils {
         DateTime(range.start.year, range.start.month, range.start.day);
     final endDay = DateTime(range.end.year, range.end.month, range.end.day);
 
-    // inDays is duration/24h. We want calendar days.
-    // E.g. Jan 1 23:59 to Jan 2 00:01 spans 2 calendar days.
-    // diff.inDays would be 0.
     final count = endDay.difference(startDay).inDays;
 
-    // If end is at exact midnight of a day, we usually don't count that day as it's the exclusive end.
     if (range.end.hour == 0 &&
         range.end.minute == 0 &&
         range.end.second == 0 &&
@@ -231,5 +219,37 @@ class DateRangeUtils {
     }
 
     return count + 1;
+  }
+
+  /// Takes a date (e.g., 2023-01-31) and returns the start of the next day
+  /// (2023-02-01 00:00:00). Ensures time is stripped before adding a day.
+  /// This creates an exclusive end date for DateTimeRange.
+  static DateTime exclusiveEndOfDay(DateTime date) {
+    if (date.hour == 0 &&
+        date.minute == 0 &&
+        date.second == 0 &&
+        date.millisecond == 0) {
+      return date.add(const Duration(days: 1));
+    }
+    return DateTime(date.year, date.month, date.day)
+        .add(const Duration(days: 1));
+  }
+
+  /// Takes an exclusive end date (e.g., 2023-02-01 00:00:00) and returns the
+  /// inclusive end date (2023-01-31 00:00:00) for display/selection.
+  static DateTime inclusiveEndOfDay(DateTime date) {
+    if (date.hour == 0 &&
+        date.minute == 0 &&
+        date.second == 0 &&
+        date.millisecond == 0) {
+      return date.subtract(const Duration(days: 1));
+    }
+    return date;
+  }
+
+  /// Creates a range from a calendar selection (inclusive start and end)
+  /// by converting the end date to an exclusive end date (next day at 00:00).
+  static DateTimeRange rangeFromSelection(DateTime start, DateTime end) {
+    return DateTimeRange(start: start, end: exclusiveEndOfDay(end));
   }
 }

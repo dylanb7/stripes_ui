@@ -34,9 +34,8 @@ class GraphWithKeys extends ConsumerWidget {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(
         mainTitle,
-        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+        style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.primary,
             ),
       ),
       Text(
@@ -55,7 +54,6 @@ class GraphWithKeys extends ConsumerWidget {
         spacing: AppRounding.small,
         runSpacing: AppPadding.tiny,
         children: responses.keys.map((key) {
-          // Use custom color if set, otherwise use the default color from palette
           final Color color = colorKeys?[key] ?? forGraphKey(key);
           final String label =
               customLabels?[key] ?? key.toLocalizedString(context);

@@ -44,7 +44,7 @@ class _DateRangeSelectorState extends State<DateRangeSelector> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         IconButton(
-          tooltip: 'Previous period',
+          tooltip: 'Previous',
           visualDensity: VisualDensity.comfortable,
           style: const ButtonStyle(
             tapTargetSize: MaterialTapTargetSize.padded,
@@ -171,7 +171,7 @@ class _DateRangeSelectorState extends State<DateRangeSelector> {
         ),
         const SizedBox(width: AppPadding.tiny),
         IconButton(
-          tooltip: 'Next period',
+          tooltip: 'Next',
           visualDensity: VisualDensity.comfortable,
           style: const ButtonStyle(
             tapTargetSize: MaterialTapTargetSize.padded,

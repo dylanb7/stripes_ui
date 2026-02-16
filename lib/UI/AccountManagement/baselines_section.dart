@@ -13,6 +13,7 @@ import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/Helpers/date_helper.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
+import 'package:stripes_ui/Providers/Navigation/sheet_provider.dart';
 
 class BaselinesScreen extends ConsumerWidget {
   const BaselinesScreen({super.key});
@@ -42,7 +43,13 @@ class BaselinesScreen extends ConsumerWidget {
                   child: Row(
                     children: [
                       IconButton(
-                        onPressed: () => context.pop(),
+                        onPressed: () {
+                          if (context.canPop()) {
+                            context.pop();
+                          } else {
+                            context.go(Routes.HOME);
+                          }
+                        },
                         icon: const Icon(Icons.keyboard_arrow_left),
                       ),
                       const SizedBox(width: AppPadding.small),
@@ -193,53 +200,55 @@ class _CompletedBaselineTileState
   ) {
     final colors = Theme.of(context).colorScheme;
 
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(AppPadding.medium),
-              child: Text(
-                'Select Version',
-                style: Theme.of(context).textTheme.titleMedium,
+    ref.read(sheetControllerProvider).show(
+          context: context,
+          child: (context) => SafeArea(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(AppPadding.medium),
+                    child: Text(
+                      'Select Version',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ),
+                  const Divider(height: 1),
+                  ...versions.map((v) {
+                    final versionDate = dateFromStamp(v.stamp);
+                    final isSelected = v.version == currentVersion;
+                    return ListTile(
+                      leading: isSelected
+                          ? Icon(Icons.check_circle, color: colors.primary)
+                          : const Icon(Icons.circle_outlined),
+                      title: Text('Version ${v.version}'),
+                      subtitle: Text(dateToMDY(versionDate, context)),
+                      onTap: () {
+                        ref
+                            .read(baselineVersionPreferenceProvider.notifier)
+                            .setVersion(widget.stamp.type, v.version);
+                        Navigator.pop(context);
+                      },
+                    );
+                  }),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.update),
+                    title: const Text('Always use latest'),
+                    onTap: () {
+                      ref
+                          .read(baselineVersionPreferenceProvider.notifier)
+                          .clearVersion(widget.stamp.type);
+                      Navigator.pop(context);
+                    },
+                  ),
+                  const SizedBox(height: AppPadding.small),
+                ],
               ),
             ),
-            const Divider(height: 1),
-            ...versions.map((v) {
-              final versionDate = dateFromStamp(v.stamp);
-              final isSelected = v.version == currentVersion;
-              return ListTile(
-                leading: isSelected
-                    ? Icon(Icons.check_circle, color: colors.primary)
-                    : const Icon(Icons.circle_outlined),
-                title: Text('Version ${v.version}'),
-                subtitle: Text(dateToMDY(versionDate, context)),
-                onTap: () {
-                  ref
-                      .read(baselineVersionPreferenceProvider.notifier)
-                      .setVersion(widget.stamp.type, v.version);
-                  Navigator.pop(context);
-                },
-              );
-            }),
-            const Divider(height: 1),
-            ListTile(
-              leading: const Icon(Icons.update),
-              title: const Text('Always use latest'),
-              onTap: () {
-                ref
-                    .read(baselineVersionPreferenceProvider.notifier)
-                    .clearVersion(widget.stamp.type);
-                Navigator.pop(context);
-              },
-            ),
-            const SizedBox(height: AppPadding.small),
-          ],
-        ),
-      ),
-    );
+          ),
+        );
   }
 
   @override

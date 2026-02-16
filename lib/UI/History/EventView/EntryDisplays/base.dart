@@ -28,27 +28,24 @@ import 'package:stripes_ui/l10n/questions_delegate.dart';
 class RenderEntryGroup extends ConsumerWidget {
   final bool grouped;
   final List<Response> responses;
-  const RenderEntryGroup(
-      {required this.responses, required this.grouped, super.key});
+  const RenderEntryGroup({
+    required this.responses,
+    required this.grouped,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final QuestionsLocalizations? localizations =
-        QuestionsLocalizations.of(context);
+    final QuestionsLocalizations? localizations = QuestionsLocalizations.of(
+      context,
+    );
     if (!grouped) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: responses
-            .map(
-              (res) => EntryDisplay(
-                event: res,
-              ),
-            )
-            .separated(
-                by: const SizedBox(
-              height: AppPadding.small,
-            )),
+            .map((res) => EntryDisplay(event: res))
+            .separated(by: const SizedBox(height: AppPadding.small)),
       );
     }
     Map<String, List<Response>> byType = {};
@@ -68,27 +65,28 @@ class RenderEntryGroup extends ConsumerWidget {
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: AppPadding.tiny),
           child: ExpandibleSymptomArea(
-              header: RichText(
-                text: TextSpan(
-                    text: localizations?.value(type) ?? type,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold),
-                    children: [
-                      TextSpan(
-                        text:
-                            " · ${context.translate.eventFilterResults(forType.length)}",
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withValues(alpha: 0.75)),
-                      )
-                    ]),
-                textAlign: TextAlign.left,
+            header: RichText(
+              text: TextSpan(
+                text: localizations?.value(type) ?? type,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                children: [
+                  TextSpan(
+                    text:
+                        " · ${context.translate.eventFilterResults(forType.length)}",
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.75),
+                        ),
+                  ),
+                ],
               ),
-              responses: forType),
+              textAlign: TextAlign.left,
+            ),
+            responses: forType,
+          ),
         );
       }).toList(),
     );
@@ -98,24 +96,25 @@ class RenderEntryGroup extends ConsumerWidget {
 class RenderEntryGroupSliver extends ConsumerWidget {
   final bool grouped;
   final List<Response> responses;
-  const RenderEntryGroupSliver(
-      {required this.responses, required this.grouped, super.key});
+  const RenderEntryGroupSliver({
+    required this.responses,
+    required this.grouped,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (!grouped) {
       return SliverList.separated(
-        itemBuilder: (context, index) => EntryDisplay(
-          event: responses[index],
-        ),
+        itemBuilder: (context, index) => EntryDisplay(event: responses[index]),
         itemCount: responses.length,
-        separatorBuilder: (BuildContext context, int index) => const SizedBox(
-          height: AppPadding.tiny,
-        ),
+        separatorBuilder: (BuildContext context, int index) =>
+            const SizedBox(height: AppPadding.tiny),
       );
     }
-    final QuestionsLocalizations? localizations =
-        QuestionsLocalizations.of(context);
+    final QuestionsLocalizations? localizations = QuestionsLocalizations.of(
+      context,
+    );
     Map<String, List<Response>> byType = {};
     for (final Response response in responses) {
       if (byType.containsKey(response.type)) {
@@ -128,35 +127,34 @@ class RenderEntryGroupSliver extends ConsumerWidget {
     final List<String> typeKeys = byType.keys.toList();
 
     return SliverList.separated(
-      separatorBuilder: (context, index) => const SizedBox(
-        height: AppPadding.tiny,
-      ),
+      separatorBuilder: (context, index) =>
+          const SizedBox(height: AppPadding.tiny),
       itemBuilder: (context, index) {
         final List<Response> forType = byType[typeKeys[index]]!;
 
         return ExpandibleSymptomArea(
-            header: RichText(
-              text: TextSpan(
+          header: RichText(
+            text: TextSpan(
+              text: localizations?.value(typeKeys[index]) ?? typeKeys[index],
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              children: [
+                TextSpan(
                   text:
-                      localizations?.value(typeKeys[index]) ?? typeKeys[index],
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.bold),
-                  children: [
-                    TextSpan(
-                      text:
-                          " · ${context.translate.eventFilterResults(forType.length)}",
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withValues(alpha: 0.75)),
-                    )
-                  ]),
-              textAlign: TextAlign.left,
+                      " · ${context.translate.eventFilterResults(forType.length)}",
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.75),
+                      ),
+                ),
+              ],
             ),
-            responses: forType);
+            textAlign: TextAlign.left,
+          ),
+          responses: forType,
+        );
       },
       itemCount: typeKeys.length,
     );
@@ -168,8 +166,11 @@ class ExpandibleSymptomArea extends StatefulWidget {
 
   final Widget header;
 
-  const ExpandibleSymptomArea(
-      {required this.header, required this.responses, super.key});
+  const ExpandibleSymptomArea({
+    required this.header,
+    required this.responses,
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() {
@@ -185,8 +186,11 @@ class _ExpandibleSymptomAreaState extends State<ExpandibleSymptomArea> {
     return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppRounding.tiny),
-        color: ElevationOverlay.applySurfaceTint(Theme.of(context).cardColor,
-            Theme.of(context).colorScheme.surfaceTint, 3),
+        color: ElevationOverlay.applySurfaceTint(
+          Theme.of(context).cardColor,
+          Theme.of(context).colorScheme.surfaceTint,
+          3,
+        ),
       ),
       child: Padding(
         padding: const EdgeInsets.all(AppPadding.small),
@@ -200,15 +204,8 @@ class _ExpandibleSymptomAreaState extends State<ExpandibleSymptomArea> {
               if (!expanded) widget.header,
               if (expanded)
                 ...widget.responses
-                    .map(
-                      (res) => EntryDisplay(
-                        event: res,
-                      ),
-                    )
-                    .separated(
-                        by: const SizedBox(
-                      height: AppPadding.small,
-                    )),
+                    .map((res) => EntryDisplay(event: res))
+                    .separated(by: const SizedBox(height: AppPadding.small)),
               TextButton.icon(
                 onPressed: () {
                   setState(() {
@@ -219,10 +216,9 @@ class _ExpandibleSymptomAreaState extends State<ExpandibleSymptomArea> {
                   expanded
                       ? context.translate.viewLessButtonText
                       : context.translate.viewMoreButtonText,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(color: Theme.of(context).primaryColor),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).primaryColor,
+                      ),
                 ),
                 iconAlignment: IconAlignment.end,
                 icon: Icon(
@@ -243,15 +239,19 @@ class _ExpandibleSymptomAreaState extends State<ExpandibleSymptomArea> {
 class EntryDisplay extends ConsumerStatefulWidget {
   final Response event;
 
-  final bool hasControls, hasConstraints, includeFullDate, isNested;
+  final bool hasControls, hasConstraints, includeFullDate, isNested, isReview;
+  final String? dateLabel;
 
-  const EntryDisplay(
-      {super.key,
-      required this.event,
-      this.hasControls = true,
-      this.hasConstraints = true,
-      this.includeFullDate = false,
-      this.isNested = false});
+  const EntryDisplay({
+    super.key,
+    required this.event,
+    this.hasControls = true,
+    this.hasConstraints = true,
+    this.includeFullDate = false,
+    this.isNested = false,
+    this.isReview = false,
+    this.dateLabel,
+  });
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => EntryDisplayState();
@@ -266,8 +266,9 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
 
   @override
   Widget build(BuildContext context) {
-    final QuestionsLocalizations? localizations =
-        QuestionsLocalizations.of(context);
+    final QuestionsLocalizations? localizations = QuestionsLocalizations.of(
+      context,
+    );
     final Map<String, DisplayBuilder> overrides =
         ref.watch(questionsProvider).valueOrNull?.displayOverrides ?? {};
     final DateTime date = dateFromStamp(widget.event.stamp);
@@ -285,10 +286,7 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
             : () {
                 _edit(detail, context, date);
               },
-        icon: const Icon(
-          Icons.edit,
-          size: 30,
-        ),
+        icon: const Icon(Icons.edit, size: 30),
       );
       content = DetailDisplay(detail: detail);
     } else {
@@ -303,11 +301,22 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
         decoration: widget.isNested
             ? const BoxDecoration()
             : BoxDecoration(
-                border: Border.all(),
+                border: Border.all(
+                  color: widget.isReview
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).dividerColor,
+                  width: widget.isReview ? 2 : 1,
+                ),
                 borderRadius: const BorderRadius.all(
                   Radius.circular(AppRounding.small),
                 ),
-                color: Theme.of(context).colorScheme.surface),
+                color: widget.isReview
+                    ? Theme.of(context)
+                        .colorScheme
+                        .primaryContainer
+                        .withValues(alpha: 0.1)
+                    : Theme.of(context).colorScheme.surface,
+              ),
         child: Padding(
           padding: const EdgeInsetsGeometry.all(AppPadding.small),
           child: Expansible(
@@ -331,50 +340,55 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
                     children: [
                       Text.rich(
                         TextSpan(
-                            text: localizations?.value(widget.event.type) ??
-                                widget.event.type,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyLarge
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                            children: [
-                              if (isBlue != null)
-                                WidgetSpan(
-                                  alignment: PlaceholderAlignment.middle,
-                                  child: Container(
-                                    padding: const EdgeInsets.only(
-                                        left: AppPadding.tiny),
-                                    width: Theme.of(context)
-                                            .textTheme
-                                            .bodyLarge
-                                            ?.fontSize ??
-                                        20,
-                                    height: Theme.of(context)
-                                            .textTheme
-                                            .bodyLarge
-                                            ?.fontSize ??
-                                        20,
-                                    child: isBlue!
-                                        ? Image.asset(
-                                            'packages/stripes_ui/assets/images/Blue_Poop.png')
-                                        : Image.asset(
-                                            'packages/stripes_ui/assets/images/Brown_Poop.png'),
+                          text: localizations?.value(widget.event.type) ??
+                              widget.event.type,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyLarge
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                          children: [
+                            if (isBlue != null)
+                              WidgetSpan(
+                                alignment: PlaceholderAlignment.middle,
+                                child: Container(
+                                  padding: const EdgeInsets.only(
+                                    left: AppPadding.tiny,
                                   ),
+                                  width: Theme.of(
+                                        context,
+                                      ).textTheme.bodyLarge?.fontSize ??
+                                      20,
+                                  height: Theme.of(
+                                        context,
+                                      ).textTheme.bodyLarge?.fontSize ??
+                                      20,
+                                  child: isBlue!
+                                      ? Image.asset(
+                                          'packages/stripes_ui/assets/images/Blue_Poop.png',
+                                        )
+                                      : Image.asset(
+                                          'packages/stripes_ui/assets/images/Brown_Poop.png',
+                                        ),
                                 ),
-                            ]),
+                              ),
+                          ],
+                        ),
                       ),
                       Text(
-                        widget.includeFullDate
-                            ? "${(date.year == DateTime.now().year ? DateFormat.MMMd() : DateFormat.yMMMd()).format(date)} ${timeString(date, context)}"
-                            : timeString(date, context),
+                        widget.dateLabel ??
+                            (widget.includeFullDate
+                                ? "${(date.year == DateTime.now().year ? DateFormat.MMMd() : DateFormat.yMMMd()).format(date)} ${timeString(date, context)}"
+                                : timeString(date, context)),
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ],
                   ),
                   const Spacer(),
-                  Icon(controller.isExpanded
-                      ? Icons.keyboard_arrow_up
-                      : Icons.keyboard_arrow_down),
+                  Icon(
+                    controller.isExpanded
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
+                  ),
                 ],
               ),
             ),
@@ -382,21 +396,15 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                const SizedBox(
-                  height: AppPadding.tiny,
-                ),
+                const SizedBox(height: AppPadding.tiny),
                 content ?? const SizedBox(),
                 if (widget.hasControls) ...[
-                  const SizedBox(
-                    height: AppPadding.tiny,
-                  ),
+                  const SizedBox(height: AppPadding.tiny),
                   Row(
                     children: [
                       const Spacer(),
                       if (button != null) button,
-                      const SizedBox(
-                        width: AppPadding.tiny,
-                      ),
+                      const SizedBox(width: AppPadding.tiny),
                       IconButton(
                         onPressed: isLoading
                             ? null
@@ -407,7 +415,7 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
                       ),
                     ],
                   ),
-                ]
+                ],
               ],
             ),
             controller: controller,
@@ -429,13 +437,16 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
   _edit(DetailResponse event, BuildContext context, DateTime date) {
     String? routeName = event.type;
 
-    context.pushNamed('recordType',
-        pathParameters: {'type': routeName},
-        extra: QuestionsListener(
-            responses: event.responses,
-            editId: event.id,
-            submitTime: date,
-            description: event.description));
+    context.pushNamed(
+      'recordType',
+      pathParameters: {'type': routeName},
+      extra: QuestionsListener(
+        responses: event.responses,
+        editId: event.id,
+        submitTime: date,
+        description: event.description,
+      ),
+    );
   }
 
   _delete(WidgetRef ref) {
@@ -478,18 +489,24 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
   }
 }
 
-class DetailDisplay extends StatelessWidget {
+class DetailDisplay extends ConsumerWidget {
   final DetailResponse detail;
 
   const DetailDisplay({required this.detail, super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final bool hasResponses = detail.responses.isNotEmpty;
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    final Map<String, Question> resolvedQuestions = _resolveQuestions();
+    final AsyncValue<List<Stamp>> baselines =
+        ref.watch(baselinesStreamProvider);
+
+    final Map<String, Question> resolvedQuestions = _resolveQuestions(
+      QuestionsLocalizations.of(context),
+      baselines.valueOrNull ?? [],
+    );
     final List<(Response, Question?)> displayableResponses =
         _getDisplayableResponses(resolvedQuestions);
 
@@ -504,12 +521,7 @@ class DetailDisplay extends StatelessWidget {
             decoration: BoxDecoration(
               color: colors.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(AppRounding.small),
-              border: Border(
-                left: BorderSide(
-                  color: colors.primary,
-                  width: 3,
-                ),
-              ),
+              border: Border(left: BorderSide(color: colors.primary, width: 3)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -564,8 +576,9 @@ class DetailDisplay extends StatelessWidget {
                   if (!isLast)
                     Divider(
                       height: 1,
-                      color: colors.outlineVariant
-                          .withValues(alpha: 0.25), // More subtle divider
+                      color: colors.outlineVariant.withValues(
+                        alpha: 0.25,
+                      ), // More subtle divider
                     ),
                 ],
               );
@@ -576,17 +589,41 @@ class DetailDisplay extends StatelessWidget {
     );
   }
 
-  Map<String, Question> _resolveQuestions() {
+  Map<String, Question> _resolveQuestions(
+    QuestionsLocalizations? localizations,
+    List<Stamp> baselines,
+  ) {
     final Map<String, Question> resolved = {};
 
     for (final response in detail.responses) {
       final question = response.question;
 
-      if (question.transform != null) {
+      if (question.fromBaseline != null) {
+        final Response? baseline = baselines.firstWhereOrNull(
+          (element) => element.type == question.fromBaseline,
+        ) as Response?;
+
+        if (baseline != null) {
+          final resolvedQuestions = question.resolveFromBaseline(
+            baseline: baseline,
+          );
+          for (final resolvedQ in resolvedQuestions) {
+            if (resolvedQ.prompt.isNotEmpty) {
+              final effectiveQ = localizations != null
+                  ? localizations.translateQuestion(resolvedQ)
+                  : resolvedQ;
+              resolved[effectiveQ.id] = effectiveQ;
+            }
+          }
+        }
+      } else if (question.transform != null) {
         final resolvedQuestions = question.resolve(current: detail);
         for (final resolvedQ in resolvedQuestions) {
           if (resolvedQ.prompt.isNotEmpty) {
-            resolved[resolvedQ.id] = resolvedQ;
+            final effectiveQ = localizations != null
+                ? localizations.translateQuestion(resolvedQ)
+                : resolvedQ;
+            resolved[effectiveQ.id] = effectiveQ;
           }
         }
       }
@@ -595,7 +632,8 @@ class DetailDisplay extends StatelessWidget {
   }
 
   List<(Response, Question?)> _getDisplayableResponses(
-      Map<String, Question> resolvedQuestions) {
+    Map<String, Question> resolvedQuestions,
+  ) {
     final List<(Response, Question?)> result = [];
 
     final Set<String> usedResolvedIds = {};
@@ -612,6 +650,16 @@ class DetailDisplay extends StatelessWidget {
       }
 
       if (question.id.contains(generatedIdDelimiter)) {
+        final resolvedQ = resolvedQuestions[question.id];
+        if (resolvedQ != null && resolvedQ.prompt.isNotEmpty) {
+          result.add((response, resolvedQ));
+          usedResolvedIds.add(question.id);
+          continue;
+        }
+      }
+
+      if (question.interpolations != null &&
+          question.interpolations!.isNotEmpty) {
         final resolvedQ = resolvedQuestions[question.id];
         if (resolvedQ != null && resolvedQ.prompt.isNotEmpty) {
           result.add((response, resolvedQ));
@@ -648,8 +696,9 @@ class ResponseDisplay extends ConsumerWidget {
         ref.watch(questionsProvider).valueOrNull?.displayOverrides ?? {};
     final DisplayBuilder? childOverride = overrides[res.question.id];
     if (childOverride != null) return childOverride(context, res);
-    final QuestionsLocalizations? localizations =
-        QuestionsLocalizations.of(context);
+    final QuestionsLocalizations? localizations = QuestionsLocalizations.of(
+      context,
+    );
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
@@ -663,8 +712,11 @@ class ResponseDisplay extends ConsumerWidget {
         : translatedQuestion.prompt;
 
     // Compact row-based layout for better scannability
-    Widget buildResponseRow(String prompt, String response,
-        {bool forceStack = false}) {
+    Widget buildResponseRow(
+      String prompt,
+      String response, {
+      bool forceStack = false,
+    }) {
       // If response is very long or explicit stack requested, use column
       if (forceStack || response.length > 30) {
         return Column(
@@ -754,8 +806,9 @@ class ResponseDisplay extends ConsumerWidget {
               child: Text(
                 displayPrompt,
                 style: textTheme.bodyMedium?.copyWith(
-                  color: colors.onSurface
-                      .withValues(alpha: 0.8), // Matches other prompts
+                  color: colors.onSurface.withValues(
+                    alpha: 0.8,
+                  ), // Matches other prompts
                 ),
               ),
             ),
@@ -841,10 +894,7 @@ class ResponseDisplay extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: responses
               .map((res) => ResponseDisplay(res: res))
-              .separated(
-                  by: const SizedBox(
-                height: AppPadding.tiny,
-              ))
+              .separated(by: const SizedBox(height: AppPadding.tiny))
               .toList(),
         );
       case SingleResponseWrap(response: Response response):
@@ -872,25 +922,19 @@ class BlueDyeDisplay extends StatelessWidget {
           textAlign: TextAlign.left, //
           style: Theme.of(context).textTheme.bodyLarge,
         ),
-        const SizedBox(
-          height: AppPadding.tiny,
-        ),
+        const SizedBox(height: AppPadding.tiny),
         Text(
           '${dateToMDY(resp.startEating, context)} - ${timeString(resp.startEating, context)}',
           textAlign: TextAlign.left,
           style: Theme.of(context).textTheme.bodyMedium,
         ),
-        const SizedBox(
-          height: AppPadding.tiny,
-        ),
+        const SizedBox(height: AppPadding.tiny),
         Text(
           context.translate.mealDurationEntry,
           textAlign: TextAlign.left,
           style: Theme.of(context).textTheme.bodyLarge,
         ),
-        const SizedBox(
-          height: AppPadding.tiny,
-        ),
+        const SizedBox(height: AppPadding.tiny),
         Text(
           prettyDuration(
             resp.eatingDuration,
@@ -901,60 +945,47 @@ class BlueDyeDisplay extends StatelessWidget {
           textAlign: TextAlign.left,
           style: Theme.of(context).textTheme.bodyMedium,
         ),
-        const SizedBox(
-          height: AppPadding.tiny,
-        ),
+        const SizedBox(height: AppPadding.tiny),
         if (resp.firstBlue != resp.lastBlue) ...[
           Text(
             context.translate.firstBlueEntry,
             textAlign: TextAlign.left,
             style: Theme.of(context).textTheme.bodyLarge,
           ),
-          const SizedBox(
-            height: AppPadding.tiny,
-          ),
+          const SizedBox(height: AppPadding.tiny),
           Text(
             '${dateToMDY(resp.firstBlue, context)} - ${timeString(resp.firstBlue, context)}',
             textAlign: TextAlign.left,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
-          const SizedBox(
-            height: AppPadding.tiny,
-          ),
+          const SizedBox(height: AppPadding.tiny),
         ],
         Text(
           context.translate.lastBlueEntry,
           textAlign: TextAlign.left,
           style: Theme.of(context).textTheme.bodyLarge,
         ),
-        const SizedBox(
-          height: AppPadding.tiny,
-        ),
+        const SizedBox(height: AppPadding.tiny),
         Text(
           '${dateToMDY(resp.lastBlue, context)} - ${timeString(resp.lastBlue, context)}',
           textAlign: TextAlign.left,
           style: Theme.of(context).textTheme.bodyMedium,
         ),
-        const SizedBox(
-          height: AppPadding.tiny,
-        ),
+        const SizedBox(height: AppPadding.tiny),
         Text(
           context.translate.transitDurationEntry,
           textAlign: TextAlign.left,
           style: Theme.of(context).textTheme.bodyLarge,
         ),
-        const SizedBox(
-          height: AppPadding.tiny,
-        ),
+        const SizedBox(height: AppPadding.tiny),
         Text(
           prettyDuration(
-              resp.lastBlue.difference(
-                resp.startEating.add(resp.eatingDuration),
-              ),
-              delimiter: ' ',
-              locale: DurationLocale.fromLanguageCode(current.languageCode) ??
-                  const EnglishDurationLocale(),
-              abbreviated: true),
+            resp.lastBlue.difference(resp.startEating.add(resp.eatingDuration)),
+            delimiter: ' ',
+            locale: DurationLocale.fromLanguageCode(current.languageCode) ??
+                const EnglishDurationLocale(),
+            abbreviated: true,
+          ),
           textAlign: TextAlign.left,
           style: Theme.of(context).textTheme.bodyMedium,
         ),
@@ -968,8 +999,11 @@ class DeleteErrorPrevention extends ConsumerWidget {
 
   final Function delete;
 
-  const DeleteErrorPrevention(
-      {required this.delete, required this.type, super.key});
+  const DeleteErrorPrevention({
+    required this.delete,
+    required this.type,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -991,9 +1025,7 @@ class DeleteErrorPrevention extends ConsumerWidget {
             style: Theme.of(context).textTheme.bodyMedium,
             textAlign: TextAlign.center,
           ),
-          const SizedBox(
-            height: AppPadding.small,
-          ),
+          const SizedBox(height: AppPadding.small),
           Text(
             context.translate.stampDeleteWarningTwo,
             style: Theme.of(context).textTheme.bodyMedium,
@@ -1023,10 +1055,11 @@ class BMRow extends StatelessWidget {
       'packages/stripes_ui/assets/images/poop4.png',
       'packages/stripes_ui/assets/images/poop5.png',
       'packages/stripes_ui/assets/images/poop6.png',
-      'packages/stripes_ui/assets/images/poop7.png'
+      'packages/stripes_ui/assets/images/poop7.png',
     ];
-    final QuestionsLocalizations? localizations =
-        QuestionsLocalizations.of(context);
+    final QuestionsLocalizations? localizations = QuestionsLocalizations.of(
+      context,
+    );
     final Question translatedQuestion =
         localizations?.translateQuestion(response.question) ??
             response.question;
@@ -1038,10 +1071,9 @@ class BMRow extends StatelessWidget {
           child: Text(
             translatedQuestion.prompt,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurface
-                      .withValues(alpha: 0.8),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.8),
                 ),
             maxLines: null,
           ),
@@ -1077,8 +1109,9 @@ class PainSliderDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final QuestionsLocalizations? localizations =
-        QuestionsLocalizations.of(context);
+    final QuestionsLocalizations? localizations = QuestionsLocalizations.of(
+      context,
+    );
     final Question translatedQuestion =
         localizations?.translateQuestion(response.question) ??
             response.question;
@@ -1101,10 +1134,9 @@ class PainSliderDisplay extends StatelessWidget {
           child: Text(
             translatedQuestion.prompt,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurface
-                      .withValues(alpha: 0.8),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.8),
                 ),
             maxLines: null,
           ),
@@ -1133,16 +1165,14 @@ class PainSliderDisplay extends StatelessWidget {
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       from(selectedIndex),
-                      const SizedBox(
-                        width: AppPadding.tiny,
-                      ),
+                      const SizedBox(width: AppPadding.tiny),
                       Text(
                         hurtLevels[selectedIndex],
                         style: Theme.of(context).textTheme.bodyMedium,
                         maxLines: 1,
                       ),
                     ],
-                  )
+                  ),
           ],
         ),
       ],
@@ -1169,8 +1199,9 @@ class MoodSliderDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final QuestionsLocalizations? localizations =
-        QuestionsLocalizations.of(context);
+    final QuestionsLocalizations? localizations = QuestionsLocalizations.of(
+      context,
+    );
     final Question translatedQuestion =
         localizations?.translateQuestion(response.question) ??
             response.question;
@@ -1185,10 +1216,9 @@ class MoodSliderDisplay extends StatelessWidget {
           child: Text(
             translatedQuestion.prompt,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurface
-                      .withValues(alpha: 0.8),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.8),
                 ),
             maxLines: null,
           ),
@@ -1210,11 +1240,9 @@ class MoodSliderDisplay extends StatelessWidget {
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 from(5 - selectedIndex),
-                const SizedBox(
-                  width: AppPadding.tiny,
-                ),
+                const SizedBox(width: AppPadding.tiny),
               ],
-            )
+            ),
           ],
         ),
       ],
@@ -1241,8 +1269,9 @@ class PainLocationDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final QuestionsLocalizations? localizations =
-        QuestionsLocalizations.of(context);
+    final QuestionsLocalizations? localizations = QuestionsLocalizations.of(
+      context,
+    );
     final AllThatApply translatedQuestion = localizations
             ?.translateQuestion(painLocation.question) as AllThatApply? ??
         painLocation.question;
@@ -1252,9 +1281,11 @@ class PainLocationDisplay extends StatelessWidget {
     const blankBorder = BorderSide(color: Colors.transparent);
 
     final List<String> selectedLocations = painLocation.responses
-        .map((res) => res < translatedQuestion.choices.length
-            ? translatedQuestion.choices[res]
-            : 'Unknown')
+        .map(
+          (res) => res < translatedQuestion.choices.length
+              ? translatedQuestion.choices[res]
+              : 'Unknown',
+        )
         .toList();
 
     return Column(
@@ -1295,7 +1326,8 @@ class PainLocationDisplay extends StatelessWidget {
                     color: colors.primaryContainer.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(AppRounding.small),
                     border: Border.all(
-                        color: colors.primary.withValues(alpha: 0.3)),
+                      color: colors.primary.withValues(alpha: 0.3),
+                    ),
                   ),
                   child: Text(
                     selectedLocations[index],
@@ -1313,99 +1345,110 @@ class PainLocationDisplay extends StatelessWidget {
             Area.fromValue(painLocation.responses[0]) != Area.none) ...[
           const SizedBox(height: AppPadding.small),
           ConstrainedBox(
-            constraints:
-                BoxConstraints(maxHeight: 100, maxWidth: Breakpoint.tiny.value),
-            child: Stack(children: [
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  border: Border.all(color: colors.onSurface),
-                  borderRadius: BorderRadius.circular(AppRounding.medium),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(AppRounding.medium),
-                  clipBehavior: Clip.hardEdge,
-                  child: Image.asset(
-                    'packages/stripes_ui/assets/images/abdomin.png',
-                    fit: BoxFit.fill,
+            constraints: BoxConstraints(
+              maxHeight: 100,
+              maxWidth: Breakpoint.tiny.value,
+            ),
+            child: Stack(
+              children: [
+                Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: colors.onSurface),
+                    borderRadius: BorderRadius.circular(AppRounding.medium),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(AppRounding.medium),
+                    clipBehavior: Clip.hardEdge,
+                    child: Image.asset(
+                      'packages/stripes_ui/assets/images/abdomin.png',
+                      fit: BoxFit.fill,
+                    ),
                   ),
                 ),
-              ),
-              Positioned.fill(
-                child: FractionallySizedBox(
-                  widthFactor: 0.55,
-                  heightFactor: 0.7,
-                  child: Column(
-                    children: [
-                      ...List.generate(
-                        3,
-                        (colIndex) => Expanded(
-                          child: Row(
-                            children: [
-                              ...List.generate(3, (rowIndex) {
-                                final int index = (colIndex * 3) + rowIndex;
-                                final bool isSelected =
-                                    painLocation.responses.contains(index + 1);
-                                return Expanded(
-                                  child: Container(
-                                    padding:
-                                        const EdgeInsets.all(AppPadding.tiny),
-                                    width: double.infinity,
-                                    height: double.infinity,
-                                    decoration: BoxDecoration(
-                                      border: Border(
-                                        top: colIndex == 0
-                                            ? blankBorder
-                                            : filledBorder,
-                                        left: rowIndex == 0
-                                            ? blankBorder
-                                            : filledBorder,
-                                        right: rowIndex == 2
-                                            ? blankBorder
-                                            : filledBorder,
-                                        bottom: colIndex == 2
-                                            ? blankBorder
-                                            : filledBorder,
+                Positioned.fill(
+                  child: FractionallySizedBox(
+                    widthFactor: 0.55,
+                    heightFactor: 0.7,
+                    child: Column(
+                      children: [
+                        ...List.generate(
+                          3,
+                          (colIndex) => Expanded(
+                            child: Row(
+                              children: [
+                                ...List.generate(3, (rowIndex) {
+                                  final int index = (colIndex * 3) + rowIndex;
+                                  final bool isSelected = painLocation.responses
+                                      .contains(index + 1);
+                                  return Expanded(
+                                    child: Container(
+                                      padding: const EdgeInsets.all(
+                                        AppPadding.tiny,
                                       ),
-                                    ),
-                                    child: Stack(children: [
-                                      Positioned.fill(
-                                        child: FractionallySizedBox(
-                                          widthFactor: 0.9,
-                                          heightFactor: 0.9,
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              gradient: isSelected
-                                                  ? RadialGradient(
-                                                      center: Alignment.center,
-                                                      radius: 0.7,
-                                                      colors: [
-                                                        colors.error,
-                                                        Colors.transparent
-                                                      ],
-                                                      stops: const [0.1, 1.0],
-                                                    )
-                                                  : null,
-                                            ),
-                                            width: double.infinity,
-                                            height: double.infinity,
-                                          ),
+                                      width: double.infinity,
+                                      height: double.infinity,
+                                      decoration: BoxDecoration(
+                                        border: Border(
+                                          top: colIndex == 0
+                                              ? blankBorder
+                                              : filledBorder,
+                                          left: rowIndex == 0
+                                              ? blankBorder
+                                              : filledBorder,
+                                          right: rowIndex == 2
+                                              ? blankBorder
+                                              : filledBorder,
+                                          bottom: colIndex == 2
+                                              ? blankBorder
+                                              : filledBorder,
                                         ),
                                       ),
-                                    ]),
-                                  ),
-                                );
-                              })
-                            ],
+                                      child: Stack(
+                                        children: [
+                                          Positioned.fill(
+                                            child: FractionallySizedBox(
+                                              widthFactor: 0.9,
+                                              heightFactor: 0.9,
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  gradient: isSelected
+                                                      ? RadialGradient(
+                                                          center:
+                                                              Alignment.center,
+                                                          radius: 0.7,
+                                                          colors: [
+                                                            colors.error,
+                                                            Colors.transparent,
+                                                          ],
+                                                          stops: const [
+                                                            0.1,
+                                                            1.0,
+                                                          ],
+                                                        )
+                                                      : null,
+                                                ),
+                                                width: double.infinity,
+                                                height: double.infinity,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                }),
+                              ],
+                            ),
                           ),
                         ),
-                      )
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ]),
+              ],
+            ),
           ),
         ],
       ],

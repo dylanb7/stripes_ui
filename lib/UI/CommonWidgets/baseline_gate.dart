@@ -10,6 +10,7 @@ import 'package:stripes_ui/Util/Design/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:stripes_ui/Providers/History/stamps_provider.dart';
+import 'package:stripes_ui/l10n/questions_delegate.dart';
 
 class BaselineGate extends ConsumerWidget {
   final Widget child;
@@ -33,18 +34,19 @@ class BaselineGate extends ConsumerWidget {
     final AsyncValue<List<BaselineTrigger>> activeTriggers =
         ref.watch(activeBaselineTriggersProvider);
 
-    return activeTriggers.when(
-      data: (triggers) {
-        if (triggers.isEmpty) {
-          return child;
-        }
-        return _BaselineGateOverlay(
-          triggers: triggers,
-          child: child,
-        );
-      },
-      loading: () => child,
-      error: (_, __) => child,
+    if (activeTriggers.isLoading && !activeTriggers.hasValue) {
+      return child;
+    }
+
+    final List<BaselineTrigger> triggers = activeTriggers.valueOrNull ?? [];
+
+    if (triggers.isEmpty) {
+      return child;
+    }
+
+    return _BaselineGateOverlay(
+      triggers: triggers,
+      child: child,
     );
   }
 }
@@ -282,6 +284,11 @@ class BaselineTriggerTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final ColorScheme colors = Theme.of(context).colorScheme;
 
+    final QuestionsLocalizations? localizations =
+        QuestionsLocalizations.of(context);
+    final String title =
+        localizations?.value(trigger.baselineType) ?? trigger.title;
+
     return Container(
       margin: const EdgeInsets.only(bottom: AppPadding.small),
       decoration: BoxDecoration(
@@ -314,7 +321,7 @@ class BaselineTriggerTile extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    trigger.title,
+                    title,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),

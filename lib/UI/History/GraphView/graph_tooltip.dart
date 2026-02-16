@@ -11,176 +11,193 @@ import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
 
 class GraphTooltip extends ConsumerWidget {
-  final ChartHitTestResult<GraphPoint, DateTime> hit;
-  final String? label;
+  final List<ChartHitTestResult<GraphPoint, DateTime>> hits;
+  final Map<int, String> labels;
   final bool isAbove;
   final double arrowOffset;
-
-  const GraphTooltip(
-      {super.key,
-      required this.hit,
-      this.label,
-      this.isAbove = true,
-      this.arrowOffset = 0});
+  // Backward compatibility constructors if needed, or just update calls
+  const GraphTooltip({
+    super.key,
+    required this.hits,
+    this.labels = const {},
+    this.isAbove = true,
+    this.arrowOffset = 0,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (hits.isEmpty) return const SizedBox.shrink();
+
+    final primaryHit = hits.first;
     final DisplayDataSettings settings = ref.watch(displayDataProvider);
     final QuestionsLocalizations? questionsLocalizations =
         QuestionsLocalizations.of(context);
 
     final bool scatter = settings.axis == GraphYAxis.entrytime;
-    final List<Stamp> stamps = hit.item.data;
 
-    if (stamps.isEmpty) return const SizedBox.shrink();
+    final Widget content;
 
-    bool showCount = true;
+    if (hits.length > 1) {
+      // Multi-tooltip (Unified Card)
+      final DateTime date = scatter
+          ? dateFromStamp(primaryHit.item.data.first.stamp)
+          : primaryHit.xValue;
+      DateFormat format = DateFormat.MMMEd();
+      final bool shortCustom = (settings.cycle == TimeCycle.custom &&
+          settings.range.duration < const Duration(days: 5));
+      if (settings.cycle == TimeCycle.day || scatter || shortCustom) {
+        format.add_jm();
+      }
+      final String dateStr = format.format(date);
 
-    Widget? getStat() {
-      List<Response> flatStamps = [];
-      for (final s in stamps) {
-        if (s is DetailResponse) {
-          flatStamps.addAll(s.responses);
-        } else if (s is Response) {
-          flatStamps.add(s);
+      final List<Widget> rows = [];
+
+      final sortedHits = List.of(hits)
+        ..sort((a, b) => b.yValue.compareTo(a.yValue));
+
+      for (final hit in sortedHits) {
+        final label = labels[hit.datasetIndex] ?? "Series ${hit.datasetIndex}";
+
+        String valueStr = "";
+        final stamps = hit.item.data;
+        if (stamps.isNotEmpty) {
+          Widget? stat =
+              _getStatWidget(stamps, questionsLocalizations, scatter);
+          if (stat is _RowInfo) {
+            valueStr = stat.value;
+          } else if (stat != null) {
+            valueStr = hit.yValue.toStringAsFixed(1);
+            if (hit.yValue % 1 == 0) valueStr = hit.yValue.toInt().toString();
+          } else {
+            valueStr = hit.yValue.toStringAsFixed(1);
+            if (hit.yValue % 1 == 0) valueStr = hit.yValue.toInt().toString();
+          }
+        }
+
+        rows.add(Padding(
+          padding: const EdgeInsets.only(bottom: 4.0),
+          child: Row(
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: hit.item.color,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  label,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                valueStr,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface),
+              ),
+            ],
+          ),
+        ));
+      }
+
+      content = Padding(
+        padding: const EdgeInsets.all(AppPadding.medium),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              dateStr,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+            ),
+            const SizedBox(height: 8),
+            ...rows,
+          ],
+        ),
+      );
+    } else {
+      // Single tooltip logic (preserved but adapted)
+      final hit = hits.first;
+      final List<Stamp> stamps = hit.item.data;
+      final label = labels[hit.datasetIndex];
+
+      bool showCount = true;
+      Widget? stat = _getStatWidget(stamps, questionsLocalizations, scatter);
+      // Check if stat disabled showCount (hacky but consistent with prev logic)
+      // Actually _getStatWidget doesn't modify local bool.
+      // We re-implement specific check or accept slight change.
+      // Re-implementing logic cleanly:
+
+      if (stat != null) {
+        // Check if we should hide count (Multi/All response)
+        final flatStamps = _flattenStamps(stamps);
+        if (flatStamps.isNotEmpty) {
+          if (flatStamps.first is MultiResponse ||
+              flatStamps.first is AllResponse) {
+            showCount = false;
+          }
         }
       }
 
-      if (flatStamps.isEmpty && stamps.isNotEmpty && stamps.first is Response) {
-        flatStamps = stamps.whereType<Response>().toList();
+      final DateTime date =
+          scatter ? dateFromStamp(hit.item.data.first.stamp) : hit.xValue;
+      DateFormat format = DateFormat.MMMEd();
+      final bool shortCustom = (settings.cycle == TimeCycle.custom &&
+          settings.range.duration < const Duration(days: 5));
+      if (settings.cycle == TimeCycle.day || scatter || shortCustom) {
+        format.add_jm();
       }
+      final String dateStr = format.format(date);
 
-      if (flatStamps.isEmpty) return null;
-
-      final Response firstResponse = flatStamps.first;
-      switch (firstResponse) {
-        case NumericResponse():
-          final List<NumericResponse> numerics =
-              flatStamps.whereType<NumericResponse>().toList();
-          if (numerics.isNotEmpty && numerics.length == flatStamps.length) {
-            if (scatter) {
-              return _RowInfo(
-                label: "Value",
-                value: numerics.first.response.toStringAsFixed(1),
-              );
-            }
-            final double avg = numerics.map((e) => e.response).average;
-
-            if (avg > 0) {
-              return _RowInfo(
-                label: "Average",
-                value: avg.toStringAsFixed(1),
-              );
-            }
-          }
-          break;
-        case MultiResponse():
-          final List<MultiResponse> multis =
-              flatStamps.whereType<MultiResponse>().toList();
-          if (multis.isNotEmpty && multis.length == flatStamps.length) {
-            final Map<String, int> counts = {};
-            for (final multi in multis) {
-              counts[multi.choice] = (counts[multi.choice] ?? 0) + 1;
-            }
-            showCount = false;
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: counts.entries
-                  .sorted((a, b) => b.value.compareTo(a.value))
-                  .map((e) => Padding(
-                        padding: const EdgeInsets.only(bottom: 2.0),
-                        child: _RowInfo(
-                          label: questionsLocalizations?.value(e.key) ?? e.key,
-                          value: e.value.toString(),
-                        ),
-                      ))
-                  .toList(),
-            );
-          }
-          break;
-        case AllResponse():
-          final List<AllResponse> alls =
-              flatStamps.whereType<AllResponse>().toList();
-          if (alls.isNotEmpty && alls.length == flatStamps.length) {
-            final Map<String, int> counts = {};
-            for (final all in alls) {
-              for (final choice in all.choices) {
-                counts[choice] = (counts[choice] ?? 0) + 1;
-              }
-            }
-            showCount = false;
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: counts.entries
-                  .sorted((a, b) => b.value.compareTo(a.value))
-                  .map((e) => Padding(
-                        padding: const EdgeInsets.only(bottom: 2.0),
-                        child: _RowInfo(
-                          label: questionsLocalizations?.value(e.key) ?? e.key,
-                          value: e.value.toString(),
-                        ),
-                      ))
-                  .toList(),
-            );
-          }
-          break;
-        default:
-          return null;
-      }
-      return null;
-    }
-
-    final Widget? stat = getStat();
-
-    final DateTime date =
-        scatter ? dateFromStamp(hit.item.data.first.stamp) : hit.xValue;
-    DateFormat format = DateFormat.MMMEd();
-    final bool shortCustom = (settings.cycle == TimeCycle.custom &&
-        settings.range.duration < const Duration(days: 5));
-    if (settings.cycle == TimeCycle.day || scatter || shortCustom) {
-      format.add_jm();
-    }
-    final String dateStr = format.format(date);
-
-    const double arrowHeight = 10.0;
-
-    final Widget content = Padding(
-      padding: const EdgeInsets.all(AppPadding.medium),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            dateStr,
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.onSurface,
+      content = Padding(
+        padding: const EdgeInsets.all(AppPadding.medium),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              dateStr,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+            ),
+            if (label != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 2.0),
+                child: Text(
+                  label,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                 ),
-          ),
-          if (label != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 2.0),
-              child: Text(
-                label!,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
               ),
-            ),
-          if (stat != null || !scatter) const SizedBox(height: 8),
-          if (stat != null) stat,
-          if (!scatter && showCount)
-            _RowInfo(
-              label: "Count",
-              value: stamps.length.toString(),
-            ),
-        ],
-      ),
-    );
+            if (stat != null || !scatter) const SizedBox(height: 8),
+            if (stat != null) stat,
+            if (!scatter && showCount)
+              _RowInfo(
+                label: "Count",
+                value: stamps.length.toString(),
+              ),
+          ],
+        ),
+      );
+    }
 
     if (!scatter) {
       return Container(
-        constraints: const BoxConstraints(maxWidth: 200),
+        constraints: BoxConstraints(maxWidth: hits.length > 1 ? 250 : 200),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
           borderRadius: BorderRadius.circular(AppRounding.medium),
@@ -202,11 +219,11 @@ class GraphTooltip extends ConsumerWidget {
 
     return ClipPath(
       clipper: BubbleClipper(
-          isAbove: isAbove, arrowHeight: arrowHeight, arrowOffset: arrowOffset),
+          isAbove: isAbove, arrowHeight: 10.0, arrowOffset: arrowOffset),
       child: CustomPaint(
         painter: BubblePainter(
             isAbove: isAbove,
-            arrowHeight: arrowHeight,
+            arrowHeight: 10.0,
             arrowOffset: arrowOffset,
             borderColor:
                 Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
@@ -218,6 +235,102 @@ class GraphTooltip extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  List<Response> _flattenStamps(List<Stamp> stamps) {
+    List<Response> flatStamps = [];
+    for (final s in stamps) {
+      if (s is DetailResponse) {
+        flatStamps.addAll(s.responses);
+      } else if (s is Response) {
+        flatStamps.add(s);
+      }
+    }
+    if (flatStamps.isEmpty && stamps.isNotEmpty && stamps.first is Response) {
+      flatStamps = stamps.whereType<Response>().toList();
+    }
+    return flatStamps;
+  }
+
+  Widget? _getStatWidget(List<Stamp> stamps,
+      QuestionsLocalizations? questionsLocalizations, bool scatter) {
+    final flatStamps = _flattenStamps(stamps);
+    if (flatStamps.isEmpty) return null;
+
+    final Response firstResponse = flatStamps.first;
+    switch (firstResponse) {
+      case NumericResponse():
+        final List<NumericResponse> numerics =
+            flatStamps.whereType<NumericResponse>().toList();
+        if (numerics.isNotEmpty && numerics.length == flatStamps.length) {
+          if (scatter) {
+            return _RowInfo(
+              label: "Value",
+              value: numerics.first.response.toStringAsFixed(1),
+            );
+          }
+          final double avg = numerics.map((e) => e.response).average;
+
+          if (avg > 0) {
+            return _RowInfo(
+              label: "Average",
+              value: avg.toStringAsFixed(1),
+            );
+          }
+        }
+        break;
+      case MultiResponse():
+        final List<MultiResponse> multis =
+            flatStamps.whereType<MultiResponse>().toList();
+        if (multis.isNotEmpty && multis.length == flatStamps.length) {
+          final Map<String, int> counts = {};
+          for (final multi in multis) {
+            counts[multi.choice] = (counts[multi.choice] ?? 0) + 1;
+          }
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: counts.entries
+                .sorted((a, b) => b.value.compareTo(a.value))
+                .map((e) => Padding(
+                      padding: const EdgeInsets.only(bottom: 2.0),
+                      child: _RowInfo(
+                        label: questionsLocalizations?.value(e.key) ?? e.key,
+                        value: e.value.toString(),
+                      ),
+                    ))
+                .toList(),
+          );
+        }
+        break;
+      case AllResponse():
+        final List<AllResponse> alls =
+            flatStamps.whereType<AllResponse>().toList();
+        if (alls.isNotEmpty && alls.length == flatStamps.length) {
+          final Map<String, int> counts = {};
+          for (final all in alls) {
+            for (final choice in all.choices) {
+              counts[choice] = (counts[choice] ?? 0) + 1;
+            }
+          }
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: counts.entries
+                .sorted((a, b) => b.value.compareTo(a.value))
+                .map((e) => Padding(
+                      padding: const EdgeInsets.only(bottom: 2.0),
+                      child: _RowInfo(
+                        label: questionsLocalizations?.value(e.key) ?? e.key,
+                        value: e.value.toString(),
+                      ),
+                    ))
+                .toList(),
+          );
+        }
+        break;
+      default:
+        return null;
+    }
+    return null;
   }
 }
 

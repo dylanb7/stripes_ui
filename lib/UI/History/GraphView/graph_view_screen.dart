@@ -55,6 +55,8 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
       } else {
         _routeAnimation!.addStatusListener(_onAnimationStatus);
       }
+    } else if (_routeAnimation == null) {
+      _heroComplete = true;
     }
   }
 
@@ -120,23 +122,28 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
               ),
               child: Padding(
                 padding: const EdgeInsets.all(AppPadding.tiny),
-                child: Hero(
-                  tag: widget.graphKey,
-                  flightShuttleBuilder: (flightContext, animation,
-                      flightDirection, fromHeroContext, toHeroContext) {
-                    // Use ClipRect to prevent overflow during animation
-                    return ClipRect(
-                      child: toHeroContext.widget,
-                    );
-                  },
-                  child: GraphSymptom(
-                    responses: forGraph,
-                    isDetailed: _heroComplete,
-                    forExport: false,
-                    colorKeys: colorKeys,
-                    selectionController: _selectionController,
-                    mode: _overviewMode,
-                    reviewPaths: reviewPathsMap,
+                child: ClipRRect(
+                  borderRadius:
+                      const BorderRadius.all(Radius.circular(AppRounding.tiny)),
+                  child: Hero(
+                    tag: widget.graphKey,
+                    flightShuttleBuilder: (flightContext, animation,
+                        flightDirection, fromHeroContext, toHeroContext) {
+                      // Use ClipRect to prevent overflow during animation
+                      return ClipRect(
+                        child: toHeroContext.widget,
+                      );
+                    },
+                    child: GraphSymptom(
+                      responses: forGraph,
+                      isDetailed: _heroComplete,
+                      forExport: false,
+                      colorKeys: colorKeys,
+                      selectionController: _selectionController,
+                      mode: _overviewMode,
+                      reviewPaths: reviewPathsMap,
+                      showTooltip: false,
+                    ),
                   ),
                 ),
               ),
@@ -147,14 +154,23 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
           height: AppPadding.medium,
         ),
         Padding(
-          padding: const EdgeInsets.only(
-              left: AppPadding.large,
-              right: AppPadding.large,
-              top: AppPadding.small),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppPadding.large,
+            vertical: AppPadding.small,
+          ),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              Text(
+                "Displaying",
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withValues(alpha: 0.7),
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+              const Spacer(),
               // Mode selector - icon only with popup menu
               if (additions.isNotEmpty)
                 PopupMenuButton<GraphOverviewMode>(
@@ -262,22 +278,6 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
                 },
               ),
             ],
-          ),
-        ),
-        const SizedBox(
-          height: AppPadding.medium,
-        ),
-        Padding(
-          padding: const EdgeInsets.only(
-              left: AppPadding.large, right: AppPadding.large),
-          child: Text(
-            "displaying",
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurface
-                      .withValues(alpha: 0.6),
-                ),
           ),
         ),
         // Display list with dividers

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/base_providers.dart';
@@ -34,14 +36,12 @@ final stampsStreamProvider = StreamProvider<List<Stamp>>((ref) async* {
 final baselinesStreamProvider = StreamProvider<List<Stamp>>((ref) async* {
   final StampRepo? repo = await ref.watch(stampProvider.future);
   if (repo == null || repo is! BaselineMixin) {
-    yield [];
-  } else {
-    yield [];
-    yield* repo.baselines;
+    await Completer<void>().future;
+    return;
   }
+  yield* repo.baselines;
 });
 
-// Helper logic to avoid duplication
 void _updateRepoEarliest(StampRepo repo, DateTime time) {
   if (repo.earliest == null || time.isBefore(repo.earliest!)) {
     repo.earliestDate = time;

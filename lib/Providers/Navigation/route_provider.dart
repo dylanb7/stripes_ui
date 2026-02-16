@@ -25,6 +25,7 @@ import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/Util/Design/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -94,12 +95,16 @@ class RouteNotifier extends ChangeNotifier {
                   child: PageWrap(
                 actions: [
                   if (!isSmall)
-                    ...TabOption.values.map(
-                      (tab) => LargeNavButton(
-                        tab: tab,
-                        selected: selected,
-                      ),
-                    ),
+                    ...TabOption.values
+                        .map(
+                          (tab) => LargeNavButton(
+                            tab: tab,
+                            selected: selected,
+                          ),
+                        )
+                        .separated(
+                            by: const SizedBox(width: AppPadding.small),
+                            includeEnds: true),
                   UserProfileButton(
                     selected: inAccount,
                   )

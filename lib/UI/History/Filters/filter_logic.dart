@@ -226,9 +226,7 @@ class CategoryContext extends FilterContext<CategoryState> {
         QuestionsLocalizations.of(context);
 
     final categories = historyContext.use(const AllCategoriesFeature());
-    // localized name → raw value (for looking up what was selected)
     final Map<String, String> localizedToRaw = {};
-    // raw value → localized name (for displaying selected items)
     final Map<String, String> rawToLocalized = {};
 
     for (final type in categories) {
@@ -237,11 +235,9 @@ class CategoryContext extends FilterContext<CategoryState> {
       rawToLocalized[type] = localized;
     }
 
-    // Get localized display names for all categories
     final List<String> displayItems =
         categories.map((type) => rawToLocalized[type] ?? type).toList();
 
-    // Convert selected raw values to their localized display names
     final Set<String> selectedDisplayItems =
         state.selectedItems.map((type) => rawToLocalized[type] ?? type).toSet();
 

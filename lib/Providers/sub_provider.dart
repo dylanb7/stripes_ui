@@ -24,10 +24,10 @@ final subProvider = FutureProvider<SubUserRepo?>(
 final subStream = StreamProvider<List<SubUser>>((ref) async* {
   final SubUserRepo? repo = await ref.watch(subProvider.future);
   if (repo == null) {
-    yield [];
-  } else {
-    yield* repo.users;
+    await Completer<void>().future;
+    return;
   }
+  yield* repo.users;
 });
 
 final subHolderProvider =
@@ -45,7 +45,10 @@ class SubNotifier extends AsyncNotifier<SubState> {
     }
 
     final List<SubUser> subUsers = subUsersAsync.valueOrNull ?? [];
-    if (subUsers.isEmpty) return SubState.empty();
+    if (subUsers.isEmpty) {
+      await Future.delayed(const Duration(milliseconds: 100));
+      return SubState.empty();
+    }
     final String? currentId = await service.getCurrentUser();
     final SubUser? currentUser =
         subUsers.firstWhereOrNull((element) => element.uid == currentId);

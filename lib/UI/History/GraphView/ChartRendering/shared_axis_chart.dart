@@ -13,6 +13,7 @@ import 'package:stripes_ui/UI/History/GraphView/ChartRendering/render_chart.dart
 class ChartLane<T, D> {
   final List<ChartSeriesData<T, D>> datasets;
   final String label;
+  final String? yAxisLabel;
   final Color? labelColor;
   final double? height;
   final ChartAxis<num>? yAxis;
@@ -22,6 +23,7 @@ class ChartLane<T, D> {
   const ChartLane({
     required this.datasets,
     required this.label,
+    this.yAxisLabel,
     this.labelColor,
     this.height,
     this.yAxis,
@@ -33,6 +35,7 @@ class ChartLane<T, D> {
   ChartLane.single({
     required ChartSeriesData<T, D> data,
     required this.label,
+    this.yAxisLabel,
     this.labelColor,
     this.height,
     this.yAxis,
@@ -51,6 +54,7 @@ class SharedAxisChart<T, D> extends StatelessWidget {
   final double laneHeight;
   final double lanePadding;
   final bool showLaneLabels;
+  final bool showSelectionLabels;
 
   final void Function(int laneIndex, ChartHitTestResult<T, D>? hit)? onTap;
   final void Function(int laneIndex, ChartHitTestResult<T, D>? hit)? onHover;
@@ -62,6 +66,8 @@ class SharedAxisChart<T, D> extends StatelessWidget {
   final ChartSelectionController<T, D>? selectionController;
   final bool compact;
 
+  final String? yAxisLabel;
+
   SharedAxisChart({
     super.key,
     required this.lanes,
@@ -69,6 +75,7 @@ class SharedAxisChart<T, D> extends StatelessWidget {
     this.laneHeight = 100,
     this.lanePadding = 20,
     this.showLaneLabels = true,
+    this.showSelectionLabels = true,
     required this.xAxis,
     ChartAxis<dynamic>? yAxis,
     this.style,
@@ -76,6 +83,7 @@ class SharedAxisChart<T, D> extends StatelessWidget {
     this.onHover,
     this.selectionController,
     this.compact = false,
+    this.yAxisLabel,
   }) : yAxis = yAxis ??
             NumberAxis(
                 formatter: NumberFormat.decimalPattern()
@@ -88,10 +96,20 @@ class SharedAxisChart<T, D> extends StatelessWidget {
     }
 
     final effectiveStyle = style ?? ChartStyle.fromTheme(context);
-    final maxYLabelWidth =
-        _calculateMaxYLabelWidth(context, effectiveStyle).clamp(40.0, 500.0);
+    double maxYLabelWidth = _calculateMaxYLabelWidth(context, effectiveStyle);
 
-    // Calculate global X bounds across all lanes
+    // If any lane has a visible Y-axis title, add space for it (title height + padding)
+    // BUT only if we aren't showing a shared yAxisLabel
+    if (yAxisLabel == null &&
+        lanes.any((l) =>
+            l.yAxisLabel != null && l.yAxisLabel!.isNotEmpty && !l.hideYAxis)) {
+      final titleHeight = effectiveStyle.axisTitleStyle.fontSize ?? 10.0;
+      // Add title height + extra padding for separation
+      maxYLabelWidth += titleHeight + effectiveStyle.axisLabelPadding;
+    }
+
+    maxYLabelWidth = maxYLabelWidth.clamp(0.0, 500.0);
+
     double globalMinX = double.infinity;
     double globalMaxX = double.negativeInfinity;
     double minDataStep = double.infinity;
@@ -129,12 +147,6 @@ class SharedAxisChart<T, D> extends StatelessWidget {
       globalTickSize =
           getEfficientInterval(availableWidth, range, pixelPerInterval: 40);
 
-      if (minDataStep != double.infinity && minDataStep > 0) {
-        double multiple = (globalTickSize / minDataStep).roundToDouble();
-        if (multiple < 1.0) multiple = 1.0;
-        globalTickSize = multiple * minDataStep;
-      }
-
       // Ensure tick size isn't too small for multi-day ranges to avoid crowded labels
       if (xAxis is DateTimeAxis) {
         const double dayMs = 24 * 3600 * 1000;
@@ -163,6 +175,12 @@ class SharedAxisChart<T, D> extends StatelessWidget {
           }
         }
       }
+
+      if (minDataStep != double.infinity && minDataStep > 0) {
+        double multiple = (globalTickSize / minDataStep).roundToDouble();
+        if (multiple < 1.0) multiple = 1.0;
+        globalTickSize = multiple * minDataStep;
+      }
     }
 
     // Only apply half-step padding if style option is enabled
@@ -173,7 +191,7 @@ class SharedAxisChart<T, D> extends StatelessWidget {
         ? minDataStep * 0.5
         : 0;
 
-    return Column(
+    final chartColumn = Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -213,6 +231,7 @@ class SharedAxisChart<T, D> extends StatelessWidget {
             child: RenderChart<T, D>.multi(
               datasets: lanes[i].datasets,
               height: lanes[i].height ?? laneHeight,
+              yAxisLabel: yAxisLabel != null ? null : lanes[i].yAxisLabel,
               xAxis: compact
                   ? xAxis.copyWithShowing(false)
                   : xAxis.copyWithShowing(i ==
@@ -300,14 +319,33 @@ class SharedAxisChart<T, D> extends StatelessWidget {
                       onTap?.call(i, correctedHit);
                     }
                   : null,
-              // We don't pass selectionController directly to lanes anymore
-              // because we want to handle the aggregation ourselves
+              selectionController: selectionController,
+              showSelectionLabels: showSelectionLabels,
             ),
           ),
           if (i < lanes.length - 1) SizedBox(height: compact ? 2 : lanePadding),
         ],
       ],
     );
+
+    if (yAxisLabel != null && yAxisLabel!.isNotEmpty && !compact) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          RotatedBox(
+            quarterTurns: -1,
+            child: Text(
+              yAxisLabel!,
+              style: effectiveStyle.axisTitleStyle,
+            ),
+          ),
+          const SizedBox(width: 2.0),
+          Expanded(child: chartColumn),
+        ],
+      );
+    }
+
+    return chartColumn;
   }
 
   List<ChartHitTestResult<T, D>> _findAllHitsAtX(
@@ -370,18 +408,34 @@ class SharedAxisChart<T, D> extends StatelessWidget {
         }
       }
 
-      if (minY == double.infinity) continue;
+      // If no data found, fallback to axis defaults
+      if (minY == double.infinity) {
+        minY = yAxisConfig.minValue() ?? 0.0;
+        maxY = yAxisConfig.maxValue() ?? 1.0;
+      } else {
+        // Adjust min/max based on axis config
+        minY = yAxisConfig.minValue() ?? (minY == maxY ? 0 : minY);
+        maxY = yAxisConfig.maxValue() ?? maxY;
+      }
 
-      // Adjust min/max based on axis config
-      minY = yAxisConfig.minValue() ?? (minY == maxY ? 0 : minY);
-      maxY = yAxisConfig.maxValue() ?? maxY;
+      // Ensure valid range
+      if (maxY < minY) {
+        final temp = maxY;
+        maxY = minY;
+        minY = temp;
+      }
+      if (maxY == minY) {
+        maxY += 1.0;
+      }
 
       final range = maxY - minY;
       final step = yAxisConfig.interval ?? (range / 3.0);
-      if (step <= 0) continue;
+      final double effectiveStep = step <= 0 ? 1.0 : step;
 
       double val = minY;
-      while (val <= maxY + 0.0001) {
+      // Safety check loop count to prevent infinite loops if step is tiny relative to range
+      int safetyCount = 0;
+      while (val <= maxY + 0.0001 && safetyCount < 100) {
         final text = yAxisConfig.formatFromDouble(val);
         final tp = TextPainter(
           text: TextSpan(text: text, style: style.axisLabelStyle),
@@ -389,7 +443,8 @@ class SharedAxisChart<T, D> extends StatelessWidget {
         )..layout();
 
         if (tp.width > maxWidth) maxWidth = tp.width;
-        val += step;
+        val += effectiveStep;
+        safetyCount++;
       }
     }
 

@@ -19,36 +19,35 @@ class QuestionScreen extends StatelessWidget {
 
   final DetailResponse? baseline;
 
-  const QuestionScreen(
-      {required this.header,
-      required this.questions,
-      required this.questionsListener,
-      this.baseline,
-      super.key});
+  const QuestionScreen({
+    required this.header,
+    required this.questions,
+    required this.questionsListener,
+    this.baseline,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         if (header.isNotEmpty) ...[
-          const SizedBox(
-            height: AppPadding.small,
-          ),
+          const SizedBox(height: AppPadding.small),
           Text(
             header,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.bold),
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(
-            height: AppPadding.small,
-          ),
+          const SizedBox(height: AppPadding.small),
         ],
         RenderQuestions(
-            questions: questions,
-            questionsListener: questionsListener,
-            baseline: baseline),
+          questions: questions,
+          questionsListener: questionsListener,
+          baseline: baseline,
+        ),
         const SizedBox(height: AppPadding.xl),
       ],
     );
@@ -62,11 +61,12 @@ class RenderQuestions extends ConsumerWidget {
 
   final DetailResponse? baseline;
 
-  const RenderQuestions(
-      {required this.questions,
-      required this.questionsListener,
-      this.baseline,
-      super.key});
+  const RenderQuestions({
+    required this.questions,
+    required this.questionsListener,
+    this.baseline,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -79,37 +79,60 @@ class RenderQuestions extends ConsumerWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: questions.map((question) {
-        return QuestionResolverWrapper(
-          question: question,
-          questionsListener: questionsListener,
-          baseline: baseline,
-          builder: (question) {
-            final EntryBuilder? override =
-                questionEntries[question.id]?.entryBuilder;
-            if (override != null) {
-              return override(questionsListener, context, question);
-            }
-            switch (question) {
-              case FreeResponse():
-                return FreeResponseEntry(
-                    question: question, listener: questionsListener);
-              case Numeric():
-                return SeverityWidget(
-                    question: question, questionsListener: questionsListener);
-              case Check():
-                return CheckBoxWidget(
-                    check: question, listener: questionsListener);
-              case MultipleChoice():
-                return MultiChoiceEntry(
-                    question: question, listener: questionsListener);
-              case AllThatApply():
-                return AllThatApplyEntry(
-                    question: question, listener: questionsListener);
-            }
-          },
-        );
+        return _buildRecursive(
+            context, question, questionsListener, questionEntries);
       }).toList(),
     );
+  }
+
+  Widget _buildRecursive(BuildContext context, Question question,
+      QuestionsListener listener, Map<String, QuestionEntry> questionEntries) {
+    return QuestionResolverWrapper(
+      question: question,
+      questionsListener: listener,
+      baseline: baseline,
+      builder: (resolved) {
+        if (resolved.id == question.id) {
+          return _buildEntry(context, resolved, listener, questionEntries);
+        }
+        return _buildRecursive(context, resolved, listener, questionEntries);
+      },
+    );
+  }
+
+  Widget _buildEntry(BuildContext context, Question question,
+      QuestionsListener listener, Map<String, QuestionEntry> questionEntries) {
+    final EntryBuilder? override = questionEntries[question.id]?.entryBuilder;
+    if (override != null) {
+      return override(listener, context, question);
+    }
+    switch (question) {
+      case FreeResponse():
+        return FreeResponseEntry(
+          question: question,
+          listener: listener,
+        );
+      case Numeric():
+        return SeverityWidget(
+          question: question,
+          questionsListener: listener,
+        );
+      case Check():
+        return CheckBoxWidget(
+          check: question,
+          listener: listener,
+        );
+      case MultipleChoice():
+        return MultiChoiceEntry(
+          question: question,
+          listener: listener,
+        );
+      case AllThatApply():
+        return AllThatApplyEntry(
+          question: question,
+          listener: listener,
+        );
+    }
   }
 }
 
@@ -129,8 +152,9 @@ class QuestionResolverWrapper extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final QuestionsLocalizations? localizations =
-        QuestionsLocalizations.of(context);
+    final QuestionsLocalizations? localizations = QuestionsLocalizations.of(
+      context,
+    );
 
     if (question.fromBaseline != null) {
       return _buildBaselineResolved(context, ref, localizations);
@@ -143,8 +167,11 @@ class QuestionResolverWrapper extends ConsumerWidget {
     return builder(question);
   }
 
-  Widget _buildBaselineResolved(BuildContext context, WidgetRef ref,
-      QuestionsLocalizations? localizations) {
+  Widget _buildBaselineResolved(
+    BuildContext context,
+    WidgetRef ref,
+    QuestionsLocalizations? localizations,
+  ) {
     // If baseline is provided explicitly, use it without watching provider
     if (baseline != null) {
       if (baseline!.type != question.fromBaseline) {
@@ -155,9 +182,10 @@ class QuestionResolverWrapper extends ConsumerWidget {
     }
 
     final AsyncValue<DetailResponse?> baselineResponse = ref.watch(
-      baselineResponseProvider(
-        (baselineType: question.fromBaseline!, version: null),
-      ),
+      baselineResponseProvider((
+        baselineType: question.fromBaseline!,
+        version: null,
+      )),
     );
 
     return baselineResponse.when(
@@ -168,7 +196,9 @@ class QuestionResolverWrapper extends ConsumerWidget {
   }
 
   Widget _resolveAndBuild(
-      DetailResponse? latest, QuestionsLocalizations? localizations) {
+    DetailResponse? latest,
+    QuestionsLocalizations? localizations,
+  ) {
     if (latest == null) return builder(question);
 
     final int baselineVersion = _extractVersion(latest);
@@ -180,14 +210,16 @@ class QuestionResolverWrapper extends ConsumerWidget {
 
     // Translate the resolved questions using template-aware translation
     final translatedQuestions = resolvedQuestions
-        .map((q) => localizations?.translateGeneratedQuestion(q, question) ?? q)
+        .map((q) => localizations?.translateQuestion(q) ?? q)
         .toList();
 
     return _buildResolvedQuestions(translatedQuestions);
   }
 
   Widget _buildMidRecordingResolved(
-      BuildContext context, QuestionsLocalizations? localizations) {
+    BuildContext context,
+    QuestionsLocalizations? localizations,
+  ) {
     return ListenableBuilder(
       listenable: questionsListener,
       builder: (context, _) {
@@ -207,9 +239,12 @@ class QuestionResolverWrapper extends ConsumerWidget {
           detailType: 'current_session',
         );
 
-        final List<Question> resolvedQuestions = question.resolve(
-          current: sessionWrapper,
-        );
+        final List<Question> resolvedQuestions = question
+            .resolve(
+              current: sessionWrapper,
+            )
+            .map((q) => localizations?.translateQuestion(q) ?? q)
+            .toList();
 
         final bool noGeneration = resolvedQuestions.length == 1 &&
             resolvedQuestions.first.id == question.id;
@@ -220,8 +255,7 @@ class QuestionResolverWrapper extends ConsumerWidget {
 
         // Translate the resolved questions using template-aware translation
         final translatedQuestions = resolvedQuestions
-            .map((q) =>
-                localizations?.translateGeneratedQuestion(q, question) ?? q)
+            .map((q) => localizations?.translateQuestion(q) ?? q)
             .toList();
 
         return Column(

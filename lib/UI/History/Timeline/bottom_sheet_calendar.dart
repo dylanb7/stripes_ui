@@ -52,10 +52,8 @@ class _BottomSheetCalendarState extends ConsumerState<BottomSheetCalendar> {
       _rangeStart = settings.range.start;
       _rangeEnd = settings.range.end;
 
-      if (settings.cycle != TimeCycle.month &&
-          _rangeEnd != null &&
-          !_dateAltered(_rangeEnd)) {
-        _rangeEnd = _rangeEnd!.subtract(const Duration(milliseconds: 1));
+      if (_rangeEnd != null && !_dateAltered(_rangeEnd)) {
+        _rangeEnd = DateRangeUtils.inclusiveEndOfDay(_rangeEnd!);
       }
     }
     focusedDay = _rangeEnd ?? DateTime.now();
@@ -253,17 +251,8 @@ class _BottomSheetCalendarState extends ConsumerState<BottomSheetCalendar> {
                     FilledButton(
                       onPressed: validRange
                           ? () {
-                              DateTime end = _rangeEnd!;
-                              if (end.hour == 0 &&
-                                  end.minute == 0 &&
-                                  end.second == 0 &&
-                                  end.millisecond == 0) {
-                                end = end
-                                    .add(const Duration(days: 1))
-                                    .subtract(const Duration(milliseconds: 1));
-                              }
-                              final range =
-                                  DateTimeRange(start: _rangeStart!, end: end);
+                              final range = DateRangeUtils.rangeFromSelection(
+                                  _rangeStart!, _rangeEnd!);
 
                               if (widget.onRangeSelected != null) {
                                 widget.onRangeSelected!(range);

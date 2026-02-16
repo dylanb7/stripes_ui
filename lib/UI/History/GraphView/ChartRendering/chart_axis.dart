@@ -56,7 +56,7 @@ class DateTimeAxis extends ChartAxis<DateTime> {
   String formatFromDouble(double value) {
     // Guard against NaN, infinity, or values that would overflow DateTime
     if (!value.isFinite) return '';
-    final ms = value.toInt();
+    final ms = value.round();
     // DateTime can handle dates roughly between years -271821 and 275760
     // Use a safe range for milliseconds (roughly 1900-2100)
     const minMs = -2208988800000; // ~1900
