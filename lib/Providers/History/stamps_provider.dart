@@ -5,13 +5,16 @@ import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/base_providers.dart';
 import 'package:stripes_ui/Providers/Questions/questions_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
+import 'package:stripes_ui/Models/record_time.dart';
+import 'package:stripes_ui/Providers/Record/record_session_writer.dart';
 
 import 'package:stripes_ui/Providers/Auth/auth_provider.dart';
 
 final stampProvider = FutureProvider<StampRepo<Stamp>?>((ref) async {
   final auth = await ref.watch(authStream.future);
-  final sub =
-      await ref.watch(subHolderProvider.selectAsync((value) => value.selected));
+  final sub = await ref.watch(
+    subHolderProvider.selectAsync((value) => value.selected),
+  );
   final questions = await ref.watch(questionsProvider.future);
   final bool subEmpty = sub == null || SubUser.isEmpty(sub);
 
@@ -24,12 +27,54 @@ final stampProvider = FutureProvider<StampRepo<Stamp>?>((ref) async {
 });
 
 final stampsStreamProvider = StreamProvider<List<Stamp>>((ref) async* {
-  await ref.watch(questionHomeProvider.future);
+  final home = await ref.watch(questionHomeProvider.future);
+  final entries = await ref.watch(entriesStreamProvider.future);
+  final entriesById = {
+    for (final entry in entries)
+      if (entry.id != null) entry.id!: entry,
+  };
   final StampRepo? repo = await ref.watch(stampProvider.future);
   if (repo == null) {
     yield [];
   } else {
-    yield* repo.stamps;
+    yield* repo.stamps.map((stamps) {
+      final seen = <String>{};
+      final merged = <Stamp>[
+        for (final stamp in stamps)
+          if (stamp is DetailResponse && entriesById[stamp.id] != null)
+            TimedDetailResponse(
+              response:
+                  entriesById[stamp.id]!.data.containsKey(recordBatchIdField)
+                  ? entriesById[stamp.id]!.toDetailResponse(home)
+                  : stamp,
+              entry: entriesById[stamp.id]!,
+            )
+          else
+            stamp,
+      ];
+      for (final stamp in stamps) {
+        if (stamp.id != null) seen.add(stamp.id!);
+      }
+      // Some embedding repositories expose independent legacy and Entry
+      // stores. Include new recordings without duplicating projected entries.
+      for (final entry in entries) {
+        if (entry.id == null ||
+            seen.contains(entry.id) ||
+            (!entry.data.containsKey(recordTimeField) &&
+                !entry.data.containsKey(recordBatchIdField)) ||
+            entry.data['responses'] is! List ||
+            entry.category == InputCategory.test) {
+          continue;
+        }
+        merged.add(
+          TimedDetailResponse(
+            response: entry.toDetailResponse(home),
+            entry: entry,
+          ),
+        );
+      }
+      return merged;
+    });
   }
 });
 

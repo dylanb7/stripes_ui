@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:stripes_ui/Providers/Dashboard/insight_provider.dart';
+import 'package:stripes_backend_helper/stripes_backend_helper.dart';
+import 'package:stripes_ui/Providers/Insights/engine_findings_provider.dart';
+import 'package:stripes_ui/Models/record_time.dart';
 import 'package:stripes_ui/Providers/base_providers.dart';
-import 'package:stripes_ui/UI/History/Insights/insight_widgets.dart';
+import 'package:stripes_ui/UI/History/Insights/finding_widgets.dart';
 import 'package:stripes_ui/Util/Helpers/date_helper.dart';
 import 'package:stripes_ui/Providers/History/display_data_provider.dart';
 import 'package:stripes_ui/Util/Helpers/date_range_utils.dart';
@@ -12,12 +17,14 @@ import 'package:stripes_ui/Providers/History/stamps_provider.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/UI/AccountManagement/profile_changer.dart';
 import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
+import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/CommonWidgets/control_bar.dart';
 import 'package:stripes_ui/UI/CommonWidgets/date_range_selector.dart';
 import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
 import 'package:stripes_ui/UI/History/EventView/event_grid.dart';
 import 'package:stripes_ui/UI/History/Export/export.dart';
 import 'package:stripes_ui/UI/History/GraphView/graphs_list.dart';
+import 'package:stripes_ui/UI/History/GraphView/graph_view_screen.dart';
 import 'package:stripes_ui/UI/History/Timeline/bottom_sheet_calendar.dart';
 import 'package:stripes_ui/UI/History/Filters/filter_sheet.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
@@ -25,9 +32,7 @@ import 'package:stripes_ui/Util/Design/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:stripes_ui/Providers/Navigation/sheet_provider.dart';
-import 'package:stripes_ui/config.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
-import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 
 class EventsView extends ConsumerStatefulWidget {
   const EventsView({super.key});
@@ -38,302 +43,349 @@ class EventsView extends ConsumerStatefulWidget {
 
 class _EventsViewState extends ConsumerState<EventsView> {
   final GlobalKey _dateRangeKey = GlobalKey();
-  bool _showBottomBar = false;
+  late final ScrollController _historyController;
+  double _lastScrollOffset = 0;
+  double _calendarThreshold = double.infinity;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final ScrollController controller =
-          ref.read(historyScrollControllerProvider);
-      controller.addListener(_onScroll);
-    });
+    _historyController = ref.read(historyScrollControllerProvider);
+    _historyController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
+    _historyController.removeListener(_onScroll);
     super.dispose();
   }
 
-  void _onScroll() {
-    if (!mounted) return;
-    final ScrollController controller =
-        ref.read(historyScrollControllerProvider);
+  void _measureCalendarThreshold() {
+    if (!mounted || !_historyController.hasClients) return;
+    final renderObject = _dateRangeKey.currentContext?.findRenderObject();
+    if (renderObject is! RenderBox) return;
+    final viewport = RenderAbstractViewport.maybeOf(renderObject);
+    if (viewport == null) return;
+    _calendarThreshold =
+        viewport.getOffsetToReveal(renderObject, 0).offset +
+        renderObject.size.height;
+    _lastScrollOffset = _boundedScrollOffset;
+    if (_lastScrollOffset <= _calendarThreshold) _setCalendarVisible(false);
+  }
 
-    final bool shouldShow = controller.offset > 350;
-
-    if (shouldShow != _showBottomBar) {
-      setState(() {
-        _showBottomBar = shouldShow;
+  void _setCalendarVisible(bool visible) {
+    // Restoring a position can notify during layout. Publish after that frame.
+    if (WidgetsBinding.instance.schedulerPhase ==
+        SchedulerPhase.persistentCallbacks) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          ref
+              .read(historyCalendarNavVisibleProvider.notifier)
+              .setVisible(visible);
+        }
       });
+    } else {
+      ref.read(historyCalendarNavVisibleProvider.notifier).setVisible(visible);
     }
   }
 
-  void _recalculateBottomBar() {
-    if (!mounted) return;
-    final ScrollController controller =
-        ref.read(historyScrollControllerProvider);
+  double get _boundedScrollOffset {
+    final position = _historyController.position;
+    // The spring returning from iOS overscroll is not a direction change.
+    return position.pixels.clamp(
+      position.minScrollExtent,
+      position.maxScrollExtent,
+    );
+  }
 
-    if (!controller.hasClients || !controller.position.hasContentDimensions) {
-      if (_showBottomBar) {
-        setState(() {
-          _showBottomBar = false;
-        });
-      }
-      return;
+  void _onScroll() {
+    if (!mounted || !_historyController.hasClients) return;
+    final current = _boundedScrollOffset;
+    final delta = current - _lastScrollOffset;
+    if (current <= _calendarThreshold) {
+      _setCalendarVisible(false);
+    } else if (delta.abs() >= 2) {
+      _setCalendarVisible(delta < 0);
     }
-
-    final bool hasEnoughScroll = controller.offset > 350;
-    final bool hasEnoughContent = controller.position.maxScrollExtent > 350;
-
-    final bool shouldShow = hasEnoughScroll && hasEnoughContent;
-
-    if (shouldShow != _showBottomBar) {
-      setState(() {
-        _showBottomBar = shouldShow;
-      });
-    }
+    if (delta.abs() >= 2) _lastScrollOffset = current;
   }
 
   @override
   Widget build(BuildContext context) {
-    final ViewMode mode = ref.watch(viewModeProvider);
-    final StripesConfig config = ref.watch(configProvider);
-    final List<Insight> insights = ref.watch(historyInsightsProvider);
-    final bool shouldUseToolbar =
-        getBreakpoint(context).isGreaterThan(Breakpoint.medium);
+    final config = ref.watch(configProvider);
+    final requestedMode = ref.watch(viewModeProvider);
+    final mode = config.betaUi.hasGraphing ? requestedMode : ViewMode.events;
+    final findingFeedAsync = config.display.insightsEnabled
+        ? ref.watch(historyFindingsProvider)
+        : null;
+    final findingFeed = findingFeedAsync?.value;
+    final showFindingSurface = findingFeed != null
+        ? findingFeed.state != FindingFeedState.noData
+        : findingFeedAsync?.hasError ?? false;
+    final useDesktopToolbar = _useHistoryToolbar(context);
+    final hasBottomCalendar = getBreakpoint(context)
+        .isLessThan(Breakpoint.medium);
+    final calendarClearance = hasBottomCalendar
+        ? _FloatingHistoryCalendar.height(
+            context,
+            ref.watch(displayDataProvider),
+          )
+        : 0.0;
+    final entries = ref.watch(availableStampsProvider);
+    final reviews = ref.watch(reviewPaths(const ReviewPathsProps()));
+    // Wait for real content before restoring the saved scroll position.
+    final waitingForEntries =
+        mode == ViewMode.events &&
+        ((entries.isLoading && !entries.hasValue) ||
+            (reviews.isLoading && !reviews.hasValue));
 
-    ref.listen(displayDataProvider, (previous, next) {
-      if (previous?.range != next.range) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _recalculateBottomBar();
-        });
+    ref.listen(displayDataProvider.select((settings) => settings.range), (
+      previous,
+      next,
+    ) {
+      if (previous != next) {
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) => _measureCalendarThreshold(),
+        );
       }
     });
-
     ref.listen(stampProvider, (previous, next) {
       if (next.hasValue && next.value != null) {
         changeEarliestDateWidget(
-            ref, ref.read(displayDataProvider).range.start);
+          ref,
+          ref.read(displayDataProvider).range.start,
+        );
       }
     });
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _measureCalendarThreshold(),
+    );
 
-    return AddIndicator(builder: (context, hasIndicator) {
-      return RefreshWidget(
-        depth: RefreshDepth.authuser,
-        scrollable: Stack(
-          children: [
-            CustomScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              controller: ref.watch(historyScrollControllerProvider),
-              slivers: [
-                SliverPadding(
-                  padding: const EdgeInsets.only(
-                      left: AppPadding.xl,
-                      right: AppPadding.xl,
-                      top: AppPadding.xl,
-                      bottom: AppPadding.small),
-                  sliver: SliverToBoxAdapter(
-                    child: _ResponsiveHeader(
-                      hasGraphing: config.hasGraphing,
-                      mode: mode,
-                      onModeChanged: (newMode) {
-                        ref.read(viewModeProvider.notifier).state = newMode;
-                      },
-                    ),
-                  ),
-                ),
-                if (shouldUseToolbar) ...[
-                  SliverPadding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppPadding.medium,
-                      vertical: AppPadding.small,
-                    ),
-                    sliver: SliverToBoxAdapter(
-                      key: _dateRangeKey,
-                      child: _DesktopControlBar(
-                        hasGraphing: config.hasGraphing,
-                        mode: mode,
-                        onModeChanged: (newMode) {
-                          ref.read(viewModeProvider.notifier).state = newMode;
+    void changeMode(ViewMode mode) {
+      ref.read(viewModeProvider.notifier).setMode(mode);
+    }
+
+    return PageStorage(
+      bucket: ref.watch(historyPageStorageProvider),
+      child: AddIndicator(
+        builder: (context, hasIndicator) => waitingForEntries
+            ? const LoadingWidget()
+            : Stack(
+                fit: StackFit.expand,
+                children: [
+                  RefreshWidget(
+                    depth: RefreshDepth.authuser,
+                    scrollable: CustomScrollView(
+                      key: const PageStorageKey('history-scroll'),
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      controller: _historyController,
+                      slivers: [
+                        SliverPadding(
+                          padding: const EdgeInsets.only(
+                            left: AppPadding.xl,
+                            right: AppPadding.xl,
+                            top: AppPadding.xl,
+                            bottom: AppPadding.small,
+                          ),
+                          sliver: SliverToBoxAdapter(
+                            child: _ResponsiveHeader(
+                              hasGraphing: config.betaUi.hasGraphing,
+                              mode: mode,
+                              onModeChanged: changeMode,
+                            ),
+                          ),
+                        ),
+                        SliverPadding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppPadding.medium,
+                            vertical: AppPadding.small,
+                          ),
+                          sliver: SliverToBoxAdapter(
+                            child: KeyedSubtree(
+                              key: _dateRangeKey,
+                              child: useDesktopToolbar
+                                  ? _DesktopControlBar(
+                                      hasGraphing: config.betaUi.hasGraphing,
+                                      mode: mode,
+                                      onModeChanged: changeMode,
+                                    )
+                                  : Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: ConstrainedBox(
+                                        constraints: BoxConstraints(
+                                          maxWidth: Breakpoint.small.value,
+                                        ),
+                                        child: const ControlBar(
+                                          children: [
+                                            Expanded(child: DateRangeButton()),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                            ),
+                          ),
+                        ),
+                        if (showFindingSurface)
+                          SliverPadding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppPadding.xl,
+                              vertical: AppPadding.tiny,
+                            ),
+                            sliver: SliverToBoxAdapter(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                    maxWidth: Breakpoint.small.value,
+                                  ),
+                                  child:
+                                      findingFeed != null &&
+                                          findingFeed.findings.isNotEmpty
+                                      ? EngineFindingsPanel(
+                                          findings: findingFeed.findings,
+                                          dataset: findingFeed.run.dataset,
+                                        )
+                                      : EngineFindingsNotice(
+                                          state:
+                                              findingFeed?.state ??
+                                              FindingFeedState.unavailable,
+                                        ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        SliverToBoxAdapter(
+                          child: switch (mode) {
+                            ViewMode.events => const EventGridHeader(),
+                            ViewMode.graph => const GraphHeader(),
+                          },
+                        ),
+                        ...switch (mode) {
+                          ViewMode.events => [
+                            SliverCrossAxisGroup(
+                              slivers: [
+                                SliverConstrainedCrossAxis(
+                                  maxExtent: Breakpoint.large.value,
+                                  sliver: const EventGrid(),
+                                ),
+                              ],
+                            ),
+                          ],
+                          ViewMode.graph => [
+                            GraphSliverList(
+                              onSelect: (key) {
+                                context.pushNamed(
+                                  RouteName.SYMPTOMTREND,
+                                  extra: key,
+                                );
+                              },
+                              onCategorySelect: (keys) {
+                                if (keys.isEmpty) return;
+                                context.pushNamed(
+                                  RouteName.SYMPTOMTREND,
+                                  extra: GraphViewParams(
+                                    graphKey: keys.first,
+                                    initialAdditions: keys.skip(1).toList(),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
                         },
-                      ),
-                    ),
-                  ),
-                  if (insights.isNotEmpty)
-                    SliverPadding(
-                      padding: const EdgeInsets.only(
-                          left: AppPadding.medium,
-                          right: AppPadding.medium,
-                          bottom: AppPadding.tiny),
-                      sliver: SliverToBoxAdapter(
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                                maxWidth: Breakpoint.small.value),
-                            child: InsightsList(
-                              insights: insights,
-                            ),
+                        SliverToBoxAdapter(
+                          child: SizedBox(
+                            // Keep the last entry clear of the overlay without
+                            // changing the scroll extent as the row animates.
+                            height:
+                                calendarClearance +
+                                (hasIndicator
+                                    ? AppPadding.xxxl
+                                    : AppPadding.large),
                           ),
                         ),
-                      ),
-                    ),
-                  // Desktop content header (results + export, or graph axis selector)
-                  SliverPadding(
-                    padding: const EdgeInsets.only(top: AppPadding.tiny),
-                    sliver: SliverToBoxAdapter(
-                      child: switch (mode) {
-                        ViewMode.events => const EventGridHeader(),
-                        ViewMode.graph => const GraphHeader(),
-                      },
+                      ],
                     ),
                   ),
-                ] else ...[
-                  // Mobile: ControlBar with just date range + filter chips
-                  SliverPadding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppPadding.medium,
-                      vertical: AppPadding.small,
+                  if (hasBottomCalendar)
+                    const Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      child: _FloatingHistoryCalendar(),
                     ),
-                    sliver: SliverToBoxAdapter(
-                      key: _dateRangeKey,
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: ConstrainedBox(
-                          constraints:
-                              BoxConstraints(maxWidth: Breakpoint.small.value),
-                          child: const ControlBar(
-                            children: [
-                              Expanded(child: DateRangeButton()),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  if (insights.isNotEmpty)
-                    SliverPadding(
-                      padding: const EdgeInsets.only(
-                          left: AppPadding.medium,
-                          right: AppPadding.medium,
-                          bottom: AppPadding.tiny),
-                      sliver: SliverToBoxAdapter(
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                                maxWidth: Breakpoint.small.value),
-                            child: InsightsList(
-                              insights: insights,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  SliverPadding(
-                    padding: const EdgeInsets.only(top: AppPadding.tiny),
-                    sliver: SliverToBoxAdapter(
-                      child: switch (mode) {
-                        ViewMode.events => const EventGridHeader(),
-                        ViewMode.graph => const GraphHeader(),
-                      },
-                    ),
-                  ),
                 ],
-                // Content slivers based on mode
-                ...switch (mode) {
-                  ViewMode.events => [
-                      SliverCrossAxisGroup(
-                        slivers: [
-                          SliverConstrainedCrossAxis(
-                            maxExtent: Breakpoint.large.value,
-                            sliver: const EventGrid(),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ViewMode.graph => [
-                      GraphSliverList(onSelect: (key) {
-                        context.pushNamed(RouteName.SYMPTOMTREND, extra: key);
-                      }),
-                    ],
-                },
-
-                if (_showBottomBar)
-                  const SliverToBoxAdapter(
-                    child: SizedBox(height: 72),
-                  ),
-              ],
-            ),
-            // Persistent bottom bar
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: AnimatedSlide(
-                duration: Durations.medium1,
-                curve: Curves.easeOut,
-                offset: _showBottomBar ? Offset.zero : const Offset(0, 1),
-                child: AnimatedOpacity(
-                  duration: Durations.medium1,
-                  opacity: _showBottomBar ? 1.0 : 0.0,
-                  child: const _PersistentDateBar(),
-                ),
               ),
-            ),
-          ],
-        ),
-      );
-    });
+      ),
+    );
   }
 }
 
-class _PersistentDateBar extends StatelessWidget {
-  const _PersistentDateBar();
+/// Paints above the tab bar without resizing the history viewport.
+class _FloatingHistoryCalendar extends ConsumerWidget {
+  const _FloatingHistoryCalendar();
+
+  static double height(BuildContext context, DisplayDataSettings settings) {
+    return DateRangeSelector.heightFor(
+          context,
+          _dateRangeLabel(settings, settings.range, context),
+          MediaQuery.sizeOf(context).width,
+        ) +
+        1;
+  }
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, -2),
-          ),
-        ],
-        border: Border(
-          top: BorderSide(
-            color: Theme.of(context)
-                .colorScheme
-                .outlineVariant
-                .withValues(alpha: 0.5),
-          ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final visible = ref.watch(historyCalendarNavVisibleProvider);
+    final colors = Theme.of(context).colorScheme;
+    final reducedMotion = MediaQuery.disableAnimationsOf(context);
+    return IgnorePointer(
+      ignoring: !visible,
+      child: AnimatedSwitcher(
+        duration: reducedMotion ? Duration.zero : Durations.short4,
+        reverseDuration: reducedMotion ? Duration.zero : Durations.short4,
+        layoutBuilder: (child, previous) => Stack(
+          alignment: Alignment.bottomCenter,
+          children: [...previous, ?child],
         ),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppPadding.medium,
-            vertical: AppPadding.small,
-          ),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(AppRounding.small),
-              border: Border.all(
-                color: Theme.of(context)
-                    .colorScheme
-                    .primary
-                    .withValues(alpha: 0.1),
-              ),
+        transitionBuilder: (child, animation) => FadeTransition(
+          opacity: animation,
+          child: SlideTransition(
+            position: animation.drive(
+              Tween<Offset>(
+                begin: const Offset(0, 1),
+                end: Offset.zero,
+              ).chain(CurveTween(curve: Curves.easeOutCubic)),
             ),
-            child: const DateRangeButton(),
+            child: child,
           ),
         ),
+        child: !visible
+            ? const SizedBox.shrink(key: ValueKey('calendar-hidden'))
+            : SizedBox(
+                key: const ValueKey('calendar-visible'),
+                height: height(context, ref.watch(displayDataProvider)),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: colors.surface,
+                    border: Border(
+                      top: BorderSide(color: colors.outlineVariant),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: colors.shadow.withValues(alpha: 0.16),
+                        blurRadius: 16,
+                        offset: const Offset(0, -5),
+                      ),
+                    ],
+                  ),
+                  child: const Material(
+                    type: MaterialType.transparency,
+                    child: DateRangeButton(
+                      key: ValueKey('history-floating-date'),
+                    ),
+                  ),
+                ),
+              ),
       ),
     );
   }
@@ -344,8 +396,11 @@ class EventGridHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<int> eventsCount = ref.watch(availableStampsProvider
-        .select((stamps) => stamps.whenData((data) => data.length)));
+    final AsyncValue<int> eventsCount = ref.watch(
+      availableStampsProvider.select(
+        (stamps) => stamps.whenData((data) => data.length),
+      ),
+    );
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
@@ -355,10 +410,10 @@ class EventGridHeader extends ConsumerWidget {
           AsyncValueDefaults(
             value: eventsCount,
             onData: (value) => Text(
-              "$value Results",
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.primary),
+              context.translate.historyEntryCount(value),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
             onError: (error) => const SizedBox.shrink(),
             onLoading: (_) => const SizedBox.shrink(),
@@ -376,24 +431,28 @@ class GraphHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final DisplayDataSettings settings = ref.watch(displayDataProvider);
-    final bool isDesktop =
-        getBreakpoint(context).isGreaterThan(Breakpoint.medium);
+    final bool isDesktop = _useHistoryToolbar(context);
 
     return Padding(
       padding: const EdgeInsets.symmetric(
-          horizontal: AppPadding.large, vertical: AppPadding.small),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
+        horizontal: AppPadding.large,
+        vertical: AppPadding.small,
+      ),
+      child: Wrap(
+        spacing: AppPadding.small,
+        runSpacing: AppPadding.small,
         children: [
           if (isDesktop)
             SegmentedButton<GraphYAxis>(
               segments: GraphYAxis.values
-                  .map((axis) => ButtonSegment<GraphYAxis>(
-                        value: axis,
-                        icon: Icon(axis.icon, size: 16),
-                        label: Text(axis.label),
-                        tooltip: axis.description,
-                      ))
+                  .map(
+                    (axis) => ButtonSegment<GraphYAxis>(
+                      value: axis,
+                      icon: Icon(axis.icon, size: 16),
+                      label: Text(axis.label),
+                      tooltip: axis.description,
+                    ),
+                  )
                   .toList(),
               selected: {settings.axis},
               onSelectionChanged: (newSelection) {
@@ -411,6 +470,7 @@ class GraphHeader extends ConsumerWidget {
             )
           else
             _DropdownChip<GraphYAxis>(
+              menuLabel: 'Graph measure',
               value: settings.axis,
               items: GraphYAxis.values,
               labelBuilder: (axis) => axis.label,
@@ -433,16 +493,21 @@ class _FilterButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AsyncValue<bool> hasFilters = ref.watch(hasAvailableFiltersProvider);
-    final bool filtersEnabled = hasFilters.valueOrNull ?? false;
+    final filterCount = ref.watch(
+      displayDataProvider.select((settings) => settings.filters.length),
+    );
+    final bool filtersEnabled = (hasFilters.value ?? false) || filterCount > 0;
 
-    return IconButton.filled(
-      style: const ButtonStyle(
-        visualDensity: VisualDensity.compact,
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    return IconButton(
+      style: IconButton.styleFrom(
+        foregroundColor: Theme.of(context).colorScheme.primary,
+        minimumSize: const Size(48, 48),
       ),
       onPressed: filtersEnabled
           ? () {
-              ref.read(sheetControllerProvider).show(
+              ref
+                  .read(sheetControllerProvider)
+                  .show(
                     context: context,
                     scrollControlled: true,
                     sheetBuilder: (context, controller) =>
@@ -450,8 +515,27 @@ class _FilterButton extends ConsumerWidget {
                   );
             }
           : null,
-      tooltip: filtersEnabled ? 'Filters' : 'No filters available',
-      icon: const Icon(Icons.filter_list),
+      tooltip: filterCount > 0
+          ? 'Filters ($filterCount active)'
+          : filtersEnabled
+          ? 'Filters'
+          : 'No filters available',
+      icon: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.filter_list),
+          if (filterCount > 0) const SizedBox(width: AppPadding.tiny),
+          ExcludeSemantics(
+            // The button's tooltip announces the complete active count.
+            child: Badge.count(
+              count: filterCount,
+              isLabelVisible: filterCount > 0,
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              textColor: Theme.of(context).colorScheme.onPrimary,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -469,82 +553,70 @@ class _ResponsiveHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bool shouldUseToolbar =
-        getBreakpoint(context).isGreaterThan(Breakpoint.medium);
+    final bool shouldUseToolbar = _useHistoryToolbar(context);
     final bool isTiny = getBreakpoint(context).isLessThan(Breakpoint.tiny);
     final DisplayDataSettings settings = ref.watch(displayDataProvider);
 
     Widget buildViewModeToggle() => _DropdownChip<ViewMode>(
-          value: mode,
-          items: ViewMode.values,
-          labelBuilder: (m) => switch (m) {
-            ViewMode.events => 'List',
-            ViewMode.graph => 'Graph',
-          },
-          iconBuilder: (m) => switch (m) {
-            ViewMode.events => Icons.list,
-            ViewMode.graph => Icons.bar_chart,
-          },
-          onChanged: (m) {
-            if (m != null) onModeChanged(m);
-          },
-        );
+      menuLabel: 'History view',
+      value: mode,
+      items: ViewMode.values,
+      labelBuilder: (m) => switch (m) {
+        ViewMode.events => 'List',
+        ViewMode.graph => 'Graph',
+      },
+      iconBuilder: (m) => switch (m) {
+        ViewMode.events => Icons.list,
+        ViewMode.graph => Icons.bar_chart,
+      },
+      onChanged: (m) {
+        if (m != null) onModeChanged(m);
+      },
+    );
 
     Widget buildTimeCycleToggle() => SegmentedButton<TimeCycle>(
-          segments: [
-            TimeCycle.day,
-            TimeCycle.week,
-            TimeCycle.month,
-          ]
-              .map(
-                (cycle) => ButtonSegment(
-                  value: cycle,
-                  label: Text(cycle.value),
-                ),
-              )
-              .toList(),
-          showSelectedIcon: false,
-          emptySelectionAllowed: true,
-          style: const ButtonStyle(
-            visualDensity: VisualDensity.compact,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          ),
-          onSelectionChanged: (newValue) {
-            if (newValue.isNotEmpty) {
-              ref.read(displayDataProvider.notifier).setCycle(newValue.first);
-            }
-          },
-          selected: settings.cycle == TimeCycle.custom ? {} : {settings.cycle},
-        );
+      segments: [TimeCycle.day, TimeCycle.week, TimeCycle.month]
+          .map((cycle) => ButtonSegment(value: cycle, label: Text(cycle.value)))
+          .toList(),
+      showSelectedIcon: false,
+      emptySelectionAllowed: true,
+      style: const ButtonStyle(
+        visualDensity: VisualDensity.compact,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+      onSelectionChanged: (newValue) {
+        if (newValue.isNotEmpty) {
+          ref.read(displayDataProvider.notifier).setCycle(newValue.first);
+        }
+      },
+      selected: settings.cycle == TimeCycle.custom ? {} : {settings.cycle},
+    );
 
     if (shouldUseToolbar) {
-      return const PatientChanger(
-        tab: TabOption.history,
-      );
+      return const PatientChanger(tab: TabOption.history);
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const PatientChanger(
-          tab: TabOption.history,
-        ),
+        const PatientChanger(tab: TabOption.history),
         const SizedBox(height: AppPadding.small),
-        // Row 2: filter + D|W|M on left, view mode on right
-        Row(
+        Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          spacing: AppPadding.small,
+          runSpacing: AppPadding.small,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             const _FilterButton(),
-            const SizedBox(width: AppPadding.small),
-            if (isTiny)
+            if (isTiny || MediaQuery.textScalerOf(context).scale(14) > 18)
               _DropdownChip<TimeCycle>(
+                menuLabel: 'Time range',
                 iconBuilder: (_) => Icons.date_range,
-                value:
-                    settings.cycle == TimeCycle.custom ? null : settings.cycle,
-                items: const [
-                  TimeCycle.day,
-                  TimeCycle.week,
-                  TimeCycle.month,
-                ],
+                hintIcon: Icons.date_range,
+                value: settings.cycle == TimeCycle.custom
+                    ? null
+                    : settings.cycle,
+                items: const [TimeCycle.day, TimeCycle.week, TimeCycle.month],
                 labelBuilder: (cycle) => cycle.value,
                 onChanged: (cycle) {
                   if (cycle != null) {
@@ -554,7 +626,6 @@ class _ResponsiveHeader extends ConsumerWidget {
               )
             else
               buildTimeCycleToggle(),
-            const Spacer(),
             if (hasGraphing) buildViewModeToggle(),
           ],
         ),
@@ -586,15 +657,11 @@ class _DesktopControlBar extends ConsumerWidget {
           const _FilterButton(),
           const SizedBox(width: AppPadding.small),
           SegmentedButton<TimeCycle>(
-            segments: [
-              TimeCycle.day,
-              TimeCycle.week,
-              TimeCycle.month,
-            ]
-                .map((cycle) => ButtonSegment(
-                      value: cycle,
-                      label: Text(cycle.value),
-                    ))
+            segments: [TimeCycle.day, TimeCycle.week, TimeCycle.month]
+                .map(
+                  (cycle) =>
+                      ButtonSegment(value: cycle, label: Text(cycle.value)),
+                )
                 .toList(),
             showSelectedIcon: false,
             emptySelectionAllowed: true,
@@ -607,8 +674,9 @@ class _DesktopControlBar extends ConsumerWidget {
                 ref.read(displayDataProvider.notifier).setCycle(newValue.first);
               }
             },
-            selected:
-                settings.cycle == TimeCycle.custom ? {} : {settings.cycle},
+            selected: settings.cycle == TimeCycle.custom
+                ? {}
+                : {settings.cycle},
           ),
           Expanded(
             child: Center(
@@ -620,6 +688,7 @@ class _DesktopControlBar extends ConsumerWidget {
           ),
           if (hasGraphing)
             _DropdownChip<ViewMode>(
+              menuLabel: 'History view',
               iconBuilder: (m) => switch (m) {
                 ViewMode.events => Icons.list,
                 ViewMode.graph => Icons.bar_chart,
@@ -643,7 +712,9 @@ class _DesktopControlBar extends ConsumerWidget {
         const _FilterButton(),
         const SizedBox(width: AppPadding.small),
         _DropdownChip<TimeCycle>(
+          menuLabel: 'Time range',
           iconBuilder: (_) => Icons.date_range,
+          hintIcon: Icons.date_range,
           value: settings.cycle == TimeCycle.custom ? null : settings.cycle,
           items: const [TimeCycle.day, TimeCycle.week, TimeCycle.month],
           labelBuilder: (cycle) => cycle.value,
@@ -663,6 +734,7 @@ class _DesktopControlBar extends ConsumerWidget {
         ),
         if (hasGraphing)
           _DropdownChip<ViewMode>(
+            menuLabel: 'History view',
             iconBuilder: (m) => switch (m) {
               ViewMode.events => Icons.list,
               ViewMode.graph => Icons.bar_chart,
@@ -682,12 +754,19 @@ class _DesktopControlBar extends ConsumerWidget {
   }
 }
 
-class _DropdownChip<T> extends StatelessWidget {
+bool _useHistoryToolbar(BuildContext context) =>
+    getBreakpoint(context).isGreaterThan(Breakpoint.medium) &&
+    MediaQuery.textScalerOf(context).scale(14) <= 18;
+
+class _DropdownChip<T> extends ConsumerWidget {
   final T? value;
   final List<T> items;
   final String Function(T) labelBuilder;
   final IconData Function(T) iconBuilder;
   final ValueChanged<T?> onChanged;
+  final String menuLabel;
+  final String hint;
+  final IconData? hintIcon;
 
   const _DropdownChip({
     required this.value,
@@ -695,70 +774,102 @@ class _DropdownChip<T> extends StatelessWidget {
     required this.labelBuilder,
     required this.iconBuilder,
     required this.onChanged,
-    super.key,
+    required this.menuLabel,
+    this.hint = 'Custom',
+    this.hintIcon,
   });
 
-  @override
-  Widget build(BuildContext context) {
-    final ColorScheme colors = Theme.of(context).colorScheme;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppPadding.small,
-        vertical: AppPadding.tiny,
-      ),
-      decoration: BoxDecoration(
-        color: colors.primary,
-        borderRadius: BorderRadius.circular(100),
-      ),
-      child: DropdownButton<T>(
-        value: value,
-        underline: const SizedBox.shrink(),
-        isDense: true,
-        icon: Icon(
-          Icons.keyboard_arrow_down,
-          size: 18,
-          color: colors.onPrimary,
-        ),
-        dropdownColor: colors.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(AppRounding.medium),
-        onChanged: onChanged,
-        selectedItemBuilder: (context) => items
-            .map((item) => Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(iconBuilder(item), size: 16, color: colors.onPrimary),
-                    const SizedBox(width: AppPadding.tiny),
-                    Text(
-                      labelBuilder(item),
-                      style: Theme.of(context)
-                          .textTheme
-                          .labelMedium
-                          ?.copyWith(color: colors.onPrimary),
+  Future<void> _choose(BuildContext context, WidgetRef ref) async {
+    final selected = await ref
+        .read(sheetControllerProvider)
+        .show<T>(
+          context: context,
+          scrollControlled: true,
+          child: (sheetContext) => SafeArea(
+            top: false,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(vertical: AppPadding.large),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppPadding.large,
                     ),
-                  ],
-                ))
-            .toList(),
-        items: items
-            .map((item) => DropdownMenuItem<T>(
-                  value: item,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(iconBuilder(item), size: 16),
-                      const SizedBox(width: AppPadding.tiny),
-                      Text(
-                        labelBuilder(item),
-                        style: Theme.of(context).textTheme.labelMedium,
-                      ),
-                    ],
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            menuLabel,
+                            style: Theme.of(sheetContext).textTheme.titleMedium,
+                          ),
+                        ),
+                        const CloseButton(),
+                      ],
+                    ),
                   ),
-                ))
-            .toList(),
+                  for (final item in items)
+                    ListTile(
+                      leading: Icon(iconBuilder(item)),
+                      title: Text(labelBuilder(item)),
+                      selected: item == value,
+                      trailing: item == value ? const Icon(Icons.check) : null,
+                      onTap: () => Navigator.of(sheetContext).pop(item),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        );
+    if (selected != null && context.mounted) onChanged(selected);
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = Theme.of(context).colorScheme;
+    final selected = value;
+    final label = selected == null ? hint : labelBuilder(selected);
+    final icon = selected == null ? hintIcon : iconBuilder(selected);
+    return Semantics(
+      label: menuLabel,
+      child: TextButton(
+        onPressed: () => _choose(context, ref),
+        style: TextButton.styleFrom(
+          foregroundColor: colors.primary,
+          backgroundColor: colors.surfaceContainerLow,
+          minimumSize: const Size(48, 48),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRounding.small),
+          ),
+          textStyle: Theme.of(context).textTheme.labelLarge,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, size: 18),
+              const SizedBox(width: AppPadding.small),
+            ],
+            Flexible(child: Text(label)),
+            const SizedBox(width: AppPadding.tiny),
+            const Icon(Icons.keyboard_arrow_down, size: 18),
+          ],
+        ),
       ),
     );
   }
 }
+
+String _dateRangeLabel(
+  DisplayDataSettings settings,
+  DateTimeRange range,
+  BuildContext context,
+) => settings.cycle == TimeCycle.month
+    ? DateFormat.yMMM(Localizations.localeOf(context).languageCode)
+          .format(range.start.toLocal())
+    : settings.getRangeStringFromCustom(range, context);
 
 class DateRangeButton extends ConsumerWidget {
   const DateRangeButton({super.key});
@@ -767,23 +878,29 @@ class DateRangeButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final DisplayDataSettings settings = ref.watch(displayDataProvider);
 
+    String label(DateTimeRange range) =>
+        _dateRangeLabel(settings, range, context);
+
     return DateRangeSelector(
-      rangeText: settings.getRangeString(context),
+      rangeText: label(settings.range),
       canGoPrev: settings.canGoPrev,
       canGoNext: settings.canGoNext,
       onPrev: () =>
           ref.read(displayDataProvider.notifier).shift(forward: false),
       onNext: () => ref.read(displayDataProvider.notifier).shift(forward: true),
       onTap: () {
-        ref.read(sheetControllerProvider).show(
-            context: context,
-            scrollControlled: true,
-            child: (context) => const BottomSheetCalendar());
+        ref
+            .read(sheetControllerProvider)
+            .show(
+              context: context,
+              scrollControlled: true,
+              child: (context) => const BottomSheetCalendar(),
+            );
       },
       getPreviewText: (forward) {
-        return ref
-            .read(displayDataProvider.notifier)
-            .getNextRangeString(forward: forward, context: context);
+        return label(
+          ref.read(displayDataProvider.notifier).getNextRange(forward: forward),
+        );
       },
     );
   }
@@ -796,23 +913,27 @@ class CheckinSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final DisplayDataSettings settings = ref.watch(displayDataProvider);
 
-    const RecordPathProps pathProps =
-        RecordPathProps(filterEnabled: true, type: PathProviderType.review);
-    final AsyncValue<List<RecordPath>> pathsAsync =
-        ref.watch(recordPaths(pathProps));
+    const RecordPathProps pathProps = RecordPathProps(
+      filterEnabled: true,
+      type: PathProviderType.review,
+    );
+    final AsyncValue<List<RecordPath>> pathsAsync = ref.watch(
+      recordPaths(pathProps),
+    );
 
-    final AsyncValue<List<Stamp>> allStampsAsync =
-        ref.watch(stampsStreamProvider);
+    final AsyncValue<List<Stamp>> allStampsAsync = ref.watch(
+      stampsStreamProvider,
+    );
 
     if (allStampsAsync.isLoading || pathsAsync.isLoading) {
       return const SliverToBoxAdapter(child: SizedBox.shrink());
     }
 
-    final List<RecordPath> paths = pathsAsync.valueOrNull ?? [];
-    final List<Stamp> allStamps = allStampsAsync.valueOrNull ?? [];
+    final List<RecordPath> paths = pathsAsync.value ?? [];
+    final List<Stamp> allStamps = allStampsAsync.value ?? [];
 
     final Map<String, dynamic> typeToPeriod = {
-      for (var path in paths) path.name: path.period!
+      for (var path in paths) path.name: path.period!,
     };
 
     final List<Response> checkinStamps = [];
@@ -821,7 +942,7 @@ class CheckinSection extends ConsumerWidget {
       final dynamic period = typeToPeriod[stamp.type];
       if (period == null) continue;
 
-      final DateTime stampDate = dateFromStamp(stamp.stamp);
+      final DateTime stampDate = occurrenceTimeForResponse(stamp);
       final DateTimeRange checkinRange = period.getRange(stampDate);
 
       if (checkinRange.overlaps(settings.range)) {
@@ -846,7 +967,7 @@ class CheckinSection extends ConsumerWidget {
       if (!stampsByPeriodGroup.containsKey(periodString)) {
         stampsByPeriodGroup[periodString] = [];
         // Capture start time for sorting groups
-        final DateTime stampDate = dateFromStamp(stamp.stamp);
+        final DateTime stampDate = occurrenceTimeForResponse(stamp);
         final DateTimeRange range = period.getRange(stampDate);
         periodStartForSorting[periodString] = range.start;
       }
@@ -862,13 +983,16 @@ class CheckinSection extends ConsumerWidget {
         return startA.compareTo(startB);
       });
 
-    final QuestionsLocalizations? localizations =
-        QuestionsLocalizations.of(context);
+    final QuestionsLocalizations? localizations = QuestionsLocalizations.of(
+      context,
+    );
     final ColorScheme colors = Theme.of(context).colorScheme;
 
     return SliverPadding(
       padding: const EdgeInsets.symmetric(
-          horizontal: AppPadding.xl, vertical: AppPadding.tiny),
+        horizontal: AppPadding.xl,
+        vertical: AppPadding.tiny,
+      ),
       sliver: SliverToBoxAdapter(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -876,9 +1000,8 @@ class CheckinSection extends ConsumerWidget {
           children: [
             Text(
               'Check-ins',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: colors.onSurfaceVariant,
-                  ),
+              style: Theme.of(context).textTheme.bodySmall
+                  ?.copyWith(color: colors.onSurfaceVariant),
             ),
             const SizedBox(height: AppPadding.tiny),
             SingleChildScrollView(
@@ -893,8 +1016,8 @@ class CheckinSection extends ConsumerWidget {
                         stampsByPeriodGroup[periodString]!;
 
                     // Group by type within this period
-                    final Map<String, List<Response>> stampsByType =
-                        groupStamps.groupBy((s) => s.type);
+                    final Map<String, List<Response>> stampsByType = groupStamps
+                        .groupBy((s) => s.type);
                     final List<String> sortedTypes = stampsByType.keys.toList()
                       ..sort();
 
@@ -908,9 +1031,7 @@ class CheckinSection extends ConsumerWidget {
                               padding: const EdgeInsets.only(bottom: 4.0),
                               child: Text(
                                 periodString,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelSmall
+                                style: Theme.of(context).textTheme.labelSmall
                                     ?.copyWith(
                                       color: colors.primary,
                                       fontWeight: FontWeight.bold,
@@ -942,31 +1063,34 @@ class CheckinSection extends ConsumerWidget {
                                 ),
                                 label: Text(
                                   label,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
+                                  style: Theme.of(context).textTheme.bodySmall
                                       ?.copyWith(
                                         color: colors.onSurfaceVariant,
                                       ),
                                 ),
                                 backgroundColor: colors.surfaceContainerLow,
                                 side: BorderSide(
-                                  color: colors.outlineVariant
-                                      .withValues(alpha: 0.5),
+                                  color: colors.outlineVariant.withValues(
+                                    alpha: 0.5,
+                                  ),
                                 ),
                                 onPressed: () {
                                   // Find start index in the full sorted list
-                                  final int startIndex =
-                                      checkinStamps.indexOf(typeStamps.first);
+                                  final int startIndex = checkinStamps.indexOf(
+                                    typeStamps.first,
+                                  );
 
-                                  ref.read(sheetControllerProvider).show(
+                                  ref
+                                      .read(sheetControllerProvider)
+                                      .show(
                                         context: context,
                                         scrollControlled: true,
                                         child: (context) => CheckinDetailPager(
                                           stamps:
                                               checkinStamps, // Pass ALL stamps
-                                          initialIndex:
-                                              startIndex == -1 ? 0 : startIndex,
+                                          initialIndex: startIndex == -1
+                                              ? 0
+                                              : startIndex,
                                           typeToPeriod: typeToPeriod,
                                         ),
                                       );
@@ -1027,14 +1151,15 @@ class _CheckinDetailPagerState extends ConsumerState<CheckinDetailPager> {
   @override
   Widget build(BuildContext context) {
     final double sheetHeight = MediaQuery.sizeOf(context).height * 0.75;
-    final QuestionsLocalizations? localizations =
-        QuestionsLocalizations.of(context);
+    final QuestionsLocalizations? localizations = QuestionsLocalizations.of(
+      context,
+    );
 
     // Current Stamp Data
     final stamp = widget.stamps[_currentIndex];
     final detailStamp = stamp as DetailResponse;
     final String name = localizations?.value(stamp.type) ?? stamp.type;
-    final DateTime stampDate = dateFromStamp(stamp.stamp);
+    final DateTime stampDate = occurrenceTimeForResponse(stamp);
     final dynamic period = widget.typeToPeriod[stamp.type];
 
     return SizedBox(
@@ -1044,7 +1169,9 @@ class _CheckinDetailPagerState extends ConsumerState<CheckinDetailPager> {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(
-                horizontal: AppPadding.large, vertical: AppPadding.medium),
+              horizontal: AppPadding.large,
+              vertical: AppPadding.medium,
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1057,9 +1184,11 @@ class _CheckinDetailPagerState extends ConsumerState<CheckinDetailPager> {
                         duration: const Duration(milliseconds: 300),
                         transitionBuilder:
                             (Widget child, Animation<double> animation) {
-                          return FadeTransition(
-                              opacity: animation, child: child);
-                        },
+                              return FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              );
+                            },
                         layoutBuilder: (currentChild, previousChildren) {
                           return Stack(
                             alignment: Alignment.centerLeft,
@@ -1073,9 +1202,7 @@ class _CheckinDetailPagerState extends ConsumerState<CheckinDetailPager> {
                           name,
                           key: ValueKey<String>(name),
                           textAlign: TextAlign.left,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleLarge
+                          style: Theme.of(context).textTheme.titleLarge
                               ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                       ),
@@ -1084,9 +1211,11 @@ class _CheckinDetailPagerState extends ConsumerState<CheckinDetailPager> {
                         duration: const Duration(milliseconds: 300),
                         transitionBuilder:
                             (Widget child, Animation<double> animation) {
-                          return FadeTransition(
-                              opacity: animation, child: child);
-                        },
+                              return FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              );
+                            },
                         layoutBuilder: (currentChild, previousChildren) {
                           return Stack(
                             alignment: Alignment.centerLeft,
@@ -1100,11 +1229,10 @@ class _CheckinDetailPagerState extends ConsumerState<CheckinDetailPager> {
                           period?.getRangeString(stampDate, context) ??
                               dateToMDY(stampDate, context),
                           key: ValueKey<String>(
-                              stamp.id ?? ''), // Unique per stamp
+                            stamp.id ?? '',
+                          ), // Unique per stamp
                           textAlign: TextAlign.left,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
+                          style: Theme.of(context).textTheme.bodyMedium
                               ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                       ),
@@ -1112,9 +1240,11 @@ class _CheckinDetailPagerState extends ConsumerState<CheckinDetailPager> {
                         duration: const Duration(milliseconds: 300),
                         transitionBuilder:
                             (Widget child, Animation<double> animation) {
-                          return FadeTransition(
-                              opacity: animation, child: child);
-                        },
+                              return FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              );
+                            },
                         layoutBuilder: (currentChild, previousChildren) {
                           return Stack(
                             alignment: Alignment.centerLeft,
@@ -1128,13 +1258,12 @@ class _CheckinDetailPagerState extends ConsumerState<CheckinDetailPager> {
                           "Updated ${dateToMDY(stampDate, context)}",
                           key: ValueKey<String>("updated-${stamp.id ?? ''}"),
                           textAlign: TextAlign.left,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
+                          style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurfaceVariant),
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
+                              ),
                         ),
                       ),
                     ],
@@ -1149,8 +1278,11 @@ class _CheckinDetailPagerState extends ConsumerState<CheckinDetailPager> {
                         context.pushNamed(
                           'recordType',
                           pathParameters: {'type': stamp.type},
-                          extra: QuestionsListener(
-                            responses: detailStamp.responses,
+                          extra: SessionData(
+                            responses: {
+                              for (final r in detailStamp.responses)
+                                r.question.id: r,
+                            },
                             editId: detailStamp.id,
                             submitTime: stampDate,
                             description: detailStamp.description,

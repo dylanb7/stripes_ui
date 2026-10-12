@@ -1,16 +1,19 @@
+import 'package:stripes_ui/UI/AccountManagement/SymptomManagement/record_flow_header.dart';
+import 'package:stripes_ui/UI/CommonWidgets/Conditions/rule_summary.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/QuestionModel/question.dart';
+import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/Graph/question_graph.dart';
+import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/Graph/session_graph.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo_base.dart';
 import 'package:stripes_ui/Providers/Questions/questions_provider.dart';
 import 'package:stripes_ui/Providers/Navigation/sheet_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
 import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
 import 'package:stripes_ui/UI/CommonWidgets/segmented_draggable_list.dart';
-import 'package:stripes_ui/UI/CommonWidgets/type_tag.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/Widgets/easy_snack.dart';
@@ -18,9 +21,185 @@ import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:stripes_ui/UI/AccountManagement/SymptomManagement/dependency_editor.dart';
 import 'package:stripes_ui/UI/CommonWidgets/Conditions/condition_editor.dart';
-import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/condition.dart';
+import 'package:stripes_ui/UI/Record/Screens/question_screen.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/requirement.dart';
+
+String _questionTypeLabel(BuildContext context, QuestionType type) {
+  return switch (type) {
+    QuestionType.check => context.translate.questionTypeCheck,
+    QuestionType.slider => context.translate.questionTypeSlider,
+    QuestionType.multipleChoice => context.translate.questionTypeMultipleChoice,
+    QuestionType.allThatApply => context.translate.questionTypeAllThatApply,
+    QuestionType.freeResponse => context.translate.questionTypeFreeResponse,
+  };
+}
+
+IconData _questionTypeIcon(QuestionType type) => switch (type) {
+  QuestionType.check => Icons.check_box_outlined,
+  QuestionType.slider => Icons.linear_scale,
+  QuestionType.multipleChoice => Icons.radio_button_checked,
+  QuestionType.allThatApply => Icons.checklist,
+  QuestionType.freeResponse => Icons.short_text,
+};
+
+Future<String?> showSectionNameEditor(
+  BuildContext context, {
+  required String currentName,
+  required String fallbackName,
+}) {
+  return showModalBottomSheet<String>(
+    context: context,
+    isScrollControlled: true,
+    useSafeArea: true,
+    backgroundColor: Theme.of(context).colorScheme.surface,
+    builder: (context) => _SectionNameEditorSheet(
+      currentName: currentName,
+      fallbackName: fallbackName,
+    ),
+  );
+}
+
+class _SectionNameEditorSheet extends StatefulWidget {
+  final String currentName;
+  final String fallbackName;
+
+  const _SectionNameEditorSheet({
+    required this.currentName,
+    required this.fallbackName,
+  });
+
+  @override
+  State<_SectionNameEditorSheet> createState() =>
+      _SectionNameEditorSheetState();
+}
+
+class _SectionNameEditorSheetState extends State<_SectionNameEditorSheet> {
+  final formKey = GlobalKey<FormState>();
+  late final TextEditingController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController(text: widget.currentName);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        AppPadding.large,
+        AppPadding.small,
+        AppPadding.large,
+        AppPadding.large + MediaQuery.viewInsetsOf(context).bottom,
+      ),
+      child: Form(
+        key: formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: colors.outlineVariant,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppPadding.large),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(AppPadding.small),
+                  decoration: BoxDecoration(
+                    color: colors.primaryContainer,
+                    borderRadius: BorderRadius.circular(AppRounding.small),
+                  ),
+                  child: Icon(
+                    Icons.view_agenda_outlined,
+                    color: colors.onPrimaryContainer,
+                  ),
+                ),
+                const SizedBox(width: AppPadding.medium),
+                Expanded(
+                  child: Text(
+                    context.translate.renameSection,
+                    style: Theme.of(context).textTheme.titleLarge
+                        ?.copyWith(fontWeight: FontWeight.w700),
+                  ),
+                ),
+                IconButton(
+                  tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.close),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppPadding.small),
+            Text(
+              context.translate.sectionNameDescription,
+              style: Theme.of(context).textTheme.bodyMedium
+                  ?.copyWith(color: colors.onSurfaceVariant),
+            ),
+            const SizedBox(height: AppPadding.large),
+            TextFormField(
+              controller: controller,
+              autofocus: true,
+              textCapitalization: TextCapitalization.sentences,
+              textInputAction: TextInputAction.done,
+              decoration: InputDecoration(
+                labelText: context.translate.sectionName,
+                hintText: widget.fallbackName,
+                prefixIcon: const Icon(Icons.title),
+                filled: true,
+                fillColor: colors.surfaceContainerLowest,
+                border: const OutlineInputBorder(),
+              ),
+              validator: (value) => value == null || value.trim().isEmpty
+                  ? context.translate.sectionNameRequired
+                  : null,
+              onFieldSubmitted: (_) => _save(),
+            ),
+            const SizedBox(height: AppPadding.large),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text(context.translate.stampDeleteCancel),
+                  ),
+                ),
+                const SizedBox(width: AppPadding.small),
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: _save,
+                    icon: const Icon(Icons.check),
+                    label: Text(context.translate.saveChanges),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _save() {
+    if (formKey.currentState?.validate() != true) return;
+    Navigator.pop(context, controller.text.trim());
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+}
 
 class SymptomTypeManagement extends ConsumerStatefulWidget {
   final String? category;
@@ -39,86 +218,159 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
   @override
   Widget build(BuildContext context) {
     ref.watch(questionHomeProvider);
-    final QuestionsLocalizations? localizations =
-        QuestionsLocalizations.of(context);
-    final AsyncValue<PagesData> pagesData =
-        ref.watch(pagesByPath(PagesByPathProps(pathName: widget.category)));
+    final QuestionsLocalizations? localizations = QuestionsLocalizations.of(
+      context,
+    );
+    final AsyncValue<PagesData> pagesData = ref.watch(
+      pagesByPath(PagesByPathProps(pathName: widget.category)),
+    );
 
     Widget topRow(PagesData data) {
-      return Row(
-        children: [
-          IconButton(
-              onPressed: () {
-                if (context.canPop()) {
-                  context.pop();
-                } else {
-                  context.goNamed(RouteName.SYMPTOMS);
-                }
-              },
-              icon: const Icon(Icons.keyboard_arrow_left)),
-          widget.category != null
-              ? Text(
-                  localizations?.value(widget.category!) ?? widget.category,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor),
-                  textAlign: TextAlign.left,
-                )
-              : Text(
-                  "No Category Provided",
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor),
-                  textAlign: TextAlign.left,
+      final layouts = data.loadedLayouts ?? const <LoadedPageLayout>[];
+      final canEditStructure = data.path?.userCreated == true;
+      final questionCount = layouts.fold<int>(
+        0,
+        (total, page) => total + page.questions.length,
+      );
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppPadding.small),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                IconButton(
+                  tooltip: context.translate.backToRecordFlows,
+                  onPressed: () {
+                    if (context.canPop()) {
+                      context.pop();
+                    } else {
+                      context.goNamed(RouteName.SYMPTOMS);
+                    }
+                  },
+                  icon: const Icon(Icons.arrow_back),
                 ),
-          const Spacer(),
-          if (!editing) ...[
-            IconButton(
-              onPressed: data.loadedLayouts?.isEmpty ?? true
-                  ? null
-                  : () {
-                      setState(() {
-                        editing = !editing;
-                      });
-                    },
-              icon: const Icon(Icons.edit),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.category == null
+                            ? context.translate.noRecordFlowSelected
+                            : localizations?.value(widget.category!) ??
+                                  widget.category!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                      if (data.loadedLayouts != null)
+                        Text(
+                          '${context.translate.questionsCount(questionCount)} · '
+                          '${context.translate.sectionsCount(layouts.length)}',
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
+                              ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            IconButton(
-                onPressed: widget.category == null
-                    ? null
-                    : () {
-                        ref.read(sheetControllerProvider).show(
-                              context: context,
-                              scrollControlled: true,
-                              sheetBuilder: (context, controller) {
-                                return AddSymptomWidget(
+            if (!editing && canEditStructure) ...[
+              const SizedBox(height: AppPadding.medium),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: layouts.isEmpty
+                          ? null
+                          : () => setState(() => editing = true),
+                      icon: const Icon(Icons.reorder),
+                      label: Text(context.translate.reorderAndGroup),
+                    ),
+                  ),
+                  const SizedBox(width: AppPadding.small),
+                  Expanded(
+                    child: FilledButton.icon(
+                      onPressed: widget.category == null
+                          ? null
+                          : () => Navigator.of(context).push(
+                              MaterialPageRoute<void>(
+                                builder: (context) => AddQuestionPage(
                                   type: widget.category!,
-                                  scrollController: controller,
-                                );
-                              },
-                            );
-                      },
-                icon: const Icon(Icons.add)),
-            const SizedBox(
-              width: AppPadding.tiny,
-            ),
-          ]
-        ],
+                                  recordPath: data.path,
+                                  sections: layouts.indexed
+                                      .where((entry) => entry.$2.id != null)
+                                      .map(
+                                        (entry) => QuestionSectionOption(
+                                          id: entry.$2.id!,
+                                          label:
+                                              entry.$2.header?.isNotEmpty ==
+                                                  true
+                                              ? localizations?.value(
+                                                      entry.$2.header!,
+                                                    ) ??
+                                                    entry.$2.header!
+                                              : context.translate.sectionNumber(
+                                                  entry.$1 + 1,
+                                                ),
+                                        ),
+                                      )
+                                      .toList(),
+                                ),
+                              ),
+                            ),
+                      icon: const Icon(Icons.add),
+                      label: Text(context.translate.addQuestion),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+            if (!editing && data.path != null && !canEditStructure) ...[
+              const SizedBox(height: AppPadding.medium),
+              ExpansionTile(
+                tilePadding: const EdgeInsets.symmetric(
+                  horizontal: AppPadding.small,
+                ),
+                leading: Icon(
+                  Icons.lock_outline,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                title: Text(
+                  context.translate.builtInFlowStructure,
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+                childrenPadding: const EdgeInsets.all(AppPadding.medium),
+                children: [
+                  Text(context.translate.builtInFlowStructureDescription),
+                ],
+              ),
+            ],
+          ],
+        ),
       );
     }
 
     Widget createNewCategory() {
       return Center(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-          const Text("Category not created"),
-          const SizedBox(
-            height: AppPadding.small,
-          ),
-          FilledButton.icon(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(context.translate.recordFlowNotFound),
+            const SizedBox(height: AppPadding.small),
+            FilledButton.icon(
               icon: const Icon(Icons.add),
               onPressed: () async {
-                final QuestionRepo? repo =
-                    await ref.read(questionsProvider.future);
+                final QuestionRepo? repo = await ref.read(
+                  questionsProvider.future,
+                );
                 if (repo == null) {
                   if (context.mounted) {
                     showSnack(context, "Failed to add ${widget.category}");
@@ -127,17 +379,20 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
                 }
                 final bool added = await repo.addRecordPath(
                   RecordPath(
-                      pages: const [],
-                      period: null,
-                      userCreated: true,
-                      name: widget.category!),
+                    pages: const [],
+                    period: null,
+                    userCreated: true,
+                    name: widget.category!,
+                  ),
                 );
                 if (!added && context.mounted) {
                   showSnack(context, "Failed to add ${widget.category}");
                 }
               },
-              label: const Text("Create"))
-        ]),
+              label: const Text("Create"),
+            ),
+          ],
+        ),
       );
     }
 
@@ -149,27 +404,16 @@ class _SymptomTypeManagementState extends ConsumerState<SymptomTypeManagement> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SizedBox(
-              height: AppPadding.large,
-            ),
+            const SizedBox(height: AppPadding.large),
             topRow(translatedPagesData),
-            const SizedBox(
-              height: AppPadding.medium,
-            ),
-            Divider(
-              thickness: 1,
-              height: 1,
-              endIndent: AppPadding.small,
-              indent: AppPadding.small,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
+            const SizedBox(height: AppPadding.medium),
             if (loadedPagesData.loadedLayouts == null &&
                 widget.category != null)
               createNewCategory(),
             if (loadedPagesData.loadedLayouts != null &&
                 widget.category != null)
               Expanded(
-                child: editing
+                child: editing && loadedPagesData.path?.userCreated == true
                     ? EditListOrder(
                         pagesData: loadedPagesData,
                         setNotEditing: () {
@@ -209,22 +453,31 @@ class EditListOrder extends ConsumerWidget {
 
   final Function setNotEditing;
 
-  const EditListOrder(
-      {required this.pagesData, required this.setNotEditing, super.key});
+  const EditListOrder({
+    required this.pagesData,
+    required this.setNotEditing,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final Color cardColor =
-        Theme.of(context).primaryColor.withValues(alpha: 0.2);
     List<LoadedPageLayout> loadedLayouts = pagesData.loadedLayouts!;
+    final QuestionsLocalizations? localizations = QuestionsLocalizations.of(
+      context,
+    );
 
     Map<String, LoadedPageLayout> layoutsById = {};
 
     List<SegmentedDraggablePage<Question>> draggablePages = [];
 
     for (final LoadedPageLayout layout in loadedLayouts) {
-      draggablePages.add(SegmentedDraggablePage(
-          items: layout.questions, id: layout.id, header: layout.header));
+      draggablePages.add(
+        SegmentedDraggablePage(
+          items: layout.questions,
+          id: layout.id,
+          header: layout.header,
+        ),
+      );
       if (layout.id != null) {
         layoutsById[layout.id!] = layout;
       }
@@ -248,162 +501,289 @@ class EditListOrder extends ConsumerWidget {
       return pageIndex < index;
     }*/
 
-    Widget pageHeaderBuilder(BuildContext context,
-        SegmentedDraggablePage<Question> page, int index) {
-      final Widget pageTitle = Padding(
-        padding: const EdgeInsetsGeometry.only(left: AppPadding.small),
-        child: Text(
-          "Page ${index + 1}",
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-      );
-
-      /*if (page.id == null ||
-          layoutsById[page.id] == null ||
-          layoutsById[page.id]!.dependsOn == const DependsOn.nothing()) {
-        return pageTitle;
-      }*/
-
-      String? promptProvider(String qid) {
+    Widget pageHeaderBuilder(
+      BuildContext context,
+      SegmentedDraggablePage<Question> page,
+      int index,
+      SegmentedPageActions actions,
+    ) {
+      Question? questionProvider(String qid) {
         final Iterable<Question> questionMatch = loadedLayouts
             .map((layout) => layout.questions)
             .flattenedToList
             .where((question) => question.id == qid);
         if (questionMatch.isEmpty) return null;
-        return questionMatch.first.prompt;
+        return localizations?.translateQuestion(questionMatch.first) ??
+            questionMatch.first;
       }
 
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      final dependency = layoutsById[page.id]?.dependsOn;
+      final hasRule =
+          dependency != null && dependency != const DependsOn.nothing();
+      final title = page.header?.isNotEmpty == true
+          ? localizations?.value(page.header!) ?? page.header!
+          : context.translate.sectionNumber(index + 1);
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              Text(
-                "Page ${index + 1}",
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(width: AppPadding.small),
-            ],
-          ),
-          if (layoutsById[page.id] != null &&
-              layoutsById[page.id]!.dependsOn != const DependsOn.nothing())
-            TypeTag(
-              text: "conditional",
-              onHover: layoutsById[page.id]!
-                  .dependsOn
-                  .toReadableString(promptProvider),
-              onHoverTitle: "Depends on:",
+          Container(
+            color: Theme.of(context).colorScheme.primaryContainer
+                .withValues(alpha: 0.45),
+            padding: const EdgeInsets.all(AppPadding.medium),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: AppPadding.tiny),
+                      Text(
+                        hasRule
+                            ? localizedRuleSummary(
+                                context,
+                                dependency,
+                                questionProvider,
+                              )
+                            : context.translate.alwaysShown,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  tooltip: context.translate.renameSection,
+                  onPressed: actions.updateHeader == null
+                      ? null
+                      : () async {
+                          final updatedName = await showSectionNameEditor(
+                            context,
+                            currentName: page.header ?? '',
+                            fallbackName: context.translate.sectionNumber(
+                              index + 1,
+                            ),
+                          );
+                          if (updatedName != null && context.mounted) {
+                            actions.updateHeader!(updatedName);
+                          }
+                        },
+                  icon: const Icon(Icons.edit_outlined),
+                ),
+                IconButton(
+                  tooltip: context.translate.moveSectionUp,
+                  onPressed: actions.moveUp,
+                  icon: const Icon(Icons.keyboard_arrow_up),
+                ),
+                IconButton(
+                  tooltip: context.translate.moveSectionDown,
+                  onPressed: actions.moveDown,
+                  icon: const Icon(Icons.keyboard_arrow_down),
+                ),
+                if (actions.remove != null)
+                  IconButton(
+                    tooltip: context.translate.removeEmptySection,
+                    onPressed: actions.remove,
+                    icon: const Icon(Icons.delete_outline),
+                  ),
+              ],
             ),
+          ),
+          Divider(
+            height: 1,
+            thickness: 1,
+            color: Theme.of(context).colorScheme.outline,
+          ),
         ],
       );
     }
 
+    List<PageLayout> toPageLayouts(
+      List<SegmentedDraggablePage<Question>> layouts,
+    ) {
+      return layouts
+          .map(
+            (layout) => PageLayout(
+              questionIds: layout.items.map((item) => item.id).toList(),
+              uid: layout.id,
+              header: layout.header,
+              dependsOn:
+                  layoutsById[layout.id]?.dependsOn ??
+                  const DependsOn.nothing(),
+              requirement:
+                  layoutsById[layout.id]?.requirement ??
+                  const Requirement.nothing(),
+            ),
+          )
+          .toList();
+    }
+
     Future<bool> save(List<SegmentedDraggablePage<Question>> layouts) async {
+      if (layouts.any((layout) => layout.items.isEmpty)) {
+        showSnack(context, context.translate.emptySectionSaveError);
+        return false;
+      }
       final QuestionRepo? repo = await ref.read(questionsProvider.future);
       if (repo == null) return false;
 
       final RecordPath path = pagesData.path!;
-
-      final List<PageLayout> newPages = layouts
-          .map(
-            (layout) => PageLayout(
-                questionIds: layout.items.map((item) => item.id).toList(),
-                uid: layout.id,
-                header: layout.header,
-                dependsOn: layoutsById[layout.id]?.dependsOn ??
-                    const DependsOn.nothing()),
-          )
-          .toList();
+      final List<PageLayout> newPages = toPageLayouts(layouts);
       return await repo.updateRecordPath(path.copyWith(pages: newPages));
     }
 
     return SegmentedDraggableList<Question>(
-        layouts: draggablePages,
-        setNotEditing: setNotEditing,
-        save: save,
-        pageHeaderBuilder: pageHeaderBuilder,
-        pageDecorator: (context, child, index) {
-          return Container(
-            margin: const EdgeInsets.only(
-                bottom: AppPadding.large,
-                left: AppPadding.large,
-                right: AppPadding.large),
-            padding: const EdgeInsets.all(AppPadding.medium),
-            decoration: BoxDecoration(
-              color: cardColor,
-              borderRadius: BorderRadius.circular(AppRounding.medium),
+      layouts: draggablePages,
+      canAddFirstPage: false,
+      canCreatePageByDragging: false,
+      setNotEditing: setNotEditing,
+      save: save,
+      header: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppPadding.large),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              Icons.drag_indicator,
+              color: Theme.of(context).colorScheme.primary,
             ),
-            child: child,
-          );
-        },
-        buildDropPreview: (context, question, isNewPage) {
-          if (question == null) return const SizedBox();
-          if (!isNewPage) {
-            return Container(
-              height: 60,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Theme.of(context).disabledColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(AppRounding.small),
-              ),
-            );
-          }
-          return Container(
-            margin: const EdgeInsets.symmetric(
-                vertical: AppPadding.medium, horizontal: AppPadding.large),
-            width: double.infinity,
-            padding: const EdgeInsets.all(AppPadding.medium),
-            decoration: BoxDecoration(
-              color: cardColor,
-              borderRadius: BorderRadius.circular(AppRounding.medium),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Padding(
-                  padding:
-                      const EdgeInsetsGeometry.only(left: AppPadding.small),
-                  child: Text(
-                    "New Page",
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold),
-                  ),
+            const SizedBox(width: AppPadding.small),
+            Expanded(
+              child: Text(
+                context.translate.reorderHelp,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
-                _symptomDisplay(
-                    question: question, handle: null, enabled: false),
-              ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      pageHeaderBuilder: pageHeaderBuilder,
+      pageDecorator: (context, child, index) {
+        return Card(
+          elevation: 0,
+          color: Theme.of(context).colorScheme.surfaceContainerLow,
+          clipBehavior: Clip.antiAlias,
+          margin: const EdgeInsets.only(
+            bottom: AppPadding.medium,
+            left: AppPadding.large,
+            right: AppPadding.large,
+          ),
+          child: child,
+        );
+      },
+      buildDropPreview: (context, question, isNewPage) {
+        if (question == null) return const SizedBox();
+        if (!isNewPage) {
+          return Container(
+            height: 60,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Theme.of(context).disabledColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(AppRounding.small),
             ),
           );
-        },
-        shouldAccept: (layouts, details) => true,
-        buildItem: (context, question, handle, enabled) => _symptomDisplay(
-            question: question, handle: handle, enabled: enabled));
+        }
+        return Container(
+          margin: const EdgeInsets.symmetric(
+            vertical: AppPadding.medium,
+            horizontal: AppPadding.large,
+          ),
+          width: double.infinity,
+          padding: const EdgeInsets.all(AppPadding.medium),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(AppRounding.medium),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsetsGeometry.only(left: AppPadding.small),
+                child: Text(
+                  context.translate.newSection,
+                  style: Theme.of(context).textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.bold),
+                ),
+              ),
+              _symptomDisplay(
+                context: context,
+                question: question,
+                handle: null,
+                enabled: false,
+              ),
+            ],
+          ),
+        );
+      },
+      shouldAccept: (layouts, details) => true,
+      buildItem: (context, question, handle, enabled) => _symptomDisplay(
+        context: context,
+        question: question,
+        handle: handle,
+        enabled: enabled,
+      ),
+    );
   }
 
-  Widget _symptomDisplay(
-      {required Question question,
-      required Widget? handle,
-      bool enabled = true}) {
+  Widget _symptomDisplay({
+    required BuildContext context,
+    required Question question,
+    required Widget? handle,
+    bool enabled = true,
+  }) {
+    final QuestionsLocalizations? localizations = QuestionsLocalizations.of(
+      context,
+    );
+    final translated = localizations?.translateQuestion(question) ?? question;
+    final type = QuestionType.from(translated);
     return Padding(
       padding: const EdgeInsets.symmetric(
-          vertical: AppPadding.tiny, horizontal: AppPadding.large),
+        vertical: AppPadding.small,
+        horizontal: AppPadding.large,
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Flexible(
-            fit: FlexFit.loose,
-            child: SymptomInfoDisplay(question: question),
+          CircleAvatar(
+            backgroundColor: Theme.of(context)
+                .colorScheme
+                .surfaceContainerHighest,
+            foregroundColor: Theme.of(context).colorScheme.primary,
+            child: Icon(_questionTypeIcon(type), size: 20),
           ),
-          const SizedBox(width: AppPadding.tiny),
-          if (handle != null && enabled) handle
+          const SizedBox(width: AppPadding.medium),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  translated.prompt,
+                  style: Theme.of(context).textTheme.bodyLarge
+                      ?.copyWith(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: AppPadding.tiny),
+                Text(
+                  _questionTypeLabel(context, type),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: AppPadding.small),
+          if (handle != null && enabled) handle,
         ],
       ),
     );
@@ -421,40 +801,102 @@ class ViewingMode extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(questionsProvider);
     final pages = pageData.loadedLayouts ?? [];
+    final QuestionsLocalizations? questionLocalizations =
+        QuestionsLocalizations.of(context);
 
     Iterable<Widget> questionDisplays() {
       List<Widget> displays = [];
       for (final (int index, LoadedPageLayout page) in pages.indexed) {
+        Question? questionProvider(String qid) {
+          final question = pages
+              .expand((layout) => layout.questions)
+              .firstWhereOrNull((question) => question.id == qid);
+          return question == null
+              ? null
+              : questionLocalizations?.translateQuestion(question) ?? question;
+        }
+
+        final bool hasRule = page.dependsOn != const DependsOn.nothing();
+        final String ruleSummary = hasRule
+            ? localizedRuleSummary(context, page.dependsOn, questionProvider)
+            : index == 0
+            ? context.translate.alwaysShownFirst
+            : context.translate.alwaysShown;
+        final String sectionTitle = page.header?.isNotEmpty == true
+            ? questionLocalizations?.value(page.header!) ?? page.header!
+            : context.translate.sectionNumber(index + 1);
         displays.add(
-          Container(
+          Card(
+            elevation: 0,
+            color: Theme.of(context).colorScheme.surfaceContainerLow,
             margin: const EdgeInsets.only(
-                bottom: AppPadding.large,
-                left: AppPadding.large,
-                right: AppPadding.large),
-            padding: const EdgeInsets.all(AppPadding.medium),
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(AppRounding.medium),
+              bottom: AppPadding.medium,
+              left: AppPadding.large,
+              right: AppPadding.large,
             ),
+            clipBehavior: Clip.antiAlias,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Padding(
-                  padding: const EdgeInsetsGeometry.symmetric(
-                      horizontal: AppPadding.small),
+                Container(
+                  color: Theme.of(context).colorScheme.primaryContainer
+                      .withValues(alpha: 0.45),
+                  padding: const EdgeInsets.fromLTRB(
+                    AppPadding.large,
+                    AppPadding.medium,
+                    AppPadding.small,
+                    AppPadding.medium,
+                  ),
                   child: Row(
                     children: [
-                      Text(
-                        "Page ${index + 1}",
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium
-                            ?.copyWith(fontWeight: FontWeight.bold),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              sectionTitle,
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.w700),
+                            ),
+                            const SizedBox(height: AppPadding.tiny),
+                            Row(
+                              children: [
+                                Icon(
+                                  hasRule
+                                      ? Icons.alt_route
+                                      : Icons.visibility_outlined,
+                                  size: 16,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
+                                ),
+                                const SizedBox(width: AppPadding.tiny),
+                                Expanded(
+                                  child: Text(
+                                    ruleSummary,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: Theme.of(context).textTheme.bodySmall
+                                        ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurfaceVariant,
+                                        ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                      const Spacer(),
-                      if (index > 0)
-                        IconButton(
-                          icon: const Icon(Icons.settings),
+                      if (index > 0 && pageData.path?.userCreated == true)
+                        TextButton.icon(
+                          icon: const Icon(Icons.rule_outlined, size: 18),
+                          label: Text(
+                            hasRule
+                                ? context.translate.editRule
+                                : context.translate.addRule,
+                          ),
                           onPressed: () {
                             final previousQuestions = pages
                                 .sublist(0, index)
@@ -462,39 +904,39 @@ class ViewingMode extends ConsumerWidget {
                                 .flattenedToList
                                 .toList();
 
-                            ref.read(sheetControllerProvider).show(
+                            ref
+                                .read(sheetControllerProvider)
+                                .show(
                                   context: context,
                                   scrollControlled: true,
                                   child: (context) => DependencyEditor(
-                                      initialDependency: page.dependsOn,
-                                      availableQuestions: previousQuestions,
-                                      onSave: (newDependency) async {
-                                        onSaveDependency(
-                                          context: context,
-                                          ref: ref,
-                                          pages: pages,
-                                          page: page,
-                                          newDependency: newDependency,
-                                          index: index,
-                                        );
-                                      }),
+                                    initialDependency: page.dependsOn,
+                                    availableQuestions: previousQuestions,
+                                    onSave: (newDependency) async {
+                                      onSaveDependency(
+                                        context: context,
+                                        ref: ref,
+                                        pages: pages,
+                                        page: page,
+                                        newDependency: newDependency,
+                                        index: index,
+                                      );
+                                    },
+                                  ),
                                 );
                           },
                         ),
                     ],
                   ),
                 ),
+                Divider(
+                  height: 1,
+                  thickness: 1,
+                  color: Theme.of(context).colorScheme.outline,
+                ),
                 ...page.questions
                     .map((question) => SymptomDisplay(question: question))
-                    .separated(
-                      by: Divider(
-                        endIndent: AppPadding.medium,
-                        indent: AppPadding.medium,
-                        color: Theme.of(context)
-                            .dividerColor
-                            .withValues(alpha: 0.1),
-                      ),
-                    ),
+                    .separated(by: const Divider(height: 1, indent: 72)),
               ],
             ),
           ),
@@ -508,37 +950,38 @@ class ViewingMode extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(
-            height: AppPadding.small,
-          ),
+          const SizedBox(height: AppPadding.small),
           ...questionDisplays(),
-          const SizedBox(
-            height: 100,
-          ),
+          const SizedBox(height: 100),
         ],
       ),
     );
   }
 
-  onSaveDependency(
-      {required BuildContext context,
-      required WidgetRef ref,
-      required List<LoadedPageLayout> pages,
-      required LoadedPageLayout page,
-      required DependsOn newDependency,
-      required int index}) async {
+  Future<void> onSaveDependency({
+    required BuildContext context,
+    required WidgetRef ref,
+    required List<LoadedPageLayout> pages,
+    required LoadedPageLayout page,
+    required DependsOn newDependency,
+    required int index,
+  }) async {
     // Create a copy to avoid mutating the original list
     final List<LoadedPageLayout> pagesCopy = List.from(pages);
     final LoadedPageLayout newLayout = page.copyWith(dependsOn: newDependency);
     pagesCopy[index] = newLayout;
     if (pageData.path != null) {
       final pageLayouts = pagesCopy
-          .map((page) => PageLayout(
-              questionIds:
-                  page.questions.map((question) => question.id).toList(),
+          .map(
+            (page) => PageLayout(
+              questionIds: page.questions
+                  .map((question) => question.id)
+                  .toList(),
               uid: page.id,
               header: page.header,
-              dependsOn: page.dependsOn))
+              dependsOn: page.dependsOn,
+            ),
+          )
           .toList();
 
       final RecordPath toSave = pageData.path!.copyWith(pages: pageLayouts);
@@ -561,130 +1004,71 @@ class SymptomDisplay extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Iterable<Widget>? added;
-
-    final QuestionsLocalizations? localizations =
-        QuestionsLocalizations.of(context);
+    final QuestionsLocalizations? localizations = QuestionsLocalizations.of(
+      context,
+    );
     final Question translated =
         localizations?.translateQuestion(question) ?? question;
+    final QuestionType type = QuestionType.from(translated);
+    final String typeLabel = _questionTypeLabel(context, type);
+    final String details = switch (translated) {
+      AllThatApply(choices: final choices) =>
+        '$typeLabel · ${context.translate.optionsCount(choices.length)}',
+      MultipleChoice(choices: final choices) =>
+        '$typeLabel · ${context.translate.optionsCount(choices.length)}',
+      Numeric(min: final min, max: final max) =>
+        '$typeLabel · ${min ?? 1}–${max ?? 5}',
+      _ => typeLabel,
+    };
+    final IconData typeIcon = switch (type) {
+      QuestionType.check => Icons.check_box_outlined,
+      QuestionType.slider => Icons.linear_scale,
+      QuestionType.multipleChoice => Icons.radio_button_checked,
+      QuestionType.allThatApply => Icons.checklist,
+      QuestionType.freeResponse => Icons.short_text,
+    };
 
-    if (translated
-        case AllThatApply(choices: List<String> choices) ||
-            MultipleChoice(choices: List<String> choices)) {
-      added = [
-        SizedBox(
-          height: 60.0,
-          child: ListView(scrollDirection: Axis.horizontal, children: [
-            const SizedBox(
-              width: AppPadding.large,
-            ),
-            ...choices.map((choice) => Chip(label: Text(choice))).separated(
-                  by: const SizedBox(
-                    width: AppPadding.tiny,
-                  ),
-                ),
-            const SizedBox(
-              width: AppPadding.large,
-            ),
-          ]),
+    return ListTile(
+      contentPadding: const EdgeInsets.fromLTRB(
+        AppPadding.large,
+        AppPadding.small,
+        AppPadding.small,
+        AppPadding.small,
+      ),
+      onTap: () {
+        ref
+            .read(sheetControllerProvider)
+            .show(
+              context: context,
+              scrollControlled: true,
+              child: (context) => SymptomEditSheet(question: question),
+            );
+      },
+      leading: CircleAvatar(
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+        foregroundColor: Theme.of(context).colorScheme.primary,
+        child: Icon(typeIcon, size: 20),
+      ),
+      title: Text(
+        translated.prompt,
+        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+          fontWeight: FontWeight.w600,
+          color: question.enabled
+              ? null
+              : Theme.of(context).colorScheme.onSurfaceVariant,
         ),
-      ];
-    } else if (translated case Numeric(min: num? min, max: num? max)) {
-      added = [
-        Padding(
-          padding: const EdgeInsetsGeometry.only(left: AppPadding.large),
-          child: Text("${min ?? 1} - ${max ?? 5}"),
-        )
-      ];
-    }
-
-    Widget editsRow() {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Switch(
-            value: question.enabled,
-            onChanged: question.locked
-                ? null
-                : (_) async {
-                    if (!await (await ref.read(questionsProvider.future))!
-                            .setQuestionEnabled(question, !question.enabled) &&
-                        context.mounted) {
-                      showSnack(context,
-                          "Failed to ${!question.enabled ? "enable" : "disable"} ${question.prompt}");
-                    }
-                  },
-            thumbIcon: question.locked
-                ? WidgetStateProperty.all(const Icon(Icons.lock))
-                : null,
-          ),
-          IconButton(
-              onPressed: () async {
-                if (question.userCreated) {
-                  if (!await (await ref.read(questionsProvider.future))!
-                          .removeQuestion(question) &&
-                      context.mounted) {
-                    showSnack(context, "Failed to delete ${question.prompt}");
-                  }
-                } else {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text("Cannot Delete"),
-                      content: const Text(
-                          "Pre-installed symptoms cannot be deleted. You can disable them to hide them from your daily log."),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text("OK"),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-              },
-              icon: Icon(
-                Icons.delete,
-                color: !question.userCreated
-                    ? Theme.of(context).disabledColor
-                    : null,
-              ))
-        ],
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(
-              vertical: AppPadding.tiny, horizontal: AppPadding.large),
-          child: Row(
-            children: [
-              Expanded(
-                child: SymptomInfoDisplay(question: question),
-              ),
-              const SizedBox(
-                width: AppPadding.tiny,
-              ),
-              IconButton(
-                  onPressed: () {
-                    ref.read(sheetControllerProvider).show(
-                          context: context,
-                          scrollControlled: true,
-                          child: (context) {
-                            return SymptomEditSheet(question: question);
-                          },
-                        );
-                  },
-                  icon: const Icon(Icons.more_horiz))
-            ],
-          ),
+      ),
+      subtitle: Padding(
+        padding: const EdgeInsets.only(top: AppPadding.tiny),
+        child: Text(
+          [
+            details,
+            if (question.userCreated) context.translate.customQuestionLabel,
+            if (!question.enabled) 'Hidden from check-ins',
+          ].join(' · '),
         ),
-        if (added != null) ...added,
-      ],
+      ),
+      trailing: const Icon(Icons.chevron_right),
     );
   }
 }
@@ -700,18 +1084,19 @@ class SymptomEditSheet extends ConsumerStatefulWidget {
 }
 
 class SymptomEditSheetState extends ConsumerState<SymptomEditSheet> {
-  bool deleteTried = false, lockTried = false;
+  bool lockTried = false;
 
   @override
   Widget build(BuildContext context) {
     final Question? question = ref.watch(
       questionHomeProvider.select(
-        (value) => value.valueOrNull?.forDisplay(widget.question.id),
+        (value) => value.value?.forDisplay(widget.question.id),
       ),
     );
 
-    final QuestionsLocalizations? localizations =
-        QuestionsLocalizations.of(context);
+    final QuestionsLocalizations? localizations = QuestionsLocalizations.of(
+      context,
+    );
 
     return SizedBox(
       width: double.infinity,
@@ -724,144 +1109,270 @@ class SymptomEditSheetState extends ConsumerState<SymptomEditSheet> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  const SizedBox(height: AppPadding.large),
+                  const SizedBox(height: AppPadding.small),
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.outlineVariant,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppPadding.medium),
                   Row(
                     children: [
                       Expanded(
-                        child: SymptomInfoDisplay(
-                          question:
-                              localizations?.translateQuestion(question) ??
-                                  question,
+                        child: Text(
+                          context.translate.questionSettingsTitle,
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                       ),
-                      const SizedBox(width: AppPadding.tiny),
                       IconButton(
+                        tooltip: 'Close',
                         onPressed: () => context.pop(),
-                        icon: const Icon(Icons.keyboard_arrow_down),
+                        icon: const Icon(Icons.close),
                       ),
                     ],
                   ),
                   const SizedBox(height: AppPadding.small),
-                  const Divider(),
+                  Card(
+                    elevation: 0,
+                    margin: EdgeInsets.zero,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .surfaceContainerHighest,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppRounding.medium),
+                      side: BorderSide(
+                        color: Theme.of(context).colorScheme.outlineVariant,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppPadding.medium),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: Theme.of(context)
+                                .colorScheme
+                                .primaryContainer,
+                            foregroundColor: Theme.of(context)
+                                .colorScheme
+                                .onPrimaryContainer,
+                            child: Icon(
+                              _questionTypeIcon(QuestionType.from(question)),
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: AppPadding.medium),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  context.translate.questionCardLabel,
+                                  style: Theme.of(context).textTheme.labelMedium
+                                      ?.copyWith(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                ),
+                                const SizedBox(height: AppPadding.tiny),
+                                SymptomInfoDisplay(
+                                  question:
+                                      localizations?.translateQuestion(
+                                        question,
+                                      ) ??
+                                      question,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppPadding.medium),
                   if (question.locked && lockTried)
-                    Center(
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: AppPadding.small),
                       child: Text(
-                        "This symptom is currently locked on ${question.enabled ? "enabled" : "disabled"}",
+                        "This question is locked ${question.enabled ? "on" : "off"}.",
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).colorScheme.error,
-                            ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  Row(
-                    children: [
-                      Text("Enabled",
-                          style: Theme.of(context).textTheme.titleMedium),
-                      const Spacer(),
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            lockTried = true;
-                          });
-                        },
-                        child: Switch(
-                          value: question.enabled,
-                          onChanged: question.locked
-                              ? null
-                              : (_) async {
-                                  final repo =
-                                      await ref.read(questionsProvider.future);
-                                  if (repo == null) return;
-                                  if (!await repo.setQuestionEnabled(
-                                          question, !question.enabled) &&
-                                      context.mounted) {
-                                    showSnack(context,
-                                        "Failed to ${!question.enabled ? "enable" : "disable"} ${question.prompt}");
-                                  }
-                                },
-                          thumbIcon: question.locked
-                              ? WidgetStateProperty.all(const Icon(Icons.lock))
-                              : null,
+                          color: Theme.of(context).colorScheme.error,
                         ),
                       ),
-                    ],
-                  ),
-                  const Divider(),
-                  if (!question.userCreated && deleteTried)
-                    Center(
-                      child: Text(
-                        "Cannot delete a predefined symptom. Disable it to remove it from the record page.",
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).colorScheme.error,
-                            ),
-                        textAlign: TextAlign.center,
-                      ),
                     ),
-                  const Divider(),
                   ListTile(
-                    title: Text("Validation Rules",
-                        style: Theme.of(context).textTheme.titleMedium),
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(context.translate.showInCheckIns),
                     subtitle: Text(
-                        question.requirement == null
-                            ? "No rules defined"
-                            : "Custom rules defined",
-                        style: Theme.of(context).textTheme.bodySmall),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () async {
-                      final allQuestions =
-                          await ref.read(questionHomeProvider.future);
-                      if (!context.mounted) return;
-                      // Filter out self to avoid recursion
-                      final validQuestions = allQuestions
-                          .byType()
-                          .values
-                          .expand((l) => l)
-                          .where((q) => q.id != question.id)
-                          .toList();
-
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        useSafeArea: true,
-                        builder: (context) => _RequirementEditorSheet(
-                          initialRequirement: question.requirement,
-                          availableQuestions: [question],
-                          onSave: (newRequirement) async {
-                            final repo =
-                                await ref.read(questionsProvider.future);
-                            if (repo == null) return;
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                  const Divider(),
-                  Center(
-                    child: GestureDetector(
-                      onTap: () {
-                        if (!question.userCreated) {
-                          setState(() {
-                            deleteTried = true;
-                          });
-                        }
-                      },
-                      child: FilledButton.icon(
-                        onPressed: question.userCreated
-                            ? () async {
-                                //TODO: add enable/disable
-                              }
+                      question.locked
+                          ? context.translate.settingManagedByApp
+                          : context.translate.hideQuestionDescription,
+                    ),
+                    trailing: GestureDetector(
+                      onTap: question.locked
+                          ? () => setState(() => lockTried = true)
+                          : null,
+                      child: Switch(
+                        value: question.enabled,
+                        onChanged: question.locked
+                            ? null
+                            : (_) async {
+                                final repo = await ref.read(
+                                  questionsProvider.future,
+                                );
+                                if (repo == null) return;
+                                if (!await repo.setQuestionEnabled(
+                                      question,
+                                      !question.enabled,
+                                    ) &&
+                                    context.mounted) {
+                                  showSnack(
+                                    context,
+                                    "Failed to ${!question.enabled ? "show" : "hide"} ${question.prompt}",
+                                  );
+                                }
+                              },
+                        thumbIcon: question.locked
+                            ? WidgetStateProperty.all(const Icon(Icons.lock))
                             : null,
-                        label: const Text("Delete"),
-                        icon: const Icon(Icons.delete),
-                        style: FilledButton.styleFrom(
-                          backgroundColor:
-                              Theme.of(context).colorScheme.errorContainer,
-                          foregroundColor:
-                              Theme.of(context).colorScheme.onErrorContainer,
-                        ),
                       ),
                     ),
                   ),
+                  const Divider(height: AppPadding.large),
+                  if (question.userCreated) ...[
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.task_alt_outlined),
+                      title: Text(context.translate.responseRequirementTitle),
+                      subtitle: Text(
+                        question.requirement == null ||
+                                question.requirement!.groups.isEmpty
+                            ? context.translate.optionalResponseDescription
+                            : context.translate.requiredResponseDescription,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          useSafeArea: true,
+                          builder: (context) => _RequirementEditorSheet(
+                            initialRequirement: question.requirement,
+                            availableQuestions: [question],
+                            onSave: (newRequirement) async {
+                              final repo = await ref.read(
+                                questionsProvider.future,
+                              );
+                              if (repo == null) return;
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                    const Divider(height: AppPadding.large),
+                  ],
+                  if (!question.userCreated)
+                    Container(
+                      padding: const EdgeInsets.all(AppPadding.medium),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(AppRounding.medium),
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.outlineVariant,
+                        ),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.lock_outline),
+                          const SizedBox(width: AppPadding.small),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  context.translate.builtInQuestionLabel,
+                                  style: Theme.of(context).textTheme.titleSmall
+                                      ?.copyWith(fontWeight: FontWeight.w700),
+                                ),
+                                const SizedBox(height: AppPadding.tiny),
+                                Text(
+                                  context.translate.builtInQuestionDescription,
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurfaceVariant,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    Center(
+                      child: FilledButton.icon(
+                        onPressed: () async {
+                          final confirmed = await showDialog<bool>(
+                            context: context,
+                            builder: (dialogContext) => AlertDialog(
+                              title: const Text('Delete question?'),
+                              content: Text(
+                                'This will permanently delete "${question.prompt}".',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(dialogContext, false),
+                                  child: const Text('Cancel'),
+                                ),
+                                FilledButton(
+                                  onPressed: () =>
+                                      Navigator.pop(dialogContext, true),
+                                  child: const Text('Delete'),
+                                ),
+                              ],
+                            ),
+                          );
+                          if (confirmed != true) return;
+                          final repo = await ref.read(questionsProvider.future);
+                          if (repo == null) return;
+                          final removed = await repo.removeQuestion(question);
+                          if (!context.mounted) return;
+                          if (removed) {
+                            Navigator.pop(context);
+                          } else {
+                            showSnack(
+                              context,
+                              'Failed to delete ${question.prompt}',
+                            );
+                          }
+                        },
+                        label: Text(context.translate.deleteQuestionFromDraft),
+                        icon: const Icon(Icons.delete_outline),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: Theme.of(context)
+                              .colorScheme
+                              .errorContainer,
+                          foregroundColor: Theme.of(context)
+                              .colorScheme
+                              .onErrorContainer,
+                        ),
+                      ),
+                    ),
                   const SizedBox(height: AppPadding.large),
                 ],
               ),
@@ -877,8 +1388,9 @@ class SymptomInfoDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final QuestionType type = QuestionType.from(question);
-    final QuestionsLocalizations? localizations =
-        QuestionsLocalizations.of(context);
+    final QuestionsLocalizations? localizations = QuestionsLocalizations.of(
+      context,
+    );
     final Question translated =
         localizations?.translateQuestion(question) ?? question;
     return Column(
@@ -887,33 +1399,28 @@ class SymptomInfoDisplay extends StatelessWidget {
       children: [
         RichText(
           text: TextSpan(
-              text: translated.prompt,
-              style: Theme.of(context).textTheme.titleMedium,
-              children: [
-                if (question.userCreated)
-                  TextSpan(
-                    text: " · custom symptom",
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withValues(alpha: 0.75),
-                        ),
+            text: translated.prompt,
+            style: Theme.of(context).textTheme.titleMedium,
+            children: [
+              if (question.userCreated)
+                TextSpan(
+                  text: " · ${context.translate.customQuestionLabel}",
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface
+                        .withValues(alpha: 0.75),
                   ),
-              ]),
+                ),
+            ],
+          ),
         ),
-        const SizedBox(
-          height: AppPadding.tiny,
-        ),
+        const SizedBox(height: AppPadding.tiny),
         RichText(
           text: TextSpan(
-            text: type.value,
+            text: _questionTypeLabel(context, type),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurface
-                      .withValues(alpha: 0.75),
-                ),
+              color: Theme.of(context).colorScheme.onSurface
+                  .withValues(alpha: 0.75),
+            ),
           ),
         ),
       ],
@@ -975,8 +1482,9 @@ class _RequirementEditorSheetState extends State<_RequirementEditorSheet> {
           Row(
             children: [
               Text(
-                "Validation Rules",
-                style: Theme.of(context).textTheme.titleLarge,
+                "Response requirement",
+                style: Theme.of(context).textTheme.titleLarge
+                    ?.copyWith(fontWeight: FontWeight.bold),
               ),
               const Spacer(),
               IconButton(
@@ -985,7 +1493,13 @@ class _RequirementEditorSheetState extends State<_RequirementEditorSheet> {
               ),
             ],
           ),
-          const SizedBox(height: AppPadding.medium),
+          Text(
+            'Define what counts as a completed response to this question.',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: AppPadding.large),
           Flexible(
             child: SingleChildScrollView(
               child: ConditionEditor(
@@ -1009,12 +1523,13 @@ class _RequirementEditorSheetState extends State<_RequirementEditorSheet> {
                   onPressed: () {
                     setState(() => _root = null);
                   },
-                  child: const Text("Clear"),
+                  child: const Text("Make optional"),
                 ),
               const SizedBox(width: AppPadding.small),
-              FilledButton(
+              FilledButton.icon(
                 onPressed: _save,
-                child: const Text("Save Rules"),
+                icon: const Icon(Icons.check),
+                label: const Text("Save requirement"),
               ),
             ],
           ),
@@ -1034,7 +1549,7 @@ class _RequirementEditorSheetState extends State<_RequirementEditorSheet> {
       requirement = Requirement([_root as ConditionGroup]);
     } else {
       requirement = Requirement([
-        ConditionGroup(conditions: [_root!], op: GroupOp.all)
+        ConditionGroup(conditions: [_root!], op: GroupOp.all),
       ]);
     }
 
@@ -1042,13 +1557,98 @@ class _RequirementEditorSheetState extends State<_RequirementEditorSheet> {
   }
 }
 
+@immutable
+class QuestionSectionOption {
+  final String id;
+  final String label;
+
+  const QuestionSectionOption({required this.id, required this.label});
+}
+
+@immutable
+class QuestionDraftResult {
+  final Question question;
+  final String sectionId;
+
+  const QuestionDraftResult({required this.question, required this.sectionId});
+}
+
+class AddQuestionPage extends StatelessWidget {
+  final String type;
+  final bool saveToRepository;
+  final String? draftId;
+  final Question? initialQuestion;
+  final List<QuestionSectionOption> sections;
+  final String? initialSectionId;
+  final RecordPath? recordPath;
+  final Map<String, List<Question>> availableDependenciesBySection;
+
+  const AddQuestionPage({
+    required this.type,
+    this.saveToRepository = true,
+    this.draftId,
+    this.initialQuestion,
+    this.sections = const [],
+    this.initialSectionId,
+    this.recordPath,
+    this.availableDependenciesBySection = const {},
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: SafeArea(
+        child: Column(
+          children: [
+            RecordFlowHeader(
+              title: initialQuestion == null
+                  ? context.translate.addQuestion
+                  : context.translate.questionSettingsTitle,
+              subtitle: type,
+              onBack: () => Navigator.pop(context),
+            ),
+            Expanded(
+              child: AddSymptomWidget(
+                type: type,
+                saveToRepository: saveToRepository,
+                draftId: draftId,
+                initialQuestion: initialQuestion,
+                sections: sections,
+                initialSectionId: initialSectionId,
+                recordPath: recordPath,
+                availableDependenciesBySection: availableDependenciesBySection,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class AddSymptomWidget extends ConsumerStatefulWidget {
   final String type;
+  final bool saveToRepository;
+  final String? draftId;
+  final Question? initialQuestion;
+  final List<QuestionSectionOption> sections;
+  final String? initialSectionId;
+  final RecordPath? recordPath;
+  final Map<String, List<Question>> availableDependenciesBySection;
 
-  final ScrollController scrollController;
-
-  const AddSymptomWidget(
-      {required this.type, required this.scrollController, super.key});
+  const AddSymptomWidget({
+    required this.type,
+    this.saveToRepository = true,
+    this.draftId,
+    this.initialQuestion,
+    this.sections = const [],
+    this.initialSectionId,
+    this.recordPath,
+    this.availableDependenciesBySection = const {},
+    super.key,
+  });
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
@@ -1068,227 +1668,345 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
   bool isLoading = false, submitSuccess = false;
 
   QuestionType selectedQuestionType = QuestionType.check;
+  String? selectedSectionId;
+  DependsOn dependency = const DependsOn.nothing();
+  late final String questionId;
+
+  @override
+  void initState() {
+    super.initState();
+    questionId =
+        widget.initialQuestion?.id ??
+        widget.draftId ??
+        (widget.sections.isEmpty
+            ? ''
+            : 'custom-${DateTime.now().microsecondsSinceEpoch}');
+    final initial = widget.initialQuestion;
+    if (initial != null) {
+      prompt.text = initial.prompt;
+      selectedQuestionType = QuestionType.from(initial);
+      dependency = initial.dependsOn ?? const DependsOn.nothing();
+      if (initial is Numeric) {
+        minValue.text = (initial.min ?? 1).toString();
+        maxValue.text = (initial.max ?? 5).toString();
+      }
+      if (initial is MultipleChoice) choices = List.of(initial.choices);
+      if (initial is AllThatApply) choices = List.of(initial.choices);
+    }
+    selectedSectionId =
+        widget.initialSectionId ??
+        (widget.sections.isEmpty ? null : widget.sections.first.id);
+  }
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(pagesByPath(PagesByPathProps(pathName: widget.type)));
-    return Padding(
-      padding: const EdgeInsets.only(
-          left: AppPadding.medium,
-          right: AppPadding.medium,
-          top: AppPadding.large),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(children: [
-            Expanded(
-              child: Text(
-                "Add Symptom",
-                textAlign: TextAlign.left,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-            ),
-            const SizedBox(
-              width: AppPadding.tiny,
-            ),
-            IconButton(
-                onPressed: () {
-                  context.pop();
-                },
-                icon: const Icon(Icons.keyboard_arrow_down))
-          ]),
-          Expanded(
-            child: Form(
-              key: formKey,
-              child: Opacity(
-                opacity: isLoading ? 0.6 : 1.0,
-                child: IgnorePointer(
-                  ignoring: isLoading,
+    if (widget.saveToRepository) {
+      ref.watch(pagesByPath(PagesByPathProps(pathName: widget.type)));
+    }
+    return SafeArea(
+      child: Opacity(
+        opacity: isLoading ? 0.6 : 1,
+        child: IgnorePointer(
+          ignoring: isLoading,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: Form(
+                  key: formKey,
                   child: ListView(
-                    shrinkWrap: true,
-                    controller: widget.scrollController,
+                    padding: const EdgeInsets.fromLTRB(
+                      AppPadding.large,
+                      AppPadding.medium,
+                      AppPadding.large,
+                      AppPadding.xxl,
+                    ),
                     children: [
-                      Row(
-                        children: [
-                          Text(
-                            "Symptom type",
-                            style: Theme.of(context).textTheme.titleSmall,
+                      _QuestionBuilderSection(
+                        icon: Icons.edit_note,
+                        title: context.translate.questionContentTitle,
+                        description:
+                            context.translate.questionContentDescription,
+                        child: TextFormField(
+                          controller: prompt,
+                          textCapitalization: TextCapitalization.sentences,
+                          maxLines: 3,
+                          minLines: 2,
+                          decoration: InputDecoration(
+                            labelText: context.translate.questionPromptLabel,
+                            hintText: context.translate.questionPromptHint,
+                            alignLabelWithHint: true,
+                            filled: true,
+                            fillColor: Theme.of(context)
+                                .colorScheme
+                                .surfaceContainerLowest,
+                            border: const OutlineInputBorder(),
                           ),
-                          const Spacer(),
-                          const SizedBox(
-                            width: AppPadding.tiny,
-                          ),
-                          Expanded(
-                            child: DropdownMenuFormField<QuestionType>(
-                              dropdownMenuEntries: QuestionType.ordered
+                          validator: (value) =>
+                              value == null || value.trim().isEmpty
+                              ? context.translate.questionPromptRequired
+                              : null,
+                        ),
+                      ),
+                      const SizedBox(height: AppPadding.medium),
+                      _QuestionBuilderSection(
+                        icon: Icons.tune,
+                        title: context.translate.responseSetupTitle,
+                        description: context.translate.responseSetupDescription,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Wrap(
+                              spacing: AppPadding.small,
+                              runSpacing: AppPadding.tiny,
+                              children: QuestionType.ordered
                                   .map(
-                                    (option) => DropdownMenuEntry(
-                                        label: option.value, value: option),
+                                    (option) => ChoiceChip(
+                                      showCheckmark: false,
+                                      avatar: Icon(
+                                        _questionTypeIcon(option),
+                                        size: 18,
+                                      ),
+                                      label: Text(
+                                        _questionTypeLabel(context, option),
+                                      ),
+                                      selected: selectedQuestionType == option,
+                                      onSelected: (_) => setState(
+                                        () => selectedQuestionType = option,
+                                      ),
+                                    ),
                                   )
                                   .toList(),
-                              initialSelection: QuestionType.check,
-                              enableSearch: false,
-                              enableFilter: false,
-                              onSelected: (option) {
-                                if (option == null) return;
-                                setState(() {
-                                  selectedQuestionType = option;
-                                });
-                              },
-                              inputDecorationTheme: InputDecorationThemeData(
-                                border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(AppPadding.tiny),
-                                ),
-                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: AppPadding.small,
-                      ),
-                      LabeledField(
-                        label: "prompt",
-                        child: TextFormField(
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(AppRounding.tiny),
+                            if (selectedQuestionType ==
+                                QuestionType.slider) ...[
+                              const SizedBox(height: AppPadding.large),
+                              Divider(
+                                height: 1,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .outlineVariant,
                               ),
-                            ),
-                          ),
-                          controller: prompt,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter a prompt';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      const SizedBox(
-                        height: AppPadding.small,
-                      ),
-                      if (selectedQuestionType == QuestionType.slider)
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              child: LabeledField(
-                                label: "min",
-                                child: TextFormField(
-                                  decoration: const InputDecoration(
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(AppRounding.tiny),
+                              const SizedBox(height: AppPadding.medium),
+                              Text(
+                                context.translate.responseRange,
+                                style: Theme.of(context).textTheme.titleSmall
+                                    ?.copyWith(fontWeight: FontWeight.w700),
+                              ),
+                              const SizedBox(height: AppPadding.small),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: TextFormField(
+                                      controller: minValue,
+                                      keyboardType: TextInputType.number,
+                                      inputFormatters: <TextInputFormatter>[
+                                        FilteringTextInputFormatter.digitsOnly,
+                                      ],
+                                      decoration: InputDecoration(
+                                        labelText:
+                                            context.translate.minimumLabel,
+                                        filled: true,
+                                        fillColor: Theme.of(context)
+                                            .colorScheme
+                                            .surfaceContainerLowest,
+                                        border: const OutlineInputBorder(),
                                       ),
+                                      validator: _validateRange,
                                     ),
                                   ),
-                                  keyboardType: TextInputType.number,
-                                  controller: minValue,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter a minimum';
-                                    }
-                                    int? minNum = int.tryParse(value);
-                                    int? maxNum = int.tryParse(maxValue.text);
-                                    if (minNum == null || maxNum == null) {
-                                      return "Must have a range";
-                                    }
-                                    if (minNum >= maxNum) {
-                                      return "Invalid range";
-                                    }
-                                    return null;
-                                  },
-                                  inputFormatters: <TextInputFormatter>[
-                                    FilteringTextInputFormatter.digitsOnly
-                                  ],
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 20.0,
-                            ),
-                            Expanded(
-                              child: LabeledField(
-                                label: "max",
-                                child: TextFormField(
-                                  decoration: const InputDecoration(
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(AppRounding.tiny),
+                                  const SizedBox(width: AppPadding.small),
+                                  Expanded(
+                                    child: TextFormField(
+                                      controller: maxValue,
+                                      keyboardType: TextInputType.number,
+                                      inputFormatters: <TextInputFormatter>[
+                                        FilteringTextInputFormatter.digitsOnly,
+                                      ],
+                                      decoration: InputDecoration(
+                                        labelText:
+                                            context.translate.maximumLabel,
+                                        filled: true,
+                                        fillColor: Theme.of(context)
+                                            .colorScheme
+                                            .surfaceContainerLowest,
+                                        border: const OutlineInputBorder(),
                                       ),
+                                      validator: _validateRange,
                                     ),
                                   ),
-                                  keyboardType: TextInputType.number,
-                                  controller: maxValue,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter a minimum';
-                                    }
-                                    int? maxNum = int.tryParse(value);
-                                    int? minNum = int.tryParse(minValue.text);
-                                    if (minNum == null || maxNum == null) {
-                                      return "Must have a range";
-                                    }
-                                    if (maxNum <= minNum) {
-                                      return "Invalid range";
-                                    }
-                                    return null;
-                                  },
-                                  inputFormatters: <TextInputFormatter>[
-                                    FilteringTextInputFormatter.digitsOnly
-                                  ],
-                                ),
+                                ],
                               ),
-                            ),
+                            ],
+                            if (selectedQuestionType ==
+                                    QuestionType.multipleChoice ||
+                                selectedQuestionType ==
+                                    QuestionType.allThatApply) ...[
+                              const SizedBox(height: AppPadding.large),
+                              Divider(
+                                height: 1,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .outlineVariant,
+                              ),
+                              const SizedBox(height: AppPadding.medium),
+                              Text(
+                                context.translate.optionsLabel,
+                                style: Theme.of(context).textTheme.titleSmall
+                                    ?.copyWith(fontWeight: FontWeight.w700),
+                              ),
+                              const SizedBox(height: AppPadding.small),
+                              ChoicesFormField(
+                                allowMultiple:
+                                    selectedQuestionType ==
+                                    QuestionType.allThatApply,
+                                validator: _validateChoices,
+                                onChanged: (value) {
+                                  choices = value ?? const [];
+                                },
+                                initialValue: choices,
+                              ),
+                            ],
                           ],
                         ),
-                      if (selectedQuestionType == QuestionType.multipleChoice ||
-                          selectedQuestionType == QuestionType.allThatApply)
-                        ChoicesFormField(
-                          validator: (value) => value == null || value.isEmpty
-                              ? "Must have at least one option"
-                              : null,
-                          onChanged: (value) {
-                            if (value == null) return;
-                            setState(() {
-                              choices = value;
-                            });
-                          },
-                          initialValue: choices,
+                      ),
+                      if (widget.sections.isNotEmpty) ...[
+                        _QuestionBuilderSection(
+                          icon: Icons.place_outlined,
+                          title: context.translate.placementTitle,
+                          description: widget.sections
+                              .firstWhere(
+                                (s) => s.id == selectedSectionId,
+                                orElse: () => widget.sections.first,
+                              )
+                              .label,
+                          child: DropdownMenuFormField<String>(
+                            initialSelection: selectedSectionId,
+                            expandedInsets: EdgeInsets.zero,
+                            enableFilter: false,
+                            enableSearch: false,
+                            leadingIcon: const Icon(Icons.view_agenda_outlined),
+                            label: Text(context.translate.appearsInSection),
+                            inputDecorationTheme: InputDecorationThemeData(
+                              filled: true,
+                              fillColor: Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainerLowest,
+                              border: const OutlineInputBorder(),
+                            ),
+                            dropdownMenuEntries: widget.sections
+                                .map(
+                                  (section) => DropdownMenuEntry(
+                                    value: section.id,
+                                    label: section.label,
+                                  ),
+                                )
+                                .toList(),
+                            onSelected: (value) => setState(() {
+                              selectedSectionId = value;
+                              dependency = const DependsOn.nothing();
+                            }),
+                          ),
                         ),
+                        const SizedBox(height: AppPadding.medium),
+                      ],
+                      if (_availableDependencyQuestions.isNotEmpty) ...[
+                        const SizedBox(height: AppPadding.medium),
+                        _QuestionBuilderSection(
+                          icon: Icons.visibility_outlined,
+                          title: context.translate.questionVisibilityRuleTitle,
+                          description: dependency.groups.isEmpty
+                              ? context.translate.alwaysShown
+                              : _dependencySummary(),
+                          child: ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(
+                              dependency.groups.isEmpty
+                                  ? context.translate.alwaysShown
+                                  : _dependencySummary(),
+                            ),
+                            trailing: const Icon(Icons.chevron_right),
+                            onTap: _editDependency,
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
               ),
-            ),
-          ),
-          SizedBox(
-            width: double.infinity,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                  border: const Border(top: BorderSide()),
-                  color: Theme.of(context).colorScheme.surface),
-              child: Padding(
-                padding: const EdgeInsetsGeometry.symmetric(
-                    vertical: AppPadding.small),
-                child: FilledButton(
-                  onPressed: () async {
-                    await add();
-                  },
-                  child: submitSuccess
+              const Divider(height: 1),
+              Padding(
+                padding: const EdgeInsets.all(AppPadding.large),
+                child: FilledButton.icon(
+                  onPressed: isLoading ? null : add,
+                  icon: submitSuccess
                       ? const Icon(Icons.check)
-                      : isLoading
-                          ? const ButtonLoadingIndicator()
-                          : const Text("Add Symptom"),
+                      : const Icon(Icons.add),
+                  label: isLoading
+                      ? const ButtonLoadingIndicator()
+                      : Text(
+                          widget.initialQuestion == null
+                              ? context.translate.createQuestion
+                              : context.translate.saveChanges,
+                        ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
+      ),
+    );
+  }
+
+  String? _validateRange(String? _) {
+    final min = int.tryParse(minValue.text);
+    final max = int.tryParse(maxValue.text);
+    if (min == null || max == null) return context.translate.rangeRequired;
+    if (min >= max) return context.translate.rangeInvalid;
+    return null;
+  }
+
+  String? _validateChoices(List<String>? value) {
+    final normalized = (value ?? const <String>[])
+        .map((choice) => choice.trim())
+        .toList();
+    if (normalized.length < 2 || normalized.any((choice) => choice.isEmpty)) {
+      return context.translate.optionsMinimumRequired;
+    }
+    if (normalized.toSet().length != normalized.length) {
+      return context.translate.optionsMustBeUnique;
+    }
+    if (normalized.any((choice) => choice.contains(','))) {
+      return context.translate.optionCommaUnsupported;
+    }
+    return null;
+  }
+
+  List<Question> get _availableDependencyQuestions =>
+      widget.availableDependenciesBySection[selectedSectionId] ?? const [];
+
+  String _dependencySummary() {
+    return localizedRuleSummary(
+      context,
+      dependency,
+      (id) => _availableDependencyQuestions.firstWhereOrNull((q) => q.id == id),
+    );
+  }
+
+  Future<void> _editDependency() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (sheetContext) => DependencyEditor(
+        initialDependency: dependency,
+        availableQuestions: _availableDependencyQuestions,
+        title: context.translate.questionVisibilityRuleTitle,
+        description: context.translate.questionVisibilityRuleDescription,
+        onSave: (value) {
+          setState(() => dependency = value);
+          Navigator.pop(sheetContext);
+        },
       ),
     );
   }
@@ -1298,153 +2016,551 @@ class _AddSymptomWidgetState extends ConsumerState<AddSymptomWidget> {
 
     if (!formKey.currentState!.validate()) return;
 
-    setState(() {
-      isLoading = true;
-    });
-    Question question;
-    switch (selectedQuestionType) {
-      case QuestionType.check:
-        question = Check(
-            id: "", prompt: prompt.text, type: widget.type, userCreated: true);
-      case QuestionType.freeResponse:
-        question = FreeResponse(
-            id: "", prompt: prompt.text, type: widget.type, userCreated: true);
-      case QuestionType.slider:
-        question = Numeric(
-            id: "", prompt: prompt.text, type: widget.type, userCreated: true);
-      case QuestionType.multipleChoice:
-        question = MultipleChoice(
-            id: "",
-            prompt: prompt.text,
-            type: widget.type,
-            choices: choices,
-            userCreated: true);
-      case QuestionType.allThatApply:
-        question = AllThatApply(
-            id: "",
-            prompt: prompt.text,
-            type: widget.type,
-            choices: choices,
-            userCreated: true);
+    final question = _buildQuestion(id: questionId);
+    if (!widget.saveToRepository) {
+      Navigator.pop(
+        context,
+        QuestionDraftResult(
+          question: question,
+          sectionId: selectedSectionId ?? '',
+        ),
+      );
+      return;
     }
-    final bool added =
-        await (await ref.read(questionsProvider.future))!.addQuestion(question);
+
+    setState(() => isLoading = true);
+    final repo = await ref.read(questionsProvider.future);
+    if (repo == null) {
+      if (mounted) setState(() => isLoading = false);
+      return;
+    }
+    bool added = await repo.addQuestion(question);
+    if (added && widget.recordPath != null && selectedSectionId != null) {
+      final pages = widget.recordPath!.pages
+          .map(
+            (page) => page.copyWith(
+              questionIds: page.questionIds
+                  .where((questionId) => questionId != question.id)
+                  .toList(),
+            ),
+          )
+          .toList();
+      final targetIndex = pages.indexWhere(
+        (page) => page.id == selectedSectionId,
+      );
+      if (targetIndex >= 0) {
+        pages[targetIndex] = pages[targetIndex].copyWith(
+          questionIds: [...pages[targetIndex].questionIds, question.id],
+        );
+        added = await repo.updateRecordPath(
+          widget.recordPath!.copyWith(pages: pages),
+        );
+      } else {
+        added = false;
+      }
+      if (!added) await repo.removeQuestion(question);
+    }
 
     if (added) {
-      if (mounted) {
-        setState(() {
-          submitSuccess = true;
-        });
-      }
-      await Future.delayed(Durations.long4);
-      prompt.clear();
-      minValue.clear();
-      maxValue.clear();
-      choices.clear();
-      formKey.currentState?.reset();
+      if (!mounted) return;
+      setState(() => submitSuccess = true);
+      await Future.delayed(Durations.medium2);
+      if (mounted) Navigator.pop(context);
     } else if (mounted) {
-      context.pop();
+      setState(() => isLoading = false);
       showSnack(context, "Failed to add question");
     }
+  }
 
-    if (mounted) {
-      setState(() {
-        submitSuccess = false;
-        isLoading = false;
-        context.pop();
-      });
-    }
+  @override
+  void dispose() {
+    prompt.dispose();
+    minValue.dispose();
+    maxValue.dispose();
+    super.dispose();
+  }
+
+  Question _buildQuestion({String id = ''}) {
+    return switch (selectedQuestionType) {
+      QuestionType.check => Check(
+        id: id,
+        prompt: prompt.text.trim(),
+        type: widget.type,
+        userCreated: true,
+        dependsOn: dependency,
+      ),
+      QuestionType.freeResponse => FreeResponse(
+        id: id,
+        prompt: prompt.text.trim(),
+        type: widget.type,
+        userCreated: true,
+        dependsOn: dependency,
+      ),
+      QuestionType.slider => Numeric(
+        id: id,
+        prompt: prompt.text.trim(),
+        type: widget.type,
+        min: int.parse(minValue.text),
+        max: int.parse(maxValue.text),
+        userCreated: true,
+        dependsOn: dependency,
+      ),
+      QuestionType.multipleChoice => MultipleChoice(
+        id: id,
+        prompt: prompt.text.trim(),
+        type: widget.type,
+        choices: List.unmodifiable(choices),
+        userCreated: true,
+        dependsOn: dependency,
+      ),
+      QuestionType.allThatApply => AllThatApply(
+        id: id,
+        prompt: prompt.text.trim(),
+        type: widget.type,
+        choices: List.unmodifiable(choices),
+        userCreated: true,
+        dependsOn: dependency,
+      ),
+    };
   }
 }
 
-class ChoicesFormField extends FormField<List<String>> {
-  ChoicesFormField({
+class _QuestionBuilderSection extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String description;
+  final Widget child;
+
+  const _QuestionBuilderSection({
+    required this.icon,
+    required this.title,
+    required this.description,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          title,
+          style: Theme.of(context).textTheme.titleMedium
+              ?.copyWith(fontWeight: FontWeight.w700),
+        ),
+        const SizedBox(height: AppPadding.small),
+        child,
+      ],
+    );
+  }
+}
+
+class PreviewQuestionHome extends QuestionHome {
+  PreviewQuestionHome(Iterable<Question> questions) {
+    for (final question in questions) {
+      all[question.id] = question;
+    }
+  }
+
+  @override
+  Map<String, List<Question>> byType() {
+    final result = <String, List<Question>>{};
+    for (final question in all.values) {
+      result.putIfAbsent(question.type, () => []).add(question);
+    }
+    return result;
+  }
+}
+
+class RecordFlowPreviewSheet extends StatefulWidget {
+  final QuestionGraph graph;
+  final RecordPath path;
+  final String? title;
+
+  const RecordFlowPreviewSheet({
+    required this.graph,
+    required this.path,
+    this.title,
     super.key,
-    super.onSaved,
-    super.validator,
-    ValueChanged<List<String>?>? onChanged,
-    List<String> super.initialValue = const [],
-  }) : super(
-          builder: (FormFieldState<List<String>> state) {
-            final TextEditingController controller = TextEditingController();
+  });
 
-            void onChangedHandler(List<String>? value) {
-              state.didChange(value);
-              if (onChanged != null) {
-                onChanged(value);
-              }
-            }
+  @override
+  State<RecordFlowPreviewSheet> createState() => _RecordFlowPreviewSheetState();
+}
 
-            return UnmanagedRestorationScope(
-              bucket: state.bucket,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (state.value != null)
-                    LabeledField(
-                      label: "Choice",
-                      child: Row(children: [
-                        Expanded(
-                          child: TextField(
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(AppRounding.tiny),
-                                ),
-                              ),
+class _RecordFlowPreviewSheetState extends State<RecordFlowPreviewSheet> {
+  late final SessionGraph session;
+  int pageIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    session = widget.graph.createSession(recordPathName: widget.path.name);
+  }
+
+  @override
+  void dispose() {
+    session.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final QuestionsLocalizations? localizations = QuestionsLocalizations.of(
+      context,
+    );
+    final title =
+        widget.title ??
+        localizations?.value(widget.path.name) ??
+        widget.path.name;
+    return SizedBox(
+      height: MediaQuery.sizeOf(context).height * 0.92,
+      child: AnimatedBuilder(
+        animation: session,
+        builder: (context, _) {
+          final visiblePages = session.visiblePages;
+          if (visiblePages.isEmpty) {
+            return Center(child: Text(context.translate.conditionNoConditions));
+          }
+          if (pageIndex >= visiblePages.length) {
+            pageIndex = visiblePages.length - 1;
+          }
+          final page = visiblePages[pageIndex];
+          final questions = page.questionIds
+              .map((id) => widget.graph.node(id)?.question)
+              .whereType<Question>()
+              .toList();
+          final header = page.header?.isNotEmpty == true
+              ? localizations?.value(page.header!) ?? page.header!
+              : context.translate.sectionNumber(pageIndex + 1);
+          final isLast = pageIndex == visiblePages.length - 1;
+
+          return SafeArea(
+            top: false,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: AppPadding.small),
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppPadding.large,
+                    AppPadding.small,
+                    AppPadding.small,
+                    0,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              title,
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(fontWeight: FontWeight.bold),
                             ),
-                            controller: controller,
+                            Text(
+                              context.translate.previewMode,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        tooltip: context.translate.closePreview,
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.close),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(AppPadding.large),
+                  child: Container(
+                    padding: const EdgeInsets.all(AppPadding.small),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(AppRounding.small),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.visibility_outlined, size: 18),
+                        const SizedBox(width: AppPadding.small),
+                        Expanded(
+                          child: Text(
+                            context.translate.previewModeDescription,
+                            style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ),
-                        const SizedBox(
-                          width: AppPadding.small,
-                        ),
-                        IconButton.filled(
-                            onPressed: () {
-                              if (controller.text.isNotEmpty) {
-                                if (state.value != null) {
-                                  onChangedHandler([
-                                    ...state.value!,
-                                    controller.text,
-                                  ]);
-                                } else {
-                                  onChangedHandler([controller.text]);
-                                }
-                                controller.clear();
-                              }
-                            },
-                            icon: const Icon(Icons.add)),
-                      ]),
+                      ],
                     ),
-                  ...state.value!
-                      .mapIndexed(
-                        (index, choice) => ListTile(
-                          title: Text(choice),
-                          trailing: IconButton(
-                            onPressed: () {
-                              onChangedHandler(state.value!..removeAt(index));
-                            },
-                            icon: const Icon(Icons.delete),
+                  ),
+                ),
+                const Divider(height: 1),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(AppPadding.large),
+                    child: QuestionScreen(
+                      header: header,
+                      questions: questions,
+                      questionsListener: session,
+                    ),
+                  ),
+                ),
+                const Divider(height: 1),
+                Padding(
+                  padding: const EdgeInsets.all(AppPadding.large),
+                  child: Row(
+                    children: [
+                      if (pageIndex > 0)
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () => setState(() => pageIndex--),
+                            child: Text(context.translate.previousButton),
                           ),
                         ),
-                      )
-                      .separated(by: const Divider()),
-                  if (state.hasError) ...[
-                    const SizedBox(
-                      height: AppPadding.tiny,
+                      if (pageIndex > 0)
+                        const SizedBox(width: AppPadding.small),
+                      Expanded(
+                        child: FilledButton(
+                          onPressed: () {
+                            if (isLast) {
+                              Navigator.pop(context);
+                            } else {
+                              setState(() => pageIndex++);
+                            }
+                          },
+                          child: Text(
+                            isLast
+                                ? context.translate.doneButton
+                                : context.translate.nextButton,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class ChoicesFormField extends StatefulWidget {
+  final FormFieldValidator<List<String>>? validator;
+  final ValueChanged<List<String>?>? onChanged;
+  final List<String> initialValue;
+  final bool allowMultiple;
+
+  const ChoicesFormField({
+    this.validator,
+    this.onChanged,
+    this.initialValue = const [],
+    this.allowMultiple = false,
+    super.key,
+  });
+
+  @override
+  State<ChoicesFormField> createState() => _ChoicesFormFieldState();
+}
+
+class _ChoicesFormFieldState extends State<ChoicesFormField> {
+  late final List<_ChoiceDraft> drafts;
+  int nextId = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    final initial = widget.initialValue.isEmpty
+        ? const ['', '']
+        : widget.initialValue;
+    drafts = initial.map(_newDraft).toList();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _notify(null));
+  }
+
+  _ChoiceDraft _newDraft(String value) => _ChoiceDraft(
+    id: nextId++,
+    controller: TextEditingController(text: value),
+    focusNode: FocusNode(),
+  );
+
+  List<String> get values =>
+      drafts.map((draft) => draft.controller.text).toList(growable: false);
+
+  void _notify(FormFieldState<List<String>>? field) {
+    field?.didChange(values);
+    widget.onChanged?.call(values);
+  }
+
+  void _addOption(FormFieldState<List<String>> field) {
+    final draft = _newDraft('');
+    setState(() => drafts.add(draft));
+    _notify(field);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) draft.focusNode.requestFocus();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FormField<List<String>>(
+      initialValue: values,
+      validator: widget.validator,
+      builder: (field) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            context.translate.optionsEditorHelp,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: AppPadding.small),
+          ReorderableListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            buildDefaultDragHandles: false,
+            itemCount: drafts.length,
+            onReorderItem: (oldIndex, newIndex) {
+              setState(() {
+                final draft = drafts.removeAt(oldIndex);
+                drafts.insert(newIndex, draft);
+              });
+              _notify(field);
+            },
+            itemBuilder: (context, index) {
+              final draft = drafts[index];
+              return Container(
+                key: ValueKey(draft.id),
+                margin: const EdgeInsets.only(bottom: AppPadding.small),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppPadding.tiny,
+                  vertical: AppPadding.tiny,
+                ),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerLowest,
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                  ),
+                  borderRadius: BorderRadius.circular(AppRounding.small),
+                ),
+                child: Row(
+                  children: [
+                    ReorderableDragStartListener(
+                      index: index,
+                      child: Padding(
+                        padding: const EdgeInsets.all(AppPadding.small),
+                        child: Icon(
+                          Icons.drag_indicator,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
                     ),
-                    Text(
-                      state.errorText!,
-                      style: TextStyle(
-                          fontSize: 12.0,
-                          color: Theme.of(state.context).colorScheme.error),
+                    Icon(
+                      widget.allowMultiple
+                          ? Icons.check_box_outline_blank
+                          : Icons.radio_button_unchecked,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: AppPadding.small),
+                    Expanded(
+                      child: TextFormField(
+                        controller: draft.controller,
+                        focusNode: draft.focusNode,
+                        textCapitalization: TextCapitalization.sentences,
+                        decoration: InputDecoration(
+                          labelText: context.translate.optionNumber(index + 1),
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          filled: false,
+                        ),
+                        textInputAction: index == drafts.length - 1
+                            ? TextInputAction.next
+                            : TextInputAction.done,
+                        onChanged: (_) => _notify(field),
+                        onFieldSubmitted: (_) {
+                          if (index == drafts.length - 1) _addOption(field);
+                        },
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: context.translate.removeOption,
+                      onPressed: drafts.length <= 2
+                          ? null
+                          : () {
+                              final removed = drafts.removeAt(index);
+                              removed.dispose();
+                              setState(() {});
+                              _notify(field);
+                            },
+                      icon: const Icon(Icons.delete_outline),
                     ),
                   ],
-                ],
-              ),
-            );
-          },
-        );
+                ),
+              );
+            },
+          ),
+          OutlinedButton.icon(
+            onPressed: () => _addOption(field),
+            icon: const Icon(Icons.add),
+            label: Text(context.translate.addOption),
+          ),
+          if (field.hasError) ...[
+            const SizedBox(height: AppPadding.tiny),
+            Text(
+              field.errorText!,
+              style: Theme.of(context).textTheme.bodySmall
+                  ?.copyWith(color: Theme.of(context).colorScheme.error),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    for (final draft in drafts) {
+      draft.dispose();
+    }
+    super.dispose();
+  }
+}
+
+class _ChoiceDraft {
+  final int id;
+  final TextEditingController controller;
+  final FocusNode focusNode;
+
+  const _ChoiceDraft({
+    required this.id,
+    required this.controller,
+    required this.focusNode,
+  });
+
+  void dispose() {
+    controller.dispose();
+    focusNode.dispose();
+  }
 }
 
 class LabeledField extends StatelessWidget {
@@ -1464,16 +2580,12 @@ class LabeledField extends StatelessWidget {
           Text(
             label,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurface
-                      .withValues(alpha: 0.75),
-                ),
+              color: Theme.of(context).colorScheme.onSurface
+                  .withValues(alpha: 0.75),
+            ),
           ),
-          const SizedBox(
-            height: AppPadding.tiny,
-          ),
-          child
+          const SizedBox(height: AppPadding.tiny),
+          child,
         ],
       ),
     );

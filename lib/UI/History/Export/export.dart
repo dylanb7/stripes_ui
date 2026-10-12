@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:csv/csv.dart';
 import 'package:flutter/foundation.dart';
@@ -17,39 +18,53 @@ import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:stripes_ui/config.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:stripes_ui/Models/record_time.dart';
 
 class Export extends ConsumerWidget {
   const Export({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<List<Response>> available =
-        ref.watch(availableStampsProvider);
-    final List<Response> availableStamps = available.valueOrNull ?? [];
+    final AsyncValue<List<Response>> available = ref.watch(
+      availableStampsProvider,
+    );
     final ExportAction? exportFunc = ref.watch(configProvider).export;
-
-    return IconButton(
-      onPressed:
-          available.isLoading || availableStamps.isEmpty || exportFunc == null
-              ? null
-              : () {
-                  ref.read(sheetControllerProvider).show(
-                        context: context,
-                        scrollControlled: true,
-                        child: (context) =>
-                            ExportOptionsSheet(responses: availableStamps),
-                      );
-                },
-      icon: const Icon(
-        Icons.ios_share,
+    return available.when(
+      loading: () => const IconButton(
+        onPressed: null,
+        icon: Icon(Icons.ios_share),
+        tooltip: 'Export',
       ),
-      tooltip: 'Export',
+      error: (_, __) => const IconButton(
+        onPressed: null,
+        icon: Icon(Icons.ios_share),
+        tooltip: 'Export',
+      ),
+      data: (availableStamps) => IconButton(
+        onPressed: availableStamps.isEmpty || exportFunc == null
+            ? null
+            : () {
+                ref
+                    .read(sheetControllerProvider)
+                    .show(
+                      context: context,
+                      scrollControlled: true,
+                      child: (context) =>
+                          ExportOptionsSheet(responses: availableStamps),
+                    );
+              },
+        icon: const Icon(Icons.ios_share),
+        tooltip: 'Export',
+      ),
     );
   }
 }
 
-Future<void> fileShare(BuildContext context, List<Response> responses,
-    ExportType exportType) async {
+Future<void> fileShare(
+  BuildContext context,
+  List<Response> responses,
+  ExportType exportType,
+) async {
   if (kIsWeb) {
     if (context.mounted) {
       showSnack(context, "Download not supported");
@@ -62,8 +77,9 @@ Future<void> fileShare(BuildContext context, List<Response> responses,
   String? detailsCsv;
   String? testsCsv;
 
-  final List<DetailResponse> detailResponses =
-      responses.whereType<DetailResponse>().toList();
+  final List<DetailResponse> detailResponses = responses
+      .whereType<DetailResponse>()
+      .toList();
 
   const List<String> detailHeaders = [
     "id",
@@ -72,11 +88,16 @@ Future<void> fileShare(BuildContext context, List<Response> responses,
     "type",
     "prompt",
     "response",
-    "description"
+    "description",
+    "time_precision",
+    "time_of_day",
   ];
   List<List<dynamic>> detailRows = [];
 
   String parseResponse(Response response) {
+    if (response is UnresolvedResponse) {
+      return 'Unresolved: ${jsonEncode(response.raw)}';
+    }
     if (response is NumericResponse) {
       return '${response.response}';
     }
@@ -93,7 +114,13 @@ Future<void> fileShare(BuildContext context, List<Response> responses,
   }
 
   for (DetailResponse detailResponse in detailResponses) {
-    final String dateString = dateFromStamp(detailResponse.stamp).toString();
+    final timing = detailResponse is TimedDetailResponse
+        ? detailResponse.recordTime
+        : null;
+    final date = occurrenceTimeForResponse(detailResponse);
+    final String dateString = hasApproximateRecordTime(detailResponse)
+        ? '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}'
+        : date.toString();
     for (Response response in detailResponse.responses) {
       detailRows.add([
         detailResponse.id,
@@ -102,7 +129,9 @@ Future<void> fileShare(BuildContext context, List<Response> responses,
         response.type,
         response.question.prompt,
         parseResponse(response),
-        detailResponse.description
+        detailResponse.description,
+        timing?.precision.name ?? 'exact',
+        timing?.dayPart?.name ?? '',
       ]);
     }
   }
@@ -110,8 +139,9 @@ Future<void> fileShare(BuildContext context, List<Response> responses,
     detailRows.insert(0, detailHeaders);
     detailsCsv = const ListToCsvConverter().convert(detailRows);
   }
-  final List<BlueDyeResp> blueDyeResponses =
-      responses.whereType<BlueDyeResp>().toList();
+  final List<BlueDyeResp> blueDyeResponses = responses
+      .whereType<BlueDyeResp>()
+      .toList();
 
   const List<String> blueDyeHeaders = [
     "id",
@@ -134,7 +164,8 @@ Future<void> fileShare(BuildContext context, List<Response> responses,
       blueDyeResponse.blueBowelMovements,
       blueDyeResponse.firstBlue
           .difference(
-              blueDyeResponse.startEating.add(blueDyeResponse.eatingDuration))
+            blueDyeResponse.startEating.add(blueDyeResponse.eatingDuration),
+          )
           .toString(),
       blueDyeResponse.lastBlue.difference(blueDyeResponse.firstBlue).toString(),
     ]);
@@ -161,7 +192,7 @@ Future<void> fileShare(BuildContext context, List<Response> responses,
 
   await Share.shareXFiles([
     if (detailsFile != null) XFile(detailsFile.path),
-    if (testsFile != null) XFile(testsFile.path)
+    if (testsFile != null) XFile(testsFile.path),
   ], sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size);
   await detailsFile?.delete();
   await testsFile?.delete();
@@ -188,9 +219,9 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
     final exportFunc = ref.watch(configProvider).export;
 
     return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
-        child: Center(
-            child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
+      child: Center(
+        child: Container(
           decoration: BoxDecoration(
             borderRadius: const BorderRadius.all(
               Radius.circular(AppRounding.small),
@@ -198,87 +229,89 @@ class ExportOverlayState extends ConsumerState<ExportOverlay> {
             color: Theme.of(context).scaffoldBackgroundColor,
           ),
           child: Padding(
-              padding: const EdgeInsets.all(AppPadding.small),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          context.translate.exportName,
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                        IconButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            icon: const Icon(
-                              Icons.close,
-                              size: 35,
-                            ))
-                      ]),
-                  const SizedBox(
-                    height: AppPadding.small,
-                  ),
-                  Text(
-                    context.translate.exportDialog,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(
-                    height: AppPadding.small,
-                  ),
-                  if (errorMessage != null) ...[
+            padding: const EdgeInsets.all(AppPadding.small),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
                     Text(
-                      errorMessage!,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.error),
+                      context.translate.exportName,
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
-                    const SizedBox(
-                      height: AppPadding.small,
-                    )
+                    IconButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      icon: const Icon(Icons.close, size: 35),
+                    ),
                   ],
-                  if (!loading && !done)
-                    FilledButton(
-                        child: Text(context.translate
-                            .recordCount(widget.responses.length)),
-                        onPressed: () async {
+                ),
+                const SizedBox(height: AppPadding.small),
+                Text(
+                  context.translate.exportDialog,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: AppPadding.small),
+                if (errorMessage != null) ...[
+                  Text(
+                    errorMessage!,
+                    style: Theme.of(context).textTheme.bodyMedium
+                        ?.copyWith(color: Theme.of(context).colorScheme.error),
+                  ),
+                  const SizedBox(height: AppPadding.small),
+                ],
+                if (!loading && !done)
+                  FilledButton(
+                    child: Text(
+                      context.translate.recordCount(widget.responses.length),
+                    ),
+                    onPressed: () async {
+                      setState(() {
+                        errorMessage = null;
+                        loading = true;
+                      });
+
+                      try {
+                        await exportFunc!(
+                          context,
+                          widget.responses,
+                          ExportType.menu,
+                        );
+                      } catch (e) {
+                        if (mounted) {
+                          setState(() {
+                            errorMessage = context.translate.uploadFail;
+                            loading = false;
+                          });
+                        }
+                      } finally {
+                        if (mounted) {
                           setState(() {
                             errorMessage = null;
-                            loading = true;
+                            loading = false;
+                            done = true;
                           });
-
-                          try {
-                            await exportFunc!(
-                                context, widget.responses, ExportType.menu);
-                          } catch (e) {
-                            if (mounted) {
-                              setState(() {
-                                errorMessage = context.translate.uploadFail;
-                                loading = false;
-                              });
-                            }
-                          } finally {
-                            if (mounted) {
-                              setState(() {
-                                errorMessage = null;
-                                loading = false;
-                                done = true;
-                              });
-                            }
-                          }
-                        }),
-                  if (loading) const LoadingWidget(),
-                  if (done)
-                    FilledButton(
-                        child: Text(context.translate.uploadDone),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        })
-                ],
-              )),
-        )));
+                        }
+                      }
+                    },
+                  ),
+                if (loading) const LoadingWidget(),
+                if (done)
+                  FilledButton(
+                    child: Text(context.translate.uploadDone),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

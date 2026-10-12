@@ -6,52 +6,61 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:stripes_backend_helper/QuestionModel/question.dart';
+import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo_base.dart'
+    show RecordPath;
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
-import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo_base.dart';
 import 'package:stripes_backend_helper/RepositoryBase/StampBase/stamp.dart';
 
-import 'package:stripes_backend_helper/date_format.dart';
 import 'package:stripes_ui/Providers/History/stamps_provider.dart';
+import 'package:stripes_ui/Models/record_time.dart';
+import 'package:stripes_ui/Providers/Questions/questions_provider.dart';
 import 'package:stripes_ui/UI/History/EventView/sig_dates.dart';
 import 'package:stripes_ui/UI/History/Filters/filter_logic.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
 import 'package:stripes_ui/Util/Helpers/date_range_utils.dart';
-import 'package:stripes_ui/UI/History/Timeline/review_period_data.dart';
 
-// TimeCycle is now imported from date_range_utils.dart\n
 enum ViewMode { events, graph }
 
-final viewModeProvider = StateProvider<ViewMode>((ref) => ViewMode.events);
+class ViewModeNotifier extends Notifier<ViewMode> {
+  @override
+  ViewMode build() => ViewMode.events;
+
+  void setMode(ViewMode mode) => state = mode;
+}
+
+final viewModeProvider = NotifierProvider<ViewModeNotifier, ViewMode>(
+  ViewModeNotifier.new,
+);
 
 @immutable
 class DisplayDataSettings extends Equatable {
-  final DateTimeRange range;
-  final TimeCycle cycle;
+  final TimeWindow window;
   final List<LabeledFilter> filters;
   final GraphYAxis axis;
   final bool groupSymptoms, groupBars;
 
   const DisplayDataSettings({
-    required this.range,
-    required this.cycle,
+    required this.window,
     this.filters = const [],
     required this.axis,
     this.groupSymptoms = false,
     this.groupBars = false,
   });
 
+  DateTimeRange get range => window.range;
+  TimeCycle get cycle => window.cycle;
+
   DisplayDataSettings copyWith({
     DateTimeRange? range,
     TimeCycle? cycle,
+    TimeWindow? window,
     List<LabeledFilter>? filters,
     GraphYAxis? axis,
     bool? groupSymptoms,
   }) {
     return DisplayDataSettings(
-      range: range ?? this.range,
-      cycle: cycle ?? this.cycle,
+      window: window ?? this.window.copyWith(range: range, cycle: cycle),
       filters: filters ?? this.filters,
       axis: axis ?? this.axis,
       groupSymptoms: groupSymptoms ?? this.groupSymptoms,
@@ -68,18 +77,18 @@ class DisplayDataSettings extends Equatable {
 
     switch (cycle) {
       case TimeCycle.day:
-        if (range.start.year == DateTime.now().year) {
-          return DateFormat.MMMd(locale).format(range.start);
+        if (range.start.toLocal().year == DateTime.now().year) {
+          return DateFormat.MMMd(locale).format(range.start.toLocal());
         }
-        return DateFormat.yMMMd(locale).format(range.start);
+        return DateFormat.yMMMd(locale).format(range.start.toLocal());
       case TimeCycle.week:
         return getSmartRangeString(range, locale);
 
       case TimeCycle.month:
-        if (range.start.year == DateTime.now().year) {
-          return DateFormat.MMMM(locale).format(range.start);
+        if (range.start.toLocal().year == DateTime.now().year) {
+          return DateFormat.MMMM(locale).format(range.start.toLocal());
         }
-        return DateFormat.yMMM(locale).format(range.start);
+        return DateFormat.yMMM(locale).format(range.start.toLocal());
       case TimeCycle.custom:
         return getSmartRangeString(range, locale);
       case TimeCycle.quarter:
@@ -94,18 +103,18 @@ class DisplayDataSettings extends Equatable {
 
     switch (cycle) {
       case TimeCycle.day:
-        if (range.start.year == DateTime.now().year) {
-          return DateFormat.MMMd(locale).format(range.start);
+        if (range.start.toLocal().year == DateTime.now().year) {
+          return DateFormat.MMMd(locale).format(range.start.toLocal());
         }
-        return DateFormat.yMMMd(locale).format(range.start);
+        return DateFormat.yMMMd(locale).format(range.start.toLocal());
       case TimeCycle.week:
         return getSmartRangeString(range, locale);
 
       case TimeCycle.month:
-        if (range.start.year == DateTime.now().year) {
-          return DateFormat.MMMM(locale).format(range.start);
+        if (range.start.toLocal().year == DateTime.now().year) {
+          return DateFormat.MMMM(locale).format(range.start.toLocal());
         }
-        return DateFormat.yMMM(locale).format(range.start);
+        return DateFormat.yMMM(locale).format(range.start.toLocal());
       case TimeCycle.custom:
         return getSmartRangeString(range, locale);
       case TimeCycle.quarter:
@@ -185,46 +194,46 @@ class DisplayDataSettings extends Equatable {
     if (diff.inSeconds <= 120) {
       return (
         buckets: calculateBuckets(diff.inSeconds, [1, 2, 3, 5, 10, 15, 30]),
-        format: DateFormat.Hms()
+        format: DateFormat.Hms(),
       );
     }
     if (diff.inMinutes <= 120) {
       return (
         buckets: calculateBuckets(diff.inMinutes, [1, 2, 3, 5, 10, 15, 30]),
-        format: DateFormat.Hm()
+        format: DateFormat.Hm(),
       );
     }
     if (diff.inHours <= 48) {
       return (
         buckets: calculateBuckets(diff.inHours, [1, 2, 3, 4, 6, 8, 12]),
-        format: DateFormat.j()
+        format: DateFormat.j(),
       );
     }
     if (diff.inDays <= 14) {
       return (
         buckets: calculateBuckets(diff.inDays, [1, 2, 7]),
-        format: DateFormat.E()
+        format: DateFormat.E(),
       );
     }
     if (diff.inDays <= 365) {
       final weeks = (diff.inDays / 7).ceil();
       return (
         buckets: calculateBuckets(weeks, [1, 2, 4]),
-        format: DateFormat.MMMd()
+        format: DateFormat.MMMd(),
       );
     }
     if (diff.inDays <= 730) {
       final months = (diff.inDays / 30).ceil();
       return (
         buckets: calculateBuckets(months, [1, 2, 3, 4, 6]),
-        format: DateFormat.MMM()
+        format: DateFormat.MMM(),
       );
     }
 
     final years = (diff.inDays / 365).ceil();
     return (
       buckets: calculateBuckets(years, [1, 2, 5, 10]),
-      format: DateFormat.y()
+      format: DateFormat.y(),
     );
   }
 
@@ -276,30 +285,29 @@ class DisplayDataSettings extends Equatable {
   }
 
   @override
-  List<Object?> get props => [range, cycle, filters, axis];
+  List<Object?> get props => [window, filters, axis];
 
-  bool get canGoNext => range.end.isBefore(DateTime.now());
-  bool get canGoPrev => range.start.isAfter(SigDates.minDate);
+  bool get canGoNext => window.canGoNext;
+  bool get canGoPrev => window.canGoPrev;
 }
 
-class DisplayDataProvider extends StateNotifier<DisplayDataSettings> {
-  final Ref ref;
-
-  DisplayDataProvider(this.ref)
-      : super(DisplayDataSettings(
-          range: DateRangeUtils.calculateRange(TimeCycle.day, DateTime.now()),
-          cycle: TimeCycle.day,
-          groupSymptoms: false,
-          axis: GraphYAxis.number,
-        ));
+class DisplayDataProvider extends Notifier<DisplayDataSettings> {
+  @override
+  DisplayDataSettings build() {
+    return DisplayDataSettings(
+      window: TimeWindow.forCycle(TimeCycle.day),
+      groupSymptoms: false,
+      axis: GraphYAxis.number,
+    );
+  }
 
   void setCycle(TimeCycle cycle, {DateTime? seedStartTime}) {
     final DateTime seed = seedStartTime ?? DateTime.now();
     DateTimeRange newRange;
     if (cycle == TimeCycle.custom) {
-      newRange = state.range;
+      newRange = state.window.range;
     } else {
-      newRange = DateRangeUtils.calculateRange(cycle, seed);
+      newRange = TimeWindow.forCycle(cycle, anchor: seed).range;
     }
 
     changeEarliestDate(ref, newRange.start);
@@ -328,7 +336,8 @@ class DisplayDataProvider extends StateNotifier<DisplayDataSettings> {
   }
 
   void shift({required bool forward}) {
-    final DateTimeRange newRange = getNextRange(forward: forward);
+    final TimeWindow next = state.window.shift(forward: forward);
+    final DateTimeRange newRange = next.range;
 
     if (forward && newRange.start.isAfter(DateTime.now())) return;
     if (!forward && newRange.end.isBefore(SigDates.minDate)) return;
@@ -338,14 +347,13 @@ class DisplayDataProvider extends StateNotifier<DisplayDataSettings> {
   }
 
   DateTimeRange getNextRange({required bool forward}) {
-    return DateRangeUtils.shiftRange(
-      state.range,
-      state.cycle,
-      forward,
-    );
+    return state.window.shift(forward: forward).range;
   }
 
-  getNextRangeString({required bool forward, required BuildContext context}) {
+  String getNextRangeString({
+    required bool forward,
+    required BuildContext context,
+  }) {
     return state.getRangeStringFromCustom(
       getNextRange(forward: forward),
       context,
@@ -354,72 +362,94 @@ class DisplayDataProvider extends StateNotifier<DisplayDataSettings> {
 }
 
 final displayDataProvider =
-    StateNotifierProvider<DisplayDataProvider, DisplayDataSettings>((ref) {
-  return DisplayDataProvider(ref);
-});
+    NotifierProvider<DisplayDataProvider, DisplayDataSettings>(
+      DisplayDataProvider.new,
+    );
 
 final inRangeProvider = FutureProvider.autoDispose<List<Response>>((ref) async {
   final DisplayDataSettings settings = ref.watch(displayDataProvider);
   final List<Stamp> stamps = await ref.watch(stampsStreamProvider.future);
 
   return stamps.whereType<Response>().where((response) {
-    final date = dateFromStamp(response.stamp);
-    if (date.isBefore(settings.range.start) ||
-        date.isAfter(settings.range.end)) {
-      return false;
-    }
-    return true;
+    return responseOverlapsWindow(response, settings.window);
   }).toList();
 });
 
-final availableStampsProvider =
-    FutureProvider.autoDispose<List<Response>>((ref) async {
+/// A date-only/period record remains discoverable anywhere in its known window.
+bool responseOverlapsWindow(
+  Response response,
+  TimeWindow window, {
+  RecordPath? reviewPath,
+}) {
+  final date = occurrenceTimeForResponse(response);
+  final interval =
+      reviewPath?.period?.getRange(date) ??
+      occurrenceRangeForResponse(response);
+  return interval == null
+      ? window.contains(date)
+      : interval.start.isBefore(window.range.end) &&
+            interval.end.isAfter(window.range.start);
+}
+
+bool _matchesFilters(Response response, List<LabeledFilter> filters) {
+  final grouped = filters.groupBy((filter) => filter.filterType.name);
+  return grouped.values.every(
+    (group) => group.any((filter) => filter.filter(response)),
+  );
+}
+
+final availableStampsProvider = FutureProvider.autoDispose<List<Response>>((
+  ref,
+) async {
   final DisplayDataSettings settings = ref.watch(displayDataProvider);
   final List<Response> stamps = await ref.watch(inRangeProvider.future);
 
-  final Map<String, List<LabeledFilter>> groupedFilters =
-      settings.filters.groupBy((filter) => filter.filterType.name);
-
-  return stamps.where((response) {
-    if (settings.filters.isNotEmpty) {
-      for (final filterGroup in groupedFilters.values) {
-        bool matches = false;
-        for (final filter in filterGroup) {
-          if (filter.filter(response)) {
-            matches = true;
-            break;
-          }
-        }
-        if (!matches) return false;
-      }
-    }
-    return true;
-  }).toList();
+  return stamps
+      .where((response) => _matchesFilters(response, settings.filters))
+      .toList();
 });
 
-final graphStampsProvider =
-    FutureProvider<Map<GraphKey, List<Response>>>((ref) async {
+final graphStampsProvider = FutureProvider<Map<GraphKey, List<Response>>>((
+  ref,
+) async {
   final DisplayDataSettings settings = ref.watch(displayDataProvider);
-  final List<Response<Question>> available =
-      await ref.watch(availableStampsProvider.future);
-
-  final Map<String, RecordPath> reviewPathsMap =
-      await ref.watch(reviewPathsByTypeProvider.future);
+  final allStamps = await ref.watch(stampsStreamProvider.future);
+  final reviewPathsMap = await ref.watch(
+    questionGraphProvider.selectAsync(
+      (questionGraph) => questionGraph.reviewPathsByType(),
+    ),
+  );
 
   final SplayTreeMap<GraphKey, List<Response>> byType = SplayTreeMap(
-    (a, b) => a.title.compareTo(b.title),
+    _compareGraphKeys,
   );
   final SplayTreeMap<GraphKey, List<Response>> byQuestion = SplayTreeMap(
-    (a, b) => a.title.compareTo(b.title),
+    _compareGraphKeys,
   );
 
   final GraphYAxis axis = settings.axis;
 
-  for (final Response wrappedResponse in available) {
-    final date = dateFromStamp(wrappedResponse.stamp);
-    if (date.isBefore(settings.range.start) ||
-        date.isAfter(settings.range.end)) {
+  for (final Response wrappedResponse in allStamps.whereType<Response>()) {
+    final reviewPath = reviewPathsMap[wrappedResponse.type];
+    final bool isReview = reviewPath?.period != null;
+    if (!responseOverlapsWindow(
+          wrappedResponse,
+          settings.window,
+          reviewPath: reviewPath,
+        ) ||
+        !_matchesFilters(wrappedResponse, settings.filters)) {
       continue;
+    }
+    if (isReview && axis == GraphYAxis.average) continue;
+    attachRecordIdentity(wrappedResponse);
+    if (axis != GraphYAxis.average) {
+      final categoryKey = GraphKey(
+        title: wrappedResponse.type,
+        isCategory: true,
+        type: wrappedResponse.type,
+        isReview: isReview,
+      );
+      byType.putIfAbsent(categoryKey, () => []).add(wrappedResponse);
     }
     List<Response> flattened = _flattenedResponse(wrappedResponse);
     if (axis == GraphYAxis.average) {
@@ -429,7 +459,7 @@ final graphStampsProvider =
       final reviewPath = reviewPathsMap[response.type];
       final bool isReview = reviewPath?.period != null;
 
-      if (isReview && axis != GraphYAxis.number) continue;
+      if (isReview && axis == GraphYAxis.average) continue;
       final GraphKey key = GraphKey(
         title: response.question.prompt,
         isCategory: false,
@@ -443,19 +473,6 @@ final graphStampsProvider =
       } else {
         byQuestion[key] = [response];
       }
-
-      if (axis == GraphYAxis.average) continue;
-      final GraphKey categoryKey = GraphKey(
-        title: response.type,
-        isCategory: true,
-        type: response.type,
-        isReview: isReview,
-      );
-      if (byType.containsKey(categoryKey)) {
-        byType[categoryKey]!.add(response);
-      } else {
-        byType[categoryKey] = [response];
-      }
     }
   }
   final Map<GraphKey, List<Response>> combined = {};
@@ -464,10 +481,12 @@ final graphStampsProvider =
     final catKey = catEntry.key;
     final catResponses = catEntry.value;
 
-    final matchingQuestion = byQuestion.entries.firstWhereOrNull((q) =>
-        q.key.title == catKey.title &&
-        q.value.length == catResponses.length &&
-        listEquals(q.value, catResponses));
+    final matchingQuestion = byQuestion.entries.firstWhereOrNull(
+      (q) =>
+          q.key.title == catKey.title &&
+          q.value.length == catResponses.length &&
+          listEquals(q.value, catResponses),
+    );
 
     if (matchingQuestion == null) {
       combined[catKey] = catResponses;
@@ -477,18 +496,36 @@ final graphStampsProvider =
   combined.addAll(byQuestion);
   return SplayTreeMap<GraphKey, List<Response>>.from(
     combined,
-    (a, b) => a.title.compareTo(b.title),
+    _compareGraphKeys,
   );
 });
 
-final eventsMapProvider =
-    FutureProvider<Map<DateTime, List<Response>>>((ref) async {
-  final settings = ref.watch(displayDataProvider);
-  final stamps = ref.watch(stampsStreamProvider).valueOrNull ?? [];
+int _compareGraphKeys(GraphKey first, GraphKey second) {
+  int result = first.title.compareTo(second.title);
+  if (result != 0) return result;
 
-  // Group filters by type (same logic as availableStampsProvider)
-  final Map<String, List<LabeledFilter>> groupedFilters =
-      settings.filters.groupBy((filter) => filter.filterType.name);
+  result = (first.type ?? '').compareTo(second.type ?? '');
+  if (result != 0) return result;
+
+  result = (first.qid ?? '').compareTo(second.qid ?? '');
+  if (result != 0) return result;
+
+  result = first.isCategory == second.isCategory
+      ? 0
+      : (first.isCategory ? -1 : 1);
+  if (result != 0) return result;
+
+  return first.isReview == second.isReview ? 0 : (first.isReview ? -1 : 1);
+}
+
+final eventsMapProvider = FutureProvider<Map<DateTime, List<Response>>>((
+  ref,
+) async {
+  final settings = ref.watch(displayDataProvider);
+  final stamps = await ref.watch(stampsStreamProvider.future);
+
+  final Map<String, List<LabeledFilter>> groupedFilters = settings.filters
+      .groupBy((filter) => filter.filterType.name);
 
   final filtered = stamps.whereType<Response>().where((response) {
     if (settings.filters.isNotEmpty) {
@@ -511,12 +548,12 @@ final eventsMapProvider =
 
 final unfilteredEventsMapProvider =
     FutureProvider<Map<DateTime, List<Response>>>((ref) async {
-  final stamps = await ref.watch(stampsStreamProvider.future);
+      final stamps = await ref.watch(stampsStreamProvider.future);
 
-  final allResponses = stamps.whereType<Response>().toList();
+      final allResponses = stamps.whereType<Response>().toList();
 
-  return generateEventMap(allResponses);
-});
+      return generateEventMap(allResponses);
+    });
 
 List<Response> _flattenedResponses(Iterable<Response> input) {
   List<Response> flat = [];
@@ -543,11 +580,13 @@ bool _sameDay(DateTime a, DateTime b) {
 }
 
 Map<DateTime, List<Response>> generateEventMap(List<Response> responses) {
-  LinkedHashMap<DateTime, List<Response>> eventMap =
-      LinkedHashMap(equals: _sameDay, hashCode: _getHashCode);
+  LinkedHashMap<DateTime, List<Response>> eventMap = LinkedHashMap(
+    equals: _sameDay,
+    hashCode: _getHashCode,
+  );
 
   for (Response res in responses) {
-    final DateTime resDate = dateFromStamp(res.stamp);
+    final DateTime resDate = occurrenceTimeForResponse(res);
     if (eventMap.containsKey(resDate)) {
       eventMap[resDate]!.add(res);
     } else {
@@ -557,10 +596,13 @@ Map<DateTime, List<Response>> generateEventMap(List<Response> responses) {
   return eventMap;
 }
 
-String getSmartRangeString(DateTimeRange range, String locale,
-    {bool includeTime = false}) {
-  final start = range.start;
-  DateTime end = range.end;
+String getSmartRangeString(
+  DateTimeRange range,
+  String locale, {
+  bool includeTime = false,
+}) {
+  final start = range.start.toLocal();
+  DateTime end = range.end.toLocal();
   if (end.hour == 0 &&
       end.minute == 0 &&
       end.second == 0 &&
@@ -708,8 +750,11 @@ class LabeledFilter with EquatableMixin {
   final FilterType filterType;
   final StampFilter filter;
 
-  const LabeledFilter(
-      {required this.name, required this.filterType, required this.filter});
+  const LabeledFilter({
+    required this.name,
+    required this.filterType,
+    required this.filter,
+  });
 
   @override
   List<Object?> get props => [name, filter, filterType];

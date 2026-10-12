@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/Dashboard/insight_provider.dart';
 import 'package:stripes_ui/Providers/History/display_data_provider.dart';
+import 'package:stripes_ui/Providers/base_providers.dart';
 import 'package:stripes_ui/UI/History/Export/report_generator.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
@@ -145,18 +146,16 @@ class _ReportSheetState extends ConsumerState<ReportSheet> {
                 _SectionHeader(title: l10n.reportEntriesByCategory),
                 const SizedBox(height: AppPadding.medium),
 
-                ...reportStats.entriesByType.entries.map(
-                  (entry) {
-                    final questionsL10n = QuestionsLocalizations.of(context);
-                    final localizedName =
-                        questionsL10n?.value(entry.key) ?? entry.key;
-                    return _CategoryRow(
-                      category: localizedName,
-                      count: entry.value,
-                      total: reportStats.totalEntries,
-                    );
-                  },
-                ),
+                ...reportStats.entriesByType.entries.map((entry) {
+                  final questionsL10n = QuestionsLocalizations.of(context);
+                  final localizedName =
+                      questionsL10n?.value(entry.key) ?? entry.key;
+                  return _CategoryRow(
+                    category: localizedName,
+                    count: entry.value,
+                    total: reportStats.totalEntries,
+                  );
+                }),
 
                 const SizedBox(height: AppPadding.xl),
 
@@ -212,14 +211,16 @@ class _ReportSheetState extends ConsumerState<ReportSheet> {
               color: colors.surface,
               border: Border(
                 top: BorderSide(
-                    color: colors.outlineVariant.withValues(alpha: 0.3)),
+                  color: colors.outlineVariant.withValues(alpha: 0.3),
+                ),
               ),
             ),
             child: SafeArea(
               top: false,
               child: FilledButton.icon(
-                onPressed:
-                    _isGenerating ? null : () => _generateReport(context),
+                onPressed: _isGenerating
+                    ? null
+                    : () => _generateReport(context),
                 icon: _isGenerating
                     ? const SizedBox(
                         width: 20,
@@ -227,9 +228,11 @@ class _ReportSheetState extends ConsumerState<ReportSheet> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.picture_as_pdf_outlined),
-                label: Text(_isGenerating
-                    ? l10n.reportGenerating
-                    : l10n.reportGeneratePdf),
+                label: Text(
+                  _isGenerating
+                      ? l10n.reportGenerating
+                      : l10n.reportGeneratePdf,
+                ),
                 style: FilledButton.styleFrom(
                   minimumSize: const Size.fromHeight(50),
                 ),
@@ -277,6 +280,7 @@ class _ReportSheetState extends ConsumerState<ReportSheet> {
         dateRange: settings.range,
         questionsL10n: questionsL10n,
         filters: settings.filters,
+        includeInsights: ref.read(configProvider).display.insightsEnabled,
       );
 
       if (!context.mounted) return;
@@ -288,8 +292,9 @@ class _ReportSheetState extends ConsumerState<ReportSheet> {
 
       // Get share position for iPad
       final RenderBox? box = context.findRenderObject() as RenderBox?;
-      final Rect? sharePositionOrigin =
-          box != null ? box.localToGlobal(Offset.zero) & box.size : null;
+      final Rect? sharePositionOrigin = box != null
+          ? box.localToGlobal(Offset.zero) & box.size
+          : null;
 
       await ReportGenerator.sharePdf(
         pdfBytes,
@@ -341,9 +346,8 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       title,
-      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+      style: Theme.of(context).textTheme.titleMedium
+          ?.copyWith(fontWeight: FontWeight.bold),
     );
   }
 }
@@ -377,16 +381,13 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: AppPadding.tiny),
           Text(
             value,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
+            style: Theme.of(context).textTheme.headlineSmall
+                ?.copyWith(fontWeight: FontWeight.bold, color: color),
           ),
           Text(
             label,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: colors.onSurfaceVariant,
-                ),
+            style: Theme.of(context).textTheme.bodySmall
+                ?.copyWith(color: colors.onSurfaceVariant),
             textAlign: TextAlign.center,
           ),
         ],
@@ -449,9 +450,8 @@ class _CategoryRow extends StatelessWidget {
             width: 40,
             child: Text(
               count.toString(),
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+              style: Theme.of(context).textTheme.bodyMedium
+                  ?.copyWith(fontWeight: FontWeight.w600),
               textAlign: TextAlign.end,
             ),
           ),

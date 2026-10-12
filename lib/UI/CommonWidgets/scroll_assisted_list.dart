@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
 
 typedef ScrollBuilder = Widget Function(
-    BuildContext context, ScrollViewProperties properties);
+  BuildContext context,
+  ScrollViewProperties properties,
+);
 
 class ScrollAssistedList extends StatefulWidget {
   final ScrollController scrollController;
@@ -11,11 +13,12 @@ class ScrollAssistedList extends StatefulWidget {
 
   final EdgeInsets? padding;
 
-  const ScrollAssistedList(
-      {required this.builder,
-      required this.scrollController,
-      this.padding,
-      super.key});
+  const ScrollAssistedList({
+    required this.builder,
+    required this.scrollController,
+    this.padding,
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() {
@@ -47,10 +50,11 @@ class _ScrollAssistedListState extends State<ScrollAssistedList> {
           ? widget.scrollController.position
           : null);
 
-  _listen() {
+  void _listen() {
     try {
       if (_position == null || !_position!.hasContentDimensions) return;
-      final bool halfWay = widget.scrollController.offset >
+      final bool halfWay =
+          widget.scrollController.offset >
           (_position!.maxScrollExtent - _position!.minScrollExtent) / 2;
       if (halfWay != scrollsUp && mounted) {
         setState(() {
@@ -72,32 +76,39 @@ class _ScrollAssistedListState extends State<ScrollAssistedList> {
         widget.builder(
           context,
           ScrollViewProperties._generateProperties(
-              scrollController: widget.scrollController,
-              scrollStateKey: _scrollStateKey),
+            scrollController: widget.scrollController,
+            scrollStateKey: _scrollStateKey,
+          ),
         ),
         if (showing)
           Align(
             alignment: Alignment.bottomRight,
             child: Padding(
-              padding: widget.padding ??
+              padding:
+                  widget.padding ??
                   const EdgeInsets.only(
-                      right: AppPadding.tiny, bottom: AppPadding.tiny),
+                    right: AppPadding.tiny,
+                    bottom: AppPadding.tiny,
+                  ),
               child: IconButton.filled(
                 onPressed: () {
                   if (scrollsUp) {
                     widget.scrollController.animateTo(
-                        _position?.minScrollExtent ?? 0,
-                        duration: const Duration(milliseconds: 200),
-                        curve: Curves.easeIn);
+                      _position?.minScrollExtent ?? 0,
+                      duration: const Duration(milliseconds: 200),
+                      curve: Curves.easeIn,
+                    );
                   } else {
                     widget.scrollController.animateTo(
-                        _position?.maxScrollExtent ?? 0,
-                        duration: const Duration(milliseconds: 200),
-                        curve: Curves.easeIn);
+                      _position?.maxScrollExtent ?? 0,
+                      duration: const Duration(milliseconds: 200),
+                      curve: Curves.easeIn,
+                    );
                   }
                 },
-                icon:
-                    Icon(scrollsUp ? Icons.arrow_upward : Icons.arrow_downward),
+                icon: Icon(
+                  scrollsUp ? Icons.arrow_upward : Icons.arrow_downward,
+                ),
               ),
             ),
           ),
@@ -107,8 +118,10 @@ class _ScrollAssistedListState extends State<ScrollAssistedList> {
 }
 
 class ScrollViewProperties {
-  const ScrollViewProperties._generateProperties(
-      {required this.scrollController, required this.scrollStateKey});
+  const ScrollViewProperties._generateProperties({
+    required this.scrollController,
+    required this.scrollStateKey,
+  });
 
   final ScrollController scrollController;
 

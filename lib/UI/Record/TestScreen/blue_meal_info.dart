@@ -1,58 +1,77 @@
-import 'package:flex_color_scheme/flex_color_scheme.dart';
+import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:markdown_widget/widget/markdown_block.dart';
 import 'package:stripes_backend_helper/RepositoryBase/AuthBase/auth_user.dart';
 import 'package:stripes_ui/Providers/Auth/auth_provider.dart';
+import 'package:stripes_ui/Providers/base_providers.dart';
 import 'package:stripes_ui/Providers/Navigation/sheet_provider.dart';
 import 'package:stripes_ui/Providers/Test/test_progress_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/scroll_assisted_list.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
+import 'package:stripes_ui/UI/Resources/terms_of_service.dart';
+import 'package:stripes_ui/UI/Resources/resource_markdown.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/card_layout_helper.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
 import 'package:stripes_ui/Util/Design/breakpoint.dart';
 import 'package:stripes_ui/Util/Widgets/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
+import 'package:stripes_ui/Util/Widgets/floating_nav_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class BlueMealPreStudy extends StatefulWidget {
-  final Function onClick;
+class BlueMealPreStudy extends ConsumerStatefulWidget {
+  final VoidCallback onClick;
 
   final bool isLoading;
 
-  const BlueMealPreStudy(
-      {required this.onClick, required this.isLoading, super.key});
+  const BlueMealPreStudy({
+    required this.onClick,
+    required this.isLoading,
+    super.key,
+  });
 
   @override
-  State<StatefulWidget> createState() {
+  ConsumerState<BlueMealPreStudy> createState() {
     return _BlueMealPreStudyState();
   }
 }
 
-class _BlueMealPreStudyState extends State<BlueMealPreStudy> {
+class _BlueMealPreStudyState extends ConsumerState<BlueMealPreStudy> {
   bool appTosRead = false;
 
   @override
   Widget build(BuildContext context) {
-    return !appTosRead
-        ? AppTos(onContinue: () {
-            setState(() {
-              appTosRead = true;
-            });
-          })
-        : PreStudyInfo(onClick: () {
-            widget.onClick();
-          });
+    final termsAcceptedDuringOnboarding =
+        ref.watch(configProvider).betaUi.onboardingTerms;
+    return !termsAcceptedDuringOnboarding && !appTosRead
+        ? AppTos(
+            onContinue: () {
+              setState(() {
+                appTosRead = true;
+              });
+            },
+          )
+        : PreStudyInfo(
+            isLoading: widget.isLoading,
+            onClick: () {
+              widget.onClick();
+            },
+          );
   }
 }
 
 class PreStudyInfo extends StatefulWidget {
-  final void Function() onClick;
+  final VoidCallback onClick;
+  final bool isLoading;
 
-  const PreStudyInfo({required this.onClick, super.key});
+  const PreStudyInfo({
+    required this.onClick,
+    required this.isLoading,
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() {
@@ -62,60 +81,71 @@ class PreStudyInfo extends StatefulWidget {
 
 class _PreStudyInfoState extends State<PreStudyInfo> {
   bool read = false;
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      Expanded(
-        child: RefreshWidget(
-          depth: RefreshDepth.authuser,
-          scrollable: AddIndicator(
-            builder: (context, hasIndicator) => ScrollAssistedList(
-              scrollController: ScrollController(),
-              key: const PageStorageKey("PreMealScroll"),
-              builder: (context, properties) => SizedBox.expand(
-                child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  key: properties.scrollStateKey,
-                  controller: properties.scrollController,
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints:
-                          BoxConstraints(maxWidth: Breakpoint.medium.value),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(
-                            height: AppPadding.large,
-                          ),
-                          const Padding(
+    return Column(
+      children: [
+        Expanded(
+          child: RefreshWidget(
+            depth: RefreshDepth.authuser,
+            scrollable: AddIndicator(
+              builder: (context, hasIndicator) => ScrollAssistedList(
+                scrollController: _scrollController,
+                key: const PageStorageKey("PreMealScroll"),
+                builder: (context, properties) => SizedBox.expand(
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    key: properties.scrollStateKey,
+                    controller: properties.scrollController,
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: Breakpoint.medium.value,
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: AppPadding.large),
+                            const Padding(
                               padding: EdgeInsets.symmetric(
-                                  horizontal: AppPadding.large),
+                                horizontal: AppPadding.large,
+                              ),
                               child: Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: TestSwitcher())),
-                          const SizedBox(
-                            height: AppPadding.medium,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: AppPadding.large),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                DecoratedBox(
-                                  decoration: BoxDecoration(
-                                    color:
-                                        Colors.yellow.withValues(alpha: 0.35),
-                                    borderRadius: const BorderRadius.all(
-                                      Radius.circular(AppPadding.tiny),
+                                alignment: Alignment.centerLeft,
+                                child: TestSwitcher(),
+                              ),
+                            ),
+                            const SizedBox(height: AppPadding.medium),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppPadding.large,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  DecoratedBox(
+                                    decoration: BoxDecoration(
+                                      color: Colors.yellow.withValues(
+                                        alpha: 0.35,
+                                      ),
+                                      borderRadius: const BorderRadius.all(
+                                        Radius.circular(AppPadding.tiny),
+                                      ),
                                     ),
-                                  ),
-                                  child: Padding(
-                                      padding:
-                                          const EdgeInsets.all(AppPadding.tiny),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(
+                                        AppPadding.tiny,
+                                      ),
                                       child: Column(
                                         mainAxisAlignment:
                                             MainAxisAlignment.start,
@@ -128,43 +158,46 @@ class _PreStudyInfoState extends State<PreStudyInfo> {
                                                 .textTheme
                                                 .titleMedium
                                                 ?.copyWith(
-                                                    fontWeight:
-                                                        FontWeight.bold),
+                                                  fontWeight: FontWeight.bold,
+                                                ),
                                           ),
                                           Text(
                                             context.translate.preStudySeeingExp,
                                           ),
                                         ],
-                                      )),
-                                ),
-                                const SizedBox(
-                                  height: AppPadding.medium,
-                                ),
-                                const BlueMealStudyInstructions(),
-                                const SizedBox(
-                                  height: AppPadding.medium,
-                                ),
-                                Text(
-                                  context.translate.preStudyEnrollTitle,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium
-                                      ?.copyWith(fontWeight: FontWeight.bold),
-                                ),
-                                Text(context
-                                    .translate.preStudyEnrollDescPartOne),
-                                const SizedBox(
-                                  height: AppPadding.medium,
-                                ),
-                                Text(context
-                                    .translate.preStudyEnrollDescPartTwo),
-                                const SizedBox(
-                                  height: AppPadding.xl,
-                                ),
-                              ],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: AppPadding.medium),
+                                  const BlueMealStudyInstructions(),
+                                  const SizedBox(height: AppPadding.medium),
+                                  Text(
+                                    context.translate.preStudyEnrollTitle,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(
+                                    context.translate.preStudyEnrollDescPartOne,
+                                  ),
+                                  const SizedBox(height: AppPadding.medium),
+                                  Text(
+                                    context.translate.preStudyEnrollDescPartTwo,
+                                  ),
+                                  const SizedBox(height: AppPadding.large),
+                                  ReadConfirmation(
+                                    value: read,
+                                    onChange: (value) =>
+                                        setState(() => read = value),
+                                    text: "I have read and understand the Blue Meal study process. I agree to start the test",
+                                  ),
+                                  const SizedBox(height: AppPadding.xl),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -173,31 +206,23 @@ class _PreStudyInfoState extends State<PreStudyInfo> {
             ),
           ),
         ),
-      ),
-      ReadConfirmation(
-          onChange: (value) {
-            setState(() {
-              read = value;
-            });
-          },
-          button: FilledButton(
-            style: FilledButton.styleFrom(
-                foregroundColor: Theme.of(context).primaryColor,
-                backgroundColor: Theme.of(context).colorScheme.onPrimary,
-                disabledBackgroundColor:
-                    Theme.of(context).disabledColor.darken(20),
-                disabledForegroundColor:
-                    Theme.of(context).colorScheme.onPrimary),
-            onPressed: read
+        _StudyActionFooter(
+          child: FilledButton(
+            onPressed: read && !widget.isLoading
                 ? () {
                     widget.onClick();
                   }
                 : null,
-            child: const Text("Start step one"),
+            child: widget.isLoading
+                ? const SizedBox.square(
+                    dimension: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Text("Start step one"),
           ),
-          text:
-              "I have read and understand the Blue Meal study process. I agree to start the test"),
-    ]);
+        ),
+      ],
+    );
   }
 }
 
@@ -207,21 +232,25 @@ class BlueMealInfoButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return FilledButton(
-        onPressed: () {
-          toggleBottomSheet(context, ref);
-        },
-        child: Text(context.translate.studyInfoButtonLabel));
+      onPressed: () {
+        toggleBottomSheet(context, ref);
+      },
+      child: Text(context.translate.studyInfoButtonLabel),
+    );
   }
 
-  toggleBottomSheet(BuildContext context, WidgetRef ref) {
-    ref.read(sheetControllerProvider).show(
-        context: context,
-        scrollControlled: true,
-        initialChildSize: 0.95,
-        maxChildSize: 1.0,
-        sheetBuilder: (context, controller) {
-          return BlueMealInfoSheet(scrollController: controller);
-        });
+  void toggleBottomSheet(BuildContext context, WidgetRef ref) {
+    ref
+        .read(sheetControllerProvider)
+        .show(
+          context: context,
+          scrollControlled: true,
+          initialChildSize: 0.95,
+          maxChildSize: 1.0,
+          sheetBuilder: (context, controller) {
+            return BlueMealInfoSheet(scrollController: controller);
+          },
+        );
   }
 }
 
@@ -238,6 +267,13 @@ class AppTos extends StatefulWidget {
 
 class _AppTosState extends State<AppTos> {
   bool read = false;
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -248,7 +284,7 @@ class _AppTosState extends State<AppTos> {
             depth: RefreshDepth.authuser,
             scrollable: AddIndicator(
               builder: (context, hasIndicator) => ScrollAssistedList(
-                scrollController: ScrollController(),
+                scrollController: _scrollController,
                 key: const PageStorageKey("PreMealTOSScroll"),
                 builder: (context, properties) => SizedBox.expand(
                   child: SingleChildScrollView(
@@ -257,90 +293,30 @@ class _AppTosState extends State<AppTos> {
                     controller: properties.scrollController,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: AppPadding.small),
+                        horizontal: AppPadding.small,
+                      ),
                       child: Center(
                         child: ConstrainedBox(
-                          constraints:
-                              BoxConstraints(maxWidth: Breakpoint.medium.value),
-                          child: const MarkdownBlock(
-                              data: '''# Terms of Service for Stripes 
-**Last Updated:** March 31, 2025
-
-**Welcome to Stripes!** Thanks for using our tool to track rare disease symptoms. By using our app, you agree to these terms. Please read them carefully.
-
-## 1. The App
-
-- **What it is:** Stripes helps you monitor and record symptoms. It's designed for awareness, not diagnosis.
-- **Account Needed:** You must create an account to use the app. Keep your login details safe. You're responsible for your account.
-
-## 2. Basic Use
-
-- **Track Your Symptoms:** Use the app's core features anytime. Log your experiences. Stay informed about your health journey.
-- **Your Data (Basic Use):** Data you enter in basic mode stays within the app according to our Privacy Policy.
-
-## 3. Study Mode - For Invited Participants
-
-- **Participation via Foundations:** Stripes includes a special "Study Mode." Access is limited to users specifically recruited and invited to participate in research studies by partner foundations. You cannot opt-in directly through the app.
-- **Study Protocols:** If you are invited and agree to participate, you'll follow specific study protocols. This may include using materials like a Blue Muffin Kit.
-- **Tracking for Research:** During the study period, you will use Stripes to record specific information, including symptoms and potentially bowel movements/transit time, as required by the study.
-- **Data Sharing with Indiana University (IU):** This is critical. For users participating in Study Mode, **all symptoms and related data** recorded in the Stripes app **during the official study period** are shared. We securely transmit this data to a dedicated research team at Indiana University.
-- **Why Share?** Your participation and data help researchers understand rare diseases better. You contribute directly to important scientific work.
-- **IU's Oversight & Consent:** This data sharing follows strict rules. It's governed by an Indiana University Institutional Review Board (IRB) protocol. Before participating, you will receive detailed information and must provide specific informed consent via your recruiting foundation, outlining exactly how your data is collected, used, shared, and protected by IU.
-
-## 4. User Accounts
-
-- To use certain features of the App, you may be required to create a user account.
-
-- You agree to:
-
-  - Provide accurate and complete information when creating your account
-  - Maintain the security of your account credentials
-  - Promptly notify us of any unauthorized use of your account
-  - Take responsibility for all activities that occur under your account
-
-- We reserve the right to:
-
-  - Suspend or terminate accounts that violate these Terms
-  - Delete accounts that remain inactive for extended periods
-  - Refuse service to anyone for any reason at our discretion
-
-- You may delete your account at any time through the App's settings. Upon deletion, some information may be retained as required by law or for legitimate business purposes.
-
-## 5. Privacy is Key
-
-- We care about your privacy. How we handle _all_ your data is detailed in our **Privacy Policy**: [https://symplifysolutions.com/privacy/stripes](https://symplifysolutions.com/privacy/stripes). Please read it.
-
-## 6. Important Disclaimers
-
-- **Not Medical Advice:** Stripes is an informational tool. It does **not** provide medical advice, diagnosis, or treatment.
-- **Consult Professionals:** Always talk to your doctor or qualified health provider about your health concerns. Never ignore professional advice because of something you read or tracked in this app.
-
-## 7. Your Responsibilities
-
-- Use the app lawfully.
-- Provide accurate information. This is especially crucial if participating in Study Mode.
-- Don't misuse the app or try to break it.
-
-## 8. Our Rights
-
-- **App Ownership:** The Stripes app, its content, and features are owned and operated by **Symplify LLC**.
-- **Changes:** We might update the app or these terms. We'll aim to notify you of major changes. Continuing to use the app after changes means you accept them.
-- **Termination:** We can suspend or terminate your account if you violate these terms. You can stop using the app anytime.
-
-## 9. Limitation of Liability
-
-- The Stripes app is provided "as is." Symplify LLC isn't liable for any damages arising from your use of the app. Use it at your own risk.
-
-## 10. Governing Law
-
-- These terms are governed by the laws of Delaware
-
-## 11. Contact Us
-
-- **General App Support:** Questions about using Stripes? Reach out at **help@symplifysolutions.com**.
-- **Active Study Support:** If you are **currently participating** in an active research study using Study Mode and need study-specific assistance, contact **BlueMeal@iu.edu**.
-
----'''),
+                          constraints: BoxConstraints(
+                            maxWidth: Breakpoint.medium.value,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              const ResourceMarkdown(
+                                data: stripesTermsOfServiceMarkdown,
+                              ),
+                              const SizedBox(height: AppPadding.large),
+                              ReadConfirmation(
+                                value: read,
+                                onChange: (value) =>
+                                    setState(() => read = value),
+                                text:
+                                    "I have read the Stripes terms of service.",
+                              ),
+                              const SizedBox(height: AppPadding.large),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -350,100 +326,105 @@ class _AppTosState extends State<AppTos> {
             ),
           ),
         ),
-        ReadConfirmation(
-            onChange: (value) {
-              setState(() {
-                read = value;
-              });
-            },
-            button: FilledButton(
-              style: FilledButton.styleFrom(
-                  foregroundColor: Theme.of(context).primaryColor,
-                  backgroundColor: Theme.of(context).colorScheme.onPrimary,
-                  disabledBackgroundColor:
-                      Theme.of(context).disabledColor.darken(20),
-                  disabledForegroundColor:
-                      Theme.of(context).colorScheme.onPrimary),
-              onPressed: read
-                  ? () {
-                      widget.onContinue();
-                    }
-                  : null,
-              child: const Text("Continue"),
-            ),
-            text: "I have read the Stripes terms of service.")
+        _StudyActionFooter(
+          child: FilledButton(
+            onPressed: read
+                ? () {
+                    widget.onContinue();
+                  }
+                : null,
+            child: const Text("Continue"),
+          ),
+        ),
       ],
     );
   }
 }
 
-class ReadConfirmation extends StatefulWidget {
+/// Kept with the document so large text cannot displace its reading viewport.
+class ReadConfirmation extends StatelessWidget {
+  final bool value;
   final void Function(bool) onChange;
   final String text;
-  final Widget button;
-  const ReadConfirmation(
-      {required this.onChange,
-      required this.button,
-      required this.text,
-      super.key});
+  const ReadConfirmation({
+    required this.value,
+    required this.onChange,
+    required this.text,
+    super.key,
+  });
 
   @override
-  State<StatefulWidget> createState() {
-    return _ReadConfirmationState();
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return CheckboxListTile(
+      value: value,
+      onChanged: (newValue) {
+        if (newValue != null) onChange(newValue);
+      },
+      contentPadding: EdgeInsets.zero,
+      controlAffinity: ListTileControlAffinity.leading,
+      title: Text(
+        text,
+        style: theme.textTheme.bodyMedium?.copyWith(
+          color: theme.colorScheme.onSurface,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
   }
 }
 
-class _ReadConfirmationState extends State<ReadConfirmation> {
-  bool read = false;
+class _StudyActionFooter extends StatelessWidget {
+  final Widget child;
+
+  const _StudyActionFooter({required this.child});
+
   @override
   Widget build(BuildContext context) {
-    return ColoredBox(
-      color: Theme.of(context).primaryColor,
-      child: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: Breakpoint.medium.value),
-          child: Padding(
-            padding: const EdgeInsets.all(AppPadding.medium),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Checkbox(
-                        checkColor: Theme.of(context).colorScheme.onSurface,
-                        fillColor: WidgetStateProperty.all(
-                            Theme.of(context).colorScheme.surface),
-                        side: BorderSide(
-                            color: Theme.of(context).colorScheme.onSurface),
-                        value: read,
-                        onChanged: (newValue) {
-                          if (newValue != null) {
-                            setState(() {
-                              read = newValue;
-                              widget.onChange(read);
-                            });
-                          }
-                        }),
-                    const SizedBox(
-                      width: AppPadding.tiny,
-                    ),
-                    Flexible(
-                      child: Text(
-                        widget.text,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.onPrimary),
-                      ),
-                    ),
-                  ],
+    final bottomNavPadding = FloatingNavBarScope.bottomPaddingOf(context);
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
+    final bgColor = isDark
+        ? colors.surfaceContainer.withValues(alpha: 0.8)
+        : colors.surface.withValues(alpha: 0.85);
+
+    final hasBottomNav = bottomNavPadding > 0;
+
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          decoration: BoxDecoration(
+            color: bgColor,
+            border: Border(
+              top: BorderSide(
+                color: colors.outlineVariant.withValues(alpha: 0.4),
+                width: 1.0,
+              ),
+            ),
+          ),
+          child: SafeArea(
+            top: false,
+            bottom: !hasBottomNav,
+            child: Padding(
+              padding: EdgeInsets.only(
+                left: AppPadding.medium,
+                right: AppPadding.medium,
+                top: AppPadding.medium,
+                bottom: hasBottomNav
+                    ? bottomNavPadding + AppPadding.small
+                    : AppPadding.medium,
+              ),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: Breakpoint.medium.value,
+                  ),
+                  child: SizedBox(width: double.infinity, child: child),
                 ),
-                const SizedBox(
-                  height: AppPadding.small,
-                ),
-                widget.button,
-              ],
+              ),
             ),
           ),
         ),
@@ -462,107 +443,90 @@ class BlueMealInfoSheet extends ConsumerWidget {
     return Stack(
       children: [
         ScrollAssistedList(
-            builder: (context, properties) => ListView(
-                  physics: const ScrollPhysics(),
-                  shrinkWrap: true,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: AppPadding.large),
-                  key: properties.scrollStateKey,
-                  controller: properties.scrollController,
-                  children: [
-                    const SizedBox(
-                      height: AppPadding.xxxl,
-                    ),
-                    DecoratedBox(
-                      decoration: BoxDecoration(
-                          color: Colors.yellow.withValues(alpha: 0.35),
-                          borderRadius: const BorderRadius.all(
-                              Radius.circular(AppRounding.tiny))),
-                      child: Padding(
-                        padding: const EdgeInsets.all(AppPadding.tiny),
-                        child: Text(
-                          context.translate.inStudySeeingExp,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: AppPadding.medium,
-                    ),
-                    const BlueMealStudyInstructions(),
-                    const SizedBox(
-                      height: AppPadding.medium,
-                    ),
-                    Text(
-                      context.translate.inStudyWithdrawTitle,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      context.translate.inStudyWithdrawDesc,
-                    ),
-                    const SizedBox(
-                      height: AppPadding.medium,
-                    ),
-                    Center(
-                        child: FilledButton(
-                            onPressed: () async {
-                              final AuthUser user =
-                                  await ref.read(authStream.future);
-
-                              final Email email = Email(
-                                  subject: "Blue Meal Study withdrawl request",
-                                  recipients: ["BlueMeal@iu.edu"],
-                                  body:
-                                      "${user.attributes["email"] ?? "{insert account email}"}");
-
-                              if (kIsWeb) {
-                                final Uri mailTo = webMailTo(email);
-                                bool launched = false;
-                                if (await canLaunchUrl(mailTo)) {
-                                  launched = await launchUrl(mailTo);
-                                } else {
-                                  launched = false;
-                                }
-                                if (!launched && context.mounted) {
-                                  showSnack(
-                                      context, "Failed to generate email");
-                                }
-                                return;
-                              }
-                              try {
-                                await FlutterEmailSender.send(email);
-                              } catch (e) {
-                                if (context.mounted) {
-                                  showSnack(
-                                      context, "Unable to construct email");
-                                }
-                              }
-                            },
-                            child: Text(
-                                context.translate.inStudyWithdrawButtonText))),
-                    const SizedBox(
-                      height: AppPadding.xl,
-                    ),
-                  ],
+          builder: (context, properties) => ListView(
+            physics: const ScrollPhysics(),
+            shrinkWrap: true,
+            padding: const EdgeInsets.symmetric(horizontal: AppPadding.large),
+            key: properties.scrollStateKey,
+            controller: properties.scrollController,
+            children: [
+              const SizedBox(height: AppPadding.xxxl),
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  color: Colors.yellow.withValues(alpha: 0.35),
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(AppRounding.tiny),
+                  ),
                 ),
-            scrollController: scrollController),
+                child: Padding(
+                  padding: const EdgeInsets.all(AppPadding.tiny),
+                  child: Text(context.translate.inStudySeeingExp),
+                ),
+              ),
+              const SizedBox(height: AppPadding.medium),
+              const BlueMealStudyInstructions(),
+              const SizedBox(height: AppPadding.medium),
+              Text(
+                context.translate.inStudyWithdrawTitle,
+                style: Theme.of(context).textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              Text(context.translate.inStudyWithdrawDesc),
+              const SizedBox(height: AppPadding.medium),
+              Center(
+                child: FilledButton(
+                  onPressed: () async {
+                    final AuthUser user = await ref.read(authStream.future);
+
+                    final Email email = Email(
+                      subject: "Blue Meal Study withdrawl request",
+                      recipients: ["BlueMeal@iu.edu"],
+                      body:
+                          "${user.attributes["email"] ?? "{insert account email}"}",
+                    );
+
+                    if (kIsWeb) {
+                      final Uri mailTo = webMailTo(email);
+                      bool launched = false;
+                      if (await canLaunchUrl(mailTo)) {
+                        launched = await launchUrl(mailTo);
+                      } else {
+                        launched = false;
+                      }
+                      if (!launched && context.mounted) {
+                        showSnack(context, "Failed to generate email");
+                      }
+                      return;
+                    }
+                    try {
+                      await FlutterEmailSender.send(email);
+                    } catch (e) {
+                      if (context.mounted) {
+                        showSnack(context, "Unable to construct email");
+                      }
+                    }
+                  },
+                  child: Text(context.translate.inStudyWithdrawButtonText),
+                ),
+              ),
+              const SizedBox(height: AppPadding.xl),
+            ],
+          ),
+          scrollController: scrollController,
+        ),
         DecoratedBox(
           decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  stops: const [
-                0.0,
-                0.7,
-                1.0
-              ],
-                  colors: [
+            gradient: LinearGradient(
+              stops: const [0.0, 0.7, 1.0],
+              colors: [
                 Theme.of(context).colorScheme.surface,
                 Theme.of(context).colorScheme.surface,
                 Theme.of(context).colorScheme.surface.withValues(alpha: 0),
               ],
-                  begin: AlignmentGeometry.topCenter,
-                  end: AlignmentGeometry.bottomCenter)),
+              begin: AlignmentGeometry.topCenter,
+              end: AlignmentGeometry.bottomCenter,
+            ),
+          ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
             child: Row(
@@ -572,15 +536,17 @@ class BlueMealInfoSheet extends ConsumerWidget {
                 Text(
                   context.translate.blueDyeHeader,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.bold),
+                    color: Theme.of(context).primaryColor,
+                    fontWeight: FontWeight.bold,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 IconButton.filled(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    icon: const Icon(Icons.close))
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  icon: const Icon(Icons.close),
+                ),
               ],
             ),
           ),
@@ -718,9 +684,10 @@ class BlueMealInfoSheet extends ConsumerWidget {
     };
 
     return Uri(
-        scheme: 'mailto',
-        path: "BlueMeal@iu.edu",
-        queryParameters: parameterMap);
+      scheme: 'mailto',
+      path: "BlueMeal@iu.edu",
+      queryParameters: parameterMap,
+    );
   }
 }
 
@@ -735,176 +702,130 @@ class BlueMealStudyInstructions extends StatelessWidget {
       children: [
         Text(
           context.translate.studyExpTitle,
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium
+          style: Theme.of(context).textTheme.titleMedium
               ?.copyWith(fontWeight: FontWeight.bold),
         ),
-        const SizedBox(
-          height: AppPadding.small,
-        ),
+        const SizedBox(height: AppPadding.small),
         Text(context.translate.studyExpBody),
-        const SizedBox(
-          height: AppPadding.small,
-        ),
+        const SizedBox(height: AppPadding.small),
         Text(context.translate.studyExpBodyCont),
-        LabeledList(strings: [
-          context.translate.studyBodySymptomOne,
-          context.translate.studyBodySymptomTwo,
-          context.translate.studyBodySymptomThree,
-          context.translate.studyBodySymptomFour,
-        ], highlight: false),
-        const SizedBox(
-          height: AppPadding.medium,
+        LabeledList(
+          strings: [
+            context.translate.studyBodySymptomOne,
+            context.translate.studyBodySymptomTwo,
+            context.translate.studyBodySymptomThree,
+            context.translate.studyBodySymptomFour,
+          ],
+          highlight: false,
         ),
+        const SizedBox(height: AppPadding.medium),
         Text(
           context.translate.studyEligibilityTitle,
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium
+          style: Theme.of(context).textTheme.titleMedium
               ?.copyWith(fontWeight: FontWeight.bold),
         ),
         Text(context.translate.studyEligibilityParticipants),
-        const SizedBox(
-          height: AppPadding.small,
+        const SizedBox(height: AppPadding.small),
+        LabeledList(
+          strings: [
+            context.translate.studyEligibilityOne,
+            context.translate.studyEligibilityTwo,
+            context.translate.studyEligibilityThree,
+            context.translate.studyEligibilityFour,
+          ],
+          highlight: false,
         ),
-        LabeledList(strings: [
-          context.translate.studyEligibilityOne,
-          context.translate.studyEligibilityTwo,
-          context.translate.studyEligibilityThree,
-          context.translate.studyEligibilityFour,
-        ], highlight: false),
-        const SizedBox(
-          height: AppPadding.medium,
-        ),
+        const SizedBox(height: AppPadding.medium),
         Text(
           context.translate.studyFlowTitle,
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium
+          style: Theme.of(context).textTheme.titleMedium
               ?.copyWith(fontWeight: FontWeight.bold),
         ),
         Text(context.translate.studyFlowDesc),
-        const SizedBox(
-          height: AppPadding.medium,
+        const SizedBox(height: AppPadding.medium),
+        LabeledList(
+          title: Text(context.translate.studyFlowPreStudy),
+          strings: [
+            context.translate.studyFlowPreStudyOne,
+            context.translate.studyFlowPreStudyTwo,
+          ],
+          mark: (index) => "${index + 1}.",
+          highlight: false,
+        ),
+        const SizedBox(height: AppPadding.medium),
+        LabeledList(
+          title: Text(
+            context.translate.studyFlowPrepTitle,
+            style: Theme.of(context).textTheme.titleMedium
+                ?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          strings: [
+            context.translate.studyFlowPrepOne,
+            context.translate.studyFlowPrepTwo,
+          ],
+          highlight: false,
+        ),
+        const SizedBox(height: AppPadding.medium),
+        LabeledList(
+          title: Text(
+            context.translate.studyFlowStepOneTitle,
+            style: Theme.of(context).textTheme.titleMedium
+                ?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          strings: [
+            context.translate.studyFlowStepOnePartOne,
+            context.translate.studyFlowStepOnePartTwo,
+          ],
+          mark: (index) => "${index + 1}.",
+          highlight: false,
         ),
         LabeledList(
-            title: Text(context.translate.studyFlowPreStudy),
-            strings: [
-              context.translate.studyFlowPreStudyOne,
-              context.translate.studyFlowPreStudyTwo
-            ],
-            mark: (index) => "${index + 1}.",
-            highlight: false),
-        const SizedBox(
-          height: AppPadding.medium,
+          title: Text(
+            context.translate.studyFlowStepTwoTitle,
+            style: Theme.of(context).textTheme.titleMedium
+                ?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          strings: [
+            context.translate.studyFlowStepTwoPartOne,
+            context.translate.studyFlowStepTwoPartTwo,
+          ],
+          mark: (index) => "${index + 1}.",
+          highlight: false,
         ),
-        LabeledList(
-            title: Text(
-              context.translate.studyFlowPrepTitle,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            strings: [
-              context.translate.studyFlowPrepOne,
-              context.translate.studyFlowPrepTwo,
-            ],
-            highlight: false),
-        const SizedBox(
-          height: AppPadding.medium,
-        ),
-        LabeledList(
-            title: Text(
-              context.translate.studyFlowStepOneTitle,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            strings: [
-              context.translate.studyFlowStepOnePartOne,
-              context.translate.studyFlowStepOnePartTwo
-            ],
-            mark: (index) => "${index + 1}.",
-            highlight: false),
-        LabeledList(
-            title: Text(
-              context.translate.studyFlowStepTwoTitle,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            strings: [
-              context.translate.studyFlowStepTwoPartOne,
-              context.translate.studyFlowStepTwoPartTwo
-            ],
-            mark: (index) => "${index + 1}.",
-            highlight: false),
-        const SizedBox(
-          height: AppPadding.medium,
-        ),
+        const SizedBox(height: AppPadding.medium),
         Text(
           context.translate.studyFlowBetweenStepTwoStepThree,
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium
+          style: Theme.of(context).textTheme.titleMedium
               ?.copyWith(fontWeight: FontWeight.bold),
         ),
-        Text(
-          context.translate.studyFlowBetweenStepTwoStepThreeDesc,
-        ),
-        const SizedBox(
-          height: AppPadding.medium,
-        ),
+        Text(context.translate.studyFlowBetweenStepTwoStepThreeDesc),
+        const SizedBox(height: AppPadding.medium),
         Text(
           context.translate.studyFlowStepThreeTitle,
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium
+          style: Theme.of(context).textTheme.titleMedium
               ?.copyWith(fontWeight: FontWeight.bold),
         ),
-        Text(
-          context.translate.studyFlowStepThreeDesc,
-        ),
-        const SizedBox(
-          height: AppPadding.medium,
-        ),
+        Text(context.translate.studyFlowStepThreeDesc),
+        const SizedBox(height: AppPadding.medium),
         Text(
           context.translate.studyFlowStepFourTitle,
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium
+          style: Theme.of(context).textTheme.titleMedium
               ?.copyWith(fontWeight: FontWeight.bold),
         ),
-        Text(
-          context.translate.studyFlowStepFourDesc,
-        ),
-        const SizedBox(
-          height: AppPadding.medium,
-        ),
+        Text(context.translate.studyFlowStepFourDesc),
+        const SizedBox(height: AppPadding.medium),
         Text(
           context.translate.studyFlowComplete,
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium
+          style: Theme.of(context).textTheme.titleMedium
               ?.copyWith(fontWeight: FontWeight.bold),
         ),
-        const SizedBox(
-          height: AppPadding.medium,
-        ),
+        const SizedBox(height: AppPadding.medium),
         Text(
           context.translate.studyContactTitle,
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium
+          style: Theme.of(context).textTheme.titleMedium
               ?.copyWith(fontWeight: FontWeight.bold),
         ),
-        Text(
-          context.translate.studyContactBody,
-        ),
+        Text(context.translate.studyContactBody),
       ],
     );
   }
@@ -925,33 +846,28 @@ class BlueStudyInstructionsPartOne extends StatelessWidget {
           children: [
             Text(
               context.translate.studyStepOneExplanationTitle,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
+              style: Theme.of(context).textTheme.titleMedium
                   ?.copyWith(fontWeight: FontWeight.bold),
             ),
-            const SizedBox(
-              height: AppPadding.small,
-            ),
+            const SizedBox(height: AppPadding.small),
             LabeledList(
               strings: [
                 context.translate.studyStepOneExplanationPartOne,
                 context.translate.studyStepOneExplanationPartTwo,
                 context.translate.studyStepOneExplanationPartThree,
-                context.translate.studyStepOneExplanationPartFour
+                context.translate.studyStepOneExplanationPartFour,
               ],
               mark: (i) => "${i + 1}. ",
               title: Text(context.translate.studyStepOneExplanationPreReq),
               highlight: false,
             ),
-            const SizedBox(
-              height: AppPadding.small,
-            ),
+            const SizedBox(height: AppPadding.small),
             ColoredBox(
               color: Colors.yellow.withValues(alpha: 0.35),
               child: Padding(
-                  padding: const EdgeInsets.all(AppPadding.tiny),
-                  child: Text(context.translate.studyStepOneExplanationNote)),
+                padding: const EdgeInsets.all(AppPadding.tiny),
+                child: Text(context.translate.studyStepOneExplanationNote),
+              ),
             ),
           ],
         ),
@@ -963,8 +879,10 @@ class BlueStudyInstructionsPartOne extends StatelessWidget {
 class BlueStudyInstructionsPartTwo extends StatefulWidget {
   final bool initiallyExpanded;
 
-  const BlueStudyInstructionsPartTwo(
-      {required this.initiallyExpanded, super.key});
+  const BlueStudyInstructionsPartTwo({
+    required this.initiallyExpanded,
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() {
@@ -983,8 +901,8 @@ class _BlueStudyInstructionsPartTwoState
 
   @override
   Widget build(BuildContext context) {
-    final bool cardLayout =
-        getBreakpoint(context).isGreaterThan(Breakpoint.medium);
+    final bool cardLayout = getBreakpoint(context)
+        .isGreaterThan(Breakpoint.medium);
     return AdaptiveCardLayout(
       cardColor: Theme.of(context).primaryColor.withValues(alpha: 0.2),
       child: Padding(
@@ -999,57 +917,51 @@ class _BlueStudyInstructionsPartTwoState
                 Text(
                   context.translate.transitOneLabel,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.bold),
+                    color: Theme.of(context).primaryColor,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const Divider(),
               ],
               Text(
                 context.translate.studyStepTwoExplanationTitle,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
+                style: Theme.of(context).textTheme.titleMedium
                     ?.copyWith(fontWeight: FontWeight.bold),
               ),
-              const SizedBox(
-                height: AppPadding.small,
-              ),
+              const SizedBox(height: AppPadding.small),
               Text(context.translate.studyStepTwoExplanationDesc),
-              const SizedBox(
-                height: AppPadding.small,
-              ),
+              const SizedBox(height: AppPadding.small),
               LabeledList(
-                  title: Text(context.translate.studyStepTwoExplanationPartOne),
-                  strings: [
-                    context.translate.studyStepTwoExplanationPartOneDetailOne,
-                    context.translate.studyStepTwoExplanationPartOneDetailTwo,
-                  ],
-                  highlight: false),
-              const SizedBox(
-                height: AppPadding.small,
+                title: Text(context.translate.studyStepTwoExplanationPartOne),
+                strings: [
+                  context.translate.studyStepTwoExplanationPartOneDetailOne,
+                  context.translate.studyStepTwoExplanationPartOneDetailTwo,
+                ],
+                highlight: false,
               ),
+              const SizedBox(height: AppPadding.small),
               if (expanded)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     LabeledList(
-                        title: Text(
-                            context.translate.studyStepTwoExplanationPartTwo),
-                        strings: [
-                          context.translate
-                              .studyStepTwoExplanationPartTwoDetailOne,
-                          context.translate
-                              .studyStepTwoExplanationPartTwoDetailTwo,
-                        ],
-                        highlight: false),
-                    const SizedBox(
-                      height: AppPadding.small,
+                      title: Text(
+                        context.translate.studyStepTwoExplanationPartTwo,
+                      ),
+                      strings: [
+                        context
+                            .translate
+                            .studyStepTwoExplanationPartTwoDetailOne,
+                        context
+                            .translate
+                            .studyStepTwoExplanationPartTwoDetailTwo,
+                      ],
+                      highlight: false,
                     ),
+                    const SizedBox(height: AppPadding.small),
                     Text(context.translate.studyStepTwoExplanationColorExp),
-                    const SizedBox(
-                      height: AppPadding.small,
-                    ),
+                    const SizedBox(height: AppPadding.small),
                   ],
                 ),
               TextButton.icon(
@@ -1062,9 +974,7 @@ class _BlueStudyInstructionsPartTwoState
                   expanded
                       ? context.translate.viewLessButtonText
                       : context.translate.viewMoreButtonText,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
+                  style: Theme.of(context).textTheme.bodyMedium
                       ?.copyWith(color: Colors.blue),
                 ),
                 iconAlignment: IconAlignment.end,
@@ -1098,14 +1008,10 @@ class BlueStudyInstructionsPartThree extends StatelessWidget {
           children: [
             Text(
               context.translate.studyStepThreeExplanationTitle,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
+              style: Theme.of(context).textTheme.titleMedium
                   ?.copyWith(fontWeight: FontWeight.bold),
             ),
-            const SizedBox(
-              height: AppPadding.small,
-            ),
+            const SizedBox(height: AppPadding.small),
             LabeledList(
               strings: [
                 context.translate.studyStepThreeExplanationPartOne,
@@ -1127,8 +1033,8 @@ class BlueStudyInstructionsPartFour extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool cardLayout =
-        getBreakpoint(context).isGreaterThan(Breakpoint.medium);
+    final bool cardLayout = getBreakpoint(context)
+        .isGreaterThan(Breakpoint.medium);
     return AdaptiveCardLayout(
       cardColor: Theme.of(context).primaryColor.withValues(alpha: 0.2),
       child: Padding(
@@ -1141,21 +1047,18 @@ class BlueStudyInstructionsPartFour extends StatelessWidget {
               Text(
                 context.translate.transitTwoLabel,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).primaryColor,
-                    fontWeight: FontWeight.bold),
+                  color: Theme.of(context).primaryColor,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const Divider(),
             ],
             Text(
               context.translate.studyStepFourExplanationTitle,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
+              style: Theme.of(context).textTheme.titleMedium
                   ?.copyWith(fontWeight: FontWeight.bold),
             ),
-            const SizedBox(
-              height: AppPadding.small,
-            ),
+            const SizedBox(height: AppPadding.small),
             LabeledList(
               strings: [
                 context.translate.studyStepFourExplanationPartOne,
@@ -1178,8 +1081,8 @@ class BlueStudyInstructionsBMLogs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool cardLayout =
-        getBreakpoint(context).isGreaterThan(Breakpoint.medium);
+    final bool cardLayout = getBreakpoint(context)
+        .isGreaterThan(Breakpoint.medium);
     return AdaptiveCardLayout(
       cardColor: Theme.of(context).primaryColor.withValues(alpha: 0.2),
       child: Padding(
@@ -1194,8 +1097,9 @@ class BlueStudyInstructionsBMLogs extends StatelessWidget {
                     ? context.translate.transitOneLabel
                     : context.translate.transitTwoLabel,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).primaryColor,
-                    fontWeight: FontWeight.bold),
+                  color: Theme.of(context).primaryColor,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const Divider(),
             ],
@@ -1203,16 +1107,15 @@ class BlueStudyInstructionsBMLogs extends StatelessWidget {
               step.value < 2
                   ? context.translate.studyStepTwoExplanationTitle
                   : context.translate.studyStepFourExplanationTitle,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
+              style: Theme.of(context).textTheme.titleMedium
                   ?.copyWith(fontWeight: FontWeight.bold),
             ),
-            const SizedBox(
-              height: AppPadding.small,
+            const SizedBox(height: AppPadding.small),
+            Text(
+              context.translate.blueMealRecordDescription(
+                step.value < 2 ? "Step 2" : "Step 4",
+              ),
             ),
-            Text(context.translate.blueMealRecordDescription(
-                step.value < 2 ? "Step 2" : "Step 4")),
           ],
         ),
       ),
@@ -1255,21 +1158,24 @@ class LabeledList extends StatelessWidget {
         final bool isLast = index.key == strings.length - 1;
         return Padding(
           padding: EdgeInsets.only(bottom: isLast ? 0 : AppPadding.tiny),
-          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(marker(index.key),
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(
-              width: AppPadding.tiny,
-            ),
-            Expanded(
-              child: Text(
-                index.value,
-                softWrap: true,
-                textAlign: TextAlign.left,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                marker(index.key),
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
-            ),
-          ]),
+              const SizedBox(width: AppPadding.tiny),
+              Expanded(
+                child: Text(
+                  index.value,
+                  softWrap: true,
+                  textAlign: TextAlign.left,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
+            ],
+          ),
         );
       }).toList(),
     );
@@ -1282,26 +1188,32 @@ class LabeledList extends StatelessWidget {
               title!,
               Padding(
                 padding: const EdgeInsets.only(
-                    left: AppPadding.medium, top: AppPadding.tiny),
+                  left: AppPadding.medium,
+                  top: AppPadding.tiny,
+                ),
                 child: list,
               ),
-              if (additions != null) ...additions!
+              ...?additions,
             ],
           )
         : list;
 
     return Container(
-        alignment: Alignment.centerLeft,
-        decoration: BoxDecoration(
-            borderRadius:
-                const BorderRadius.all(Radius.circular(AppRounding.small)),
-            border: highlight
-                ? Border.all(
-                    width: 2.0,
-                    color: Theme.of(context).colorScheme.onPrimaryContainer)
-                : null),
-        padding: padding != null ? EdgeInsets.all(padding!) : null,
-        child: titleWidget);
+      alignment: Alignment.centerLeft,
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.all(
+          Radius.circular(AppRounding.small),
+        ),
+        border: highlight
+            ? Border.all(
+                width: 2.0,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+              )
+            : null,
+      ),
+      padding: padding != null ? EdgeInsets.all(padding!) : null,
+      child: titleWidget,
+    );
   }
 }
 
@@ -1340,14 +1252,17 @@ class LabeledWidgets extends StatelessWidget {
         final bool isLast = index.key == widgets.length - 1;
         return Padding(
           padding: EdgeInsets.only(bottom: isLast ? 0 : AppPadding.tiny),
-          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(marker(index.key),
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(
-              width: AppPadding.tiny,
-            ),
-            Expanded(child: index.value),
-          ]),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                marker(index.key),
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(width: AppPadding.tiny),
+              Expanded(child: index.value),
+            ],
+          ),
         );
       }).toList(),
     );
@@ -1360,25 +1275,29 @@ class LabeledWidgets extends StatelessWidget {
               title!,
               Padding(
                 padding: const EdgeInsets.only(
-                    left: AppPadding.medium, top: AppPadding.tiny),
+                  left: AppPadding.medium,
+                  top: AppPadding.tiny,
+                ),
                 child: list,
               ),
-              if (additions != null) ...additions!
+              ...?additions,
             ],
           )
         : list;
 
     return Container(
-        alignment: Alignment.centerLeft,
-        decoration: BoxDecoration(
-            borderRadius:
-                const BorderRadius.all(Radius.circular(AppRounding.tiny)),
-            border: highlight
-                ? Border.all(
-                    width: 2.0,
-                    color: Theme.of(context).colorScheme.onPrimaryContainer)
-                : null),
-        padding: padding != null ? EdgeInsets.all(padding!) : null,
-        child: titleWidget);
+      alignment: Alignment.centerLeft,
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.all(Radius.circular(AppRounding.tiny)),
+        border: highlight
+            ? Border.all(
+                width: 2.0,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+              )
+            : null,
+      ),
+      padding: padding != null ? EdgeInsets.all(padding!) : null,
+      child: titleWidget,
+    );
   }
 }

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:stripes_backend_helper/QuestionModel/response.dart';
-import 'package:stripes_backend_helper/date_format.dart';
+import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/History/display_data_provider.dart';
 
 import 'package:stripes_ui/Util/Helpers/date_range_utils.dart';
@@ -60,11 +59,12 @@ class _BottomSheetCalendarState extends ConsumerState<BottomSheetCalendar> {
   }
 
   void _onRangeSelected(DateTime? start, DateTime? end, DateTime focusedDay) {
-    if (start != null && end == null && _rangeStart != null) {
-      if (isSameDay(start, _rangeStart)) {
-        end = start;
-      }
-    }
+    // TableCalendar supplies civil dates. Preserve the selected date components.
+    start = start == null ? null : DateTime(start.year, start.month, start.day);
+    end = end == null ? null : DateTime(end.year, end.month, end.day);
+    focusedDay = DateTime(focusedDay.year, focusedDay.month, focusedDay.day);
+    // A pending range start is also a complete single-day selection. Keep
+    // end null so the calendar can still extend it on the next date tap.
     setState(() {
       _rangeStart = start;
       _rangeEnd = end;
@@ -74,28 +74,57 @@ class _BottomSheetCalendarState extends ConsumerState<BottomSheetCalendar> {
 
   @override
   Widget build(BuildContext context) {
+    final events = widget.ignoreFilters
+        ? ref.watch(unfilteredEventsMapProvider)
+        : ref.watch(eventsMapProvider);
+    final paths = ref.watch(
+      recordPaths(
+        const RecordPathProps(
+          filterEnabled: true,
+          type: PathProviderType.review,
+        ),
+      ),
+    );
+
+    return events.when(
+      loading: () =>
+          const _CalendarStateMessage(child: CircularProgressIndicator()),
+      error: (error, stack) => _CalendarStateMessage(
+        child: Text('Unable to load calendar events: $error'),
+      ),
+      data: (eventMap) => paths.when(
+        loading: () =>
+            const _CalendarStateMessage(child: CircularProgressIndicator()),
+        error: (error, stack) => _CalendarStateMessage(
+          child: Text('Unable to load review paths: $error'),
+        ),
+        data: (checkinPaths) => _buildCalendar(
+          context,
+          eventMap: eventMap,
+          checkinPaths: checkinPaths,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCalendar(
+    BuildContext context, {
+    required Map<DateTime, List<Response>> eventMap,
+    required List<RecordPath> checkinPaths,
+  }) {
     final Locale locale = Localizations.localeOf(context);
-    final AsyncValue<Map<DateTime, List<Response>>> eventsValue =
-        widget.ignoreFilters
-            ? ref.watch(unfilteredEventsMapProvider)
-            : ref.watch(eventsMapProvider);
+    final TextStyle weekdayStyle = Theme.of(context).textTheme.bodyMedium!;
+    final TextScaler textScaler = MediaQuery.textScalerOf(context);
+    final double weekdayFontSize = textScaler.scale(weekdayStyle.fontSize!);
+    final double weekdayHeight =
+        weekdayFontSize * (weekdayStyle.height ?? 1.2) + AppPadding.small;
 
-    final bool waiting = eventsValue.isLoading || eventsValue.hasError;
-    final Map<DateTime, List<Response>> eventMap =
-        eventsValue.valueOrNull ?? {};
-
-    final bool validRange = _rangeStart != null && _rangeEnd != null;
     final DateTime now = DateTime.now();
 
-    final checkinPaths = ref
-        .watch(recordPaths(const RecordPathProps(
-            filterEnabled: true, type: PathProviderType.review)))
-        .valueOrNull;
-
     final Set<DateTime> checkInCoverage = {};
-    if (checkinPaths != null && eventMap.isNotEmpty) {
+    if (eventMap.isNotEmpty) {
       final Map<String, dynamic> typeToPeriod = {
-        for (var p in checkinPaths) p.name: p.period!
+        for (var p in checkinPaths) p.name: p.period!,
       };
 
       for (final events in eventMap.values) {
@@ -105,17 +134,23 @@ class _BottomSheetCalendarState extends ConsumerState<BottomSheetCalendar> {
             final DateTime date = dateFromStamp(event.stamp);
             final DateTimeRange range = period.getRange(date);
 
-            DateTime iterator =
-                DateTime(range.start.year, range.start.month, range.start.day);
-            final DateTime end =
-                DateTime(range.end.year, range.end.month, range.end.day);
+            DateTime iterator = DateTime(
+              range.start.year,
+              range.start.month,
+              range.start.day,
+            );
+            final DateTime end = DateTime(
+              range.end.year,
+              range.end.month,
+              range.end.day,
+            );
 
             if (DateUtils.isSameDay(range.start, range.end)) {
               checkInCoverage.add(iterator);
             } else {
               while (!iterator.isAfter(end) && !iterator.isAfter(now)) {
                 checkInCoverage.add(iterator);
-                iterator = iterator.add(const Duration(days: 1));
+                iterator = DateRangeUtils.shiftCalendarDays(iterator, 1);
               }
             }
           }
@@ -133,8 +168,9 @@ class _BottomSheetCalendarState extends ConsumerState<BottomSheetCalendar> {
       rangeEndDecoration: BoxDecoration(),
     );
 
-    final DateTime lastDay =
-        (_rangeEnd != null && _rangeEnd!.isAfter(now)) ? _rangeEnd! : now;
+    final DateTime lastDay = (_rangeEnd != null && _rangeEnd!.isAfter(now))
+        ? _rangeEnd!
+        : now;
 
     Widget builder(BuildContext context, DateTime day, DateTime focus) {
       final DateTime normalizedDay = DateTime(day.year, day.month, day.day);
@@ -143,13 +179,14 @@ class _BottomSheetCalendarState extends ConsumerState<BottomSheetCalendar> {
           : null;
       final DateTime? normalizedEnd = _rangeEnd != null
           ? DateTime(_rangeEnd!.year, _rangeEnd!.month, _rangeEnd!.day)
-          : null;
+          : normalizedStart;
 
       final bool isStart =
           normalizedStart != null && isSameDay(normalizedDay, normalizedStart);
       final bool isEnd =
           normalizedEnd != null && isSameDay(normalizedDay, normalizedEnd);
-      final bool isWithin = normalizedStart != null &&
+      final bool isWithin =
+          normalizedStart != null &&
           normalizedEnd != null &&
           normalizedDay.isAfter(normalizedStart) &&
           normalizedDay.isBefore(normalizedEnd) &&
@@ -160,15 +197,12 @@ class _BottomSheetCalendarState extends ConsumerState<BottomSheetCalendar> {
       final List<Response>? dayEvents = eventMap[day];
 
       if (dayEvents != null && dayEvents.isNotEmpty) {
-        final Set<String> checkinTypes =
-            checkinPaths?.map((p) => p.name).toSet() ?? {};
-
-        if (checkinPaths != null) {
-          displayEvents =
-              dayEvents.where((e) => !checkinTypes.contains(e.type)).length;
-        } else {
-          displayEvents = dayEvents.length;
-        }
+        final Set<String> checkinTypes = checkinPaths
+            .map((p) => p.name)
+            .toSet();
+        displayEvents = dayEvents
+            .where((e) => !checkinTypes.contains(e.type))
+            .length;
       }
 
       final bool hasCheckIn = checkInCoverage.contains(normalizedDay);
@@ -189,7 +223,10 @@ class _BottomSheetCalendarState extends ConsumerState<BottomSheetCalendar> {
     }
 
     Widget? dowBuilder(BuildContext context, DateTime day) {
-      final weekdayString = DateFormat.E(locale.languageCode).format(day);
+      final weekdayString = DateFormat(
+        weekdayFontSize > 18 ? 'EEEEE' : 'EEE',
+        locale.languageCode,
+      ).format(day);
 
       return Padding(
         padding: const EdgeInsets.only(bottom: AppPadding.small),
@@ -197,175 +234,284 @@ class _BottomSheetCalendarState extends ConsumerState<BottomSheetCalendar> {
           child: ExcludeSemantics(
             child: Text(
               weekdayString,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurface
-                      .withValues(alpha: 0.6)),
+              style: weekdayStyle.copyWith(
+                color: Theme.of(context).colorScheme.onSurface
+                    .withValues(alpha: 0.6),
+              ),
             ),
           ),
         ),
       );
     }
 
-    return SingleChildScrollView(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(
-                horizontal: AppPadding.medium, vertical: AppPadding.small),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Flexible(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      "Select Range",
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
+                Padding(
+                  padding: const EdgeInsets.all(AppPadding.medium),
+                  child: Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Text(
+                      "Select dates",
+                      style: Theme.of(context).textTheme.titleMedium
                           ?.copyWith(fontWeight: FontWeight.bold),
                     ),
-                    if (waiting)
-                      const Padding(
-                        padding: EdgeInsets.only(left: AppPadding.small),
-                        child: SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                      ),
-                  ],
+                  ),
                 ),
-                Row(
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text("Cancel"),
-                    ),
-                    const SizedBox(width: AppPadding.small),
-                    FilledButton(
-                      onPressed: validRange
-                          ? () {
-                              final range = DateRangeUtils.rangeFromSelection(
-                                  _rangeStart!, _rangeEnd!);
-
-                              if (widget.onRangeSelected != null) {
-                                widget.onRangeSelected!(range);
-                              } else {
-                                ref
-                                    .read(displayDataProvider.notifier)
-                                    .setRange(range, cycle: TimeCycle.custom);
-                              }
-                              Navigator.of(context).pop();
-                            }
-                          : null,
-                      child: const Text("Apply"),
-                    ),
-                  ],
-                )
-              ],
-            ),
-          ),
-          const Divider(height: 1),
-          _CalendarHeader(
-            onYearChange: _onYearChange,
-            focusedDay: focusedDay,
-            showingYearPicker: _showYearPicker,
-            onLeftArrowTap: () {
-              _pageController?.previousPage(
-                duration: Durations.medium1,
-                curve: Curves.easeOut,
-              );
-            },
-            onRightArrowTap: () {
-              _pageController?.nextPage(
-                duration: Durations.medium1,
-                curve: Curves.easeOut,
-              );
-            },
-          ),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 380),
-            child: Stack(
-              children: [
-                Visibility(
-                  visible: !_showYearPicker,
-                  maintainState: true,
-                  child: Stack(
+                const Divider(height: 1),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: AppPadding.small,
+                  ),
+                  child: Row(
                     children: [
-                      // Removed IgnorePointer and Opacity to allow interaction
-                      TableCalendar(
-                        locale: locale.languageCode,
-                        onCalendarCreated: (controller) {
-                          _pageController = controller;
-                        },
-                        daysOfWeekHeight: 25.0,
-                        focusedDay:
-                            focusedDay.isAfter(lastDay) ? lastDay : focusedDay,
-                        firstDay: DateTime(2020),
-                        lastDay: lastDay,
-                        rangeSelectionMode: RangeSelectionMode.toggledOn,
-                        rangeStartDay: _rangeStart,
-                        rangeEndDay: _rangeEnd,
-                        headerVisible: false,
-                        availableGestures: AvailableGestures.horizontalSwipe,
-                        calendarStyle: calendarStyle,
-                        onRangeSelected: _onRangeSelected,
-                        onPageChanged: (newFocus) {
-                          // Update earliest date when navigating to earlier months
-                          ref.read(displayDataProvider.notifier).ensureDate(
-                              DateTime(newFocus.year, newFocus.month, 1));
-                          setState(() {
-                            focusedDay = newFocus;
-                          });
-                        },
-                        calendarBuilders: CalendarBuilders(
-                          defaultBuilder: builder,
-                          todayBuilder: builder,
-                          rangeStartBuilder: builder,
-                          rangeEndBuilder: builder,
-                          withinRangeBuilder: builder,
-                          disabledBuilder: builder,
-                          dowBuilder: dowBuilder,
-                        ),
+                      IconButton(
+                        tooltip: 'Previous month',
+                        icon: const Icon(Icons.chevron_left),
+                        onPressed:
+                            !_showYearPicker &&
+                                DateTime(
+                                  focusedDay.year,
+                                  focusedDay.month,
+                                ).isAfter(
+                                  DateTime(
+                                    SigDates.minDate.year,
+                                    SigDates.minDate.month,
+                                  ),
+                                )
+                            ? () => _pageController?.previousPage(
+                                duration: Durations.medium1,
+                                curve: Curves.easeOut,
+                              )
+                            : null,
                       ),
-                      if (eventsValue.hasError)
-                        Center(
-                          child: Text(
-                            eventsValue.error.toString(),
+                      Expanded(
+                        child: TextButton(
+                          onPressed: _onYearChange,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  _monthLabel(
+                                    focusedDay,
+                                    locale,
+                                    abbreviated: weekdayFontSize > 18,
+                                  ),
+                                  semanticsLabel: _monthLabel(
+                                    focusedDay,
+                                    locale,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium,
+                                ),
+                              ),
+                              const SizedBox(width: AppPadding.tiny),
+                              AnimatedRotation(
+                                turns: _showYearPicker ? 0.5 : 0,
+                                duration:
+                                    MediaQuery.disableAnimationsOf(context)
+                                    ? Duration.zero
+                                    : const Duration(milliseconds: 360),
+                                curve: Curves.easeOutBack,
+                                child: const Icon(Icons.keyboard_arrow_down),
+                              ),
+                            ],
                           ),
                         ),
+                      ),
+                      IconButton(
+                        tooltip: 'Next month',
+                        icon: const Icon(Icons.chevron_right),
+                        onPressed:
+                            !_showYearPicker &&
+                                DateTime(
+                                  focusedDay.year,
+                                  focusedDay.month,
+                                ).isBefore(
+                                  DateTime(lastDay.year, lastDay.month),
+                                )
+                            ? () => _pageController?.nextPage(
+                                duration: Durations.medium1,
+                                curve: Curves.easeOut,
+                              )
+                            : null,
+                      ),
                     ],
                   ),
                 ),
-                if (_showYearPicker)
-                  Container(
-                    color: Theme.of(context).colorScheme.surface,
-                    child: YearPicker(
-                      currentDate: focusedDay,
-                      firstDate: SigDates.minDate,
-                      lastDate: DateTime.now(),
-                      selectedDate: focusedDay,
-                      onChanged: (val) {
-                        setState(() {
-                          focusedDay = DateTime(
-                              val.year, focusedDay.month, focusedDay.day);
-                          _showYearPicker = false;
-                        });
-                      },
-                    ),
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: 6 * 52 + weekdayHeight,
                   ),
+                  // Both views keep their layout and identity while moving between
+                  // the day and year levels, including when a toggle is interrupted.
+                  child: Stack(
+                    children: [
+                      _CalendarModeTransition(
+                        visible: !_showYearPicker,
+                        yearLayer: false,
+                        child: IgnorePointer(
+                          ignoring: _showYearPicker,
+                          child: ExcludeSemantics(
+                            excluding: _showYearPicker,
+                            child: TableCalendar(
+                              locale: locale.languageCode,
+                              onCalendarCreated: (controller) {
+                                _pageController = controller;
+                              },
+                              daysOfWeekHeight: weekdayHeight,
+                              focusedDay: focusedDay.isAfter(lastDay)
+                                  ? lastDay
+                                  : focusedDay,
+                              firstDay: SigDates.minDate,
+                              lastDay: lastDay,
+                              rangeSelectionMode: RangeSelectionMode.toggledOn,
+                              rangeStartDay: _rangeStart,
+                              rangeEndDay: _rangeEnd,
+                              headerVisible: false,
+                              availableGestures:
+                                  AvailableGestures.horizontalSwipe,
+                              calendarStyle: calendarStyle,
+                              onRangeSelected: _onRangeSelected,
+                              onPageChanged: (newFocus) {
+                                // Update earliest date when navigating to earlier months
+                                ref
+                                    .read(displayDataProvider.notifier)
+                                    .ensureDate(
+                                      DateTime(
+                                        newFocus.year,
+                                        newFocus.month,
+                                        1,
+                                      ),
+                                    );
+                                setState(() {
+                                  focusedDay = newFocus;
+                                });
+                              },
+                              calendarBuilders: CalendarBuilders(
+                                defaultBuilder: builder,
+                                todayBuilder: builder,
+                                rangeStartBuilder: builder,
+                                rangeEndBuilder: builder,
+                                withinRangeBuilder: builder,
+                                disabledBuilder: builder,
+                                dowBuilder: dowBuilder,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Positioned.fill(
+                        child: _CalendarModeTransition(
+                          visible: _showYearPicker,
+                          yearLayer: true,
+                          child: IgnorePointer(
+                            ignoring: !_showYearPicker,
+                            child: ExcludeSemantics(
+                              excluding: !_showYearPicker,
+                              child: YearPicker(
+                                currentDate: now,
+                                firstDate: SigDates.minDate,
+                                lastDate: DateTime.now(),
+                                selectedDate: focusedDay,
+                                onChanged: (val) {
+                                  setState(() {
+                                    final day = focusedDay.day.clamp(
+                                      1,
+                                      DateUtils.getDaysInMonth(
+                                        val.year,
+                                        focusedDay.month,
+                                      ),
+                                    );
+                                    final selected = DateTime(
+                                      val.year,
+                                      focusedDay.month,
+                                      day,
+                                    );
+                                    focusedDay = selected.isAfter(lastDay)
+                                        ? lastDay
+                                        : selected;
+                                    ref
+                                        .read(displayDataProvider.notifier)
+                                        .ensureDate(
+                                          DateTime(
+                                            focusedDay.year,
+                                            focusedDay.month,
+                                            1,
+                                          ),
+                                        );
+                                    _showYearPicker = false;
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
-        ],
-      ),
+        ),
+        const Divider(height: 1),
+        SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppPadding.medium,
+              vertical: AppPadding.small,
+            ),
+            child: OverflowBar(
+              alignment: MainAxisAlignment.end,
+              spacing: AppPadding.small,
+              overflowSpacing: AppPadding.small,
+              overflowAlignment: OverflowBarAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text("Cancel"),
+                ),
+                FilledButton(
+                  onPressed: _rangeStart != null ? _apply : null,
+                  child: const Text("Apply"),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
+  }
+
+  void _apply() {
+    final range = DateRangeUtils.rangeFromSelection(
+      _rangeStart!,
+      _rangeEnd ?? _rangeStart!,
+    );
+
+    if (widget.onRangeSelected != null) {
+      widget.onRangeSelected!(range);
+    } else {
+      ref
+          .read(displayDataProvider.notifier)
+          .setRange(
+            range,
+            cycle: isSameDay(_rangeStart, _rangeEnd ?? _rangeStart)
+                ? TimeCycle.day
+                : TimeCycle.custom,
+          );
+    }
+    Navigator.of(context).pop();
   }
 
   bool _dateAltered(DateTime? date) {
@@ -383,61 +529,67 @@ class _BottomSheetCalendarState extends ConsumerState<BottomSheetCalendar> {
   }
 }
 
-class _CalendarHeader extends StatelessWidget {
-  final DateTime focusedDay;
-  final VoidCallback onLeftArrowTap;
-  final VoidCallback onRightArrowTap;
-  final bool showingYearPicker;
+/// A small change in depth makes switching granularity feel spatial: days
+/// retreat toward the header while years rise forward with a gentle overshoot.
+/// The child stays mounted, so reversing mid-animation never duplicates it.
+class _CalendarModeTransition extends StatelessWidget {
+  final bool visible;
+  final bool yearLayer;
+  final Widget child;
 
-  final VoidCallback onYearChange;
-
-  const _CalendarHeader({
-    required this.focusedDay,
-    required this.onLeftArrowTap,
-    required this.onRightArrowTap,
-    required this.onYearChange,
-    required this.showingYearPicker,
+  const _CalendarModeTransition({
+    required this.visible,
+    required this.yearLayer,
+    required this.child,
   });
 
   @override
   Widget build(BuildContext context) {
-    final bool isCurrentYear = DateTime.now().year == focusedDay.year;
-    final String headerText = isCurrentYear
-        ? DateFormat.MMMM().format(focusedDay)
-        : DateFormat.yMMMM().format(focusedDay);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppPadding.small),
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.chevron_left),
-            onPressed: onLeftArrowTap,
-          ),
-          const SizedBox(width: AppPadding.tiny),
-          Expanded(
-            child: TextButton.icon(
-              iconAlignment: IconAlignment.end,
-              icon: showingYearPicker
-                  ? const Icon(Icons.keyboard_arrow_up)
-                  : const Icon(Icons.keyboard_arrow_down),
-              label: Text(
-                headerText,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              onPressed: () {
-                onYearChange();
-              },
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: visible ? 1 : 0, end: visible ? 1 : 0),
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : Duration(milliseconds: visible ? 360 : 240),
+      curve: visible ? Curves.easeOutBack : Curves.easeInCubic,
+      child: child,
+      builder: (context, value, child) {
+        final opacity = value.clamp(0.0, 1.0);
+        final distance = 1 - value;
+        return Opacity(
+          opacity: opacity,
+          child: Transform.translate(
+            offset: Offset(0, (yearLayer ? 28 : -16) * distance),
+            child: Transform.scale(
+              scale: 1 - (yearLayer ? 0.08 : 0.06) * distance,
+              alignment: yearLayer ? Alignment.center : Alignment.topCenter,
+              child: child,
             ),
           ),
-          const SizedBox(width: AppPadding.tiny),
-          IconButton(
-            icon: const Icon(Icons.chevron_right),
-            onPressed: onRightArrowTap,
-          ),
-        ],
-      ),
+        );
+      },
     );
+  }
+}
+
+String _monthLabel(DateTime day, Locale locale, {bool abbreviated = false}) {
+  return day.year == DateTime.now().year
+      ? DateFormat(
+          abbreviated ? 'MMM' : 'MMMM',
+          locale.languageCode,
+        ).format(day)
+      : (abbreviated
+                ? DateFormat.yMMM(locale.languageCode)
+                : DateFormat.yMMMM(locale.languageCode))
+            .format(day);
+}
+
+class _CalendarStateMessage extends StatelessWidget {
+  final Widget child;
+
+  const _CalendarStateMessage({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(height: 260, child: Center(child: child));
   }
 }

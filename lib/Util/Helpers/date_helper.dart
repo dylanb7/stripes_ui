@@ -3,10 +3,10 @@ import 'package:intl/intl.dart';
 
 String dateToMDY(DateTime dateTime, BuildContext context) {
   final String local = Localizations.localeOf(context).languageCode;
-  return DateFormat.yMd(local).format(dateTime);
+  return DateFormat.yMd(local).format(dateTime.toLocal());
 }
 
 String timeString(DateTime dateTime, BuildContext context) {
   final String local = Localizations.localeOf(context).languageCode;
-  return DateFormat.jm(local).format(dateTime);
+  return DateFormat.jm(local).format(dateTime.toLocal());
 }

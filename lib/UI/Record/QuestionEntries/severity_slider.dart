@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:stripes_ui/UI/Record/QuestionEntries/compact_record_questions.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/Widgets/mouse_hover.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
@@ -7,7 +8,7 @@ import 'package:stripes_ui/Util/Design/paddings.dart';
 class SliderListener extends ChangeNotifier {
   bool hasInteracted = false;
 
-  interacted() {
+  void interacted() {
     hasInteracted = true;
     notifyListeners();
   }
@@ -28,18 +29,19 @@ class StripesSlider extends StatefulWidget {
 
   final Function(double)? onSlide;
 
-  const StripesSlider(
-      {required this.onChange,
-      this.onSlide,
-      this.min = 1,
-      this.max = 5,
-      this.hasInstruction = true,
-      this.hasLevelReminder = true,
-      this.initial,
-      this.minLabel,
-      this.maxLabel,
-      this.listener,
-      super.key});
+  const StripesSlider({
+    required this.onChange,
+    this.onSlide,
+    this.min = 1,
+    this.max = 5,
+    this.hasInstruction = true,
+    this.hasLevelReminder = true,
+    this.initial,
+    this.minLabel,
+    this.maxLabel,
+    this.listener,
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() {
@@ -69,140 +71,156 @@ class _StripesSliderState extends State<StripesSlider> {
 
     final Widget sliderBox = DecoratedBox(
       decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(Radius.circular(12.0)),
-          color: listener.hasInteracted ? primary : disabled),
+        borderRadius: const BorderRadius.all(Radius.circular(12.0)),
+        color: listener.hasInteracted ? primary : disabled,
+      ),
       child: Padding(
         padding: const EdgeInsets.all(AppPadding.small),
-        child: Column(children: [
-          Row(children: [
-            Visibility(
-              visible: value.toInt() != widget.min,
-              maintainSize: true,
-              maintainAnimation: true,
-              maintainState: true,
-              child: GestureDetector(
-                child: Text(
-                  '${widget.min}',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: listener.hasInteracted
-                          ? Theme.of(context).colorScheme.onPrimary
-                          : null),
-                  textAlign: TextAlign.center,
-                ),
-                onTap: () {
-                  setState(() {
-                    if (!listener.hasInteracted) {
-                      listener.interacted();
-                    }
-                    value = widget.min.toDouble();
-                    widget.onChange(value);
-                  });
-                },
-              ).showCursorOnHover,
-            ),
-            Expanded(
-              child: Center(
-                child: SliderTheme(
-                  data: SliderTheme.of(context).copyWith(
-                    trackHeight: 8.0,
-                    activeTrackColor: Theme.of(context).colorScheme.onPrimary,
-                    allowedInteraction: SliderInteraction.tapAndSlide,
-                    inactiveTrackColor:
-                        Theme.of(context).colorScheme.onPrimaryContainer,
-                    thumbShape: CustomThumb(
-                      thumbRadius: 22.0,
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      min: widget.min,
-                      max: widget.max,
-                    ),
-                    tickMarkShape:
-                        const LineSliderTickMarkShape(tickMarkRadius: 2.0),
-                    activeTickMarkColor: Theme.of(context).colorScheme.primary,
-                    inactiveTickMarkColor: Theme.of(context)
-                        .colorScheme
-                        .onPrimary
-                        .withValues(alpha: 0.8),
-                  ),
-                  child: Slider(
-                    value: value,
-                    min: widget.min.toDouble(),
-                    max: widget.max.toDouble(),
-                    thumbColor: listener.hasInteracted ? primary : disabled,
-                    divisions: widget.max - widget.min,
-                    onChangeStart: (val) {
-                      if (!listener.hasInteracted) {
-                        setState(() {
-                          listener.interacted();
-                          value = val;
-                          widget.onChange(val);
-                          if (widget.onSlide != null) {
-                            widget.onSlide!(val);
-                          }
-                        });
-                      }
-                    },
-                    onChangeEnd: (value) {
-                      widget.onChange(value);
-                    },
-                    onChanged: (double val) {
-                      setState(() {
-                        value = val;
-                        if (widget.onSlide != null) {
-                          widget.onSlide!(val);
-                        }
-                      });
-                    },
-                  ),
-                ),
-              ),
-            ),
-            Visibility(
-                visible: value.toInt() != widget.max,
-                maintainSize: true,
-                maintainAnimation: true,
-                maintainState: true,
-                child: GestureDetector(
-                  child: Text(
-                    '${widget.max}',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Visibility(
+                  visible: value.toInt() != widget.min,
+                  maintainSize: true,
+                  maintainAnimation: true,
+                  maintainState: true,
+                  child: GestureDetector(
+                    child: Text(
+                      '${widget.min}',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: listener.hasInteracted
                             ? Theme.of(context).colorScheme.onPrimary
-                            : null),
-                    textAlign: TextAlign.center,
-                  ),
-                  onTap: () {
-                    setState(() {
-                      if (!listener.hasInteracted) {
-                        listener.interacted();
-                      }
-                      value = widget.max.toDouble();
-                      widget.onChange(value);
-                    });
-                  },
-                ).showCursorOnHover),
-          ]),
-          if (widget.minLabel != null && widget.maxLabel != null)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  widget.minLabel ?? context.translate.mildTag,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: listener.hasInteracted
-                          ? Theme.of(context).colorScheme.onPrimary
-                          : null),
+                            : null,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    onTap: () {
+                      setState(() {
+                        if (!listener.hasInteracted) {
+                          listener.interacted();
+                        }
+                        value = widget.min.toDouble();
+                        widget.onChange(value);
+                      });
+                    },
+                  ).showCursorOnHover,
                 ),
-                Text(
-                  widget.maxLabel ?? context.translate.severeTag,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: listener.hasInteracted
-                          ? Theme.of(context).colorScheme.onPrimary
-                          : null),
+                Expanded(
+                  child: Center(
+                    child: SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        trackHeight: 8.0,
+                        activeTrackColor: Theme.of(context)
+                            .colorScheme
+                            .onPrimary,
+                        allowedInteraction: SliderInteraction.tapAndSlide,
+                        inactiveTrackColor: Theme.of(context)
+                            .colorScheme
+                            .onPrimaryContainer,
+                        thumbShape: CustomThumb(
+                          thumbRadius: 22.0,
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          min: widget.min,
+                          max: widget.max,
+                        ),
+                        tickMarkShape: const LineSliderTickMarkShape(
+                          tickMarkRadius: 2.0,
+                        ),
+                        activeTickMarkColor: Theme.of(context)
+                            .colorScheme
+                            .primary,
+                        inactiveTickMarkColor: Theme.of(context)
+                            .colorScheme
+                            .onPrimary
+                            .withValues(alpha: 0.8),
+                      ),
+                      child: Slider(
+                        value: value,
+                        min: widget.min.toDouble(),
+                        max: widget.max.toDouble(),
+                        thumbColor: listener.hasInteracted ? primary : disabled,
+                        divisions: widget.max - widget.min,
+                        onChangeStart: (val) {
+                          if (!listener.hasInteracted) {
+                            setState(() {
+                              listener.interacted();
+                              value = val;
+                              widget.onChange(val);
+                              if (widget.onSlide != null) {
+                                widget.onSlide!(val);
+                              }
+                            });
+                          }
+                        },
+                        onChangeEnd: (value) {
+                          widget.onChange(value);
+                        },
+                        onChanged: (double val) {
+                          setState(() {
+                            value = val;
+                            if (widget.onSlide != null) {
+                              widget.onSlide!(val);
+                            }
+                          });
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+                Visibility(
+                  visible: value.toInt() != widget.max,
+                  maintainSize: true,
+                  maintainAnimation: true,
+                  maintainState: true,
+                  child: GestureDetector(
+                    child: Text(
+                      '${widget.max}',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: listener.hasInteracted
+                            ? Theme.of(context).colorScheme.onPrimary
+                            : null,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    onTap: () {
+                      setState(() {
+                        if (!listener.hasInteracted) {
+                          listener.interacted();
+                        }
+                        value = widget.max.toDouble();
+                        widget.onChange(value);
+                      });
+                    },
+                  ).showCursorOnHover,
                 ),
               ],
             ),
-        ]),
+            if (widget.minLabel != null && widget.maxLabel != null)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    widget.minLabel ?? context.translate.mildTag,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: listener.hasInteracted
+                          ? Theme.of(context).colorScheme.onPrimary
+                          : null,
+                    ),
+                  ),
+                  Text(
+                    widget.maxLabel ?? context.translate.severeTag,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: listener.hasInteracted
+                          ? Theme.of(context).colorScheme.onPrimary
+                          : null,
+                    ),
+                  ),
+                ],
+              ),
+          ],
+        ),
       ),
     );
 
@@ -221,22 +239,18 @@ class _StripesSliderState extends State<StripesSlider> {
             child: Text(
               context.translate.levelReminder,
               textAlign: TextAlign.center,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
+              style: Theme.of(context).textTheme.titleMedium
                   ?.copyWith(fontWeight: FontWeight.bold),
             ),
           ),
-          const SizedBox(
-            height: 4.0,
-          ),
+          const SizedBox(height: 4.0),
         ],
-        sliderBox
+        sliderBox,
       ],
     );
   }
 
-  _state() {
+  void _state() {
     setState(() {});
   }
 
@@ -258,14 +272,15 @@ class MoodSlider extends StatefulWidget {
 
   final Function(double)? onSlide;
 
-  const MoodSlider(
-      {required this.onChange,
-      this.onSlide,
-      this.initial,
-      this.minLabel,
-      this.maxLabel,
-      this.listener,
-      super.key});
+  const MoodSlider({
+    required this.onChange,
+    this.onSlide,
+    this.initial,
+    this.minLabel,
+    this.maxLabel,
+    this.listener,
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() {
@@ -303,141 +318,150 @@ class _MoodSliderState extends State<MoodSlider> {
           child: Text(
             context.translate.levelReminder,
             textAlign: TextAlign.center,
-            style: Theme.of(context)
-                .textTheme
-                .displayLarge
+            style: Theme.of(context).textTheme.displayLarge
                 ?.copyWith(fontWeight: FontWeight.bold),
           ),
         ),
-        const SizedBox(
-          height: AppPadding.tiny,
-        ),
+        const SizedBox(height: AppPadding.tiny),
         DecoratedBox(
           decoration: BoxDecoration(
-              borderRadius:
-                  const BorderRadius.all(Radius.circular(AppRounding.small)),
-              color: listener.hasInteracted
-                  ? Theme.of(context).primaryColor
-                  : Theme.of(context).disabledColor),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            const SizedBox(
-              height: AppPadding.tiny,
+            borderRadius: const BorderRadius.all(
+              Radius.circular(AppRounding.small),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppPadding.tiny),
-              child: Row(
-                children: List.generate(
-                  6,
-                  (index) => Expanded(
-                    child: from(5 - index, index == selectedIndex),
+            color: listener.hasInteracted
+                ? Theme.of(context).primaryColor
+                : Theme.of(context).disabledColor,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: AppPadding.tiny),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppPadding.tiny,
+                ),
+                child: Row(
+                  children: List.generate(
+                    6,
+                    (index) => Expanded(
+                      child: from(5 - index, index == selectedIndex),
+                    ),
                   ),
                 ),
               ),
-            ),
-            Row(children: [
-              const SizedBox(
-                width: AppPadding.medium,
-              ),
-              Visibility(
-                  visible: value.toInt() != 0,
-                  maintainState: true,
-                  maintainSize: true,
-                  maintainAnimation: true,
-                  child: GestureDetector(
-                    child: Text(
-                      '1',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                      textAlign: TextAlign.center,
-                    ),
-                    onTap: () {
-                      setState(() {
-                        if (!listener.hasInteracted) {
-                          listener.interacted();
-                        }
-                        value = 0.0;
-                        widget.onChange(value);
-                        if (widget.onSlide != null) widget.onSlide!(value);
-                      });
-                    },
-                  ).showCursorOnHover),
-              Expanded(
-                child: Center(
-                  child: SliderTheme(
-                    data: SliderTheme.of(context).copyWith(
-                      trackHeight: 4.0,
-                      activeTrackColor: Theme.of(context).colorScheme.onPrimary,
-                      inactiveTrackColor:
-                          Theme.of(context).colorScheme.onPrimaryContainer,
-                      thumbShape: CustomThumb(
-                        thumbRadius: 20.0,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        min: 1,
-                        max: 10,
+              Row(
+                children: [
+                  const SizedBox(width: AppPadding.medium),
+                  Visibility(
+                    visible: value.toInt() != 0,
+                    maintainState: true,
+                    maintainSize: true,
+                    maintainAnimation: true,
+                    child: GestureDetector(
+                      child: Text(
+                        '1',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                        textAlign: TextAlign.center,
                       ),
-                      activeTickMarkColor:
-                          Theme.of(context).colorScheme.primary,
-                      inactiveTickMarkColor:
-                          Theme.of(context).colorScheme.onPrimary,
-                    ),
-                    child: Slider(
-                      value: value,
-                      min: 1.0,
-                      max: 10.0,
-                      thumbColor: listener.hasInteracted ? primary : disabled,
-                      divisions: 9,
-                      onChangeStart: (val) {
-                        if (!listener.hasInteracted) {
-                          widget.onChange(val);
-                          if (widget.onSlide != null) widget.onSlide!(value);
-                          setState(() {
-                            listener.interacted();
-                            value = val;
-                          });
-                        }
-                      },
-                      onChangeEnd: (value) {
-                        widget.onChange(value);
-                      },
-                      onChanged: (double val) {
+                      onTap: () {
                         setState(() {
-                          value = val;
-                          if (widget.onSlide != null) {
-                            widget.onSlide!(val);
+                          if (!listener.hasInteracted) {
+                            listener.interacted();
                           }
+                          value = 0.0;
+                          widget.onChange(value);
+                          if (widget.onSlide != null) widget.onSlide!(value);
                         });
                       },
+                    ).showCursorOnHover,
+                  ),
+                  Expanded(
+                    child: Center(
+                      child: SliderTheme(
+                        data: SliderTheme.of(context).copyWith(
+                          trackHeight: 4.0,
+                          activeTrackColor: Theme.of(context)
+                              .colorScheme
+                              .onPrimary,
+                          inactiveTrackColor: Theme.of(context)
+                              .colorScheme
+                              .onPrimaryContainer,
+                          thumbShape: CustomThumb(
+                            thumbRadius: 20.0,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            min: 1,
+                            max: 10,
+                          ),
+                          activeTickMarkColor: Theme.of(context)
+                              .colorScheme
+                              .primary,
+                          inactiveTickMarkColor: Theme.of(context)
+                              .colorScheme
+                              .onPrimary,
+                        ),
+                        child: Slider(
+                          value: value,
+                          min: 1.0,
+                          max: 10.0,
+                          thumbColor: listener.hasInteracted
+                              ? primary
+                              : disabled,
+                          divisions: 9,
+                          onChangeStart: (val) {
+                            if (!listener.hasInteracted) {
+                              widget.onChange(val);
+                              if (widget.onSlide != null) {
+                                widget.onSlide!(value);
+                              }
+                              setState(() {
+                                listener.interacted();
+                                value = val;
+                              });
+                            }
+                          },
+                          onChangeEnd: (value) {
+                            widget.onChange(value);
+                          },
+                          onChanged: (double val) {
+                            setState(() {
+                              value = val;
+                              if (widget.onSlide != null) {
+                                widget.onSlide!(val);
+                              }
+                            });
+                          },
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                  Visibility(
+                    visible: value.toInt() != 10.0,
+                    maintainAnimation: true,
+                    maintainSize: true,
+                    maintainState: true,
+                    child: GestureDetector(
+                      child: Text(
+                        '10',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                        textAlign: TextAlign.center,
+                      ),
+                      onTap: () {
+                        setState(() {
+                          if (!listener.hasInteracted) {
+                            listener.interacted();
+                          }
+                          value = 10.0;
+                          widget.onChange(value);
+                          if (widget.onSlide != null) widget.onSlide!(value);
+                        });
+                      },
+                    ).showCursorOnHover,
+                  ),
+                  const SizedBox(width: AppPadding.medium),
+                ],
               ),
-              Visibility(
-                  visible: value.toInt() != 10.0,
-                  maintainAnimation: true,
-                  maintainSize: true,
-                  maintainState: true,
-                  child: GestureDetector(
-                    child: Text(
-                      '10',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                      textAlign: TextAlign.center,
-                    ),
-                    onTap: () {
-                      setState(() {
-                        if (!listener.hasInteracted) {
-                          listener.interacted();
-                        }
-                        value = 10.0;
-                        widget.onChange(value);
-                        if (widget.onSlide != null) widget.onSlide!(value);
-                      });
-                    },
-                  ).showCursorOnHover),
-              const SizedBox(
-                width: AppPadding.medium,
-              ),
-            ]),
-          ]),
+            ],
+          ),
         ),
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -453,35 +477,29 @@ class _MoodSliderState extends State<MoodSlider> {
             ),
           ],
         ),
-        const SizedBox(
-          height: AppPadding.small,
-        ),
+        const SizedBox(height: AppPadding.small),
       ],
     );
   }
 
   Widget from(int index, bool isSelected) {
     return AspectRatio(
-        aspectRatio: 1,
-        child: SvgPicture.asset(
-          'packages/stripes_ui/assets/svg/pain_face_$index.svg',
-          colorFilter: ColorFilter.mode(
-              !listener.hasInteracted
-                  ? Theme.of(context)
-                      .colorScheme
-                      .onSurface
-                      .withValues(alpha: 0.5)
-                  : isSelected
-                      ? Theme.of(context).colorScheme.onSurface
-                      : Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withValues(alpha: 0.3),
-              BlendMode.srcIn),
-        ));
+      aspectRatio: 1,
+      child: SvgPicture.asset(
+        'packages/stripes_ui/assets/svg/pain_face_$index.svg',
+        colorFilter: ColorFilter.mode(
+          !listener.hasInteracted
+              ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)
+              : isSelected
+              ? Theme.of(context).colorScheme.onSurface
+              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+          BlendMode.srcIn,
+        ),
+      ),
+    );
   }
 
-  _state() {
+  void _state() {
     setState(() {});
   }
 
@@ -503,14 +521,15 @@ class PainSlider extends StatefulWidget {
 
   final Function(double)? onSlide;
 
-  const PainSlider(
-      {required this.onChange,
-      this.onSlide,
-      this.initial,
-      this.minLabel,
-      this.maxLabel,
-      this.listener,
-      super.key});
+  const PainSlider({
+    required this.onChange,
+    this.onSlide,
+    this.initial,
+    this.minLabel,
+    this.maxLabel,
+    this.listener,
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() {
@@ -545,150 +564,243 @@ class _PainSliderState extends State<PainSlider> {
       context.translate.painLevelFive,
     ];
     final int selectedIndex = (value / 2).floor();
+    if (CompactRecordQuestions.maybeOf(context) != null) {
+      return _buildCompact(context, hurtLevels, selectedIndex);
+    }
     return DecoratedBox(
       decoration: BoxDecoration(
-          borderRadius:
-              const BorderRadius.all(Radius.circular(AppRounding.small)),
-          color: listener.hasInteracted ? primary : disabled),
+        borderRadius: const BorderRadius.all(
+          Radius.circular(AppRounding.small),
+        ),
+        color: listener.hasInteracted ? primary : disabled,
+      ),
       child: Padding(
         padding: const EdgeInsets.symmetric(
-            horizontal: AppPadding.medium, vertical: AppPadding.small),
-        child:
-            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Text(
-            listener.hasInteracted
-                ? hurtLevels[selectedIndex]
-                : context.translate.levelReminder,
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(color: listener.hasInteracted ? onPrimary : null),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(
-            height: AppPadding.small,
-          ),
-          Row(
-            children: List.generate(
-              6,
-              (index) => Expanded(
-                child: from(index, index == selectedIndex),
+          horizontal: AppPadding.medium,
+          vertical: AppPadding.small,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              listener.hasInteracted
+                  ? hurtLevels[selectedIndex]
+                  : context.translate.levelReminder,
+              style: Theme.of(context).textTheme.titleMedium
+                  ?.copyWith(color: listener.hasInteracted ? onPrimary : null),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: AppPadding.small),
+            Row(
+              children: List.generate(
+                6,
+                (index) => Expanded(child: from(index, index == selectedIndex)),
               ),
             ),
-          ),
-          Row(children: [
-            Visibility(
-                visible: value.toInt() != 0,
-                maintainSize: true,
-                maintainAnimation: true,
-                maintainState: true,
-                child: SizedBox(
-                  width: 22.0,
-                  child: GestureDetector(
-                    child: Text(
-                      '0',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: listener.hasInteracted ? onPrimary : null),
-                      textAlign: TextAlign.center,
+            Row(
+              children: [
+                Visibility(
+                  visible: value.toInt() != 0,
+                  maintainSize: true,
+                  maintainAnimation: true,
+                  maintainState: true,
+                  child: SizedBox(
+                    width: 22.0,
+                    child: GestureDetector(
+                      child: Text(
+                        '0',
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              color: listener.hasInteracted ? onPrimary : null,
+                            ),
+                        textAlign: TextAlign.center,
+                      ),
+                      onTap: () {
+                        setState(() {
+                          if (!listener.hasInteracted) {
+                            listener.interacted();
+                          }
+                          value = 0.0;
+                          widget.onChange(value);
+                          if (widget.onSlide != null) widget.onSlide!(value);
+                        });
+                      },
                     ),
-                    onTap: () {
-                      setState(() {
+                  ).showCursorOnHover,
+                ),
+                Expanded(
+                  child: SliderTheme(
+                    data: SliderTheme.of(context).copyWith(
+                      trackHeight: 8.0,
+                      activeTrackColor: Theme.of(context).colorScheme.onPrimary,
+                      allowedInteraction: SliderInteraction.tapAndSlide,
+                      inactiveTrackColor: Theme.of(context)
+                          .colorScheme
+                          .onPrimaryContainer,
+                      thumbShape: CustomThumb(
+                        thumbRadius: 22.0,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        min: 0,
+                        max: 10,
+                      ),
+                      tickMarkShape: const LineSliderTickMarkShape(
+                        tickMarkRadius: 2.0,
+                      ),
+                      activeTickMarkColor: Theme.of(context)
+                          .colorScheme
+                          .primary,
+                      inactiveTickMarkColor: Theme.of(context)
+                          .colorScheme
+                          .onPrimary
+                          .withValues(alpha: 0.8),
+                    ),
+                    child: Slider(
+                      value: value,
+                      min: 0.0,
+                      max: 10.0,
+                      thumbColor: listener.hasInteracted ? primary : disabled,
+                      divisions: 10,
+                      onChangeStart: (val) {
                         if (!listener.hasInteracted) {
-                          listener.interacted();
+                          widget.onChange(val);
+                          if (widget.onSlide != null) widget.onSlide!(value);
+                          setState(() {
+                            listener.interacted();
+                            value = val;
+                          });
                         }
-                        value = 0.0;
+                      },
+                      onChangeEnd: (value) {
                         widget.onChange(value);
-                        if (widget.onSlide != null) widget.onSlide!(value);
-                      });
-                    },
+                      },
+                      onChanged: (double val) {
+                        setState(() {
+                          value = val;
+                          if (widget.onSlide != null) {
+                            widget.onSlide!(val);
+                          }
+                        });
+                      },
+                    ),
                   ),
-                ).showCursorOnHover),
-            Expanded(
-              child: SliderTheme(
-                data: SliderTheme.of(context).copyWith(
-                  trackHeight: 8.0,
-                  activeTrackColor: Theme.of(context).colorScheme.onPrimary,
-                  allowedInteraction: SliderInteraction.tapAndSlide,
-                  inactiveTrackColor:
-                      Theme.of(context).colorScheme.onPrimaryContainer,
-                  thumbShape: CustomThumb(
-                    thumbRadius: 22.0,
-                    color: Theme.of(context).colorScheme.onPrimary,
+                ),
+                Visibility(
+                  visible: value.toInt() != 10.0,
+                  maintainSize: true,
+                  maintainAnimation: true,
+                  maintainState: true,
+                  child: SizedBox(
+                    width: 22.0,
+                    child: GestureDetector(
+                      child: Text(
+                        '10',
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              color: listener.hasInteracted ? onPrimary : null,
+                            ),
+                        maxLines: 1,
+                        textAlign: TextAlign.center,
+                      ),
+                      onTap: () {
+                        setState(() {
+                          if (!listener.hasInteracted) {
+                            listener.interacted();
+                          }
+                          value = 10.0;
+                          widget.onChange(value);
+                          if (widget.onSlide != null) widget.onSlide!(value);
+                        });
+                      },
+                    ),
+                  ).showCursorOnHover,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCompact(
+    BuildContext context,
+    List<String> hurtLevels,
+    int selectedIndex,
+  ) {
+    final colors = Theme.of(context).colorScheme;
+    void selectValue(double val) {
+      if (!listener.hasInteracted) listener.interacted();
+      setState(() => value = val);
+      if (widget.onSlide != null) widget.onSlide!(val);
+      widget.onChange(val);
+    }
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(AppRounding.small),
+        border: Border.all(color: colors.outlineVariant),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppPadding.small),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: List.generate(
+                6,
+                (index) => Expanded(
+                  child: Semantics(
+                    label: hurtLevels[index],
+                    selected: listener.hasInteracted && selectedIndex == index,
+                    child: from(index, index == selectedIndex),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppPadding.small),
+            Text(
+              listener.hasInteracted
+                  ? '${value.toInt()} · ${hurtLevels[selectedIndex]}'
+                  : context.translate.levelReminder,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: colors.onSurface,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            Row(
+              children: [
+                const Text('0'),
+                Expanded(
+                  child: Slider(
+                    value: value,
                     min: 0,
                     max: 10,
-                  ),
-                  tickMarkShape:
-                      const LineSliderTickMarkShape(tickMarkRadius: 2.0),
-                  activeTickMarkColor: Theme.of(context).colorScheme.primary,
-                  inactiveTickMarkColor: Theme.of(context)
-                      .colorScheme
-                      .onPrimary
-                      .withValues(alpha: 0.8),
-                ),
-                child: Slider(
-                  value: value,
-                  min: 0.0,
-                  max: 10.0,
-                  thumbColor: listener.hasInteracted ? primary : disabled,
-                  divisions: 10,
-                  onChangeStart: (val) {
-                    if (!listener.hasInteracted) {
-                      widget.onChange(val);
-                      if (widget.onSlide != null) widget.onSlide!(value);
-                      setState(() {
-                        listener.interacted();
-                        value = val;
-                      });
-                    }
-                  },
-                  onChangeEnd: (value) {
-                    widget.onChange(value);
-                  },
-                  onChanged: (double val) {
-                    setState(() {
-                      value = val;
-                      if (widget.onSlide != null) {
-                        widget.onSlide!(val);
-                      }
-                    });
-                  },
-                ),
-              ),
-            ),
-            Visibility(
-                visible: value.toInt() != 10.0,
-                maintainSize: true,
-                maintainAnimation: true,
-                maintainState: true,
-                child: SizedBox(
-                  width: 22.0,
-                  child: GestureDetector(
-                    child: Text(
-                      '10',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: listener.hasInteracted ? onPrimary : null),
-                      maxLines: 1,
-                      textAlign: TextAlign.center,
-                    ),
-                    onTap: () {
-                      setState(() {
-                        if (!listener.hasInteracted) {
-                          listener.interacted();
-                        }
-                        value = 10.0;
-                        widget.onChange(value);
-                        if (widget.onSlide != null) widget.onSlide!(value);
-                      });
+                    divisions: 10,
+                    label: listener.hasInteracted ? '${value.toInt()}' : null,
+                    semanticFormatterCallback: (value) =>
+                        '${value.toInt()}, ${hurtLevels[(value / 2).floor()]}',
+                    onChanged: selectValue,
+                    onChangeEnd: (val) {
+                      // A tap on the initial zero does not emit onChanged.
+                      // It is still an explicit answer to this question.
+                      if (!listener.hasInteracted) selectValue(val);
                     },
                   ),
-                ).showCursorOnHover),
-          ]),
-        ]),
+                ),
+                const Text('10'),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget from(int index, bool isSelected) {
+    final compact = CompactRecordQuestions.maybeOf(context) != null;
+    final colors = Theme.of(context).colorScheme;
     return AspectRatio(
       aspectRatio: 1,
       child: InkResponse(
@@ -705,31 +817,29 @@ class _PainSliderState extends State<PainSlider> {
         containedInkWell: true,
         borderRadius: BorderRadius.circular(double.infinity),
         customBorder: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(
-            Radius.circular(double.infinity),
-          ),
+          borderRadius: BorderRadius.all(Radius.circular(double.infinity)),
         ),
         child: SvgPicture.asset(
           'packages/stripes_ui/assets/svg/pain_face_$index.svg',
           colorFilter: ColorFilter.mode(
-              !listener.hasInteracted
-                  ? Theme.of(context)
-                      .colorScheme
-                      .onSurface
-                      .withValues(alpha: 0.5)
-                  : isSelected
-                      ? Theme.of(context).colorScheme.onPrimary
-                      : Theme.of(context)
-                          .colorScheme
-                          .onPrimary
-                          .withValues(alpha: 0.3),
-              BlendMode.srcIn),
+            compact
+                ? (listener.hasInteracted && isSelected
+                      ? colors.primary
+                      : colors.onSurfaceVariant.withValues(alpha: 0.65))
+                : !listener.hasInteracted
+                ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)
+                : isSelected
+                ? Theme.of(context).colorScheme.onPrimary
+                : Theme.of(context).colorScheme.onPrimary
+                      .withValues(alpha: 0.3),
+            BlendMode.srcIn,
+          ),
         ),
       ),
     );
   }
 
-  _state() {
+  void _state() {
     setState(() {});
   }
 
@@ -763,17 +873,20 @@ class CustomThumb extends SliderComponentShape {
   }
 
   @override
-  void paint(PaintingContext context, Offset center,
-      {required Animation<double> activationAnimation,
-      required Animation<double> enableAnimation,
-      required bool isDiscrete,
-      required TextPainter labelPainter,
-      required RenderBox parentBox,
-      required SliderThemeData sliderTheme,
-      required TextDirection textDirection,
-      required double value,
-      required double textScaleFactor,
-      required Size sizeWithOverflow}) {
+  void paint(
+    PaintingContext context,
+    Offset center, {
+    required Animation<double> activationAnimation,
+    required Animation<double> enableAnimation,
+    required bool isDiscrete,
+    required TextPainter labelPainter,
+    required RenderBox parentBox,
+    required SliderThemeData sliderTheme,
+    required TextDirection textDirection,
+    required double value,
+    required double textScaleFactor,
+    required Size sizeWithOverflow,
+  }) {
     final Canvas canvas = context.canvas;
 
     final paint = Paint()
@@ -790,12 +903,15 @@ class CustomThumb extends SliderComponentShape {
     );
 
     TextPainter tp = TextPainter(
-        text: span,
-        textAlign: TextAlign.center,
-        textDirection: TextDirection.ltr);
+      text: span,
+      textAlign: TextAlign.center,
+      textDirection: TextDirection.ltr,
+    );
     tp.layout();
-    Offset textCenter =
-        Offset(center.dx - (tp.width / 2), center.dy - (tp.height / 2));
+    Offset textCenter = Offset(
+      center.dx - (tp.width / 2),
+      center.dy - (tp.height / 2),
+    );
 
     canvas.drawCircle(center, thumbRadius * .9, paint);
     tp.paint(canvas, textCenter);
@@ -803,9 +919,7 @@ class CustomThumb extends SliderComponentShape {
 }
 
 class LineSliderTickMarkShape extends SliderTickMarkShape {
-  const LineSliderTickMarkShape({
-    this.tickMarkRadius,
-  });
+  const LineSliderTickMarkShape({this.tickMarkRadius});
 
   final double? tickMarkRadius;
 
@@ -856,14 +970,15 @@ class LineSliderTickMarkShape extends SliderTickMarkShape {
       ..strokeWidth = 3.0
       ..strokeCap = StrokeCap.round;
 
-    final double tickMarkRadius = getPreferredSize(
-          isEnabled: isEnabled,
-          sliderTheme: sliderTheme,
-        ).width /
+    final double tickMarkRadius =
+        getPreferredSize(isEnabled: isEnabled, sliderTheme: sliderTheme).width /
         2;
     if (tickMarkRadius > 0) {
-      context.canvas.drawLine(Offset(center.dx, center.dy - tickMarkRadius),
-          Offset(center.dx, center.dy + tickMarkRadius), paint);
+      context.canvas.drawLine(
+        Offset(center.dx, center.dy - tickMarkRadius),
+        Offset(center.dx, center.dy + tickMarkRadius),
+        paint,
+      );
     }
   }
 }

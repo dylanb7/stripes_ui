@@ -2,21 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/QuestionModel/question.dart';
 import 'package:stripes_backend_helper/QuestionModel/response.dart';
-import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
+import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/Graph/session_graph.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/severity_slider.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/question_entry_scope.dart';
+import 'package:stripes_ui/UI/Resources/resources.dart';
 
 class BMSlider extends ConsumerStatefulWidget {
-  final QuestionsListener listener;
+  final SessionGraph listener;
   final Numeric question;
 
-  const BMSlider({
-    required this.listener,
-    required this.question,
-    super.key,
-  });
+  const BMSlider({required this.listener, required this.question, super.key});
 
   @override
   ConsumerState<BMSlider> createState() => _BMSliderState();
@@ -37,7 +34,7 @@ class _BMSliderState extends ConsumerState<BMSlider> {
       'packages/stripes_ui/assets/images/poop4.png',
       'packages/stripes_ui/assets/images/poop5.png',
       'packages/stripes_ui/assets/images/poop6.png',
-      'packages/stripes_ui/assets/images/poop7.png'
+      'packages/stripes_ui/assets/images/poop7.png',
     ];
     images = paths.map((path) => Image.asset(path)).toList();
 
@@ -69,11 +66,13 @@ class _BMSliderState extends ConsumerState<BMSlider> {
   }
 
   void _saveValue(QuestionEntryController controller, double newValue) {
-    controller.addResponse(NumericResponse(
-      question: widget.question,
-      stamp: controller.stamp,
-      response: newValue,
-    ));
+    controller.addResponse(
+      NumericResponse(
+        question: widget.question,
+        stamp: controller.stamp,
+        response: newValue,
+      ),
+    );
   }
 
   @override
@@ -85,83 +84,103 @@ class _BMSliderState extends ConsumerState<BMSlider> {
       "Like a sausage or snake, smooth and soft",
       "Soft blobs with clear-cut edges (passed easily)",
       "Fluffy pieces with ragged edges, a mushy stool",
-      "Liquid consistency with no solid pieces"
+      "Liquid consistency with no solid pieces",
     ];
 
     return QuestionEntryScope(
       question: widget.question,
       listener: widget.listener,
-      child: Builder(builder: (context) {
-        final controller = QuestionEntryScope.of(context);
-        return Column(
-          children: [
-            QuestionEntryCard(
-              styled: false,
-              child: Column(
-                children: [
-                  Center(
-                    child: AspectRatio(
-                      aspectRatio: 2.2,
-                      child: images[_value.toInt() - 1],
-                    ),
-                  ),
-                  if (_sliderListener.hasInteracted) ...[
-                    SizedBox(
-                      height: AppPadding.xxxl,
-                      child: Text(
-                        descriptors[_value.toInt() - 1],
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ),
-                  ] else
-                    const SizedBox(height: AppPadding.xl),
-                  const SizedBox(height: AppPadding.tiny),
-                  StripesSlider(
-                    onChange: (p0) {},
-                    onSlide: (val) {
-                      setState(() {
-                        _value = val;
-                        _saveValue(controller, val);
-                      });
-                    },
-                    listener: _sliderListener,
-                    hasLevelReminder: !_sliderListener.hasInteracted,
-                    min: 1,
-                    max: 7,
-                    initial: _value.toInt(),
-                  ),
-                  const SizedBox(height: AppPadding.tiny),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: AppPadding.small),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Builder(
+        builder: (context) {
+          final controller = QuestionEntryScope.of(context);
+          return Column(
+            children: [
+              QuestionEntryCard(
+                styled: false,
+                child: Column(
+                  children: [
+                    Row(
                       children: [
-                        Text(
-                          context.translate.hardTag,
-                          style:
-                              Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                    color: Theme.of(context).primaryColor,
-                                  ),
+                        Expanded(
+                          child: Text(
+                            'Bristol Stool Scale',
+                            style: Theme.of(context).textTheme.titleSmall,
+                          ),
                         ),
-                        Text(
-                          context.translate.softTag,
-                          style:
-                              Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                    color: Theme.of(context).primaryColor,
-                                  ),
+                        const ResourceInfoButton(
+                          topic: ResourceTopic.bristolScale,
+                          sectionId: 'stool-types',
+                          tooltip: 'About the Bristol Stool Scale',
                         ),
                       ],
                     ),
-                  ),
-                ],
+                    Center(
+                      child: AspectRatio(
+                        aspectRatio: 2.2,
+                        child: images[_value.toInt() - 1],
+                      ),
+                    ),
+                    if (_sliderListener.hasInteracted) ...[
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppPadding.small,
+                        ),
+                        child: Text(
+                          descriptors[_value.toInt() - 1],
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ),
+                    ] else
+                      const SizedBox(height: AppPadding.xl),
+                    const SizedBox(height: AppPadding.tiny),
+                    StripesSlider(
+                      onChange: (p0) {},
+                      onSlide: (val) {
+                        setState(() {
+                          _value = val;
+                          _saveValue(controller, val);
+                        });
+                      },
+                      listener: _sliderListener,
+                      hasLevelReminder: !_sliderListener.hasInteracted,
+                      min: 1,
+                      max: 7,
+                      initial: _value.toInt(),
+                    ),
+                    const SizedBox(height: AppPadding.tiny),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppPadding.small,
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            context.translate.hardTag,
+                            style: Theme.of(context).textTheme.bodyLarge
+                                ?.copyWith(
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                          ),
+                          Text(
+                            context.translate.softTag,
+                            style: Theme.of(context).textTheme.bodyLarge
+                                ?.copyWith(
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
-        );
-      }),
+            ],
+          );
+        },
+      ),
     );
   }
 }

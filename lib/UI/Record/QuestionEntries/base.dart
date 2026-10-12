@@ -2,17 +2,16 @@ import 'package:collection/collection.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:stripes_backend_helper/QuestionModel/question.dart';
-import 'package:stripes_backend_helper/QuestionModel/response.dart';
-import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
+import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/question_entry_scope.dart';
 
 import 'package:stripes_ui/UI/Record/QuestionEntries/severity_slider.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 
 class MultiChoiceEntry extends ConsumerWidget {
   final MultipleChoice question;
-  final QuestionsListener listener;
+  final SessionGraph listener;
 
   const MultiChoiceEntry({
     required this.question,
@@ -25,60 +24,62 @@ class MultiChoiceEntry extends ConsumerWidget {
     return QuestionEntryScope(
       question: question,
       listener: listener,
-      child: Builder(builder: (context) {
-        final controller = QuestionEntryScope.of(context);
+      child: Builder(
+        builder: (context) {
+          final controller = QuestionEntryScope.of(context);
 
-        return ListenableBuilder(
-          listenable: controller,
-          builder: (context, _) {
-            final List<String> answers = question.choices;
-            final int? selectedIndex = _getSelectedIndex(controller);
+          return ListenableBuilder(
+            listenable: controller,
+            builder: (context, _) {
+              final List<String> answers = question.choices;
+              final int? selectedIndex = _getSelectedIndex(controller);
 
-            return QuestionEntryCard(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppPadding.small,
-                vertical: AppPadding.small,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: Text(
-                      question.prompt,
-                      style: Theme.of(context).textTheme.titleMedium,
+              return QuestionEntryCard(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppPadding.small,
+                  vertical: AppPadding.small,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        question.prompt,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
                     ),
-                  ),
-                  if (question.userCreated) ...[
-                    const SizedBox(height: AppPadding.tiny),
-                    Text(
-                      "custom symptom",
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).disabledColor.darken(),
-                          ),
+                    if (question.userCreated) ...[
+                      const SizedBox(height: AppPadding.tiny),
+                      Text(
+                        context.translate.customQuestionLabel,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).disabledColor.darken(),
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: AppPadding.small),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisSize: MainAxisSize.min,
+                      children: answers.mapIndexed((index, choice) {
+                        final bool isSelected = index == selectedIndex;
+                        return Selection(
+                          text: choice,
+                          onClick: () => _onTap(controller, isSelected, index),
+                          selected: isSelected,
+                        );
+                      }).toList(),
                     ),
                   ],
-                  const SizedBox(height: AppPadding.small),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisSize: MainAxisSize.min,
-                    children: answers.mapIndexed((index, choice) {
-                      final bool isSelected = index == selectedIndex;
-                      return Selection(
-                        text: choice,
-                        onClick: () => _onTap(controller, isSelected, index),
-                        selected: isSelected,
-                      );
-                    }).toList(),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      }),
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 
@@ -89,16 +90,18 @@ class MultiChoiceEntry extends ConsumerWidget {
   }
 
   void _onTap(QuestionEntryController controller, bool isSelected, int index) {
-    controller.toggleResponse(() => MultiResponse(
-          question: question,
-          stamp: controller.stamp,
-          index: index,
-        ));
+    controller.toggleResponse(
+      () => MultiResponse(
+        question: question,
+        stamp: controller.stamp,
+        index: index,
+      ),
+    );
   }
 }
 
 class AllThatApplyEntry extends StatelessWidget {
-  final QuestionsListener listener;
+  final SessionGraph listener;
   final AllThatApply question;
 
   const AllThatApplyEntry({
@@ -112,62 +115,70 @@ class AllThatApplyEntry extends StatelessWidget {
     return QuestionEntryScope(
       question: question,
       listener: listener,
-      child: Builder(builder: (context) {
-        final controller = QuestionEntryScope.of(context);
+      child: Builder(
+        builder: (context) {
+          final controller = QuestionEntryScope.of(context);
 
-        return ListenableBuilder(
-          listenable: controller,
-          builder: (context, _) {
-            final List<String> answers = question.choices;
-            final List<int>? selectedIndices = _getSelectedIndices(controller);
+          return ListenableBuilder(
+            listenable: controller,
+            builder: (context, _) {
+              final List<String> answers = question.choices;
+              final List<int>? selectedIndices = _getSelectedIndices(
+                controller,
+              );
 
-            return QuestionEntryCard(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppPadding.small,
-                vertical: AppPadding.small,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: Text(
-                      question.prompt,
-                      style: Theme.of(context).textTheme.titleMedium,
+              return QuestionEntryCard(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppPadding.small,
+                  vertical: AppPadding.small,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        question.prompt,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
                     ),
-                  ),
-                  if (question.userCreated) ...[
-                    const SizedBox(height: AppPadding.tiny),
-                    Text(
-                      "custom symptom",
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).disabledColor.darken(),
+                    if (question.userCreated) ...[
+                      const SizedBox(height: AppPadding.tiny),
+                      Text(
+                        context.translate.customQuestionLabel,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).disabledColor.darken(),
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: AppPadding.small),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisSize: MainAxisSize.min,
+                      children: answers.mapIndexed((index, choice) {
+                        final bool isSelected =
+                            selectedIndices?.contains(index) ?? false;
+                        return Selection(
+                          text: choice,
+                          onClick: () => _onTap(
+                            controller,
+                            isSelected,
+                            index,
+                            selectedIndices,
                           ),
+                          selected: isSelected,
+                        );
+                      }).toList(),
                     ),
                   ],
-                  const SizedBox(height: AppPadding.small),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisSize: MainAxisSize.min,
-                    children: answers.mapIndexed((index, choice) {
-                      final bool isSelected =
-                          selectedIndices?.contains(index) ?? false;
-                      return Selection(
-                        text: choice,
-                        onClick: () => _onTap(
-                            controller, isSelected, index, selectedIndices),
-                        selected: isSelected,
-                      );
-                    }).toList(),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      }),
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 
@@ -211,7 +222,7 @@ class AllThatApplyEntry extends StatelessWidget {
 
 class CheckBoxWidget extends StatelessWidget {
   final Check check;
-  final QuestionsListener listener;
+  final SessionGraph listener;
 
   const CheckBoxWidget({
     required this.check,
@@ -224,51 +235,52 @@ class CheckBoxWidget extends StatelessWidget {
     return QuestionEntryScope(
       question: check,
       listener: listener,
-      child: Builder(builder: (context) {
-        final controller = QuestionEntryScope.of(context);
+      child: Builder(
+        builder: (context) {
+          final controller = QuestionEntryScope.of(context);
 
-        return ListenableBuilder(
-          listenable: controller,
-          builder: (context, _) {
-            final bool isSelected = controller.hasResponse;
+          return ListenableBuilder(
+            listenable: controller,
+            builder: (context, _) {
+              final bool isSelected = controller.hasResponse;
 
-            return QuestionEntryCard(
-              styled: false,
-              child: Column(
-                children: [
-                  Selection(
-                    text: check.prompt,
-                    onClick: () => _onTap(controller),
-                    selected: isSelected,
-                  ),
-                  if (check.userCreated) ...[
-                    const SizedBox(height: AppPadding.tiny),
-                    Text(
-                      "custom symptom",
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).disabledColor.darken(),
-                          ),
+              return QuestionEntryCard(
+                styled: false,
+                child: Column(
+                  children: [
+                    Selection(
+                      text: check.prompt,
+                      onClick: () => _onTap(controller),
+                      selected: isSelected,
                     ),
+                    if (check.userCreated) ...[
+                      const SizedBox(height: AppPadding.tiny),
+                      Text(
+                        context.translate.customQuestionLabel,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).disabledColor.darken(),
+                        ),
+                      ),
+                    ],
                   ],
-                ],
-              ),
-            );
-          },
-        );
-      }),
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 
   void _onTap(QuestionEntryController controller) {
-    controller.toggleResponse(() => Selected(
-          question: check,
-          stamp: controller.stamp,
-        ));
+    controller.toggleResponse(
+      () => Selected(question: check, stamp: controller.stamp),
+    );
   }
 }
 
 class SeverityWidget extends ConsumerStatefulWidget {
-  final QuestionsListener questionsListener;
+  final SessionGraph questionsListener;
   final Numeric question;
 
   const SeverityWidget({
@@ -316,18 +328,21 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
   }
 
   num? _getResponseStatic() {
-    final Response? res =
-        widget.questionsListener.fromQuestion(widget.question);
+    final Response? res = widget.questionsListener.fromQuestion(
+      widget.question,
+    );
     if (res == null) return null;
     return (res as NumericResponse).response;
   }
 
   void _saveValue(QuestionEntryController controller) {
-    controller.addResponse(NumericResponse(
-      question: widget.question,
-      stamp: controller.stamp,
-      response: value,
-    ));
+    controller.addResponse(
+      NumericResponse(
+        question: widget.question,
+        stamp: controller.stamp,
+        response: value,
+      ),
+    );
   }
 
   void _clearValue(QuestionEntryController controller) {
@@ -341,82 +356,85 @@ class _SeverityWidgetState extends ConsumerState<SeverityWidget> {
     return QuestionEntryScope(
       question: widget.question,
       listener: widget.questionsListener,
-      child: Builder(builder: (context) {
-        final controller = QuestionEntryScope.of(context);
-        return Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(
-                top: AppPadding.small,
-                right: AppPadding.tiny,
-                left: AppPadding.tiny,
-              ),
-              child: QuestionEntryCard(
-                padding: const EdgeInsets.all(AppPadding.small),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.question.prompt,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    if (widget.question.userCreated) ...[
-                      const SizedBox(height: AppPadding.tiny),
+      child: Builder(
+        builder: (context) {
+          final controller = QuestionEntryScope.of(context);
+          return Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(
+                  top: AppPadding.small,
+                  right: AppPadding.tiny,
+                  left: AppPadding.tiny,
+                ),
+                child: QuestionEntryCard(
+                  padding: const EdgeInsets.all(AppPadding.small),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        "custom symptom",
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).disabledColor.darken(),
-                            ),
+                        widget.question.prompt,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      if (widget.question.userCreated) ...[
+                        const SizedBox(height: AppPadding.tiny),
+                        Text(
+                          context.translate.customQuestionLabel,
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: Theme.of(context).disabledColor.darken(),
+                              ),
+                        ),
+                      ],
+                      const SizedBox(height: AppPadding.small),
+                      StripesSlider(
+                        initial: value.toInt(),
+                        min: widget.question.min?.toInt() ?? 1,
+                        max: widget.question.max?.toInt() ?? 5,
+                        hasInstruction: false,
+                        onChange: (val) {
+                          setState(() {
+                            value = val;
+                            _saveValue(controller);
+                          });
+                        },
+                        listener: _sliderListener,
                       ),
                     ],
-                    const SizedBox(height: AppPadding.small),
-                    StripesSlider(
-                      initial: value.toInt(),
-                      min: widget.question.min?.toInt() ?? 1,
-                      max: widget.question.max?.toInt() ?? 5,
-                      hasInstruction: false,
-                      onChange: (val) {
-                        setState(() {
-                          value = val;
-                          _saveValue(controller);
-                        });
-                      },
-                      listener: _sliderListener,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            if (_sliderListener.hasInteracted)
-              Positioned(
-                right: 0.0,
-                top: AppPadding.tiny,
-                child: GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onTap: () => _clearValue(controller),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(),
-                      color: Theme.of(context).colorScheme.surface,
-                    ),
-                    child: const Padding(
-                      padding: EdgeInsets.all(AppPadding.tiny),
-                      child: Icon(Icons.close, size: 14.0),
-                    ),
                   ),
                 ),
               ),
-          ],
-        );
-      }),
+              if (_sliderListener.hasInteracted)
+                Positioned(
+                  right: 0.0,
+                  top: AppPadding.tiny,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: () => _clearValue(controller),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(),
+                        color: Theme.of(context).colorScheme.surface,
+                      ),
+                      child: const Padding(
+                        padding: EdgeInsets.all(AppPadding.tiny),
+                        child: Icon(Icons.close, size: 14.0),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          );
+        },
+      ),
     );
   }
 }
 
 class FreeResponseEntry extends StatefulWidget {
   final FreeResponse question;
-  final QuestionsListener listener;
+  final SessionGraph listener;
 
   const FreeResponseEntry({
     required this.question,
@@ -466,11 +484,13 @@ class _FreeResponseEntryState extends State<FreeResponseEntry> {
     if (text.isEmpty) {
       entryController.removeResponse();
     } else {
-      entryController.addResponse(OpenResponse(
-        question: widget.question,
-        stamp: entryController.stamp,
-        response: text,
-      ));
+      entryController.addResponse(
+        OpenResponse(
+          question: widget.question,
+          stamp: entryController.stamp,
+          response: text,
+        ),
+      );
     }
   }
 
@@ -479,44 +499,49 @@ class _FreeResponseEntryState extends State<FreeResponseEntry> {
 
   @override
   Widget build(BuildContext context) {
+    final Color accentColor = _resolveAccent(context);
     final InputBorder borderStyle = OutlineInputBorder(
-        borderSide: controller.text.isEmpty
-            ? const BorderSide(color: Colors.grey, width: 3)
-            : BorderSide(
-                color: Theme.of(context).colorScheme.primary, width: 3),
-        borderRadius:
-            const BorderRadius.all(Radius.circular(AppRounding.small)));
+      borderSide: controller.text.isEmpty
+          ? BorderSide(
+              color: Theme.of(context).colorScheme.outlineVariant,
+              width: 2,
+            )
+          : BorderSide(color: accentColor, width: 2),
+      borderRadius: const BorderRadius.all(Radius.circular(AppRounding.small)),
+    );
 
     return QuestionEntryScope(
       question: widget.question,
       listener: widget.listener,
-      child: Builder(builder: (context) {
-        // We need to make sure the controller logic in _onEdit has access to this scope
-        // The _onEdit listener is called when text changes.
-        // context in _onEdit is this widget's context.
-        // BUT QuestionEntryScope is a child of this widget.
-        // So QuestionEntryScope.of(context) will NOT work in _onEdit if we use 'context' of _FreeResponseEntryState.
-        // We need to modify the structure or how we access the controller.
+      child: Builder(
+        builder: (context) {
+          // We need to make sure the controller logic in _onEdit has access to this scope
+          // The _onEdit listener is called when text changes.
+          // context in _onEdit is this widget's context.
+          // BUT QuestionEntryScope is a child of this widget.
+          // So QuestionEntryScope.of(context) will NOT work in _onEdit if we use 'context' of _FreeResponseEntryState.
+          // We need to modify the structure or how we access the controller.
 
-        // Better approach: Pass the controller to the methods or use a wrapper.
-        // Actually, since this is a StatefulWidget, we can just use the listener directly
-        // for the text editing part, OR we can put the TextEditingController
-        // inside a child widget that is under the Scope.
+          // Better approach: Pass the controller to the methods or use a wrapper.
+          // Actually, since this is a StatefulWidget, we can just use the listener directly
+          // for the text editing part, OR we can put the TextEditingController
+          // inside a child widget that is under the Scope.
 
-        // Let's refactor to put content in a separate widget or use a builder pattern that works.
-        // Or simpler: The QuestionEntryController wraps the listener.
-        // We can just use the listener directly for logic as before,
-        // BUT we want to use the consistency of the Scope.
+          // Let's refactor to put content in a separate widget or use a builder pattern that works.
+          // Or simpler: The QuestionEntryController wraps the listener.
+          // We can just use the listener directly for logic as before,
+          // BUT we want to use the consistency of the Scope.
 
-        // Let's try to grab the controller in the builder and pass it to a callback wrapper.
-        // Or cleaner: make _FreeResponseEntryContent widget.
+          // Let's try to grab the controller in the builder and pass it to a callback wrapper.
+          // Or cleaner: make _FreeResponseEntryContent widget.
 
-        return QuestionEntryContent(
-          question: widget.question,
-          controller: controller, // TextEditingController
-          borderStyle: borderStyle,
-        );
-      }),
+          return QuestionEntryContent(
+            question: widget.question,
+            controller: controller, // TextEditingController
+            borderStyle: borderStyle,
+          );
+        },
+      ),
     );
   }
 
@@ -550,136 +575,166 @@ class QuestionEntryContent extends StatelessWidget {
     // Use ValueListenableBuilder on text controller?
 
     return ListenableBuilder(
-        listenable: controller,
-        builder: (context, _) {
-          // This ensures we have the latest text, but we need to trigger updates to scopeController
-          // We can do that in onChange of TextField?
-          // TextField has onChanged.
+      listenable: controller,
+      builder: (context, _) {
+        // This ensures we have the latest text, but we need to trigger updates to scopeController
+        // We can do that in onChange of TextField?
+        // TextField has onChanged.
 
-          return QuestionEntryCard(
-            padding: const EdgeInsets.symmetric(
-                horizontal: AppPadding.small, vertical: AppPadding.tiny),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  question.prompt,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                if (question.userCreated) ...[
-                  const SizedBox(height: AppPadding.tiny),
-                  Text(
-                    "custom symptom",
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).disabledColor.darken(),
-                        ),
-                  ),
-                ],
+        return QuestionEntryCard(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppPadding.small,
+            vertical: AppPadding.tiny,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                question.prompt,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              if (question.userCreated) ...[
                 const SizedBox(height: AppPadding.tiny),
-                SizedBox(
-                  height: 120,
-                  child: TextField(
-                    controller: controller,
-                    maxLines: null,
-                    keyboardType: TextInputType.multiline,
-                    textCapitalization: TextCapitalization.sentences,
-                    textInputAction: TextInputAction.newline,
-                    expands: true,
-                    textAlignVertical: TextAlignVertical.top,
-                    onChanged: (text) {
-                      if (text.isEmpty) {
-                        scopeController.removeResponse();
-                      } else {
-                        scopeController.addResponse(OpenResponse(
+                Text(
+                  context.translate.customQuestionLabel,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).disabledColor.darken(),
+                  ),
+                ),
+              ],
+              const SizedBox(height: AppPadding.tiny),
+              SizedBox(
+                height: 120,
+                child: TextField(
+                  controller: controller,
+                  maxLines: null,
+                  keyboardType: TextInputType.multiline,
+                  textCapitalization: TextCapitalization.sentences,
+                  textInputAction: TextInputAction.newline,
+                  expands: true,
+                  textAlignVertical: TextAlignVertical.top,
+                  onChanged: (text) {
+                    if (text.isEmpty) {
+                      scopeController.removeResponse();
+                    } else {
+                      scopeController.addResponse(
+                        OpenResponse(
                           question: question,
                           stamp: scopeController.stamp,
                           response: text,
-                        ));
-                      }
-                    },
-                    decoration: InputDecoration(
-                        focusedBorder: borderStyle,
-                        border: borderStyle,
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: AppPadding.small,
-                            vertical: AppPadding.tiny)),
+                        ),
+                      );
+                    }
+                  },
+                  decoration: InputDecoration(
+                    focusedBorder: borderStyle,
+                    border: borderStyle,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: AppPadding.small,
+                      vertical: AppPadding.tiny,
+                    ),
                   ),
                 ),
-                const SizedBox(height: AppPadding.tiny),
-              ],
-            ),
-          );
-        });
+              ),
+              const SizedBox(height: AppPadding.tiny),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 
-class Selection extends StatelessWidget {
+class Selection extends ConsumerWidget {
   final String text;
 
   final Function onClick;
 
   final bool selected;
 
-  const Selection(
-      {required this.text,
-      required this.onClick,
-      required this.selected,
-      super.key});
+  const Selection({
+    required this.text,
+    required this.onClick,
+    required this.selected,
+    super.key,
+  });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final Color accentColor = _resolveAccent(context, ref: ref);
     return GestureDetector(
       onTap: () {
         onClick();
       },
-      child: Stack(children: [
-        Padding(
-          padding: const EdgeInsets.only(
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(
               top: AppPadding.small,
               right: AppPadding.tiny,
-              left: AppPadding.tiny),
-          child: AnimatedContainer(
-            width: double.infinity,
-            decoration: BoxDecoration(
-                borderRadius:
-                    const BorderRadius.all(Radius.circular(AppRounding.small)),
+              left: AppPadding.tiny,
+            ),
+            child: AnimatedContainer(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.all(
+                  Radius.circular(AppRounding.small),
+                ),
                 color: selected
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).cardColor,
-                border: Border.all(color: Theme.of(context).dividerColor)),
-            duration: const Duration(milliseconds: 150),
-            child: Padding(
+                    ? accentColor
+                    : Theme.of(context).colorScheme.surfaceContainerLowest,
+                border: Border.all(
+                  color: selected
+                      ? accentColor
+                      : Theme.of(context).colorScheme.outlineVariant,
+                  width: 1.5,
+                ),
+              ),
+              duration: const Duration(milliseconds: 150),
+              child: Padding(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: AppPadding.medium, vertical: AppPadding.small),
+                  horizontal: AppPadding.medium,
+                  vertical: AppPadding.small,
+                ),
                 child: Text(
                   text,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: selected
-                          ? Theme.of(context).colorScheme.onPrimary
-                          : Theme.of(context).colorScheme.onSurface),
-                )),
-          ),
-        ),
-        if (selected)
-          Positioned(
-            right: 0.0,
-            top: AppPadding.tiny,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(),
-                  color: Theme.of(context).colorScheme.surface),
-              child: const Padding(
-                padding: EdgeInsets.all(AppPadding.tiny),
-                child: Icon(
-                  Icons.close,
-                  size: 14.0,
+                    color: selected
+                        ? Theme.of(context).colorScheme.onPrimary
+                        : Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
               ),
             ),
-          )
-      ]),
+          ),
+          if (selected)
+            Positioned(
+              right: 0.0,
+              top: AppPadding.tiny,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(),
+                  color: Theme.of(context).colorScheme.surface,
+                ),
+                child: const Padding(
+                  padding: EdgeInsets.all(AppPadding.tiny),
+                  child: Icon(Icons.close, size: 14.0),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
+}
+
+/// Resolves the category accent color from the current route's `type` parameter.
+///
+/// When `betaUi.useCategoryTheme` is enabled and a `type` path parameter is present,
+/// returns the category's accent color. Otherwise falls back to
+/// `colorScheme.primary`.
+Color _resolveAccent(BuildContext context, {WidgetRef? ref}) {
+  return Theme.of(context).colorScheme.primary;
 }

@@ -4,16 +4,21 @@ import 'package:stripes_backend_helper/QuestionModel/question.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/condition.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo_base.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
 
 enum ConditionType {
-  exists('Has Response'),
-  equals('Equals'),
-  containsIndex('Contains Selection'),
-  containsText('Contains Text');
+  exists,
+  equals,
+  containsIndex,
+  containsText;
 
-  final String label;
-  const ConditionType(this.label);
+  String label(BuildContext context) => switch (this) {
+    exists => context.translate.conditionHasResponse,
+    equals => context.translate.conditionEquals,
+    containsIndex => context.translate.conditionContainsSelection,
+    containsText => context.translate.conditionContainsText,
+  };
 }
 
 class ConditionEditor extends StatefulWidget {
@@ -21,12 +26,14 @@ class ConditionEditor extends StatefulWidget {
   final List<Question> availableQuestions;
   final Function(Condition?) onChanged;
   final QuestionsLocalizations? localizations;
+  final ValueChanged<bool>? onValidityChanged;
 
   const ConditionEditor({
     required this.initialCondition,
     required this.availableQuestions,
     required this.onChanged,
     this.localizations,
+    this.onValidityChanged,
     super.key,
   });
 
@@ -55,6 +62,7 @@ class _ConditionEditorState extends State<ConditionEditor> {
   }
 
   void _notifyChanged() {
+    widget.onValidityChanged?.call(_root == null || _root!.isValid);
     if (_root == null) {
       widget.onChanged(null);
       return;
@@ -87,6 +95,22 @@ class _ConditionEditorState extends State<ConditionEditor> {
               _notifyChanged();
             },
           ),
+        if (_root != null && !_root!.isGroup) ...[
+          const SizedBox(height: AppPadding.medium),
+          OutlinedButton.icon(
+            onPressed: () {
+              setState(
+                () => _root = _EditableNode(
+                  isGroup: true,
+                  children: [_root!, _EditableNode.condition()],
+                ),
+              );
+              _notifyChanged();
+            },
+            icon: const Icon(Icons.add),
+            label: Text(context.translate.conditionAdd),
+          ),
+        ],
       ],
     );
   }
@@ -103,12 +127,16 @@ class _ConditionEditorState extends State<ConditionEditor> {
           ),
           child: Row(
             children: [
-              Icon(Icons.rule_folder_outlined,
-                  color: Theme.of(context).colorScheme.primary),
+              Icon(
+                Icons.rule_folder_outlined,
+                color: Theme.of(context).colorScheme.primary,
+              ),
               const SizedBox(width: AppPadding.medium),
               Expanded(
                 child: Text(
-                  "No rules defined.",
+                  widget.availableQuestions.isEmpty
+                      ? context.translate.ruleNeedsEarlierQuestion
+                      : context.translate.conditionNoConditions,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ),
@@ -116,35 +144,15 @@ class _ConditionEditorState extends State<ConditionEditor> {
           ),
         ),
         const SizedBox(height: AppPadding.medium),
-        Text(
-          "Add a rule:",
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-        const SizedBox(height: AppPadding.small),
-        Row(
-          children: [
-            OutlinedButton.icon(
-              onPressed: () {
-                setState(() {
-                  _root = _EditableNode.condition();
-                });
-                _notifyChanged();
-              },
-              icon: const Icon(Icons.rule),
-              label: const Text("Single Condition"),
-            ),
-            const SizedBox(width: AppPadding.small),
-            OutlinedButton.icon(
-              onPressed: () {
-                setState(() {
-                  _root = _EditableNode.group();
-                });
-                _notifyChanged();
-              },
-              icon: const Icon(Icons.folder_open),
-              label: const Text("Condition Group"),
-            ),
-          ],
+        OutlinedButton.icon(
+          onPressed: widget.availableQuestions.isEmpty
+              ? null
+              : () {
+                  setState(() => _root = _EditableNode.condition());
+                  _notifyChanged();
+                },
+          icon: const Icon(Icons.add),
+          label: Text(context.translate.conditionAdd),
         ),
       ],
     );
@@ -201,31 +209,31 @@ class _EditableNode {
 
     return switch (condition) {
       ExistsCondition c => _EditableNode(
-          question: findQuestion(c.questionId),
-          type: ConditionType.exists,
-        ),
+        question: findQuestion(c.questionId),
+        type: ConditionType.exists,
+      ),
       EqualsExact c => _EditableNode(
-          question: findQuestion(c.questionId),
-          type: ConditionType.equals,
-          value: c.expected,
-        ),
+        question: findQuestion(c.questionId),
+        type: ConditionType.equals,
+        value: c.expected,
+      ),
       ContainsIndex c => _EditableNode(
-          question: findQuestion(c.questionId),
-          type: ConditionType.containsIndex,
-          value: c.index,
-        ),
+        question: findQuestion(c.questionId),
+        type: ConditionType.containsIndex,
+        value: c.index,
+      ),
       ContainsText c => _EditableNode(
-          question: findQuestion(c.questionId),
-          type: ConditionType.containsText,
-          value: c.text,
-        ),
+        question: findQuestion(c.questionId),
+        type: ConditionType.containsText,
+        value: c.text,
+      ),
       ConditionGroup c => _EditableNode(
-          isGroup: true,
-          groupOp: c.op,
-          children: c.conditions
-              .map((cc) => fromCondition(cc, availableQuestions))
-              .toList(),
-        ),
+        isGroup: true,
+        groupOp: c.op,
+        children: c.conditions
+            .map((cc) => fromCondition(cc, availableQuestions))
+            .toList(),
+      ),
       MatchesRegex() => throw UnimplementedError(),
     };
   }
@@ -338,37 +346,45 @@ class _NodeWidgetState extends State<_NodeWidget> {
               children: [
                 Icon(Icons.folder, color: borderColor, size: 20),
                 const SizedBox(width: AppPadding.small),
-                Text("Match ", style: Theme.of(context).textTheme.bodyMedium),
-                DropdownButton<GroupOp>(
-                  value: widget.node.groupOp,
-                  underline: const SizedBox(),
-                  isDense: true,
-                  items: const [
-                    DropdownMenuItem(
-                      value: GroupOp.all,
-                      child: Text("ALL",
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                    ),
-                    DropdownMenuItem(
-                      value: GroupOp.one,
-                      child: Text("ANY",
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                    ),
-                  ],
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() => widget.node.groupOp = value);
-                      widget.onUpdate();
-                    }
-                  },
+                Text(
+                  '${context.translate.conditionMatch} ',
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
-                Text(" of:", style: Theme.of(context).textTheme.bodyMedium),
-                const Spacer(),
+                Expanded(
+                  child: DropdownButton<GroupOp>(
+                    isExpanded: true,
+                    value: widget.node.groupOp,
+                    underline: const SizedBox(),
+                    isDense: true,
+                    items: [
+                      DropdownMenuItem(
+                        value: GroupOp.all,
+                        child: Text(
+                          context.translate.conditionAll,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value: GroupOp.one,
+                        child: Text(
+                          context.translate.conditionAny,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => widget.node.groupOp = value);
+                        widget.onUpdate();
+                      }
+                    },
+                  ),
+                ),
                 IconButton(
                   icon: const Icon(Icons.delete, color: Colors.red, size: 20),
                   onPressed: widget.onRemove,
                   visualDensity: VisualDensity.compact,
-                  tooltip: "Remove group",
+                  tooltip: context.translate.conditionRemoveGroup,
                 ),
               ],
             ),
@@ -383,23 +399,25 @@ class _NodeWidgetState extends State<_NodeWidget> {
                       if (entry.key > 0)
                         Padding(
                           padding: const EdgeInsets.symmetric(
-                              vertical: AppPadding.tiny),
+                            vertical: AppPadding.tiny,
+                          ),
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: AppPadding.tiny,
-                                vertical: AppPadding.tiny),
+                              horizontal: AppPadding.tiny,
+                              vertical: AppPadding.tiny,
+                            ),
                             decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .dividerColor
+                              color: Theme.of(context).dividerColor
                                   .withValues(alpha: 0.1),
-                              borderRadius:
-                                  BorderRadius.circular(AppRounding.tiny),
+                              borderRadius: BorderRadius.circular(
+                                AppRounding.tiny,
+                              ),
                             ),
                             child: Text(
-                              widget.node.groupOp == GroupOp.all ? "AND" : "OR",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .labelSmall
+                              widget.node.groupOp == GroupOp.all
+                                  ? context.translate.conditionAnd
+                                  : context.translate.conditionOr,
+                              style: Theme.of(context).textTheme.labelSmall
                                   ?.copyWith(
                                     color: borderColor,
                                     fontWeight: FontWeight.bold,
@@ -426,9 +444,10 @@ class _NodeWidgetState extends State<_NodeWidget> {
                     ],
                   );
                 }),
-                const SizedBox(height: AppPadding.small),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
+                const SizedBox(height: AppPadding.medium),
+                Wrap(
+                  spacing: AppPadding.small,
+                  runSpacing: AppPadding.small,
                   children: [
                     TextButton.icon(
                       onPressed: () {
@@ -438,9 +457,10 @@ class _NodeWidgetState extends State<_NodeWidget> {
                         widget.onUpdate();
                       },
                       icon: const Icon(Icons.add, size: 16),
-                      label: const Text("Condition"),
+                      label: Text(context.translate.conditionAdd),
                       style: TextButton.styleFrom(
-                          visualDensity: VisualDensity.compact),
+                        visualDensity: VisualDensity.compact,
+                      ),
                     ),
                     TextButton.icon(
                       onPressed: () {
@@ -450,9 +470,10 @@ class _NodeWidgetState extends State<_NodeWidget> {
                         widget.onUpdate();
                       },
                       icon: const Icon(Icons.folder_open, size: 16),
-                      label: const Text("Nested Group"),
+                      label: Text(context.translate.conditionNestedGroup),
                       style: TextButton.styleFrom(
-                          visualDensity: VisualDensity.compact),
+                        visualDensity: VisualDensity.compact,
+                      ),
                     ),
                   ],
                 ),
@@ -471,8 +492,9 @@ class _NodeWidgetState extends State<_NodeWidget> {
     Question? selectedQuestion;
     if (widget.node.question != null) {
       try {
-        selectedQuestion = widget.availableQuestions
-            .firstWhere((q) => q.id == widget.node.question!.id);
+        selectedQuestion = widget.availableQuestions.firstWhere(
+          (q) => q.id == widget.node.question!.id,
+        );
       } catch (e) {
         // Question not in list
         selectedQuestion = null;
@@ -490,11 +512,13 @@ class _NodeWidgetState extends State<_NodeWidget> {
                 child: DropdownButtonFormField<Question>(
                   initialValue: selectedQuestion,
                   isExpanded: true,
-                  decoration: const InputDecoration(
-                    labelText: "Question",
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(
-                        horizontal: AppPadding.small, vertical: 0),
+                  decoration: InputDecoration(
+                    labelText: context.translate.conditionQuestion,
+                    border: const OutlineInputBorder(),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: AppPadding.small,
+                      vertical: AppPadding.medium,
+                    ),
                   ),
                   selectedItemBuilder: (context) {
                     return widget.availableQuestions.map((q) {
@@ -531,24 +555,31 @@ class _NodeWidgetState extends State<_NodeWidget> {
               IconButton(
                 icon: const Icon(Icons.delete, color: Colors.red),
                 onPressed: widget.onRemove,
-                tooltip: "Remove condition",
+                tooltip: context.translate.conditionRemove,
               ),
             ],
           ),
           if (widget.node.question != null) ...[
-            const SizedBox(height: AppPadding.small),
+            const SizedBox(height: AppPadding.medium),
             // Only show condition type dropdown if there are multiple options
             if (validTypes.length > 1) ...[
               DropdownButtonFormField<ConditionType>(
+                key: ValueKey(widget.node.question!.id),
+                isExpanded: true,
                 initialValue: widget.node.type,
-                decoration: const InputDecoration(
-                  labelText: "Condition",
-                  border: OutlineInputBorder(),
-                  contentPadding: EdgeInsets.symmetric(
-                      horizontal: AppPadding.small, vertical: 0),
+                decoration: InputDecoration(
+                  labelText: context.translate.conditionLabel,
+                  border: const OutlineInputBorder(),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: AppPadding.small,
+                    vertical: AppPadding.medium,
+                  ),
                 ),
                 items: validTypes.map((t) {
-                  return DropdownMenuItem(value: t, child: Text(t.label));
+                  return DropdownMenuItem(
+                    value: t,
+                    child: Text(t.label(context)),
+                  );
                 }).toList(),
                 onChanged: (ConditionType? value) {
                   if (value == null) return;
@@ -559,9 +590,12 @@ class _NodeWidgetState extends State<_NodeWidget> {
                   widget.onUpdate();
                 },
               ),
-              const SizedBox(height: AppPadding.small),
+              const SizedBox(height: AppPadding.medium),
             ],
-            _buildValueEditor(),
+            KeyedSubtree(
+              key: ValueKey('${widget.node.question!.id}:${widget.node.type}'),
+              child: _buildValueEditor(),
+            ),
           ],
         ],
       ),
@@ -581,11 +615,15 @@ class _NodeWidgetState extends State<_NodeWidget> {
         ),
         child: Row(
           children: [
-            Icon(Icons.check_circle,
-                color: Theme.of(context).colorScheme.primary),
+            Icon(
+              Icons.check_circle,
+              color: Theme.of(context).colorScheme.primary,
+            ),
             const SizedBox(width: AppPadding.medium),
-            Text("Has any response",
-                style: Theme.of(context).textTheme.bodyMedium),
+            Text(
+              context.translate.conditionHasResponse,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
           ],
         ),
       );
@@ -594,11 +632,13 @@ class _NodeWidgetState extends State<_NodeWidget> {
     if (type == ConditionType.containsText) {
       return TextFormField(
         initialValue: widget.node.value?.toString(),
-        decoration: const InputDecoration(
-          labelText: "Contains text",
-          border: OutlineInputBorder(),
-          contentPadding:
-              EdgeInsets.symmetric(horizontal: AppPadding.small, vertical: 0),
+        decoration: InputDecoration(
+          labelText: context.translate.conditionContainsText,
+          border: const OutlineInputBorder(),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: AppPadding.small,
+            vertical: AppPadding.medium,
+          ),
         ),
         onChanged: (val) {
           setState(() => widget.node.value = val);
@@ -626,13 +666,16 @@ class _NodeWidgetState extends State<_NodeWidget> {
           children: [
             Icon(Icons.check_box, color: Theme.of(context).colorScheme.primary),
             const SizedBox(width: AppPadding.medium),
-            Text("Is Checked", style: Theme.of(context).textTheme.bodyMedium),
+            Text(
+              context.translate.conditionHasResponse,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
           ],
         ),
       );
     }
 
-    return const Text("Unsupported question type");
+    return Text(context.translate.conditionUnsupported);
   }
 
   Widget _buildMultipleChoiceEditor(MultipleChoice question) {
@@ -647,11 +690,13 @@ class _NodeWidgetState extends State<_NodeWidget> {
 
     return DropdownButtonFormField<String>(
       initialValue: initialValue,
-      decoration: const InputDecoration(
-        labelText: "Answer is",
-        border: OutlineInputBorder(),
-        contentPadding:
-            EdgeInsets.symmetric(horizontal: AppPadding.small, vertical: 0),
+      decoration: InputDecoration(
+        labelText: context.translate.conditionAnswerIs,
+        border: const OutlineInputBorder(),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: AppPadding.small,
+          vertical: AppPadding.medium,
+        ),
       ),
       items: choices.map((c) {
         return DropdownMenuItem(value: c, child: Text(c));
@@ -668,9 +713,11 @@ class _NodeWidgetState extends State<_NodeWidget> {
     final choices = question.choices;
 
     if (type == ConditionType.containsIndex) {
-      int? currentIndex =
-          widget.node.value is int ? widget.node.value as int : null;
-      String? currentChoice = currentIndex != null &&
+      int? currentIndex = widget.node.value is int
+          ? widget.node.value as int
+          : null;
+      String? currentChoice =
+          currentIndex != null &&
               currentIndex >= 0 &&
               currentIndex < choices.length
           ? choices[currentIndex]
@@ -678,11 +725,13 @@ class _NodeWidgetState extends State<_NodeWidget> {
 
       return DropdownButtonFormField<String>(
         initialValue: currentChoice,
-        decoration: const InputDecoration(
-          labelText: "Contains selection",
-          border: OutlineInputBorder(),
-          contentPadding:
-              EdgeInsets.symmetric(horizontal: AppPadding.small, vertical: 0),
+        decoration: InputDecoration(
+          labelText: context.translate.conditionContainsSelection,
+          border: const OutlineInputBorder(),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: AppPadding.small,
+            vertical: AppPadding.medium,
+          ),
         ),
         items: choices.map((c) {
           return DropdownMenuItem(value: c, child: Text(c));
@@ -696,14 +745,15 @@ class _NodeWidgetState extends State<_NodeWidget> {
 
     List<int> currentSelection = [];
     if (widget.node.value is List) {
-      currentSelection =
-          (widget.node.value as List).map((e) => e as int).toList();
+      currentSelection = (widget.node.value as List)
+          .map((e) => e as int)
+          .toList();
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Must match exactly:"),
+        Text('${context.translate.conditionExactMatch}:'),
         Wrap(
           spacing: AppPadding.small,
           children: List.generate(choices.length, (index) {
@@ -733,11 +783,13 @@ class _NodeWidgetState extends State<_NodeWidget> {
   Widget _buildNumericEditor() {
     return TextFormField(
       initialValue: widget.node.value?.toString(),
-      decoration: const InputDecoration(
-        labelText: "Value equals",
-        border: OutlineInputBorder(),
-        contentPadding:
-            EdgeInsets.symmetric(horizontal: AppPadding.small, vertical: 0),
+      decoration: InputDecoration(
+        labelText: context.translate.conditionValueEquals,
+        border: const OutlineInputBorder(),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: AppPadding.small,
+          vertical: AppPadding.medium,
+        ),
       ),
       keyboardType: TextInputType.number,
       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -749,6 +801,16 @@ class _NodeWidgetState extends State<_NodeWidget> {
   }
 
   Widget _buildFreeResponseEditor() {
-    return const Text("Free response matching not supported yet");
+    return TextFormField(
+      initialValue: widget.node.value?.toString(),
+      decoration: InputDecoration(
+        labelText: context.translate.conditionAnswerIs,
+        border: const OutlineInputBorder(),
+      ),
+      onChanged: (value) {
+        widget.node.value = value;
+        widget.onUpdate();
+      },
+    );
   }
 }

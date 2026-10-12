@@ -30,22 +30,44 @@ class FilterChipSection extends StatelessWidget {
           textAlign: TextAlign.left,
         ),
         const SizedBox(height: AppPadding.tiny),
-        Wrap(
-          direction: Axis.horizontal,
-          alignment: WrapAlignment.start,
-          crossAxisAlignment: WrapCrossAlignment.start,
-          spacing: AppPadding.tiny,
-          runSpacing: AppPadding.tiny,
-          children: items.map((item) {
-            final bool selected = selectedItems.contains(item);
-            return ChoiceChip(
-              padding: const EdgeInsets.all(AppPadding.tiny),
-              label: Text(item),
-              showCheckmark: false,
-              selected: selected,
-              onSelected: (value) => onSelected(item, value),
-            );
-          }).toList(),
+        LayoutBuilder(
+          builder: (context, constraints) => Wrap(
+            direction: Axis.horizontal,
+            alignment: WrapAlignment.start,
+            crossAxisAlignment: WrapCrossAlignment.start,
+            spacing: AppPadding.tiny,
+            runSpacing: AppPadding.tiny,
+            children: items.map((item) {
+              final bool selected = selectedItems.contains(item);
+              return ChoiceChip(
+                padding: const EdgeInsets.all(AppPadding.tiny),
+                labelPadding: const EdgeInsets.symmetric(
+                  horizontal: AppPadding.small,
+                ),
+                label: ConstrainedBox(
+                  // Give the chip its final label width before its intrinsic
+                  // height calculation; otherwise wrapped lines can be clipped.
+                  constraints: BoxConstraints(
+                    maxWidth:
+                        (constraints.maxWidth -
+                                2 * (AppPadding.tiny + AppPadding.small))
+                            .clamp(0.0, double.infinity),
+                  ),
+                  child: Builder(
+                    builder: (context) => DefaultTextStyle(
+                      // Retain the chip's themed label style without its
+                      // single-line, fading text defaults.
+                      style: DefaultTextStyle.of(context).style,
+                      child: Text(item),
+                    ),
+                  ),
+                ),
+                showCheckmark: false,
+                selected: selected,
+                onSelected: (value) => onSelected(item, value),
+              );
+            }).toList(),
+          ),
         ),
       ],
     );
@@ -90,18 +112,19 @@ class DescriptionFilterSection extends StatelessWidget {
               prefixIcon: const Icon(Icons.search, size: 20),
               border: const OutlineInputBorder(),
               contentPadding: const EdgeInsets.symmetric(
-                  horizontal: AppPadding.small, vertical: AppPadding.tiny),
+                horizontal: AppPadding.small,
+                vertical: AppPadding.tiny,
+              ),
               isDense: true,
               filled: true,
-              fillColor: Theme.of(context)
-                  .colorScheme
-                  .surfaceContainerHighest
+              fillColor: Theme.of(context).colorScheme.surfaceContainerHighest
                   .withValues(alpha: 0.3),
             ),
             onChanged: onTextChanged,
             controller: TextEditingController(text: notesSearchText)
-              ..selection =
-                  TextSelection.collapsed(offset: notesSearchText.length),
+              ..selection = TextSelection.collapsed(
+                offset: notesSearchText.length,
+              ),
           ),
         ],
       ],
@@ -145,148 +168,151 @@ class NumericRangeFilterSection extends StatelessWidget {
         const SizedBox(height: AppPadding.tiny),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          child: Row(children: [
-            const SizedBox(width: AppPadding.medium),
-            ...numericRanges.keys.map((key) {
-              final Question question = questionMap[key]!;
+          child: Row(
+            children: [
+              const SizedBox(width: AppPadding.medium),
+              ...numericRanges.keys.map((key) {
+                final Question question = questionMap[key]!;
+                final QuestionsLocalizations? localizations =
+                    QuestionsLocalizations.of(context);
+                final String questionText =
+                    localizations?.value(question.prompt) ?? question.prompt;
+                final bool isSelected = selectedNumericCategory == key;
+                return Padding(
+                  padding: const EdgeInsets.only(right: AppPadding.tiny),
+                  child: ChoiceChip(
+                    label: Text(
+                      questionText,
+                      style: TextStyle(
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                      ),
+                    ),
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      if (isSelected) {
+                        onCategorySelected(null);
+                      } else {
+                        onCategorySelected(question.id);
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (context.mounted) {
+                            Scrollable.of(context).position.animateTo(
+                              Scrollable.of(context).position.maxScrollExtent,
+                              duration: Durations.medium1,
+                              curve: Curves.easeInOut,
+                            );
+                          }
+                        });
+                      }
+                    },
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppRounding.small),
+                      side: isSelected
+                          ? BorderSide(
+                              color: Theme.of(context).colorScheme.primary,
+                              width: 2,
+                            )
+                          : BorderSide.none,
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+        if (selectedNumericCategory != null) ...[
+          const SizedBox(height: AppPadding.small),
+          Builder(
+            builder: (context) {
+              final String questionId = selectedNumericCategory!;
+              final Question question = questionMap[questionId]!;
               final QuestionsLocalizations? localizations =
                   QuestionsLocalizations.of(context);
               final String questionText =
                   localizations?.value(question.prompt) ?? question.prompt;
-              final bool isSelected = selectedNumericCategory == key;
+
+              final (num dataMin, num dataMax) = numericRanges[questionId]!;
+              final (num selectedMin, num selectedMax) =
+                  selectedRanges[questionId] ?? (dataMin, dataMax);
+
               return Padding(
-                padding: const EdgeInsets.only(right: AppPadding.tiny),
-                child: ChoiceChip(
-                  label: Text(
-                    questionText,
-                    style: TextStyle(
-                      fontWeight:
-                          isSelected ? FontWeight.bold : FontWeight.normal,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppPadding.small,
+                ),
+                child: Container(
+                  padding: const EdgeInsets.all(AppPadding.small),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest
+                        .withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.primary
+                          .withValues(alpha: 0.5),
+                      width: 1,
                     ),
                   ),
-                  selected: isSelected,
-                  onSelected: (selected) {
-                    if (isSelected) {
-                      onCategorySelected(null);
-                    } else {
-                      onCategorySelected(question.id);
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (context.mounted) {
-                          Scrollable.of(context).position.animateTo(
-                                Scrollable.of(context).position.maxScrollExtent,
-                                duration: Durations.medium1,
-                                curve: Curves.easeInOut,
-                              );
-                        }
-                      });
-                    }
-                  },
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppRounding.small),
-                    side: isSelected
-                        ? BorderSide(
-                            color: Theme.of(context).colorScheme.primary,
-                            width: 2)
-                        : BorderSide.none,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            questionText,
+                            style: Theme.of(context).textTheme.titleSmall
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primary,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              "${selectedMin.toInt()} - ${selectedMax.toInt()}",
+                              style: Theme.of(context).textTheme.labelSmall
+                                  ?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onPrimary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppPadding.tiny),
+                      RangeSlider(
+                        values: RangeValues(
+                          selectedMin.toDouble(),
+                          selectedMax.toDouble(),
+                        ),
+                        min: dataMin.toDouble(),
+                        max: dataMax.toDouble(),
+                        divisions: (dataMax - dataMin).toInt() > 0
+                            ? (dataMax - dataMin).toInt()
+                            : 1,
+                        labels: RangeLabels(
+                          selectedMin.toInt().toString(),
+                          selectedMax.toInt().toString(),
+                        ),
+                        onChanged: (RangeValues values) {
+                          onRangeChanged(question, values.start, values.end);
+                        },
+                      ),
+                    ],
                   ),
                 ),
               );
-            }),
-          ]),
-        ),
-        if (selectedNumericCategory != null) ...[
-          const SizedBox(height: AppPadding.small),
-          Builder(builder: (context) {
-            final String questionId = selectedNumericCategory!;
-            final Question question = questionMap[questionId]!;
-            final QuestionsLocalizations? localizations =
-                QuestionsLocalizations.of(context);
-            final String questionText =
-                localizations?.value(question.prompt) ?? question.prompt;
-
-            final (num dataMin, num dataMax) = numericRanges[questionId]!;
-            final (num selectedMin, num selectedMax) =
-                selectedRanges[questionId] ?? (dataMin, dataMax);
-
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppPadding.small),
-              child: Container(
-                padding: const EdgeInsets.all(AppPadding.small),
-                decoration: BoxDecoration(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .surfaceContainerHighest
-                      .withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .primary
-                        .withValues(alpha: 0.5),
-                    width: 1,
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          questionText,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleSmall
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primary,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            "${selectedMin.toInt()} - ${selectedMax.toInt()}",
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelSmall
-                                ?.copyWith(
-                                  color:
-                                      Theme.of(context).colorScheme.onPrimary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: AppPadding.tiny),
-                    RangeSlider(
-                      values: RangeValues(
-                        selectedMin.toDouble(),
-                        selectedMax.toDouble(),
-                      ),
-                      min: dataMin.toDouble(),
-                      max: dataMax.toDouble(),
-                      divisions: (dataMax - dataMin).toInt() > 0
-                          ? (dataMax - dataMin).toInt()
-                          : 1,
-                      labels: RangeLabels(
-                        selectedMin.toInt().toString(),
-                        selectedMax.toInt().toString(),
-                      ),
-                      onChanged: (RangeValues values) {
-                        onRangeChanged(question, values.start, values.end);
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }),
+            },
+          ),
         ],
       ],
     );

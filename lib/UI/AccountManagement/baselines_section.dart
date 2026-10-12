@@ -29,8 +29,11 @@ class BaselinesScreen extends ConsumerWidget {
       depth: RefreshDepth.subuser,
       scrollable: baselinesAsync.when(
         data: (stamps) {
-          final List<BaselineTrigger> pending =
-              pendingTriggersAsync.valueOrNull ?? [];
+          final List<BaselineTrigger> pending = pendingTriggersAsync.when(
+            data: (value) => value,
+            loading: () => const [],
+            error: (_, __) => const [],
+          );
 
           return SingleChildScrollView(
             padding: const EdgeInsets.symmetric(vertical: AppPadding.medium),
@@ -278,9 +281,11 @@ class _CompletedBaselineTileState
             // Header Section
             versionsAsync.when(
               data: (versions) {
-                final int effectiveVersion =
-                    effectiveVersionAsync.valueOrNull ??
-                        (versions.isNotEmpty ? versions.first.version : 1);
+                final int effectiveVersion = effectiveVersionAsync.when(
+                  data: (value) => value,
+                  loading: () => versions.isNotEmpty ? versions.first.version : 1,
+                  error: (_, __) => versions.isNotEmpty ? versions.first.version : 1,
+                );
 
                 final currentVersionData = versions.firstWhere(
                   (v) => v.version == effectiveVersion,

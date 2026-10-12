@@ -18,10 +18,11 @@ class EventsCalendar extends ConsumerStatefulWidget {
   final bool sixWeeks;
 
   final StartingDayOfWeek startDay;
-  const EventsCalendar(
-      {this.sixWeeks = false,
-      this.startDay = StartingDayOfWeek.monday,
-      super.key});
+  const EventsCalendar({
+    this.sixWeeks = false,
+    this.startDay = StartingDayOfWeek.monday,
+    super.key,
+  });
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
@@ -60,7 +61,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
     super.dispose();
   }
 
-  _initializeFormat() {
+  void _initializeFormat() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       setState(() {
@@ -71,16 +72,17 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
     });
   }
 
-  _initializeRangeSelection() {
+  void _initializeRangeSelection() {
     final DisplayDataSettings filters = ref.read(displayDataProvider);
     rangeSelection = CustomSegmentedController(value: RangeSelection.end);
     dateRangeSelectionListener = DateRangeSelectionListener(
-        filters.cycle == TimeCycle.day
-            ? RangeStatus.disabled
-            : RangeStatus.enabled);
+      filters.cycle == TimeCycle.day
+          ? RangeStatus.disabled
+          : RangeStatus.enabled,
+    );
   }
 
-  _handleDateRangeChange() {
+  void _handleDateRangeChange() {
     if (!mounted) return;
     if (dateRangeSelectionListener.selectingRange) {
       rangeSelection.value = RangeSelection.end;
@@ -93,14 +95,15 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
   @override
   Widget build(BuildContext context) {
     final Locale locale = Localizations.localeOf(context);
-    final DisplayDataSettings calendarSelection =
-        ref.watch(displayDataProvider);
-    final AsyncValue<Map<DateTime, List<Response>>> eventsValue =
-        ref.watch(eventsMapProvider);
+    final DisplayDataSettings calendarSelection = ref.watch(
+      displayDataProvider,
+    );
+    final AsyncValue<Map<DateTime, List<Response>>> eventsValue = ref.watch(
+      eventsMapProvider,
+    );
 
     final bool waiting = eventsValue.isLoading || eventsValue.hasError;
-    final Map<DateTime, List<Response>> eventMap =
-        eventsValue.valueOrNull ?? {};
+    final Map<DateTime, List<Response>> eventMap = eventsValue.value ?? {};
     final DateTime? selected = calendarSelection.cycle == TimeCycle.day
         ? calendarSelection.range.start
         : null;
@@ -108,7 +111,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
         ? calendarSelection.range.start
         : null;
     final DateTime? rangeEnd = calendarSelection.cycle != TimeCycle.day
-        ? calendarSelection.range.end.subtract(const Duration(days: 1))
+        ? DateRangeUtils.shiftCalendarDays(calendarSelection.range.end, -1)
         : null;
     final DateTime now = DateTime.now();
     const CalendarStyle calendarStyle = CalendarStyle(
@@ -119,7 +122,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
 
     final Map<CalendarFormat, String> formats = {
       CalendarFormat.week: context.translate.calendarVisibilityWeek,
-      CalendarFormat.month: context.translate.calendarVisibilityMonth
+      CalendarFormat.month: context.translate.calendarVisibilityMonth,
     };
 
     final bool canClear = rangeStart != null && rangeEnd != null;
@@ -127,10 +130,17 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
     reset() {
       setState(() {
         dateRangeSelectionListener.setMode(selectingRange: false);
-        focusedDay = DateTime.now();
+        final now = DateTime.now();
+        focusedDay = DateTime(now.year, now.month, now.day);
         ref.read(displayDataProvider.notifier).setCycle(TimeCycle.day);
-        ref.read(displayDataProvider.notifier).setRange(DateTimeRange(
-            start: focusedDay, end: focusedDay.add(const Duration(days: 1))));
+        ref
+            .read(displayDataProvider.notifier)
+            .setRange(
+              DateTimeRange(
+                start: focusedDay,
+                end: DateRangeUtils.exclusiveEndOfDay(focusedDay),
+              ),
+            );
       });
     }
 
@@ -144,7 +154,8 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
         events: events,
         rangeStart: rangeStart != null && sameDay(rangeStart, day),
         rangeEnd: rangeEnd != null && sameDay(rangeEnd, day),
-        within: rangeStart != null &&
+        within:
+            rangeStart != null &&
             rangeEnd != null &&
             day.isAfter(rangeStart) &&
             day.isBefore(rangeEnd),
@@ -185,10 +196,9 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
             child: Text(
               weekdayString,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurface
-                      .withValues(alpha: 0.6)),
+                color: Theme.of(context).colorScheme.onSurface
+                    .withValues(alpha: 0.6),
+              ),
             ),
           ),
         ),
@@ -200,61 +210,70 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         DateSelectionDisplay(
-            listener: dateRangeSelectionListener,
-            onStartClear: null,
-            onEndClear: canClear
-                ? () {
-                    final DisplayDataSettings filters =
-                        ref.read(displayDataProvider);
-                    ref.read(displayDataProvider.notifier).setRange(
+          listener: dateRangeSelectionListener,
+          onStartClear: null,
+          onEndClear: canClear
+              ? () {
+                  final DisplayDataSettings filters = ref.read(
+                    displayDataProvider,
+                  );
+                  ref
+                      .read(displayDataProvider.notifier)
+                      .setRange(
                         DateTimeRange(
-                            start: filters.range.start,
-                            end: filters.range.start
-                                .add(const Duration(days: 1))));
-                    rangeSelection.value = RangeSelection.end;
-                  }
-                : null,
-            selectedDay: selected,
-            start: rangeStart,
-            end: rangeEnd,
-            rangeSelectionController: rangeSelection),
-        const SizedBox(
-          height: AppPadding.tiny,
+                          start: filters.range.start,
+                          end: DateRangeUtils.exclusiveEndOfDay(
+                            filters.range.start,
+                          ),
+                        ),
+                      );
+                  rangeSelection.value = RangeSelection.end;
+                }
+              : null,
+          selectedDay: selected,
+          start: rangeStart,
+          end: rangeEnd,
+          rangeSelectionController: rangeSelection,
         ),
+        const SizedBox(height: AppPadding.tiny),
         Visibility(
           maintainState: true,
           visible: !isHidden,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 250),
             decoration: BoxDecoration(
-                borderRadius:
-                    const BorderRadius.all(Radius.circular(AppRounding.small)),
-                border:
-                    Border.all(color: Theme.of(context).colorScheme.onSurface)),
+              borderRadius: const BorderRadius.all(
+                Radius.circular(AppRounding.small),
+              ),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
             padding: const EdgeInsets.only(bottom: AppPadding.tiny),
             child: Column(
               children: [
                 _CalendarHeader(
-                    key: calendarHeaderKey,
-                    onYearChange: _onYearChange,
-                    focusedDay: focusedDay,
-                    onLeftArrowTap: () {
-                      _pageController?.previousPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeOut,
-                      );
-                    },
-                    onRightArrowTap: () {
-                      _pageController?.nextPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeOut,
-                      );
-                    },
-                    reset: () {
-                      reset();
-                    },
-                    onFormatChange: _onFormatChange,
-                    selected: _format),
+                  key: calendarHeaderKey,
+                  onYearChange: _onYearChange,
+                  focusedDay: focusedDay,
+                  onLeftArrowTap: () {
+                    _pageController?.previousPage(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOut,
+                    );
+                  },
+                  onRightArrowTap: () {
+                    _pageController?.nextPage(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOut,
+                    );
+                  },
+                  reset: () {
+                    reset();
+                  },
+                  onFormatChange: _onFormatChange,
+                  selected: _format,
+                ),
                 Stack(
                   children: [
                     IgnorePointer(
@@ -265,8 +284,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
                           locale: locale.languageCode,
                           daysOfWeekHeight: 25.0,
                           focusedDay: focusedDay,
-                          firstDay:
-                              firstDate /*keys.isEmpty ? DateTime(0) : keys[0]*/,
+                          firstDay: firstDate /*keys.isEmpty ? DateTime(0) : keys[0]*/,
                           lastDay: DateTime.now(),
                           rangeSelectionMode: RangeSelectionMode.disabled,
                           headerVisible: false,
@@ -303,9 +321,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
                       Center(
                         child: eventsValue.isLoading
                             ? const LoadingWidget()
-                            : Text(
-                                eventsValue.error.toString(),
-                              ),
+                            : Text(eventsValue.error.toString()),
                       ),
                   ],
                 ),
@@ -318,7 +334,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
   }
 
   void _onPageChange(DateTime newFocus) {
-    focusedDay = newFocus;
+    focusedDay = DateTime(newFocus.year, newFocus.month, newFocus.day);
     setState(() {});
   }
 
@@ -327,14 +343,30 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
   }
 
   void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
-    this.focusedDay = focusedDay;
+    // Calendar callbacks carry date components, not UTC instants.
+    selectedDay = DateTime(
+      selectedDay.year,
+      selectedDay.month,
+      selectedDay.day,
+    );
+    this.focusedDay = DateTime(
+      focusedDay.year,
+      focusedDay.month,
+      focusedDay.day,
+    );
 
     final DisplayDataSettings settings = ref.read(displayDataProvider);
 
     if (settings.cycle == TimeCycle.day) {
       if (!sameDay(selectedDay, settings.range.start)) {
-        ref.read(displayDataProvider.notifier).setRange(DateTimeRange(
-            start: selectedDay, end: selectedDay.add(const Duration(days: 1))));
+        ref
+            .read(displayDataProvider.notifier)
+            .setRange(
+              DateTimeRange(
+                start: selectedDay,
+                end: DateRangeUtils.exclusiveEndOfDay(selectedDay),
+              ),
+            );
       }
       return;
     }
@@ -344,31 +376,46 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
 
     if (selection == RangeSelection.start) {
       if (currentRange.end.isBefore(selectedDay)) {
-        ref.read(displayDataProvider.notifier).setRange(
-            DateTimeRange(
+        ref
+            .read(displayDataProvider.notifier)
+            .setRange(
+              DateTimeRange(
                 start: selectedDay,
-                end: selectedDay.add(const Duration(days: 1))),
-            cycle: TimeCycle.custom);
+                end: DateRangeUtils.exclusiveEndOfDay(selectedDay),
+              ),
+              cycle: TimeCycle.custom,
+            );
         rangeSelection.value = RangeSelection.end;
       } else {
-        ref.read(displayDataProvider.notifier).setRange(
-            DateTimeRange(start: selectedDay, end: currentRange.end),
-            cycle: TimeCycle.custom);
+        ref
+            .read(displayDataProvider.notifier)
+            .setRange(
+              DateTimeRange(start: selectedDay, end: currentRange.end),
+              cycle: TimeCycle.custom,
+            );
       }
     } else if (selection == RangeSelection.end) {
       if (selectedDay.isBefore(currentRange.start)) {
-        ref.read(displayDataProvider.notifier).setRange(
-            DateTimeRange(
+        ref
+            .read(displayDataProvider.notifier)
+            .setRange(
+              DateTimeRange(
                 start: selectedDay,
-                end: selectedDay.add(const Duration(days: 1))),
-            cycle: TimeCycle.custom);
+                end: DateRangeUtils.exclusiveEndOfDay(selectedDay),
+              ),
+              cycle: TimeCycle.custom,
+            );
       } else {
         // Add 1 day to include the selected end day
-        ref.read(displayDataProvider.notifier).setRange(
-            DateTimeRange(
+        ref
+            .read(displayDataProvider.notifier)
+            .setRange(
+              DateTimeRange(
                 start: currentRange.start,
-                end: selectedDay.add(const Duration(days: 1))),
-            cycle: TimeCycle.custom);
+                end: DateRangeUtils.exclusiveEndOfDay(selectedDay),
+              ),
+              cycle: TimeCycle.custom,
+            );
       }
     }
   }
@@ -387,8 +434,11 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
             selectedDate: focusedDay,
             onChanged: (val) {
               setState(() {
-                focusedDay =
-                    DateTime(val.year, focusedDay.month, focusedDay.day);
+                focusedDay = DateTime(
+                  val.year,
+                  focusedDay.month,
+                  focusedDay.day,
+                );
               });
               Navigator.pop(context);
             },
@@ -421,27 +471,33 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
 
   DateTimeRange _daysInWeek(DateTime focusedDay) {
     final daysBefore = _getDaysBefore(focusedDay);
-    final firstToDisplay = focusedDay.subtract(Duration(days: daysBefore));
-    final lastToDisplay = firstToDisplay.add(const Duration(days: 7));
+    final firstToDisplay = DateRangeUtils.shiftCalendarDays(
+      focusedDay,
+      -daysBefore,
+    );
+    final lastToDisplay = DateRangeUtils.shiftCalendarDays(firstToDisplay, 7);
     return DateTimeRange(start: firstToDisplay, end: lastToDisplay);
   }
 
   DateTimeRange _daysInTwoWeeks(DateTime focusedDay) {
     final daysBefore = _getDaysBefore(focusedDay);
-    final firstToDisplay = focusedDay.subtract(Duration(days: daysBefore));
-    final lastToDisplay = firstToDisplay.add(const Duration(days: 14));
+    final firstToDisplay = DateRangeUtils.shiftCalendarDays(
+      focusedDay,
+      -daysBefore,
+    );
+    final lastToDisplay = DateRangeUtils.shiftCalendarDays(firstToDisplay, 14);
     return DateTimeRange(start: firstToDisplay, end: lastToDisplay);
   }
 
   DateTime _firstDayOfMonth(DateTime month) {
-    return DateTime.utc(month.year, month.month, 1);
+    return DateTime(month.year, month.month, 1);
   }
 
   DateTime _lastDayOfMonth(DateTime month) {
     final date = month.month < 12
-        ? DateTime.utc(month.year, month.month + 1, 1)
-        : DateTime.utc(month.year + 1, 1, 1);
-    return date.subtract(const Duration(days: 1));
+        ? DateTime(month.year, month.month + 1, 1)
+        : DateTime(month.year + 1, 1, 1);
+    return DateRangeUtils.shiftCalendarDays(date, -1);
   }
 
   DateTimeRange _daysInMonth(DateTime focusedDay) {
@@ -454,7 +510,7 @@ class EventsCalendarState extends ConsumerState<EventsCalendar> {
     final dayCount = last.difference(first).inDays + 1;
     return List.generate(
       dayCount,
-      (index) => DateTime.utc(first.year, first.month, first.day + index),
+      (index) => DateTime(first.year, first.month, first.day + index),
     );
   }
 
@@ -475,15 +531,16 @@ class _CalendarHeader extends StatelessWidget {
   final CalendarFormat selected;
   final Function(CalendarFormat?) onFormatChange;
 
-  const _CalendarHeader(
-      {required this.focusedDay,
-      required this.onLeftArrowTap,
-      required this.onRightArrowTap,
-      required this.selected,
-      required this.onYearChange,
-      required this.reset,
-      required this.onFormatChange,
-      super.key});
+  const _CalendarHeader({
+    required this.focusedDay,
+    required this.onLeftArrowTap,
+    required this.onRightArrowTap,
+    required this.selected,
+    required this.onYearChange,
+    required this.reset,
+    required this.onFormatChange,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -491,7 +548,7 @@ class _CalendarHeader extends StatelessWidget {
 
     final Map<CalendarFormat, String> formats = {
       CalendarFormat.week: context.translate.calendarVisibilityWeek,
-      CalendarFormat.month: context.translate.calendarVisibilityMonth
+      CalendarFormat.month: context.translate.calendarVisibilityMonth,
     };
     final String headerText = DateFormat.yMMM().format(focusedDay);
 
@@ -542,14 +599,19 @@ class _CalendarHeader extends StatelessWidget {
           isTiny
               ? IconButton.filled(
                   style: ButtonStyle(
-                    shape: WidgetStateProperty.all(const RoundedRectangleBorder(
+                    shape: WidgetStateProperty.all(
+                      const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(
-                            Radius.circular(AppRounding.small)))),
+                          Radius.circular(AppRounding.small),
+                        ),
+                      ),
+                    ),
                   ),
                   onPressed: () {
                     reset();
                   },
-                  icon: const Icon(Icons.restart_alt))
+                  icon: const Icon(Icons.restart_alt),
+                )
               : FilledButton.icon(
                   onPressed: () {
                     reset();
@@ -566,16 +628,19 @@ class _CalendarHeader extends StatelessWidget {
             icon: isTiny
                 ? DecoratedBox(
                     decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(AppRounding.small),
-                        color: Theme.of(context).primaryColor),
+                      borderRadius: BorderRadius.circular(AppRounding.small),
+                      color: Theme.of(context).primaryColor,
+                    ),
                     child: Padding(
-                        padding: const EdgeInsets.all(AppPadding.small),
-                        child: calendarFormatIcon),
+                      padding: const EdgeInsets.all(AppPadding.small),
+                      child: calendarFormatIcon,
+                    ),
                   )
                 : IgnorePointer(
                     child: FilledButton.icon(
                       style: const ButtonStyle(
-                          splashFactory: NoSplash.splashFactory),
+                        splashFactory: NoSplash.splashFactory,
+                      ),
                       onPressed: () {},
                       label: Text(formats[selected]!),
                       icon: calendarFormatIcon,
@@ -585,18 +650,14 @@ class _CalendarHeader extends StatelessWidget {
               PopupMenuItem(
                 value: CalendarFormat.month,
                 child: ListTile(
-                  leading: const Icon(
-                    Icons.calendar_month,
-                  ),
+                  leading: const Icon(Icons.calendar_month),
                   title: Text(formats[CalendarFormat.month]!),
                 ),
               ),
               PopupMenuItem(
                 value: CalendarFormat.week,
                 child: ListTile(
-                  leading: const Icon(
-                    Icons.calendar_view_week,
-                  ),
+                  leading: const Icon(Icons.calendar_view_week),
                   title: Text(formats[CalendarFormat.week]!),
                 ),
               ),
@@ -609,24 +670,19 @@ class _CalendarHeader extends StatelessWidget {
   }
 }
 
-enum RangeSelection {
-  start,
-  end;
-}
+enum RangeSelection { start, end }
 
-enum RangeStatus {
-  enabled,
-  disabled;
-}
+enum RangeStatus { enabled, disabled }
 
 class DateRangeSelectionListener extends ChangeNotifier {
   RangeStatus mode;
 
   DateRangeSelectionListener(this.mode);
 
-  setMode({required bool selectingRange}) {
-    final RangeStatus newMode =
-        selectingRange ? RangeStatus.enabled : RangeStatus.disabled;
+  void setMode({required bool selectingRange}) {
+    final RangeStatus newMode = selectingRange
+        ? RangeStatus.enabled
+        : RangeStatus.disabled;
     if (newMode != mode) {
       mode = newMode;
       notifyListeners();
@@ -675,10 +731,7 @@ class _DateSelectionDisplayState extends State<DateSelectionDisplay> {
     final bool isTiny = getBreakpoint(context).isLessThan(Breakpoint.tiny);
 
     final Widget rangeSelectionIcon = singleDate
-        ? Icon(
-            Icons.event,
-            color: Theme.of(context).colorScheme.onPrimary,
-          )
+        ? Icon(Icons.event, color: Theme.of(context).colorScheme.onPrimary)
         : Icon(
             Icons.date_range,
             color: Theme.of(context).colorScheme.onPrimary,
@@ -688,58 +741,58 @@ class _DateSelectionDisplayState extends State<DateSelectionDisplay> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         PopupMenuButton<RangeStatus>(
-            padding: EdgeInsets.zero,
-            icon: isTiny
-                ? DecoratedBox(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(AppRounding.small),
-                        color: Theme.of(context).primaryColor),
-                    child: Padding(
-                      padding: const EdgeInsets.all(AppPadding.small),
-                      child: rangeSelectionIcon,
-                    ),
-                  )
-                : IgnorePointer(
-                    child: FilledButton.icon(
-                      style: const ButtonStyle(
-                          splashFactory: NoSplash.splashFactory),
-                      onPressed: () {},
-                      label: Text(singleDate ? "Day" : "Range"),
-                      icon: rangeSelectionIcon,
-                    ),
+          padding: EdgeInsets.zero,
+          icon: isTiny
+              ? DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(AppRounding.small),
+                    color: Theme.of(context).primaryColor,
                   ),
-            onSelected: (status) {
-              widget.listener
-                  .setMode(selectingRange: status == RangeStatus.enabled);
-              setState(() {});
-            },
-            itemBuilder: (context) => [
-                  const PopupMenuItem(
-                    value: RangeStatus.enabled,
-                    child: ListTile(
-                      leading: Icon(Icons.date_range),
-                      title: Text("Range"),
-                    ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppPadding.small),
+                    child: rangeSelectionIcon,
                   ),
-                  const PopupMenuItem(
-                    value: RangeStatus.disabled,
-                    child: ListTile(
-                      leading: Icon(Icons.event),
-                      title: Text("Day"),
+                )
+              : IgnorePointer(
+                  child: FilledButton.icon(
+                    style: const ButtonStyle(
+                      splashFactory: NoSplash.splashFactory,
                     ),
+                    onPressed: () {},
+                    label: Text(singleDate ? "Day" : "Range"),
+                    icon: rangeSelectionIcon,
                   ),
-                ]),
-        const SizedBox(
-          width: AppPadding.tiny,
+                ),
+          onSelected: (status) {
+            widget.listener.setMode(
+              selectingRange: status == RangeStatus.enabled,
+            );
+            setState(() {});
+          },
+          itemBuilder: (context) => [
+            const PopupMenuItem(
+              value: RangeStatus.enabled,
+              child: ListTile(
+                leading: Icon(Icons.date_range),
+                title: Text("Range"),
+              ),
+            ),
+            const PopupMenuItem(
+              value: RangeStatus.disabled,
+              child: ListTile(leading: Icon(Icons.event), title: Text("Day")),
+            ),
+          ],
         ),
+        const SizedBox(width: AppPadding.tiny),
         if (singleDate)
           SizedBox(
             height: Theme.of(context).buttonTheme.height,
             child: DecoratedBox(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(AppRounding.small),
-                border:
-                    Border.all(color: Theme.of(context).colorScheme.onSurface),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
               child: DateDispay(
                 title: "Selected",
@@ -755,30 +808,35 @@ class _DateSelectionDisplayState extends State<DateSelectionDisplay> {
             child: CustomSlidingSegmentedControl<RangeSelection>(
               initialValue: widget.rangeSelectionController.value,
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(AppRounding.small),
-                  color: Colors.transparent,
-                  border: Border.all(color: Theme.of(context).disabledColor)),
+                borderRadius: BorderRadius.circular(AppRounding.small),
+                color: Colors.transparent,
+                border: Border.all(color: Theme.of(context).disabledColor),
+              ),
               thumbDecoration: BoxDecoration(
-                  border: Border.all(
-                      color: Theme.of(context).colorScheme.onSurface),
-                  color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(7.0)),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(7.0),
+              ),
               innerPadding: EdgeInsets.zero,
               padding: 2,
               children: {
                 RangeSelection.start: DateDispay(
                   title: "Start",
                   clear: widget.onStartClear,
-                  hovered: widget.rangeSelectionController.value ==
+                  hovered:
+                      widget.rangeSelectionController.value ==
                       RangeSelection.start,
                   selected: widget.start,
                 ),
                 RangeSelection.end: DateDispay(
                   title: "End",
-                  hovered: widget.rangeSelectionController.value ==
+                  hovered:
+                      widget.rangeSelectionController.value ==
                       RangeSelection.end,
                   selected: widget.end,
-                )
+                ),
               },
               onValueChanged: (_) {
                 setState(() {});
@@ -812,41 +870,40 @@ class DateDispay extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool hasDate = selected != null;
     return SizedBox(
-        width: 95.0,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              hasDate ? DateFormat.yMd().format(selected!) : "select",
-              textAlign: TextAlign.center,
-              style: hovered
-                  ? Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: hasDate
-                          ? Theme.of(context).primaryColor
-                          : Theme.of(context).disabledColor)
-                  : Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: !hasDate ? Theme.of(context).disabledColor : null),
+      width: 95.0,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            hasDate ? DateFormat.yMd().format(selected!) : "select",
+            textAlign: TextAlign.center,
+            style: hovered
+                ? Theme.of(context).textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: hasDate
+                        ? Theme.of(context).primaryColor
+                        : Theme.of(context).disabledColor,
+                  )
+                : Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: !hasDate ? Theme.of(context).disabledColor : null,
+                  ),
+          ),
+          if (clear != null) ...[
+            const SizedBox(width: 2.0),
+            IconButton(
+              onPressed: () {
+                clear!();
+              },
+              visualDensity: VisualDensity.compact,
+              padding: EdgeInsets.zero,
+              iconSize: 16.0,
+              icon: const Icon(Icons.clear),
             ),
-            if (clear != null) ...[
-              const SizedBox(
-                width: 2.0,
-              ),
-              IconButton(
-                onPressed: () {
-                  clear!();
-                },
-                visualDensity: VisualDensity.compact,
-                padding: EdgeInsets.zero,
-                iconSize: 16.0,
-                icon: const Icon(
-                  Icons.clear,
-                ),
-              )
-            ],
           ],
-        ));
+        ],
+      ),
+    );
   }
 }
 

@@ -2,17 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/Questions/questions_provider.dart';
 import 'package:stripes_ui/Providers/History/stamps_provider.dart';
-import 'package:stripes_ui/Providers/Test/test_provider.dart';
 import 'package:stripes_ui/UI/AccountManagement/profile_changer.dart';
 import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
 import 'package:stripes_ui/Util/Design/breakpoint.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/Widgets/mouse_hover.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
+import 'package:stripes_ui/Util/Design/category_theme.dart';
+import 'package:stripes_ui/Providers/base_providers.dart';
+import 'package:stripes_ui/config.dart';
+import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
 
 class Footer extends StatelessWidget {
@@ -21,58 +23,54 @@ class Footer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverToBoxAdapter(
-        child: Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            TextButton(
-              onPressed: () {},
-              child: const Text('About'),
-            ),
-          ],
-        ),
-        const SizedBox(
-          height: AppPadding.xxl,
-        )
-      ],
-    ));
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              TextButton(onPressed: () {}, child: const Text('About')),
+            ],
+          ),
+          const SizedBox(height: AppPadding.xxl),
+        ],
+      ),
+    );
   }
 }
 
 class Options extends ConsumerWidget {
-  const Options({super.key});
+  final bool hideCheckins;
+  const Options({super.key, this.hideCheckins = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final QuestionsLocalizations? localizations =
-        QuestionsLocalizations.of(context);
-    final AsyncValue<List<BaselineRecordItem>> paths =
-        ref.watch(availableRecordPaths);
+    final QuestionsLocalizations? localizations = QuestionsLocalizations.of(
+      context,
+    );
+    final AsyncValue<List<RecordItem>> paths = ref.watch(availableRecordPaths);
     final AsyncValue<List<ReviewItem>> checkins = ref.watch(
-      reviewPaths(
-        const ReviewPathsProps(),
-      ),
+      reviewPaths(const ReviewPathsProps()),
     );
 
-    final AsyncValue<TestsState> testsState = ref.watch(testsHolderProvider);
-    final TestsRepo? repo = testsState.valueOrNull?.testsRepo;
+    // Modular test system handles injections via stage_ui_registry
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(
-          height: AppPadding.xl,
-        ),
-        AsyncValueDefaults(
+        const SizedBox(height: AppPadding.xl),
+        if (!hideCheckins)
+          AsyncValueDefaults(
             value: checkins,
             onData: (loadedReviews) {
               var reviews = loadedReviews.map(
-                  (review) => localizations?.translateReview(review) ?? review);
-              final activeCheckins =
-                  reviews.where((item) => item.response == null).toList();
-              final completedCheckins =
-                  reviews.where((item) => item.response != null).toList();
+                (review) => localizations?.translateReview(review) ?? review,
+              );
+              final activeCheckins = reviews
+                  .where((item) => item.response == null)
+                  .toList();
+              final completedCheckins = reviews
+                  .where((item) => item.response != null)
+                  .toList();
 
               return Column(
                 children: [
@@ -84,7 +82,7 @@ class Options extends ConsumerWidget {
                         title: "Completed Check-ins",
                         initiallyExpanded: false,
                         additions: (item) {
-                          return repo?.getPathAdditions(context, item.type);
+                          return null;
                         },
                       ),
                     ),
@@ -94,88 +92,111 @@ class Options extends ConsumerWidget {
                       title: context.translate.checkInLabel,
                       initiallyExpanded: true,
                       additions: (item) {
-                        return repo?.getPathAdditions(context, item.type);
+                        return null;
                       },
                     ),
                 ],
               );
-            }),
+            },
+          ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
           child: AsyncValueDefaults(
-              value: paths,
-              onLoading: (_) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      context.translate.categorySelect,
-                      style: Theme.of(context).textTheme.titleMedium,
-                      textAlign: TextAlign.left,
-                    ),
-                    ...List.generate(
-                      4,
-                      (_) => Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: AppPadding.tiny),
-                        child: ConstrainedBox(
-                          constraints:
-                              BoxConstraints(maxWidth: Breakpoint.small.value),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: const BorderRadius.all(
-                                  Radius.circular(AppRounding.small)),
-                              color: Theme.of(context).disabledColor,
+            value: paths,
+            onLoading: (_) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ...List.generate(
+                    4,
+                    (_) => Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppPadding.tiny,
+                      ),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: Breakpoint.small.value,
+                        ),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(AppRounding.small),
                             ),
-                            height: 65.0,
+                            color: Theme.of(context).disabledColor,
                           ),
+                          height: 65.0,
                         ),
                       ),
-                    ).separated(
-                        by: const SizedBox(
-                      height: AppPadding.small,
-                    ))
-                  ],
-                );
-              },
-              onData: (loadedItems) {
-                // Translate record paths inside items
-                final List<BaselineRecordItem> translatedItems = loadedItems
-                    .map((item) => BaselineRecordItem(
-                        path: localizations?.translatePath(item.path) ??
-                            item.path,
-                        baseline: item.baseline))
-                    .toList();
-
-                return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        context.translate.categorySelect,
-                        style: Theme.of(context).textTheme.titleMedium,
-                        textAlign: TextAlign.left,
+                    ),
+                  ).separated(by: const SizedBox(height: AppPadding.small)),
+                ],
+              );
+            },
+            onData: (loadedItems) {
+              if (ref.watch(configProvider).betaUi.multiSessionFlow) {
+                return SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    key: const ValueKey('start-multi-record'),
+                    onPressed: loadedItems.isEmpty
+                        ? null
+                        : () => context.pushNamed(RouteName.MULTI_RECORD),
+                    icon: const Icon(Icons.add),
+                    label: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      child: Column(
+                        children: [
+                          Text(context.translate.recordStart),
+                          Text(
+                            context.translate.recordMultipleHint,
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ],
                       ),
-                      ...translatedItems.mapIndexed((index, item) {
-                        final String unlocalizedPathName =
-                            loadedItems[index].path.name;
-                        final List<Widget> additions = repo?.getPathAdditions(
-                                context, unlocalizedPathName) ??
-                            [];
-                        return RecordButton(item.path.name, (context) async {
-                          await context.pushNamed('recordType',
-                              pathParameters: {'type': unlocalizedPathName},
-                              extra: item.baseline);
-                          if (context.mounted) {
-                            ref.invalidate(stampsStreamProvider);
-                          }
-                        }, additions);
-                      }),
-                    ]);
-              }),
+                    ),
+                  ),
+                );
+              }
+              // Translate record paths inside items
+              final List<RecordItem> translatedItems = loadedItems
+                  .map(
+                    (item) => RecordItem(
+                      path:
+                          localizations?.translatePath(item.path) ?? item.path,
+                      baselines: item.baselines,
+                    ),
+                  )
+                  .toList();
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ...translatedItems.mapIndexed((index, item) {
+                    final String unlocalizedPathName =
+                        loadedItems[index].path.name;
+                    final List<Widget> additions = [];
+                    return RecordButton(
+                      item.path.name,
+                      (context) async {
+                        await context.pushNamed(
+                          'recordType',
+                          pathParameters: {'type': unlocalizedPathName},
+                          extra: item.baseline,
+                        );
+                        if (context.mounted) {
+                          ref.invalidate(stampsStreamProvider);
+                        }
+                      },
+                      additions,
+                      categoryType: unlocalizedPathName,
+                    );
+                  }),
+                ],
+              );
+            },
+          ),
         ),
-        const SizedBox(
-          height: AppPadding.xl,
-        ),
+        const SizedBox(height: AppPadding.xl),
       ],
     );
   }
@@ -204,29 +225,18 @@ class ReviewsPageView extends StatefulWidget {
 }
 
 class _ReviewsPageViewState extends State<ReviewsPageView> {
-  late ExpansibleController expansionController;
-  PageController? _pageController;
-  double? _lastViewportFraction;
-
-  int currentPage = 0;
-  double itemWidth = 280;
+  late final ExpansibleController expansionController;
 
   @override
   void initState() {
-    expansionController = ExpansibleController();
-
-    if (!widget.initiallyExpanded) {
-      expansionController.collapse();
-    } else {
-      expansionController.expand();
-    }
-
     super.initState();
+    expansionController = ExpansibleController();
+    if (widget.initiallyExpanded) expansionController.expand();
   }
 
   @override
   void dispose() {
-    _pageController?.dispose();
+    expansionController.dispose();
     super.dispose();
   }
 
@@ -235,120 +245,72 @@ class _ReviewsPageViewState extends State<ReviewsPageView> {
     if (widget.reviews.isEmpty) return const SizedBox();
 
     return Expansible(
-        headerBuilder: (context, animation) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    if (expansionController.isExpanded) {
-                      expansionController.collapse();
-                    } else {
-                      expansionController.expand();
-                    }
-                  },
-                  child: Row(
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.event_repeat,
-                            size: 16,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          const SizedBox(width: AppPadding.tiny),
-                          AnimatedDefaultTextStyle(
-                            duration: Durations.medium1,
-                            style: expansionController.isExpanded
-                                ? Theme.of(context).textTheme.titleMedium!
-                                : Theme.of(context).textTheme.bodySmall!,
-                            child: Text(
-                              "${widget.title ?? context.translate.checkInLabel} (${widget.reviews.length})",
-                              textAlign: TextAlign.left,
-                            ),
-                          ),
-                        ],
+      controller: expansionController,
+      headerBuilder: (context, animation) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
+        child: Semantics(
+          button: true,
+          expanded: expansionController.isExpanded,
+          child: InkWell(
+            onTap: () {
+              if (expansionController.isExpanded) {
+                expansionController.collapse();
+              } else {
+                expansionController.expand();
+              }
+            },
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 48),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.event_repeat,
+                    size: 16,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  const SizedBox(width: AppPadding.tiny),
+                  Expanded(
+                    child: AnimatedDefaultTextStyle(
+                      duration: Durations.medium1,
+                      style: expansionController.isExpanded
+                          ? Theme.of(context).textTheme.titleMedium!
+                          : Theme.of(context).textTheme.bodySmall!,
+                      child: Text(
+                        "${widget.title ?? context.translate.checkInLabel} (${widget.reviews.length})",
                       ),
-                      Icon(expansionController.isExpanded
-                          ? Icons.keyboard_arrow_up
-                          : Icons.keyboard_arrow_down)
-                    ],
+                    ),
                   ),
-                ),
-                if (expansionController.isExpanded &&
-                    currentPage < widget.reviews.length)
-                  Text(
-                    widget.reviews[currentPage].path.period!
-                        .getRangeString(DateTime.now(), context),
-                    style: Theme.of(context).textTheme.bodyMedium,
+                  Icon(
+                    expansionController.isExpanded
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
                   ),
-              ],
+                ],
+              ),
             ),
-          );
-        },
-        bodyBuilder: (context, animation) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                // Use available width for full-width items, or fixed width if smaller
-                itemWidth = (constraints.maxWidth > 340
-                        ? constraints.maxWidth -
-                            (AppPadding.medium * 2) -
-                            AppPadding.small
-                        : 280.0)
-                    .clamp(0.0, Breakpoint.small.value + AppPadding.small);
-
-                final double viewportFraction =
-                    (itemWidth / constraints.maxWidth).clamp(0.1, 1.0);
-
-                if (_pageController == null ||
-                    (_lastViewportFraction != null &&
-                        (_lastViewportFraction! - viewportFraction).abs() >
-                            0.001)) {
-                  final oldController = _pageController;
-                  _pageController = PageController(
-                      viewportFraction: viewportFraction,
-                      initialPage: currentPage);
-                  oldController?.dispose();
-                  _lastViewportFraction = viewportFraction;
-                }
-
-                return SizedBox(
-                  height: 100,
-                  child: PageView.builder(
-                    scrollDirection: Axis.horizontal,
-                    controller: _pageController,
-                    itemCount: widget.reviews.length,
-                    padEnds: false, // Align start
-                    onPageChanged: (index) {
-                      setState(() {
-                        currentPage = index;
-                      });
-                    },
-                    itemBuilder: (context, index) {
-                      final ReviewItem item = widget.reviews[index];
-                      // Add padding to simulate gap, adjusted by viewport fraction logic implicitly
-                      return Padding(
-                        padding: const EdgeInsets.only(right: AppPadding.small),
-                        child: SizedBox(
-                          width: itemWidth,
-                          child: ReviewButton(
-                            item: item,
-                            additions: widget.additions(item) ?? [],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                );
-              },
-            ),
-          );
-        },
-        controller: expansionController);
+          ),
+        ),
+      ),
+      bodyBuilder: (context, animation) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
+        // Check-ins have variable-length titles, dates, and status text. Let
+        // each one grow in the screen's scroll view instead of a fixed-height
+        // carousel that clips at larger reading sizes.
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (final item in widget.reviews) ...[
+              Text(
+                item.path.period!.getRangeString(DateTime.now(), context),
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              ReviewButton(item: item, additions: widget.additions(item) ?? []),
+              const SizedBox(height: AppPadding.small),
+            ],
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -359,14 +321,15 @@ class Header extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return const Padding(
       padding: EdgeInsets.symmetric(horizontal: AppPadding.large),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Expanded(child: PatientChanger()),
-          ],
-        ),
-      ]),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [Expanded(child: PatientChanger())],
+          ),
+        ],
+      ),
     );
   }
 }
@@ -378,22 +341,21 @@ class LastEntryText extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final AsyncValue<List<Stamp>> stamps = ref.watch(stampsStreamProvider);
     return stamps.map(
-        data: (data) {
-          final String lastEntry = data.value.isEmpty
-              ? context.translate.noEntryText
-              : context.translate
-                  .lastEntry(dateFromStamp(data.value.first.stamp));
-          return Text(
-            lastEntry,
-            style: Theme.of(context).textTheme.bodyMedium,
-          );
-        },
-        error: (error) => Container(
-              height: 10,
-              width: 10,
-              color: Theme.of(context).colorScheme.error,
-            ),
-        loading: (loading) => const CircularProgressIndicator());
+      data: (data) {
+        final String lastEntry = data.value.isEmpty
+            ? context.translate.noEntryText
+            : context.translate.lastEntry(
+                dateFromStamp(data.value.first.stamp),
+              );
+        return Text(lastEntry, style: Theme.of(context).textTheme.bodyMedium);
+      },
+      error: (error) => Container(
+        height: 10,
+        width: 10,
+        color: Theme.of(context).colorScheme.error,
+      ),
+      loading: (loading) => const CircularProgressIndicator(),
+    );
   }
 }
 
@@ -436,13 +398,19 @@ class ReviewButton extends ConsumerWidget {
             onTap: () async {
               if (item.response != null) {
                 String? routeName = item.response!.type;
-                await context.pushNamed('recordType',
-                    pathParameters: {'type': routeName},
-                    extra: QuestionsListener(
-                        responses: item.response!.responses,
-                        editId: item.response?.id,
-                        submitTime: dateFromStamp(item.response!.stamp),
-                        description: item.response!.description));
+                await context.pushNamed(
+                  'recordType',
+                  pathParameters: {'type': routeName},
+                  extra: SessionData(
+                    responses: {
+                      for (final r in item.response!.responses)
+                        r.question.id: r,
+                    },
+                    editId: item.response?.id,
+                    submitTime: dateFromStamp(item.response!.stamp),
+                    description: item.response!.description,
+                  ),
+                );
               } else {
                 await context.pushNamed(
                   'recordType',
@@ -505,31 +473,29 @@ class ReviewButton extends ConsumerWidget {
                       children: [
                         Text(
                           item.path.name,
-                          style:
-                              Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: isCompleted
-                                        ? colors.onSurfaceVariant
-                                        : colors.onSurface,
-                                  ),
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: isCompleted
+                                    ? colors.onSurfaceVariant
+                                    : colors.onSurface,
+                              ),
                         ),
                         const SizedBox(height: 2),
                         if (isCompleted)
                           Text(
                             'Completed ${_formatLastUpdated(item.response!.stamp, context)}',
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: colors.outline,
-                                    ),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: colors.outline),
                           )
                         else
                           Text(
                             _formatTimeRemaining(timeRemaining, context),
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: colors.primary,
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: colors.primary,
+                                  fontWeight: FontWeight.w500,
+                                ),
                           ),
                         if (additions.isNotEmpty) ...[
                           const SizedBox(height: 4),
@@ -540,10 +506,7 @@ class ReviewButton extends ConsumerWidget {
                   ),
 
                   // Trailing icon
-                  Icon(
-                    Icons.chevron_right,
-                    color: colors.onSurfaceVariant,
-                  ),
+                  Icon(Icons.chevron_right, color: colors.onSurfaceVariant),
                 ],
               ),
             ),
@@ -577,76 +540,204 @@ class CheckIndicator extends StatelessWidget {
       width: 35,
       height: 35,
       child: AspectRatio(
-          aspectRatio: 1.0,
-          child: Container(
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(AppRounding.small),
-                border: Border.all(
-                    width: 3.0, color: Theme.of(context).colorScheme.primary)),
-            child: checked
-                ? const SizedBox.expand(
-                    child:
-                        FittedBox(fit: BoxFit.fill, child: Icon(Icons.check)))
-                : null,
-          )),
+        aspectRatio: 1.0,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppRounding.small),
+            border: Border.all(
+              width: 3.0,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+          child: checked
+              ? const SizedBox.expand(
+                  child: FittedBox(fit: BoxFit.fill, child: Icon(Icons.check)),
+                )
+              : null,
+        ),
+      ),
     );
   }
 }
 
-class RecordButton extends StatelessWidget {
+class RecordButton extends ConsumerWidget {
   final String text;
   final String? subText;
+
+  /// Raw YAML type code for locale-independent theme resolution.
+  final String? categoryType;
   final List<Widget> additions;
   final Function(BuildContext) onClick;
 
-  const RecordButton(this.text, this.onClick, this.additions,
-      {this.subText, super.key});
+  const RecordButton(
+    this.text,
+    this.onClick,
+    this.additions, {
+    this.subText,
+    this.categoryType,
+    super.key,
+  });
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final StripesConfig config = ref.watch(configProvider);
+    final CategoryAppearance appearance = CategoryTheme.resolve(
+      categoryType ?? text,
+    );
+    final bool themed = config.betaUi.useCategoryTheme;
+    final bool colored = config.betaUi.categoryColorsEnabled;
+
+    final Color accentColor = colored
+        ? appearance.color
+        : Theme.of(context).colorScheme.primary;
+
+    if (!themed) {
+      // Non-themed: preserve original style exactly
+      return Padding(
         padding: const EdgeInsets.symmetric(vertical: AppPadding.tiny),
         child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: Breakpoint.small.value),
-            child: OutlinedButton(
-              onPressed: () {
-                onClick(context);
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: AppPadding.small, vertical: AppPadding.large),
+          constraints: BoxConstraints(maxWidth: Breakpoint.small.value),
+          child: OutlinedButton(
+            onPressed: () => onClick(context),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppPadding.small,
+                vertical: AppPadding.large,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          text,
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: accentColor,
+                              ),
+                        ),
+                        ...additions,
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: AppPadding.small),
+                  Icon(Icons.add, size: 35, color: accentColor),
+                ],
+              ),
+            ),
+          ).showCursorOnHover,
+        ),
+      );
+    }
+
+    // ── Themed layout ──────────────────────────────────────────────
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppPadding.small),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: Breakpoint.small.value),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(AppRounding.medium),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: () => onClick(context),
+            borderRadius: BorderRadius.circular(AppRounding.medium),
+            splashColor: accentColor.withValues(alpha: 0.10),
+            highlightColor: accentColor.withValues(alpha: 0.05),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(AppRounding.medium),
+                gradient: LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [
+                    accentColor.withValues(alpha: 0.08),
+                    accentColor.withValues(alpha: 0.02),
+                  ],
+                ),
+                border: Border.all(
+                  color: accentColor.withValues(alpha: 0.18),
+                  width: 1.0,
+                ),
+              ),
+              child: IntrinsicHeight(
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text(
-                              text,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .primary),
-                            ),
+                    // Left accent bar
+                    Container(
+                      width: 4,
+                      decoration: BoxDecoration(
+                        color: accentColor,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(AppRounding.medium),
+                          bottomLeft: Radius.circular(AppRounding.medium),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: AppPadding.medium),
+                    // Icon badge
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: accentColor.withValues(alpha: 0.12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: accentColor.withValues(alpha: 0.10),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
                           ),
-                          ...additions
-                        ]),
-                    const Icon(
-                      Icons.add,
-                      size: 35,
-                    )
+                        ],
+                      ),
+                      child: CategoryIcon(appearance: appearance, size: 24),
+                    ),
+                    const SizedBox(width: AppPadding.medium),
+                    // Label + additions
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppPadding.large,
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              text,
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    color: accentColor,
+                                    letterSpacing: 0.2,
+                                  ),
+                            ),
+                            if (additions.isNotEmpty) ...additions,
+                          ],
+                        ),
+                      ),
+                    ),
+                    // Arrow indicator
+                    Padding(
+                      padding: const EdgeInsets.only(right: AppPadding.medium),
+                      child: Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 16,
+                        color: accentColor.withValues(alpha: 0.5),
+                      ),
+                    ),
                   ],
                 ),
               ),
-            ).showCursorOnHover));
+            ),
+          ),
+        ).showCursorOnHover,
+      ),
+    );
   }
 }

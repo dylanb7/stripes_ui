@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:stripes_ui/UI/History/EventView/events_calendar.dart';
 import 'package:stripes_ui/UI/History/EventView/sig_dates.dart';
@@ -9,32 +8,35 @@ import 'package:stripes_ui/Util/Widgets/mouse_hover.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
 
 class DateListener extends ChangeNotifier {
-  DateTime date = DateTime.now();
+  DateTime _date = DateTime.now();
+  DateTime get date => _date.toLocal();
+  set date(DateTime value) => _date = value.toLocal();
 
-  setDate(DateTime dateTime) {
+  void setDate(DateTime dateTime) {
     date = dateTime;
     notifyListeners();
   }
 }
 
-class DateWidget extends ConsumerWidget {
+class DateWidget extends StatelessWidget {
   final DateTime? earliest, latest;
 
   final bool hasHeader, hasIcon, enabled;
 
   final DateListener dateListener;
 
-  const DateWidget(
-      {required this.dateListener,
-      this.earliest,
-      this.latest,
-      this.hasHeader = true,
-      this.enabled = true,
-      this.hasIcon = true,
-      super.key});
+  const DateWidget({
+    required this.dateListener,
+    this.earliest,
+    this.latest,
+    this.hasHeader = true,
+    this.enabled = true,
+    this.hasIcon = true,
+    super.key,
+  });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: dateListener,
       builder: (context, child) {
@@ -42,19 +44,14 @@ class DateWidget extends ConsumerWidget {
         final text = Text(
           context.translate.dateChangeEntry(date),
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                decoration: enabled ? TextDecoration.underline : null,
-              ),
+            fontWeight: FontWeight.bold,
+            decoration: enabled ? TextDecoration.underline : null,
+          ),
         );
         final Widget inner = hasIcon
             ? Row(
                 mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.calendar_today,
-                  ),
-                  text,
-                ],
+                children: [const Icon(Icons.calendar_today), text],
               )
             : text;
 
@@ -63,7 +60,7 @@ class DateWidget extends ConsumerWidget {
           hasHeader: hasHeader,
           onClick: enabled
               ? () {
-                  _showDatePicker(context, ref);
+                  _showDatePicker(context);
                 }
               : null,
           child: inner,
@@ -72,14 +69,15 @@ class DateWidget extends ConsumerWidget {
     );
   }
 
-  _showDatePicker(BuildContext context, WidgetRef ref) async {
+  Future<void> _showDatePicker(BuildContext context) async {
     final DateTime now = DateTime.now();
 
     DateTime? res = await showDatePicker(
-        context: context,
-        initialDate: dateListener.date,
-        firstDate: earliest ?? SigDates.minDate,
-        lastDate: latest ?? now);
+      context: context,
+      initialDate: dateListener.date,
+      firstDate: earliest?.toLocal() ?? SigDates.minDate,
+      lastDate: latest?.toLocal() ?? now,
+    );
     if (res == null) return;
     dateListener.setDate(res);
   }
@@ -87,85 +85,88 @@ class DateWidget extends ConsumerWidget {
 
 class TimeListener extends ChangeNotifier {
   TimeOfDay time = TimeOfDay.now();
+  String? error;
 
-  setTime(TimeOfDay timeOfDay) {
+  void setTime(TimeOfDay timeOfDay) {
     time = timeOfDay;
+    notifyListeners();
+  }
+
+  void setError(String? message) {
+    error = message;
     notifyListeners();
   }
 }
 
-final timeErrorProvider = StateProvider<String?>((ref) => null);
-
-class TimeWidget extends ConsumerWidget {
+class TimeWidget extends StatelessWidget {
   final TimeOfDay? earliest, latest;
 
   final TimeListener timeListener;
 
   final bool hasHeader, hasIcon, enabled;
 
-  const TimeWidget(
-      {required this.timeListener,
-      this.earliest,
-      this.latest,
-      this.enabled = true,
-      this.hasHeader = true,
-      this.hasIcon = true,
-      super.key});
+  const TimeWidget({
+    required this.timeListener,
+    this.earliest,
+    this.latest,
+    this.enabled = true,
+    this.hasHeader = true,
+    this.hasIcon = true,
+    super.key,
+  });
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return AnimatedBuilder(
-        animation: timeListener,
-        builder: (context, child) {
-          final TimeOfDay time = timeListener.time;
-          final Widget text = Text(
-            time.format(context),
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  decoration: enabled ? TextDecoration.underline : null,
-                ),
-          );
-          final Widget inner = hasIcon
-              ? Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.access_time,
-                    ),
-                    text
-                  ],
-                )
-              : text;
+      animation: timeListener,
+      builder: (context, child) {
+        final TimeOfDay time = timeListener.time;
+        final Widget text = Text(
+          time.format(context),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            decoration: enabled ? TextDecoration.underline : null,
+          ),
+        );
+        final Widget inner = hasIcon
+            ? Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [const Icon(Icons.access_time), text],
+              )
+            : text;
 
-          return DateTimeHolder(
-            text: context.translate.timeChangeTitle,
-            hasHeader: hasHeader,
-            onClick: enabled
-                ? () {
-                    _showTimePicker(context, ref);
-                  }
-                : null,
-            errorText: ref.read(timeErrorProvider),
-            child: inner,
-          );
-        });
+        return DateTimeHolder(
+          text: context.translate.timeChangeTitle,
+          hasHeader: hasHeader,
+          onClick: enabled
+              ? () {
+                  _showTimePicker(context);
+                }
+              : null,
+          errorText: timeListener.error,
+          child: inner,
+        );
+      },
+    );
   }
 
-  _selectionPredicate(TimeOfDay? time) {
+  bool _selectionPredicate(TimeOfDay? time) {
     if (time == null) return true;
     bool lateEnough = true;
     bool earlyEnough = true;
     if (earliest != null) {
-      lateEnough = time.hour > earliest!.hour ||
+      lateEnough =
+          time.hour > earliest!.hour ||
           time.hour == earliest!.hour && time.minute >= earliest!.minute;
     }
     if (latest != null) {
-      earlyEnough = time.hour < latest!.hour ||
+      earlyEnough =
+          time.hour < latest!.hour ||
           time.hour == latest!.hour && time.minute <= latest!.minute;
     }
     return lateEnough && earlyEnough;
   }
 
-  _showTimePicker(BuildContext context, WidgetRef ref) async {
+  Future<void> _showTimePicker(BuildContext context) async {
     final String? early = earliest?.format(context);
     final String? latestErr = latest?.format(context);
     String selectionError = "";
@@ -183,11 +184,11 @@ class TimeWidget extends ConsumerWidget {
     );
     if (res == null) return;
     if (_selectionPredicate(res)) {
-      ref.read(timeErrorProvider.notifier).state = null;
+      timeListener.setError(null);
       timeListener.setTime(res);
       return;
     }
-    ref.read(timeErrorProvider.notifier).state = selectionError;
+    timeListener.setError(selectionError);
   }
 }
 
@@ -202,13 +203,14 @@ class DateTimeHolder extends StatelessWidget {
 
   final bool hasHeader;
 
-  const DateTimeHolder(
-      {required this.child,
-      required this.text,
-      required this.hasHeader,
-      this.onClick,
-      this.errorText,
-      super.key});
+  const DateTimeHolder({
+    required this.child,
+    required this.text,
+    required this.hasHeader,
+    this.onClick,
+    this.errorText,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -218,27 +220,23 @@ class DateTimeHolder extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (hasHeader)
-            Text(
-              text,
-              textAlign: TextAlign.left,
-            ),
+          if (hasHeader) Text(text, textAlign: TextAlign.left),
           child,
           if (errorText != null)
             Text(
               errorText!,
               style: TextStyle(color: Theme.of(context).colorScheme.error),
-            )
+            ),
         ],
       ),
     );
     if (onClick != null) {
       return OutlinedButton(
-              onPressed: () {
-                onClick!.call();
-              },
-              child: inner)
-          .showCursorOnHover;
+        onPressed: () {
+          onClick!.call();
+        },
+        child: inner,
+      ).showCursorOnHover;
     }
     return inner;
   }
@@ -249,21 +247,23 @@ class DateRangePicker extends StatelessWidget {
 
   final DateTime? initialStart, initialEnd;
 
-  const DateRangePicker(
-      {required this.onSelection,
-      this.initialStart,
-      this.initialEnd,
-      super.key});
+  const DateRangePicker({
+    required this.onSelection,
+    this.initialStart,
+    this.initialEnd,
+    super.key,
+  });
 
-  Route<DateTimeRange?> _dateRangePickerRoute(
-    BuildContext context,
-  ) {
+  Route<DateTimeRange?> _dateRangePickerRoute(BuildContext context) {
     return DialogRoute<DateTimeRange?>(
       context: context,
       builder: (BuildContext context) {
         return DateRangePickerDialog(
           initialDateRange: initialStart != null && initialEnd != null
-              ? DateTimeRange(start: initialStart!, end: initialEnd!)
+              ? DateTimeRange(
+                  start: initialStart!.toLocal(),
+                  end: initialEnd!.toLocal(),
+                )
               : null,
           firstDate: SigDates.minDate,
           currentDate: DateTime.now(),
@@ -282,19 +282,21 @@ class DateRangePicker extends StatelessWidget {
       String locale = Localizations.localeOf(context).languageCode;
 
       final DateFormat yearFormat = DateFormat.yMMMd(locale);
-      if (sameDay(initialStart!, initialEnd!)) {
-        return yearFormat.format(initialStart!);
+      if (sameDay(initialStart!.toLocal(), initialEnd!.toLocal())) {
+        return yearFormat.format(initialStart!.toLocal());
       }
 
-      final bool sameYear = initialEnd!.year == initialStart!.year;
+      final bool sameYear =
+          initialEnd!.toLocal().year == initialStart!.toLocal().year;
       final bool sameMonth =
-          sameYear && initialEnd!.month == initialStart!.month;
+          sameYear &&
+          initialEnd!.toLocal().month == initialStart!.toLocal().month;
       final String firstPortion = sameYear
-          ? DateFormat.MMMd(locale).format(initialStart!)
-          : yearFormat.format(initialStart!);
+          ? DateFormat.MMMd(locale).format(initialStart!.toLocal())
+          : yearFormat.format(initialStart!.toLocal());
       final String lastPortion = sameMonth
-          ? '${DateFormat.d(locale).format(initialEnd!)}, ${DateFormat.y(locale).format(initialEnd!)}'
-          : yearFormat.format(initialEnd!);
+          ? '${DateFormat.d(locale).format(initialEnd!.toLocal())}, ${DateFormat.y(locale).format(initialEnd!.toLocal())}'
+          : yearFormat.format(initialEnd!.toLocal());
       return '$firstPortion - $lastPortion';
     }
 

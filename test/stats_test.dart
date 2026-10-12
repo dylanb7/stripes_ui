@@ -297,6 +297,27 @@ void main() {
       expect(result!.rho, closeTo(1.0, 0.01));
     });
 
+    test('uses tie-corrected rank correlation', () {
+      final x = [1.0, 1.0, 2.0, 3.0];
+      final y = [1.0, 2.0, 2.0, 3.0];
+
+      final result = spearmanCorrelation(x, y);
+
+      expect(result, isNotNull);
+      expect(result!.rho, closeTo(5 / 6, 0.0001));
+    });
+
+    test('returns null when either ranked series has no variance', () {
+      expect(
+        spearmanCorrelation([1.0, 1.0, 1.0, 1.0], [1.0, 2.0, 3.0, 4.0]),
+        isNull,
+      );
+      expect(
+        spearmanCorrelation([1.0, 2.0, 3.0, 4.0], [2.0, 2.0, 2.0, 2.0]),
+        isNull,
+      );
+    });
+
     test('returns null for insufficient data', () {
       expect(spearmanCorrelation([1.0, 2.0], [1.0, 2.0]), isNull);
       expect(spearmanCorrelation([], []), isNull);

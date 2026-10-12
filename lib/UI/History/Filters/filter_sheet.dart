@@ -9,8 +9,9 @@ import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
 import 'package:stripes_ui/Util/Helpers/history_reducer.dart';
 
-final historyContextProvider =
-    FutureProvider.autoDispose<HistoryContext>((ref) async {
+final historyContextProvider = FutureProvider.autoDispose<HistoryContext>((
+  ref,
+) async {
   final List<Response> stamps = await ref.watch(inRangeProvider.future);
 
   final List<ReducibleFeature> features = [
@@ -22,14 +23,12 @@ final historyContextProvider =
     const TotalResponsesFeature(),
   ];
 
-  return HistoryContext.build(
-    responses: stamps,
-    features: features,
-  );
+  return HistoryContext.build(responses: stamps, features: features);
 });
 
-final setsProvider =
-    Provider.autoDispose<Map<FilterType, FilterContext>>((ref) {
+final setsProvider = Provider.autoDispose<Map<FilterType, FilterContext>>((
+  ref,
+) {
   final Map<FilterType, FilterContext> contexts = {};
 
   for (final type in FilterType.getValues()) {
@@ -39,11 +38,12 @@ final setsProvider =
   return contexts;
 });
 
-/// Provider that checks if any filter types have available data
-final hasAvailableFiltersProvider =
-    FutureProvider.autoDispose<bool>((ref) async {
-  final HistoryContext historyCtx =
-      await ref.watch(historyContextProvider.future);
+final hasAvailableFiltersProvider = FutureProvider.autoDispose<bool>((
+  ref,
+) async {
+  final HistoryContext historyCtx = await ref.watch(
+    historyContextProvider.future,
+  );
   final Map<FilterType, FilterContext> contexts = ref.watch(setsProvider);
 
   for (final type in FilterType.getValues()) {
@@ -158,8 +158,9 @@ class _FilterSheetState extends ConsumerState<FilterSheet> {
   @override
   Widget build(BuildContext context) {
     final Map<FilterType, FilterContext> contexts = ref.watch(setsProvider);
-    final AsyncValue<HistoryContext> historyCtx =
-        ref.watch(historyContextProvider);
+    final AsyncValue<HistoryContext> historyCtx = ref.watch(
+      historyContextProvider,
+    );
 
     return AsyncValueDefaults(
       value: historyCtx,
@@ -180,18 +181,20 @@ class _FilterSheetState extends ConsumerState<FilterSheet> {
           final bool isVisible =
               !type.isAdvanced() || initiallyActiveFilters.contains(type);
 
-          final Widget ui = Builder(builder: (context) {
-            return filterContext.buildUI(
-              context: context,
-              historyContext: hCtx,
-              state: filterState,
-              onStateChanged: (newState) {
-                setState(() {
-                  filterStates[type] = newState;
-                });
-              },
-            );
-          });
+          final Widget ui = Builder(
+            builder: (context) {
+              return filterContext.buildUI(
+                context: context,
+                historyContext: hCtx,
+                state: filterState,
+                onStateChanged: (newState) {
+                  setState(() {
+                    filterStates[type] = newState;
+                  });
+                },
+              );
+            },
+          );
 
           if (isVisible) {
             visibleFilters.add(ui);
@@ -203,51 +206,6 @@ class _FilterSheetState extends ConsumerState<FilterSheet> {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                  AppPadding.medium, AppPadding.small, AppPadding.medium, 0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Filter",
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                  Row(
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          setState(() {
-                            for (final entry in contexts.entries) {
-                              filterStates[entry.key] =
-                                  entry.value.createInitialState();
-                            }
-                          });
-                        },
-                        child: const Text("Reset"),
-                      ),
-                      const SizedBox(width: AppPadding.small),
-                      FilledButton(
-                        onPressed: () {
-                          apply(contexts);
-                        },
-                        child: const Text("Apply"),
-                      ),
-                    ],
-                  )
-                ],
-              ),
-            ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: AppPadding.medium),
-              child: Divider(
-                thickness: 1.0,
-                height: AppPadding.small,
-              ),
-            ),
             Flexible(
               child: SingleChildScrollView(
                 controller: widget.scrollController,
@@ -255,6 +213,15 @@ class _FilterSheetState extends ConsumerState<FilterSheet> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    Padding(
+                      padding: const EdgeInsets.all(AppPadding.medium),
+                      child: Text(
+                        "Filter",
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    const Divider(height: 1),
                     const SizedBox(height: AppPadding.medium),
                     ...visibleFilters.separated(by: const Divider()),
                     if (advancedFilters.isNotEmpty)
@@ -266,13 +233,48 @@ class _FilterSheetState extends ConsumerState<FilterSheet> {
                         initiallyExpanded: false,
                         childrenPadding: EdgeInsets.zero,
                         tilePadding: const EdgeInsets.symmetric(
-                            horizontal: AppPadding.medium),
+                          horizontal: AppPadding.medium,
+                        ),
                         expandedAlignment: Alignment.topLeft,
                         expandedCrossAxisAlignment: CrossAxisAlignment.start,
-                        children:
-                            advancedFilters.separated(by: const Divider()),
+                        children: advancedFilters.separated(
+                          by: const Divider(),
+                        ),
                       ),
                     const SizedBox(height: AppPadding.xl),
+                  ],
+                ),
+              ),
+            ),
+            const Divider(height: 1),
+            SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppPadding.medium,
+                  vertical: AppPadding.small,
+                ),
+                child: OverflowBar(
+                  alignment: MainAxisAlignment.end,
+                  spacing: AppPadding.small,
+                  overflowSpacing: AppPadding.small,
+                  overflowAlignment: OverflowBarAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          for (final entry in contexts.entries) {
+                            filterStates[entry.key] = entry.value
+                                .createInitialState();
+                          }
+                        });
+                      },
+                      child: const Text("Reset"),
+                    ),
+                    FilledButton(
+                      onPressed: () => apply(contexts),
+                      child: const Text("Apply"),
+                    ),
                   ],
                 ),
               ),
@@ -289,8 +291,9 @@ class _FilterSheetState extends ConsumerState<FilterSheet> {
     for (final type in FilterType.values) {
       final context = contexts[type];
       if (context != null) {
-        final List<LabeledFilter> filters =
-            context.createFilters(filterStates[type]!);
+        final List<LabeledFilter> filters = context.createFilters(
+          filterStates[type]!,
+        );
         allFilters.addAll(filters);
       }
     }
@@ -305,13 +308,15 @@ class CurrentFilters extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final List<LabeledFilter> filters =
-        ref.watch(displayDataProvider.select((value) => value.filters));
+    final List<LabeledFilter> filters = ref.watch(
+      displayDataProvider.select((value) => value.filters),
+    );
     if (filters.isEmpty) return const SizedBox.shrink();
 
     // Import localization for category types
-    final QuestionsLocalizations? localizations =
-        QuestionsLocalizations.of(context);
+    final QuestionsLocalizations? localizations = QuestionsLocalizations.of(
+      context,
+    );
 
     String getLocalizedName(LabeledFilter filter) {
       // Only localize category type filters, others use their name directly
@@ -327,29 +332,31 @@ class CurrentFilters extends ConsumerWidget {
         scrollDirection: Axis.horizontal,
         children: [
           const SizedBox(width: AppPadding.xl),
-          ...filters.map((filter) {
-            return FilterChip(
-              label: Text(getLocalizedName(filter)),
-              selected: true,
-              showCheckmark: false,
-              deleteIcon: const Icon(Icons.close),
-              visualDensity: VisualDensity.compact,
-              onSelected: (value) {
-                ref
-                    .read(displayDataProvider.notifier)
-                    .updateFilters(filters.where((f) => f != filter).toList());
-              },
-              onDeleted: () {
-                ref
-                    .read(displayDataProvider.notifier)
-                    .updateFilters(filters.where((f) => f != filter).toList());
-              },
-            );
-          }).separated(
-            by: const SizedBox(
-              width: AppPadding.tiny,
-            ),
-          ),
+          ...filters
+              .map((filter) {
+                return FilterChip(
+                  label: Text(getLocalizedName(filter)),
+                  selected: true,
+                  showCheckmark: false,
+                  deleteIcon: const Icon(Icons.close),
+                  visualDensity: VisualDensity.compact,
+                  onSelected: (value) {
+                    ref
+                        .read(displayDataProvider.notifier)
+                        .updateFilters(
+                          filters.where((f) => f != filter).toList(),
+                        );
+                  },
+                  onDeleted: () {
+                    ref
+                        .read(displayDataProvider.notifier)
+                        .updateFilters(
+                          filters.where((f) => f != filter).toList(),
+                        );
+                  },
+                );
+              })
+              .separated(by: const SizedBox(width: AppPadding.tiny)),
         ],
       ),
     );
@@ -361,8 +368,9 @@ class CurrentFilters extends ConsumerWidget {
   if (parts.length == 2) {
     final String rangePart = parts[0];
     final String id = parts[1];
-    final List<String> rangeParts =
-        rangePart.replaceAll("Range: ", "").split("-");
+    final List<String> rangeParts = rangePart
+        .replaceAll("Range: ", "")
+        .split("-");
 
     if (rangeParts.length == 2) {
       final double? min = double.tryParse(rangeParts[0]);

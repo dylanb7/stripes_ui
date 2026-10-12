@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:stripes_ui/UI/History/Insights/insight_base.dart';
+import 'package:stripes_ui/Util/Design/category_theme.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
 
@@ -281,68 +282,75 @@ class CommonPairingVisualization extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final localizations = QuestionsLocalizations.of(context);
-    final name1 = localizations?.value(insight.item1) ?? insight.item1;
-    final name2 = localizations?.value(insight.item2) ?? insight.item2;
+    final color1 = CategoryTheme.resolve(insight.item1).color;
+    final color2 = CategoryTheme.resolve(insight.item2).color;
 
-    final totalDays = insight.totalDays;
-    // Width ratio of the gradient bar to the total bar
-    final overlapRatio =
-        (totalDays > 0 ? insight.occurrences / totalDays : 1.0).clamp(0.0, 1.0);
+    if (insight.dailyPresence.isEmpty) return const SizedBox.shrink();
 
-    return SizedBox(
-      height: 56,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Full-width background bar with centered gradient overlay
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              // Background bar (full width, represents total days)
-              Container(
-                height: AppPadding.large,
-                width: double.infinity,
+    // Show most recent days, cap at 21
+    final days = insight.dailyPresence.length > 21
+        ? insight.dailyPresence
+            .sublist(insight.dailyPresence.length - 21)
+        : insight.dailyPresence;
+
+    // Derive counts from displayed days to stay in sync
+    final displayedOverlap = days.where((d) => d.hasBoth).length;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Row 1: item1 (color matches the first name in the description)
+        Row(
+          children: List.generate(days.length, (i) {
+            final day = days[i];
+            final present = day.hasItem1;
+            final overlap = day.hasBoth;
+            return Expanded(
+              child: Container(
+                height: 14,
+                margin: const EdgeInsets.symmetric(horizontal: 0.5),
                 decoration: BoxDecoration(
-                  color: colors.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(AppRounding.tiny),
+                  color: present
+                      ? (overlap
+                          ? color1
+                          : color1.withValues(alpha: 0.3))
+                      : colors.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              FractionallySizedBox(
-                widthFactor: overlapRatio,
-                child: Container(
-                  height: AppPadding.large,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [colors.primary, colors.secondary],
-                    ),
-                    borderRadius: BorderRadius.circular(AppRounding.tiny),
-                  ),
+            );
+          }),
+        ),
+        const SizedBox(height: 3),
+        // Row 2: item2 (color matches the second name in the description)
+        Row(
+          children: List.generate(days.length, (i) {
+            final day = days[i];
+            final present = day.hasItem2;
+            final overlap = day.hasBoth;
+            return Expanded(
+              child: Container(
+                height: 14,
+                margin: const EdgeInsets.symmetric(horizontal: 0.5),
+                decoration: BoxDecoration(
+                  color: present
+                      ? (overlap
+                          ? color2
+                          : color2.withValues(alpha: 0.3))
+                      : colors.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: AppPadding.small),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(name1,
-                  style: TextStyle(
-                      fontSize: 10,
-                      color: colors.primary,
-                      fontWeight: FontWeight.w500)),
-              Text('${insight.occurrences} of $totalDays days',
-                  style:
-                      TextStyle(fontSize: 10, color: colors.onSurfaceVariant)),
-              Text(name2,
-                  style: TextStyle(
-                      fontSize: 10,
-                      color: colors.secondary,
-                      fontWeight: FontWeight.w500)),
-            ],
-          ),
-        ],
-      ),
+            );
+          }),
+        ),
+        const SizedBox(height: AppPadding.small),
+        // Footer — derived from displayed days
+        Text(
+          'Together $displayedOverlap/${days.length} days',
+          style: TextStyle(fontSize: 9, color: colors.onSurfaceVariant),
+        ),
+      ],
     );
   }
 }
@@ -356,7 +364,10 @@ class SymptomLinkVisualization extends StatelessWidget {
   Widget build(BuildContext context) {
     if (insight.symptom1Values.length < 2) return const SizedBox.shrink();
 
-    final colors = Theme.of(context).colorScheme;
+    final color1 = CategoryTheme.resolve(
+        insight.category1 ?? insight.symptom1).color;
+    final color2 = CategoryTheme.resolve(
+        insight.category2 ?? insight.symptom2).color;
 
     return SizedBox(
       height: 48,
@@ -365,8 +376,8 @@ class SymptomLinkVisualization extends StatelessWidget {
         painter: CorrelationLinePainter(
           values1: insight.symptom1Values,
           values2: insight.symptom2Values,
-          color1: colors.primary,
-          color2: colors.secondary,
+          color1: color1,
+          color2: color2,
         ),
       ),
     );
@@ -466,6 +477,7 @@ class MostTrackedCategoryVisualization extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final catColor = CategoryTheme.resolve(insight.categoryName).color;
 
     return SizedBox(
       height: 24,
@@ -477,7 +489,7 @@ class MostTrackedCategoryVisualization extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: insight.percentage / 100,
                 backgroundColor: colors.surfaceContainerHighest,
-                valueColor: AlwaysStoppedAnimation(colors.primary),
+                valueColor: AlwaysStoppedAnimation(catColor),
                 minHeight: 12,
               ),
             ),
@@ -593,6 +605,8 @@ class TimeRelationVisualization extends StatelessWidget {
   Widget build(BuildContext context) {
     if (insight.points.isEmpty) return const SizedBox.shrink();
 
+    final colorA = CategoryTheme.resolve(insight.factorA).color;
+    final colorB = CategoryTheme.resolve(insight.factorB).color;
     final colors = Theme.of(context).colorScheme;
 
     return Column(
@@ -619,8 +633,8 @@ class TimeRelationVisualization extends StatelessWidget {
                   size: const Size(double.infinity, 100),
                   painter: TemporalShiftPainter(
                     points: insight.points,
-                    colorA: colors.primary,
-                    colorB: colors.secondary,
+                    colorA: colorA,
+                    colorB: colorB,
                     onSurfaceColor: colors.outline,
                   ),
                 ),
@@ -972,5 +986,459 @@ class TemporalShiftPainter extends CustomPainter {
     return oldDelegate.points != points ||
         oldDelegate.colorA != colorA ||
         oldDelegate.colorB != colorB;
+  }
+}
+
+// =============================================================================
+// New Insight Visualizations
+// =============================================================================
+
+class DominantChoiceVisualization extends StatelessWidget {
+  final DominantChoiceInsight insight;
+
+  const DominantChoiceVisualization({super.key, required this.insight});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final localizations = QuestionsLocalizations.of(context);
+
+    // Sorted distribution entries, limit to 5 with "Other" bucket
+    final entries = insight.distribution.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    List<MapEntry<String, int>> displayEntries;
+    if (entries.length > 5) {
+      displayEntries = entries.take(4).toList();
+      final otherCount = entries.skip(4).fold(0, (sum, e) => sum + e.value);
+      displayEntries.add(MapEntry('Other', otherCount));
+    } else {
+      displayEntries = entries;
+    }
+
+    final maxCount = displayEntries.first.value;
+
+    return Column(
+      children: displayEntries.asMap().entries.map((indexed) {
+        final i = indexed.key;
+        final entry = indexed.value;
+        final isDominant = i == 0;
+        final pct =
+            (entry.value / insight.totalForQuestion * 100).round();
+        final widthFactor = maxCount > 0 ? entry.value / maxCount : 0.0;
+        final choiceName = entry.key == 'Other'
+            ? 'Other'
+            : (localizations?.value(entry.key) ?? entry.key);
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 1.5),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 64,
+                child: Text(
+                  choiceName,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight:
+                        isDominant ? FontWeight.bold : FontWeight.normal,
+                    color: isDominant
+                        ? colors.primary
+                        : colors.onSurfaceVariant,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: AppPadding.tiny),
+              Expanded(
+                child: FractionallySizedBox(
+                  alignment: Alignment.centerLeft,
+                  widthFactor: widthFactor,
+                  child: Container(
+                    height: isDominant ? 10 : 6,
+                    decoration: BoxDecoration(
+                      color: isDominant
+                          ? colors.primary
+                          : colors.onSurfaceVariant
+                              .withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppPadding.tiny),
+              SizedBox(
+                width: 32,
+                child: Text(
+                  '$pct%',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight:
+                        isDominant ? FontWeight.bold : FontWeight.normal,
+                    color: isDominant
+                        ? colors.primary
+                        : colors.onSurfaceVariant,
+                  ),
+                  textAlign: TextAlign.end,
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+class BurstDetectionVisualization extends StatelessWidget {
+  final BurstDetectionInsight insight;
+
+  const BurstDetectionVisualization({super.key, required this.insight});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    final List<Widget> strips = [];
+
+    // Show top 2 cluster days
+    for (int i = 0; i < insight.clusterDays.length && i < 2; i++) {
+      final day = insight.clusterDays[i];
+      strips.add(_buildStrip(
+        context,
+        label: DateFormat.MMMd().format(day.date),
+        timestamps: day.hourTimestamps,
+        clusterStart: day.clusterStartHour,
+        clusterEnd: day.clusterEndHour,
+        isCluster: true,
+      ));
+      if (i < 1 && insight.clusterDays.length > 1) {
+        strips.add(const SizedBox(height: 4));
+      }
+    }
+
+    // Show typical day for contrast
+    if (insight.typicalDayTimestamps != null) {
+      strips.add(const SizedBox(height: 4));
+      strips.add(_buildStrip(
+        context,
+        label: 'Typical',
+        timestamps: insight.typicalDayTimestamps!,
+        isCluster: false,
+      ));
+    }
+
+    return Column(
+      children: [
+        ...strips,
+        const SizedBox(height: AppPadding.tiny),
+        Row(
+          children: [
+            const SizedBox(width: 48),
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('12am',
+                      style: TextStyle(
+                          fontSize: 9, color: colors.onSurfaceVariant)),
+                  Text('12pm',
+                      style: TextStyle(
+                          fontSize: 9, color: colors.onSurfaceVariant)),
+                  Text('12am',
+                      style: TextStyle(
+                          fontSize: 9, color: colors.onSurfaceVariant)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStrip(
+    BuildContext context, {
+    required String label,
+    required List<double> timestamps,
+    double? clusterStart,
+    double? clusterEnd,
+    required bool isCluster,
+  }) {
+    final colors = Theme.of(context).colorScheme;
+
+    return SizedBox(
+      height: 20,
+      child: Row(
+        children: [
+          SizedBox(
+            width: 44,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 9,
+                fontWeight: isCluster ? FontWeight.bold : FontWeight.normal,
+                color: isCluster ? colors.primary : colors.onSurfaceVariant,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(width: AppPadding.tiny),
+          Expanded(
+            child: CustomPaint(
+              size: const Size(double.infinity, 20),
+              painter: StripPlotPainter(
+                timestamps: timestamps,
+                clusterStart: clusterStart,
+                clusterEnd: clusterEnd,
+                isCluster: isCluster,
+                dotColor: isCluster ? colors.primary : colors.onSurfaceVariant,
+                highlightColor: colors.primaryContainer,
+                trackColor:
+                    colors.onSurfaceVariant.withValues(alpha: 0.1),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class StripPlotPainter extends CustomPainter {
+  final List<double> timestamps;
+  final double? clusterStart;
+  final double? clusterEnd;
+  final bool isCluster;
+  final Color dotColor;
+  final Color highlightColor;
+  final Color trackColor;
+
+  StripPlotPainter({
+    required this.timestamps,
+    this.clusterStart,
+    this.clusterEnd,
+    required this.isCluster,
+    required this.dotColor,
+    required this.highlightColor,
+    required this.trackColor,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final centerY = size.height / 2;
+
+    // Draw track line
+    final trackPaint = Paint()
+      ..color = trackColor
+      ..strokeWidth = 2
+      ..strokeCap = StrokeCap.round;
+    canvas.drawLine(
+        Offset(0, centerY), Offset(size.width, centerY), trackPaint);
+
+    // Draw cluster highlight band
+    if (isCluster && clusterStart != null && clusterEnd != null) {
+      final startX = (clusterStart! / 24.0) * size.width;
+      final endX = (clusterEnd! / 24.0) * size.width;
+      final bandPaint = Paint()
+        ..color = highlightColor.withValues(alpha: 0.4)
+        ..style = PaintingStyle.fill;
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTRB(
+              startX - 6, 0, endX + 6, size.height),
+          const Radius.circular(4),
+        ),
+        bandPaint,
+      );
+    }
+
+    // Draw dots at timestamp positions
+    final dotPaint = Paint()
+      ..color = dotColor
+      ..style = PaintingStyle.fill;
+    final greyDotPaint = Paint()
+      ..color = dotColor.withValues(alpha: 0.3)
+      ..style = PaintingStyle.fill;
+
+    for (final hour in timestamps) {
+      final x = (hour / 24.0) * size.width;
+      final isInCluster = isCluster &&
+          clusterStart != null &&
+          clusterEnd != null &&
+          hour >= clusterStart! &&
+          hour <= clusterEnd!;
+      canvas.drawCircle(
+        Offset(x, centerY),
+        isInCluster ? 4.0 : 3.0,
+        isInCluster ? dotPaint : (isCluster ? greyDotPaint : dotPaint),
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant StripPlotPainter oldDelegate) {
+    return oldDelegate.timestamps != timestamps ||
+        oldDelegate.clusterStart != clusterStart ||
+        oldDelegate.dotColor != dotColor;
+  }
+}
+
+class RecordingConsistencyVisualization extends StatelessWidget {
+  final RecordingConsistencyInsight insight;
+
+  const RecordingConsistencyVisualization(
+      {super.key, required this.insight});
+
+  @override
+  Widget build(BuildContext context) {
+    final presence = insight.dailyPresence;
+
+    // Use multi-row grid if > 21 days, single strip otherwise
+    if (presence.length > 21) {
+      return _buildGrid(context);
+    }
+    return _buildStrip(context);
+  }
+
+  Widget _buildStrip(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final presence = insight.dailyPresence;
+
+    return Column(
+      children: [
+        Row(
+          children: List.generate(presence.length, (i) {
+            final present = presence[i];
+            final isInStreak =
+                i >= presence.length - insight.currentStreak;
+
+            return Expanded(
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 1),
+                height: 12,
+                decoration: BoxDecoration(
+                  color: present
+                      ? (isInStreak
+                          ? colors.primary
+                          : colors.primary
+                              .withValues(alpha: 0.4))
+                      : colors.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            );
+          }),
+        ),
+        const SizedBox(height: AppPadding.tiny),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              '${insight.daysRecorded}/${insight.totalDays} days',
+              style: TextStyle(
+                  fontSize: 9, color: colors.onSurfaceVariant),
+            ),
+            if (insight.currentStreak > 0)
+              Text(
+                'streak: ${insight.currentStreak}',
+                style: TextStyle(
+                  fontSize: 9,
+                  fontWeight: FontWeight.bold,
+                  color: colors.primary,
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGrid(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final presence = insight.dailyPresence;
+
+    // Pad to complete weeks (multiple of 7)
+    final int paddedLength = ((presence.length + 6) ~/ 7) * 7;
+    final int padCount = paddedLength - presence.length;
+    final paddedPresence = [
+      ...List.filled(padCount, false),
+      ...presence,
+    ];
+    final int weeks = paddedPresence.length ~/ 7;
+
+    return Column(
+      children: [
+        // Day headers
+        Row(
+          children: ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+              .map((d) => Expanded(
+                    child: Center(
+                      child: Text(d,
+                          style: TextStyle(
+                              fontSize: 9,
+                              color: colors.onSurfaceVariant)),
+                    ),
+                  ))
+              .toList(),
+        ),
+        const SizedBox(height: 2),
+        // Week rows
+        ...List.generate(weeks, (week) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 1),
+            child: Row(
+              children: List.generate(7, (day) {
+                final idx = week * 7 + day;
+                final isPadding = idx < padCount;
+                final present = paddedPresence[idx];
+                final originalIdx = idx - padCount;
+                final isInStreak = !isPadding &&
+                    originalIdx >=
+                        presence.length - insight.currentStreak;
+
+                return Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 1),
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: isPadding
+                          ? Colors.transparent
+                          : present
+                              ? (isInStreak
+                                  ? colors.primary
+                                  : colors.primary
+                                      .withValues(alpha: 0.4))
+                              : colors.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                );
+              }),
+            ),
+          );
+        }),
+        const SizedBox(height: AppPadding.tiny),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              '${insight.daysRecorded}/${insight.totalDays} days',
+              style: TextStyle(
+                  fontSize: 9, color: colors.onSurfaceVariant),
+            ),
+            if (insight.currentStreak > 0)
+              Text(
+                'streak: ${insight.currentStreak}',
+                style: TextStyle(
+                  fontSize: 9,
+                  fontWeight: FontWeight.bold,
+                  color: colors.primary,
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
   }
 }

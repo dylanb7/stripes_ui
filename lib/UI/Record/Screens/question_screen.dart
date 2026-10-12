@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/baseline_id.dart';
-import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_resolver.dart';
 import 'package:stripes_ui/Providers/Questions/baseline_version_provider.dart';
-import 'package:stripes_ui/Providers/Questions/questions_provider.dart';
+import 'package:stripes_ui/Providers/Questions/question_ui_registry.dart';
+import 'package:stripes_ui/Providers/base_providers.dart';
+import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/base.dart';
+import 'package:stripes_ui/Util/Design/category_theme.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
@@ -15,34 +17,53 @@ class QuestionScreen extends StatelessWidget {
 
   final String header;
 
-  final QuestionsListener questionsListener;
+  final SessionGraph questionsListener;
 
   final DetailResponse? baseline;
+  final bool compact;
 
   const QuestionScreen({
     required this.header,
     required this.questions,
     required this.questionsListener,
     this.baseline,
+    this.compact = false,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
+    final headerDuplicatesPrompt =
+        compact &&
+        questions.any(
+          (question) =>
+              (QuestionsLocalizations.of(context)
+                          ?.translateQuestion(question) ??
+                      question)
+                  .prompt
+                  .trim() ==
+              header.trim(),
+        );
     return Column(
+      crossAxisAlignment: compact
+          ? CrossAxisAlignment.stretch
+          : CrossAxisAlignment.center,
       children: [
-        if (header.isNotEmpty) ...[
+        if (header.isNotEmpty && !headerDuplicatesPrompt) ...[
           const SizedBox(height: AppPadding.small),
           Text(
             header,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontWeight: FontWeight.bold,
-                ),
-            textAlign: TextAlign.center,
+              color: compact
+                  ? Theme.of(context).colorScheme.onSurface
+                  : Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: compact ? TextAlign.start : TextAlign.center,
           ),
           const SizedBox(height: AppPadding.small),
         ],
+        if (baseline != null) _BaselineReferencePanel(baseline: baseline!),
         RenderQuestions(
           questions: questions,
           questionsListener: questionsListener,
@@ -54,10 +75,158 @@ class QuestionScreen extends StatelessWidget {
   }
 }
 
+/// A collapsible panel that shows the user's baseline answers for reference
+/// while filling out an interim check-in. This gives context to questions like
+/// "Has your child's seizure control changed?" by showing what was originally
+/// reported.
+class _BaselineReferencePanel extends StatefulWidget {
+  final DetailResponse baseline;
+
+  const _BaselineReferencePanel({required this.baseline});
+
+  @override
+  State<_BaselineReferencePanel> createState() =>
+      _BaselineReferencePanelState();
+}
+
+class _BaselineReferencePanelState extends State<_BaselineReferencePanel>
+    with SingleTickerProviderStateMixin {
+  bool _expanded = false;
+  late final AnimationController _controller;
+  late final Animation<double> _expandAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 250),
+      vsync: this,
+    );
+    _expandAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _toggle() {
+    setState(() {
+      _expanded = !_expanded;
+      if (_expanded) {
+        _controller.forward();
+      } else {
+        _controller.reverse();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final baselineColor = CategoryTheme.resolve(widget.baseline.type).color;
+
+    return Padding(
+      padding: const EdgeInsets.only(
+        left: AppPadding.small,
+        right: AppPadding.small,
+        bottom: AppPadding.medium,
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: baselineColor.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(AppRounding.small),
+          border: Border.all(color: baselineColor.withValues(alpha: 0.2)),
+        ),
+        child: Column(
+          children: [
+            // Tap header
+            InkWell(
+              onTap: _toggle,
+              borderRadius: BorderRadius.circular(AppRounding.small),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppPadding.medium,
+                  vertical: AppPadding.small,
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.assignment_outlined,
+                      size: 18,
+                      color: baselineColor,
+                    ),
+                    const SizedBox(width: AppPadding.small),
+                    Expanded(
+                      child: Text(
+                        'Your Baseline',
+                        style: textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: baselineColor,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      _expanded ? 'Hide' : 'Show',
+                      style: textTheme.labelSmall?.copyWith(
+                        color: colors.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    AnimatedRotation(
+                      turns: _expanded ? 0.5 : 0,
+                      duration: const Duration(milliseconds: 250),
+                      child: Icon(
+                        Icons.keyboard_arrow_down,
+                        size: 20,
+                        color: colors.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // Expandable content
+            SizeTransition(
+              sizeFactor: _expandAnimation,
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  left: AppPadding.medium,
+                  right: AppPadding.medium,
+                  bottom: AppPadding.medium,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Divider(
+                      height: 1,
+                      color: baselineColor.withValues(alpha: 0.15),
+                    ),
+                    const SizedBox(height: AppPadding.small),
+                    DetailDisplay(
+                      detail: widget.baseline,
+                      accentColor: baselineColor,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class RenderQuestions extends ConsumerWidget {
   final List<Question> questions;
 
-  final QuestionsListener questionsListener;
+  final SessionGraph questionsListener;
 
   final DetailResponse? baseline;
 
@@ -70,75 +239,76 @@ class RenderQuestions extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<QuestionRepo?> questionRepo = ref.watch(questionsProvider);
-    final Map<String, QuestionEntry> questionEntries =
-        questionRepo.mapOrNull(data: (data) => data.value?.entryOverrides) ??
-            {};
+    final QuestionUIRegistry registry = ref.watch(questionUIRegistryProvider);
+    final QuestionsLocalizations? localizations = QuestionsLocalizations.of(
+      context,
+    );
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: questions.map((question) {
+        final Question displayQuestion =
+            localizations?.translateQuestion(question) ?? question;
         return _buildRecursive(
-            context, question, questionsListener, questionEntries);
+          context,
+          displayQuestion,
+          questionsListener,
+          registry,
+        );
       }).toList(),
     );
   }
 
-  Widget _buildRecursive(BuildContext context, Question question,
-      QuestionsListener listener, Map<String, QuestionEntry> questionEntries) {
+  Widget _buildRecursive(
+    BuildContext context,
+    Question question,
+    SessionGraph listener,
+    QuestionUIRegistry registry,
+  ) {
     return QuestionResolverWrapper(
       question: question,
       questionsListener: listener,
       baseline: baseline,
       builder: (resolved) {
         if (resolved.id == question.id) {
-          return _buildEntry(context, resolved, listener, questionEntries);
+          return _buildEntry(context, resolved, listener, registry);
         }
-        return _buildRecursive(context, resolved, listener, questionEntries);
+        return _buildRecursive(context, resolved, listener, registry);
       },
     );
   }
 
-  Widget _buildEntry(BuildContext context, Question question,
-      QuestionsListener listener, Map<String, QuestionEntry> questionEntries) {
-    final EntryBuilder? override = questionEntries[question.id]?.entryBuilder;
+  Widget _buildEntry(
+    BuildContext context,
+    Question question,
+    SessionGraph listener,
+    QuestionUIRegistry registry,
+  ) {
+    final EntryBuilder? override = registry
+        .entryForQuestion(question)
+        ?.entryBuilder;
     if (override != null) {
       return override(listener, context, question);
     }
     switch (question) {
       case FreeResponse():
-        return FreeResponseEntry(
-          question: question,
-          listener: listener,
-        );
+        return FreeResponseEntry(question: question, listener: listener);
       case Numeric():
-        return SeverityWidget(
-          question: question,
-          questionsListener: listener,
-        );
+        return SeverityWidget(question: question, questionsListener: listener);
       case Check():
-        return CheckBoxWidget(
-          check: question,
-          listener: listener,
-        );
+        return CheckBoxWidget(check: question, listener: listener);
       case MultipleChoice():
-        return MultiChoiceEntry(
-          question: question,
-          listener: listener,
-        );
+        return MultiChoiceEntry(question: question, listener: listener);
       case AllThatApply():
-        return AllThatApplyEntry(
-          question: question,
-          listener: listener,
-        );
+        return AllThatApplyEntry(question: question, listener: listener);
     }
   }
 }
 
 class QuestionResolverWrapper extends ConsumerWidget {
   final Question question;
-  final QuestionsListener questionsListener;
+  final SessionGraph questionsListener;
   final Widget Function(Question) builder;
   final DetailResponse? baseline;
 
@@ -190,7 +360,7 @@ class QuestionResolverWrapper extends ConsumerWidget {
 
     return baselineResponse.when(
       data: (latest) => _resolveAndBuild(latest, localizations),
-      error: (_, __) => builder(question),
+      error: (_, _) => builder(question),
       loading: () => builder(question),
     );
   }
@@ -223,8 +393,10 @@ class QuestionResolverWrapper extends ConsumerWidget {
     return ListenableBuilder(
       listenable: questionsListener,
       builder: (context, _) {
-        final List<Response> currentResponses =
-            questionsListener.questions.values.toList();
+        final List<Response> currentResponses = questionsListener
+            .responses
+            .values
+            .toList();
 
         // Always show the original question first
         final Widget originalQuestion = builder(question);
@@ -240,13 +412,12 @@ class QuestionResolverWrapper extends ConsumerWidget {
         );
 
         final List<Question> resolvedQuestions = question
-            .resolve(
-              current: sessionWrapper,
-            )
+            .resolve(current: sessionWrapper)
             .map((q) => localizations?.translateQuestion(q) ?? q)
             .toList();
 
-        final bool noGeneration = resolvedQuestions.length == 1 &&
+        final bool noGeneration =
+            resolvedQuestions.length == 1 &&
             resolvedQuestions.first.id == question.id;
 
         if (noGeneration) {
@@ -383,9 +554,9 @@ class _GeneratedQuestionsGroupState extends State<_GeneratedQuestionsGroup>
           child: Text(
             '$totalCount questions based on your selections',
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: colorScheme.secondary,
-                  fontStyle: FontStyle.italic,
-                ),
+              color: colorScheme.secondary,
+              fontStyle: FontStyle.italic,
+            ),
             textAlign: TextAlign.center,
           ),
         ),

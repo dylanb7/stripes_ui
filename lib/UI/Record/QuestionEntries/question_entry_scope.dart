@@ -1,30 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:stripes_backend_helper/QuestionModel/question.dart';
-import 'package:stripes_backend_helper/QuestionModel/response.dart';
-import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
-import 'package:stripes_backend_helper/date_format.dart';
+import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
 
 class QuestionEntryController extends ChangeNotifier {
   final Question question;
-  final QuestionsListener listener;
+  final SessionGraph listener;
 
   bool _isHighlighted = false;
   bool _disposed = false;
 
-  QuestionEntryController({
-    required this.question,
-    required this.listener,
-  }) {
+  QuestionEntryController({required this.question, required this.listener}) {
     listener.addListener(_onListenerChanged);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_disposed && !hasResponse) {
-        // Initialize pending state
-        listener.setResponse(question,
-            response: listener.fromQuestion(question));
-      }
-    });
   }
 
   void _onListenerChanged() {
@@ -35,7 +21,10 @@ class QuestionEntryController extends ChangeNotifier {
 
   bool get hasResponse => listener.fromQuestion(question) != null;
 
-  bool get isPending => listener.pending.contains(question);
+  bool get isPending {
+    final state = listener.questionStateOf(question.id)?.value;
+    return state != null ? !state.valid : !listener.isQuestionValid(question);
+  }
 
   bool get hasError => isPending && listener.tried;
 
@@ -48,7 +37,7 @@ class QuestionEntryController extends ChangeNotifier {
   }
 
   void removeResponse() {
-    listener.setResponse(question, response: null);
+    listener.removeResponse(question);
   }
 
   void toggleResponse(Response Function() createResponse) {
@@ -59,8 +48,9 @@ class QuestionEntryController extends ChangeNotifier {
     }
   }
 
-  Future<void> highlight(
-      {Duration duration = const Duration(milliseconds: 600)}) async {
+  Future<void> highlight({
+    Duration duration = const Duration(milliseconds: 600),
+  }) async {
     if (_disposed) return;
     _isHighlighted = true;
     notifyListeners();
@@ -83,7 +73,7 @@ class QuestionEntryController extends ChangeNotifier {
 
 class QuestionEntryScope extends StatefulWidget {
   final Question question;
-  final QuestionsListener listener;
+  final SessionGraph listener;
   final Widget child;
 
   const QuestionEntryScope({
@@ -125,7 +115,6 @@ class _QuestionEntryScopeState extends State<QuestionEntryScope> {
   @override
   void didUpdateWidget(QuestionEntryScope oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // If question or listener changes, recreate controller
     if (oldWidget.question != widget.question ||
         oldWidget.listener != widget.listener) {
       _controller.dispose();
@@ -203,23 +192,26 @@ class _QuestionEntryCardState extends State<QuestionEntryCard> {
             backgroundColor = Theme.of(context).cardColor;
           } else if (hasError) {
             border = BorderSide(width: 3.0, color: colors.error);
-            // Subtle error background tint
             backgroundColor = colors.errorContainer.withValues(alpha: 0.3);
           } else {
-            border =
-                BorderSide(width: 3.0, color: Theme.of(context).dividerColor);
+            border = BorderSide(
+              width: 3.0,
+              color: Theme.of(context).dividerColor,
+            );
             backgroundColor = Theme.of(context).cardColor;
           }
 
           content = Padding(
-            padding: widget.margin ??
+            padding:
+                widget.margin ??
                 const EdgeInsets.symmetric(vertical: AppPadding.tiny),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 150),
               decoration: BoxDecoration(
                 color: backgroundColor,
-                borderRadius:
-                    const BorderRadius.all(Radius.circular(AppRounding.medium)),
+                borderRadius: const BorderRadius.all(
+                  Radius.circular(AppRounding.medium),
+                ),
                 border: Border.fromBorderSide(border),
                 boxShadow: isHighlighted
                     ? [
@@ -227,7 +219,7 @@ class _QuestionEntryCardState extends State<QuestionEntryCard> {
                           color: colors.primary.withValues(alpha: 0.3),
                           blurRadius: 8,
                           spreadRadius: 1,
-                        )
+                        ),
                       ]
                     : null,
               ),

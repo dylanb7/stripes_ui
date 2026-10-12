@@ -155,7 +155,9 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
                     icon: Icons.description_outlined,
                     filename: 'responses.csv',
                     description: l10n.csvEntriesWithRows(
-                        csvStats.detailCount, csvStats.totalDetailRows),
+                      csvStats.detailCount,
+                      csvStats.totalDetailRows,
+                    ),
                     columns: const [
                       'id',
                       'date',
@@ -163,7 +165,7 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
                       'type',
                       'prompt',
                       'response',
-                      'description'
+                      'description',
                     ],
                   ),
 
@@ -172,8 +174,9 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
                   _FileInfoTile(
                     icon: Icons.science_outlined,
                     filename: 'transit_responses.csv',
-                    description:
-                        l10n.csvBlueDyeTestResults(csvStats.blueDyeCount),
+                    description: l10n.csvBlueDyeTestResults(
+                      csvStats.blueDyeCount,
+                    ),
                     columns: const [
                       'ID',
                       'Transit Start',
@@ -181,7 +184,7 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
                       'Lag Phase',
                       'BM Date',
                       'Is Blue',
-                      '...'
+                      '...',
                     ],
                   ),
                 ],
@@ -207,7 +210,8 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
               color: colors.surface,
               border: Border(
                 top: BorderSide(
-                    color: colors.outlineVariant.withValues(alpha: 0.3)),
+                  color: colors.outlineVariant.withValues(alpha: 0.3),
+                ),
               ),
             ),
             child: SafeArea(
@@ -222,7 +226,8 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
                       )
                     : const Icon(Icons.ios_share),
                 label: Text(
-                    _isExporting ? l10n.csvExporting : l10n.csvExportButton),
+                  _isExporting ? l10n.csvExporting : l10n.csvExportButton,
+                ),
                 style: FilledButton.styleFrom(
                   minimumSize: const Size.fromHeight(50),
                 ),
@@ -239,8 +244,10 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
     final textTheme = Theme.of(context).textTheme;
 
     // Get first few detail responses for preview
-    final detailResponses =
-        widget.responses.whereType<DetailResponse>().take(3).toList();
+    final detailResponses = widget.responses
+        .whereType<DetailResponse>()
+        .take(3)
+        .toList();
 
     if (detailResponses.isEmpty) {
       return Container(
@@ -251,9 +258,7 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
         ),
         child: Text(
           l10n.csvNoDetailEntries,
-          style: textTheme.bodySmall?.copyWith(
-            color: colors.onSurfaceVariant,
-          ),
+          style: textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
         ),
       );
     }
@@ -310,58 +315,68 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
             ),
           ),
           // Data rows
-          ...detailResponses.expand((detail) {
-            final questionsL10n = QuestionsLocalizations.of(context);
-            final date = dateFromStamp(detail.stamp);
-            final dateStr = '${date.month}/${date.day}/${date.year}';
-            return detail.responses.take(2).map((r) => Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppPadding.medium,
-                    vertical: AppPadding.small,
-                  ),
-                  decoration: BoxDecoration(
-                    border: Border(
-                      top: BorderSide(
-                        color: colors.outlineVariant.withValues(alpha: 0.3),
-                      ),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: Text(
-                          dateStr,
-                          style: textTheme.bodySmall,
+          ...detailResponses
+              .expand((detail) {
+                final questionsL10n = QuestionsLocalizations.of(context);
+                final date = dateFromStamp(detail.stamp);
+                final dateStr = '${date.month}/${date.day}/${date.year}';
+                return detail.responses
+                    .take(2)
+                    .map(
+                      (r) => Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppPadding.medium,
+                          vertical: AppPadding.small,
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border(
+                            top: BorderSide(
+                              color: colors.outlineVariant.withValues(
+                                alpha: 0.3,
+                              ),
+                            ),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: Text(dateStr, style: textTheme.bodySmall),
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: Text(
+                                questionsL10n?.value(r.type) ?? r.type,
+                                style: textTheme.bodySmall,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            Expanded(
+                              flex: 3,
+                              child: Text(
+                                _formatResponse(r, questionsL10n),
+                                style: textTheme.bodySmall,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      Expanded(
-                        flex: 2,
-                        child: Text(
-                          questionsL10n?.value(r.type) ?? r.type,
-                          style: textTheme.bodySmall,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: Text(
-                          _formatResponse(r, questionsL10n),
-                          style: textTheme.bodySmall,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ));
-          }).take(5),
+                    );
+              })
+              .take(5),
         ],
       ),
     );
   }
 
-  String _formatResponse(Response response,
-      [QuestionsLocalizations? questionsL10n]) {
+  String _formatResponse(
+    Response response, [
+    QuestionsLocalizations? questionsL10n,
+  ]) {
+    if (response is UnresolvedResponse) {
+      return 'Unresolved: ${response.raw}';
+    }
     String localize(String key) => questionsL10n?.value(key) ?? key;
 
     if (response is NumericResponse) {
@@ -383,8 +398,9 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
   }
 
   _CsvStats _calculateStats() {
-    final detailResponses =
-        widget.responses.whereType<DetailResponse>().toList();
+    final detailResponses = widget.responses
+        .whereType<DetailResponse>()
+        .toList();
     final blueDyeResponses = widget.responses.whereType<BlueDyeResp>().toList();
 
     int totalDetailRows = 0;
@@ -406,19 +422,23 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
     setState(() => _isExporting = true);
 
     try {
-      final detailResponses =
-          widget.responses.whereType<DetailResponse>().toList();
+      final detailResponses = widget.responses
+          .whereType<DetailResponse>()
+          .toList();
       String? detailCsv;
       if (detailResponses.isNotEmpty) {
         detailCsv = _generateDetailCsv(detailResponses, questionsL10n);
       }
 
-      final blueDyeResponses =
-          widget.responses.whereType<BlueDyeResp>().toList();
+      final blueDyeResponses = widget.responses
+          .whereType<BlueDyeResp>()
+          .toList();
       String? blueDyeCsv;
       if (blueDyeResponses.isNotEmpty) {
-        blueDyeCsv =
-            _generateBlueDyeCsv(blueDyeResponses, questionsL10n: questionsL10n);
+        blueDyeCsv = _generateBlueDyeCsv(
+          blueDyeResponses,
+          questionsL10n: questionsL10n,
+        );
       }
 
       if (kIsWeb) {
@@ -428,7 +448,10 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
         if (blueDyeCsv != null) {
           await Future.delayed(const Duration(milliseconds: 500));
           web_download.downloadFile(
-              blueDyeCsv, 'transit_responses.csv', 'text/csv');
+            blueDyeCsv,
+            'transit_responses.csv',
+            'text/csv',
+          );
         }
       } else {
         // Native: Use share dialog
@@ -450,8 +473,9 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
         if (files.isNotEmpty && context.mounted) {
           // Get share position for iPad
           final RenderBox? box = context.findRenderObject() as RenderBox?;
-          final Rect? sharePositionOrigin =
-              box != null ? box.localToGlobal(Offset.zero) & box.size : null;
+          final Rect? sharePositionOrigin = box != null
+              ? box.localToGlobal(Offset.zero) & box.size
+              : null;
 
           await Share.shareXFiles(
             files,
@@ -481,7 +505,9 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
   }
 
   String _generateDetailCsv(
-      List<DetailResponse> responses, QuestionsLocalizations? questionsL10n) {
+    List<DetailResponse> responses,
+    QuestionsLocalizations? questionsL10n,
+  ) {
     const headers = [
       'id',
       'date',
@@ -489,7 +515,7 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
       'category',
       'prompt',
       'response',
-      'description'
+      'description',
     ];
     final rows = <List<dynamic>>[headers];
 
@@ -497,7 +523,7 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
 
     for (final detail in responses) {
       final date = dateFromStamp(detail.stamp);
-      final dateStr = date.toIso8601String();
+      final dateStr = date.toUtc().toIso8601String();
       for (final r in detail.responses) {
         rows.add([
           detail.id ?? '',
@@ -514,8 +540,10 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
     return const ListToCsvConverter().convert(rows);
   }
 
-  String _generateBlueDyeCsv(List<BlueDyeResp> responses,
-      {QuestionsLocalizations? questionsL10n}) {
+  String _generateBlueDyeCsv(
+    List<BlueDyeResp> responses, {
+    QuestionsLocalizations? questionsL10n,
+  }) {
     const headers = [
       'ID',
       'Amount Consumed',
@@ -529,7 +557,7 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
       'Description',
       'Is Blue',
       'Prompt',
-      'Response'
+      'Response',
     ];
     final rows = <List<dynamic>>[headers];
 
@@ -553,28 +581,32 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
           String prompt = localize(logResponse.question.prompt);
           String responseValue = '';
 
-          if (logResponse is NumericResponse) {
+          if (logResponse is UnresolvedResponse) {
+            responseValue = 'Unresolved: ${logResponse.raw}';
+          } else if (logResponse is NumericResponse) {
             responseValue = '${logResponse.response}';
           } else if (logResponse is OpenResponse) {
             responseValue = logResponse.response;
           } else if (logResponse is MultiResponse &&
               logResponse.index < logResponse.question.choices.length) {
-            responseValue =
-                localize(logResponse.question.choices[logResponse.index]);
+            responseValue = localize(
+              logResponse.question.choices[logResponse.index],
+            );
           } else if (logResponse is AllResponse) {
-            responseValue =
-                logResponse.choices.map((c) => localize(c)).join(', ');
+            responseValue = logResponse.choices
+                .map((c) => localize(c))
+                .join(', ');
           }
 
           rows.add([
             resp.id ?? '',
             resp.amountConsumed.name,
-            resp.startEating.toIso8601String(),
+            resp.startEating.toUtc().toIso8601String(),
             resp.eatingDuration.inMinutes,
-            finishedEatingTime.toIso8601String(),
+            finishedEatingTime.toUtc().toIso8601String(),
             transitDuration.inMinutes,
             lagPhase.inMinutes,
-            bmDate.toIso8601String(),
+            bmDate.toUtc().toIso8601String(),
             log.id ?? '',
             log.response.description ?? '',
             log.isBlue ? 'true' : 'false',
@@ -612,9 +644,8 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       title,
-      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+      style: Theme.of(context).textTheme.titleMedium
+          ?.copyWith(fontWeight: FontWeight.bold),
     );
   }
 }
@@ -648,16 +679,13 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: AppPadding.tiny),
           Text(
             value,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
+            style: Theme.of(context).textTheme.headlineSmall
+                ?.copyWith(fontWeight: FontWeight.bold, color: color),
           ),
           Text(
             label,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: colors.onSurfaceVariant,
-                ),
+            style: Theme.of(context).textTheme.bodySmall
+                ?.copyWith(color: colors.onSurfaceVariant),
             textAlign: TextAlign.center,
           ),
         ],
@@ -689,9 +717,7 @@ class _FileInfoTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.surfaceContainerLow,
         borderRadius: BorderRadius.circular(AppRounding.small),
-        border: Border.all(
-          color: colors.outlineVariant.withValues(alpha: 0.5),
-        ),
+        border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -722,13 +748,15 @@ class _FileInfoTile extends StatelessWidget {
             spacing: AppPadding.tiny,
             runSpacing: AppPadding.tiny,
             children: columns
-                .map((col) => Chip(
-                      label: Text(col),
-                      labelStyle: textTheme.labelSmall,
-                      visualDensity: VisualDensity.compact,
-                      padding: EdgeInsets.zero,
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ))
+                .map(
+                  (col) => Chip(
+                    label: Text(col),
+                    labelStyle: textTheme.labelSmall,
+                    visualDensity: VisualDensity.compact,
+                    padding: EdgeInsets.zero,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                )
                 .toList(),
           ),
         ],

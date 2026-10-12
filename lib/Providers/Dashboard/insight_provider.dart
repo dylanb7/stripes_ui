@@ -29,8 +29,9 @@ class ResponseStats {
       uniqueDates.add(DateTime(date.year, date.month, date.day));
     }
 
-    final avgPerDay =
-        uniqueDates.isNotEmpty ? responses.length / uniqueDates.length : 0.0;
+    final avgPerDay = uniqueDates.isNotEmpty
+        ? responses.length / uniqueDates.length
+        : 0.0;
 
     return ResponseStats(
       totalEntries: responses.length,
@@ -50,8 +51,8 @@ class ResponseStats {
   );
 }
 
-final responseStatsProvider = Provider<ResponseStats>((ref) {
-  final responses = ref.watch(availableStampsProvider).valueOrNull ?? [];
+final responseStatsProvider = FutureProvider<ResponseStats>((ref) async {
+  final responses = await ref.watch(availableStampsProvider.future);
   if (responses.isEmpty) return ResponseStats.empty;
   return ResponseStats.calculate(responses);
 });
@@ -69,10 +70,13 @@ class InsightsProps {
   int get hashCode => maxInsights.hashCode;
 }
 
-final insightsProvider =
-    Provider.family<List<Insight>, InsightsProps>((ref, props) {
-  final List<Response> responses =
-      ref.watch(availableStampsProvider).valueOrNull ?? [];
+final insightsProvider = FutureProvider.family<List<Insight>, InsightsProps>((
+  ref,
+  props,
+) async {
+  final List<Response> responses = await ref.watch(
+    availableStampsProvider.future,
+  );
   if (responses.isEmpty) return [];
 
   final settings = ref.watch(displayDataProvider);
@@ -90,11 +94,12 @@ final insightsProvider =
   return insights;
 });
 
-final allInsightsProvider = Provider<List<Insight>>((ref) {
-  return ref.watch(insightsProvider(const InsightsProps()));
+final allInsightsProvider = FutureProvider<List<Insight>>((ref) async {
+  return ref.watch(insightsProvider(const InsightsProps()).future);
 });
 
-/// Provider for insights shown in the History tab (compact, max 3)
-final historyInsightsProvider = Provider<List<Insight>>((ref) {
-  return ref.watch(insightsProvider(const InsightsProps(maxInsights: 3)));
+final historyInsightsProvider = FutureProvider<List<Insight>>((ref) async {
+  return ref.watch(
+    insightsProvider(const InsightsProps(maxInsights: 3)).future,
+  );
 });

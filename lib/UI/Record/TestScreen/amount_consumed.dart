@@ -7,12 +7,12 @@ import 'package:stripes_ui/Providers/Test/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/card_layout_helper.dart';
+import 'package:stripes_ui/UI/Record/TestScreen/test_async_error.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/Util/Design/breakpoint.dart';
 import 'package:stripes_ui/Util/Widgets/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
-import 'package:stripes_ui/Util/Helpers/repo_result_handler.dart';
 
 class MealFinishedDisplay extends ConsumerWidget {
   final Function? next;
@@ -23,21 +23,35 @@ class MealFinishedDisplay extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bool cardLayout =
-        getBreakpoint(context).isGreaterThan(Breakpoint.medium);
-    final AsyncValue<BlueDyeTestProgress> progress =
-        ref.watch(blueDyeTestProgressProvider);
+    final AsyncValue<BlueDyeTestProgress> progressAsync = ref.watch(
+      blueDyeTestProgressProvider,
+    );
+    final AsyncValue<BlueDyeMealState> mealStateAsync = ref.watch(
+      blueDyeMealStateProvider,
+    );
 
-    final BlueDyeState? testsState = ref.watch(testsHolderProvider
-        .select((holder) => holder.valueOrNull?.getTestState<BlueDyeState>()));
+    return progressAsync.when(
+      data: (progress) => mealStateAsync.when(
+        data: (mealState) => _buildLoaded(context, progress, mealState),
+        loading: () => const LoadingWidget(),
+        error: (error, stackTrace) => TestAsyncError(error: error),
+      ),
+      loading: () => const LoadingWidget(),
+      error: (error, stackTrace) => TestAsyncError(error: error),
+    );
+  }
 
-    final Color cardColor =
-        Theme.of(context).primaryColor.withValues(alpha: 0.2);
-
-    if (progress.isLoading) return const LoadingWidget();
-
+  Widget _buildLoaded(
+    BuildContext context,
+    BlueDyeTestProgress progress,
+    BlueDyeMealState mealState,
+  ) {
+    final bool cardLayout = getBreakpoint(context)
+        .isGreaterThan(Breakpoint.medium);
+    final Color cardColor = Theme.of(context).primaryColor
+        .withValues(alpha: 0.2);
     final BlueDyeProgression progression =
-        progress.valueOrNull?.getProgression() ?? BlueDyeProgression.stepOne;
+        progress.getProgression() ?? BlueDyeProgression.stepOne;
 
     final Map<AmountConsumed, String> amountText = {
       AmountConsumed.undetermined: context.translate.amountConsumedUnable,
@@ -52,42 +66,53 @@ class MealFinishedDisplay extends ConsumerWidget {
           ? context.translate.transitOneLabel
           : context.translate.transitTwoLabel,
       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
+        fontWeight: FontWeight.bold,
+        color: Theme.of(context).primaryColor,
+      ),
     );
 
     BlueMealStats getMealStats() {
-      final bool testOngoing = (progress.valueOrNull?.testIteration ?? 0) < 2 ||
-          (progress.valueOrNull?.stage.testInProgress ?? false);
+      final bool testOngoing =
+          (progress.testIteration) < 2 || (progress.stage.testInProgress);
       if (testOngoing &&
           ((displaying == BlueDyeProgression.stepOne &&
                   progression == BlueDyeProgression.stepTwo) ||
               (displaying == BlueDyeProgression.stepFour &&
                   progression == BlueDyeProgression.stepFive))) {
         return BlueMealStats(
-            start: testsState?.startTime,
-            duration: testsState?.finishedEating,
-            amountConsumed: testsState?.amountConsumed);
+          start: mealState.startTime,
+          duration: mealState.finishedEating,
+          amountConsumed: mealState.amountConsumed,
+        );
       }
-      final List<TestDate> dates = progress.valueOrNull?.orderedTests ?? [];
+      final List<TestDate> dates = progress.orderedTests;
 
       if (dates.isEmpty) {
         return const BlueMealStats(
-            start: null, duration: null, amountConsumed: null);
+          start: null,
+          duration: null,
+          amountConsumed: null,
+        );
       }
       if (displaying == BlueDyeProgression.stepOne) {
         return BlueMealStats(
-            start: dates[0].test.startEating,
-            duration: dates[0].test.eatingDuration,
-            amountConsumed: dates[0].test.amountConsumed);
+          start: dates[0].test.startEating,
+          duration: dates[0].test.eatingDuration,
+          amountConsumed: dates[0].test.amountConsumed,
+        );
       }
       if (dates.length < 2) {
         return const BlueMealStats(
-            start: null, duration: null, amountConsumed: null);
+          start: null,
+          duration: null,
+          amountConsumed: null,
+        );
       }
       return BlueMealStats(
-          start: dates[1].test.startEating,
-          duration: dates[1].test.eatingDuration,
-          amountConsumed: dates[1].test.amountConsumed);
+        start: dates[1].test.startEating,
+        duration: dates[1].test.eatingDuration,
+        amountConsumed: dates[1].test.amountConsumed,
+      );
     }
 
     final BlueMealStats mealStats = getMealStats();
@@ -96,29 +121,25 @@ class MealFinishedDisplay extends ConsumerWidget {
       padding: EdgeInsets.symmetric(horizontal: cardLayout ? AppPadding.xl : 0),
       child: ConstrainedBox(
         constraints: BoxConstraints(
-            maxWidth: cardLayout ? Breakpoint.small.value : double.infinity),
+          maxWidth: cardLayout ? Breakpoint.small.value : double.infinity,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            const SizedBox(
-              height: AppPadding.small,
-            ),
+            const SizedBox(height: AppPadding.small),
             cardLayout
                 ? ConstrainedBox(
-                    constraints:
-                        BoxConstraints(maxWidth: Breakpoint.small.value),
+                    constraints: BoxConstraints(
+                      maxWidth: Breakpoint.small.value,
+                    ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [transitLabel, const BlueMealInfoButton()],
                     ),
                   )
-                : const Center(
-                    child: BlueMealInfoButton(),
-                  ),
-            const SizedBox(
-              height: AppPadding.small,
-            ),
+                : const Center(child: BlueMealInfoButton()),
+            const SizedBox(height: AppPadding.small),
             AdaptiveCardLayout(
               cardColor: cardColor,
               borderColor: Theme.of(context).primaryColor,
@@ -131,33 +152,29 @@ class MealFinishedDisplay extends ConsumerWidget {
                     if (!cardLayout) ...[transitLabel, const Divider()],
                     Text(
                       context.translate.mealCompleteTitle,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
+                      style: Theme.of(context).textTheme.bodyMedium
                           ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     if (mealStats.start != null) ...[
-                      const SizedBox(
-                        height: AppPadding.small,
-                      ),
+                      const SizedBox(height: AppPadding.small),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           const Icon(Icons.alarm),
-                          const SizedBox(
-                            width: AppPadding.tiny,
-                          ),
+                          const SizedBox(width: AppPadding.tiny),
                           if (mealStats.start != null)
-                            Text(context.translate.mealCompleteStartTime(
-                                mealStats.start!, mealStats.start!))
+                            Text(
+                              context.translate.mealCompleteStartTime(
+                                mealStats.start!,
+                                mealStats.start!,
+                              ),
+                            ),
                         ],
                       ),
                     ],
                     if (mealStats.duration != null &&
                         mealStats.duration != Duration.zero) ...[
-                      const SizedBox(
-                        height: AppPadding.small,
-                      ),
+                      const SizedBox(height: AppPadding.small),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
@@ -166,19 +183,16 @@ class MealFinishedDisplay extends ConsumerWidget {
                             width: iconSize,
                             height: iconSize,
                           ),
-                          const SizedBox(
-                            width: AppPadding.tiny,
-                          ),
+                          const SizedBox(width: AppPadding.tiny),
                           if (mealStats.duration != null)
                             Text(
-                                "${context.translate.mealCompleteDuration} ${MealTime.fromDuration(mealStats.duration!)?.value ?? from(mealStats.duration!, context)}")
+                              "${context.translate.mealCompleteDuration} ${MealTime.fromDuration(mealStats.duration!)?.value ?? from(mealStats.duration!, context)}",
+                            ),
                         ],
                       ),
                     ],
                     if (mealStats.duration == Duration.zero) ...[
-                      const SizedBox(
-                        height: AppPadding.small,
-                      ),
+                      const SizedBox(height: AppPadding.small),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
@@ -187,25 +201,19 @@ class MealFinishedDisplay extends ConsumerWidget {
                             width: iconSize,
                             height: iconSize,
                           ),
-                          const SizedBox(
-                            width: AppPadding.tiny,
-                          ),
+                          const SizedBox(width: AppPadding.tiny),
                           const Text("Tube Fed"),
                         ],
                       ),
                     ],
                     if (mealStats.amountConsumed != null &&
                         mealStats.duration != Duration.zero) ...[
-                      const SizedBox(
-                        height: AppPadding.tiny,
-                      ),
+                      const SizedBox(height: AppPadding.tiny),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           const Icon(Icons.blur_linear),
-                          const SizedBox(
-                            width: AppPadding.tiny,
-                          ),
+                          const SizedBox(width: AppPadding.tiny),
                           Flexible(
                             child: Text(
                               "${context.translate.mealCompleteAmountConsumed} ${amountText[mealStats.amountConsumed!]!}",
@@ -214,28 +222,20 @@ class MealFinishedDisplay extends ConsumerWidget {
                         ],
                       ),
                     ],
-                    const SizedBox(
-                      height: AppPadding.small,
-                    ),
+                    const SizedBox(height: AppPadding.small),
                     Text(
-                      displaying == BlueDyeProgression.stepThree
+                      displaying == BlueDyeProgression.stepFour
                           ? context.translate.stepThreeCompletedText
                           : context.translate.stepOneCompletedText,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
+                      style: Theme.of(context).textTheme.bodyMedium
                           ?.copyWith(fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(
-                      height: AppPadding.small,
-                    ),
+                    const SizedBox(height: AppPadding.small),
                   ],
                 ),
               ),
             ),
-            const SizedBox(
-              height: AppPadding.medium,
-            ),
+            const SizedBox(height: AppPadding.medium),
             if (next != null)
               Center(
                 child: FilledButton(
@@ -245,9 +245,7 @@ class MealFinishedDisplay extends ConsumerWidget {
                   child: Text(context.translate.nextButton),
                 ),
               ),
-            const SizedBox(
-              height: AppPadding.xl,
-            ),
+            const SizedBox(height: AppPadding.xl),
           ],
         ),
       ),
@@ -261,10 +259,11 @@ class BlueMealStats {
   final Duration? duration;
   final AmountConsumed? amountConsumed;
 
-  const BlueMealStats(
-      {required this.start,
-      required this.duration,
-      required this.amountConsumed});
+  const BlueMealStats({
+    required this.start,
+    required this.duration,
+    required this.amountConsumed,
+  });
 }
 
 class AmountConsumedEntry extends ConsumerStatefulWidget {
@@ -280,6 +279,7 @@ class AmountConsumedEntry extends ConsumerStatefulWidget {
 enum FeedingMethod {
   oral,
   tubeFed;
+
   /*Blue Formula (for tube feeding)
  •  • Blue Muffins (for oral feeding) */
 
@@ -302,15 +302,31 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
 
   @override
   Widget build(BuildContext context) {
-    final AsyncValue<BlueDyeTestProgress> progress =
-        ref.watch(blueDyeTestProgressProvider);
-    final BlueDyeState? testsState = ref.watch(testsHolderProvider
-        .select((holder) => holder.valueOrNull?.getTestState<BlueDyeState>()));
+    final AsyncValue<BlueDyeTestProgress> progressAsync = ref.watch(
+      blueDyeTestProgressProvider,
+    );
+    final AsyncValue<BlueDyeMealState> mealStateAsync = ref.watch(
+      blueDyeMealStateProvider,
+    );
 
-    if (progress.isLoading) return const LoadingWidget();
+    return progressAsync.when(
+      data: (progress) => mealStateAsync.when(
+        data: (mealState) => _buildLoaded(context, progress, mealState),
+        loading: () => const LoadingWidget(),
+        error: (error, stackTrace) => TestAsyncError(error: error),
+      ),
+      loading: () => const LoadingWidget(),
+      error: (error, stackTrace) => TestAsyncError(error: error),
+    );
+  }
 
+  Widget _buildLoaded(
+    BuildContext context,
+    BlueDyeTestProgress progress,
+    BlueDyeMealState mealState,
+  ) {
     final BlueDyeProgression stage =
-        progress.valueOrNull?.getProgression() ?? BlueDyeProgression.stepOne;
+        progress.getProgression() ?? BlueDyeProgression.stepOne;
 
     final Map<AmountConsumed, String> amountText = {
       AmountConsumed.halfOrLess: context.translate.amountConsumedHalfOrLess,
@@ -320,9 +336,10 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
     };
 
     final Color cardColor = ElevationOverlay.applySurfaceTint(
-        Theme.of(context).cardColor,
-        Theme.of(context).colorScheme.surfaceTint,
-        3);
+      Theme.of(context).cardColor,
+      Theme.of(context).colorScheme.surfaceTint,
+      3,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -331,14 +348,10 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
           stage == BlueDyeProgression.stepOne
               ? context.translate.studyStepOneExplanationTitle
               : context.translate.studyStepThreeExplanationTitle,
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium
+          style: Theme.of(context).textTheme.titleMedium
               ?.copyWith(fontWeight: FontWeight.bold),
         ),
-        const SizedBox(
-          height: AppPadding.small,
-        ),
+        const SizedBox(height: AppPadding.small),
         // Feeding method selection
         Center(
           child: ConstrainedBox(
@@ -355,9 +368,7 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
                   children: [
                     Text(
                       "How was the blue dye meal administered?",
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
+                      style: Theme.of(context).textTheme.titleMedium
                           ?.copyWith(color: Theme.of(context).primaryColor),
                     ),
                     const SizedBox(height: AppPadding.small),
@@ -366,8 +377,9 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
                       onChanged: (newValue) {
                         if (newValue == null) return;
                         setState(() {
-                          feedingMethod =
-                              feedingMethod == newValue ? null : newValue;
+                          feedingMethod = feedingMethod == newValue
+                              ? null
+                              : newValue;
                           // Reset other values when switching
                           value = null;
                           tubeFeedEndTime = null;
@@ -391,19 +403,20 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
         const SizedBox(height: AppPadding.medium),
         // Show appropriate flow based on feeding method
         if (feedingMethod == FeedingMethod.tubeFed)
-          _buildTubeFedFlow(context, testsState, cardColor)
+          _buildTubeFedFlow(context, mealState, cardColor)
         else if (feedingMethod == FeedingMethod.oral)
-          _buildOralFlow(context, testsState, cardColor, amountText),
-        const SizedBox(
-          height: AppPadding.xl,
-        ),
+          _buildOralFlow(context, mealState, cardColor, amountText),
+        const SizedBox(height: AppPadding.xl),
       ],
     );
   }
 
   /// Simplified tube-fed flow - just capture end time
   Widget _buildTubeFedFlow(
-      BuildContext context, BlueDyeState? testsState, Color cardColor) {
+    BuildContext context,
+    BlueDyeMealState? testsState,
+    Color cardColor,
+  ) {
     return Center(
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: Breakpoint.tiny.value),
@@ -423,9 +436,7 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
                   children: [
                     Text(
                       "Tube Feeding Complete",
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
+                      style: Theme.of(context).textTheme.titleMedium
                           ?.copyWith(color: Theme.of(context).primaryColor),
                     ),
                     const SizedBox(height: AppPadding.small),
@@ -451,7 +462,8 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
                             final TimeOfDay? picked = await showTimePicker(
                               context: context,
                               initialTime: TimeOfDay.fromDateTime(
-                                  tubeFeedEndTime ?? now),
+                                tubeFeedEndTime?.toLocal() ?? now,
+                              ),
                             );
                             if (picked != null) {
                               setState(() {
@@ -468,8 +480,9 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
                           icon: const Icon(Icons.edit),
                           label: Text(
                             tubeFeedEndTime != null
-                                ? TimeOfDay.fromDateTime(tubeFeedEndTime!)
-                                    .format(context)
+                                ? TimeOfDay.fromDateTime(
+                                    tubeFeedEndTime!.toLocal(),
+                                  ).format(context)
                                 : "Select time",
                           ),
                         ),
@@ -509,8 +522,12 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
   }
 
   /// Original oral feeding flow
-  Widget _buildOralFlow(BuildContext context, BlueDyeState? testsState,
-      Color cardColor, Map<AmountConsumed, String> amountText) {
+  Widget _buildOralFlow(
+    BuildContext context,
+    BlueDyeMealState? testsState,
+    Color cardColor,
+    Map<AmountConsumed, String> amountText,
+  ) {
     return Center(
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: Breakpoint.tiny.value),
@@ -529,14 +546,10 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
                   children: [
                     Text(
                       context.translate.amountConsumedQuestion,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
+                      style: Theme.of(context).textTheme.titleMedium
                           ?.copyWith(color: Theme.of(context).primaryColor),
                     ),
-                    const SizedBox(
-                      height: AppPadding.small,
-                    ),
+                    const SizedBox(height: AppPadding.small),
                     RadioGroup<AmountConsumed>(
                       groupValue: value,
                       onChanged: (newValue) {
@@ -560,9 +573,7 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
                         }).toList(),
                       ),
                     ),
-                    const SizedBox(
-                      height: AppPadding.small,
-                    ),
+                    const SizedBox(height: AppPadding.small),
                     CheckboxListTile(
                       value: value == AmountConsumed.undetermined,
                       onChanged: (val) {
@@ -579,9 +590,7 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
                       },
                       title: Text(
                         context.translate.amountConsumedUnable,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium
+                        style: Theme.of(context).textTheme.titleMedium
                             ?.copyWith(color: Theme.of(context).primaryColor),
                       ),
                     ),
@@ -605,7 +614,7 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
   }
 
   /// Handle tube-fed submission - set finishedEating to zero, amountConsumed to all
-  Future<void> _nextTubeFed(BlueDyeState? state) async {
+  Future<void> _nextTubeFed(BlueDyeMealState? state) async {
     if (state == null || tubeFeedEndTime == null) {
       showSnack(context, "Could not go next");
       return;
@@ -613,58 +622,53 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
     setState(() {
       isLoading = true;
     });
-    final test = await ref
-        .read(testsHolderProvider.notifier)
-        .getTest<Test<BlueDyeState>>();
-
-    if (test != null) {
-      final result = await test.setTestState(state.copyWith(
+    final protocol = await ref.read(activeProtocolProvider.future);
+    final repo = await ref.read(testProvider.future);
+    if (protocol != null && repo != null) {
+      final newMealState = state.copyWith(
         amountConsumed: AmountConsumed.all,
         finishedEating: Duration.zero,
         finishedEatingTime: tubeFeedEndTime,
-      ));
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-        result.handle(context);
+      );
+      final updated = protocol.copyWith(
+        testContext: newMealState.replaceInContext(protocol.testContext),
+      );
+      await repo.updateProtocol(updated);
+      if (isBlueDyeMealStageId(protocol.currentStageId)) {
+        await repo.advanceStage(activeTestId: protocol.id);
       }
-    } else {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
+    }
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
-  /// Handle oral feeding submission (original flow)
-  Future<void> _next(BlueDyeState? state) async {
+  Future<void> _next(BlueDyeMealState? state) async {
     if (state == null) {
       showSnack(context, "Could not go next");
+      return;
     }
     setState(() {
       isLoading = true;
     });
-    final test = await ref
-        .read(testsHolderProvider.notifier)
-        .getTest<Test<BlueDyeState>>();
-
-    if (test != null) {
-      final result =
-          await test.setTestState(state!.copyWith(amountConsumed: value));
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-        result.handle(context);
+    final protocol = await ref.read(activeProtocolProvider.future);
+    final repo = await ref.read(testProvider.future);
+    if (protocol != null && repo != null) {
+      final newMealState = state.copyWith(amountConsumed: value);
+      final updated = protocol.copyWith(
+        testContext: newMealState.replaceInContext(protocol.testContext),
+      );
+      await repo.updateProtocol(updated);
+      if (isBlueDyeMealStageId(protocol.currentStageId)) {
+        await repo.advanceStage(activeTestId: protocol.id);
       }
-    } else {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
+    }
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 }
@@ -688,40 +692,51 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
 
   bool isLoading = false;
 
-  final RestorableEnumN<AmountConsumed> amountConsumed =
-      RestorableEnumN(null, values: AmountConsumed.values);
+  final RestorableEnumN<AmountConsumed> amountConsumed = RestorableEnumN(
+    null,
+    values: AmountConsumed.values,
+  );
 
-  final RestorableEnumN<MealTime> mealTime =
-      RestorableEnumN(null, values: MealTime.mealTimes);
+  final RestorableEnumN<MealTime> mealTime = RestorableEnumN(
+    null,
+    values: MealTime.mealTimes,
+  );
 
   final RestorableBoolN completedFast = RestorableBoolN(null);
 
-  final RestorableEnumN<FeedingMethod> feedingMethod =
-      RestorableEnumN(null, values: FeedingMethod.values);
+  final RestorableEnumN<FeedingMethod> feedingMethod = RestorableEnumN(
+    null,
+    values: FeedingMethod.values,
+  );
 
   // Storing as ISO string because RestorableDateTimeN is not standard
   final RestorableStringN tubeFeedEndTime = RestorableStringN(null);
 
   @override
   Widget build(BuildContext context) {
+    return ref
+        .watch(blueDyeMealStateProvider)
+        .when(
+          data: (mealState) => _buildLoaded(context, mealState),
+          loading: () => const LoadingWidget(),
+          error: (error, stackTrace) => TestAsyncError(error: error),
+        );
+  }
+
+  Widget _buildLoaded(BuildContext context, BlueDyeMealState mealState) {
     final Widget transitLabel = Text(
       widget.clicked.value < 2
           ? context.translate.transitOneLabel
           : context.translate.transitTwoLabel,
       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
+        fontWeight: FontWeight.bold,
+        color: Theme.of(context).primaryColor,
+      ),
     );
-    final bool cardLayout =
-        getBreakpoint(context).isGreaterThan(Breakpoint.medium);
-    final AsyncValue<BlueDyeTestProgress> progress =
-        ref.watch(blueDyeTestProgressProvider);
-    final BlueDyeState? testsState = ref.watch(testsHolderProvider
-        .select((holder) => holder.valueOrNull?.getTestState<BlueDyeState>()));
-
-    if (progress.isLoading) return const LoadingWidget();
-
-    final Color activeCard =
-        Theme.of(context).primaryColor.withValues(alpha: 0.2);
+    final bool cardLayout = getBreakpoint(context)
+        .isGreaterThan(Breakpoint.medium);
+    final Color activeCard = Theme.of(context).primaryColor
+        .withValues(alpha: 0.2);
     final Color disabledColor = Theme.of(context).disabledColor;
 
     void onFastTap(bool? state) {
@@ -751,9 +766,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                 ),
               )
             : const Center(child: BlueMealInfoButton()),
-        const SizedBox(
-          height: AppPadding.medium,
-        ),
+        const SizedBox(height: AppPadding.medium),
         // Feeding Method Selection
         AdaptiveCardLayout(
           cardColor: activeCard,
@@ -764,9 +777,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
               children: [
                 Text(
                   "What type of blue meal is being used?",
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
+                  style: Theme.of(context).textTheme.bodyMedium
                       ?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: AppPadding.small),
@@ -813,9 +824,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                 children: [
                   Text(
                     "Tube Feeding Complete",
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
+                    style: Theme.of(context).textTheme.bodyMedium
                         ?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: AppPadding.small),
@@ -839,7 +848,8 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                           final now = DateTime.now();
                           DateTime initial = now;
                           if (tubeFeedEndTime.value != null) {
-                            initial = DateTime.parse(tubeFeedEndTime.value!);
+                            initial = DateTime.parse(tubeFeedEndTime.value!)
+                                .toLocal();
                           }
                           final TimeOfDay? picked = await showTimePicker(
                             context: context,
@@ -854,7 +864,9 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                                 picked.hour,
                                 picked.minute,
                               );
-                              tubeFeedEndTime.value = newDate.toIso8601String();
+                              tubeFeedEndTime.value = newDate
+                                  .toUtc()
+                                  .toIso8601String();
                             });
                           }
                         },
@@ -862,8 +874,9 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                         label: Text(
                           tubeFeedEndTime.value != null
                               ? TimeOfDay.fromDateTime(
-                                      DateTime.parse(tubeFeedEndTime.value!))
-                                  .format(context)
+                                  DateTime.parse(tubeFeedEndTime.value!)
+                                      .toLocal(),
+                                ).format(context)
                               : "Select time",
                         ),
                       ),
@@ -874,8 +887,9 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                     child: OutlinedButton.icon(
                       onPressed: () {
                         setState(() {
-                          tubeFeedEndTime.value =
-                              DateTime.now().toIso8601String();
+                          tubeFeedEndTime.value = DateTime.now()
+                              .toUtc()
+                              .toIso8601String();
                         });
                       },
                       icon: const Icon(Icons.schedule),
@@ -890,7 +904,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
           Center(
             child: FilledButton(
               onPressed: tubeFeedEndTime.value != null && !isLoading
-                  ? () => _nextTubeFed(testsState)
+                  ? () => _nextTubeFed(mealState)
                   : null,
               child: Text(context.translate.nextButton),
             ),
@@ -910,48 +924,40 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (!cardLayout) ...[
-                    Center(
-                      child: transitLabel,
-                    ),
+                    Center(child: transitLabel),
                     const Divider(),
                   ],
                   Text(
                     context.translate.blueMealFastHeader,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
+                    style: Theme.of(context).textTheme.bodyMedium
                         ?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   RichText(
                     text: TextSpan(
                       text: '* ',
-                      style: const TextStyle(
-                        color: Colors.red,
-                      ),
+                      style: const TextStyle(color: Colors.red),
                       children: [
                         TextSpan(
-                            text: context.translate.blueMealFastQuestion,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.copyWith(
-                                    color: Theme.of(context).primaryColor)),
+                          text: context.translate.blueMealFastQuestion,
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: Theme.of(context).primaryColor),
+                        ),
                       ],
                     ),
                   ),
-                  const SizedBox(
-                    height: AppPadding.small,
-                  ),
+                  const SizedBox(height: AppPadding.small),
                   RadioGroup<bool>(
                     groupValue: completedFast.value,
                     onChanged: (selected) {
                       if (selected == null) return;
                       onFastTap(
-                          completedFast.value == selected ? null : selected);
+                        completedFast.value == selected ? null : selected,
+                      );
                     },
                     child: ConstrainedBox(
-                      constraints:
-                          BoxConstraints(maxWidth: Breakpoint.tiny.value),
+                      constraints: BoxConstraints(
+                        maxWidth: Breakpoint.tiny.value,
+                      ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -959,19 +965,16 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                           GestureDetector(
                             onTap: () {
                               onFastTap(
-                                  completedFast.value == true ? null : true);
+                                completedFast.value == true ? null : true,
+                              );
                             },
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                const Radio<bool>(
-                                  value: true,
-                                ),
-                                const SizedBox(
-                                  width: AppPadding.tiny,
-                                ),
+                                const Radio<bool>(value: true),
+                                const SizedBox(width: AppPadding.tiny),
                                 Text(context.translate.blueQuestionYes),
                               ],
                             ),
@@ -979,19 +982,16 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                           GestureDetector(
                             onTap: () {
                               onFastTap(
-                                  completedFast.value == false ? null : false);
+                                completedFast.value == false ? null : false,
+                              );
                             },
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                const Radio<bool>(
-                                  value: false,
-                                ),
-                                const SizedBox(
-                                  width: AppPadding.tiny,
-                                ),
+                                const Radio<bool>(value: false),
+                                const SizedBox(width: AppPadding.tiny),
                                 Text(context.translate.blueQuestionNo),
                               ],
                             ),
@@ -1004,18 +1004,16 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                     strings: [
                       context.translate.blueMealFastInstructionLineOne,
                       context.translate.blueMealFastInstructionLineTwo,
-                      context.translate.blueMealFastInstructionLineThree
+                      context.translate.blueMealFastInstructionLineThree,
                     ],
                     highlight: false,
                     mark: (index) => '${index + 1}.',
-                  )
+                  ),
                 ],
               ),
             ),
           ),
-          const SizedBox(
-            height: AppPadding.medium,
-          ),
+          const SizedBox(height: AppPadding.medium),
           IgnorePointer(
             ignoring: completedFast.value == null || !completedFast.value!,
             child: AdaptiveCardLayout(
@@ -1031,18 +1029,14 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                   children: [
                     Text(
                       context.translate.blueMealDurationTitle,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
+                      style: Theme.of(context).textTheme.bodyMedium
                           ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     Text(
                       context.translate.blueMealDurationQuestion,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
-                    const SizedBox(
-                      height: AppPadding.small,
-                    ),
+                    const SizedBox(height: AppPadding.small),
                     RadioGroup<MealTime>(
                       onChanged: (newValue) {
                         if (newValue == null) return;
@@ -1084,9 +1078,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
               ),
             ),
           ),
-          const SizedBox(
-            height: AppPadding.medium,
-          ),
+          const SizedBox(height: AppPadding.medium),
           IgnorePointer(
             ignoring: mealTime.value == null && (completedFast.value ?? false),
             child: AdaptiveCardLayout(
@@ -1100,18 +1092,14 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                   children: [
                     Text(
                       context.translate.blueMealAmountConsumedTitle,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
+                      style: Theme.of(context).textTheme.bodyMedium
                           ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     Text(
                       context.translate.amountConsumedQuestion,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
-                    const SizedBox(
-                      height: AppPadding.small,
-                    ),
+                    const SizedBox(height: AppPadding.small),
                     RadioGroup<AmountConsumed>(
                       onChanged: (newValue) {
                         if (newValue == null) return;
@@ -1124,10 +1112,12 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                             amountConsumed.value = newValue;
                           });
                         }
-                        Scrollable.ensureVisible(context,
-                            duration: Durations.medium1,
-                            alignmentPolicy:
-                                ScrollPositionAlignmentPolicy.keepVisibleAtEnd);
+                        Scrollable.ensureVisible(
+                          context,
+                          duration: Durations.medium1,
+                          alignmentPolicy:
+                              ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+                        );
                       },
                       groupValue: amountConsumed.value,
                       child: Column(
@@ -1146,30 +1136,27 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
               ),
             ),
           ),
-          const SizedBox(
-            height: AppPadding.small,
-          ),
+          const SizedBox(height: AppPadding.small),
           Center(
             child: FilledButton(
-              onPressed: mealTime.value != null &&
+              onPressed:
+                  mealTime.value != null &&
                       amountConsumed.value != null &&
                       (completedFast.value ?? false)
                   ? () {
-                      _next(testsState);
+                      _next(mealState);
                     }
                   : null,
               child: Text(context.translate.nextButton),
             ),
           ),
-          const SizedBox(
-            height: AppPadding.xl,
-          ),
+          const SizedBox(height: AppPadding.xl),
         ],
       ],
     );
   }
 
-  Future<void> _nextTubeFed(BlueDyeState? state) async {
+  Future<void> _nextTubeFed(BlueDyeMealState? state) async {
     if (state == null || tubeFeedEndTime.value == null) {
       showSnack(context, "Could not go next");
       return;
@@ -1177,60 +1164,57 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
     setState(() {
       isLoading = true;
     });
-    final test = await ref
-        .read(testsHolderProvider.notifier)
-        .getTest<Test<BlueDyeState>>();
-
-    if (test != null) {
-      final result = await test.setTestState(state.copyWith(
+    final protocol = await ref.read(activeProtocolProvider.future);
+    final repo = await ref.read(testProvider.future);
+    if (protocol != null && repo != null) {
+      final newMealState = state.copyWith(
         amountConsumed: AmountConsumed.all,
         finishedEating: Duration.zero,
-        finishedEatingTime: DateTime.parse(tubeFeedEndTime.value!),
-      ));
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-        result.handle(context);
+        finishedEatingTime: DateTime.parse(tubeFeedEndTime.value!).toLocal(),
+      );
+      final updated = protocol.copyWith(
+        testContext: newMealState.replaceInContext(protocol.testContext),
+      );
+      await repo.updateProtocol(updated);
+      if (isBlueDyeMealStageId(protocol.currentStageId)) {
+        await repo.advanceStage(activeTestId: protocol.id);
       }
-    } else {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
+    }
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
-  Future<void> _next(BlueDyeState? state) async {
+  Future<void> _next(BlueDyeMealState? state) async {
     if (state == null) {
       showSnack(context, "Could not go next");
+      return;
     }
     setState(() {
       isLoading = true;
     });
-    final test = await ref
-        .read(testsHolderProvider.notifier)
-        .getTest<Test<BlueDyeState>>();
-
-    if (test != null) {
-      final result = await test.setTestState(state!.copyWith(
-          amountConsumed: amountConsumed.value,
-          finishedEatingTime: DateTime.now(),
-          finishedEating: mealTime.value!.toDuration()));
-
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-        result.handle(context);
+    final protocol = await ref.read(activeProtocolProvider.future);
+    final repo = await ref.read(testProvider.future);
+    if (protocol != null && repo != null) {
+      final newMealState = state.copyWith(
+        amountConsumed: amountConsumed.value,
+        finishedEatingTime: DateTime.now(),
+        finishedEating: mealTime.value!.toDuration(),
+      );
+      final updated = protocol.copyWith(
+        testContext: newMealState.replaceInContext(protocol.testContext),
+      );
+      await repo.updateProtocol(updated);
+      if (isBlueDyeMealStageId(protocol.currentStageId)) {
+        await repo.advanceStage(activeTestId: protocol.id);
       }
-    } else {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
+    }
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -1257,7 +1241,7 @@ enum MealTime {
     MealTime.fifteenOrLess,
     MealTime.fifteenToThrity,
     MealTime.thirtyToHour,
-    MealTime.hourOrMore
+    MealTime.hourOrMore,
   ];
 
   static MealTime? fromDuration(Duration duration) {

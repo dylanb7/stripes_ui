@@ -2,64 +2,100 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
-import 'package:stripes_ui/Providers/Auth/auth_provider.dart';
 import 'package:stripes_ui/Providers/History/stamps_provider.dart';
 import 'package:stripes_ui/Providers/Test/test_provider.dart';
-import 'package:stripes_ui/Util/extensions.dart';
 
-final blueDyeTestProgressProvider =
-    FutureProvider<BlueDyeTestProgress>((ref) async {
-  final AuthUser user = await ref.watch(authStream.future);
-  final BlueDyeState? blueDyeState = await ref.watch(testsHolderProvider
-      .selectAsync((value) => value.getTestState<BlueDyeState>()));
+/// Derives BlueDye progression from the modular [ActiveTestProtocol] state.
+final blueDyeTestProgressProvider = FutureProvider<BlueDyeTestProgress>((
+  ref,
+) async {
+  final ActiveTestProtocol? protocol = await ref.watch(
+    activeProtocolProvider.future,
+  );
+  final BlueDyeMealState mealState = await ref.watch(
+    blueDyeMealStateProvider.future,
+  );
 
-  final String? group = user.attributes["custom:group"];
-  final List<BlueDyeResp> testResponses = await ref.watch(
-      stampsStreamProvider.selectAsync((responses) => responses
-          .whereType<BlueDyeResp>()
-          .where((test) => test.group == group)
-          .toList()));
-
-  final List<TestDate> mostRecent = _getOrderedTests(testResponses);
-
-  final int iterations = testResponses.length;
-  final stage = stageFromTestState(blueDyeState);
-
-  final progress = BlueDyeTestProgress(
-      stage: stage, testIteration: iterations, orderedTests: mostRecent);
-
-  return progress;
-});
-
-@immutable
-class TestDate {
-  final BlueDyeResp test;
-  final DateTime finishTime;
-
-  const TestDate({required this.test, required this.finishTime});
-}
-
-List<TestDate> _getOrderedTests(List<BlueDyeResp> testResponses) {
-  if (testResponses.isEmpty) return [];
-
-  DateTime end(BlueDyeResp resp) {
-    DateTime? lastEntry;
-    for (final BMTestLog log in resp.logs) {
-      DateTime logTime = dateFromStamp(log.stamp);
-      lastEntry ??= logTime;
-      if (logTime.isAfter(lastEntry)) {
-        lastEntry = logTime;
-      }
-    }
-    return lastEntry ?? DateTime.now();
+  if (protocol == null) {
+    return const BlueDyeTestProgress(
+      stage: BlueDyeTestStage.initial,
+      orderedTests: [],
+      testIteration: 0,
+      isCompleted: false,
+      protocolStageId: null,
+    );
   }
 
-  final List<TestDate> testDates = testResponses
-      .map<TestDate>((res) => TestDate(test: res, finishTime: end(res)))
-      .toList()
-    ..sort((first, second) => first.finishTime.compareTo(second.finishTime));
+  final stamps = await ref.watch(
+    stampsStreamProvider.selectAsync((stamps) => stamps),
+  );
+  final orderedTests = <TestDate>[];
+  for (final run in blueDyeCompletedRuns(protocol)) {
+    final date = _testDateForRun(
+      run.mealState,
+      blueDyeBmTestLogs(stamps, run.sessionId),
+      sessionId: run.sessionId,
+      finishTime: run.finishTime,
+    );
+    if (date != null) orderedTests.add(date);
+  }
 
-  return testDates;
+  final stageId = protocol.currentStageId;
+  if (stageId == 'waiting' || stageId == 'completed') {
+    final activeSessionId = blueDyeActiveRunSessionId(protocol);
+    if (!blueDyeCompletedRuns(protocol)
+        .any((run) => run.sessionId == activeSessionId)) {
+      final date = _testDateForRun(
+        mealState,
+        blueDyeBmTestLogs(stamps, activeSessionId),
+        sessionId: activeSessionId,
+      );
+      if (date != null) orderedTests.add(date);
+    }
+  }
+  orderedTests.sort(
+    (first, second) => first.finishTime.compareTo(second.finishTime),
+  );
+
+  return BlueDyeTestProgress(
+    stage: mealState.stage,
+    orderedTests: orderedTests,
+    testIteration: orderedTests.length,
+    isCompleted: protocol.isCompleted,
+    protocolStageId: stageId,
+  );
+});
+
+TestDate? _testDateForRun(
+  BlueDyeMealState mealState,
+  List<BMTestLog> logs, {
+  required String sessionId,
+  DateTime? finishTime,
+}) {
+  final startEating = mealState.startTime;
+  if (startEating == null || logs.isEmpty) return null;
+  final blueLogs = logs.where((log) => log.isBlue).toList();
+  final fallbackBlueTime = startEating;
+  final response = BlueDyeResp(
+    id: sessionId,
+    startEating: startEating,
+    eatingDuration: mealState.finishedEating ?? Duration.zero,
+    finishedEatingTime: mealState.finishedEatingTime,
+    normalBowelMovements: logs.length - blueLogs.length,
+    blueBowelMovements: blueLogs.length,
+    amountConsumed: mealState.amountConsumed ?? AmountConsumed.undetermined,
+    logs: logs,
+    firstBlue: blueLogs.isEmpty
+        ? fallbackBlueTime
+        : dateFromStamp(blueLogs.first.stamp),
+    lastBlue: blueLogs.isEmpty
+        ? fallbackBlueTime
+        : dateFromStamp(blueLogs.last.stamp),
+  );
+  return TestDate(
+    test: response,
+    finishTime: finishTime ?? dateFromStamp(logs.last.stamp),
+  );
 }
 
 @immutable
@@ -67,18 +103,27 @@ class BlueDyeTestProgress {
   final BlueDyeTestStage stage;
   final int testIteration;
   final List<TestDate> orderedTests;
+  final bool isCompleted;
+  final String? protocolStageId;
 
-  /// Returns the current progression step based on test state and iterations.
-  ///
-  /// Progression flow:
-  /// - null: No tests started (initial state, 0 iterations)
-  /// - stepOne: Test 1 meal in progress (started/amountConsumed, 0 iterations)
-  /// - stepTwo: Test 1 logging BMs (logs/logsSubmit stages, 0 iterations)
-  /// - stepThree: Waiting period between tests (1 completed test, no test in progress)
-  /// - stepFour: Test 2 meal in progress (started/amountConsumed, 1 iteration)
-  /// - stepFive: Test 2 logging BMs (logs/logsSubmit stages, 1 iteration)
-  /// - completed: Study complete (2+ tests, no test in progress)
   BlueDyeProgression? getProgression() {
+    switch (protocolStageId) {
+      case 'eat_meal':
+        return BlueDyeProgression.stepOne;
+      case 'awaiting_transit':
+        return BlueDyeProgression.stepTwo;
+      case 'waiting':
+        return BlueDyeProgression.stepThree;
+      case 'eat_meal_2':
+        return BlueDyeProgression.stepFour;
+      case 'awaiting_transit_2':
+        return BlueDyeProgression.stepFive;
+      case 'completed':
+        return BlueDyeProgression.completed;
+    }
+
+    if (isCompleted) return BlueDyeProgression.completed;
+
     // No tests started, no submissions
     if (stage == BlueDyeTestStage.initial && testIteration == 0) return null;
 
@@ -117,14 +162,19 @@ class BlueDyeTestProgress {
   }
 
   const BlueDyeTestProgress.loading()
-      : stage = BlueDyeTestStage.initial,
-        testIteration = -1,
-        orderedTests = const [];
+    : stage = BlueDyeTestStage.initial,
+      testIteration = -1,
+      orderedTests = const [],
+      isCompleted = false,
+      protocolStageId = null;
 
-  const BlueDyeTestProgress(
-      {required this.stage,
-      required this.orderedTests,
-      required this.testIteration});
+  const BlueDyeTestProgress({
+    required this.stage,
+    required this.orderedTests,
+    required this.testIteration,
+    this.isCompleted = false,
+    this.protocolStageId,
+  });
 
   bool isLoading() => testIteration == -1;
 
@@ -132,6 +182,14 @@ class BlueDyeTestProgress {
   String toString() {
     return 'Iteration: $testIteration, Stage: ${stage.name}, Tests: $orderedTests';
   }
+}
+
+@immutable
+class TestDate {
+  final BlueDyeResp test;
+  final DateTime finishTime;
+
+  const TestDate({required this.test, required this.finishTime});
 }
 
 enum BlueDyeProgression {
@@ -149,15 +207,15 @@ enum BlueDyeProgression {
   String getLabel(BuildContext context) {
     switch (this) {
       case BlueDyeProgression.stepOne:
-        return context.translate.studyProgessionOne;
+        return "Eat\nMeal";
       case BlueDyeProgression.stepTwo:
-        return context.translate.studyProgessionTwo;
+        return "Log\nBMs";
       case BlueDyeProgression.stepThree:
         return "Waiting\nTime";
       case BlueDyeProgression.stepFour:
-        return context.translate.studyProgessionThree;
+        return "Eat\nMeal";
       case BlueDyeProgression.stepFive:
-        return context.translate.studyProgessionFour;
+        return "Log\nBMs";
       case BlueDyeProgression.completed:
         return "Complete";
     }

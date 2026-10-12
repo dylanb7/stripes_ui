@@ -64,7 +64,7 @@ import 'app_localizations_es.dart';
 /// property.
 abstract class AppLocalizations {
   AppLocalizations(String locale)
-      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -87,17 +87,17 @@ abstract class AppLocalizations {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('de'),
     Locale('en'),
-    Locale('es')
+    Locale('es'),
   ];
 
   /// No description provided for @checkInLabel.
@@ -1255,7 +1255,7 @@ abstract class AppLocalizations {
   /// No description provided for @selectInstruction.
   ///
   /// In en, this message translates to:
-  /// **'Select all the signs and symptoms that apply'**
+  /// **'Complete this section'**
   String get selectInstruction;
 
   /// No description provided for @mildTag.
@@ -1473,6 +1473,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stay and Save'**
   String get errorPreventionStay;
+
+  /// No description provided for @discardEntryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard changes?'**
+  String get discardEntryTitle;
+
+  /// No description provided for @discardEntryDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Your unsaved changes will be lost.'**
+  String get discardEntryDescription;
+
+  /// No description provided for @discardEntryKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep editing'**
+  String get discardEntryKeep;
+
+  /// No description provided for @discardEntryDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard changes'**
+  String get discardEntryDiscard;
 
   /// No description provided for @blueDyeHeader.
   ///
@@ -1720,6 +1744,12 @@ abstract class AppLocalizations {
   /// **'Filters'**
   String get eventFilterHeader;
 
+  /// No description provided for @historyEntryCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No entries} =1{1 entry} other{{count} entries}}'**
+  String historyEntryCount(int count);
+
   /// No description provided for @eventFilterResults.
   ///
   /// In en, this message translates to:
@@ -1801,7 +1831,7 @@ abstract class AppLocalizations {
   /// No description provided for @behaviorsLabel.
   ///
   /// In en, this message translates to:
-  /// **'Symptoms'**
+  /// **'Responses'**
   String get behaviorsLabel;
 
   /// No description provided for @descriptionLabel.
@@ -2115,6 +2145,1446 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} entries'**
   String entriesCount(int count);
+
+  /// No description provided for @questionSetsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Record flows'**
+  String get questionSetsTitle;
+
+  /// No description provided for @questionSetsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shape how experiences, routines, and events are recorded'**
+  String get questionSetsSubtitle;
+
+  /// No description provided for @newQuestionSet.
+  ///
+  /// In en, this message translates to:
+  /// **'New flow'**
+  String get newQuestionSet;
+
+  /// No description provided for @newQuestionSetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New record flow'**
+  String get newQuestionSetTitle;
+
+  /// No description provided for @newQuestionSetDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a record flow that fits how you want to capture an experience, routine, or event.'**
+  String get newQuestionSetDescription;
+
+  /// No description provided for @questionSetName.
+  ///
+  /// In en, this message translates to:
+  /// **'Record flow name'**
+  String get questionSetName;
+
+  /// No description provided for @questionSetNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example, Meal time'**
+  String get questionSetNameHint;
+
+  /// No description provided for @questionSetNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name for this record flow'**
+  String get questionSetNameRequired;
+
+  /// No description provided for @recordTiming.
+  ///
+  /// In en, this message translates to:
+  /// **'When can this be recorded?'**
+  String get recordTiming;
+
+  /// No description provided for @recordTimingHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'This controls where and how often the record flow is available.'**
+  String get recordTimingHelp;
+
+  /// No description provided for @eventBased.
+  ///
+  /// In en, this message translates to:
+  /// **'Event-based'**
+  String get eventBased;
+
+  /// No description provided for @eventBasedDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Started when you choose to record it'**
+  String get eventBasedDescription;
+
+  /// No description provided for @dailyTiming.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily'**
+  String get dailyTiming;
+
+  /// No description provided for @weeklyTiming.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly'**
+  String get weeklyTiming;
+
+  /// No description provided for @monthlyTiming.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get monthlyTiming;
+
+  /// No description provided for @yearlyTiming.
+  ///
+  /// In en, this message translates to:
+  /// **'Yearly'**
+  String get yearlyTiming;
+
+  /// No description provided for @scheduledDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Appears on a repeating schedule'**
+  String get scheduledDescription;
+
+  /// No description provided for @createQuestionSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Create record flow'**
+  String get createQuestionSet;
+
+  /// No description provided for @questionsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 question} other{{count} questions}}'**
+  String questionsCount(int count);
+
+  /// No description provided for @sectionsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 section} other{{count} sections}}'**
+  String sectionsCount(int count);
+
+  /// No description provided for @customLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get customLabel;
+
+  /// No description provided for @reorderAndGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Reorder & group'**
+  String get reorderAndGroup;
+
+  /// No description provided for @reorderHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag questions to reorder them or move them between sections.'**
+  String get reorderHelp;
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get saveChanges;
+
+  /// No description provided for @addQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Add question'**
+  String get addQuestion;
+
+  /// No description provided for @previewFlow.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview flow'**
+  String get previewFlow;
+
+  /// No description provided for @previewQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview question'**
+  String get previewQuestion;
+
+  /// No description provided for @previewMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview mode'**
+  String get previewMode;
+
+  /// No description provided for @previewModeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Try this flow without saving any responses.'**
+  String get previewModeDescription;
+
+  /// No description provided for @closePreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Close preview'**
+  String get closePreview;
+
+  /// No description provided for @previousButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous'**
+  String get previousButton;
+
+  /// No description provided for @doneButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get doneButton;
+
+  /// No description provided for @sectionNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Section {number}'**
+  String sectionNumber(int number);
+
+  /// No description provided for @newSection.
+  ///
+  /// In en, this message translates to:
+  /// **'New section'**
+  String get newSection;
+
+  /// No description provided for @alwaysShownFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Always shown first'**
+  String get alwaysShownFirst;
+
+  /// No description provided for @alwaysShown.
+  ///
+  /// In en, this message translates to:
+  /// **'Always shown'**
+  String get alwaysShown;
+
+  /// No description provided for @conditionalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Conditional'**
+  String get conditionalLabel;
+
+  /// No description provided for @editRule.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit rule'**
+  String get editRule;
+
+  /// No description provided for @addRule.
+  ///
+  /// In en, this message translates to:
+  /// **'Add rule'**
+  String get addRule;
+
+  /// No description provided for @visibilityRuleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'When do you want to see this section?'**
+  String get visibilityRuleTitle;
+
+  /// No description provided for @visibilityRuleDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Use your answers from earlier sections to choose when this section appears.'**
+  String get visibilityRuleDescription;
+
+  /// No description provided for @questionVisibilityRuleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'When do you want to see this question?'**
+  String get questionVisibilityRuleTitle;
+
+  /// No description provided for @questionVisibilityRuleDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Use your earlier answers to choose when this question appears.'**
+  String get questionVisibilityRuleDescription;
+
+  /// No description provided for @ruleOrderingError.
+  ///
+  /// In en, this message translates to:
+  /// **'A visibility rule refers to a question that no longer appears earlier in the flow. Edit that rule or move its source question back.'**
+  String get ruleOrderingError;
+
+  /// No description provided for @saveRule.
+  ///
+  /// In en, this message translates to:
+  /// **'Save rule'**
+  String get saveRule;
+
+  /// No description provided for @alwaysShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Always show'**
+  String get alwaysShow;
+
+  /// No description provided for @addQuestionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New question'**
+  String get addQuestionTitle;
+
+  /// No description provided for @addQuestionDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose what to record and where it appears in this flow.'**
+  String get addQuestionDescription;
+
+  /// No description provided for @questionTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Response type'**
+  String get questionTypeLabel;
+
+  /// No description provided for @questionPromptLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Question'**
+  String get questionPromptLabel;
+
+  /// No description provided for @questionPromptHint.
+  ///
+  /// In en, this message translates to:
+  /// **'What would you like to record?'**
+  String get questionPromptHint;
+
+  /// No description provided for @responseRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Response range'**
+  String get responseRange;
+
+  /// No description provided for @minimumLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum'**
+  String get minimumLabel;
+
+  /// No description provided for @maximumLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum'**
+  String get maximumLabel;
+
+  /// No description provided for @optionsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Response options'**
+  String get optionsLabel;
+
+  /// No description provided for @optionsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 option} other{{count} options}}'**
+  String optionsCount(int count);
+
+  /// No description provided for @optionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Option'**
+  String get optionLabel;
+
+  /// No description provided for @addOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Add option'**
+  String get addOption;
+
+  /// No description provided for @questionPromptRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a question'**
+  String get questionPromptRequired;
+
+  /// No description provided for @rangeRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid range'**
+  String get rangeRequired;
+
+  /// No description provided for @rangeInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum must be greater than minimum'**
+  String get rangeInvalid;
+
+  /// No description provided for @optionRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Add response options'**
+  String get optionRequired;
+
+  /// No description provided for @createQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Add question'**
+  String get createQuestion;
+
+  /// No description provided for @continueButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueButton;
+
+  /// No description provided for @questionSetDetailsStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get questionSetDetailsStep;
+
+  /// No description provided for @questionsStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Build flow'**
+  String get questionsStep;
+
+  /// No description provided for @questionsStepDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Create sections, then add and arrange what you want to record in each one.'**
+  String get questionsStepDescription;
+
+  /// No description provided for @addFirstQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least one question to continue.'**
+  String get addFirstQuestion;
+
+  /// No description provided for @reviewStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get reviewStep;
+
+  /// No description provided for @reviewQuestionSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Review your record flow'**
+  String get reviewQuestionSet;
+
+  /// No description provided for @reviewQuestionSetDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Test the complete flow, then create it when everything looks right.'**
+  String get reviewQuestionSetDescription;
+
+  /// No description provided for @questionSetCreationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The record flow could not be created. No changes were saved.'**
+  String get questionSetCreationFailed;
+
+  /// No description provided for @addSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Add section'**
+  String get addSection;
+
+  /// No description provided for @emptySectionDropHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag a question here'**
+  String get emptySectionDropHere;
+
+  /// No description provided for @emptySectionSaveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a question to every section or remove the empty section.'**
+  String get emptySectionSaveError;
+
+  /// No description provided for @moveSectionUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Move section up'**
+  String get moveSectionUp;
+
+  /// No description provided for @moveSectionDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Move section down'**
+  String get moveSectionDown;
+
+  /// No description provided for @removeEmptySection.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove empty section'**
+  String get removeEmptySection;
+
+  /// No description provided for @buildFlowStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Build flow'**
+  String get buildFlowStep;
+
+  /// No description provided for @recordFlowDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe this flow'**
+  String get recordFlowDetailsTitle;
+
+  /// No description provided for @buildFlowTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Build your record flow'**
+  String get buildFlowTitle;
+
+  /// No description provided for @creationStepLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {current} of {total} · {label}'**
+  String creationStepLabel(int current, int total, String label);
+
+  /// No description provided for @addQuestionToSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Add question to this section'**
+  String get addQuestionToSection;
+
+  /// No description provided for @sectionEmptyDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a question to define what appears in this section.'**
+  String get sectionEmptyDescription;
+
+  /// No description provided for @renameSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Name your section'**
+  String get renameSection;
+
+  /// No description provided for @sectionName.
+  ///
+  /// In en, this message translates to:
+  /// **'Section name'**
+  String get sectionName;
+
+  /// No description provided for @sectionNameDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a short heading that makes sense to you.'**
+  String get sectionNameDescription;
+
+  /// No description provided for @sectionNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a section name'**
+  String get sectionNameRequired;
+
+  /// No description provided for @moveQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Move question to another section'**
+  String get moveQuestion;
+
+  /// No description provided for @reorderOrMoveQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Reorder or move question'**
+  String get reorderOrMoveQuestion;
+
+  /// No description provided for @moveQuestionUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Move question up'**
+  String get moveQuestionUp;
+
+  /// No description provided for @moveQuestionDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Move question down'**
+  String get moveQuestionDown;
+
+  /// No description provided for @moveToSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to {section}'**
+  String moveToSection(String section);
+
+  /// No description provided for @deleteQuestionFromDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete question'**
+  String get deleteQuestionFromDraft;
+
+  /// No description provided for @appearsInSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Appears in section'**
+  String get appearsInSection;
+
+  /// No description provided for @placementTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Placement'**
+  String get placementTitle;
+
+  /// No description provided for @placementDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the section where this question will appear.'**
+  String get placementDescription;
+
+  /// No description provided for @questionContentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What will this ask?'**
+  String get questionContentTitle;
+
+  /// No description provided for @questionContentDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Use clear language that will make sense during a check-in.'**
+  String get questionContentDescription;
+
+  /// No description provided for @responseSetupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How do you want to respond?'**
+  String get responseSetupTitle;
+
+  /// No description provided for @responseSetupDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose how you want to record your answer.'**
+  String get responseSetupDescription;
+
+  /// No description provided for @optionsEditorHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least two options. You can edit and drag them into order.'**
+  String get optionsEditorHelp;
+
+  /// No description provided for @optionNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Option {number}'**
+  String optionNumber(int number);
+
+  /// No description provided for @removeOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove option'**
+  String get removeOption;
+
+  /// No description provided for @optionsMinimumRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least two complete response options'**
+  String get optionsMinimumRequired;
+
+  /// No description provided for @optionsMustBeUnique.
+  ///
+  /// In en, this message translates to:
+  /// **'Each response option must be different'**
+  String get optionsMustBeUnique;
+
+  /// No description provided for @optionCommaUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Response options cannot contain commas'**
+  String get optionCommaUnsupported;
+
+  /// No description provided for @customQuestionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom question'**
+  String get customQuestionLabel;
+
+  /// No description provided for @customRecordFlowLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom record flow'**
+  String get customRecordFlowLabel;
+
+  /// No description provided for @recordFlowSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Record flow settings'**
+  String get recordFlowSettings;
+
+  /// No description provided for @backToRecordFlows.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to record flows'**
+  String get backToRecordFlows;
+
+  /// No description provided for @noRecordFlowSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'No record flow selected'**
+  String get noRecordFlowSelected;
+
+  /// No description provided for @recordFlowNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Record flow not found'**
+  String get recordFlowNotFound;
+
+  /// No description provided for @builtInFlowStructure.
+  ///
+  /// In en, this message translates to:
+  /// **'Built-in flow structure'**
+  String get builtInFlowStructure;
+
+  /// No description provided for @builtInFlowStructureDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions and sections are managed by the app. You can still change visibility when it is allowed.'**
+  String get builtInFlowStructureDescription;
+
+  /// No description provided for @questionSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Question settings'**
+  String get questionSettingsTitle;
+
+  /// No description provided for @questionCardLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'QUESTION'**
+  String get questionCardLabel;
+
+  /// No description provided for @showInCheckIns.
+  ///
+  /// In en, this message translates to:
+  /// **'Show in check-ins'**
+  String get showInCheckIns;
+
+  /// No description provided for @settingManagedByApp.
+  ///
+  /// In en, this message translates to:
+  /// **'This setting is managed by the app'**
+  String get settingManagedByApp;
+
+  /// No description provided for @hideQuestionDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off to hide this question without deleting it'**
+  String get hideQuestionDescription;
+
+  /// No description provided for @showRecordFlow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show record flow'**
+  String get showRecordFlow;
+
+  /// No description provided for @hideRecordFlowDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off to hide this flow from the record menu without deleting it'**
+  String get hideRecordFlowDescription;
+
+  /// No description provided for @responseRequirementTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Response requirement'**
+  String get responseRequirementTitle;
+
+  /// No description provided for @optionalResponseDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional · this response can be skipped'**
+  String get optionalResponseDescription;
+
+  /// No description provided for @requiredResponseDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Required · a response rule is set'**
+  String get requiredResponseDescription;
+
+  /// No description provided for @builtInQuestionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Built-in question'**
+  String get builtInQuestionLabel;
+
+  /// No description provided for @builtInQuestionDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'The question itself is managed by the app. You can change its visibility when allowed.'**
+  String get builtInQuestionDescription;
+
+  /// No description provided for @questionTypeCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Check'**
+  String get questionTypeCheck;
+
+  /// No description provided for @questionTypeSlider.
+  ///
+  /// In en, this message translates to:
+  /// **'Slider'**
+  String get questionTypeSlider;
+
+  /// No description provided for @questionTypeMultipleChoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Multiple choice'**
+  String get questionTypeMultipleChoice;
+
+  /// No description provided for @questionTypeAllThatApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all that apply'**
+  String get questionTypeAllThatApply;
+
+  /// No description provided for @questionTypeFreeResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'Written response'**
+  String get questionTypeFreeResponse;
+
+  /// No description provided for @conditionNoConditions.
+  ///
+  /// In en, this message translates to:
+  /// **'No conditions yet. This section will always be shown.'**
+  String get conditionNoConditions;
+
+  /// No description provided for @conditionChooseStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose how to start'**
+  String get conditionChooseStart;
+
+  /// No description provided for @conditionOne.
+  ///
+  /// In en, this message translates to:
+  /// **'One condition'**
+  String get conditionOne;
+
+  /// No description provided for @conditionSeveral.
+  ///
+  /// In en, this message translates to:
+  /// **'Several conditions'**
+  String get conditionSeveral;
+
+  /// No description provided for @conditionQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Question'**
+  String get conditionQuestion;
+
+  /// No description provided for @conditionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Condition'**
+  String get conditionLabel;
+
+  /// No description provided for @conditionHasResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'Has a response'**
+  String get conditionHasResponse;
+
+  /// No description provided for @conditionEquals.
+  ///
+  /// In en, this message translates to:
+  /// **'Equals'**
+  String get conditionEquals;
+
+  /// No description provided for @conditionContainsSelection.
+  ///
+  /// In en, this message translates to:
+  /// **'Contains selection'**
+  String get conditionContainsSelection;
+
+  /// No description provided for @conditionContainsText.
+  ///
+  /// In en, this message translates to:
+  /// **'Contains text'**
+  String get conditionContainsText;
+
+  /// No description provided for @conditionMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Match'**
+  String get conditionMatch;
+
+  /// No description provided for @conditionAll.
+  ///
+  /// In en, this message translates to:
+  /// **'ALL'**
+  String get conditionAll;
+
+  /// No description provided for @conditionAny.
+  ///
+  /// In en, this message translates to:
+  /// **'ANY'**
+  String get conditionAny;
+
+  /// No description provided for @conditionOf.
+  ///
+  /// In en, this message translates to:
+  /// **'of these'**
+  String get conditionOf;
+
+  /// No description provided for @conditionAnd.
+  ///
+  /// In en, this message translates to:
+  /// **'AND'**
+  String get conditionAnd;
+
+  /// No description provided for @conditionOr.
+  ///
+  /// In en, this message translates to:
+  /// **'OR'**
+  String get conditionOr;
+
+  /// No description provided for @conditionAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add condition'**
+  String get conditionAdd;
+
+  /// No description provided for @conditionNestedGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Nested group'**
+  String get conditionNestedGroup;
+
+  /// No description provided for @conditionRemoveGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove group'**
+  String get conditionRemoveGroup;
+
+  /// No description provided for @conditionRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove condition'**
+  String get conditionRemove;
+
+  /// No description provided for @conditionAnswerIs.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer is'**
+  String get conditionAnswerIs;
+
+  /// No description provided for @conditionExactMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Must match exactly'**
+  String get conditionExactMatch;
+
+  /// No description provided for @conditionValueEquals.
+  ///
+  /// In en, this message translates to:
+  /// **'Value equals'**
+  String get conditionValueEquals;
+
+  /// No description provided for @conditionUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'This condition is not available for this response type'**
+  String get conditionUnsupported;
+
+  /// No description provided for @flowBuilderHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Add questions below. Sections group questions onto a screen; visibility rules let you show follow-ups only when needed.'**
+  String get flowBuilderHelp;
+
+  /// No description provided for @flowListHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Question sets that define what you record. Open a flow to view its questions and customize it.'**
+  String get flowListHelp;
+
+  /// No description provided for @builtInFlowLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Built-in'**
+  String get builtInFlowLabel;
+
+  /// No description provided for @hiddenFlowLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden'**
+  String get hiddenFlowLabel;
+
+  /// No description provided for @editFlowQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit questions'**
+  String get editFlowQuestions;
+
+  /// No description provided for @ruleNeedsEarlierQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a question to an earlier section to create a rule.'**
+  String get ruleNeedsEarlierQuestion;
+
+  /// No description provided for @readingPreferencesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading preferences'**
+  String get readingPreferencesTitle;
+
+  /// No description provided for @displaySettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Display settings'**
+  String get displaySettingsTitle;
+
+  /// No description provided for @detailLayoutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Detail layout'**
+  String get detailLayoutTitle;
+
+  /// No description provided for @detailLayoutAutomatic.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic'**
+  String get detailLayoutAutomatic;
+
+  /// No description provided for @detailLayoutAutomaticDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Adapts to your text size and available space.'**
+  String get detailLayoutAutomaticDescription;
+
+  /// No description provided for @detailLayoutStacked.
+  ///
+  /// In en, this message translates to:
+  /// **'Question above answer'**
+  String get detailLayoutStacked;
+
+  /// No description provided for @detailLayoutStackedDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Always show each question above its answer, using the full width.'**
+  String get detailLayoutStackedDescription;
+
+  /// No description provided for @detailLayoutDeviceNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Applies to saved answers for all profiles on this device.'**
+  String get detailLayoutDeviceNote;
+
+  /// No description provided for @detailLayoutSaveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load or save this preference. Select an option to try again.'**
+  String get detailLayoutSaveError;
+
+  /// No description provided for @detailAnswerSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected'**
+  String get detailAnswerSelected;
+
+  /// No description provided for @detailAnswerUndetermined.
+  ///
+  /// In en, this message translates to:
+  /// **'Undetermined'**
+  String get detailAnswerUndetermined;
+
+  /// No description provided for @historyEditEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit entry'**
+  String get historyEditEntry;
+
+  /// No description provided for @recordSelectCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Select categories'**
+  String get recordSelectCategories;
+
+  /// No description provided for @recordSelectHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose everything you want to record. You will review all entries before saving.'**
+  String get recordSelectHelp;
+
+  /// No description provided for @recordDateAndTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Date and time'**
+  String get recordDateAndTime;
+
+  /// No description provided for @recordDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get recordDetails;
+
+  /// No description provided for @recordReviewAndSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Review and save'**
+  String get recordReviewAndSave;
+
+  /// No description provided for @recordToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get recordToday;
+
+  /// No description provided for @recordYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get recordYesterday;
+
+  /// No description provided for @recordEarlier.
+  ///
+  /// In en, this message translates to:
+  /// **'Earlier'**
+  String get recordEarlier;
+
+  /// No description provided for @recordSameTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Same time for all'**
+  String get recordSameTime;
+
+  /// No description provided for @recordSeparateTimes.
+  ///
+  /// In en, this message translates to:
+  /// **'Separate times'**
+  String get recordSeparateTimes;
+
+  /// No description provided for @recordSharedTimeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'This time applies to every selected category.'**
+  String get recordSharedTimeHelp;
+
+  /// No description provided for @recordSeparateTimeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Each category keeps its own time and precision.'**
+  String get recordSeparateTimeHelp;
+
+  /// No description provided for @recordExactTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Exact time'**
+  String get recordExactTime;
+
+  /// No description provided for @recordTimeOfDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Time of day'**
+  String get recordTimeOfDay;
+
+  /// No description provided for @recordNotSure.
+  ///
+  /// In en, this message translates to:
+  /// **'Not sure'**
+  String get recordNotSure;
+
+  /// No description provided for @recordTimeUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Time not known'**
+  String get recordTimeUnknown;
+
+  /// No description provided for @recordChoosePeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a time of day'**
+  String get recordChoosePeriod;
+
+  /// No description provided for @recordEarlyMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Early morning'**
+  String get recordEarlyMorning;
+
+  /// No description provided for @recordMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning'**
+  String get recordMorning;
+
+  /// No description provided for @recordAfternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Afternoon'**
+  String get recordAfternoon;
+
+  /// No description provided for @recordEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Evening'**
+  String get recordEvening;
+
+  /// No description provided for @recordNight.
+  ///
+  /// In en, this message translates to:
+  /// **'Night'**
+  String get recordNight;
+
+  /// No description provided for @recordUnknownTimeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the date will be recorded. You do not need to guess a time.'**
+  String get recordUnknownTimeHelp;
+
+  /// No description provided for @recordStudyExactTime.
+  ///
+  /// In en, this message translates to:
+  /// **'This study entry needs an exact time. Choose separate times to use approximate timing for other categories.'**
+  String get recordStudyExactTime;
+
+  /// No description provided for @recordInvalidTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a valid time for each category. Entries cannot be in the future.'**
+  String get recordInvalidTime;
+
+  /// No description provided for @recordReviewHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the date, times and answers before saving.'**
+  String get recordReviewHelp;
+
+  /// No description provided for @recordSaveAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Save entries'**
+  String get recordSaveAll;
+
+  /// No description provided for @recordReturnToReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Return to review'**
+  String get recordReturnToReview;
+
+  /// No description provided for @recordNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Anything else to add?'**
+  String get recordNotes;
+
+  /// No description provided for @recordPainLevelUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to determine pain level'**
+  String get recordPainLevelUnknown;
+
+  /// No description provided for @recordEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get recordEdit;
+
+  /// No description provided for @recordBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get recordBack;
+
+  /// No description provided for @recordRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get recordRetry;
+
+  /// No description provided for @recordLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load the recording flow.'**
+  String get recordLoadError;
+
+  /// No description provided for @recordNoCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'No recording categories are available for this profile.'**
+  String get recordNoCategories;
+
+  /// No description provided for @recordProfileChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'The active profile changed. Return to the original profile to continue this draft.'**
+  String get recordProfileChanged;
+
+  /// No description provided for @recordRequiredAnswers.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete the required questions before continuing.'**
+  String get recordRequiredAnswers;
+
+  /// No description provided for @recordSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Your entries have been saved.'**
+  String get recordSaved;
+
+  /// No description provided for @recordSaveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Your entries could not all be saved. Your draft is still here; try again.'**
+  String get recordSaveError;
+
+  /// No description provided for @recordStudyUpdateError.
+  ///
+  /// In en, this message translates to:
+  /// **'Your entries are saved, but the study could not be updated. Try again to finish updating the study.'**
+  String get recordStudyUpdateError;
+
+  /// No description provided for @recordSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving…'**
+  String get recordSaving;
+
+  /// No description provided for @recordStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Record an entry'**
+  String get recordStart;
+
+  /// No description provided for @recordMultipleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Record one or more categories together'**
+  String get recordMultipleHint;
+
+  /// No description provided for @recordSelectionRetained.
+  ///
+  /// In en, this message translates to:
+  /// **'Answers are kept if you deselect and reselect a category. Only selected categories will be saved.'**
+  String get recordSelectionRetained;
+
+  /// No description provided for @recordStudyChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'The study has changed since this draft started. Start a new entry to use the current study questions.'**
+  String get recordStudyChanged;
+
+  /// No description provided for @recordPartialSaveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Some entries may already be saved. Retry to finish this recording without duplicates. Leaving keeps saved entries in History.'**
+  String get recordPartialSaveError;
+
+  /// No description provided for @recordLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave recording'**
+  String get recordLeave;
+
+  /// No description provided for @recordCategoryMealHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Breakfast, lunch, dinner or snacks'**
+  String get recordCategoryMealHint;
+
+  /// No description provided for @recordCategoryPainHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Signs of pain, location and intensity'**
+  String get recordCategoryPainHint;
+
+  /// No description provided for @recordCategoryBowelHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Stool type, straining, gas or bloating'**
+  String get recordCategoryBowelHint;
+
+  /// No description provided for @recordCategoryGiHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Gagging, vomiting or trouble eating'**
+  String get recordCategoryGiHint;
+
+  /// No description provided for @recordCategorySleepHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep difficulties, mood or behavior changes'**
+  String get recordCategorySleepHint;
+
+  /// No description provided for @recordStudyExactTimeOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'This study entry needs an exact time.'**
+  String get recordStudyExactTimeOnly;
+
+  /// No description provided for @recordPageCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {current} of {total}'**
+  String recordPageCount(int current, int total);
+
+  /// No description provided for @recordFollowUpAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answer added a follow-up page.'**
+  String get recordFollowUpAdded;
+
+  /// No description provided for @recordFollowUpPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow-up questions'**
+  String get recordFollowUpPage;
+
+  /// No description provided for @recordQuestionRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get recordQuestionRequired;
+
+  /// No description provided for @recordQuestionInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Check this answer before continuing.'**
+  String get recordQuestionInvalid;
+
+  /// No description provided for @recordNextCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Next: {category}'**
+  String recordNextCategory(String category);
+
+  /// No description provided for @recordCategoryCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Category {current} of {total}'**
+  String recordCategoryCount(int current, int total);
+
+  /// No description provided for @recordViewFollowUps.
+  ///
+  /// In en, this message translates to:
+  /// **'View added questions'**
+  String get recordViewFollowUps;
+
+  /// No description provided for @recordFollowUpsAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Added based on your answer'**
+  String get recordFollowUpsAdded;
+
+  /// No description provided for @painIntensityNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No pain'**
+  String get painIntensityNone;
+
+  /// No description provided for @painIntensityModerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate'**
+  String get painIntensityModerate;
+
+  /// No description provided for @painIntensityWorst.
+  ///
+  /// In en, this message translates to:
+  /// **'Worst possible'**
+  String get painIntensityWorst;
+
+  /// No description provided for @painIntensityNotSure.
+  ///
+  /// In en, this message translates to:
+  /// **'Not sure'**
+  String get painIntensityNotSure;
 }
 
 class _AppLocalizationsDelegate
@@ -2146,8 +3616,9 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   }
 
   throw FlutterError(
-      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.',
+  );
 }

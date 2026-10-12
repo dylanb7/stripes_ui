@@ -25,15 +25,15 @@ class ReportGenerator {
     QuestionsLocalizations? questionsL10n,
     List<LabeledFilter> filters = const [],
     String? patientName,
+    bool includeInsights = false,
   }) async {
     final pdf = pw.Document();
 
     final stats = _calculateStats(responses);
     final blueDyeResults = _extractBlueDyeResults(responses);
-    final List<Insight> insights = Insight.fromResponses(
-      responses,
-      filter: InsightPurpose.report,
-    );
+    final List<Insight> insights = includeInsights
+        ? Insight.fromResponses(responses, filter: InsightPurpose.report)
+        : const [];
     final questionBreakdown = _buildQuestionBreakdown(responses);
 
     final font = await PdfGoogleFonts.interRegular();
@@ -44,10 +44,7 @@ class ReportGenerator {
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
-        theme: pw.ThemeData.withFont(
-          base: font,
-          bold: fontBold,
-        ),
+        theme: pw.ThemeData.withFont(base: font, bold: fontBold),
         header: (context) => _buildHeader(
           dateRange: dateRange,
           patientName: patientName,
@@ -70,7 +67,10 @@ class ReportGenerator {
           _buildSectionTitle('Entries by Category', fontBold),
           pw.SizedBox(height: 8),
           _buildCategoryTable(
-              stats.entriesByType, stats.totalEntries, localize),
+            stats.entriesByType,
+            stats.totalEntries,
+            localize,
+          ),
           pw.SizedBox(height: 20),
           if (blueDyeResults.isNotEmpty) ...[
             _buildSectionTitle('Blue Dye Test Results', fontBold),
@@ -97,7 +97,7 @@ class ReportGenerator {
   }) {
     final dateFormat = DateFormat.yMMMd();
     final rangeString =
-        '${dateFormat.format(dateRange.start)} - ${dateFormat.format(dateRange.end)}';
+        '${dateFormat.format(dateRange.start.toLocal())} - ${dateFormat.format(dateRange.end.toLocal())}';
 
     return pw.Container(
       margin: const pw.EdgeInsets.only(bottom: 20),
@@ -206,13 +206,19 @@ class ReportGenerator {
         children: [
           pw.Text(
             'Generated: ${dateFormat.format(now)}',
-            style:
-                pw.TextStyle(font: font, fontSize: 9, color: PdfColors.grey600),
+            style: pw.TextStyle(
+              font: font,
+              fontSize: 9,
+              color: PdfColors.grey600,
+            ),
           ),
           pw.Text(
             'Page ${context.pageNumber} of ${context.pagesCount}',
-            style:
-                pw.TextStyle(font: font, fontSize: 9, color: PdfColors.grey600),
+            style: pw.TextStyle(
+              font: font,
+              fontSize: 9,
+              color: PdfColors.grey600,
+            ),
           ),
         ],
       ),
@@ -265,10 +271,7 @@ class ReportGenerator {
           pw.SizedBox(height: 4),
           pw.Text(
             label,
-            style: const pw.TextStyle(
-              fontSize: 10,
-              color: PdfColors.grey700,
-            ),
+            style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey700),
           ),
         ],
       ),
@@ -276,7 +279,9 @@ class ReportGenerator {
   }
 
   static pw.Widget _buildInsightsSection(
-      List<Insight> insights, String Function(String) localize) {
+    List<Insight> insights,
+    String Function(String) localize,
+  ) {
     return pw.Container(
       padding: const pw.EdgeInsets.all(12),
       decoration: pw.BoxDecoration(
@@ -287,37 +292,42 @@ class ReportGenerator {
       child: pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: insights
-            .map((insight) => pw.Padding(
-                  padding: const pw.EdgeInsets.only(bottom: 6),
-                  child: pw.RichText(
-                    text: pw.TextSpan(
-                      children: [
-                        pw.TextSpan(
-                          text: '${localize(insight.getTitle(null))}: ',
-                          style: pw.TextStyle(
-                            fontSize: 10,
-                            fontWeight: pw.FontWeight.bold,
-                            color: PdfColors.blueGrey800,
-                          ),
+            .map(
+              (insight) => pw.Padding(
+                padding: const pw.EdgeInsets.only(bottom: 6),
+                child: pw.RichText(
+                  text: pw.TextSpan(
+                    children: [
+                      pw.TextSpan(
+                        text: '${localize(insight.getTitle(null))}: ',
+                        style: pw.TextStyle(
+                          fontSize: 10,
+                          fontWeight: pw.FontWeight.bold,
+                          color: PdfColors.blueGrey800,
                         ),
-                        pw.TextSpan(
-                          text: localize(insight.getDescription(null)),
-                          style: const pw.TextStyle(
-                            fontSize: 10,
-                            color: PdfColors.grey700,
-                          ),
+                      ),
+                      pw.TextSpan(
+                        text: localize(insight.getDescription(null)),
+                        style: const pw.TextStyle(
+                          fontSize: 10,
+                          color: PdfColors.grey700,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ))
+                ),
+              ),
+            )
             .toList(),
       ),
     );
   }
 
-  static pw.Widget _buildCategoryTable(Map<String, int> entriesByType,
-      int total, String Function(String) localize) {
+  static pw.Widget _buildCategoryTable(
+    Map<String, int> entriesByType,
+    int total,
+    String Function(String) localize,
+  ) {
     final sortedEntries = entriesByType.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
@@ -340,8 +350,9 @@ class ReportGenerator {
         ),
         // Data rows
         ...sortedEntries.map((entry) {
-          final percentage =
-              total > 0 ? (entry.value / total * 100).toStringAsFixed(1) : '0';
+          final percentage = total > 0
+              ? (entry.value / total * 100).toStringAsFixed(1)
+              : '0';
           return pw.TableRow(
             children: [
               _tableCell(localize(entry.key)),
@@ -393,7 +404,7 @@ class ReportGenerator {
           final dateFormat = DateFormat.yMMMd();
           return pw.TableRow(
             children: [
-              _tableCell(dateFormat.format(result.testDate)),
+              _tableCell(dateFormat.format(result.testDate.toLocal())),
               _tableCell(_formatDuration(result.mealDuration)),
               _tableCell(_formatDuration(result.transitTime)),
               _tableCell(_formatDuration(result.lagPhase)),
@@ -497,14 +508,20 @@ class ReportGenerator {
                     children: [
                       _buildMiniStat('Count', questionData.count.toString()),
                       pw.SizedBox(width: 16),
-                      _buildMiniStat('Avg',
-                          questionData.average?.toStringAsFixed(1) ?? '-'),
+                      _buildMiniStat(
+                        'Avg',
+                        questionData.average?.toStringAsFixed(1) ?? '-',
+                      ),
                       pw.SizedBox(width: 16),
                       _buildMiniStat(
-                          'Min', questionData.min?.toStringAsFixed(1) ?? '-'),
+                        'Min',
+                        questionData.min?.toStringAsFixed(1) ?? '-',
+                      ),
                       pw.SizedBox(width: 16),
                       _buildMiniStat(
-                          'Max', questionData.max?.toStringAsFixed(1) ?? '-'),
+                        'Max',
+                        questionData.max?.toStringAsFixed(1) ?? '-',
+                      ),
                     ],
                   ),
                 ] else if (questionData.openResponses.isNotEmpty) ...[
@@ -580,8 +597,9 @@ class ReportGenerator {
       uniqueDates.add(DateTime(date.year, date.month, date.day));
     }
 
-    final avgPerDay =
-        uniqueDates.isNotEmpty ? responses.length / uniqueDates.length : 0.0;
+    final avgPerDay = uniqueDates.isNotEmpty
+        ? responses.length / uniqueDates.length
+        : 0.0;
 
     return _ReportStats(
       totalEntries: responses.length,
@@ -593,7 +611,8 @@ class ReportGenerator {
   }
 
   static Map<String, _CategoryBreakdown> _buildQuestionBreakdown(
-      List<Response> responses) {
+    List<Response> responses,
+  ) {
     final Map<String, _CategoryBreakdown> breakdown = {};
 
     for (final response in responses) {
@@ -617,9 +636,9 @@ class ReportGenerator {
             response.startEating.add(response.eatingDuration),
           );
           breakdown[category]!.questions.putIfAbsent(
-                'transit_time',
-                () => _QuestionBreakdown(prompt: 'Transit Time (hours)'),
-              );
+            'transit_time',
+            () => _QuestionBreakdown(prompt: 'Transit Time (hours)'),
+          );
           final transitBreakdown =
               breakdown[category]!.questions['transit_time']!;
           transitBreakdown.count++;
@@ -629,9 +648,9 @@ class ReportGenerator {
           // Add lag phase as a numeric breakdown
           final lagPhase = response.lastBlue.difference(response.firstBlue);
           breakdown[category]!.questions.putIfAbsent(
-                'lag_phase',
-                () => _QuestionBreakdown(prompt: 'Lag Phase (hours)'),
-              );
+            'lag_phase',
+            () => _QuestionBreakdown(prompt: 'Lag Phase (hours)'),
+          );
           final lagBreakdown = breakdown[category]!.questions['lag_phase']!;
           lagBreakdown.count++;
           lagBreakdown.isNumeric = true;
@@ -716,14 +735,16 @@ class ReportGenerator {
 
     for (final response in responses) {
       if (response is BlueDyeResp) {
-        results.add(_BlueDyeResult(
-          testDate: response.startEating,
-          mealDuration: response.eatingDuration,
-          transitTime: response.firstBlue.difference(
-            response.startEating.add(response.eatingDuration),
+        results.add(
+          _BlueDyeResult(
+            testDate: response.startEating,
+            mealDuration: response.eatingDuration,
+            transitTime: response.firstBlue.difference(
+              response.startEating.add(response.eatingDuration),
+            ),
+            lagPhase: response.lastBlue.difference(response.firstBlue),
           ),
-          lagPhase: response.lastBlue.difference(response.firstBlue),
-        ));
+        );
       }
     }
 
@@ -741,17 +762,19 @@ class ReportGenerator {
     if (kIsWeb) {
       // Web: Download directly to browser
       web_download.downloadBytes(
-          pdfBytes.toList(), filename, 'application/pdf');
+        pdfBytes.toList(),
+        filename,
+        'application/pdf',
+      );
     } else {
       // Native: Use share dialog
       final Directory tempDir = await getTemporaryDirectory();
       final File file = File('${tempDir.path}/$filename');
       await file.writeAsBytes(pdfBytes);
 
-      await Share.shareXFiles(
-        [XFile(file.path)],
-        sharePositionOrigin: sharePositionOrigin,
-      );
+      await Share.shareXFiles([
+        XFile(file.path),
+      ], sharePositionOrigin: sharePositionOrigin);
 
       // Clean up temp file after sharing
       await file.delete();

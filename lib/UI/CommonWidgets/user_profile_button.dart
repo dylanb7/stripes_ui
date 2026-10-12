@@ -10,6 +10,7 @@ import 'package:stripes_ui/Util/Design/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
+import 'package:stripes_ui/Util/Design/reading_size.dart';
 
 class UserProfileButton extends ConsumerWidget {
   final bool selected;
@@ -19,12 +20,17 @@ class UserProfileButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       decoration: BoxDecoration(
-          color: selected
-              ? Theme.of(context).primaryColor
-              : ElevationOverlay.applySurfaceTint(Theme.of(context).cardColor,
-                  Theme.of(context).colorScheme.surfaceTint, 6),
-          shape: BoxShape.circle),
+        color: selected
+            ? Theme.of(context).primaryColor
+            : ElevationOverlay.applySurfaceTint(
+                Theme.of(context).cardColor,
+                Theme.of(context).colorScheme.surfaceTint,
+                6,
+              ),
+        shape: BoxShape.circle,
+      ),
       child: IconButton(
+        iconSize: readingIconSize(context),
         padding: EdgeInsets.zero,
         onPressed: () {
           final GoRouter router = GoRouter.of(context);
@@ -43,12 +49,12 @@ class UserProfileButton extends ConsumerWidget {
           }
         },
         icon: Icon(
-          Icons.person_outline,
+          Icons.menu,
           color: selected
               ? Theme.of(context).colorScheme.onPrimary
               : Theme.of(context).colorScheme.onSurface,
         ),
-        tooltip: 'Account',
+        tooltip: 'Menu',
       ),
     );
   }
@@ -68,11 +74,15 @@ class ExitErrorPrevention extends ConsumerWidget {
           children: [
             Card(
               shape: const RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.all(Radius.circular(AppRounding.small))),
+                borderRadius: BorderRadius.all(
+                  Radius.circular(AppRounding.small),
+                ),
+              ),
               child: Padding(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: AppPadding.small, vertical: AppPadding.medium),
+                  horizontal: AppPadding.small,
+                  vertical: AppPadding.medium,
+                ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -82,32 +92,27 @@ class ExitErrorPrevention extends ConsumerWidget {
                       style: Theme.of(context).textTheme.bodyLarge,
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(
-                      height: AppPadding.small,
-                    ),
+                    const SizedBox(height: AppPadding.small),
                     Text(
                       context.translate.exitStudyWarning,
                       style: Theme.of(context).textTheme.bodyMedium,
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(
-                      height: AppPadding.small,
-                    ),
+                    const SizedBox(height: AppPadding.small),
                   ],
                 ),
               ),
             ),
-            const SizedBox(
-              height: AppPadding.tiny,
-            ),
+            const SizedBox(height: AppPadding.tiny),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 FilledButton(
-                    onPressed: () {
-                      _closeOverlay(context);
-                    },
-                    child: Text(context.translate.stampDeleteCancel)),
+                  onPressed: () {
+                    _closeOverlay(context);
+                  },
+                  child: Text(context.translate.stampDeleteCancel),
+                ),
                 TonalButtonTheme(
                   child: FilledButton.tonal(
                     onPressed: () {
@@ -124,7 +129,7 @@ class ExitErrorPrevention extends ConsumerWidget {
     );
   }
 
-  _confirm(WidgetRef ref, BuildContext context) async {
+  Future<void> _confirm(WidgetRef ref, BuildContext context) async {
     _closeOverlay(context);
     final Function? exitAction = ref.watch(configProvider).onExitStudy;
     try {
@@ -134,7 +139,7 @@ class ExitErrorPrevention extends ConsumerWidget {
     }
   }
 
-  _closeOverlay(BuildContext context) {
+  void _closeOverlay(BuildContext context) {
     Navigator.of(context).pop();
   }
 }

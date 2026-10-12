@@ -1,262 +1,174 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:stripes_backend_helper/RepositoryBase/repo_result.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
-
+import 'package:stripes_ui/Providers/Navigation/sheet_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
-import 'package:stripes_ui/UI/AccountManagement/ProfileScreen/edit_profile.dart';
-import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
-import 'package:stripes_ui/UI/CommonWidgets/expandible.dart';
-
-import 'package:stripes_ui/Util/Design/breakpoint.dart';
-import 'package:stripes_ui/Util/Widgets/easy_snack.dart';
+import 'package:stripes_ui/Providers/profile_condition_provider.dart';
+import 'package:stripes_ui/Models/profile_condition.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
+import 'package:stripes_ui/Util/Widgets/easy_snack.dart';
 
-class ProfileView extends ConsumerWidget {
+import 'edit_profile.dart';
+import 'profile_avatar.dart';
+
+String profileDetails(SubUser user, [ProfileCondition? condition]) => [
+  if (condition != null) condition.label,
+  if (user.birthYear > 0) 'Born ${user.birthYear}',
+].join(' · ');
+
+class ProfileView extends StatelessWidget {
   final SubUser subUser;
-
   final bool selected;
 
   const ProfileView({required this.subUser, required this.selected, super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final bool isSmall = getBreakpoint(context).isLessThan(Breakpoint.medium);
-
-    final Widget controlRow = Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        selected
-            ? TextButton(
-                onPressed: null,
-                child: Text(
-                  'Selected',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              )
-            : TextButton(
-                child: const Text('Select'),
-                onPressed: () {
-                  _changeToCurrent(ref);
-                },
-              ),
-        IconButton(
-          highlightColor: Colors.transparent,
-          hoverColor: Colors.transparent,
-          splashColor: Colors.transparent,
-          onPressed: () {
-            _editPatient(ref, context);
-          },
-          icon: const Icon(Icons.edit),
-        )
-      ],
-    );
-
-    return Expandible(
-      canExpand: isSmall,
-      highlightColor: selected ? Theme.of(context).colorScheme.primary : null,
-      highlightOnShrink: true,
-      header: Padding(
-        padding: const EdgeInsets.symmetric(vertical: AppPadding.tiny),
-        child: Text(
-          subUser.name,
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-      ),
-      view: Column(
-        children: [
-          const SizedBox(
-            height: AppPadding.tiny,
-          ),
-          Row(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Birth Year:",
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  Text(
-                    "Gender:",
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                ],
-              ),
-              const SizedBox(
-                width: AppPadding.large,
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "${subUser.birthYear}",
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  Text(
-                    subUser.gender,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                ],
-              )
-            ],
-          ),
-          const SizedBox(
-            height: AppPadding.small,
-          ),
-          controlRow,
-          const SizedBox(
-            height: AppPadding.small,
-          ),
-        ],
-      ),
-    );
-  }
-
-  _changeToCurrent(WidgetRef ref) {
-    ref.read(subHolderProvider.notifier).changeCurrent(subUser);
-  }
-
-  _editPatient(WidgetRef ref, BuildContext context) {
-    showDialog(
-        context: context,
-        builder: (context) => EditUserWidget(subUser: subUser));
-  }
+  Widget build(BuildContext context) =>
+      _ProfileRow(subUser: subUser, selected: selected, showDetails: true);
 }
 
-class MinimalProfileView extends ConsumerWidget {
+class MinimalProfileView extends StatelessWidget {
   final SubUser subUser;
-
   final bool selected;
 
-  const MinimalProfileView(
-      {required this.subUser, required this.selected, super.key});
+  const MinimalProfileView({
+    required this.subUser,
+    required this.selected,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) =>
+      _ProfileRow(subUser: subUser, selected: selected, showDetails: false);
+}
+
+class _ProfileRow extends ConsumerWidget {
+  final SubUser subUser;
+  final bool selected;
+  final bool showDetails;
+
+  const _ProfileRow({
+    required this.subUser,
+    required this.selected,
+    required this.showDetails,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final Color primary = Theme.of(context).primaryColor;
-    final Color surface = Theme.of(context).colorScheme.surface;
-    final Color text = Theme.of(context).colorScheme.onSurface;
-    return GestureDetector(
-      behavior: HitTestBehavior.deferToChild,
-      onTap: () {
-        if (!selected) {
-          _changeToCurrent(ref);
-        }
-      },
-      child: AnimatedContainer(
-        duration: Durations.short1,
-        decoration: BoxDecoration(
-            color: selected ? primary : surface,
-            borderRadius: const BorderRadius.all(
-              Radius.circular(AppRounding.medium),
+    final colors = Theme.of(context).colorScheme;
+    final text = Theme.of(context).textTheme;
+    final condition = showDetails
+        ? ref.watch(profileConditionProvider(subUser.uid)).value
+        : null;
+    final details = profileDetails(subUser, condition);
+    return Semantics(
+      selected: selected,
+      container: true,
+      child: Material(
+        color: selected
+            ? colors.primary.withValues(alpha: 0.08)
+            : colors.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRounding.small),
+          side: BorderSide(
+            color: selected ? colors.primary : colors.outlineVariant,
+            width: selected ? 1.5 : 1,
+          ),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          key: ValueKey('profile-row-${subUser.uid}'),
+          onTap: selected ? null : () => _select(ref, context),
+          child: Padding(
+            padding: const EdgeInsets.all(AppPadding.large),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final stacked =
+                    constraints.maxWidth < 280 ||
+                    MediaQuery.textScalerOf(context).scale(14) > 21;
+                final edit = TextButton(
+                  key: ValueKey('edit-profile-${subUser.uid}'),
+                  onPressed: () => ref
+                      .read(sheetControllerProvider)
+                      .show<void>(
+                        context: context,
+                        scrollControlled: true,
+                        avoidKeyboard: true,
+                        child: (_) => EditUserWidget(subUser: subUser),
+                      ),
+                  child: const Text('Edit'),
+                );
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ProfileAvatar(name: subUser.name),
+                    const SizedBox(width: AppPadding.medium),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            subUser.name,
+                            style: text.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          if (showDetails && details.isNotEmpty)
+                            Text(
+                              details,
+                              style: text.bodyMedium?.copyWith(
+                                color: colors.onSurfaceVariant,
+                              ),
+                            ),
+                          if (selected) ...[
+                            const SizedBox(height: AppPadding.small),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppPadding.small,
+                                vertical: AppPadding.tiny,
+                              ),
+                              decoration: BoxDecoration(
+                                color: colors.primaryContainer,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                'Current profile',
+                                style: text.labelMedium?.copyWith(
+                                  color: colors.onPrimaryContainer,
+                                ),
+                              ),
+                            ),
+                          ],
+                          if (stacked) edit,
+                        ],
+                      ),
+                    ),
+                    if (!stacked) ...[
+                      const SizedBox(width: AppPadding.small),
+                      edit,
+                    ],
+                  ],
+                );
+              },
             ),
-            border: selected ? null : Border.all(width: 1.0, color: text)),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-              horizontal: AppPadding.tiny, vertical: AppPadding.tiny),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: AppPadding.small),
-                child: FittedBox(
-                  fit: BoxFit.fitWidth,
-                  child: Text(
-                    subUser.name,
-                    textAlign: TextAlign.left,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleLarge
-                        ?.copyWith(color: selected ? surface : text),
-                  ),
-                ),
-              ),
-              const Spacer(),
-              IconButton(
-                onPressed: () {
-                  _editProfile(ref, context);
-                },
-                icon: Icon(
-                  Icons.edit,
-                  color: selected ? surface : text,
-                ),
-              ),
-              IconButton(
-                onPressed: () {
-                  _deleteProfile(ref, context);
-                },
-                icon: Icon(
-                  Icons.delete,
-                  color: selected ? surface : text,
-                ),
-              ),
-              const SizedBox(
-                width: AppPadding.tiny,
-              ),
-            ],
           ),
         ),
       ),
     );
   }
 
-  _changeToCurrent(WidgetRef ref) {
-    ref.read(subHolderProvider.notifier).changeCurrent(subUser);
-  }
-
-  _editProfile(WidgetRef ref, BuildContext context) {
-    showDialog(
-        context: context,
-        builder: (context) => EditUserWidget(subUser: subUser));
-  }
-
-  _deleteProfile(WidgetRef ref, BuildContext context) {
-    showDialog(
-        context: context,
-        builder: (context) => DeleteConfirmation(toDelete: subUser));
-  }
-}
-
-class DeleteConfirmation extends ConsumerWidget {
-  final SubUser toDelete;
-
-  const DeleteConfirmation({required this.toDelete, super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return ConfirmationPopup(
-      title: Text(
-        "Delete Profile",
-        style: Theme.of(context)
-            .textTheme
-            .headlineMedium
-            ?.copyWith(color: Theme.of(context).primaryColor),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(AppPadding.small),
-        child: Text(
-            "This action is irreversable and will delete all entries associated with ${toDelete.name}"),
-      ),
-      cancel: 'Cancel',
-      confirm: 'Confirm',
-      onConfirm: () async {
-        final RepoResult<void> deleteResult = await _deleteSubUser(ref);
-        if (context.mounted) {
-          if (deleteResult case Failure(:final message)) {
-            showSnack(context, message);
-          }
-        }
-      },
-    );
-  }
-
-  Future<RepoResult<void>> _deleteSubUser(WidgetRef ref) async {
-    final SubUserRepo? repo = await ref.read(subProvider.future);
-    if (repo == null) return const Failure(message: 'No repo found');
-    return repo.deleteSubUser(toDelete);
+  Future<void> _select(WidgetRef ref, BuildContext context) async {
+    try {
+      final changed = await ref
+          .read(subHolderProvider.notifier)
+          .changeCurrent(subUser);
+      if (!changed && context.mounted) {
+        showSnack(context, 'Unable to switch profiles. Please try again.');
+      }
+    } catch (_) {
+      if (context.mounted) {
+        showSnack(context, 'Unable to switch profiles. Please try again.');
+      }
+    }
   }
 }

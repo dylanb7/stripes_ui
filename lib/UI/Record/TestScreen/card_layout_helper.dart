@@ -9,11 +9,12 @@ class AdaptiveCardLayout extends StatelessWidget {
 
   final Widget child;
 
-  const AdaptiveCardLayout(
-      {required this.cardColor,
-      required this.child,
-      this.borderColor,
-      super.key});
+  const AdaptiveCardLayout({
+    required this.cardColor,
+    required this.child,
+    this.borderColor,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -21,19 +22,22 @@ class AdaptiveCardLayout extends StatelessWidget {
     return Center(
       child: ConstrainedBox(
         constraints: BoxConstraints(
-            maxWidth: isCard ? Breakpoint.medium.value : double.infinity),
+          maxWidth: isCard ? Breakpoint.medium.value : double.infinity,
+        ),
         child: Padding(
-          padding:
-              EdgeInsets.symmetric(horizontal: isCard ? AppPadding.xl : 0.0),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(
-                Radius.circular(isCard ? AppPadding.small : 0),
+          padding: EdgeInsets.symmetric(
+            horizontal: isCard ? AppPadding.xl : 0.0,
+          ),
+          child: Material(
+            color: cardColor,
+            clipBehavior: Clip.antiAlias,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(
+                isCard ? AppPadding.small : 0,
               ),
-              border: Border.all(
-                  width: 1,
-                  color: isCard ? borderColor ?? cardColor : cardColor),
-              color: cardColor,
+              side: BorderSide(
+                color: isCard ? borderColor ?? cardColor : cardColor,
+              ),
             ),
             child: child,
           ),

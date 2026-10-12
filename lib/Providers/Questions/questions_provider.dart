@@ -7,67 +7,84 @@ import 'package:stripes_ui/Providers/History/stamps_provider.dart';
 import 'package:stripes_ui/Providers/base_providers.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 
+export 'package:stripes_backend_helper/stripes_backend_helper.dart'
+    show PathProviderType, PagesData, RecordItem, ReviewItem;
+
 final questionsProvider = FutureProvider<QuestionRepo?>((ref) async {
   final AuthUser user = await ref.watch(authStream.future);
-  final SubUser? sub =
-      await ref.watch(subHolderProvider.selectAsync((value) => value.selected));
+  final SubUser? sub = await ref.watch(
+    subHolderProvider.selectAsync((value) => value.selected),
+  );
   final bool subEmpty = sub == null || SubUser.isEmpty(sub);
   if (subEmpty) return null;
   return ref.watch(reposProvider).questions(user: user, subUser: sub);
 });
 
 final questionHomeProvider = StreamProvider<QuestionHome>((ref) {
-  return ref.watch(questionsProvider).map(
-      data: (data) {
-        final QuestionRepo<QuestionHome>? repo = data.value;
-        if (repo == null) return const Stream.empty();
-        return repo.questions;
-      },
-      error: (_) => const Stream.empty(),
-      loading: (_) => const Stream.empty());
+  return ref
+      .watch(questionsProvider)
+      .map(
+        data: (data) {
+          final QuestionRepo<QuestionHome>? repo = data.value;
+          if (repo == null) return const Stream.empty();
+          return repo.questions;
+        },
+        error: (_) => const Stream.empty(),
+        loading: (_) => const Stream.empty(),
+      );
 });
 
 final questionLayoutProvider = StreamProvider<List<RecordPath>>((ref) {
-  return ref.watch(questionsProvider).map(
-      data: (data) {
-        final QuestionRepo<QuestionHome>? repo = data.value;
-        if (repo == null) return const Stream.empty();
-        return repo.layouts;
-      },
-      error: (_) => const Stream.empty(),
-      loading: (_) => const Stream.empty());
+  return ref
+      .watch(questionsProvider)
+      .map(
+        data: (data) {
+          final QuestionRepo<QuestionHome>? repo = data.value;
+          if (repo == null) return const Stream.empty();
+          return repo.layouts;
+        },
+        error: (_) => const Stream.empty(),
+        loading: (_) => const Stream.empty(),
+      );
 });
 
 /// Exposes baseline layouts from repos that mix in BaselineRecordPathMixin.
 final baselineLayoutProvider = StreamProvider<List<RecordPath>>((ref) {
-  return ref.watch(questionsProvider).map(
-      data: (data) {
-        final repo = data.value;
-        if (repo == null) return const Stream.empty();
-        if (repo is BaselineRecordPathMixin) {
-          return repo.baselineRecordPaths;
-        }
-        return const Stream.empty();
-      },
-      error: (_) => const Stream.empty(),
-      loading: (_) => const Stream.empty());
+  return ref
+      .watch(questionsProvider)
+      .map(
+        data: (data) {
+          final repo = data.value;
+          if (repo == null) return const Stream.empty();
+          if (repo is BaselineRecordPathMixin) {
+            return repo.baselineRecordPaths;
+          }
+          return Stream.value(const <RecordPath>[]);
+        },
+        error: (_) => const Stream.empty(),
+        loading: (_) => const Stream.empty(),
+      );
 });
 
-final questionsByType =
-    FutureProvider<Map<String, List<Question>>>((ref) async {
-  final List<RecordPath> paths = await ref.watch(questionLayoutProvider.future);
+final questionGraphProvider = FutureProvider<QuestionGraph>((ref) async {
   final QuestionHome home = await ref.watch(questionHomeProvider.future);
+  final List<RecordPath> layouts = await ref.watch(
+    questionLayoutProvider.future,
+  );
+  final List<RecordPath> baselineLayouts = await ref
+      .watch(baselineLayoutProvider.future)
+      .catchError((_) => <RecordPath>[]);
 
-  final Map<String, List<Question>> byCategory = home.byType();
+  final allLayouts = [...layouts, ...baselineLayouts];
 
-  //add in empty paths
-  for (final RecordPath path in paths) {
-    if (!byCategory.containsKey(path.name)) {
-      byCategory[path.name] = [];
-    }
-  }
+  return QuestionGraphBuilder.build(home: home, recordPaths: allLayouts);
+});
 
-  return byCategory;
+final questionsByType = FutureProvider<Map<String, List<Question>>>((
+  ref,
+) async {
+  final graph = await ref.watch(questionGraphProvider.future);
+  return graph.questionsByType();
 });
 
 @immutable
@@ -80,68 +97,19 @@ class PagesByPathProps extends Equatable {
   List<Object?> get props => [pathName, filterEnabled];
 }
 
-@immutable
-class PagesData extends Equatable {
-  final List<LoadedPageLayout>? loadedLayouts;
-
-  final RecordPath? path;
-
-  const PagesData({this.path, this.loadedLayouts});
-
-  @override
-  List<Object?> get props => [path, loadedLayouts];
-}
-
 final pagesByPath = FutureProvider.autoDispose
     .family<PagesData, PagesByPathProps>((ref, props) async {
-  final List<RecordPath> paths = await ref.watch(questionLayoutProvider.future);
-  final QuestionHome home = await ref.watch(questionHomeProvider.future);
-  final List<Stamp> baselines = await ref.watch(baselinesStreamProvider.future);
-
-  // Search in regular layouts first
-  Iterable<RecordPath> withName =
-      paths.where((path) => path.name == props.pathName);
-  RecordPath? matching = withName.isEmpty ? null : withName.first;
-
-  // If not found, check baseline layouts
-  if (matching == null) {
-    final List<RecordPath> baselinePaths =
-        await ref.watch(baselineLayoutProvider.future);
-    withName = baselinePaths.where((path) => path.name == props.pathName);
-    matching = withName.isEmpty ? null : withName.first;
-  }
-
-  if (matching == null) return const PagesData();
-  List<LoadedPageLayout> loadedLayouts = [];
-  for (final PageLayout layout in matching.pages) {
-    List<Question> questions = [];
-    for (final String qid in layout.questionIds) {
-      Question? question = home.fromBank(qid);
-      if (question == null || (props.filterEnabled && !question.enabled)) {
-        continue;
-      }
-      if (question.fromBaseline != null) {
-        final bool hasBaseline =
-            baselines.any((element) => element.type == question.fromBaseline);
-        if (!hasBaseline) continue;
-      }
-      questions.add(question);
-    }
-    if (questions.isEmpty) continue;
-    loadedLayouts.add(LoadedPageLayout(
-        requirement: layout.requirement,
-        questions: questions,
-        dependsOn: layout.dependsOn,
-        header: layout.header));
-  }
-  return PagesData(path: matching, loadedLayouts: loadedLayouts);
-});
-
-enum PathProviderType {
-  review,
-  record,
-  both;
-}
+      final graph = await ref.watch(questionGraphProvider.future);
+      final List<Stamp> baselines = await ref.watch(
+        baselinesStreamProvider.future,
+      );
+      return graph.pagesDataForPath(
+            props.pathName,
+            filterEnabled: props.filterEnabled,
+            baselines: baselines,
+          ) ??
+          const PagesData();
+    });
 
 @immutable
 class RecordPathProps extends Equatable {
@@ -152,32 +120,16 @@ class RecordPathProps extends Equatable {
   List<Object?> get props => [filterEnabled, type];
 }
 
-final recordPaths = FutureProvider.family<List<RecordPath>, RecordPathProps>(
-    (ref, props) async {
-  final List<RecordPath> layouts =
-      await ref.watch(questionLayoutProvider.future);
-
-  return layouts.where((layout) {
-    if (props.filterEnabled && !layout.enabled) return false;
-    if (props.type == PathProviderType.review && layout.period == null) {
-      return false;
-    }
-    if (props.type == PathProviderType.record && layout.period != null) {
-      return false;
-    }
-    return true;
-  }).toList();
+final recordPaths = FutureProvider.family<List<RecordPath>, RecordPathProps>((
+  ref,
+  props,
+) async {
+  final graph = await ref.watch(questionGraphProvider.future);
+  return graph
+      .allRecordPaths(filterEnabled: props.filterEnabled, type: props.type)
+      .where((path) => !path.isBaseline)
+      .toList(growable: false);
 });
-
-@immutable
-class ReviewItem {
-  final RecordPath path;
-  final String type;
-  final DetailResponse? response;
-
-  const ReviewItem(
-      {required this.path, required this.type, required this.response});
-}
 
 class ReviewPathsProps {
   final DateTime? searchDate;
@@ -187,7 +139,6 @@ class ReviewPathsProps {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! ReviewPathsProps) return false;
-    // Compare by day only (not time) for date-based caching
     final a = searchDate;
     final b = other.searchDate;
     if (a == null && b == null) return true;
@@ -203,113 +154,52 @@ class ReviewPathsProps {
   }
 }
 
-final reviewPaths = FutureProvider.family<List<ReviewItem>, ReviewPathsProps>(
-    (ref, props) async {
-  const pathProps = RecordPathProps(
-    filterEnabled: true,
-    type: PathProviderType.review,
-  );
+final reviewPaths = FutureProvider.autoDispose
+    .family<List<ReviewItem>, ReviewPathsProps>((ref, props) async {
+      final graph = await ref.watch(questionGraphProvider.future);
+      final List<Stamp> baselines = await ref.watch(
+        baselinesStreamProvider.future,
+      );
+      final List<Stamp> stamps = await ref.watch(stampsStreamProvider.future);
+      return graph.reviewPaths(
+        searchDate: props.searchDate,
+        stamps: stamps,
+        baselines: baselines,
+      );
+    });
 
-  final List<RecordPath> paths = await ref.watch(recordPaths(pathProps).future);
-  final QuestionHome home = await ref.watch(questionHomeProvider.future);
-  final List<Stamp> baselines = await ref.watch(baselinesStreamProvider.future);
-
-  List<ReviewItem> reviews = [];
-  final DateTime date = props.searchDate ?? DateTime.now();
-  final List<Stamp> stamps = await ref.watch(stampsStreamProvider.future);
-  for (final RecordPath recordPath in paths) {
-    // Check baseline dependency
-    bool dependentOnMissingBaseline = false;
-    for (final PageLayout page in recordPath.pages) {
-      for (final String qid in page.questionIds) {
-        final Question? q = home.fromBank(qid);
-        if (q?.fromBaseline != null) {
-          final String baselineType = q!.fromBaseline!;
-          final bool hasBaseline = baselines.any((b) => b.type == baselineType);
-          if (!hasBaseline) {
-            dependentOnMissingBaseline = true;
-          }
-          break;
-        }
-      }
-      if (dependentOnMissingBaseline) break;
-    }
-
-    if (dependentOnMissingBaseline) continue;
-
-    final DateTimeRange range = recordPath.period!.getRange(date);
-
-    final String searchType = recordPath.name;
-
-    final List<Stamp> valid = stamps.where((element) {
-      final DateTime stampTime = dateFromStamp(element.stamp);
-      return element.type == searchType &&
-          (stampTime.isBefore(range.end) ||
-              stampTime.isAtSameMomentAs(range.end)) &&
-          (stampTime.isAfter(range.start) ||
-              stampTime.isAtSameMomentAs(range.start));
-    }).toList();
-
-    reviews.add(ReviewItem(
-        path: recordPath,
-        type: searchType,
-        response: valid.isEmpty ? null : valid.first as DetailResponse));
-  }
-  return reviews
-    ..sort((first, second) => first.response == null
-        ? -1
-        : second.response == null
-            ? 1
-            : 0);
-});
+final reviewPathsByTypeProvider =
+    FutureProvider.autoDispose<Map<String, RecordPath>>((ref) async {
+      final graph = await ref.watch(questionGraphProvider.future);
+      return graph.reviewPathsByType();
+    });
 
 @immutable
-class BaselineRecordItem {
-  final RecordPath path;
-  final DetailResponse? baseline;
+class ReviewPeriodsProps extends Equatable {
+  final DateTime start;
+  final DateTime end;
 
-  const BaselineRecordItem({required this.path, this.baseline});
+  const ReviewPeriodsProps({required this.start, required this.end});
+
+  DateTimeRange get range => DateTimeRange(start: start, end: end);
+
+  @override
+  List<Object> get props => [start, end];
 }
 
-final availableRecordPaths =
-    FutureProvider<List<BaselineRecordItem>>((ref) async {
-  const pathProps =
-      RecordPathProps(filterEnabled: true, type: PathProviderType.record);
-  final List<RecordPath> paths = await ref.watch(recordPaths(pathProps).future);
-  final QuestionHome home = await ref.watch(questionHomeProvider.future);
+/// Review periods currently visible in the history display range.
+final reviewPeriodsProvider = FutureProvider.autoDispose
+    .family<List<ReviewPeriod>, ReviewPeriodsProps>((ref, props) async {
+      final graph = await ref.watch(questionGraphProvider.future);
+      final List<Stamp> stamps = await ref.watch(stampsStreamProvider.future);
+      return graph.reviewPeriods(stamps: stamps, displayRange: props.range);
+    });
+
+final availableRecordPaths = FutureProvider<List<RecordItem>>((ref) async {
+  final graph = await ref.watch(questionGraphProvider.future);
   final List<Stamp> baselines = await ref.watch(baselinesStreamProvider.future);
-
-  final List<BaselineRecordItem> visiblePaths = [];
-
-  for (final RecordPath path in paths) {
-    // Traverse pages to find ANY fromBaseline question
-    Question? baselineQuestion;
-    for (final PageLayout page in path.pages) {
-      for (final String qid in page.questionIds) {
-        final Question? q = home.fromBank(qid);
-        if (q?.fromBaseline != null) {
-          baselineQuestion = q;
-          break;
-        }
-      }
-      if (baselineQuestion != null) break;
-    }
-
-    if (baselineQuestion != null) {
-      // It depends on a baseline
-      final String baselineType = baselineQuestion.fromBaseline!;
-      final Stamp? baseline = baselines
-          .cast<Stamp?>()
-          .firstWhere((b) => b?.type == baselineType, orElse: () => null);
-
-      if (baseline != null && baseline is DetailResponse) {
-        visiblePaths.add(BaselineRecordItem(path: path, baseline: baseline));
-      }
-      // If baseline missing, do NOT add (hide path)
-    } else {
-      // Regular path, always show
-      visiblePaths.add(BaselineRecordItem(path: path));
-    }
-  }
-  return visiblePaths;
+  return graph
+      .availableRecordPaths(baselines)
+      .where((item) => !item.path.isBaseline)
+      .toList(growable: false);
 });

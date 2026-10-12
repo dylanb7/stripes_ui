@@ -1,8 +1,5 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/RepositoryBase/SubBase/sub_user.dart';
 import 'package:stripes_ui/Providers/Navigation/sheet_provider.dart';
 import 'package:stripes_ui/Providers/base_providers.dart';
@@ -24,178 +21,174 @@ class PatientChanger extends ConsumerWidget {
     final AsyncValue<SubState> state = ref.watch(subHolderProvider);
     final StripesConfig config = ref.watch(configProvider);
 
-    if (state.isLoading) {
-      return const LoadingWidget();
-    }
-    final SubUser? current = state.valueOrNull?.selected;
-    final List<SubUser> subUsers = state.valueOrNull?.subUsers ?? [];
-    final bool isMarker = current != null && SubUser.isMarker(current);
+    return state.when(
+      skipLoadingOnReload: true,
+      loading: () => const LoadingWidget(),
+      error: (error, stack) => Icon(
+        Icons.error_outline,
+        color: Theme.of(context).colorScheme.error,
+        semanticLabel: 'Unable to load profile: $error',
+      ),
+      data: (subState) {
+        final SubUser? current = subState.selected;
+        final List<SubUser> subUsers = subState.subUsers;
+        final bool isMarker = current != null && SubUser.isMarker(current);
 
-    String getTitle() {
-      if (isMarker) {
-        return tab == TabOption.record
-            ? context.translate.recordTab
-            : tab == TabOption.tests
+        String getTitle() {
+          if (isMarker) {
+            return tab == TabOption.record
+                ? context.translate.recordTab
+                : tab == TabOption.tests
                 ? context.translate.testTab
                 : context.translate.historyTab;
-      }
-      String firstName = config.profileType == ProfileType.username
-          ? current?.name ?? ''
-          : (current?.name.split(' ')[0]) ?? '';
-      firstName = firstName.substring(0, min(firstName.length, 11));
-      return tab == TabOption.record
-          ? context.translate.recordTitle(firstName)
-          : tab == TabOption.tests
+          }
+          final String firstName = config.profileType == ProfileType.username
+              ? current?.name ?? ''
+              : (current?.name.split(' ')[0]) ?? '';
+          return tab == TabOption.record
+              ? (config.betaUi.dashboard
+                    ? firstName
+                    : context.translate.recordTitle(firstName))
+              : tab == TabOption.tests
               ? context.translate.testTab
               : context.translate.historyTitle(firstName);
-    }
+        }
 
-    return Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          FittedBox(
-            alignment: Alignment.centerLeft,
-            fit: BoxFit.scaleDown,
-            child: Text(
-              getTitle(),
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+        final canChange = subUsers.length > 1;
+        final label = Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Flexible(
+              child: Text(
+                getTitle(),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Theme.of(context).primaryColor),
-              textAlign: TextAlign.left,
+                  color: Theme.of(context).primaryColor,
+                ),
+                textAlign: TextAlign.left,
+              ),
+            ),
+            if (canChange) ...[
+              const SizedBox(width: AppPadding.tiny),
+              Icon(
+                Icons.keyboard_arrow_down,
+                size: 28,
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+            ],
+          ],
+        );
+        if (!canChange) return label;
+
+        return Semantics(
+          button: true,
+          onTap: () => _openUserSelect(ref, context),
+          label:
+              '${tab == TabOption.record ? 'Recording for' : 'Current profile'} ${current?.name ?? ''}. Change profile',
+          excludeSemantics: true,
+          child: Tooltip(
+            message: 'Change Profile',
+            child: InkWell(
+              onTap: () => _openUserSelect(ref, context),
+              borderRadius: BorderRadius.circular(AppRounding.small),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 48),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: AppPadding.tiny,
+                  ),
+                  child: label,
+                ),
+              ),
             ),
           ),
-          const SizedBox(
-            width: 2.0,
-          ),
-          if (subUsers.length > 1)
-            IconButton(
-                padding: EdgeInsets.zero,
-                onPressed: () {
-                  _openUserSelect(ref, context);
-                },
-                tooltip: "Change Profile",
-                icon: Icon(
-                  Icons.keyboard_arrow_down,
-                  size: 35.0,
-                  color: Theme.of(context).colorScheme.secondary,
-                )),
-        ]);
+        );
+      },
+    );
   }
 
-  _openUserSelect(WidgetRef ref, BuildContext context) {
-    ref.read(sheetControllerProvider).show(
-        context: context,
-        scrollControlled: true,
-        sheetBuilder: (context, controller) => const UserSelect());
+  void _openUserSelect(WidgetRef ref, BuildContext context) {
+    ref
+        .read(sheetControllerProvider)
+        .show(
+          context: context,
+          scrollControlled: true,
+          sheetBuilder: (context, controller) =>
+              UserSelect(scrollController: controller),
+        );
   }
 }
 
 class UserSelect extends ConsumerWidget {
-  const UserSelect({super.key});
+  final ScrollController? scrollController;
 
-  @override
+  const UserSelect({this.scrollController, super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<SubState> subNotif = ref.read(subHolderProvider);
-    final SubUser? current = subNotif.valueOrNull?.selected;
-    final List<SubUser> subUsers = subNotif.valueOrNull?.subUsers ?? [];
-    final StripesConfig config = ref.watch(configProvider);
+    final AsyncValue<SubState> subNotif = ref.watch(subHolderProvider);
+    final SubState? subState = subNotif.value;
+    final SubUser? current = subState?.selected;
+    final List<SubUser> subUsers = subState?.subUsers ?? [];
     final Color action = Theme.of(context).colorScheme.secondary;
-    return Padding(
+    return ListView(
+      controller: scrollController,
       padding: const EdgeInsets.only(
-        left: AppPadding.xl,
-        right: AppPadding.xl,
+        left: AppPadding.medium,
+        right: AppPadding.medium,
         top: AppPadding.large,
+        bottom: AppPadding.large,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-            Text(
-              'Select Profile',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const Spacer(),
-            IconButton(
-                onPressed: () {
-                  _close(context);
-                },
-                iconSize: 35,
-                icon: const Icon(
-                  Icons.keyboard_arrow_down,
-                ))
-          ]),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: subUsers
-                .map(
-                  (user) => Padding(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: AppPadding.tiny),
-                    child: user.uid == current?.uid
-                        ? _getSelected(ref, context, user, action,
-                            config.profileType ?? ProfileType.username)
-                        : _getSelectible(ref, context, user,
-                            config.profileType ?? ProfileType.username),
-                  ),
-                )
-                .toList(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _getSelected(WidgetRef ref, BuildContext context, SubUser current,
-      Color selected, ProfileType profileType) {
-    final String firstName = profileType == ProfileType.name
-        ? current.name.split(' ')[0]
-        : current.name;
-    return InkWell(
-        onTap: () {
-          _close(context);
-        },
-        splashFactory: NoSplash.splashFactory,
-        child: Wrap(
-          direction: Axis.horizontal,
-          crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Text(
-              firstName,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.copyWith(color: selected, fontWeight: FontWeight.bold),
+            Expanded(
+              child: Text(
+                'Select Profile',
+                style: Theme.of(context).textTheme.titleLarge
+                    ?.copyWith(fontWeight: FontWeight.bold),
+              ),
             ),
-            Icon(
-              Icons.check,
-              color: selected,
-              size: 35,
+            IconButton(
+              onPressed: () {
+                _close(context);
+              },
+              iconSize: 35,
+              tooltip: 'Close',
+              icon: const Icon(Icons.keyboard_arrow_down),
             ),
           ],
-        ));
-  }
-
-  Widget _getSelectible(WidgetRef ref, BuildContext context, SubUser user,
-      ProfileType profileType) {
-    final String firstName =
-        profileType == ProfileType.name ? user.name.split(' ')[0] : user.name;
-    return InkWell(
-      onTap: () {
-        ref.read(subHolderProvider.notifier).changeCurrent(user);
-        _close(context);
-      },
-      splashFactory: NoSplash.splashFactory,
-      child: Text(firstName, style: Theme.of(context).textTheme.titleLarge),
+        ),
+        for (final user in subUsers)
+          ListTile(
+            key: ValueKey('select-profile-${user.uid}'),
+            minTileHeight: 48,
+            selected: user.uid == current?.uid,
+            selectedColor: action,
+            title: Text(
+              user.name,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            trailing: user.uid == current?.uid ? const Icon(Icons.check) : null,
+            onTap: () async {
+              if (user.uid == current?.uid) {
+                _close(context);
+                return;
+              }
+              final changed = await ref
+                  .read(subHolderProvider.notifier)
+                  .changeCurrent(user);
+              if (context.mounted && changed) _close(context);
+            },
+          ),
+      ],
     );
   }
 
-  _close(BuildContext context) {
-    context.pop();
+  void _close(BuildContext context) {
+    Navigator.of(context).pop();
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/UI/History/Insights/insight_visualizations.dart';
+import 'package:stripes_ui/Util/Design/category_theme.dart';
 import 'package:stripes_ui/Util/Helpers/date_range_utils.dart';
 import 'package:stripes_ui/Util/Helpers/stats.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
@@ -29,8 +29,10 @@ abstract class Insight {
   IconData? get icon;
   Widget? buildVisualization(BuildContext context) => null;
 
-  Set<InsightPurpose> get purposes =>
-      {InsightPurpose.dashboard, InsightPurpose.report};
+  Set<InsightPurpose> get purposes => {
+    InsightPurpose.dashboard,
+    InsightPurpose.report,
+  };
 
   const Insight();
 
@@ -54,8 +56,10 @@ abstract class Insight {
     return tryBuildAll(ctx, filter: filter);
   }
 
-  static List<Insight> tryBuildAll(HistoryContext ctx,
-      {InsightPurpose? filter}) {
+  static List<Insight> tryBuildAll(
+    HistoryContext ctx, {
+    InsightPurpose? filter,
+  }) {
     final List<Insight> results = [];
     for (final reg in _registrations) {
       final List<Insight> insights = reg.builder(ctx);
@@ -67,9 +71,11 @@ abstract class Insight {
     }
     // Combined rank: Lower is better (Higher in list)
     // Category priority provides the base, Significance allows bubbling (up to 20 points)
-    return results
-      ..sort((a, b) => (a.priority - a.significance * 20.0)
-          .compareTo(b.priority - b.significance * 20.0));
+    return results..sort(
+      (a, b) => (a.priority - a.significance * 20.0).compareTo(
+        b.priority - b.significance * 20.0,
+      ),
+    );
   }
 
   static const List<InsightRegistration> _registrations = [
@@ -83,6 +89,9 @@ abstract class Insight {
     MostTrackedCategoryInsight.registration,
     AbnormalEntryInsight.registration,
     TimeRelationInsight.registration,
+    DominantChoiceInsight.registration,
+    BurstDetectionInsight.registration,
+    RecordingConsistencyInsight.registration,
   ];
 }
 
@@ -117,7 +126,7 @@ class PeakActivityInsight extends Insight {
   String getDescription(BuildContext? context) {
     final hourRange =
         '${_formatHour(peak.startHour)} - ${_formatHour(peak.endHour + 1)}';
-    return '$hourRange ($percentage% of entries, ${timesExpected.toStringAsFixed(1)}× expected)';
+    return '$hourRange ($percentage% of entries with exact times, ${timesExpected.toStringAsFixed(1)}× expected)';
   }
 
   @override
@@ -129,7 +138,9 @@ class PeakActivityInsight extends Insight {
 
     return TextSpan(
       children: [
-        TextSpan(text: '$hourRange ($percentage% of entries, '),
+        TextSpan(
+          text: '$hourRange ($percentage% of entries with exact times, ',
+        ),
         TextSpan(
           text: multiplier,
           style: TextStyle(fontWeight: FontWeight.bold, color: colors.primary),
@@ -153,10 +164,12 @@ class PeakActivityInsight extends Insight {
     final hourlyList = List.generate(24, (h) => hourCounts[h] ?? 0);
     final peak = findPeakWindow(hourlyList);
     if (peak.count <= 0) return [];
-    final totalResponses = ctx.totalResponses;
+    final totalResponses = hourlyList.fold<int>(0, (sum, count) => sum + count);
     final percentage = (peak.count / totalResponses * 100).round();
     final expectedCount = totalResponses * peak.duration / 12;
     final timesExpected = expectedCount > 0 ? peak.count / expectedCount : 1.0;
+    // Only show peaks meaningfully above uniform distribution
+    if (timesExpected < 1.3) return [];
     return [
       PeakActivityInsight(
         peak: peak,
@@ -164,7 +177,7 @@ class PeakActivityInsight extends Insight {
         timesExpected: timesExpected,
         hourlyList: hourlyList,
         significance: (timesExpected / 3.0).clamp(0.0, 1.0),
-      )
+      ),
     ];
   }
 
@@ -239,6 +252,8 @@ class MostActiveDayInsight extends Insight {
     final dayCounts = ctx.use(const WeekdayCountFeature());
     if (dayCounts.isEmpty) return [];
     if (ctx.timeCycle == TimeCycle.day) return [];
+    // Need at least 2 full weeks to see every weekday twice
+    if (ctx.daysWithData < 14) return [];
     final weekdayCounts = List.generate(7, (i) => dayCounts[i + 1] ?? 0);
     final sortedDays = dayCounts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
@@ -247,8 +262,9 @@ class MostActiveDayInsight extends Insight {
     final totalResponses = ctx.totalResponses;
     final percentage = (peakDayCount / totalResponses * 100).round();
     final expectedCount = totalResponses / 7;
-    final timesExpected =
-        expectedCount > 0 ? peakDayCount / expectedCount : 1.0;
+    final timesExpected = expectedCount > 0
+        ? peakDayCount / expectedCount
+        : 1.0;
     return [
       MostActiveDayInsight(
         peakWeekday: peakDay,
@@ -258,20 +274,20 @@ class MostActiveDayInsight extends Insight {
         timesExpected: timesExpected,
         weekdayCounts: weekdayCounts,
         significance: ((timesExpected - 1.0) / 1.0).clamp(0.0, 1.0),
-      )
+      ),
     ];
   }
 
   static String _dayName(int weekday) => switch (weekday) {
-        1 => 'Monday',
-        2 => 'Tuesday',
-        3 => 'Wednesday',
-        4 => 'Thursday',
-        5 => 'Friday',
-        6 => 'Saturday',
-        7 => 'Sunday',
-        _ => 'Unknown',
-      };
+    1 => 'Monday',
+    2 => 'Tuesday',
+    3 => 'Wednesday',
+    4 => 'Thursday',
+    5 => 'Friday',
+    6 => 'Saturday',
+    7 => 'Sunday',
+    _ => 'Unknown',
+  };
 }
 
 class ActivityTrendInsight extends Insight {
@@ -360,9 +376,11 @@ class ActivityTrendInsight extends Insight {
         percentChangePerUnit: regression.percentChangePerUnit,
         dailyValues: yValues,
         intercept: regression.intercept,
-        significance:
-            (regression.percentChangePerUnit.abs() / 50.0).clamp(0.0, 1.0),
-      )
+        significance: (regression.percentChangePerUnit.abs() / 50.0).clamp(
+          0.0,
+          1.0,
+        ),
+      ),
     ];
   }
 }
@@ -410,7 +428,8 @@ class WeeklyPatternInsight extends Insight {
           style: TextStyle(fontWeight: FontWeight.bold, color: colors.primary),
         ),
         TextSpan(
-            text: ' more active on ${moreOnWeekend ? "weekends" : "weekdays"}'),
+          text: ' more active on ${moreOnWeekend ? "weekends" : "weekdays"}',
+        ),
       ],
     );
   }
@@ -454,9 +473,17 @@ class WeeklyPatternInsight extends Insight {
         weekdayAvg: weekdayAvg,
         weekendAvg: weekendAvg,
         significance: ((ratio - 1.3) / (2.5 - 1.3)).clamp(0.0, 1.0),
-      )
+      ),
     ];
   }
+}
+
+class DayPairPresence {
+  final DateTime date;
+  final bool hasItem1;
+  final bool hasItem2;
+  bool get hasBoth => hasItem1 && hasItem2;
+  const DayPairPresence(this.date, this.hasItem1, this.hasItem2);
 }
 
 class CommonPairingInsight extends Insight {
@@ -467,6 +494,7 @@ class CommonPairingInsight extends Insight {
   final int item1Count;
   final int item2Count;
   final int totalDays;
+  final List<DayPairPresence> dailyPresence;
 
   const CommonPairingInsight({
     required this.item1,
@@ -476,6 +504,7 @@ class CommonPairingInsight extends Insight {
     required this.item1Count,
     required this.item2Count,
     required this.totalDays,
+    required this.dailyPresence,
     required this.significance,
   });
 
@@ -495,8 +524,9 @@ class CommonPairingInsight extends Insight {
 
   @override
   String getDescription(BuildContext? context) {
-    final localizations =
-        context != null ? QuestionsLocalizations.of(context) : null;
+    final localizations = context != null
+        ? QuestionsLocalizations.of(context)
+        : null;
     final name1 = localizations?.value(item1) ?? item1;
     final name2 = localizations?.value(item2) ?? item2;
     return '$name1 + $name2 appear together $percentage% of days';
@@ -504,21 +534,21 @@ class CommonPairingInsight extends Insight {
 
   @override
   TextSpan getDescriptionSpan(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
     final localizations = QuestionsLocalizations.of(context);
     final name1 = localizations?.value(item1) ?? item1;
     final name2 = localizations?.value(item2) ?? item2;
+    final color1 = CategoryTheme.resolve(item1).color;
+    final color2 = CategoryTheme.resolve(item2).color;
     return TextSpan(
       children: [
         TextSpan(
           text: name1,
-          style: TextStyle(fontWeight: FontWeight.bold, color: colors.primary),
+          style: TextStyle(fontWeight: FontWeight.bold, color: color1),
         ),
         const TextSpan(text: ' + '),
         TextSpan(
           text: name2,
-          style:
-              TextStyle(fontWeight: FontWeight.bold, color: colors.secondary),
+          style: TextStyle(fontWeight: FontWeight.bold, color: color2),
         ),
         const TextSpan(text: ' appear together '),
         TextSpan(
@@ -543,15 +573,19 @@ class CommonPairingInsight extends Insight {
 
     if (ctx.timeCycle == TimeCycle.day) return [];
 
-    final Map<DateTime, Map<String, int>> categoriesByDay =
-        ctx.use(const DayCategoryFeature());
+    final Map<DateTime, Map<String, int>> categoriesByDay = ctx.use(
+      const DayCategoryFeature(),
+    );
     final coOccurrence = findTopCoOccurrence(
-        categoriesByDay.map((date, items) => MapEntry(date, items.keys)));
+      categoriesByDay.map((date, items) => MapEntry(date, items.keys)),
+    );
     if (coOccurrence == null || coOccurrence.occurrences < 3) {
       return [];
     }
 
     final totalDays = ctx.totalDaysInRange;
+    // Need enough days for co-occurrence to be meaningful
+    if (totalDays < 3) return [];
     final percentage = totalDays > 0
         ? (coOccurrence.occurrences / totalDays * 100).round()
         : coOccurrence.percentage.round();
@@ -563,6 +597,24 @@ class CommonPairingInsight extends Insight {
       if (items.containsKey(coOccurrence.item1)) item1Count++;
       if (items.containsKey(coOccurrence.item2)) item2Count++;
     }
+
+    // Build actual per-day presence data from the range
+    final List<DayPairPresence> dailyPresence = [];
+    final startDay = DateUtils.dateOnly(ctx.range.start);
+    final endDay = DateUtils.dateOnly(ctx.range.end);
+    DateTime day = startDay;
+    while (!day.isAfter(endDay)) {
+      final cats = categoriesByDay[day];
+      dailyPresence.add(
+        DayPairPresence(
+          day,
+          cats?.containsKey(coOccurrence.item1) ?? false,
+          cats?.containsKey(coOccurrence.item2) ?? false,
+        ),
+      );
+      day = day.add(const Duration(days: 1));
+    }
+
     return [
       CommonPairingInsight(
         item1: coOccurrence.item1,
@@ -572,8 +624,9 @@ class CommonPairingInsight extends Insight {
         item1Count: item1Count,
         item2Count: item2Count,
         totalDays: totalDays,
+        dailyPresence: dailyPresence,
         significance: (percentage / 100.0).clamp(0.0, 1.0),
-      )
+      ),
     ];
   }
 }
@@ -581,6 +634,8 @@ class CommonPairingInsight extends Insight {
 class SymptomLinkInsight extends Insight {
   final String symptom1;
   final String symptom2;
+  final String? category1;
+  final String? category2;
   final double rho;
   final String strength;
   final bool positive;
@@ -590,6 +645,8 @@ class SymptomLinkInsight extends Insight {
   const SymptomLinkInsight({
     required this.symptom1,
     required this.symptom2,
+    this.category1,
+    this.category2,
     required this.rho,
     required this.strength,
     required this.positive,
@@ -601,10 +658,11 @@ class SymptomLinkInsight extends Insight {
   @override
   final double significance;
 
-  static const registration = InsightRegistration(
-    SymptomLinkInsight.tryBuild,
-    {DaySymptomFeature(), TotalResponsesFeature()},
-  );
+  static const registration = InsightRegistration(SymptomLinkInsight.tryBuild, {
+    DaySymptomFeature(),
+    TotalResponsesFeature(),
+    SymptomCategoryFeature(),
+  });
 
   @override
   int get priority => 40;
@@ -614,33 +672,35 @@ class SymptomLinkInsight extends Insight {
 
   @override
   String getDescription(BuildContext? context) {
-    final localizations =
-        context != null ? QuestionsLocalizations.of(context) : null;
+    final localizations = context != null
+        ? QuestionsLocalizations.of(context)
+        : null;
     final name1 = localizations?.value(symptom1) ?? symptom1;
     final name2 = localizations?.value(symptom2) ?? symptom2;
-    final linkType =
-        positive ? 'tend to increase together' : 'move in opposite directions';
+    final linkType = positive
+        ? 'tend to increase together'
+        : 'move in opposite directions';
     return '$name1 & $name2 $linkType ($strength)';
   }
 
   @override
   TextSpan getDescriptionSpan(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
     final localizations = QuestionsLocalizations.of(context);
     final name1 = localizations?.value(symptom1) ?? symptom1;
     final name2 = localizations?.value(symptom2) ?? symptom2;
+    final color1 = CategoryTheme.resolve(category1 ?? symptom1).color;
+    final color2 = CategoryTheme.resolve(category2 ?? symptom2).color;
     final linkType = positive ? 'increase together' : 'move opposite';
     return TextSpan(
       children: [
         TextSpan(
           text: name1,
-          style: TextStyle(fontWeight: FontWeight.bold, color: colors.primary),
+          style: TextStyle(fontWeight: FontWeight.bold, color: color1),
         ),
         const TextSpan(text: ' & '),
         TextSpan(
           text: name2,
-          style:
-              TextStyle(fontWeight: FontWeight.bold, color: colors.secondary),
+          style: TextStyle(fontWeight: FontWeight.bold, color: color2),
         ),
         const TextSpan(text: ' '),
         TextSpan(
@@ -666,6 +726,7 @@ class SymptomLinkInsight extends Insight {
     if (ctx.timeCycle == TimeCycle.day) return [];
     final Map<String, List<double>> symptomDailyAvgs = {};
     final symptomsByDay = ctx.use(const DaySymptomFeature());
+    final symptomCategories = ctx.use(const SymptomCategoryFeature());
     final sortedDays = symptomsByDay.keys.toList()..sort();
     for (final day in sortedDays) {
       final dayData = symptomsByDay[day]!;
@@ -683,8 +744,9 @@ class SymptomLinkInsight extends Insight {
       for (int j = i + 1; j < symptoms.length; j++) {
         final vals1 = symptomDailyAvgs[symptoms[i]]!;
         final vals2 = symptomDailyAvgs[symptoms[j]]!;
-        final minLen =
-            vals1.length < vals2.length ? vals1.length : vals2.length;
+        final minLen = vals1.length < vals2.length
+            ? vals1.length
+            : vals2.length;
         if (minLen < 5) continue;
         final result = spearmanCorrelation(
           vals1.sublist(0, minLen),
@@ -708,13 +770,15 @@ class SymptomLinkInsight extends Insight {
       SymptomLinkInsight(
         symptom1: bestPair1!,
         symptom2: bestPair2!,
+        category1: symptomCategories[bestPair1],
+        category2: symptomCategories[bestPair2],
         rho: bestCorrelation.rho,
         strength: bestCorrelation.strength,
         positive: bestCorrelation.rho > 0,
         symptom1Values: vals1.sublist(0, minLen),
         symptom2Values: vals2.sublist(0, minLen),
         significance: bestCorrelation.rho.abs().clamp(0.0, 1.0),
-      )
+      ),
     ];
   }
 }
@@ -757,8 +821,9 @@ class SymptomTrendInsight extends Insight {
 
   @override
   String getDescription(BuildContext? context) {
-    final localizations =
-        context != null ? QuestionsLocalizations.of(context) : null;
+    final localizations = context != null
+        ? QuestionsLocalizations.of(context)
+        : null;
     final name = localizations?.value(symptomName) ?? symptomName;
     final direction = isDecreasing ? 'decreasing' : 'increasing';
     final absPercent = percentChange.abs().round();
@@ -832,17 +897,19 @@ class SymptomTrendInsight extends Insight {
 
       // Only include significant trends (strength > 0.70)
       if (actualPercentChange.abs() > 15 && strength > 0.7) {
-        results.add(SymptomTrendInsight(
-          symptomName: entry.key,
-          percentChange: actualPercentChange,
-          isDecreasing: last < first,
-          dailyValues: values,
-          dayCount: values.length,
-          startValue: first,
-          endValue: last,
-          strength: strength,
-          significance: strength.clamp(0.0, 1.0),
-        ));
+        results.add(
+          SymptomTrendInsight(
+            symptomName: entry.key,
+            percentChange: actualPercentChange,
+            isDecreasing: last < first,
+            dailyValues: values,
+            dayCount: values.length,
+            startValue: first,
+            endValue: last,
+            strength: strength,
+            significance: strength.clamp(0.0, 1.0),
+          ),
+        );
       }
     }
     return results;
@@ -883,22 +950,23 @@ class MostTrackedCategoryInsight extends Insight {
 
   @override
   String getDescription(BuildContext? context) {
-    final localizations =
-        context != null ? QuestionsLocalizations.of(context) : null;
+    final localizations = context != null
+        ? QuestionsLocalizations.of(context)
+        : null;
     final name = localizations?.value(categoryName) ?? categoryName;
     return '$name is your most tracked item ($percentage%)';
   }
 
   @override
   TextSpan getDescriptionSpan(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
     final localizations = QuestionsLocalizations.of(context);
     final name = localizations?.value(categoryName) ?? categoryName;
+    final catColor = CategoryTheme.resolve(categoryName).color;
     return TextSpan(
       children: [
         TextSpan(
           text: name,
-          style: TextStyle(fontWeight: FontWeight.bold, color: colors.primary),
+          style: TextStyle(fontWeight: FontWeight.bold, color: catColor),
         ),
         const TextSpan(text: ' is your most tracked item ('),
         TextSpan(
@@ -918,8 +986,9 @@ class MostTrackedCategoryInsight extends Insight {
       MostTrackedCategoryVisualization(insight: this);
 
   static List<MostTrackedCategoryInsight> tryBuild(HistoryContext ctx) {
-    final Map<DateTime, Map<String, int>> categoriesByDay =
-        ctx.use(const DayCategoryFeature());
+    final Map<DateTime, Map<String, int>> categoriesByDay = ctx.use(
+      const DayCategoryFeature(),
+    );
     if (categoriesByDay.isEmpty) return [];
     final Map<String, int> categoryCounts = {};
     int totalCount = 0;
@@ -935,6 +1004,9 @@ class MostTrackedCategoryInsight extends Insight {
     final top = sorted.first;
     final percentage = (top.value / totalCount * 100).round();
     if (sorted.length < 2) return [];
+    // Require meaningful dominance over the second category
+    final secondCount = sorted[1].value;
+    if (secondCount > 0 && top.value < (secondCount * 1.4).ceil()) return [];
     return [
       MostTrackedCategoryInsight(
         categoryName: top.key,
@@ -942,7 +1014,7 @@ class MostTrackedCategoryInsight extends Insight {
         totalCount: totalCount,
         percentage: percentage,
         significance: (percentage / 100.0).clamp(0.0, 1.0),
-      )
+      ),
     ];
   }
 }
@@ -973,7 +1045,7 @@ class AbnormalEntryInsight extends Insight {
     {
       GlobalSymptomValueFeature(),
       DayCategoryFeature(),
-      TotalResponsesFeature()
+      TotalResponsesFeature(),
     },
   );
 
@@ -985,11 +1057,20 @@ class AbnormalEntryInsight extends Insight {
 
   @override
   String getDescription(BuildContext? context) {
-    final localizations =
-        context != null ? QuestionsLocalizations.of(context) : null;
+    final localizations = context != null
+        ? QuestionsLocalizations.of(context)
+        : null;
     if (customIcon == Icons.new_releases_outlined) {
       final name = localizations?.value(description) ?? description;
       return 'You logged "$name" for the first time recently.';
+    }
+    if (symptomName != null) {
+      final name = localizations?.value(symptomName!) ?? symptomName!;
+      final level =
+          outlierValue != null && mean != null && outlierValue! > mean!
+          ? 'high'
+          : 'low';
+      return 'Your most recent $name level was unusually $level.';
     }
     return description;
   }
@@ -1018,7 +1099,7 @@ class AbnormalEntryInsight extends Insight {
               description: entry.key,
               customIcon: Icons.new_releases_outlined,
               significance: 0.8,
-            )
+            ),
           ];
         }
       }
@@ -1047,7 +1128,7 @@ class AbnormalEntryInsight extends Insight {
             outlierValue: lastValue,
             symptomName: entry.key,
             significance: (zScore / 5.0).clamp(0.4, 1.0),
-          )
+          ),
         ];
       }
     }
@@ -1109,8 +1190,9 @@ class TimeRelationInsight extends Insight {
       timeStr = '$mins minutes';
     }
 
-    final localizations =
-        context != null ? QuestionsLocalizations.of(context) : null;
+    final localizations = context != null
+        ? QuestionsLocalizations.of(context)
+        : null;
     final nameA = localizations?.value(factorA) ?? factorA;
     final nameB = localizations?.value(factorB) ?? factorB;
     return '$nameB tends to happen $timeStr after $nameA.';
@@ -1118,7 +1200,6 @@ class TimeRelationInsight extends Insight {
 
   @override
   TextSpan getDescriptionSpan(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
     final localizations = QuestionsLocalizations.of(context);
     final nameA = localizations?.value(factorA) ?? factorA;
     final nameB = localizations?.value(factorB) ?? factorB;
@@ -1130,34 +1211,43 @@ class TimeRelationInsight extends Insight {
 
     final List<TextSpan> timeSpans = [];
     if (hours > 0) {
-      timeSpans.add(TextSpan(
-        text: '$hours hours',
-        style: const TextStyle(fontWeight: FontWeight.bold),
-      ));
+      timeSpans.add(
+        TextSpan(
+          text: '$hours hours',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+      );
     }
     if (hours > 0 && mins > 0) {
       timeSpans.add(const TextSpan(text: ' and '));
     }
     if (mins > 0 || (hours == 0 && mins == 0)) {
-      timeSpans.add(TextSpan(
-        text: '$mins minutes',
-        style: const TextStyle(fontWeight: FontWeight.bold),
-      ));
+      timeSpans.add(
+        TextSpan(
+          text: '$mins minutes',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+      );
     }
 
     return TextSpan(
       children: [
         TextSpan(
           text: nameB,
-          style:
-              TextStyle(fontWeight: FontWeight.bold, color: colors.secondary),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: CategoryTheme.resolve(factorB).color,
+          ),
         ),
         const TextSpan(text: ' tends to happen '),
         ...timeSpans,
         const TextSpan(text: ' after '),
         TextSpan(
           text: nameA,
-          style: TextStyle(fontWeight: FontWeight.bold, color: colors.primary),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: CategoryTheme.resolve(factorA).color,
+          ),
         ),
         const TextSpan(text: '.'),
       ],
@@ -1206,11 +1296,13 @@ class TimeRelationInsight extends Insight {
             final lag = nextB.difference(timeA).inMinutes / 60.0;
             lags.add(lag);
             final dayOnly = DateTime(timeA.year, timeA.month, timeA.day);
-            points.add(TimePoint(
-              dayOnly,
-              timeA.hour + timeA.minute / 60.0,
-              nextB.hour + nextB.minute / 60.0,
-            ));
+            points.add(
+              TimePoint(
+                dayOnly,
+                timeA.hour + timeA.minute / 60.0,
+                nextB.hour + nextB.minute / 60.0,
+              ),
+            );
           }
         }
 
@@ -1227,12 +1319,423 @@ class TimeRelationInsight extends Insight {
                 stdDevLag: stdDev,
                 points: points,
                 significance: (1.0 - (stdDev / meanLag) / 0.35).clamp(0.0, 1.0),
-              )
+              ),
             ];
           }
         }
       }
     }
     return [];
+  }
+}
+
+// =============================================================================
+// New Insights: Choice Distribution, Burst Detection, Recording Consistency
+// =============================================================================
+
+class DominantChoiceInsight extends Insight {
+  final String questionName;
+  final String dominantChoice;
+  final int dominantCount;
+  final int totalForQuestion;
+  final int dominantPercentage;
+  final Map<String, int> distribution;
+
+  @override
+  final double significance;
+
+  const DominantChoiceInsight({
+    required this.questionName,
+    required this.dominantChoice,
+    required this.dominantCount,
+    required this.totalForQuestion,
+    required this.dominantPercentage,
+    required this.distribution,
+    required this.significance,
+  });
+
+  static const registration = InsightRegistration(
+    DominantChoiceInsight.tryBuild,
+    {ChoiceDistributionFeature()},
+  );
+
+  @override
+  int get priority => 45;
+
+  @override
+  String getTitle(BuildContext? context) => 'Dominant Choice';
+
+  @override
+  String getDescription(BuildContext? context) {
+    final localizations = context != null
+        ? QuestionsLocalizations.of(context)
+        : null;
+    final qName = localizations?.value(questionName) ?? questionName;
+    final cName = localizations?.value(dominantChoice) ?? dominantChoice;
+    return 'For "$qName", you select "$cName" $dominantPercentage% of the time';
+  }
+
+  @override
+  TextSpan getDescriptionSpan(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final localizations = QuestionsLocalizations.of(context);
+    final qName = localizations?.value(questionName) ?? questionName;
+    final cName = localizations?.value(dominantChoice) ?? dominantChoice;
+    return TextSpan(
+      children: [
+        const TextSpan(text: 'For '),
+        TextSpan(
+          text: qName,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: colors.onSurfaceVariant,
+          ),
+        ),
+        const TextSpan(text: ', you select '),
+        TextSpan(
+          text: '"$cName"',
+          style: TextStyle(fontWeight: FontWeight.bold, color: colors.primary),
+        ),
+        const TextSpan(text: ' '),
+        TextSpan(
+          text: '$dominantPercentage%',
+          style: TextStyle(fontWeight: FontWeight.bold, color: colors.primary),
+        ),
+        const TextSpan(text: ' of the time'),
+      ],
+    );
+  }
+
+  @override
+  IconData get icon => Icons.pie_chart_outline;
+
+  @override
+  Widget buildVisualization(BuildContext context) =>
+      DominantChoiceVisualization(insight: this);
+
+  static List<DominantChoiceInsight> tryBuild(HistoryContext ctx) {
+    final choiceDist = ctx.use(const ChoiceDistributionFeature());
+    if (choiceDist.isEmpty) return [];
+
+    DominantChoiceInsight? best;
+    double bestSkew = 0;
+
+    for (final entry in choiceDist.entries) {
+      final questionId = entry.key;
+      final choices = entry.value;
+      if (choices.length < 2) continue;
+
+      final totalForQuestion = choices.values.fold(0, (s, c) => s + c);
+      if (totalForQuestion < 5) continue;
+
+      final sorted = choices.entries.toList()
+        ..sort((a, b) => b.value.compareTo(a.value));
+
+      final topChoice = sorted.first;
+      final secondCount = sorted[1].value;
+      // Require meaningful dominance: top choice must be >= 1.5× the runner-up
+      if (topChoice.value < (secondCount * 1.5).ceil()) continue;
+
+      final percentage = (topChoice.value / totalForQuestion * 100).round();
+      final skew = percentage / 100.0;
+
+      if (skew > bestSkew && percentage >= 30) {
+        bestSkew = skew;
+        best = DominantChoiceInsight(
+          questionName: questionId,
+          dominantChoice: topChoice.key,
+          dominantCount: topChoice.value,
+          totalForQuestion: totalForQuestion,
+          dominantPercentage: percentage,
+          distribution: Map.fromEntries(sorted),
+          significance: ((percentage - 30) / 70.0).clamp(0.0, 1.0),
+        );
+      }
+    }
+
+    return best != null ? [best] : [];
+  }
+}
+
+class ClusterDay {
+  final DateTime date;
+  final List<double> hourTimestamps;
+  final double clusterStartHour;
+  final double clusterEndHour;
+  final int clusterCount;
+
+  const ClusterDay({
+    required this.date,
+    required this.hourTimestamps,
+    required this.clusterStartHour,
+    required this.clusterEndHour,
+    required this.clusterCount,
+  });
+}
+
+class BurstDetectionInsight extends Insight {
+  final String categoryName;
+  final int clusterDayCount;
+  final int totalDaysForCategory;
+  final List<ClusterDay> clusterDays;
+  final List<double>? typicalDayTimestamps;
+
+  @override
+  final double significance;
+
+  const BurstDetectionInsight({
+    required this.categoryName,
+    required this.clusterDayCount,
+    required this.totalDaysForCategory,
+    required this.clusterDays,
+    this.typicalDayTimestamps,
+    required this.significance,
+  });
+
+  static const registration = InsightRegistration(
+    BurstDetectionInsight.tryBuild,
+    {CategoryTimestampFeature()},
+  );
+
+  @override
+  int get priority => 55;
+
+  @override
+  String getTitle(BuildContext? context) => 'Cluster Events';
+
+  @override
+  String getDescription(BuildContext? context) {
+    final localizations = context != null
+        ? QuestionsLocalizations.of(context)
+        : null;
+    final name = localizations?.value(categoryName) ?? categoryName;
+    return '$clusterDayCount cluster events detected for $name (3+ entries within 2 hours)';
+  }
+
+  @override
+  TextSpan getDescriptionSpan(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final localizations = QuestionsLocalizations.of(context);
+    final name = localizations?.value(categoryName) ?? categoryName;
+    final catColor = CategoryTheme.resolve(categoryName).color;
+    return TextSpan(
+      children: [
+        TextSpan(
+          text: '$clusterDayCount cluster events',
+          style: TextStyle(fontWeight: FontWeight.bold, color: colors.primary),
+        ),
+        const TextSpan(text: ' detected for '),
+        TextSpan(
+          text: name,
+          style: TextStyle(fontWeight: FontWeight.bold, color: catColor),
+        ),
+        const TextSpan(text: ' (3+ within 2 hrs)'),
+      ],
+    );
+  }
+
+  @override
+  IconData get icon => Icons.flash_on;
+
+  @override
+  Widget buildVisualization(BuildContext context) =>
+      BurstDetectionVisualization(insight: this);
+
+  static List<BurstDetectionInsight> tryBuild(HistoryContext ctx) {
+    final timestampsMap = ctx.use(const CategoryTimestampFeature());
+    if (timestampsMap.isEmpty) return [];
+
+    String? bestCategory;
+    List<ClusterDay> bestClusterDays = [];
+    int bestTotalDays = 0;
+    List<double>? bestTypicalDay;
+
+    for (final entry in timestampsMap.entries) {
+      final category = entry.key;
+      final timestamps = entry.value;
+      if (timestamps.length < 5) continue;
+
+      final Map<DateTime, List<DateTime>> byDay = {};
+      for (final ts in timestamps) {
+        final dayOnly = DateTime(ts.year, ts.month, ts.day);
+        byDay.putIfAbsent(dayOnly, () => []).add(ts);
+      }
+
+      final List<ClusterDay> clusterDays = [];
+      List<double>? typicalDay;
+
+      for (final dayEntry in byDay.entries) {
+        final dayTimestamps = dayEntry.value..sort();
+        final hours = dayTimestamps
+            .map((t) => t.hour + t.minute / 60.0)
+            .toList();
+
+        if (dayTimestamps.length < 3) {
+          if (typicalDay == null && dayTimestamps.length >= 2) {
+            typicalDay = hours;
+          }
+          continue;
+        }
+
+        // Sliding window: find tightest cluster of 3+ within 2 hours
+        for (int i = 0; i < hours.length; i++) {
+          int count = 1;
+          for (int j = i + 1; j < hours.length; j++) {
+            if (hours[j] - hours[i] <= 2.0) {
+              count++;
+            } else {
+              break;
+            }
+          }
+          if (count >= 3) {
+            clusterDays.add(
+              ClusterDay(
+                date: dayEntry.key,
+                hourTimestamps: hours,
+                clusterStartHour: hours[i],
+                clusterEndHour: hours[i + count - 1],
+                clusterCount: count,
+              ),
+            );
+            break;
+          }
+        }
+      }
+
+      if (clusterDays.length >= 2 &&
+          clusterDays.length > bestClusterDays.length) {
+        bestCategory = category;
+        bestClusterDays = clusterDays;
+        bestTotalDays = byDay.length;
+        bestTypicalDay = typicalDay;
+      }
+    }
+
+    if (bestCategory == null || bestClusterDays.isEmpty) return [];
+
+    bestClusterDays.sort((a, b) => b.clusterCount.compareTo(a.clusterCount));
+
+    return [
+      BurstDetectionInsight(
+        categoryName: bestCategory,
+        clusterDayCount: bestClusterDays.length,
+        totalDaysForCategory: bestTotalDays,
+        clusterDays: bestClusterDays.take(3).toList(),
+        typicalDayTimestamps: bestTypicalDay,
+        significance: (bestClusterDays.length / bestTotalDays).clamp(0.2, 1.0),
+      ),
+    ];
+  }
+}
+
+class RecordingConsistencyInsight extends Insight {
+  final int daysRecorded;
+  final int totalDays;
+  final int percentage;
+  final int currentStreak;
+  final List<bool> dailyPresence;
+
+  @override
+  final double significance;
+
+  const RecordingConsistencyInsight({
+    required this.daysRecorded,
+    required this.totalDays,
+    required this.percentage,
+    required this.currentStreak,
+    required this.dailyPresence,
+    required this.significance,
+  });
+
+  static const registration = InsightRegistration(
+    RecordingConsistencyInsight.tryBuild,
+    {DailyCountFeature()},
+  );
+
+  @override
+  int get priority => 80;
+
+  @override
+  String getTitle(BuildContext? context) => 'Recording Consistency';
+
+  @override
+  String getDescription(BuildContext? context) {
+    final streakStr = currentStreak > 0 ? ' · streak: $currentStreak' : '';
+    return '$daysRecorded of $totalDays days ($percentage%)$streakStr';
+  }
+
+  @override
+  TextSpan getDescriptionSpan(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return TextSpan(
+      children: [
+        TextSpan(
+          text: '$daysRecorded',
+          style: TextStyle(fontWeight: FontWeight.bold, color: colors.primary),
+        ),
+        TextSpan(text: ' of $totalDays days ($percentage%)'),
+        if (currentStreak > 0) ...[
+          const TextSpan(text: ' · streak: '),
+          TextSpan(
+            text: '$currentStreak',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: colors.primary,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  @override
+  IconData get icon => Icons.check_circle_outline;
+
+  @override
+  Widget buildVisualization(BuildContext context) =>
+      RecordingConsistencyVisualization(insight: this);
+
+  static List<RecordingConsistencyInsight> tryBuild(HistoryContext ctx) {
+    final dailyCounts = ctx.use(const DailyCountFeature());
+    if (dailyCounts.isEmpty) return [];
+
+    final range = ctx.range;
+    final totalDays = ctx.totalDaysInRange;
+    if (totalDays < 3) return [];
+
+    final daysRecorded = dailyCounts.length;
+    final percentage = (daysRecorded / totalDays * 100).round();
+
+    // Compute current streak backwards from most recent day with data
+    final sortedDays = dailyCounts.keys.toList()..sort();
+    int streak = 0;
+    if (sortedDays.isNotEmpty) {
+      DateTime day = DateUtils.dateOnly(sortedDays.last);
+      while (dailyCounts.containsKey(day)) {
+        streak++;
+        day = day.subtract(const Duration(days: 1));
+        if (day.isBefore(range.start)) break;
+      }
+    }
+
+    // Build daily presence list for visualization (last N days, up to 28)
+    final int displayDays = totalDays.clamp(1, 28);
+    final List<bool> dailyPresence = [];
+    final DateTime endDay = DateUtils.dateOnly(range.end);
+    for (int i = displayDays - 1; i >= 0; i--) {
+      final checkDay = endDay.subtract(Duration(days: i));
+      dailyPresence.add(dailyCounts.containsKey(checkDay));
+    }
+
+    return [
+      RecordingConsistencyInsight(
+        daysRecorded: daysRecorded,
+        totalDays: totalDays,
+        percentage: percentage,
+        currentStreak: streak,
+        dailyPresence: dailyPresence,
+        significance: 0.5,
+      ),
+    ];
   }
 }

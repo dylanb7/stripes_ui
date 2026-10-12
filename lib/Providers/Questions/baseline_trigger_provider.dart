@@ -4,41 +4,43 @@ import 'package:stripes_ui/Models/baseline_trigger.dart';
 import 'package:stripes_ui/Providers/History/stamps_provider.dart';
 import 'package:stripes_ui/Providers/Questions/questions_provider.dart';
 
-/// Provides the list of incomplete baselines, dynamically generated
-/// from the question repo's baseline layout paths.
-final incompleteBaselinesProvider =
-    FutureProvider<List<BaselineTrigger>>((ref) async {
-  // Get baseline record paths from the question provider
-  final List<RecordPath> baselinePaths =
-      await ref.watch(baselineLayoutProvider.future);
+final incompleteBaselinesProvider = FutureProvider<List<BaselineTrigger>>((
+  ref,
+) async {
+  final List<RecordPath> baselinePaths = await ref.watch(
+    baselineLayoutProvider.future,
+  );
+  // Repositories without baseline layouts may not expose a baseline stream.
+  if (baselinePaths.isEmpty) return const <BaselineTrigger>[];
 
-  // Get existing baseline stamps
-  final List<Stamp> existingBaselines =
-      await ref.watch(baselinesStreamProvider.future);
+  final List<Stamp> existingBaselines = await ref.watch(
+    baselinesStreamProvider.future,
+  );
 
   final List<BaselineTrigger> triggers = [];
 
   for (final path in baselinePaths) {
-    // Check if a baseline stamp exists for this path
-    final bool hasBaseline =
-        existingBaselines.any((stamp) => stamp.type == path.name);
+    final bool hasBaseline = existingBaselines.any(
+      (stamp) => stamp.type == path.name,
+    );
 
-    // Only add trigger if baseline is incomplete
     if (!hasBaseline) {
-      triggers.add(BaselineTrigger(
-        baselineType: path.name,
-        recordPath: path.name,
-        title: path.name,
-        description: 'Please complete this baseline questionnaire.',
-      ));
+      triggers.add(
+        BaselineTrigger(
+          baselineType: path.name,
+          recordPath: path.name,
+          title: path.name,
+          description: 'Please complete this baseline questionnaire.',
+        ),
+      );
     }
   }
 
   return triggers;
 });
 
-class BaselineDismissNotifier extends StateNotifier<Set<String>> {
-  BaselineDismissNotifier() : super({});
+class BaselineDismissNotifier extends Notifier<Set<String>> {
+  BaselineDismissNotifier();
 
   void dismiss(String baselineType) {
     state = {...state, baselineType};
@@ -49,18 +51,25 @@ class BaselineDismissNotifier extends StateNotifier<Set<String>> {
   }
 
   bool isDismissed(String baselineType) => state.contains(baselineType);
+
+  @override
+  Set<String> build() {
+    state = {};
+    return state;
+  }
 }
 
 final baselineDismissProvider =
-    StateNotifierProvider<BaselineDismissNotifier, Set<String>>(
-  (ref) => BaselineDismissNotifier(),
-);
+    NotifierProvider<BaselineDismissNotifier, Set<String>>(
+      BaselineDismissNotifier.new,
+    );
 
-/// Provides baselines that are incomplete AND not dismissed.
-final activeBaselineTriggersProvider =
-    FutureProvider<List<BaselineTrigger>>((ref) async {
-  final List<BaselineTrigger> incomplete =
-      await ref.watch(incompleteBaselinesProvider.future);
+final activeBaselineTriggersProvider = FutureProvider<List<BaselineTrigger>>((
+  ref,
+) async {
+  final List<BaselineTrigger> incomplete = await ref.watch(
+    incompleteBaselinesProvider.future,
+  );
   final Set<String> dismissed = ref.watch(baselineDismissProvider);
 
   return incomplete

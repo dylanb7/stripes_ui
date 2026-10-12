@@ -27,6 +27,23 @@ class DateRangeSelector extends StatefulWidget {
     this.getPreviewText,
   });
 
+  /// Matches the flexible label and the two navigation targets below.
+  static double heightFor(BuildContext context, String text, double width) {
+    final painter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: Theme.of(context).textTheme.titleMedium,
+      ),
+      textScaler: MediaQuery.textScalerOf(context),
+      textDirection: Directionality.of(context),
+    )..layout(maxWidth: (width - 148).clamp(1, double.infinity));
+    final height = painter.height + 2 * AppPadding.medium;
+    painter.dispose();
+    return height < kMinInteractiveDimension
+        ? kMinInteractiveDimension
+        : height;
+  }
+
   @override
   State<DateRangeSelector> createState() => _DateRangeSelectorState();
 }
@@ -46,9 +63,7 @@ class _DateRangeSelectorState extends State<DateRangeSelector> {
         IconButton(
           tooltip: 'Previous',
           visualDensity: VisualDensity.comfortable,
-          style: const ButtonStyle(
-            tapTargetSize: MaterialTapTargetSize.padded,
-          ),
+          style: const ButtonStyle(tapTargetSize: MaterialTapTargetSize.padded),
           icon: const Icon(Icons.keyboard_arrow_left),
           onPressed: widget.canGoPrev ? widget.onPrev : null,
         ),
@@ -112,7 +127,8 @@ class _DateRangeSelectorState extends State<DateRangeSelector> {
             child: Transform.translate(
               offset: Offset(_dragOffset, 0),
               child: Opacity(
-                opacity: 1.0 -
+                opacity:
+                    1.0 -
                     (_dragOffset.abs() / (_threshold * 2)).clamp(0.0, 0.5),
                 child: Semantics(
                   label: 'Select date range. Current: ${widget.rangeText}',
@@ -132,19 +148,23 @@ class _DateRangeSelectorState extends State<DateRangeSelector> {
                           Flexible(
                             child: AnimatedSwitcher(
                               duration: Durations.short3,
+                              // Let AnimatedSwitcher assign each transition its
+                              // own identity when a label is revisited mid-fade.
+                              transitionBuilder: (child, animation) =>
+                                  FadeTransition(
+                                    opacity: animation,
+                                    child: child,
+                                  ),
                               child: Text(
                                 _previewText ?? widget.rangeText,
                                 key: ValueKey(_previewText ?? widget.rangeText),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.titleMedium
                                     ?.copyWith(
                                       color: hasPreview
                                           ? Theme.of(context)
-                                              .colorScheme
-                                              .primary
+                                                .colorScheme
+                                                .primary
                                           : null,
                                       fontWeight: hasPreview
                                           ? FontWeight.bold
@@ -173,9 +193,7 @@ class _DateRangeSelectorState extends State<DateRangeSelector> {
         IconButton(
           tooltip: 'Next',
           visualDensity: VisualDensity.comfortable,
-          style: const ButtonStyle(
-            tapTargetSize: MaterialTapTargetSize.padded,
-          ),
+          style: const ButtonStyle(tapTargetSize: MaterialTapTargetSize.padded),
           icon: const Icon(Icons.keyboard_arrow_right),
           onPressed: widget.canGoNext ? widget.onNext : null,
         ),

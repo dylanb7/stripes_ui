@@ -15,11 +15,11 @@ import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/card_layout_helper.dart';
+import 'package:stripes_ui/UI/Record/TestScreen/test_async_error.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/Util/Design/breakpoint.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
-import 'package:stripes_ui/Util/Helpers/repo_result_handler.dart';
 
 class RecordingsView extends ConsumerWidget {
   final Function? next;
@@ -30,124 +30,125 @@ class RecordingsView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bool cardLayout =
-        getBreakpoint(context).isGreaterThan(Breakpoint.medium);
-    final AsyncValue<BlueDyeTestProgress> progress =
-        ref.watch(blueDyeTestProgressProvider);
-    if (progress.isLoading) return const LoadingWidget();
-    final Color panelColor =
-        Theme.of(context).primaryColor.withValues(alpha: 0.2);
-    final List<BMTestLog> logs = (clicked == BlueDyeProgression.stepFour ||
-                clicked == BlueDyeProgression.stepFive) &&
-            (progress.valueOrNull?.orderedTests.length ?? 0) >= 2
-        ? progress.valueOrNull?.orderedTests[1].test.logs ?? []
-        : progress.valueOrNull?.orderedTests[0].test.logs ?? [];
-    final Widget transitLabel = Text(
-      clicked.value < 2
-          ? context.translate.transitOneLabel
-          : context.translate.transitTwoLabel,
-      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
-    );
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: cardLayout ? AppPadding.xl : 0),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-            maxWidth: cardLayout ? Breakpoint.small.value : double.infinity),
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(
-                height: AppPadding.tiny,
+    final currentLogs = ref.watch(blueDyeBmTestLogsProvider).value ?? const [];
+    final bool cardLayout = getBreakpoint(context)
+        .isGreaterThan(Breakpoint.medium);
+    return ref
+        .watch(blueDyeTestProgressProvider)
+        .when(
+          data: (progress) {
+            final Color panelColor = Theme.of(context).primaryColor
+                .withValues(alpha: 0.2);
+            final List<BMTestLog> savedLogs =
+                (clicked == BlueDyeProgression.stepFour ||
+                        clicked == BlueDyeProgression.stepFive) &&
+                    (progress.orderedTests.length) >= 2
+                ? progress.orderedTests[1].test.logs
+                : (progress.orderedTests.isNotEmpty
+                      ? progress.orderedTests[0].test.logs
+                      : []);
+            final List<BMTestLog> logs = savedLogs.isNotEmpty
+                ? savedLogs
+                : currentLogs;
+            final Widget transitLabel = Text(
+              clicked.value < 2
+                  ? context.translate.transitOneLabel
+                  : context.translate.transitTwoLabel,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).primaryColor,
               ),
-              cardLayout
-                  ? Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [transitLabel, const BlueMealInfoButton()],
-                    )
-                  : const Center(child: BlueMealInfoButton()),
-              const SizedBox(
-                height: AppPadding.tiny,
+            );
+            return Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: cardLayout ? AppPadding.xl : 0,
               ),
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: cardLayout
-                      ? BorderRadius.circular(AppRounding.medium)
-                      : const BorderRadius.all(Radius.circular(0)),
-                  color: panelColor,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: cardLayout
+                      ? Breakpoint.small.value
+                      : double.infinity,
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(AppPadding.medium),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (!cardLayout) ...[
-                        transitLabel,
-                        const Divider(),
-                      ],
-                      Text(
-                        context.translate.recordingStateTitle,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyMedium
-                            ?.copyWith(fontWeight: FontWeight.bold),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: AppPadding.tiny),
+                    cardLayout
+                        ? Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              transitLabel,
+                              const BlueMealInfoButton(),
+                            ],
+                          )
+                        : const Center(child: BlueMealInfoButton()),
+                    const SizedBox(height: AppPadding.tiny),
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        borderRadius: cardLayout
+                            ? BorderRadius.circular(AppRounding.medium)
+                            : const BorderRadius.all(Radius.circular(0)),
+                        color: panelColor,
                       ),
-                      const SizedBox(
-                        height: AppPadding.small,
-                      ),
-                      BMDisplay(logs: logs),
-                      const SizedBox(
-                        height: AppPadding.small,
-                      ),
-                      Text(
-                        clicked == BlueDyeProgression.stepTwo
-                            ? context.translate.stepTwoCompletedText
-                            : context.translate.stepFourCompletedText,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyMedium
-                            ?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                      if (clicked == BlueDyeProgression.stepFive)
-                        Text(
-                          context.translate
-                              .studyStepFourExplanationCompletedNotice,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(fontWeight: FontWeight.bold),
+                      child: Padding(
+                        padding: const EdgeInsets.all(AppPadding.medium),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (!cardLayout) ...[transitLabel, const Divider()],
+                            Text(
+                              context.translate.recordingStateTitle,
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: AppPadding.small),
+                            BMDisplay(logs: logs),
+                            const SizedBox(height: AppPadding.small),
+                            Text(
+                              clicked == BlueDyeProgression.stepTwo
+                                  ? context.translate.stepTwoCompletedText
+                                  : context.translate.stepFourCompletedText,
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            if (clicked == BlueDyeProgression.stepFive)
+                              Text(
+                                context
+                                    .translate
+                                    .studyStepFourExplanationCompletedNotice,
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                            const SizedBox(height: AppPadding.medium),
+                          ],
                         ),
-                      const SizedBox(
-                        height: AppPadding.medium,
                       ),
+                    ),
+                    const SizedBox(height: AppPadding.medium),
+                    if (clicked != BlueDyeProgression.stepFive) ...[
+                      Center(
+                        child: FilledButton(
+                          onPressed: next == null
+                              ? null
+                              : () {
+                                  next!();
+                                },
+                          child: Text(context.translate.nextButton),
+                        ),
+                      ),
+                      const SizedBox(height: AppPadding.xl),
                     ],
-                  ),
+                  ],
                 ),
               ),
-              const SizedBox(
-                height: AppPadding.medium,
-              ),
-              if (clicked != BlueDyeProgression.stepFive) ...[
-                Center(
-                  child: FilledButton(
-                    onPressed: next == null
-                        ? null
-                        : () {
-                            next!();
-                          },
-                    child: Text(context.translate.nextButton),
-                  ),
-                ),
-                const SizedBox(
-                  height: AppPadding.xl,
-                ),
-              ],
-            ]),
-      ),
-    );
+            );
+          },
+          loading: () => const LoadingWidget(),
+          error: (error, stackTrace) => TestAsyncError(error: error),
+        );
   }
 }
 
@@ -171,149 +172,145 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
 
   @override
   Widget build(BuildContext context) {
-    final bool cardLayout =
-        getBreakpoint(context).isGreaterThan(Breakpoint.large);
-    final AsyncValue<BlueDyeTestProgress> progress =
-        ref.watch(blueDyeTestProgressProvider);
-    final List<TestDate> orderedTests =
-        progress.valueOrNull?.orderedTests ?? [];
-    if (orderedTests.isEmpty) return Container();
-    final DateTime progressDate = orderedTests[0].finishTime.add(waitTime);
-    final Duration timePassed =
-        DateTime.now().difference(orderedTests[0].finishTime);
+    final bool cardLayout = getBreakpoint(context)
+        .isGreaterThan(Breakpoint.large);
+    return ref
+        .watch(blueDyeTestProgressProvider)
+        .when(
+          data: (progress) {
+            final List<TestDate> orderedTests = progress.orderedTests;
+            if (orderedTests.isEmpty) return Container();
+            final DateTime progressDate = orderedTests[0].finishTime.add(
+              waitTime,
+            );
+            final Duration timePassed = DateTime.now().difference(
+              orderedTests[0].finishTime,
+            );
 
-    final Widget waitingLabel = Text(
-      "Waiting Time",
-      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
-    );
+            final Widget waitingLabel = Text(
+              "Waiting Time",
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).primaryColor,
+              ),
+            );
 
-    final bool canProgress = waitTime.compareTo(timePassed) < 0;
-    final Duration timeLeft = canProgress
-        ? Duration.zero
-        : Duration(
-            milliseconds: waitTime.inMilliseconds - timePassed.inMilliseconds);
-    final Color cardColor =
-        Theme.of(context).primaryColor.withValues(alpha: 0.2);
-    if (canProgress) timer?.cancel();
-    return Column(
-      children: [
-        const SizedBox(
-          height: AppPadding.small,
-        ),
-        cardLayout
-            ? ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: Breakpoint.medium.value),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [waitingLabel, const BlueMealInfoButton()],
-                ),
-              )
-            : const Center(child: BlueMealInfoButton()),
-        const SizedBox(
-          height: AppPadding.tiny,
-        ),
-        AdaptiveCardLayout(
-          cardColor: cardColor,
-          child: Padding(
-            padding: const EdgeInsets.all(AppPadding.medium),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
+            final bool canProgress = waitTime.compareTo(timePassed) < 0;
+            final Duration timeLeft = canProgress
+                ? Duration.zero
+                : Duration(
+                    milliseconds:
+                        waitTime.inMilliseconds - timePassed.inMilliseconds,
+                  );
+            final Color cardColor = Theme.of(context).primaryColor
+                .withValues(alpha: 0.2);
+            if (canProgress) timer?.cancel();
+            return Column(
               children: [
-                if (!cardLayout) ...[
-                  waitingLabel,
-                  const Divider(),
-                ],
-                Text(
-                  context.translate.blueMealWaitTimeTitle,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(
-                  height: AppPadding.tiny,
-                ),
-                Text(
-                  context.translate.blueMealWaitTimeLineOne,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(
-                  height: AppPadding.tiny,
-                ),
-                Text(
-                  context.translate.blueMealWaitTimeLineTwo,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(
-                  height: AppPadding.tiny,
-                ),
-                if (!canProgress && !kIsWeb) ...[
-                  Text(
-                    context.translate.blueMealWaitTimeLineThree,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  const SizedBox(
-                    height: AppPadding.tiny,
-                  ),
-                  Center(
-                    child: TextButton.icon(
-                      onPressed: () async {
-                        await Add2Calendar.addEvent2Cal(
-                          Event(
-                            title: "Blue Meal Study",
-                            description:
-                                "You are eligible to start the second Blue Meal today.",
-                            startDate: progressDate,
-                            endDate: progressDate,
-                            allDay: true,
+                const SizedBox(height: AppPadding.small),
+                cardLayout
+                    ? ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: Breakpoint.medium.value,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [waitingLabel, const BlueMealInfoButton()],
+                        ),
+                      )
+                    : const Center(child: BlueMealInfoButton()),
+                const SizedBox(height: AppPadding.tiny),
+                AdaptiveCardLayout(
+                  cardColor: cardColor,
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppPadding.medium),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        if (!cardLayout) ...[waitingLabel, const Divider()],
+                        Text(
+                          context.translate.blueMealWaitTimeTitle,
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: AppPadding.tiny),
+                        Text(
+                          context.translate.blueMealWaitTimeLineOne,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        const SizedBox(height: AppPadding.tiny),
+                        Text(
+                          context.translate.blueMealWaitTimeLineTwo,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        const SizedBox(height: AppPadding.tiny),
+                        if (!canProgress && !kIsWeb) ...[
+                          Text(
+                            context.translate.blueMealWaitTimeLineThree,
+                            style: Theme.of(context).textTheme.bodyMedium,
                           ),
-                        );
-                      },
-                      label: const Text("Add to calendar"),
-                      icon: const Icon(Icons.edit_calendar),
-                      iconAlignment: IconAlignment.end,
-                    ),
-                  )
-                ],
-                const SizedBox(
-                  height: AppPadding.small,
-                ),
-                Center(
-                  child: Text(
-                    context.translate.stepTwoCompletedSubText,
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                ),
-                const SizedBox(
-                  height: AppPadding.tiny,
-                ),
-                Center(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(AppRounding.small),
-                      border: Border.all(
-                          width: 1.0, color: Theme.of(context).primaryColor),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: AppPadding.small,
-                          vertical: AppPadding.tiny),
-                      child: canProgress
-                          ? const Icon(Icons.check, size: 40.0)
-                          : Text(
-                              context.translate.stepTwoCompletedTimeText(
-                                _from(timeLeft, context),
-                              ),
-                              style: Theme.of(context).textTheme.headlineMedium,
+                          const SizedBox(height: AppPadding.tiny),
+                          Center(
+                            child: TextButton.icon(
+                              onPressed: () async {
+                                await Add2Calendar.addEvent2Cal(
+                                  Event(
+                                    title: "Blue Meal Study",
+                                    description: "You are eligible to start the second Blue Meal today.",
+                                    startDate: progressDate,
+                                    endDate: progressDate,
+                                    allDay: true,
+                                  ),
+                                );
+                              },
+                              label: const Text("Add to calendar"),
+                              icon: const Icon(Icons.edit_calendar),
+                              iconAlignment: IconAlignment.end,
                             ),
-                    ),
-                  ),
-                ),
+                          ),
+                        ],
+                        const SizedBox(height: AppPadding.small),
+                        Center(
+                          child: Text(
+                            context.translate.stepTwoCompletedSubText,
+                            style: Theme.of(context).textTheme.headlineMedium,
+                          ),
+                        ),
+                        const SizedBox(height: AppPadding.tiny),
+                        Center(
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(
+                                AppRounding.small,
+                              ),
+                              border: Border.all(
+                                width: 1.0,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppPadding.small,
+                                vertical: AppPadding.tiny,
+                              ),
+                              child: canProgress
+                                  ? const Icon(Icons.check, size: 40.0)
+                                  : Text(
+                                      context.translate
+                                          .stepTwoCompletedTimeText(
+                                            _from(timeLeft, context),
+                                          ),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineMedium,
+                                    ),
+                            ),
+                          ),
+                        ),
 
-                /*if (cardLayout)
+                        /*if (cardLayout)
                   Container(
                     width: double.infinity,
                     color: Theme.of(context).colorScheme.surface,
@@ -343,28 +340,28 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
                       ),
                     ),
                   )*/
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: AppPadding.medium),
+                Center(
+                  child: FilledButton(
+                    onPressed: isLoading || !canProgress
+                        ? null
+                        : () {
+                            _next();
+                          },
+                    child: Text(context.translate.nextButton),
+                  ),
+                ),
+                const SizedBox(height: AppPadding.xl),
               ],
-            ),
-          ),
-        ),
-        const SizedBox(
-          height: AppPadding.medium,
-        ),
-        Center(
-          child: FilledButton(
-            onPressed: isLoading || !canProgress
-                ? null
-                : () {
-                    _next();
-                  },
-            child: Text(context.translate.nextButton),
-          ),
-        ),
-        const SizedBox(
-          height: AppPadding.xl,
-        ),
-      ],
-    );
+            );
+          },
+          loading: () => const LoadingWidget(),
+          error: (error, stackTrace) => TestAsyncError(error: error),
+        );
   }
 
   @override
@@ -373,40 +370,59 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
     super.didChangeDependencies();
   }
 
-  void _onDependencyChange() async {
-    final DateTime testFinished =
-        (await ref.read(blueDyeTestProgressProvider.future))
-            .orderedTests[0]
-            .finishTime;
-    final Duration timePassed = DateTime.now().difference(testFinished);
-    final bool canProgress = waitTime.compareTo(timePassed) < 0;
-    if (!canProgress) {
-      timer = Timer.periodic(const Duration(milliseconds: 500), (_) {
-        if (mounted) setState(() {});
-      });
+  Future<void> _onDependencyChange() async {
+    try {
+      final BlueDyeTestProgress progress = await ref.read(
+        blueDyeTestProgressProvider.future,
+      );
+      if (!mounted) return;
+
+      final List<TestDate> dates = progress.orderedTests;
+      final DateTime testFinished = dates.isNotEmpty
+          ? dates[0].finishTime
+          : DateTime.now();
+      final Duration timePassed = DateTime.now().difference(testFinished);
+      final bool canProgress = waitTime.compareTo(timePassed) < 0;
+
+      timer?.cancel();
+      if (!canProgress) {
+        timer = Timer.periodic(const Duration(milliseconds: 500), (_) {
+          if (mounted) setState(() {});
+        });
+      }
+    } catch (_) {
+      // The provider's error state is rendered by build().
     }
   }
 
-  _next() async {
+  Future<void> _next() async {
     setState(() {
       isLoading = true;
     });
     final DateTime start = DateTime.now();
-    final test = await ref
-        .read(testsHolderProvider.notifier)
-        .getTest<Test<BlueDyeState>>();
+    final protocol = await ref.read(activeProtocolProvider.future);
+    final repo = await ref.read(testProvider.future);
 
-    if (test != null) {
-      final result = await test.setTestState(BlueDyeState(
-          startTime: start, timerStart: start, pauseTime: start, logs: []));
+    if (protocol != null && repo != null) {
+      final completedState = await ref.read(blueDyeMealStateProvider.future);
+      final updated = protocol.copyWith(
+        testContext: startSecondBlueDyeRunContext(
+          protocol: protocol,
+          completedState: completedState,
+          startTime: start,
+        ),
+      );
+      await repo.updateProtocol(updated);
+      await repo.advanceStage(
+        activeTestId: protocol.id,
+        targetStageId: 'eat_meal_2',
+      );
 
       if (mounted) {
         setState(() {
           isLoading = false;
         });
-        result.handle(context, onSuccess: (_) {
-          widget.next();
-        });
+        widget.next();
       }
     } else {
       if (mounted) {
@@ -419,12 +435,15 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
 
   String _from(Duration duration, BuildContext context) {
     final Locale current = Localizations.localeOf(context);
-    return prettyDuration(duration,
-        delimiter: ' ',
-        locale: DurationLocale.fromLanguageCode(current.languageCode) ??
-            const EnglishDurationLocale(),
-        abbreviated: false,
-        first: true);
+    return prettyDuration(
+      duration,
+      delimiter: ' ',
+      locale:
+          DurationLocale.fromLanguageCode(current.languageCode) ??
+          const EnglishDurationLocale(),
+      abbreviated: false,
+      first: true,
+    );
   }
 
   @override
@@ -456,162 +475,174 @@ class _RecordingsWaitingState extends ConsumerState<RecordingsWaiting> {
     super.didChangeDependencies();
   }
 
-  void _onDependencyChange() async {
-    final DateTime testFinished =
-        (await ref.read(blueDyeTestProgressProvider.future))
-            .orderedTests[0]
-            .finishTime;
-    final Duration timePassed = DateTime.now().difference(testFinished);
-    final bool canProgress = waitTime.compareTo(timePassed) < 0;
-    if (!canProgress) {
-      timer = Timer.periodic(const Duration(milliseconds: 500), (_) {
-        if (mounted) setState(() {});
-      });
+  Future<void> _onDependencyChange() async {
+    try {
+      final BlueDyeTestProgress progress = await ref.read(
+        blueDyeTestProgressProvider.future,
+      );
+      if (!mounted) return;
+
+      final List<TestDate> dates = progress.orderedTests;
+      final DateTime testFinished = dates.isNotEmpty
+          ? dates[0].finishTime
+          : DateTime.now();
+      final Duration timePassed = DateTime.now().difference(testFinished);
+      final bool canProgress = waitTime.compareTo(timePassed) < 0;
+
+      timer?.cancel();
+      if (!canProgress) {
+        timer = Timer.periodic(const Duration(milliseconds: 500), (_) {
+          if (mounted) setState(() {});
+        });
+      }
+    } catch (_) {
+      // The provider's error state is rendered by build().
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final AsyncValue<BlueDyeTestProgress> progress =
-        ref.watch(blueDyeTestProgressProvider);
-    final List<TestDate> orderedTests =
-        progress.valueOrNull?.orderedTests ?? [];
-    if (orderedTests.isEmpty) return Container();
+    return ref
+        .watch(blueDyeTestProgressProvider)
+        .when(
+          data: (progress) => _buildLoadedContent(context, progress),
+          loading: () => const LoadingWidget(),
+          error: (error, stackTrace) => TestAsyncError(error: error),
+        );
+  }
+
+  Widget _buildLoadedContent(
+    BuildContext context,
+    BlueDyeTestProgress progress,
+  ) {
+    final List<TestDate> orderedTests = progress.orderedTests;
+    if (orderedTests.isEmpty) return const SizedBox.shrink();
+
     final DateTime progressDate = orderedTests[0].finishTime.add(waitTime);
-    final Duration timePassed =
-        DateTime.now().difference(orderedTests[0].finishTime);
+    final Duration timePassed = DateTime.now().difference(
+      orderedTests[0].finishTime,
+    );
 
     final bool canProgress = waitTime.compareTo(timePassed) < 0;
     final Duration timeLeft = canProgress
         ? Duration.zero
         : Duration(
-            milliseconds: waitTime.inMilliseconds - timePassed.inMilliseconds);
+            milliseconds: waitTime.inMilliseconds - timePassed.inMilliseconds,
+          );
     if (canProgress) timer?.cancel();
+
     return Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const BlueStudyInstructionsPartTwo(initiallyExpanded: false),
-          const SizedBox(
-            height: AppPadding.medium,
-          ),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppRounding.medium),
-              color: ElevationOverlay.applySurfaceTint(
-                  Theme.of(context).cardColor,
-                  Theme.of(context).colorScheme.surfaceTint,
-                  3),
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const BlueStudyInstructionsPartTwo(initiallyExpanded: false),
+        const SizedBox(height: AppPadding.medium),
+        DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppRounding.medium),
+            color: ElevationOverlay.applySurfaceTint(
+              Theme.of(context).cardColor,
+              Theme.of(context).colorScheme.surfaceTint,
+              3,
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(AppPadding.medium),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    context.translate.recordingStateTitle,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(
-                    height: AppPadding.small,
-                  ),
-                  BMDisplay(logs: orderedTests[0].test.logs),
-                  const SizedBox(
-                    height: AppPadding.small,
-                  ),
-                  Center(
-                      child: Text(
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(AppPadding.medium),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  context.translate.recordingStateTitle,
+                  style: Theme.of(context).textTheme.bodyMedium
+                      ?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: AppPadding.small),
+                BMDisplay(logs: orderedTests[0].test.logs),
+                const SizedBox(height: AppPadding.small),
+                Center(
+                  child: Text(
                     context.translate.stepTwoCompletedText,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
+                    style: Theme.of(context).textTheme.titleMedium
                         ?.copyWith(fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
-                  )),
-                  if (!canProgress) ...[
-                    Center(
-                        child: Text(
+                  ),
+                ),
+                if (!canProgress) ...[
+                  Center(
+                    child: Text(
                       "${context.translate.stepTwoCompletedSubText}${from(timeLeft, context)}",
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineSmall
+                      style: Theme.of(context).textTheme.headlineSmall
                           ?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).primaryColor),
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).primaryColor,
+                          ),
                       textAlign: TextAlign.center,
-                    )),
-                    const SizedBox(
-                      height: AppPadding.small,
                     ),
-                    Center(
-                      child: TextButton(
-                          onPressed: () {
-                            Add2Calendar.addEvent2Cal(
-                              Event(
-                                title: "Blue Meal Test",
-                                description:
-                                    "The second Blue Meal Test is available today.",
-                                startDate: progressDate,
-                                endDate: progressDate,
-                                allDay: true,
-                              ),
-                            );
-                          },
-                          child: const Text("Add to Calendar")),
-                    )
-                  ],
-                  const SizedBox(
-                    height: AppPadding.medium,
+                  ),
+                  const SizedBox(height: AppPadding.small),
+                  Center(
+                    child: TextButton(
+                      onPressed: () {
+                        Add2Calendar.addEvent2Cal(
+                          Event(
+                            title: "Blue Meal Test",
+                            description:
+                                "The second Blue Meal Test is available today.",
+                            startDate: progressDate,
+                            endDate: progressDate,
+                            allDay: true,
+                          ),
+                        );
+                      },
+                      child: const Text("Add to Calendar"),
+                    ),
                   ),
                 ],
-              ),
+                const SizedBox(height: AppPadding.medium),
+              ],
             ),
           ),
-          const SizedBox(
-            height: AppPadding.medium,
-          ),
-          if (canProgress) ...[
-            Center(
-              child: FilledButton(
-                onPressed: isLoading
-                    ? null
-                    : () {
-                        _next();
-                      },
-                child: Text(context.translate.nextButton),
-              ),
+        ),
+        const SizedBox(height: AppPadding.medium),
+        if (canProgress)
+          Center(
+            child: FilledButton(
+              onPressed: isLoading ? null : _next,
+              child: Text(context.translate.nextButton),
             ),
-            const SizedBox(
-              height: AppPadding.xl,
-            )
-          ]
-        ]);
+          ),
+      ],
+    );
   }
 
-  _next() async {
+  Future<void> _next() async {
     setState(() {
       isLoading = true;
     });
     final DateTime start = DateTime.now();
-    final test = await ref
-        .read(testsHolderProvider.notifier)
-        .getTest<Test<BlueDyeState>>();
+    final protocol = await ref.read(activeProtocolProvider.future);
+    final repo = await ref.read(testProvider.future);
 
-    if (test != null) {
-      final result = await test.setTestState(BlueDyeState(
-          startTime: start, timerStart: start, pauseTime: start, logs: []));
+    if (protocol != null && repo != null) {
+      final completedState = await ref.read(blueDyeMealStateProvider.future);
+      final updated = protocol.copyWith(
+        testContext: startSecondBlueDyeRunContext(
+          protocol: protocol,
+          completedState: completedState,
+          startTime: start,
+        ),
+      );
+      await repo.updateProtocol(updated);
+      await repo.advanceStage(
+        activeTestId: protocol.id,
+        targetStageId: 'eat_meal_2',
+      );
 
       if (mounted) {
         setState(() {
           isLoading = false;
         });
-        result.handle(context); // No .next() call here in original?
-        // Original: function ends. No navigation?
-        // Wait, Reviewing original code for _RecordingsWaitingState
       }
     } else {
       if (mounted) {
@@ -639,49 +670,64 @@ class RecordingsState extends ConsumerStatefulWidget {
 }
 
 class _RecordingsState extends ConsumerState<RecordingsState> {
-  bool isLoading = false;
-
   @override
   Widget build(BuildContext context) {
-    final bool cardLayout =
-        getBreakpoint(context).isGreaterThan(Breakpoint.medium);
-    final Color panelColor =
-        Theme.of(context).primaryColor.withValues(alpha: 0.2);
-    final BlueDyeState? blueDyeState = ref.watch(testsHolderProvider
-        .select((holder) => holder.valueOrNull?.getTestState<BlueDyeState>()));
-    final AsyncValue<BlueDyeTestProgress> progress =
-        ref.watch(blueDyeTestProgressProvider);
+    final AsyncValue<BlueDyeMealState> mealState = ref.watch(
+      blueDyeMealStateProvider,
+    );
 
-    if (progress.isLoading) return const LoadingWidget();
+    return ref
+        .watch(blueDyeTestProgressProvider)
+        .when(
+          data: (progress) => mealState.when(
+            data: (mealState) =>
+                _buildLoadedContent(context, progress, mealState),
+            loading: () => const LoadingWidget(),
+            error: (error, stackTrace) => TestAsyncError(error: error),
+          ),
+          loading: () => const LoadingWidget(),
+          error: (error, stackTrace) => TestAsyncError(error: error),
+        );
+  }
 
+  Widget _buildLoadedContent(
+    BuildContext context,
+    BlueDyeTestProgress progress,
+    BlueDyeMealState blueDyeState,
+  ) {
+    final bool cardLayout = getBreakpoint(context)
+        .isGreaterThan(Breakpoint.medium);
+    final Color panelColor = Theme.of(context).primaryColor
+        .withValues(alpha: 0.2);
     final BlueDyeProgression stage =
-        progress.valueOrNull?.getProgression() ?? BlueDyeProgression.stepOne;
+        progress.getProgression() ?? BlueDyeProgression.stepOne;
 
-    if (blueDyeState == null) {
-      return const LoadingWidget();
-    }
-
-    final bool emptyLogs = blueDyeState.logs.isEmpty;
+    final detailedLogs = ref.watch(blueDyeBmTestLogsProvider).value ?? const [];
+    final displayLogs = detailedLogs.isNotEmpty
+        ? detailedLogs
+        : blueDyeState.logs;
+    final bool emptyLogs = displayLogs.isEmpty;
 
     final Widget transitLabel = Text(
       stage.value < 2
           ? context.translate.transitOneLabel
           : context.translate.transitTwoLabel,
       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
+        fontWeight: FontWeight.bold,
+        color: Theme.of(context).primaryColor,
+      ),
     );
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: cardLayout ? AppPadding.xl : 0),
       child: ConstrainedBox(
         constraints: BoxConstraints(
-            maxWidth: cardLayout ? Breakpoint.small.value : double.infinity),
+          maxWidth: cardLayout ? Breakpoint.small.value : double.infinity,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SizedBox(
-              height: AppPadding.tiny,
-            ),
+            const SizedBox(height: AppPadding.tiny),
             cardLayout
                 ? Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -689,15 +735,11 @@ class _RecordingsState extends ConsumerState<RecordingsState> {
                     children: [transitLabel, const BlueMealInfoButton()],
                   )
                 : const Center(child: BlueMealInfoButton()),
-            const SizedBox(
-              height: AppPadding.tiny,
-            ),
+            const SizedBox(height: AppPadding.tiny),
             stage == BlueDyeProgression.stepTwo
                 ? BlueStudyInstructionsPartTwo(initiallyExpanded: emptyLogs)
                 : const BlueStudyInstructionsPartFour(),
-            const SizedBox(
-              height: AppPadding.medium,
-            ),
+            const SizedBox(height: AppPadding.medium),
             DecoratedBox(
               decoration: BoxDecoration(
                 borderRadius: cardLayout
@@ -713,30 +755,24 @@ class _RecordingsState extends ConsumerState<RecordingsState> {
                   children: [
                     Text(
                       context.translate.recordingStateTitle,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
+                      style: Theme.of(context).textTheme.bodyMedium
                           ?.copyWith(fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(
-                      height: AppPadding.small,
-                    ),
+                    const SizedBox(height: AppPadding.small),
                     emptyLogs
                         ? Center(
                             child: Text(
                               "Please add a bowel movement",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(fontVariations: [
-                                const FontVariation.italic(1.0)
-                              ]),
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(
+                                    fontVariations: [
+                                      const FontVariation.italic(1.0),
+                                    ],
+                                  ),
                             ),
                           )
-                        : BMDisplay(logs: blueDyeState.logs),
-                    const SizedBox(
-                      height: AppPadding.small,
-                    ),
+                        : BMDisplay(logs: displayLogs),
+                    const SizedBox(height: AppPadding.small),
                     Center(
                       child: FilledButton(
                         onPressed: () {
@@ -748,16 +784,12 @@ class _RecordingsState extends ConsumerState<RecordingsState> {
                         child: Text(context.translate.studyRecordBMButton),
                       ),
                     ),
-                    const SizedBox(
-                      height: AppPadding.medium,
-                    ),
+                    const SizedBox(height: AppPadding.medium),
                   ],
                 ),
               ),
             ),
-            const SizedBox(
-              height: AppPadding.xxl,
-            ),
+            const SizedBox(height: AppPadding.xxl),
           ],
         ),
       ),
@@ -775,80 +807,87 @@ class RecordingsInProgress extends ConsumerStatefulWidget {
 }
 
 class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
-  bool isLoading = false;
-
   @override
   Widget build(BuildContext context) {
-    final bool cardLayout =
-        getBreakpoint(context).isGreaterThan(Breakpoint.medium);
-    final Color panelColor =
-        Theme.of(context).primaryColor.withValues(alpha: 0.2);
-    final BlueDyeState? blueDyeState = ref.watch(testsHolderProvider
-        .select((holder) => holder.valueOrNull?.getTestState<BlueDyeState>()));
-    final AsyncValue<BlueDyeTestProgress> progress =
-        ref.watch(blueDyeTestProgressProvider);
+    final AsyncValue<BlueDyeMealState> mealState = ref.watch(
+      blueDyeMealStateProvider,
+    );
 
-    if (progress.isLoading) return const LoadingWidget();
+    return ref
+        .watch(blueDyeTestProgressProvider)
+        .when(
+          data: (progress) => mealState.when(
+            data: (mealState) =>
+                _buildLoadedContent(context, progress, mealState),
+            loading: () => const LoadingWidget(),
+            error: (error, stackTrace) => TestAsyncError(error: error),
+          ),
+          loading: () => const LoadingWidget(),
+          error: (error, stackTrace) => TestAsyncError(error: error),
+        );
+  }
 
+  Widget _buildLoadedContent(
+    BuildContext context,
+    BlueDyeTestProgress progress,
+    BlueDyeMealState blueDyeState,
+  ) {
+    final bool cardLayout = getBreakpoint(context)
+        .isGreaterThan(Breakpoint.medium);
+    final Color panelColor = Theme.of(context).primaryColor
+        .withValues(alpha: 0.2);
     final BlueDyeProgression stage =
-        progress.valueOrNull?.getProgression() ?? BlueDyeProgression.stepOne;
+        progress.getProgression() ?? BlueDyeProgression.stepOne;
 
-    if (blueDyeState == null) {
-      return const LoadingWidget();
-    }
-
-    final bool emptyLogs = blueDyeState.logs.isEmpty;
+    final detailedLogs = ref.watch(blueDyeBmTestLogsProvider).value ?? const [];
+    final displayLogs = detailedLogs.isNotEmpty
+        ? detailedLogs
+        : blueDyeState.logs;
+    final bool emptyLogs = displayLogs.isEmpty;
 
     final Widget transitLabel = Text(
       stage.value < 2
           ? context.translate.transitOneLabel
           : context.translate.transitTwoLabel,
       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
+        fontWeight: FontWeight.bold,
+        color: Theme.of(context).primaryColor,
+      ),
     );
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: cardLayout ? AppPadding.xl : 0),
       child: ConstrainedBox(
         constraints: BoxConstraints(
-            maxWidth: cardLayout ? Breakpoint.small.value : double.infinity),
+          maxWidth: cardLayout ? Breakpoint.small.value : double.infinity,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SizedBox(
-              height: AppPadding.small,
-            ),
+            const SizedBox(height: AppPadding.small),
             cardLayout
                 ? ConstrainedBox(
-                    constraints:
-                        BoxConstraints(maxWidth: Breakpoint.medium.value),
+                    constraints: BoxConstraints(
+                      maxWidth: Breakpoint.medium.value,
+                    ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [transitLabel, const BlueMealInfoButton()],
                     ),
                   )
-                : const Center(
-                    child: BlueMealInfoButton(),
-                  ),
-            const SizedBox(
-              height: AppPadding.medium,
-            ),
-            BlueStudyInstructionsBMLogs(
-              step: stage,
-            ),
-            const SizedBox(
-              height: AppPadding.medium,
-            ),
+                : const Center(child: BlueMealInfoButton()),
+            const SizedBox(height: AppPadding.medium),
+            BlueStudyInstructionsBMLogs(step: stage),
+            const SizedBox(height: AppPadding.medium),
             AdaptiveCardLayout(
               cardColor: Colors.yellow.withValues(alpha: 0.35),
               child: Padding(
-                  padding: const EdgeInsets.all(AppPadding.medium),
-                  child: Text(context.translate.blueMealRecordInstructions)),
+                padding: const EdgeInsets.all(AppPadding.medium),
+                child: Text(context.translate.blueMealRecordInstructions),
+              ),
             ),
-            const SizedBox(
-              height: AppPadding.medium,
-            ),
+            const SizedBox(height: AppPadding.medium),
             AdaptiveCardLayout(
               cardColor: panelColor,
               child: Padding(
@@ -859,32 +898,25 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
                   children: [
                     Text(
                       context.translate.recordingStateTitle,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
+                      style: Theme.of(context).textTheme.bodyMedium
                           ?.copyWith(fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(
-                      height: AppPadding.small,
-                    ),
+                    const SizedBox(height: AppPadding.small),
                     emptyLogs
                         ? Center(
                             child: Text(
                               "Please add a bowel movement",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
+                              style: Theme.of(context).textTheme.bodyMedium
                                   ?.copyWith(fontStyle: FontStyle.italic),
                             ),
                           )
-                        : BMDisplay(logs: blueDyeState.logs),
-                    const SizedBox(
-                      height: AppPadding.small,
-                    ),
+                        : BMDisplay(logs: displayLogs),
+                    const SizedBox(height: AppPadding.small),
                     Center(
                       child: ConstrainedBox(
-                        constraints:
-                            BoxConstraints(maxWidth: Breakpoint.tiny.value),
+                        constraints: BoxConstraints(
+                          maxWidth: Breakpoint.tiny.value,
+                        ),
                         child: OutlinedButton.icon(
                           onPressed: () {
                             context.pushNamed(
@@ -894,19 +926,19 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
                           },
                           style: ButtonStyle(
                             backgroundColor: WidgetStateProperty.all(
-                              Theme.of(context)
-                                  .colorScheme
-                                  .secondary
+                              Theme.of(context).colorScheme.secondary
                                   .lighten(35),
                             ),
                             padding: WidgetStateProperty.all(
-                                const EdgeInsets.all(AppPadding.small)),
-                            side: WidgetStateProperty.all(BorderSide(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .secondary
+                              const EdgeInsets.all(AppPadding.small),
+                            ),
+                            side: WidgetStateProperty.all(
+                              BorderSide(
+                                color: Theme.of(context).colorScheme.secondary
                                     .darken(10),
-                                width: 2.0)),
+                                width: 2.0,
+                              ),
+                            ),
                             shape: WidgetStateProperty.all(
                               const RoundedRectangleBorder(
                                 borderRadius: BorderRadius.all(
@@ -919,31 +951,26 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
                           icon: Icon(
                             Icons.add,
                             size: 30.0,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .secondary
+                            color: Theme.of(context).colorScheme.secondary
                                 .darken(10),
                           ),
                           label: Text(
                             "Record a Bowel Movement",
                             style: TextStyle(
-                                color: Theme.of(context).primaryColor,
-                                fontWeight: FontWeight.bold,
-                                fontStyle: FontStyle.italic),
+                              color: Theme.of(context).primaryColor,
+                              fontWeight: FontWeight.bold,
+                              fontStyle: FontStyle.italic,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      height: AppPadding.medium,
-                    ),
+                    const SizedBox(height: AppPadding.medium),
                   ],
                 ),
               ),
             ),
-            const SizedBox(
-              height: AppPadding.xxl,
-            ),
+            const SizedBox(height: AppPadding.xxl),
           ],
         ),
       ),
@@ -952,43 +979,42 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
 }
 
 class BMDisplay extends StatelessWidget {
-  final List<BMTestLog> logs;
+  final List<dynamic> logs;
   const BMDisplay({required this.logs, super.key});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: logs.map((log) {
-        return EntryDisplay(
-          event: log.response,
-          hasControls: false,
-          hasConstraints: false,
-        );
-        /*Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                  width: 35.0,
-                  height: 35.0,
-                  child: log.isBlue
-                      ? Image.asset(
-                          'packages/stripes_ui/assets/images/Blue_Poop.png')
-                      : Image.asset(
-                          'packages/stripes_ui/assets/images/Brown_Poop.png')),
-              const SizedBox(
-                width: 6.0,
-              ),
-              Text(
-                '${DateFormat.yMMMd().format(logTime)} - ${DateFormat.jm().format(logTime)}',
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-            ]);*/
-      }).separated(
-          by: const SizedBox(
-        height: AppPadding.small,
-      )),
+        if (log is BMTestLog) {
+          return EntryDisplay(
+            event: log.response,
+            hasControls: false,
+            hasConstraints: false,
+            includeFullDate: true,
+          );
+        }
+        if (log is BlueDyeBmLog) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.circle,
+                  color: log.isBlue ? Colors.blue : Colors.brown,
+                  size: 16,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  dateFromStamp(log.stamp).toString(),
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ],
+            ),
+          );
+        }
+        return const SizedBox.shrink();
+      }).separated(by: const SizedBox(height: AppPadding.small)),
     );
   }
 }

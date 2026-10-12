@@ -5,7 +5,7 @@ import 'package:stripes_ui/entry.dart';
 
 ScaffoldFeatureController<SnackBar, SnackBarClosedReason>? showSnack(
     BuildContext context, String message,
-    {Function? action, String? actionMessage}) {
+    {Function? action, String? actionMessage, Color? accentColor}) {
   if (!context.mounted) return null;
 
   // Use root ScaffoldMessenger if available, otherwise fall back to context
@@ -19,6 +19,7 @@ ScaffoldFeatureController<SnackBar, SnackBarClosedReason>? showSnack(
         message: message,
         action: action,
         actionMessage: actionMessage,
+        accentColor: accentColor,
       ),
       duration: const Duration(seconds: 4),
       dismissDirection: DismissDirection.down,
@@ -36,8 +37,13 @@ class _TimerContent extends StatefulWidget {
   final String message;
   final Function? action;
   final String? actionMessage;
+  final Color? accentColor;
 
-  const _TimerContent({required this.message, this.action, this.actionMessage});
+  const _TimerContent(
+      {required this.message,
+      this.action,
+      this.actionMessage,
+      this.accentColor});
 
   @override
   State<_TimerContent> createState() => _TimerContentState();
@@ -63,6 +69,9 @@ class _TimerContentState extends State<_TimerContent>
 
   @override
   Widget build(BuildContext context) {
+    final Color? accent = widget.accentColor;
+    final Color progressColor = accent ?? Theme.of(context).colorScheme.inversePrimary;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -72,6 +81,14 @@ class _TimerContentState extends State<_TimerContent>
               horizontal: AppPadding.large, vertical: AppPadding.medium),
           child: Row(
             children: [
+              if (accent != null) ...[
+                Icon(
+                  Icons.check_circle_rounded,
+                  size: 18,
+                  color: accent,
+                ),
+                const SizedBox(width: AppPadding.small),
+              ],
               Expanded(
                 child: Text(
                   widget.message,
@@ -99,8 +116,7 @@ class _TimerContentState extends State<_TimerContent>
             return LinearProgressIndicator(
               value: conversionController.value,
               backgroundColor: Colors.transparent,
-              valueColor: AlwaysStoppedAnimation<Color>(
-                  Theme.of(context).colorScheme.inversePrimary),
+              valueColor: AlwaysStoppedAnimation<Color>(progressColor),
               minHeight: 4.0,
             );
           },

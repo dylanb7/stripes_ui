@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:stripes_ui/UI/CommonWidgets/animated_segmented_progress.dart';
 import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
+import 'package:stripes_ui/Util/Design/category_theme.dart';
+import 'package:stripes_ui/UI/CommonWidgets/category_chip.dart';
+import 'package:stripes_ui/UI/Record/record_form_layout.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 
 class RecordEntryController extends ChangeNotifier {
   String _title;
   String? _subtitle;
   int _currentIndex;
   int _totalPages;
+  List<String> _pageIds;
   PageController _pageController;
   VoidCallback _onClose;
-  bool _isCollapsed;
   bool _isLoading;
   VoidCallback? _onControl;
   String _controlLabel;
@@ -20,15 +25,24 @@ class RecordEntryController extends ChangeNotifier {
   int _totalQuestions;
   int _answeredQuestions;
   int _pendingRequiredCount;
+  bool _validationFailed;
+  IconData? _icon;
+  CategoryAppearance? _categoryAppearance;
+  Color? _color;
+  String? _categoryTitle;
 
   RecordEntryController({
     required String title,
     String? subtitle,
+    IconData? icon,
+    CategoryAppearance? categoryAppearance,
+    Color? color,
+    String? categoryTitle,
     required int currentIndex,
     required int totalPages,
+    List<String>? pageIds,
     required PageController pageController,
     required VoidCallback onClose,
-    bool isCollapsed = false,
     bool isLoading = false,
     VoidCallback? onControl,
     String controlLabel = 'Next',
@@ -39,31 +53,50 @@ class RecordEntryController extends ChangeNotifier {
     int totalQuestions = 0,
     int answeredQuestions = 0,
     int pendingRequiredCount = 0,
-  })  : _title = title,
-        _subtitle = subtitle,
-        _currentIndex = currentIndex,
-        _totalPages = totalPages,
-        _pageController = pageController,
-        _onClose = onClose,
-        _isCollapsed = isCollapsed,
-        _isLoading = isLoading,
-        _onControl = onControl,
-        _controlLabel = controlLabel,
-        _isReady = isReady,
-        _isSubmit = isSubmit,
-        _errorMessage = errorMessage,
-        _onDismissError = onDismissError,
-        _totalQuestions = totalQuestions,
-        _answeredQuestions = answeredQuestions,
-        _pendingRequiredCount = pendingRequiredCount;
+    bool validationFailed = false,
+  }) : _title = title,
+       _subtitle = subtitle,
+       _icon = icon,
+       _categoryAppearance = categoryAppearance,
+       _color = color,
+       _categoryTitle = categoryTitle,
+       _currentIndex = currentIndex,
+       _totalPages = totalPages,
+       _pageIds = _normalizePageIds(pageIds, totalPages),
+       _pageController = pageController,
+       _onClose = onClose,
+       _isLoading = isLoading,
+       _onControl = onControl,
+       _controlLabel = controlLabel,
+       _isReady = isReady,
+       _isSubmit = isSubmit,
+       _errorMessage = errorMessage,
+       _onDismissError = onDismissError,
+       _totalQuestions = totalQuestions,
+       _answeredQuestions = answeredQuestions,
+       _pendingRequiredCount = pendingRequiredCount,
+       _validationFailed = validationFailed;
+
+  static List<String> _normalizePageIds(List<String>? pageIds, int totalPages) {
+    if (pageIds != null && pageIds.length == totalPages) {
+      return List.unmodifiable(pageIds);
+    }
+    return List.unmodifiable(
+      List.generate(totalPages, (index) => 'record-page-$index'),
+    );
+  }
 
   String get title => _title;
   String? get subtitle => _subtitle;
+  IconData? get icon => _icon;
+  CategoryAppearance? get categoryAppearance => _categoryAppearance;
+  Color? get color => _color;
+  String? get categoryTitle => _categoryTitle;
   int get currentIndex => _currentIndex;
   int get totalPages => _totalPages;
+  List<String> get pageIds => _pageIds;
   PageController get pageController => _pageController;
   VoidCallback get onClose => _onClose;
-  bool get isCollapsed => _isCollapsed;
   bool get isLoading => _isLoading;
   VoidCallback? get onControl => _onControl;
   String get controlLabel => _controlLabel;
@@ -73,13 +106,18 @@ class RecordEntryController extends ChangeNotifier {
   int get totalQuestions => _totalQuestions;
   int get answeredQuestions => _answeredQuestions;
   int get pendingRequiredCount => _pendingRequiredCount;
+  bool get validationFailed => _validationFailed;
 
   void update({
     String? title,
     String? subtitle,
+    IconData? icon,
+    CategoryAppearance? categoryAppearance,
+    Color? color,
+    String? categoryTitle,
     int? currentIndex,
     int? totalPages,
-    bool? isCollapsed,
+    List<String>? pageIds,
     bool? isLoading,
     VoidCallback? onControl,
     String? controlLabel,
@@ -89,6 +127,7 @@ class RecordEntryController extends ChangeNotifier {
     int? totalQuestions,
     int? answeredQuestions,
     int? pendingRequiredCount,
+    bool? validationFailed,
   }) {
     bool changed = false;
     if (title != null && _title != title) {
@@ -99,16 +138,33 @@ class RecordEntryController extends ChangeNotifier {
       _subtitle = subtitle;
       changed = true;
     }
+    if (icon != null && _icon != icon) {
+      _icon = icon;
+      changed = true;
+    }
+    if (categoryAppearance != null &&
+        _categoryAppearance != categoryAppearance) {
+      _categoryAppearance = categoryAppearance;
+      changed = true;
+    }
+    if (color != null && _color != color) {
+      _color = color;
+      changed = true;
+    }
+    if (categoryTitle != null && _categoryTitle != categoryTitle) {
+      _categoryTitle = categoryTitle;
+      changed = true;
+    }
     if (currentIndex != null && _currentIndex != currentIndex) {
       _currentIndex = currentIndex;
       changed = true;
     }
     if (totalPages != null && _totalPages != totalPages) {
       _totalPages = totalPages;
+      _pageIds = _normalizePageIds(pageIds, totalPages);
       changed = true;
-    }
-    if (isCollapsed != null && _isCollapsed != isCollapsed) {
-      _isCollapsed = isCollapsed;
+    } else if (pageIds != null && !_samePageIds(_pageIds, pageIds)) {
+      _pageIds = _normalizePageIds(pageIds, _totalPages);
       changed = true;
     }
     if (isLoading != null && _isLoading != isLoading) {
@@ -148,7 +204,19 @@ class RecordEntryController extends ChangeNotifier {
       _pendingRequiredCount = pendingRequiredCount;
       changed = true;
     }
+    if (validationFailed != null && _validationFailed != validationFailed) {
+      _validationFailed = validationFailed;
+      changed = true;
+    }
     if (changed) notifyListeners();
+  }
+
+  static bool _samePageIds(List<String> first, List<String> second) {
+    if (first.length != second.length) return false;
+    for (var index = 0; index < first.length; index++) {
+      if (first[index] != second[index]) return false;
+    }
+    return true;
   }
 
   void showError(String message) {
@@ -182,8 +250,8 @@ class RecordEntryProvider extends InheritedNotifier<RecordEntryController> {
   }) : super(notifier: controller);
 
   static RecordEntryController of(BuildContext context) {
-    final provider =
-        context.dependOnInheritedWidgetOfExactType<RecordEntryProvider>();
+    final provider = context
+        .dependOnInheritedWidgetOfExactType<RecordEntryProvider>();
     assert(provider != null, 'No RecordEntryProvider found in context');
     return provider!.notifier!;
   }
@@ -211,6 +279,7 @@ class RecordEntryShell extends StatelessWidget {
   final Widget? control;
   final Widget? footer;
   final RecordControlStyle controlStyle;
+  final bool alignContent;
 
   const RecordEntryShell({
     super.key,
@@ -220,6 +289,7 @@ class RecordEntryShell extends StatelessWidget {
     this.control,
     this.footer,
     this.controlStyle = RecordControlStyle.fab,
+    this.alignContent = false,
   });
 
   @override
@@ -229,9 +299,10 @@ class RecordEntryShell extends StatelessWidget {
     return ListenableBuilder(
       listenable: controller,
       builder: (context, _) {
-        final Widget effectiveControl = control ??
+        final Widget effectiveControl =
+            control ??
             (controlStyle == RecordControlStyle.bottomBar
-                ? const RecordEntryBottomBar()
+                ? RecordEntryBottomBar(alignContent: alignContent)
                 : const RecordEntryFab());
 
         final bool isBottomBar = controlStyle == RecordControlStyle.bottomBar;
@@ -244,18 +315,18 @@ class RecordEntryShell extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Theme.of(context).scaffoldBackgroundColor,
                   ),
-                  child: header ?? const RecordEntryHeader(),
+                  child: _alignContent(header ?? const RecordEntryHeader()),
                 ),
-                divider ?? _defaultDivider(context),
+                _alignContent(divider ?? _defaultDivider(context)),
                 if (controller.errorMessage.isNotEmpty)
-                  const RecordEntryErrorBanner(),
+                  _alignContent(const RecordEntryErrorBanner()),
                 Expanded(
                   child: IgnorePointer(
                     ignoring: controller.isLoading,
-                    child: content,
+                    child: _alignContent(content),
                   ),
                 ),
-                if (footer != null) footer!,
+                if (footer != null) _alignContent(footer!),
                 if (isBottomBar) effectiveControl,
               ],
             ),
@@ -271,6 +342,9 @@ class RecordEntryShell extends StatelessWidget {
     );
   }
 
+  Widget _alignContent(Widget child) =>
+      alignContent ? RecordFormLayout(child: child) : child;
+
   Widget _defaultDivider(BuildContext context) {
     return Container(
       height: 1,
@@ -280,7 +354,9 @@ class RecordEntryShell extends StatelessWidget {
 }
 
 class RecordEntryHeader extends StatelessWidget {
-  const RecordEntryHeader({super.key});
+  const RecordEntryHeader({this.showNavigation = true, super.key});
+
+  final bool showNavigation;
 
   @override
   Widget build(BuildContext context) {
@@ -289,103 +365,157 @@ class RecordEntryHeader extends StatelessWidget {
     return ListenableBuilder(
       listenable: controller,
       builder: (context, _) {
-        final bool isCollapsed = controller.isCollapsed;
+        final String fullTitle = controller.title;
+        final String? category = controller.categoryTitle;
 
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: EdgeInsets.only(
-            top: isCollapsed ? 0 : AppPadding.small,
-            left: AppPadding.small,
-            right: AppPadding.small,
+        List<Widget> buildTitleWidgets() {
+          if (category == null || !fullTitle.contains(category)) {
+            return [
+              Text(
+                fullTitle,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ];
+          }
+
+          final parts = fullTitle.split(category);
+          final prefix = parts[0];
+          final suffix = parts.sublist(1).join(category);
+
+          return [
+            // The compact navigation header already says "Record" when this
+            // context is inside the scroll view.
+            if (showNavigation && prefix.trim().isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(right: AppPadding.tiny),
+                child: Text(
+                  prefix.trim(),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ),
+            if (controller.categoryAppearance != null ||
+                controller.color != null)
+              CategoryChip(
+                useColor: controller.color != null,
+                appearance:
+                    controller.categoryAppearance ??
+                    CategoryAppearance(
+                      color: controller.color!,
+                      icon: controller.icon ?? Icons.question_mark,
+                    ),
+                categoryName: category,
+                iconSize: 18.0,
+              )
+            else
+              Text(
+                category,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+            if (showNavigation && suffix.trim().isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(left: AppPadding.tiny),
+                child: Text(
+                  suffix.trim(),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ),
+          ];
+        }
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppPadding.small,
+            vertical: AppPadding.tiny,
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(
-                width: 24,
-                child: IconButton(
-                  visualDensity: VisualDensity.compact,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  onPressed: controller.goBack,
-                  icon: Icon(
-                    controller.currentIndex == 0
-                        ? Icons.close
-                        : Icons.arrow_back_sharp,
-                    size: 24,
+              if (showNavigation) const _RecordEntryBackButton(),
+              Expanded(
+                child: Center(
+                  child: Wrap(
+                    alignment: WrapAlignment.center,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      ...buildTitleWidgets(),
+                      if (controller.subtitle != null &&
+                          controller.subtitle!.isNotEmpty) ...[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppPadding.tiny,
+                          ),
+                          child: Text(
+                            '·',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ),
+                        Text(
+                          controller.subtitle!,
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(fontStyle: FontStyle.italic),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
               ),
-              Expanded(
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
-                  transitionBuilder: (child, animation) {
-                    return FadeTransition(
-                      opacity: animation,
-                      child: SizeTransition(
-                        sizeFactor: animation,
-                        axisAlignment: -1,
-                        child: child,
-                      ),
-                    );
-                  },
-                  child: isCollapsed
-                      ? Center(
-                          child: Text(
-                            controller.title,
-                            key: const ValueKey('collapsed'),
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                    fontWeight: FontWeight.w700,
-                                    color:
-                                        Theme.of(context).colorScheme.primary),
-                            textAlign: TextAlign.center,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        )
-                      : Column(
-                          key: const ValueKey('expanded'),
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Text(
-                              controller.title,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(
-                                      fontWeight: FontWeight.w700,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .primary),
-                              textAlign: TextAlign.center,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            if (controller.subtitle != null &&
-                                controller.subtitle!.isNotEmpty)
-                              Text(
-                                controller.subtitle!,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.copyWith(fontStyle: FontStyle.italic),
-                                textAlign: TextAlign.center,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                          ],
-                        ),
-                ),
-              ),
-              const SizedBox(width: 24),
+              if (showNavigation) const SizedBox(width: 48),
             ],
           ),
         );
       },
+    );
+  }
+}
+
+/// Keeps navigation reachable when the full context header scrolls with a
+/// form on a short screen or at a large reading size.
+class RecordEntryNavigationHeader extends StatelessWidget {
+  const RecordEntryNavigationHeader({super.key});
+
+  @override
+  Widget build(BuildContext context) => Row(
+    children: [
+      const _RecordEntryBackButton(),
+      Expanded(
+        child: Text(
+          context.translate.recordTab,
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+      ),
+      const SizedBox(width: 48),
+    ],
+  );
+}
+
+class _RecordEntryBackButton extends StatelessWidget {
+  const _RecordEntryBackButton();
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = RecordEntryProvider.of(context);
+    final firstPage = controller.currentIndex == 0;
+    return IconButton(
+      constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+      tooltip: firstPage
+          ? MaterialLocalizations.of(context).closeButtonTooltip
+          : MaterialLocalizations.of(context).backButtonTooltip,
+      onPressed: controller.goBack,
+      icon: Icon(firstPage ? Icons.close : Icons.arrow_back_sharp),
     );
   }
 }
@@ -413,7 +543,8 @@ class RecordEntryFab extends StatelessWidget {
           backgroundColor: backgroundColor,
           foregroundColor: foregroundColor,
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppRounding.large)),
+            borderRadius: BorderRadius.circular(AppRounding.large),
+          ),
           label: controller.isLoading
               ? const ButtonLoadingIndicator()
               : Text(controller.controlLabel),
@@ -429,7 +560,9 @@ class RecordEntryFab extends StatelessWidget {
 /// A bottom bar control styled like DateRangeSelector.
 /// Can be used as an alternative to RecordEntryFab by passing it as `control` to RecordEntryShell.
 class RecordEntryBottomBar extends StatelessWidget {
-  const RecordEntryBottomBar({super.key});
+  final bool alignContent;
+
+  const RecordEntryBottomBar({this.alignContent = false, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -458,43 +591,47 @@ class RecordEntryBottomBar extends StatelessWidget {
               ),
             ),
           ),
-          child: SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppPadding.medium,
-                vertical: AppPadding.small,
-              ),
-              child: Row(
-                children: [
-                  // Next/Submit button - expanded to fill width
-                  Expanded(
-                    child: FilledButton.icon(
-                      onPressed: isLoading ? null : controller.onControl,
-                      style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: AppPadding.medium,
-                          horizontal: AppPadding.large,
+          child: _alignContent(
+            SafeArea(
+              top: false,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: alignContent
+                      ? RecordFormLayout.horizontalPadding
+                      : AppPadding.medium,
+                  vertical: AppPadding.small,
+                ),
+                child: Row(
+                  children: [
+                    // Next/Submit button - expanded to fill width
+                    Expanded(
+                      child: FilledButton.icon(
+                        onPressed: isLoading ? null : controller.onControl,
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: AppPadding.medium,
+                            horizontal: AppPadding.large,
+                          ),
+                          backgroundColor: isReady
+                              ? colors.primary
+                              : colors.surfaceContainerHigh,
+                          foregroundColor: isReady
+                              ? colors.onPrimary
+                              : colors.onSurface.withValues(alpha: 0.6),
                         ),
-                        backgroundColor: isReady
-                            ? colors.primary
-                            : colors.surfaceContainerHigh,
-                        foregroundColor: isReady
-                            ? colors.onPrimary
-                            : colors.onSurface.withValues(alpha: 0.6),
+                        icon: isLoading
+                            ? const ButtonLoadingIndicator()
+                            : Icon(
+                                controller.isSubmit
+                                    ? Icons.check
+                                    : Icons.arrow_forward,
+                                size: 18,
+                              ),
+                        label: Text(controller.controlLabel),
                       ),
-                      icon: isLoading
-                          ? const ButtonLoadingIndicator()
-                          : Icon(
-                              controller.isSubmit
-                                  ? Icons.check
-                                  : Icons.arrow_forward,
-                              size: 18,
-                            ),
-                      label: Text(controller.controlLabel),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -502,6 +639,9 @@ class RecordEntryBottomBar extends StatelessWidget {
       },
     );
   }
+
+  Widget _alignContent(Widget child) =>
+      alignContent ? RecordFormLayout(child: child) : child;
 }
 
 class ComboDivider extends StatelessWidget {
@@ -518,7 +658,7 @@ class ComboDivider extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           RecordEntryQuestionProgress(),
-          RecordEntryPageProgressDivider()
+          RecordEntryPageProgressDivider(),
         ],
       ),
     );
@@ -533,36 +673,14 @@ class RecordEntryPageProgressDivider extends StatelessWidget {
     final controller = RecordEntryProvider.of(context);
 
     return ListenableBuilder(
-      listenable: controller.pageController,
+      listenable: controller,
       builder: (context, _) {
-        final int totalPages = controller.totalPages;
-
-        if (totalPages <= 1) {
-          return LinearProgressIndicator(
-            value: 1.0,
-            backgroundColor:
-                Theme.of(context).colorScheme.surfaceContainerHighest,
-            color: Theme.of(context).colorScheme.primary,
-            minHeight: 3,
-          );
-        }
-
-        double page = 0.0;
-        if (controller.pageController.hasClients) {
-          page = controller.pageController.page ??
-              controller.currentIndex.toDouble();
-        } else {
-          page = controller.currentIndex.toDouble();
-        }
-
-        final double progress = (page / (totalPages - 1)).clamp(0.0, 1.0);
-
-        return LinearProgressIndicator(
-          value: progress,
-          backgroundColor:
-              Theme.of(context).colorScheme.surfaceContainerHighest,
-          color: Theme.of(context).colorScheme.primary,
-          minHeight: 3,
+        return AnimatedSegmentedProgress(
+          segmentIds: controller.pageIds,
+          currentIndex: controller.currentIndex,
+          currentHasError: controller.validationFailed,
+          pageController: controller.pageController,
+          semanticsKey: const ValueKey('record-entry-page-progress'),
         );
       },
     );
@@ -585,9 +703,7 @@ class RecordEntryQuestionProgress extends StatelessWidget {
         final pendingRequired = controller.pendingRequiredCount;
 
         if (total == 0) {
-          return const SizedBox(
-            height: AppPadding.tiny,
-          );
+          return const SizedBox(height: AppPadding.tiny);
         }
 
         return Row(
@@ -599,9 +715,9 @@ class RecordEntryQuestionProgress extends StatelessWidget {
                   Text(
                     '$answered/$total',
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: colors.onSurfaceVariant,
-                          fontWeight: FontWeight.w500,
-                        ),
+                      color: colors.onSurfaceVariant,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                   const SizedBox(width: AppPadding.small),
                 ],
@@ -624,8 +740,8 @@ class RecordEntryQuestionProgress extends StatelessWidget {
                     color: isFilled
                         ? colors.primary
                         : isPendingRequired
-                            ? colors.error.withValues(alpha: 0.4)
-                            : colors.surfaceContainerHighest,
+                        ? colors.error.withValues(alpha: 0.4)
+                        : colors.surfaceContainerHighest,
                     border: isPendingRequired && !isFilled
                         ? Border.all(color: colors.error, width: 1.5)
                         : null,
@@ -677,7 +793,9 @@ class RecordEntryErrorBanner extends StatelessWidget {
               : Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(
-                      vertical: AppPadding.tiny, horizontal: AppPadding.small),
+                    vertical: AppPadding.tiny,
+                    horizontal: AppPadding.small,
+                  ),
                   decoration: BoxDecoration(
                     color: colors.errorContainer,
                     border: Border(

@@ -19,11 +19,15 @@ class BaselineGate extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final bool onboardingDone = ref.watch(onboardingCompleteProvider).value ?? false;
+    if (!onboardingDone) return child;
+
     final AsyncValue<SubState> subState = ref.watch(subHolderProvider);
-    if (subState.isLoading) {
+    if (subState.isLoading && !subState.hasValue) {
       return child;
     }
-    final SubState? state = subState.valueOrNull;
+    if (subState.hasError && !subState.hasValue) return child;
+    final SubState? state = subState.value;
     if (state == null ||
         state.subUsers.isEmpty ||
         state.selected == null ||
@@ -37,8 +41,9 @@ class BaselineGate extends ConsumerWidget {
     if (activeTriggers.isLoading && !activeTriggers.hasValue) {
       return child;
     }
+    if (activeTriggers.hasError && !activeTriggers.hasValue) return child;
 
-    final List<BaselineTrigger> triggers = activeTriggers.valueOrNull ?? [];
+    final List<BaselineTrigger> triggers = activeTriggers.value ?? [];
 
     if (triggers.isEmpty) {
       return child;
@@ -124,12 +129,10 @@ class _BaselineGateOverlayState extends ConsumerState<_BaselineGateOverlay>
 
     return Stack(
       children: [
-        // Block interaction with child by wrapping in IgnorePointer
         IgnorePointer(
           ignoring: true,
           child: widget.child,
         ),
-        // Animated scrim
         AnimatedBuilder(
           animation: _fadeAnimation,
           builder: (context, child) {
@@ -139,7 +142,6 @@ class _BaselineGateOverlayState extends ConsumerState<_BaselineGateOverlay>
             );
           },
         ),
-        // Animated modal
         SafeArea(
           child: Center(
             child: SlideTransition(

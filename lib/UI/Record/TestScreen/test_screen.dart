@@ -1,33 +1,99 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:stripes_backend_helper/RepositoryBase/TestBase/base_test_repo.dart';
-import 'package:stripes_backend_helper/RepositoryBase/TestBase/test_state.dart';
+import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/Test/test_provider.dart';
-import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
-import 'package:stripes_ui/Util/extensions.dart';
+import 'package:stripes_ui/UI/Record/TestScreen/stage_ui_registry.dart';
+import 'package:stripes_ui/UI/Record/TestScreen/test_async_error.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
 
-class TestScreen extends ConsumerStatefulWidget {
+class TestScreen extends ConsumerWidget {
   const TestScreen({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _TestScreenState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ref
+        .watch(testProvider)
+        .when(
+          loading: () => const LoadingWidget(),
+          error: (error, stack) => TestAsyncError(error: error),
+          data: (repo) => repo == null
+              ? const _NoTestsAvailable(message: 'No tests available.')
+              : _ActiveProtocolsContent(repo: repo),
+        );
+  }
 }
 
-class _TestScreenState extends ConsumerState<TestScreen> {
-  Test? selected;
+class _ActiveProtocolsContent extends ConsumerWidget {
+  final ModularTestsRepo repo;
+
+  const _ActiveProtocolsContent({required this.repo});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ref
+        .watch(activeTestProtocolsProvider)
+        .when(
+          loading: () => const LoadingWidget(),
+          error: (error, stack) => TestAsyncError(error: error),
+          data: (protocols) => _buildContent(context, ref, protocols),
+        );
+  }
+
+  Widget _buildContent(
+    BuildContext context,
+    WidgetRef ref,
+    List<ActiveTestProtocol> activeProtocols,
+  ) {
+    if (activeProtocols.isEmpty) {
+      return const _NoTestsAvailable(message: 'No active test protocols.');
+    }
+
+    final activeProtocol = activeProtocols.firstWhere(
+      (p) => !p.isCompleted,
+      orElse: () => activeProtocols.first,
+    );
+    final definition = repo.definitions.firstWhereOrNull(
+      (d) => d.id == activeProtocol.testId,
+    );
+
+    if (definition == null) {
+      return Center(
+        child: Text('Test definition not found: ${activeProtocol.testId}'),
+      );
+    }
+
+    final currentStage = definition.stages.firstWhere(
+      (s) => s.id == activeProtocol.currentStageId,
+      orElse: () => definition.stages.first,
+    );
+    final registry = ref.watch(stageUiRegistryProvider);
+    return KeyedSubtree(
+      key: ValueKey('${activeProtocol.id}:${currentStage.id}'),
+      child: registry.buildStage(
+        context: context,
+        protocol: activeProtocol,
+        stage: currentStage,
+        repo: repo,
+      ),
+    );
+  }
+}
+
+class _NoTestsAvailable extends StatelessWidget {
+  final String message;
+
+  const _NoTestsAvailable({required this.message});
 
   @override
   Widget build(BuildContext context) {
-    final AsyncValue<TestsState> testsState = ref.watch(testsHolderProvider);
-    final Test<TestState>? selectedTest = ref.watch(testsHolderProvider
-            .select((state) => state.valueOrNull?.selected)) ??
-        testsState.valueOrNull?.testsRepo?.tests.first;
-    if (selectedTest == null) {
-      return const LoadingWidget();
-    }
-    return selectedTest.displayState(context) ?? const SizedBox();
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppPadding.large),
+        child: Text(message, style: Theme.of(context).textTheme.bodyLarge),
+      ),
+    );
   }
 }
 
@@ -36,118 +102,75 @@ class TestSwitcher extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<TestsState> testsState = ref.watch(testsHolderProvider);
-
-    return testsState.map<Widget>(data: (AsyncData<TestsState> data) {
-      final List<Test> tests = data.value.testsRepo?.tests ?? [];
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          tests.length == 1
-              ? FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    tests[0].getName(context),
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).primaryColor),
-                    textAlign: TextAlign.left,
-                  ),
-                )
-              : Align(
-                  alignment: Alignment.centerLeft,
-                  child: DropdownButton<Test>(
-                    items: tests
-                        .map((e) => DropdownMenuItem(
-                              value: e,
-                              child: Text(
-                                e.getName(context),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge
-                                    ?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: Theme.of(context).primaryColor),
-                                textAlign: TextAlign.left,
-                              ),
-                            ))
-                        .toList(),
-                    onChanged: (val) async {
-                      if (val == null) return;
-
-                      await ref
-                          .read(testsHolderProvider.notifier)
-                          .changeCurrent(val);
-                    },
-                    value: data.value.selected,
-                  ),
-                ),
-        ],
-      );
-    }, error: (AsyncError<TestsState> error) {
-      return FittedBox(
-        fit: BoxFit.scaleDown,
-        alignment: Alignment.centerLeft,
-        child: Text(
-          error.error.toString(),
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).primaryColor),
-          textAlign: TextAlign.left,
-        ),
-      );
-    }, loading: (AsyncLoading<TestsState> loading) {
-      return FittedBox(
-        fit: BoxFit.scaleDown,
-        alignment: Alignment.centerLeft,
-        child: Text(
-          "...",
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).primaryColor),
-          textAlign: TextAlign.left,
-        ),
-      );
-    });
+    return ref
+        .watch(testProvider)
+        .when(
+          data: (repo) =>
+              repo == null ? const SizedBox.shrink() : _ActiveTestLabel(repo),
+          loading: () => const SizedBox.shrink(),
+          error: (error, stackTrace) => TestAsyncError(error: error),
+        );
   }
 }
 
-class TestErrorPrevention<T extends Test> extends ConsumerWidget {
+class _ActiveTestLabel extends ConsumerWidget {
+  final ModularTestsRepo repo;
+
+  const _ActiveTestLabel(this.repo);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (repo.definitions.isEmpty) return const SizedBox.shrink();
+
+    return ref
+        .watch(activeTestProtocolsProvider)
+        .when(
+          data: (protocols) {
+            final activeProtocol = protocols.firstWhereOrNull(
+              (protocol) => !protocol.isCompleted,
+            );
+            final definition = activeProtocol == null
+                ? repo.definitions.first
+                : repo.definitions.firstWhereOrNull(
+                        (definition) => definition.id == activeProtocol.testId,
+                      ) ??
+                      repo.definitions.first;
+            return _TestSwitcherContent(definition: definition);
+          },
+          loading: () => const SizedBox.shrink(),
+          error: (error, stackTrace) => TestAsyncError(error: error),
+        );
+  }
+}
+
+class _TestSwitcherContent extends StatelessWidget {
+  final TestDefinition definition;
+
+  const _TestSwitcherContent({required this.definition});
+
+  @override
+  Widget build(BuildContext context) {
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: Alignment.centerLeft,
+      child: Text(
+        definition.nameKey,
+        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: Theme.of(context).primaryColor,
+        ),
+        textAlign: TextAlign.left,
+      ),
+    );
+  }
+}
+
+class TestErrorPrevention extends ConsumerWidget {
   const TestErrorPrevention({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ConfirmationPopup(
-        title: Text(
-          context.translate.errorPreventionTitle,
-          style: Theme.of(context).textTheme.headlineMedium,
-          textAlign: TextAlign.center,
-        ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              context.translate.blueMuffinErrorPreventionLineOne,
-              style: Theme.of(context).textTheme.bodyMedium,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(
-              height: AppPadding.small,
-            ),
-            Text(
-              context.translate.blueMuffinErrorPreventionLineTwo,
-              style: Theme.of(context).textTheme.bodyMedium,
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-        onConfirm: () async {
-          (await ref.read(testsHolderProvider.notifier).getTest<T>())?.cancel();
-        },
-        cancel: context.translate.errorPreventionStay,
-        confirm: context.translate.errorPreventionLeave);
+    // TODO: Implement modular test cancellation confirmation
+    return const SizedBox.shrink();
   }
 }

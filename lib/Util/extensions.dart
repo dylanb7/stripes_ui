@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:markdown_widget/markdown_widget.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
+
 
 extension Space on List<Widget> {
   List<Widget> spacedBy({required double space, Axis axis = Axis.vertical}) {
@@ -104,3 +106,113 @@ extension IntExtensions on int {
     return this;
   }
 }
+
+extension MarkdownConfigTheme on MarkdownConfig {
+  static MarkdownConfig fromTheme(BuildContext context) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
+    return MarkdownConfig(configs: [
+      H1Config(
+        style: textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ) ??
+            TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ),
+      ),
+      H2Config(
+        style: textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ) ??
+            TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ),
+      ),
+      H3Config(
+        style: textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ) ??
+            TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ),
+      ),
+      H4Config(
+        style: textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ) ??
+            TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ),
+      ),
+      H5Config(
+        style: textTheme.bodyLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ) ??
+            TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ),
+      ),
+      H6Config(
+        style: textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ) ??
+            TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ),
+      ),
+      PConfig(
+        textStyle: textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onSurface,
+            ) ??
+            TextStyle(
+              fontSize: 14,
+              color: colorScheme.onSurface,
+            ),
+      ),
+      LinkConfig(
+        style: textTheme.bodyMedium?.copyWith(
+              color: colorScheme.primary,
+              decoration: TextDecoration.underline,
+            ) ??
+            TextStyle(
+              fontSize: 14,
+              color: colorScheme.primary,
+              decoration: TextDecoration.underline,
+            ),
+      ),
+      if (isDark) ...[
+        HrConfig.darkConfig,
+        PreConfig.darkConfig,
+        CodeConfig.darkConfig,
+        BlockquoteConfig.darkConfig,
+      ],
+    ]);
+  }
+}
+
+extension MarkdownThemeContext on BuildContext {
+  MarkdownConfig get markdownConfig => MarkdownConfigTheme.fromTheme(this);
+}
+
+

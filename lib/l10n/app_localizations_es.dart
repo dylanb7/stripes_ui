@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -689,8 +690,7 @@ class AppLocalizationsEs extends AppLocalizations {
       'Select the pain during the bowel movement if applicable';
 
   @override
-  String get selectInstruction =>
-      'Select all the signs and symptoms that apply';
+  String get selectInstruction => 'Completa esta sección';
 
   @override
   String get mildTag => 'Mild';
@@ -832,6 +832,18 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get errorPreventionStay => 'Stay';
+
+  @override
+  String get discardEntryTitle => '¿Descartar cambios?';
+
+  @override
+  String get discardEntryDescription => 'Se perderán los cambios sin guardar.';
+
+  @override
+  String get discardEntryKeep => 'Seguir editando';
+
+  @override
+  String get discardEntryDiscard => 'Descartar cambios';
 
   @override
   String get blueDyeHeader => 'Blue Meal Study';
@@ -980,6 +992,18 @@ class AppLocalizationsEs extends AppLocalizations {
   String get eventFilterHeader => 'Filters';
 
   @override
+  String historyEntryCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count registros',
+      one: '1 registro',
+      zero: 'Sin registros',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String eventFilterResults(num count) {
     final intl.NumberFormat countNumberFormat = intl.NumberFormat.compact(
       locale: localeName,
@@ -1048,7 +1072,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get noEventsText => 'No events recorded';
 
   @override
-  String get behaviorsLabel => 'Symptoms';
+  String get behaviorsLabel => 'Respuestas';
 
   @override
   String get descriptionLabel => 'Description';
@@ -1108,7 +1132,7 @@ class AppLocalizationsEs extends AppLocalizations {
       'When you exit the study all exported data will be deleted and your access code will be invalidated';
 
   @override
-  String get passwordConfirm => 'Confirm Password';
+  String get passwordConfirm => 'Confirmar contraseña';
 
   @override
   String get exportDataTitle => 'Export Data';
@@ -1219,4 +1243,824 @@ class AppLocalizationsEs extends AppLocalizations {
   String entriesCount(int count) {
     return '$count entries';
   }
+
+  @override
+  String get questionSetsTitle => 'Flujos de registro';
+
+  @override
+  String get questionSetsSubtitle =>
+      'Adapta el registro de experiencias, rutinas y eventos';
+
+  @override
+  String get newQuestionSet => 'Nuevo flujo';
+
+  @override
+  String get newQuestionSetTitle => 'Nuevo flujo de registro';
+
+  @override
+  String get newQuestionSetDescription =>
+      'Crea un flujo que se adapte a cómo quieres registrar una experiencia, rutina o evento.';
+
+  @override
+  String get questionSetName => 'Nombre del flujo';
+
+  @override
+  String get questionSetNameHint => 'Por ejemplo, Hora de comer';
+
+  @override
+  String get questionSetNameRequired =>
+      'Introduce un nombre para este flujo de registro';
+
+  @override
+  String get recordTiming => '¿Cuándo se puede registrar?';
+
+  @override
+  String get recordTimingHelp =>
+      'Esto controla dónde y con qué frecuencia está disponible el flujo.';
+
+  @override
+  String get eventBased => 'Basado en eventos';
+
+  @override
+  String get eventBasedDescription => 'Se inicia cuando eliges registrarlo';
+
+  @override
+  String get dailyTiming => 'Diario';
+
+  @override
+  String get weeklyTiming => 'Semanal';
+
+  @override
+  String get monthlyTiming => 'Mensual';
+
+  @override
+  String get yearlyTiming => 'Anual';
+
+  @override
+  String get scheduledDescription => 'Aparece según un horario recurrente';
+
+  @override
+  String get createQuestionSet => 'Crear flujo de registro';
+
+  @override
+  String questionsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count preguntas',
+      one: '1 pregunta',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sectionsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count secciones',
+      one: '1 sección',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get customLabel => 'Personalizado';
+
+  @override
+  String get reorderAndGroup => 'Ordenar y agrupar';
+
+  @override
+  String get reorderHelp =>
+      'Arrastra las preguntas para ordenarlas o moverlas entre secciones.';
+
+  @override
+  String get saveChanges => 'Guardar cambios';
+
+  @override
+  String get addQuestion => 'Añadir pregunta';
+
+  @override
+  String get previewFlow => 'Probar flujo';
+
+  @override
+  String get previewQuestion => 'Probar pregunta';
+
+  @override
+  String get previewMode => 'Modo de vista previa';
+
+  @override
+  String get previewModeDescription =>
+      'Prueba este flujo sin guardar respuestas.';
+
+  @override
+  String get closePreview => 'Cerrar vista previa';
+
+  @override
+  String get previousButton => 'Anterior';
+
+  @override
+  String get doneButton => 'Listo';
+
+  @override
+  String sectionNumber(int number) {
+    return 'Sección $number';
+  }
+
+  @override
+  String get newSection => 'Nueva sección';
+
+  @override
+  String get alwaysShownFirst => 'Siempre se muestra primero';
+
+  @override
+  String get alwaysShown => 'Siempre visible';
+
+  @override
+  String get conditionalLabel => 'Condicional';
+
+  @override
+  String get editRule => 'Editar regla';
+
+  @override
+  String get addRule => 'Añadir regla';
+
+  @override
+  String get visibilityRuleTitle => '¿Cuándo se muestra esta sección?';
+
+  @override
+  String get visibilityRuleDescription =>
+      'Usa respuestas de secciones anteriores para decidir si aparece esta sección.';
+
+  @override
+  String get questionVisibilityRuleTitle => '¿Cuándo se muestra esta pregunta?';
+
+  @override
+  String get questionVisibilityRuleDescription =>
+      'Usa una respuesta de una pregunta anterior para decidir si aparece esta pregunta.';
+
+  @override
+  String get ruleOrderingError =>
+      'Una regla de visibilidad hace referencia a una pregunta que ya no aparece antes en el flujo. Edita la regla o vuelve a mover la pregunta de origen.';
+
+  @override
+  String get saveRule => 'Guardar regla';
+
+  @override
+  String get alwaysShow => 'Mostrar siempre';
+
+  @override
+  String get addQuestionTitle => 'Nueva pregunta';
+
+  @override
+  String get addQuestionDescription =>
+      'Elige qué registrar y dónde aparece en este flujo.';
+
+  @override
+  String get questionTypeLabel => 'Tipo de respuesta';
+
+  @override
+  String get questionPromptLabel => 'Pregunta';
+
+  @override
+  String get questionPromptHint => '¿Qué te gustaría registrar?';
+
+  @override
+  String get responseRange => 'Rango de respuesta';
+
+  @override
+  String get minimumLabel => 'Mínimo';
+
+  @override
+  String get maximumLabel => 'Máximo';
+
+  @override
+  String get optionsLabel => 'Opciones de respuesta';
+
+  @override
+  String optionsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count opciones',
+      one: '1 opción',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get optionLabel => 'Opción';
+
+  @override
+  String get addOption => 'Añadir opción';
+
+  @override
+  String get questionPromptRequired => 'Introduce una pregunta';
+
+  @override
+  String get rangeRequired => 'Introduce un rango válido';
+
+  @override
+  String get rangeInvalid => 'El máximo debe ser mayor que el mínimo';
+
+  @override
+  String get optionRequired => 'Añade al menos una opción';
+
+  @override
+  String get createQuestion => 'Añadir pregunta';
+
+  @override
+  String get continueButton => 'Continuar';
+
+  @override
+  String get questionSetDetailsStep => 'Detalles';
+
+  @override
+  String get questionsStep => 'Crear flujo';
+
+  @override
+  String get questionsStepDescription =>
+      'Crea secciones y añade en cada una lo que quieras registrar, en el orden adecuado.';
+
+  @override
+  String get addFirstQuestion => 'Añade al menos una pregunta para continuar.';
+
+  @override
+  String get reviewStep => 'Revisar';
+
+  @override
+  String get reviewQuestionSet => 'Revisa tu flujo de registro';
+
+  @override
+  String get reviewQuestionSetDescription =>
+      'Prueba el flujo completo y créalo cuando todo esté correcto.';
+
+  @override
+  String get questionSetCreationFailed =>
+      'No se pudo crear el flujo de registro. No se guardaron cambios.';
+
+  @override
+  String get addSection => 'Añadir sección';
+
+  @override
+  String get emptySectionDropHere => 'Arrastra una pregunta aquí';
+
+  @override
+  String get emptySectionSaveError =>
+      'Añade una pregunta a cada sección o elimina la sección vacía.';
+
+  @override
+  String get moveSectionUp => 'Mover sección hacia arriba';
+
+  @override
+  String get moveSectionDown => 'Mover sección hacia abajo';
+
+  @override
+  String get removeEmptySection => 'Eliminar sección vacía';
+
+  @override
+  String get buildFlowStep => 'Crear flujo';
+
+  @override
+  String get recordFlowDetailsTitle => 'Describe este flujo';
+
+  @override
+  String get buildFlowTitle => 'Crea tu flujo de registro';
+
+  @override
+  String creationStepLabel(int current, int total, String label) {
+    return 'Paso $current de $total · $label';
+  }
+
+  @override
+  String get addQuestionToSection => 'Añadir pregunta a esta sección';
+
+  @override
+  String get sectionEmptyDescription =>
+      'Añade una pregunta para definir qué aparece en esta sección.';
+
+  @override
+  String get renameSection => 'Cambiar nombre de la sección';
+
+  @override
+  String get sectionName => 'Nombre de la sección';
+
+  @override
+  String get sectionNameDescription =>
+      'Usa un encabezado breve que ayude a entender esta parte del flujo.';
+
+  @override
+  String get sectionNameRequired => 'Introduce un nombre para la sección';
+
+  @override
+  String get moveQuestion => 'Mover pregunta a otra sección';
+
+  @override
+  String get reorderOrMoveQuestion => 'Ordenar o mover pregunta';
+
+  @override
+  String get moveQuestionUp => 'Mover pregunta hacia arriba';
+
+  @override
+  String get moveQuestionDown => 'Mover pregunta hacia abajo';
+
+  @override
+  String moveToSection(String section) {
+    return 'Mover a $section';
+  }
+
+  @override
+  String get deleteQuestionFromDraft => 'Eliminar pregunta';
+
+  @override
+  String get appearsInSection => 'Aparece en la sección';
+
+  @override
+  String get placementTitle => 'Ubicación';
+
+  @override
+  String get placementDescription =>
+      'Elige la sección en la que aparecerá esta pregunta.';
+
+  @override
+  String get questionContentTitle => '¿Qué se preguntará?';
+
+  @override
+  String get questionContentDescription =>
+      'Usa un lenguaje claro que tenga sentido durante un registro.';
+
+  @override
+  String get responseSetupTitle => '¿Cómo se puede responder?';
+
+  @override
+  String get responseSetupDescription =>
+      'Elige un formato de respuesta y configúralo debajo.';
+
+  @override
+  String get optionsEditorHelp =>
+      'Añade al menos dos opciones. Puedes editarlas y arrastrarlas para ordenarlas.';
+
+  @override
+  String optionNumber(int number) {
+    return 'Opción $number';
+  }
+
+  @override
+  String get removeOption => 'Eliminar opción';
+
+  @override
+  String get optionsMinimumRequired =>
+      'Añade al menos dos opciones de respuesta completas';
+
+  @override
+  String get optionsMustBeUnique =>
+      'Cada opción de respuesta debe ser diferente';
+
+  @override
+  String get optionCommaUnsupported =>
+      'Las opciones de respuesta no pueden contener comas';
+
+  @override
+  String get customQuestionLabel => 'Pregunta personalizada';
+
+  @override
+  String get customRecordFlowLabel => 'Flujo de registro personalizado';
+
+  @override
+  String get recordFlowSettings => 'Configuración del flujo de registro';
+
+  @override
+  String get backToRecordFlows => 'Volver a los flujos de registro';
+
+  @override
+  String get noRecordFlowSelected =>
+      'No hay ningún flujo de registro seleccionado';
+
+  @override
+  String get recordFlowNotFound => 'No se encontró el flujo de registro';
+
+  @override
+  String get builtInFlowStructure => 'Estructura de flujo integrada';
+
+  @override
+  String get builtInFlowStructureDescription =>
+      'Las preguntas y secciones están administradas por la aplicación. Puedes cambiar su visibilidad cuando esté permitido.';
+
+  @override
+  String get questionSettingsTitle => 'Configuración de la pregunta';
+
+  @override
+  String get questionCardLabel => 'PREGUNTA';
+
+  @override
+  String get showInCheckIns => 'Mostrar en los registros';
+
+  @override
+  String get settingManagedByApp =>
+      'Esta opción está administrada por la aplicación';
+
+  @override
+  String get hideQuestionDescription =>
+      'Desactívala para ocultar esta pregunta sin eliminarla';
+
+  @override
+  String get showRecordFlow => 'Mostrar flujo de registro';
+
+  @override
+  String get hideRecordFlowDescription =>
+      'Desactívalo para ocultar este flujo del menú de registro sin eliminarlo';
+
+  @override
+  String get responseRequirementTitle => 'Requisito de respuesta';
+
+  @override
+  String get optionalResponseDescription =>
+      'Opcional · esta respuesta se puede omitir';
+
+  @override
+  String get requiredResponseDescription =>
+      'Obligatoria · hay una regla de respuesta configurada';
+
+  @override
+  String get builtInQuestionLabel => 'Pregunta integrada';
+
+  @override
+  String get builtInQuestionDescription =>
+      'La aplicación administra la pregunta. Puedes cambiar su visibilidad cuando esté permitido.';
+
+  @override
+  String get questionTypeCheck => 'Casilla';
+
+  @override
+  String get questionTypeSlider => 'Control deslizante';
+
+  @override
+  String get questionTypeMultipleChoice => 'Opción única';
+
+  @override
+  String get questionTypeAllThatApply => 'Selección múltiple';
+
+  @override
+  String get questionTypeFreeResponse => 'Respuesta escrita';
+
+  @override
+  String get conditionNoConditions =>
+      'Aún no hay condiciones. Esta sección siempre se mostrará.';
+
+  @override
+  String get conditionChooseStart => 'Elige cómo empezar';
+
+  @override
+  String get conditionOne => 'Una condición';
+
+  @override
+  String get conditionSeveral => 'Varias condiciones';
+
+  @override
+  String get conditionQuestion => 'Pregunta';
+
+  @override
+  String get conditionLabel => 'Condición';
+
+  @override
+  String get conditionHasResponse => 'Tiene una respuesta';
+
+  @override
+  String get conditionEquals => 'Es igual a';
+
+  @override
+  String get conditionContainsSelection => 'Contiene la selección';
+
+  @override
+  String get conditionContainsText => 'Contiene el texto';
+
+  @override
+  String get conditionMatch => 'Cumplir';
+
+  @override
+  String get conditionAll => 'TODAS';
+
+  @override
+  String get conditionAny => 'ALGUNA';
+
+  @override
+  String get conditionOf => 'de estas';
+
+  @override
+  String get conditionAnd => 'Y';
+
+  @override
+  String get conditionOr => 'O';
+
+  @override
+  String get conditionAdd => 'Condición';
+
+  @override
+  String get conditionNestedGroup => 'Grupo anidado';
+
+  @override
+  String get conditionRemoveGroup => 'Eliminar grupo';
+
+  @override
+  String get conditionRemove => 'Eliminar condición';
+
+  @override
+  String get conditionAnswerIs => 'La respuesta es';
+
+  @override
+  String get conditionExactMatch => 'Debe coincidir exactamente';
+
+  @override
+  String get conditionValueEquals => 'El valor es igual a';
+
+  @override
+  String get conditionUnsupported =>
+      'Esta condición no está disponible para este tipo de respuesta';
+
+  @override
+  String get flowBuilderHelp =>
+      'Añade preguntas abajo. Las secciones agrupan preguntas en una pantalla; las reglas de visibilidad muestran preguntas de seguimiento cuando se necesitan.';
+
+  @override
+  String get flowListHelp =>
+      'Conjuntos de preguntas que definen lo que registras. Abre un flujo para ver y personalizar sus preguntas.';
+
+  @override
+  String get builtInFlowLabel => 'Integrado';
+
+  @override
+  String get hiddenFlowLabel => 'Oculto';
+
+  @override
+  String get editFlowQuestions => 'Editar preguntas';
+
+  @override
+  String get ruleNeedsEarlierQuestion =>
+      'Add a question to an earlier section to create a rule.';
+
+  @override
+  String get readingPreferencesTitle => 'Preferencias de lectura';
+
+  @override
+  String get displaySettingsTitle => 'Ajustes de visualización';
+
+  @override
+  String get detailLayoutTitle => 'Diseño de los detalles';
+
+  @override
+  String get detailLayoutAutomatic => 'Automático';
+
+  @override
+  String get detailLayoutAutomaticDescription =>
+      'Se adapta al tamaño del texto y al espacio disponible.';
+
+  @override
+  String get detailLayoutStacked => 'Pregunta sobre la respuesta';
+
+  @override
+  String get detailLayoutStackedDescription =>
+      'Muestra siempre cada pregunta encima de su respuesta, usando todo el ancho.';
+
+  @override
+  String get detailLayoutDeviceNote =>
+      'Se aplica a las respuestas guardadas de todos los perfiles en este dispositivo.';
+
+  @override
+  String get detailLayoutSaveError =>
+      'No se pudo cargar o guardar esta preferencia. Selecciona una opción para intentarlo de nuevo.';
+
+  @override
+  String get detailAnswerSelected => 'Seleccionado';
+
+  @override
+  String get detailAnswerUndetermined => 'Sin determinar';
+
+  @override
+  String get historyEditEntry => 'Editar entrada';
+
+  @override
+  String get recordSelectCategories => 'Selecciona categorías';
+
+  @override
+  String get recordSelectHelp =>
+      'Elige todo lo que quieras registrar. Revisarás las entradas antes de guardarlas.';
+
+  @override
+  String get recordDateAndTime => 'Fecha y hora';
+
+  @override
+  String get recordDetails => 'Detalles';
+
+  @override
+  String get recordReviewAndSave => 'Revisar y guardar';
+
+  @override
+  String get recordToday => 'Hoy';
+
+  @override
+  String get recordYesterday => 'Ayer';
+
+  @override
+  String get recordEarlier => 'Antes';
+
+  @override
+  String get recordSameTime => 'La misma hora para todo';
+
+  @override
+  String get recordSeparateTimes => 'Horas diferentes';
+
+  @override
+  String get recordSharedTimeHelp =>
+      'Esta hora se aplica a todas las categorías seleccionadas.';
+
+  @override
+  String get recordSeparateTimeHelp =>
+      'Cada categoría conserva su propia hora y precisión.';
+
+  @override
+  String get recordExactTime => 'Hora exacta';
+
+  @override
+  String get recordTimeOfDay => 'Momento del día';
+
+  @override
+  String get recordNotSure => 'No lo sé';
+
+  @override
+  String get recordTimeUnknown => 'Hora desconocida';
+
+  @override
+  String get recordChoosePeriod => 'Elige un momento del día';
+
+  @override
+  String get recordEarlyMorning => 'Madrugada';
+
+  @override
+  String get recordMorning => 'Mañana';
+
+  @override
+  String get recordAfternoon => 'Tarde';
+
+  @override
+  String get recordEvening => 'Atardecer';
+
+  @override
+  String get recordNight => 'Noche';
+
+  @override
+  String get recordUnknownTimeHelp =>
+      'Solo se registrará la fecha. No tienes que adivinar la hora.';
+
+  @override
+  String get recordStudyExactTime =>
+      'Esta entrada del estudio necesita una hora exacta. Elige horas diferentes para usar horas aproximadas en otras categorías.';
+
+  @override
+  String get recordInvalidTime =>
+      'Elige una hora válida para cada categoría. Las entradas no pueden estar en el futuro.';
+
+  @override
+  String get recordReviewHelp =>
+      'Comprueba la fecha, las horas y las respuestas antes de guardar.';
+
+  @override
+  String get recordSaveAll => 'Guardar entradas';
+
+  @override
+  String get recordReturnToReview => 'Volver a la revisión';
+
+  @override
+  String get recordNotes => '¿Algo más que añadir?';
+
+  @override
+  String get recordPainLevelUnknown =>
+      'No se puede determinar la intensidad del dolor';
+
+  @override
+  String get recordEdit => 'Editar';
+
+  @override
+  String get recordBack => 'Atrás';
+
+  @override
+  String get recordRetry => 'Intentar de nuevo';
+
+  @override
+  String get recordLoadError => 'No se pudo cargar el formulario.';
+
+  @override
+  String get recordNoCategories =>
+      'No hay categorías disponibles para este perfil.';
+
+  @override
+  String get recordProfileChanged =>
+      'El perfil activo ha cambiado. Vuelve al perfil original para continuar este borrador.';
+
+  @override
+  String get recordRequiredAnswers =>
+      'Completa las preguntas obligatorias antes de continuar.';
+
+  @override
+  String get recordSaved => 'Tus entradas se han guardado.';
+
+  @override
+  String get recordSaveError =>
+      'No se pudieron guardar todas las entradas. El borrador sigue aquí; inténtalo de nuevo.';
+
+  @override
+  String get recordStudyUpdateError =>
+      'Tus entradas están guardadas, pero no se pudo actualizar el estudio. Inténtalo de nuevo para completar la actualización.';
+
+  @override
+  String get recordSaving => 'Guardando…';
+
+  @override
+  String get recordStart => 'Registrar una entrada';
+
+  @override
+  String get recordMultipleHint => 'Registra una o varias categorías juntas';
+
+  @override
+  String get recordSelectionRetained =>
+      'Las respuestas se conservan si desmarcas y vuelves a marcar una categoría. Solo se guardarán las categorías seleccionadas.';
+
+  @override
+  String get recordStudyChanged =>
+      'El estudio ha cambiado desde que empezaste este borrador. Inicia una nueva entrada para usar las preguntas actuales.';
+
+  @override
+  String get recordPartialSaveError =>
+      'Es posible que algunas entradas ya estén guardadas. Reintenta para terminar sin duplicados. Al salir, las entradas guardadas permanecen en el historial.';
+
+  @override
+  String get recordLeave => 'Salir del registro';
+
+  @override
+  String get recordCategoryMealHint => 'Desayuno, almuerzo, cena o tentempiés';
+
+  @override
+  String get recordCategoryPainHint =>
+      'Señales de dolor, ubicación e intensidad';
+
+  @override
+  String get recordCategoryBowelHint =>
+      'Tipo de heces, esfuerzo, gases o hinchazón';
+
+  @override
+  String get recordCategoryGiHint => 'Arcadas, vómitos o dificultad para comer';
+
+  @override
+  String get recordCategorySleepHint =>
+      'Problemas de sueño, cambios de ánimo o conducta';
+
+  @override
+  String get recordStudyExactTimeOnly =>
+      'Esta entrada del estudio necesita una hora exacta.';
+
+  @override
+  String recordPageCount(int current, int total) {
+    return 'Página $current de $total';
+  }
+
+  @override
+  String get recordFollowUpAdded =>
+      'Tu respuesta añadió una página de preguntas de seguimiento.';
+
+  @override
+  String get recordFollowUpPage => 'Preguntas de seguimiento';
+
+  @override
+  String get recordQuestionRequired => 'Obligatorio';
+
+  @override
+  String get recordQuestionInvalid =>
+      'Revisa esta respuesta antes de continuar.';
+
+  @override
+  String recordNextCategory(String category) {
+    return 'Siguiente: $category';
+  }
+
+  @override
+  String recordCategoryCount(int current, int total) {
+    return 'Categoría $current de $total';
+  }
+
+  @override
+  String get recordViewFollowUps => 'Ver preguntas añadidas';
+
+  @override
+  String get recordFollowUpsAdded => 'Añadidas según tu respuesta';
+
+  @override
+  String get painIntensityNone => 'Sin dolor';
+
+  @override
+  String get painIntensityModerate => 'Moderado';
+
+  @override
+  String get painIntensityWorst => 'El peor dolor posible';
+
+  @override
+  String get painIntensityNotSure => 'No estoy seguro/a';
 }

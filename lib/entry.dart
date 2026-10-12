@@ -7,6 +7,7 @@ import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/Auth/auth_provider.dart';
 import 'package:stripes_ui/Providers/Navigation/route_provider.dart';
 import 'package:stripes_ui/Providers/History/stamps_provider.dart';
+import 'package:stripes_ui/Providers/Questions/question_ui_registry.dart';
 import 'package:stripes_ui/Providers/base_providers.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/Providers/Test/test_provider.dart';
@@ -16,33 +17,31 @@ import 'package:stripes_ui/config.dart';
 
 import 'l10n/app_localizations.dart';
 
-class Logger extends ProviderObserver {
+final class Logger extends ProviderObserver {
   const Logger();
   @override
   void didUpdateProvider(
-    ProviderBase provider,
+    ProviderObserverContext context,
     Object? previousValue,
     Object? newValue,
-    ProviderContainer container,
   ) {
     print('''
 {
-  "provider": "${provider.name ?? provider.runtimeType}",
+  "provider": "${context.provider.name ?? context.provider.runtimeType}",
   "newValue": "$newValue"
 }''');
   }
 
   @override
-  void didAddProvider(
-      ProviderBase provider, Object? value, ProviderContainer container) {
-    print('added provider ${provider.runtimeType}');
-    super.didAddProvider(provider, value, container);
+  void didAddProvider(ProviderObserverContext context, Object? value) {
+    print('added provider ${context.provider.runtimeType}');
+    super.didAddProvider(context, value);
   }
 
   @override
-  void didDisposeProvider(ProviderBase provider, ProviderContainer container) {
-    print('removed provider ${provider.runtimeType}');
-    super.didDisposeProvider(provider, container);
+  void didDisposeProvider(ProviderObserverContext context) {
+    print('removed provider ${context.provider.runtimeType}');
+    super.didDisposeProvider(context);
   }
 }
 
@@ -55,8 +54,13 @@ class StripesApp extends StatelessWidget {
 
   final StripesConfig config;
 
+  final QuestionUIRegistry? questionUIRegistry;
+
   const StripesApp(
-      {this.repos, this.config = const StripesConfig.sandbox(), super.key});
+      {this.repos,
+      this.config = const StripesConfig.sandbox(),
+      this.questionUIRegistry,
+      super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -64,6 +68,8 @@ class StripesApp extends StatelessWidget {
       overrides: [
         configProvider.overrideWith((ref) => config),
         if (repos != null) reposProvider.overrideWith((ref) => repos!),
+        if (questionUIRegistry != null)
+          questionUIRegistryProvider.overrideWith((ref) => questionUIRegistry!),
       ],
       observers: [if (config.hasLogging) const Logger()],
       child: StripesHome(

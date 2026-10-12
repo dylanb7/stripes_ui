@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
+import 'package:stripes_ui/UI/CommonWidgets/detail_field.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/amount_consumed.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
 import 'package:stripes_ui/Util/extensions.dart';
@@ -26,53 +27,11 @@ class BlueDyeVisualDisplay extends StatelessWidget {
       AmountConsumed.all: context.translate.amountConsumedAll,
     };
 
-    final Color dividerColor =
-        Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.25);
+    final Color dividerColor = Theme.of(context).colorScheme.outlineVariant
+        .withValues(alpha: 0.25);
 
-    Widget buildRow(String label, String value, {Widget? icon}) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Flexible(
-            flex: 4,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                if (icon != null) ...[
-                  icon,
-                  const SizedBox(width: AppPadding.tiny),
-                ],
-                Flexible(
-                  child: Text(
-                    label,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withValues(alpha: 0.8),
-                        ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: AppPadding.small),
-          Expanded(
-            flex: 6,
-            child: Text(
-              value,
-              textAlign: TextAlign.end,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-            ),
-          ),
-        ],
-      );
-    }
+    Widget buildRow(String label, String value, {Widget? icon}) =>
+        DetailField(question: label, answerText: value, questionLeading: icon);
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -80,64 +39,48 @@ class BlueDyeVisualDisplay extends StatelessWidget {
       children: [
         Text(
           context.translate.mealCompleteTitle,
-          style: Theme.of(context)
-              .textTheme
-              .bodyMedium
+          style: Theme.of(context).textTheme.bodyMedium
               ?.copyWith(fontWeight: FontWeight.bold),
         ),
-        const SizedBox(
-          height: AppPadding.small,
-        ),
+        const SizedBox(height: AppPadding.small),
         buildRow(
           "Start Time", // Using generic label as localized one isn't split
           "${dateToMDY(resp.startEating, context)} ${timeString(resp.startEating, context)}",
           icon: const Icon(Icons.alarm, size: 20),
         ),
-        const SizedBox(
-          height: AppPadding.small,
-        ),
+        const SizedBox(height: AppPadding.small),
         Divider(height: 1, color: dividerColor),
-        const SizedBox(
-          height: AppPadding.small,
-        ),
+        const SizedBox(height: AppPadding.small),
         buildRow(
-          "Eating Duration",
+          resp.eatingDuration == Duration.zero
+              ? "Feeding method"
+              : "Eating Duration",
           resp.eatingDuration == Duration.zero
               ? "Tube Fed"
               : MealTime.fromDuration(resp.eatingDuration)?.value ??
-                  from(resp.eatingDuration, context),
+                    from(resp.eatingDuration, context),
           icon: SvgPicture.asset(
             'packages/stripes_ui/assets/svg/muffin_icon.svg',
             width: iconSize,
             height: iconSize,
           ),
         ),
-        const SizedBox(
-          height: AppPadding.small,
-        ),
+        const SizedBox(height: AppPadding.small),
         Divider(height: 1, color: dividerColor),
-        const SizedBox(
-          height: AppPadding.small,
-        ),
+        const SizedBox(height: AppPadding.small),
         if (resp.eatingDuration != Duration.zero)
           buildRow(
             "Amount Eaten",
             amountText[resp.amountConsumed]!,
             icon: const Icon(Icons.blur_linear, size: 20),
           ),
-        const SizedBox(
-          height: AppPadding.medium,
-        ),
+        const SizedBox(height: AppPadding.medium),
         Text(
           context.translate.recordingStateTitle,
-          style: Theme.of(context)
-              .textTheme
-              .bodyMedium
+          style: Theme.of(context).textTheme.bodyMedium
               ?.copyWith(fontWeight: FontWeight.bold),
         ),
-        const SizedBox(
-          height: AppPadding.small,
-        ),
+        const SizedBox(height: AppPadding.small),
         ...resp.logs
             .map(
               (log) => EntryDisplay(
@@ -147,28 +90,21 @@ class BlueDyeVisualDisplay extends StatelessWidget {
                 isNested: true,
               ),
             )
-            .separated(
-              by: const SizedBox(
-                height: AppPadding.small,
-              ),
-            ),
-        const SizedBox(
-          height: AppPadding.tiny,
-        ),
+            .separated(by: const SizedBox(height: AppPadding.small)),
+        const SizedBox(height: AppPadding.tiny),
         const Divider(),
-        const SizedBox(
-          height: AppPadding.tiny,
-        ),
+        const SizedBox(height: AppPadding.tiny),
         buildRow(
           "Transit time",
           from(
-              resp.firstBlue.difference(resp.finishedEatingTime ??
-                  resp.startEating.add(resp.eatingDuration)),
-              context),
+            resp.firstBlue.difference(
+              resp.finishedEatingTime ??
+                  resp.startEating.add(resp.eatingDuration),
+            ),
+            context,
+          ),
         ),
-        const SizedBox(
-          height: AppPadding.tiny,
-        ),
+        const SizedBox(height: AppPadding.tiny),
         buildRow(
           "Lag phase",
           from(resp.lastBlue.difference(resp.firstBlue), context),

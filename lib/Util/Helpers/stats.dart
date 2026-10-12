@@ -298,14 +298,25 @@ SpearmanResult? spearmanCorrelation(List<double> x, List<double> y) {
   final List<double> rankX = _toRanks(x);
   final List<double> rankY = _toRanks(y);
 
-  double sumD2 = 0;
+  // Spearman's rho is Pearson correlation applied to the rank vectors. The
+  // familiar 1 - 6Σd² / n(n² - 1) shortcut is only valid when there are no
+  // tied ranks, which symptom data commonly contains.
+  final double meanX = rankX.reduce((a, b) => a + b) / n;
+  final double meanY = rankY.reduce((a, b) => a + b) / n;
+  double covariance = 0;
+  double varianceX = 0;
+  double varianceY = 0;
   for (int i = 0; i < n; i++) {
-    final double d = rankX[i] - rankY[i];
-    sumD2 += d * d;
+    final double centeredX = rankX[i] - meanX;
+    final double centeredY = rankY[i] - meanY;
+    covariance += centeredX * centeredY;
+    varianceX += centeredX * centeredX;
+    varianceY += centeredY * centeredY;
   }
 
-  // Spearman formula: ρ = 1 - (6 * Σd²) / (n * (n² - 1))
-  final double rho = 1 - (6 * sumD2) / (n * (n * n - 1));
+  final double denominator = sqrt(varianceX * varianceY);
+  if (denominator == 0) return null;
+  final double rho = covariance / denominator;
 
   return SpearmanResult(rho: rho.clamp(-1.0, 1.0), n: n);
 }

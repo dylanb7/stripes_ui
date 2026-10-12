@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_listener.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/baseline_id.dart';
 import 'package:stripes_backend_helper/RepositoryBase/repo_result.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
@@ -9,12 +8,12 @@ import 'package:stripes_ui/Util/Design/breakpoint.dart';
 import 'package:stripes_ui/Util/Helpers/repo_result_handler.dart';
 import 'package:stripes_ui/Providers/Questions/baseline_version_provider.dart';
 import 'package:stripes_ui/Providers/Questions/questions_provider.dart';
+import 'package:stripes_ui/Providers/Questions/record_session_provider.dart';
 import 'package:stripes_ui/Providers/History/stamps_provider.dart';
 import 'package:stripes_ui/Providers/Test/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
-import 'package:stripes_ui/UI/CommonWidgets/button_loading_indicator.dart';
-import 'package:stripes_ui/UI/Record/RecordSplit/layout_helper.dart';
 import 'package:stripes_ui/UI/Record/RecordSplit/record_layout_shell.dart';
+import 'package:stripes_ui/UI/Record/RecordSplit/session_entry_scaffold.dart';
 import 'package:stripes_ui/UI/Record/Screens/question_screen.dart';
 
 import 'package:stripes_ui/Util/constants.dart';
@@ -22,21 +21,23 @@ import 'package:stripes_ui/Util/Widgets/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
-import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
+import 'package:stripes_ui/UI/CommonWidgets/discard_changes_sheet.dart';
 import 'package:stripes_ui/Providers/Navigation/navigation_provider.dart';
+import 'package:stripes_ui/Providers/sub_provider.dart';
 
 class BaselineEntry extends ConsumerStatefulWidget {
   final String recordPath;
   final List<Question>? questions;
+  final bool isEmbedded;
+  final SessionData initialData;
 
-  late final QuestionsListener questionListener;
-  BaselineEntry(
-      {super.key,
-      required this.recordPath,
-      this.questions,
-      QuestionsListener? data}) {
-    questionListener = data ?? QuestionsListener();
-  }
+  const BaselineEntry({
+    super.key,
+    required this.recordPath,
+    this.questions,
+    this.isEmbedded = false,
+    SessionData? data,
+  }) : initialData = data ?? const SessionData();
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
@@ -45,9 +46,6 @@ class BaselineEntry extends ConsumerStatefulWidget {
 }
 
 class _BaselineEntryState extends ConsumerState<BaselineEntry> {
-  late final QuestionsListener original;
-
-  bool hasChanged = false;
   bool isLoading = false;
   bool submitSuccess = false;
   String? _errorMessage;
@@ -58,15 +56,12 @@ class _BaselineEntryState extends ConsumerState<BaselineEntry> {
 
   @override
   void initState() {
-    original = widget.questionListener.copy();
     _pageController = PageController();
-    widget.questionListener.addListener(_changedUpdate);
     super.initState();
   }
 
   @override
   void dispose() {
-    widget.questionListener.removeListener(_changedUpdate);
     _pageController.dispose();
     for (var controller in _scrollControllers.values) {
       controller.dispose();
@@ -74,329 +69,322 @@ class _BaselineEntryState extends ConsumerState<BaselineEntry> {
     super.dispose();
   }
 
-  void _changedUpdate() {
-    final bool change = original != widget.questionListener;
-
-    if (mounted) {
-      setState(() {
-        hasChanged = change;
-      });
+  Future<bool> _handleNavigation(
+    BuildContext context,
+    RecordSessionState session,
+  ) async {
+    if (!session.hasChanged) return true;
+    final result = await showDiscardChangesSheet(context, ref);
+    if (result) {
+      ref.read(recordSessionProvider(_sessionArgs).notifier).acceptChanges();
     }
+    return result;
   }
 
-  Future<bool> _handleNavigation(BuildContext context) async {
-    if (!hasChanged) return true;
-    final QuestionsLocalizations? localizations =
-        QuestionsLocalizations.of(context);
-    final String translatedType =
-        localizations?.value(widget.recordPath) ?? widget.recordPath;
-
-    final result = await showDialog<bool>(
-        context: context,
-        builder: (context) => ErrorPrevention(
-              type: translatedType,
-            ));
-    if (result == true) {
-      setState(() {
-        hasChanged = false;
-      });
-    }
-    return result ?? false;
-  }
+  RecordSessionArgs get _sessionArgs => RecordSessionArgs(
+    recordPathName: widget.recordPath,
+    initialData: widget.initialData,
+    whiteList: widget.questions?.map((q) => q.id).toSet(),
+  );
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(registerGuardProvider(_handleNavigation));
-    final QuestionsLocalizations? localizations =
-        QuestionsLocalizations.of(context);
+    return SessionEntryScaffold(
+      args: _sessionArgs,
+      errorLabel: 'Unable to load baseline',
+      builder: (context, ref, session) {
+        ref.watch(
+          registerGuardProvider(
+            (context) => _handleNavigation(context, session),
+          ),
+        );
 
-    final AsyncValue<PagesData> pagesData = ref.watch(
-      pagesByPath(
-        PagesByPathProps(
-          pathName: widget.recordPath,
-          filterEnabled: true,
-        ),
-      ),
-    );
+        final SessionGraph sessionGraphNonNull = session.sessionGraph;
 
-    final bool isEdit = widget.questionListener.editId != null;
-    final bool edited = !isEdit || isEdit && hasChanged;
+        final QuestionsLocalizations? localizations = QuestionsLocalizations.of(
+          context,
+        );
 
-    return PopScope(
-      canPop: !hasChanged,
-      onPopInvokedWithResult: (didPop, result) async {
-        if (didPop) return;
-        if (await _handleNavigation(context)) {
-          if (context.mounted) {
-            await Future.delayed(Duration.zero);
-            if (context.mounted) {
-              if (context.canPop()) {
-                context.pop();
-              } else {
-                context.go(Routes.HOME);
-              }
-            }
-          }
-        }
-      },
-      child: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: Breakpoint.medium.value),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              border: Border.symmetric(
-                  vertical: BorderSide(color: Theme.of(context).dividerColor)),
-            ),
-            child: AsyncValueDefaults(
-              value: pagesData,
-              onData: (loadedPages) {
-                final PagesData translatedPage =
-                    localizations?.translatePage(loadedPages) ?? loadedPages;
-                final List<LoadedPageLayout> processedLayouts =
-                    LayoutHelper.processLayouts(
-                  loadedLayouts: translatedPage.loadedLayouts,
-                  listener: widget.questionListener,
-                  deferCleanup: true,
-                );
+        final AsyncValue<PagesData> pagesData = ref.watch(
+          pagesByPath(
+            PagesByPathProps(pathName: widget.recordPath, filterEnabled: true),
+          ),
+        );
 
-                final List<LoadedPageLayout> evaluatedPages;
-                if (widget.questions == null) {
-                  evaluatedPages = processedLayouts;
-                } else {
-                  evaluatedPages = [];
-                  final Set<String> whitelistIds =
-                      widget.questions!.map((q) => q.id).toSet();
-                  for (final layout in processedLayouts) {
-                    final qs = layout.questions.where((q) {
-                      // Include if strict match
-                      if (whitelistIds.contains(q.id)) return true;
-                      // Include if generated from a whitelisted question
-                      final parts = q.id.split('::');
-                      if (parts.length > 1 &&
-                          whitelistIds.contains(parts.first)) {
-                        return true;
-                      }
-                      return false;
-                    }).toList();
-                    if (qs.isNotEmpty) {
-                      evaluatedPages.add(layout.copyWith(questions: qs));
-                    }
+        final bool isEdit = sessionGraphNonNull.editId != null;
+        final bool edited = !isEdit || isEdit && session.hasChanged;
+
+        return PopScope(
+          canPop: !session.hasChanged,
+          onPopInvokedWithResult: (didPop, result) async {
+            if (didPop) return;
+            if (await _handleNavigation(context, session)) {
+              if (context.mounted) {
+                await Future.delayed(Duration.zero);
+                if (context.mounted) {
+                  if (context.canPop()) {
+                    context.pop();
+                  } else {
+                    context.go(Routes.HOME);
                   }
                 }
+              }
+            }
+          },
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: Breakpoint.medium.value),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  border: Border.symmetric(
+                    vertical: BorderSide(color: Theme.of(context).dividerColor),
+                  ),
+                ),
+                child: AsyncValueDefaults(
+                  value: pagesData,
+                  onData: (loadedPages) {
+                    final List<PageLayout> evaluatedPages =
+                        sessionGraphNonNull.visiblePages;
 
-                if (evaluatedPages.isEmpty) return const SizedBox();
+                    if (evaluatedPages.isEmpty) return const SizedBox();
 
-                final validation = LayoutHelper.validatePage(
-                  pages: evaluatedPages,
-                  currentIndex: _currentIndex,
-                  listener: widget.questionListener,
-                );
+                    final PageSessionState? pageValidation = sessionGraphNonNull
+                        .validatePage(_currentIndex);
 
-                final bool isLastPage =
-                    _currentIndex == evaluatedPages.length - 1;
+                    final bool isLastPage =
+                        _currentIndex == evaluatedPages.length - 1;
 
-                final VoidCallback? onPressed = isLastPage
-                    ? (edited && !isLoading
-                        ? () async {
-                            setState(() => isLoading = true);
-                            try {
-                              await _submit(context, ref, true);
-                            } finally {
-                              if (mounted) setState(() => isLoading = false);
-                            }
-                          }
-                        : null)
-                    : (validation.canProceed
+                    final int totalQuestions = pageValidation?.totalCount ?? 0;
+                    final int answeredQuestions =
+                        pageValidation?.answeredCount ?? 0;
+                    final int pendingRequiredCount =
+                        pageValidation?.pendingCount ?? 0;
+
+                    final bool canProceed = pageValidation?.canProceed ?? false;
+
+                    final VoidCallback? onPressed = isLastPage
+                        ? (canProceed && edited && !isLoading
+                              ? () async {
+                                  setState(() => isLoading = true);
+                                  try {
+                                    await _submit(
+                                      context,
+                                      ref,
+                                      true,
+                                      sessionGraphNonNull,
+                                    );
+                                  } finally {
+                                    if (mounted) {
+                                      setState(() => isLoading = false);
+                                    }
+                                  }
+                                }
+                              : null)
+                        : (canProceed
+                              ? () {
+                                  sessionGraphNonNull.tried = false;
+                                  setState(() {
+                                    _errorMessage = null;
+                                  });
+                                  _pageController.nextPage(
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.easeInOut,
+                                  );
+                                }
+                              : null);
+
+                    final VoidCallback effectiveOnPressed =
+                        onPressed == null && !canProceed && !isLoading
                         ? () {
-                            widget.questionListener.tried = false;
+                            sessionGraphNonNull.tried = true;
                             setState(() {
-                              _errorMessage = null;
+                              final pendingCount =
+                                  pageValidation?.pendingCount ?? 0;
+                              if (pendingCount > 0) {
+                                _errorMessage = context.translate.nLevelError(
+                                  pendingCount,
+                                );
+                              }
                             });
-                            _pageController.nextPage(
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut);
                           }
-                        : null);
+                        : () {
+                            if (_errorMessage != null) {
+                              setState(() {
+                                _errorMessage = null;
+                              });
+                            }
+                            onPressed?.call();
+                          };
 
-                final VoidCallback effectiveOnPressed = onPressed == null &&
-                        !validation.canProceed &&
-                        !isLoading
-                    ? () {
-                        widget.questionListener.tried = true;
-                        setState(() {
-                          if (validation.pendingCount > 0) {
-                            _errorMessage = context.translate
-                                .nLevelError(validation.pendingCount);
-                          } else if (validation.pendingRequirement != null) {
-                            _errorMessage =
-                                validation.pendingRequirement!.toReadableString(
-                              (qid) => LayoutHelper.resolveQuestionPrompt(
-                                  qid, evaluatedPages),
-                            );
-                          }
-                        });
-                      }
-                    : () {
-                        if (_errorMessage != null) {
-                          setState(() {
-                            _errorMessage = null;
-                          });
+                    final controller = RecordEntryController(
+                      title:
+                          localizations?.value(widget.recordPath) ??
+                          widget.recordPath,
+                      currentIndex: _currentIndex,
+                      totalPages: evaluatedPages.length,
+                      pageIds: [
+                        for (
+                          var index = 0;
+                          index < evaluatedPages.length;
+                          index++
+                        )
+                          evaluatedPages[index].id ?? 'baseline-page-$index',
+                      ],
+                      pageController: _pageController,
+                      onClose: () {
+                        if (context.canPop()) {
+                          context.pop();
+                        } else {
+                          context.go(Routes.HOME);
                         }
-                        onPressed?.call();
-                      };
-
-                final progress = LayoutHelper.calculateProgress(
-                  pages: evaluatedPages,
-                  currentIndex: _currentIndex,
-                  listener: widget.questionListener,
-                );
-
-                final controller = RecordEntryController(
-                  title: localizations?.value(widget.recordPath) ??
-                      widget.recordPath,
-                  currentIndex: _currentIndex,
-                  totalPages: evaluatedPages.length,
-                  pageController: _pageController,
-                  onClose: () {
-                    if (context.canPop()) {
-                      context.pop();
-                    } else {
-                      context.go(Routes.HOME);
-                    }
-                  },
-                  isLoading: isLoading,
-                  onControl: effectiveOnPressed,
-                  controlLabel: isLastPage ? 'Submit' : 'Next',
-                  isReady: (isLastPage || validation.canProceed) && !isLoading,
-                  isSubmit: isLastPage,
-                  errorMessage: _errorMessage,
-                  onDismissError: () {
-                    setState(() {
-                      _errorMessage = null;
-                    });
-                  },
-                  totalQuestions: progress.total,
-                  answeredQuestions: progress.answered,
-                  pendingRequiredCount: progress.pendingRequired,
-                );
-
-                return RecordEntryProvider(
-                  controller: controller,
-                  child: RecordEntryShell(
-                    divider: const ComboDivider(),
-                    controlStyle: RecordControlStyle.bottomBar,
-                    content: PageView.builder(
-                      controller: _pageController,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: evaluatedPages.length,
-                      onPageChanged: (index) {
+                      },
+                      isLoading: isLoading,
+                      onControl: effectiveOnPressed,
+                      controlLabel: isLastPage ? 'Submit' : 'Next',
+                      isReady: canProceed && !isLoading,
+                      isSubmit: isLastPage,
+                      errorMessage: canProceed ? null : _errorMessage,
+                      onDismissError: () {
                         setState(() {
-                          _currentIndex = index;
                           _errorMessage = null;
                         });
                       },
-                      itemBuilder: (context, index) {
-                        final layout = evaluatedPages[index];
-                        if (!_scrollControllers.containsKey(index)) {
-                          _scrollControllers[index] = ScrollController();
-                        }
+                      totalQuestions: totalQuestions,
+                      answeredQuestions: answeredQuestions,
+                      pendingRequiredCount: pendingRequiredCount,
+                      validationFailed:
+                          sessionGraphNonNull.tried && !canProceed,
+                    );
 
-                        return SingleChildScrollView(
-                          controller: _scrollControllers[index],
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                top: AppPadding.small,
-                                left: AppPadding.small,
-                                right: AppPadding.small,
-                                bottom: 72),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                if (layout.header != null)
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        top: AppPadding.large,
-                                        bottom: AppPadding.medium),
-                                    child: Text(
-                                      layout.header!,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headlineMedium,
-                                      textAlign: TextAlign.start,
-                                    ),
+                    return RecordEntryProvider(
+                      controller: controller,
+                      child: RecordEntryShell(
+                        divider: const RecordEntryPageProgressDivider(),
+                        controlStyle: RecordControlStyle.bottomBar,
+                        content: PageView.builder(
+                          controller: _pageController,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: evaluatedPages.length,
+                          onPageChanged: (idx) {
+                            setState(() {
+                              _currentIndex = idx;
+                              _errorMessage = null;
+                            });
+                          },
+                          itemBuilder: (context, index) {
+                            final pageLayout = evaluatedPages[index];
+                            final String? header = pageLayout.header;
+                            final visibleQids = sessionGraphNonNull
+                                .visibleQuestionsForPage(index);
+                            final List<Question> visibleQuestions = visibleQids
+                                .map(
+                                  (qid) => sessionGraphNonNull
+                                      .questionStateOf(qid)
+                                      ?.value
+                                      .resolvedQuestion,
+                                )
+                                .whereType<Question>()
+                                .toList();
+
+                            _scrollControllers.putIfAbsent(
+                              index,
+                              () => ScrollController(),
+                            );
+                            final scrollController = _scrollControllers[index]!;
+
+                            return Scrollbar(
+                              controller: scrollController,
+                              child: SingleChildScrollView(
+                                controller: scrollController,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                    top: AppPadding.small,
+                                    left: AppPadding.small,
+                                    right: AppPadding.small,
+                                    bottom: 72,
                                   ),
-                                RenderQuestions(
-                                    questions: layout.questions,
-                                    questionsListener: widget.questionListener),
-                                const SizedBox(height: 100),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                );
-              },
+                                  child: QuestionScreen(
+                                    header: header == null
+                                        ? ''
+                                        : localizations?.value(header) ??
+                                              header,
+                                    questions: visibleQuestions,
+                                    questionsListener: sessionGraphNonNull,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
   Future<void> _submit(
-      BuildContext context, WidgetRef ref, bool isSuccess) async {
-    if (widget.questionListener.pending.isNotEmpty) {
-      print("Pending: ${widget.questionListener.pending}");
-      widget.questionListener.tried = true;
-      setState(() {
-        _errorMessage = context.translate
-            .nLevelError(widget.questionListener.pending.length);
-      });
+    BuildContext context,
+    WidgetRef ref,
+    bool showConfirmation,
+    SessionGraph sessionGraph,
+  ) async {
+    if (!sessionGraph.canSubmit) {
+      sessionGraph.tried = true;
       return;
     }
-
-    final QuestionsLocalizations? localizations =
-        QuestionsLocalizations.of(context);
+    final QuestionsLocalizations? localizations = QuestionsLocalizations.of(
+      context,
+    );
 
     final StampRepo? repo = await ref.read(stampProvider.future);
-    final DateTime submissionEntry =
-        widget.questionListener.submitTime ?? DateTime.now();
-    final int entryStamp = dateToStamp(submissionEntry);
-    final bool isEdit = widget.questionListener.editId != null;
+    if (repo == null || SubUser.isEmpty(repo.currentUser)) {
+      if (context.mounted) {
+        const Failure(message: 'No profile selected').handle(context);
+      }
+      return;
+    }
+    final DateTime submissionEntry = sessionGraph.submitTime ?? DateTime.now();
 
     final versions =
         ref.read(baselineVersionsProvider(widget.recordPath)).value ?? [];
     final int nextVersion = versions.isEmpty ? 1 : versions.first.version + 1;
-    final String entryId =
-        BaselineId.create(widget.recordPath, nextVersion).toString();
-
-    final DetailResponse detailResponse = DetailResponse(
-      id: entryId,
-      description: widget.questionListener.description,
-      responses: widget.questionListener.questions.values
-          .map((res) => res.encodeGeneratedQuestion())
-          .toList(growable: false),
-      stamp: isEdit
-          ? dateToStamp(widget.questionListener.submitTime!)
-          : entryStamp,
-      detailType: widget.recordPath,
+    final String entryId = BaselineId.create(
+      widget.recordPath,
+      nextVersion,
+      subUserId: repo.currentUser.uid,
     );
 
-    final RepoResult result = await repo?.addStamp(detailResponse) ??
-        const Failure(message: 'Stamp repo not found');
-    await (await ref.read(testProvider.future))
-        ?.onResponseSubmit(detailResponse, widget.recordPath);
+    final DetailResponse detailResponse = sessionGraph.createDetailResponse(
+      detailType: widget.recordPath,
+      id: entryId,
+    );
+
+    final RepoResult result = await repo.addStamp(detailResponse);
     if (context.mounted) {
       result.handle(context);
-      if (result is! Success) return;
+    }
+    if (result is! Success) return;
+
+    final modularRepo = await ref.read(testProvider.future);
+    final subUser = (await ref.read(subHolderProvider.future)).selected;
+    if (modularRepo != null && subUser != null && !SubUser.isEmpty(subUser)) {
+      final entry = detailResponseToEntry(
+        detailResponse,
+        subUser.uid,
+        category: InputCategory.baseline,
+      );
+      await modularRepo.processEntry(entry);
     }
 
     if (mounted) {
       setState(() {
         submitSuccess = true;
-        hasChanged = false;
       });
       await Future.delayed(const Duration(milliseconds: 600));
 
@@ -404,18 +392,19 @@ class _BaselineEntryState extends ConsumerState<BaselineEntry> {
         final String baselineName =
             localizations?.value(widget.recordPath) ?? widget.recordPath;
         showSnack(
-            context,
-            context.translate
-                .undoEntry(baselineName, submissionEntry, submissionEntry),
-            action: () async {
-          final RepoResult result = await repo?.removeStamp(detailResponse) ??
-              const Failure(message: 'Repo not found');
-          await (await ref.read(testProvider.future))
-              ?.onResponseDelete(detailResponse, widget.recordPath);
-          if (context.mounted) {
-            result.handle(context);
-          }
-        });
+          context,
+          context.translate.undoEntry(
+            baselineName,
+            submissionEntry,
+            submissionEntry,
+          ),
+          action: () async {
+            final RepoResult result = await repo.removeStamp(detailResponse);
+            if (context.mounted) {
+              result.handle(context);
+            }
+          },
+        );
 
         if (context.canPop()) {
           context.pop();
@@ -424,86 +413,5 @@ class _BaselineEntryState extends ConsumerState<BaselineEntry> {
         }
       }
     }
-  }
-}
-
-class HybridSubmitButton extends StatelessWidget {
-  final String buttonText;
-  final bool isDisabled;
-  final bool isLoading;
-  final int currentIndex;
-  final int totalLength;
-  final VoidCallback onSubmit;
-  final VoidCallback onNext;
-
-  const HybridSubmitButton({
-    super.key,
-    required this.buttonText,
-    required this.isDisabled,
-    required this.isLoading,
-    required this.currentIndex,
-    required this.totalLength,
-    required this.onSubmit,
-    required this.onNext,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final bool isLastPage = currentIndex == totalLength - 1;
-
-    if (isLastPage) {
-      return SizedBox(
-        width: double.infinity,
-        child: FilledButton(
-          onPressed: isDisabled || isLoading ? null : onSubmit,
-          child: isLoading ? const ButtonLoadingIndicator() : Text(buttonText),
-        ),
-      );
-    } else {
-      return SizedBox(
-        width: double.infinity,
-        child: FilledButton(
-          onPressed: isLoading ? null : onNext,
-          child: const Text("Next"),
-        ),
-      );
-    }
-  }
-}
-
-class ErrorPrevention extends ConsumerWidget {
-  final String type;
-
-  const ErrorPrevention({required this.type, super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return ConfirmationPopup(
-        title: Text(
-          context.translate.errorPreventionTitle,
-          style: Theme.of(context).textTheme.headlineMedium,
-          textAlign: TextAlign.center,
-        ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              context.translate.errorPreventionLineOne,
-              style: Theme.of(context).textTheme.bodyMedium,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(
-              height: AppPadding.small,
-            ),
-            Text(
-              context.translate.errorPreventionLineTwo(type.toLowerCase()),
-              style: Theme.of(context).textTheme.bodyMedium,
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-        cancel: context.translate.errorPreventionStay,
-        confirm: context.translate.errorPreventionLeave);
   }
 }

@@ -24,10 +24,10 @@ class HistoryContext {
   final DateTimeRange range;
 
   HistoryContext._({
-    required Map<Type, dynamic> featureResults,
+    required this._featureResults,
     required this.timeCycle,
     required this.range,
-  }) : _featureResults = featureResults;
+  });
 
   T use<T>(HistoryFeature<T> feature) {
     if (feature is ReducibleFeature<T>) {
@@ -43,7 +43,8 @@ class HistoryContext {
     TimeCycle timeCycle = TimeCycle.custom,
     DateTimeRange? range,
   }) {
-    final effectiveRange = range ??
+    final effectiveRange =
+        range ??
         (responses.isEmpty
             ? DateTimeRange(start: DateTime.now(), end: DateTime.now())
             : DateTimeRange(
@@ -56,8 +57,10 @@ class HistoryContext {
     if (effectiveEnd.isAfter(now)) {
       effectiveEnd = now;
     }
-    final finalRange =
-        DateTimeRange(start: effectiveRange.start, end: effectiveEnd);
+    final finalRange = DateTimeRange(
+      start: effectiveRange.start,
+      end: effectiveEnd,
+    );
 
     final states = <Type, dynamic>{};
     for (final feature in features) {
