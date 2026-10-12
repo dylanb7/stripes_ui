@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/History/stamps_provider.dart';
-import 'package:stripes_ui/Providers/questions/questions_provider.dart';
+import 'package:stripes_ui/Providers/Questions/questions_provider.dart';
 
 final _reviewTypesProvider = FutureProvider<Set<String>>((ref) async {
   final reviewPaths = await ref.watch(
