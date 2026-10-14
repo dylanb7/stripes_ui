@@ -792,5 +792,9 @@
   "painIntensityNone": "Keine Schmerzen",
   "painIntensityModerate": "Mäßig",
   "painIntensityWorst": "Schlimmstmöglich",
-  "painIntensityNotSure": "Nicht sicher"
+  "painIntensityNotSure": "Nicht sicher",
+  "historySummaryDays": "{entries} an {days, plural, =1{1 Tag} other{{days} Tagen}}",
+  "historyMoreCategories": "+{count} weitere Kategorien",
+  "historyListView": "Liste",
+  "historyGraphView": "Diagramm"
 }

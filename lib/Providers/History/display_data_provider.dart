@@ -12,6 +12,7 @@ import 'package:stripes_backend_helper/QuestionModel/response.dart';
 import 'package:stripes_backend_helper/RepositoryBase/StampBase/stamp.dart';
 
 import 'package:stripes_ui/Providers/History/stamps_provider.dart';
+import 'package:stripes_ui/Providers/base_providers.dart';
 import 'package:stripes_ui/Models/record_time.dart';
 import 'package:stripes_ui/Providers/Questions/questions_provider.dart';
 import 'package:stripes_ui/UI/History/EventView/sig_dates.dart';
@@ -368,10 +369,18 @@ final displayDataProvider =
 
 final inRangeProvider = FutureProvider.autoDispose<List<Response>>((ref) async {
   final DisplayDataSettings settings = ref.watch(displayDataProvider);
+  final historyOverview = ref.watch(configProvider).betaUi.historyOverview;
+  final reviewPaths = historyOverview
+      ? await ref.watch(reviewPathsByTypeProvider.future)
+      : const <String, RecordPath>{};
   final List<Stamp> stamps = await ref.watch(stampsStreamProvider.future);
 
   return stamps.whereType<Response>().where((response) {
-    return responseOverlapsWindow(response, settings.window);
+    return responseOverlapsWindow(
+      response,
+      settings.window,
+      reviewPath: reviewPaths[response.type],
+    );
   }).toList();
 });
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
+import 'package:stripes_ui/Models/record_time.dart';
 import 'package:stripes_ui/Providers/History/display_data_provider.dart';
 import 'package:stripes_ui/Providers/Questions/questions_provider.dart';
 
@@ -199,7 +200,7 @@ class EventGrid extends ConsumerWidget {
     final List<Response> allReviews = [];
 
     for (final Response response in stamps) {
-      final DateTime responseDate = dateFromStamp(response.stamp);
+      final DateTime responseDate = occurrenceTimeForResponse(response);
       final DateTime day = DateTime(
         responseDate.year,
         responseDate.month,

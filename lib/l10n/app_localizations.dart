@@ -3585,6 +3585,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not sure'**
   String get painIntensityNotSure;
+
+  /// No description provided for @historySummaryDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{entries} across {days, plural, =1{1 day} other{{days} days}}'**
+  String historySummaryDays(String entries, int days);
+
+  /// No description provided for @historyMoreCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count} more categories'**
+  String historyMoreCategories(int count);
+
+  /// No description provided for @historyListView.
+  ///
+  /// In en, this message translates to:
+  /// **'List'**
+  String get historyListView;
+
+  /// No description provided for @historyGraphView.
+  ///
+  /// In en, this message translates to:
+  /// **'Graph'**
+  String get historyGraphView;
 }
 
 class _AppLocalizationsDelegate

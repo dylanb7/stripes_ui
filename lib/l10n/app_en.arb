@@ -831,5 +831,13 @@
   "painIntensityNone": "No pain",
   "painIntensityModerate": "Moderate",
   "painIntensityWorst": "Worst possible",
-  "painIntensityNotSure": "Not sure"
+  "painIntensityNotSure": "Not sure",
+  "historySummaryDays": "{entries} across {days, plural, =1{1 day} other{{days} days}}",
+  "@historySummaryDays": {
+    "placeholders": {"entries": {"type": "String"}, "days": {"type": "int"}}
+  },
+  "historyMoreCategories": "+{count} more categories",
+  "@historyMoreCategories": {"placeholders": {"count": {"type": "int"}}},
+  "historyListView": "List",
+  "historyGraphView": "Graph"
 }

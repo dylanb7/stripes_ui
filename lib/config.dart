@@ -42,6 +42,9 @@ class StripesDisplayConfig {
 class BetaUiConfig {
   final bool dashboard;
   final bool compactHistory;
+
+  /// Adds period summaries, entry previews, and helpful empty History states.
+  final bool historyOverview;
   final bool multiSessionFlow;
 
   /// Collect app terms once per account on this device, before profile setup.
@@ -58,6 +61,7 @@ class BetaUiConfig {
   const BetaUiConfig.disabled({
     this.dashboard = false,
     this.compactHistory = false,
+    this.historyOverview = false,
     this.multiSessionFlow = false,
     this.onboardingTerms = false,
     this.useCategoryTheme = false,
@@ -69,6 +73,7 @@ class BetaUiConfig {
   const BetaUiConfig.enabled({
     this.dashboard = true,
     this.compactHistory = true,
+    this.historyOverview = true,
     this.multiSessionFlow = true,
     this.onboardingTerms = true,
     this.useCategoryTheme = true,

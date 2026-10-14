@@ -2069,4 +2069,26 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get painIntensityNotSure => 'Nicht sicher';
+
+  @override
+  String historySummaryDays(String entries, int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days Tagen',
+      one: '1 Tag',
+    );
+    return '$entries an $_temp0';
+  }
+
+  @override
+  String historyMoreCategories(int count) {
+    return '+$count weitere Kategorien';
+  }
+
+  @override
+  String get historyListView => 'Liste';
+
+  @override
+  String get historyGraphView => 'Diagramm';
 }

@@ -6,9 +6,12 @@ import 'package:stripes_ui/Insights/Engine/Rules/numeric_relationship_rule.dart'
 import 'package:stripes_ui/Insights/Engine/finding.dart';
 import 'package:stripes_ui/Insights/Engine/insight_dataset.dart';
 import 'package:stripes_ui/Providers/Insights/engine_findings_provider.dart';
+import 'package:stripes_ui/Providers/base_providers.dart';
 import 'package:stripes_ui/UI/History/Insights/finding_presentation.dart';
 import 'package:stripes_ui/UI/History/Insights/finding_widgets.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
+import 'package:stripes_ui/Util/Design/category_theme.dart';
+import 'package:stripes_ui/config.dart';
 
 void main() {
   group('FindingPresenterRegistry', () {
@@ -452,6 +455,13 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
+        overrides: [
+          configProvider.overrideWithValue(
+            const StripesConfig.sandbox(
+              betaUi: BetaUiConfig.disabled(useCategoryTheme: true),
+            ),
+          ),
+        ],
         child: MaterialApp(
           home: Scaffold(
             body: SizedBox(
@@ -466,9 +476,20 @@ void main() {
       ),
     );
 
-    expect(find.byIcon(Icons.restaurant_rounded), findsOneWidget);
     expect(
-      find.byIcon(Icons.sentiment_very_dissatisfied_rounded),
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is CategoryIcon &&
+            widget.appearance.svgAsset?.endsWith('/meal.svg') == true,
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is CategoryIcon &&
+            widget.appearance.svgAsset?.endsWith('/pain.svg') == true,
+      ),
       findsOneWidget,
     );
     expect(find.byKey(const Key('co-occurrence-days')), findsOneWidget);

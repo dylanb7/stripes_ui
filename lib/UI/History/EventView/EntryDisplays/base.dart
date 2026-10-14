@@ -25,6 +25,7 @@ import 'package:stripes_ui/Providers/History/stamps_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
 import 'package:stripes_ui/UI/CommonWidgets/detail_field.dart';
 import 'package:stripes_ui/UI/History/EventView/EntryDisplays/blue_dye.dart';
+import 'package:stripes_ui/UI/History/EventView/EntryDisplays/entry_preview.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/pain_area.dart';
 import 'package:stripes_ui/Util/Design/breakpoint.dart';
 import 'package:stripes_ui/Util/Design/category_theme.dart';
@@ -309,6 +310,7 @@ class EntryDisplay extends ConsumerStatefulWidget {
 
   final bool hasControls, hasConstraints, includeFullDate, isNested, isReview;
   final String? dateLabel;
+  final bool initiallyExpanded;
 
   /// Outer margin for cards, or inner padding for full-width compact entries.
   final double horizontalInset;
@@ -322,6 +324,7 @@ class EntryDisplay extends ConsumerStatefulWidget {
     this.isNested = false,
     this.isReview = false,
     this.dateLabel,
+    this.initiallyExpanded = false,
     this.horizontalInset = 0,
   });
 
@@ -335,6 +338,12 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
   bool? isBlue;
 
   final ExpansibleController controller = ExpansibleController();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initiallyExpanded) controller.expand();
+  }
 
   @override
   void dispose() {
@@ -352,6 +361,16 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
         .watch(questionUIRegistryProvider)
         .allDisplayOverrides;
     final DateTime date = occurrenceTimeForResponse(widget.event);
+    final previewDetails = config.betaUi.historyOverview
+        ? entryPreviewDetails(
+            widget.event,
+            selectedLabel: context.translate.detailAnswerSelected,
+            descriptionLabel: context.translate.descriptionLabel,
+            notSureLabel: context.translate.painIntensityNotSure,
+            translateQuestion: localizations?.translateQuestion,
+            locale: Localizations.localeOf(context).toLanguageTag(),
+          )
+        : const <String>[];
 
     final bool themed = config.betaUi.useCategoryTheme;
     final bool colored = config.betaUi.categoryColorsEnabled;
@@ -477,6 +496,14 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
                       );
                     },
                     headerBuilder: (context, animation) {
+                      final previewStyle = Theme.of(context)
+                          .textTheme
+                          .bodySmall;
+                      final previewFontSize = previewStyle?.fontSize ?? 12;
+                      final enlargedPreviewText =
+                          MediaQuery.textScalerOf(context)
+                              .scale(previewFontSize) >=
+                          previewFontSize * 1.3;
                       final title = Text.rich(
                         TextSpan(
                           text:
@@ -551,7 +578,45 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     mainAxisSize: MainAxisSize.min,
-                                    children: [title, timestamp],
+                                    children: [
+                                      title,
+                                      if (previewDetails.isNotEmpty &&
+                                          animation.value < 1)
+                                        ExcludeSemantics(
+                                          excluding: controller.isExpanded,
+                                          child: SizeTransition(
+                                            sizeFactor: ReverseAnimation(
+                                              animation,
+                                            ),
+                                            alignment: Alignment.topCenter,
+                                            child: FadeTransition(
+                                              opacity: ReverseAnimation(
+                                                animation,
+                                              ),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      vertical: AppPadding.tiny,
+                                                    ),
+                                                child: Text(
+                                                  previewDetails.join(' · '),
+                                                  key: const ValueKey(
+                                                    'entry-preview',
+                                                  ),
+                                                  style: previewStyle,
+                                                  maxLines: enlargedPreviewText
+                                                      ? null
+                                                      : 2,
+                                                  overflow: enlargedPreviewText
+                                                      ? TextOverflow.visible
+                                                      : TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      timestamp,
+                                    ],
                                   ),
                                 ),
                                 const SizedBox(width: AppPadding.small),

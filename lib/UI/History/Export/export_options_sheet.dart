@@ -24,21 +24,27 @@ class ExportOptionsSheet extends ConsumerWidget {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
     final StripesConfig config = ref.watch(configProvider);
 
-    return Container(
-      padding: const EdgeInsets.all(AppPadding.large),
+    return SingleChildScrollView(
+      padding: EdgeInsets.fromLTRB(
+        AppPadding.large,
+        AppPadding.large,
+        AppPadding.large,
+        AppPadding.large + MediaQuery.viewPaddingOf(context).bottom,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
-              Text(
-                l10n.exportDataTitle,
-                style: textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Text(
+                  l10n.exportDataTitle,
+                  style: textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-              const Spacer(),
               IconButton(
                 icon: const Icon(Icons.close),
                 onPressed: () => Navigator.of(context).pop(),
@@ -56,21 +62,18 @@ class ExportOptionsSheet extends ConsumerWidget {
               color: colors.surfaceContainerLow,
               borderRadius: BorderRadius.circular(AppRounding.small),
             ),
-            child: Row(
+            child: Wrap(
+              spacing: AppPadding.small,
+              runSpacing: AppPadding.small,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                Icon(
-                  Icons.date_range,
-                  size: 18,
-                  color: colors.primary,
-                ),
-                const SizedBox(width: AppPadding.small),
+                Icon(Icons.date_range, size: 18, color: colors.primary),
                 Text(
                   settings.getRangeString(context),
                   style: textTheme.bodyMedium?.copyWith(
                     color: colors.onSurfaceVariant,
                   ),
                 ),
-                const Spacer(),
                 Text(
                   l10n.entriesCount(responses.length),
                   style: textTheme.bodySmall?.copyWith(
@@ -117,7 +120,9 @@ class ExportOptionsSheet extends ConsumerWidget {
           context: context,
           scrollControlled: true,
           sheetBuilder: (context, scrollController) => CsvPreviewSheet(
-              responses: responses, scrollController: scrollController),
+            responses: responses,
+            scrollController: scrollController,
+          ),
         );
         break;
 
@@ -126,7 +131,9 @@ class ExportOptionsSheet extends ConsumerWidget {
           context: context,
           scrollControlled: true,
           sheetBuilder: (context, scrollController) => ReportSheet(
-              responses: responses, scrollController: scrollController),
+            responses: responses,
+            scrollController: scrollController,
+          ),
         );
         break;
     }
@@ -163,46 +170,67 @@ class _ExportOptionTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppRounding.small),
           child: Padding(
             padding: const EdgeInsets.all(AppPadding.medium),
-            child: Row(
-              children: [
-                Container(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final leading = Container(
                   padding: const EdgeInsets.all(AppPadding.small),
                   decoration: BoxDecoration(
                     color: colors.primaryContainer,
                     borderRadius: BorderRadius.circular(AppRounding.tiny),
                   ),
-                  child: Icon(
-                    icon,
-                    color: colors.primary,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: AppPadding.medium),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        description,
-                        style: textTheme.bodySmall?.copyWith(
-                          color: colors.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Icon(
+                  child: Icon(icon, color: colors.primary, size: 24),
+                );
+                final chevron = Icon(
                   Icons.chevron_right,
                   color: colors.onSurfaceVariant,
-                ),
-              ],
+                );
+                final content = Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      description,
+                      style: textTheme.bodySmall?.copyWith(
+                        color: colors.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                );
+                final inlineTextWidth =
+                    constraints.maxWidth -
+                    48 -
+                    AppPadding.small * 2 -
+                    AppPadding.medium;
+                final scaledFontSize = MediaQuery.textScalerOf(context)
+                    .scale(textTheme.bodySmall?.fontSize ?? 12);
+                // Once the icons leave too little readable text space, give
+                // the title and description the tile's full width.
+                final stacked = inlineTextWidth < scaledFontSize * 14;
+                if (stacked) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(children: [leading, const Spacer(), chevron]),
+                      const SizedBox(height: AppPadding.medium),
+                      content,
+                    ],
+                  );
+                }
+                return Row(
+                  children: [
+                    leading,
+                    const SizedBox(width: AppPadding.medium),
+                    Expanded(child: content),
+                    chevron,
+                  ],
+                );
+              },
             ),
           ),
         ),

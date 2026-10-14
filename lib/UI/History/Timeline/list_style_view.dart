@@ -26,6 +26,8 @@ import 'package:stripes_ui/UI/History/Export/export.dart';
 import 'package:stripes_ui/UI/History/GraphView/graphs_list.dart';
 import 'package:stripes_ui/UI/History/GraphView/graph_view_screen.dart';
 import 'package:stripes_ui/UI/History/Timeline/bottom_sheet_calendar.dart';
+import 'package:stripes_ui/UI/History/Timeline/history_empty_state.dart';
+import 'package:stripes_ui/UI/History/Timeline/history_period_summary.dart';
 import 'package:stripes_ui/UI/History/Filters/filter_sheet.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/Util/Design/breakpoint.dart';
@@ -113,6 +115,7 @@ class _EventsViewState extends ConsumerState<EventsView> {
   @override
   Widget build(BuildContext context) {
     final config = ref.watch(configProvider);
+    final historyOverview = config.betaUi.historyOverview;
     final requestedMode = ref.watch(viewModeProvider);
     final mode = config.betaUi.hasGraphing ? requestedMode : ViewMode.events;
     final findingFeedAsync = config.display.insightsEnabled
@@ -133,11 +136,16 @@ class _EventsViewState extends ConsumerState<EventsView> {
         : 0.0;
     final entries = ref.watch(availableStampsProvider);
     final reviews = ref.watch(reviewPaths(const ReviewPathsProps()));
+    final showEmptyHistory =
+        historyOverview &&
+        !entries.isLoading &&
+        !entries.hasError &&
+        entries.asData?.value.isEmpty == true;
     // Wait for real content before restoring the saved scroll position.
     final waitingForEntries =
         mode == ViewMode.events &&
         ((entries.isLoading && !entries.hasValue) ||
-            (reviews.isLoading && !reviews.hasValue));
+            (!showEmptyHistory && reviews.isLoading && !reviews.hasValue));
 
     ref.listen(displayDataProvider.select((settings) => settings.range), (
       previous,
@@ -189,7 +197,8 @@ class _EventsViewState extends ConsumerState<EventsView> {
                           ),
                           sliver: SliverToBoxAdapter(
                             child: _ResponsiveHeader(
-                              hasGraphing: config.betaUi.hasGraphing,
+                              hasGraphing:
+                                  config.betaUi.hasGraphing && !historyOverview,
                               mode: mode,
                               onModeChanged: changeMode,
                             ),
@@ -205,7 +214,9 @@ class _EventsViewState extends ConsumerState<EventsView> {
                               key: _dateRangeKey,
                               child: useDesktopToolbar
                                   ? _DesktopControlBar(
-                                      hasGraphing: config.betaUi.hasGraphing,
+                                      hasGraphing:
+                                          config.betaUi.hasGraphing &&
+                                          !historyOverview,
                                       mode: mode,
                                       onModeChanged: changeMode,
                                     )
@@ -225,7 +236,19 @@ class _EventsViewState extends ConsumerState<EventsView> {
                             ),
                           ),
                         ),
-                        if (showFindingSurface)
+                        if (historyOverview) ...[
+                          const SliverToBoxAdapter(
+                            child: HistoryPeriodSummary(),
+                          ),
+                          SliverToBoxAdapter(
+                            child: HistoryPresentationControls(
+                              hasGraphing: config.betaUi.hasGraphing,
+                              mode: mode,
+                              onModeChanged: changeMode,
+                            ),
+                          ),
+                        ],
+                        if (showFindingSurface && !showEmptyHistory)
                           SliverPadding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: AppPadding.xl,
@@ -254,44 +277,49 @@ class _EventsViewState extends ConsumerState<EventsView> {
                               ),
                             ),
                           ),
-                        SliverToBoxAdapter(
-                          child: switch (mode) {
-                            ViewMode.events => const EventGridHeader(),
-                            ViewMode.graph => const GraphHeader(),
-                          },
-                        ),
-                        ...switch (mode) {
-                          ViewMode.events => [
-                            SliverCrossAxisGroup(
-                              slivers: [
-                                SliverConstrainedCrossAxis(
-                                  maxExtent: Breakpoint.large.value,
-                                  sliver: const EventGrid(),
-                                ),
-                              ],
-                            ),
-                          ],
-                          ViewMode.graph => [
-                            GraphSliverList(
-                              onSelect: (key) {
-                                context.pushNamed(
-                                  RouteName.SYMPTOMTREND,
-                                  extra: key,
-                                );
-                              },
-                              onCategorySelect: (keys) {
-                                if (keys.isEmpty) return;
-                                context.pushNamed(
-                                  RouteName.SYMPTOMTREND,
-                                  extra: GraphViewParams(
-                                    graphKey: keys.first,
-                                    initialAdditions: keys.skip(1).toList(),
+                        if (!showEmptyHistory &&
+                            (!historyOverview || mode == ViewMode.graph))
+                          SliverToBoxAdapter(
+                            child: switch (mode) {
+                              ViewMode.events => const EventGridHeader(),
+                              ViewMode.graph => const GraphHeader(),
+                            },
+                          ),
+                        if (showEmptyHistory)
+                          const SliverToBoxAdapter(child: HistoryEmptyState())
+                        else
+                          ...switch (mode) {
+                            ViewMode.events => [
+                              SliverCrossAxisGroup(
+                                slivers: [
+                                  SliverConstrainedCrossAxis(
+                                    maxExtent: Breakpoint.large.value,
+                                    sliver: const EventGrid(),
                                   ),
-                                );
-                              },
-                            ),
-                          ],
-                        },
+                                ],
+                              ),
+                            ],
+                            ViewMode.graph => [
+                              GraphSliverList(
+                                onSelect: (key) {
+                                  context.pushNamed(
+                                    RouteName.SYMPTOMTREND,
+                                    extra: key,
+                                  );
+                                },
+                                onCategorySelect: (keys) {
+                                  if (keys.isEmpty) return;
+                                  context.pushNamed(
+                                    RouteName.SYMPTOMTREND,
+                                    extra: GraphViewParams(
+                                      graphKey: keys.first,
+                                      initialAdditions: keys.skip(1).toList(),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          },
                         SliverToBoxAdapter(
                           child: SizedBox(
                             // Keep the last entry clear of the overlay without
@@ -431,7 +459,6 @@ class GraphHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final DisplayDataSettings settings = ref.watch(displayDataProvider);
-    final bool isDesktop = _useHistoryToolbar(context);
 
     return Padding(
       padding: const EdgeInsets.symmetric(
@@ -442,45 +469,19 @@ class GraphHeader extends ConsumerWidget {
         spacing: AppPadding.small,
         runSpacing: AppPadding.small,
         children: [
-          if (isDesktop)
-            SegmentedButton<GraphYAxis>(
-              segments: GraphYAxis.values
-                  .map(
-                    (axis) => ButtonSegment<GraphYAxis>(
-                      value: axis,
-                      icon: Icon(axis.icon, size: 16),
-                      label: Text(axis.label),
-                      tooltip: axis.description,
-                    ),
-                  )
-                  .toList(),
-              selected: {settings.axis},
-              onSelectionChanged: (newSelection) {
-                if (newSelection.isNotEmpty) {
-                  ref
-                      .read(displayDataProvider.notifier)
-                      .setAxis(newSelection.first);
-                }
-              },
-              showSelectedIcon: false,
-              style: const ButtonStyle(
-                visualDensity: VisualDensity.compact,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-            )
-          else
-            _DropdownChip<GraphYAxis>(
-              menuLabel: 'Graph measure',
-              value: settings.axis,
-              items: GraphYAxis.values,
-              labelBuilder: (axis) => axis.label,
-              iconBuilder: (axis) => axis.icon,
-              onChanged: (value) {
-                if (value != null) {
-                  ref.read(displayDataProvider.notifier).setAxis(value);
-                }
-              },
-            ),
+          _DropdownChip<GraphYAxis>(
+            menuLabel: 'Graph measure',
+            value: settings.axis,
+            items: GraphYAxis.values,
+            labelBuilder: (axis) => axis.label,
+            descriptionBuilder: (axis) => axis.description,
+            iconBuilder: (axis) => axis.icon,
+            onChanged: (value) {
+              if (value != null) {
+                ref.read(displayDataProvider.notifier).setAxis(value);
+              }
+            },
+          ),
         ],
       ),
     );
@@ -553,46 +554,7 @@ class _ResponsiveHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bool shouldUseToolbar = _useHistoryToolbar(context);
-    final bool isTiny = getBreakpoint(context).isLessThan(Breakpoint.tiny);
-    final DisplayDataSettings settings = ref.watch(displayDataProvider);
-
-    Widget buildViewModeToggle() => _DropdownChip<ViewMode>(
-      menuLabel: 'History view',
-      value: mode,
-      items: ViewMode.values,
-      labelBuilder: (m) => switch (m) {
-        ViewMode.events => 'List',
-        ViewMode.graph => 'Graph',
-      },
-      iconBuilder: (m) => switch (m) {
-        ViewMode.events => Icons.list,
-        ViewMode.graph => Icons.bar_chart,
-      },
-      onChanged: (m) {
-        if (m != null) onModeChanged(m);
-      },
-    );
-
-    Widget buildTimeCycleToggle() => SegmentedButton<TimeCycle>(
-      segments: [TimeCycle.day, TimeCycle.week, TimeCycle.month]
-          .map((cycle) => ButtonSegment(value: cycle, label: Text(cycle.value)))
-          .toList(),
-      showSelectedIcon: false,
-      emptySelectionAllowed: true,
-      style: const ButtonStyle(
-        visualDensity: VisualDensity.compact,
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      ),
-      onSelectionChanged: (newValue) {
-        if (newValue.isNotEmpty) {
-          ref.read(displayDataProvider.notifier).setCycle(newValue.first);
-        }
-      },
-      selected: settings.cycle == TimeCycle.custom ? {} : {settings.cycle},
-    );
-
-    if (shouldUseToolbar) {
+    if (_useHistoryToolbar(context)) {
       return const PatientChanger(tab: TabOption.history);
     }
 
@@ -601,40 +563,17 @@ class _ResponsiveHeader extends ConsumerWidget {
       children: [
         const PatientChanger(tab: TabOption.history),
         const SizedBox(height: AppPadding.small),
-        Wrap(
-          alignment: WrapAlignment.spaceBetween,
-          spacing: AppPadding.small,
-          runSpacing: AppPadding.small,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            const _FilterButton(),
-            if (isTiny || MediaQuery.textScalerOf(context).scale(14) > 18)
-              _DropdownChip<TimeCycle>(
-                menuLabel: 'Time range',
-                iconBuilder: (_) => Icons.date_range,
-                hintIcon: Icons.date_range,
-                value: settings.cycle == TimeCycle.custom
-                    ? null
-                    : settings.cycle,
-                items: const [TimeCycle.day, TimeCycle.week, TimeCycle.month],
-                labelBuilder: (cycle) => cycle.value,
-                onChanged: (cycle) {
-                  if (cycle != null) {
-                    ref.read(displayDataProvider.notifier).setCycle(cycle);
-                  }
-                },
-              )
-            else
-              buildTimeCycleToggle(),
-            if (hasGraphing) buildViewModeToggle(),
-          ],
+        _HistoryControls(
+          hasGraphing: hasGraphing,
+          mode: mode,
+          onModeChanged: onModeChanged,
         ),
       ],
     );
   }
 }
 
-class _DesktopControlBar extends ConsumerWidget {
+class _DesktopControlBar extends StatelessWidget {
   final bool hasGraphing;
   final ViewMode mode;
   final ValueChanged<ViewMode> onModeChanged;
@@ -646,109 +585,124 @@ class _DesktopControlBar extends ConsumerWidget {
   });
 
   @override
+  Widget build(BuildContext context) => ControlBar(
+    children: [
+      Expanded(
+        child: _HistoryControls(
+          hasGraphing: hasGraphing,
+          mode: mode,
+          onModeChanged: onModeChanged,
+          inlineDate: true,
+        ),
+      ),
+    ],
+  );
+}
+
+/// Reserve the filter button's actual width, including its badge, before
+/// deciding whether both dropdown labels can fit on one line.
+class _HistoryControls extends ConsumerWidget {
+  final bool hasGraphing;
+  final ViewMode mode;
+  final ValueChanged<ViewMode> onModeChanged;
+  final bool inlineDate;
+
+  const _HistoryControls({
+    required this.hasGraphing,
+    required this.mode,
+    required this.onModeChanged,
+    this.inlineDate = false,
+  });
+
+  @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final DisplayDataSettings settings = ref.watch(displayDataProvider);
+    final settings = ref.watch(displayDataProvider);
+    final historyOverview = ref.watch(configProvider).betaUi.historyOverview;
+    final viewLabel = mode == ViewMode.events ? 'List' : 'Graph';
+    final timeLabel = settings.cycle == TimeCycle.custom
+        ? 'Custom'
+        : settings.cycle.value;
 
-    final bool isLarge = getBreakpoint(context).isGreaterThan(Breakpoint.large);
-
-    if (isLarge) {
-      return ControlBar(
-        children: [
-          const _FilterButton(),
-          const SizedBox(width: AppPadding.small),
-          SegmentedButton<TimeCycle>(
-            segments: [TimeCycle.day, TimeCycle.week, TimeCycle.month]
-                .map(
-                  (cycle) =>
-                      ButtonSegment(value: cycle, label: Text(cycle.value)),
-                )
-                .toList(),
-            showSelectedIcon: false,
-            emptySelectionAllowed: true,
-            style: const ButtonStyle(
-              visualDensity: VisualDensity.compact,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            onSelectionChanged: (newValue) {
-              if (newValue.isNotEmpty) {
-                ref.read(displayDataProvider.notifier).setCycle(newValue.first);
-              }
-            },
-            selected: settings.cycle == TimeCycle.custom
-                ? {}
-                : {settings.cycle},
-          ),
-          Expanded(
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 400),
-                child: const DateRangeButton(),
-              ),
-            ),
-          ),
-          if (hasGraphing)
-            _DropdownChip<ViewMode>(
-              menuLabel: 'History view',
-              iconBuilder: (m) => switch (m) {
-                ViewMode.events => Icons.list,
-                ViewMode.graph => Icons.bar_chart,
-              },
-              value: mode,
-              items: ViewMode.values,
-              labelBuilder: (m) => switch (m) {
-                ViewMode.events => 'List',
-                ViewMode.graph => 'Graph',
-              },
-              onChanged: (m) {
-                if (m != null) onModeChanged(m);
-              },
-            ),
-        ],
-      );
-    }
-
-    return ControlBar(
+    return Row(
       children: [
         const _FilterButton(),
         const SizedBox(width: AppPadding.small),
-        _DropdownChip<TimeCycle>(
-          menuLabel: 'Time range',
-          iconBuilder: (_) => Icons.date_range,
-          hintIcon: Icons.date_range,
-          value: settings.cycle == TimeCycle.custom ? null : settings.cycle,
-          items: const [TimeCycle.day, TimeCycle.week, TimeCycle.month],
-          labelBuilder: (cycle) => cycle.value,
-          onChanged: (cycle) {
-            if (cycle != null) {
-              ref.read(displayDataProvider.notifier).setCycle(cycle);
-            }
-          },
-        ),
         Expanded(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 300),
-              child: const DateRangeButton(),
-            ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final labelledWidth =
+                  _DropdownChip.labelledWidth(context, timeLabel) +
+                  (hasGraphing
+                      ? AppPadding.small +
+                            _DropdownChip.labelledWidth(context, viewLabel)
+                      : 0);
+              final iconOnly =
+                  labelledWidth + (inlineDate ? 300 : 0) > constraints.maxWidth;
+              final timeControl = _DropdownChip<TimeCycle>(
+                menuLabel: 'Time range',
+                iconOnly: !historyOverview && iconOnly,
+                iconBuilder: (cycle) => switch (cycle) {
+                  TimeCycle.day => Icons.calendar_view_day,
+                  TimeCycle.week => Icons.calendar_view_week,
+                  TimeCycle.month => Icons.calendar_month,
+                  _ => Icons.date_range,
+                },
+                hintIcon: Icons.date_range,
+                value: settings.cycle == TimeCycle.custom
+                    ? null
+                    : settings.cycle,
+                items: const [TimeCycle.day, TimeCycle.week, TimeCycle.month],
+                labelBuilder: (cycle) => cycle.value,
+                onChanged: (cycle) {
+                  if (cycle != null) {
+                    ref
+                        .read(displayDataProvider.notifier)
+                        .setCycle(
+                          cycle,
+                          seedStartTime: historyOverview
+                              ? settings.range.start
+                              : null,
+                        );
+                  }
+                },
+              );
+              return Row(
+                children: [
+                  if (historyOverview)
+                    Flexible(child: timeControl)
+                  else
+                    timeControl,
+                  if (inlineDate)
+                    Expanded(
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 400),
+                          child: const DateRangeButton(),
+                        ),
+                      ),
+                    )
+                  else if (hasGraphing)
+                    const SizedBox(width: AppPadding.small),
+                  if (hasGraphing)
+                    _DropdownChip<ViewMode>(
+                      menuLabel: 'History view',
+                      iconOnly: iconOnly,
+                      value: mode,
+                      items: ViewMode.values,
+                      labelBuilder: (mode) =>
+                          mode == ViewMode.events ? 'List' : 'Graph',
+                      iconBuilder: (mode) => mode == ViewMode.events
+                          ? Icons.list
+                          : Icons.bar_chart,
+                      onChanged: (mode) {
+                        if (mode != null) onModeChanged(mode);
+                      },
+                    ),
+                ],
+              );
+            },
           ),
         ),
-        if (hasGraphing)
-          _DropdownChip<ViewMode>(
-            menuLabel: 'History view',
-            iconBuilder: (m) => switch (m) {
-              ViewMode.events => Icons.list,
-              ViewMode.graph => Icons.bar_chart,
-            },
-            value: mode,
-            items: ViewMode.values,
-            labelBuilder: (m) => switch (m) {
-              ViewMode.events => 'List',
-              ViewMode.graph => 'Graph',
-            },
-            onChanged: (m) {
-              if (m != null) onModeChanged(m);
-            },
-          ),
       ],
     );
   }
@@ -762,22 +716,48 @@ class _DropdownChip<T> extends ConsumerWidget {
   final T? value;
   final List<T> items;
   final String Function(T) labelBuilder;
+  final String Function(T)? descriptionBuilder;
   final IconData Function(T) iconBuilder;
   final ValueChanged<T?> onChanged;
   final String menuLabel;
   final String hint;
   final IconData? hintIcon;
+  final bool iconOnly;
 
   const _DropdownChip({
     required this.value,
     required this.items,
     required this.labelBuilder,
+    this.descriptionBuilder,
     required this.iconBuilder,
     required this.onChanged,
     required this.menuLabel,
     this.hint = 'Custom',
     this.hintIcon,
+    this.iconOnly = false,
   });
+
+  static double labelledWidth(BuildContext context, String label) {
+    final painter = TextPainter(
+      text: TextSpan(
+        text: label,
+        style: Theme.of(context).textTheme.labelLarge,
+      ),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    )..layout();
+    // Horizontal padding, leading icon, gaps, and dropdown chevron.
+    final width =
+        painter.width.ceilToDouble() +
+        24 +
+        18 +
+        AppPadding.small +
+        AppPadding.tiny +
+        18;
+    painter.dispose();
+    return width;
+  }
 
   Future<void> _choose(BuildContext context, WidgetRef ref) async {
     final selected = await ref
@@ -813,6 +793,9 @@ class _DropdownChip<T> extends ConsumerWidget {
                     ListTile(
                       leading: Icon(iconBuilder(item)),
                       title: Text(labelBuilder(item)),
+                      subtitle: descriptionBuilder == null
+                          ? null
+                          : Text(descriptionBuilder!(item)),
                       selected: item == value,
                       trailing: item == value ? const Icon(Icons.check) : null,
                       onTap: () => Navigator.of(sheetContext).pop(item),
@@ -831,31 +814,36 @@ class _DropdownChip<T> extends ConsumerWidget {
     final selected = value;
     final label = selected == null ? hint : labelBuilder(selected);
     final icon = selected == null ? hintIcon : iconBuilder(selected);
-    return Semantics(
-      label: menuLabel,
-      child: TextButton(
-        onPressed: () => _choose(context, ref),
-        style: TextButton.styleFrom(
-          foregroundColor: colors.primary,
-          backgroundColor: colors.surfaceContainerLow,
-          minimumSize: const Size(48, 48),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRounding.small),
+    return Tooltip(
+      message: '$menuLabel: $label',
+      excludeFromSemantics: true,
+      child: Semantics(
+        label: menuLabel,
+        value: iconOnly ? label : null,
+        child: TextButton(
+          onPressed: () => _choose(context, ref),
+          style: TextButton.styleFrom(
+            foregroundColor: colors.primary,
+            backgroundColor: colors.surfaceContainerLow,
+            minimumSize: const Size(48, 48),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRounding.small),
+            ),
+            textStyle: Theme.of(context).textTheme.labelLarge,
           ),
-          textStyle: Theme.of(context).textTheme.labelLarge,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (icon != null) ...[
-              Icon(icon, size: 18),
-              const SizedBox(width: AppPadding.small),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) Icon(icon, size: 18),
+              if (!iconOnly) ...[
+                if (icon != null) const SizedBox(width: AppPadding.small),
+                Flexible(child: Text(label)),
+              ],
+              const SizedBox(width: AppPadding.tiny),
+              const Icon(Icons.keyboard_arrow_down, size: 18),
             ],
-            Flexible(child: Text(label)),
-            const SizedBox(width: AppPadding.tiny),
-            const Icon(Icons.keyboard_arrow_down, size: 18),
-          ],
+          ),
         ),
       ),
     );

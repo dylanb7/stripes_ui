@@ -21,7 +21,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:stripes_ui/Models/record_time.dart';
 
 class Export extends ConsumerWidget {
-  const Export({super.key});
+  final bool showLabel;
+
+  const Export({this.showLabel = false, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -29,33 +31,31 @@ class Export extends ConsumerWidget {
       availableStampsProvider,
     );
     final ExportAction? exportFunc = ref.watch(configProvider).export;
-    return available.when(
-      loading: () => const IconButton(
-        onPressed: null,
-        icon: Icon(Icons.ios_share),
-        tooltip: 'Export',
-      ),
-      error: (_, __) => const IconButton(
-        onPressed: null,
-        icon: Icon(Icons.ios_share),
-        tooltip: 'Export',
-      ),
-      data: (availableStamps) => IconButton(
-        onPressed: availableStamps.isEmpty || exportFunc == null
-            ? null
-            : () {
-                ref
-                    .read(sheetControllerProvider)
-                    .show(
-                      context: context,
-                      scrollControlled: true,
-                      child: (context) =>
-                          ExportOptionsSheet(responses: availableStamps),
-                    );
-              },
-        icon: const Icon(Icons.ios_share),
-        tooltip: 'Export',
-      ),
+    final responses = available.asData?.value;
+    final VoidCallback? onPressed =
+        responses == null || responses.isEmpty || exportFunc == null
+        ? null
+        : () {
+            ref
+                .read(sheetControllerProvider)
+                .show(
+                  context: context,
+                  scrollControlled: true,
+                  child: (context) => ExportOptionsSheet(responses: responses),
+                );
+          };
+    if (showLabel) {
+      return TextButton.icon(
+        onPressed: onPressed,
+        style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+        icon: const Icon(Icons.ios_share, size: 20),
+        label: Text(context.translate.exportName),
+      );
+    }
+    return IconButton(
+      onPressed: onPressed,
+      icon: const Icon(Icons.ios_share),
+      tooltip: 'Export',
     );
   }
 }

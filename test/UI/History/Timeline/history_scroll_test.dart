@@ -65,6 +65,7 @@ Future<ProviderContainer> _pumpHistory(
   bool insightsEnabled = false,
   void Function()? onFindingsLoad,
   bool betaUi = true,
+  bool historyOverview = false,
   bool hasGraphing = true,
 }) async {
   tester.view.physicalSize = Size(width, 844);
@@ -94,7 +95,10 @@ Future<ProviderContainer> _pumpHistory(
             hasLogging: true,
             allowsSummaryReport: true,
             betaUi: betaUi
-                ? BetaUiConfig.enabled(hasGraphing: hasGraphing)
+                ? BetaUiConfig.enabled(
+                    hasGraphing: hasGraphing,
+                    historyOverview: historyOverview,
+                  )
                 : BetaUiConfig.disabled(hasGraphing: hasGraphing),
             display: StripesDisplayConfig(insightsEnabled: insightsEnabled),
           ),
@@ -104,6 +108,7 @@ Future<ProviderContainer> _pumpHistory(
         stampProvider.overrideWith((ref) async => null),
         hasTestsProvider.overrideWith((ref) async => true),
         availableStampsProvider.overrideWith((ref) async => entries),
+        graphStampsProvider.overrideWith((ref) async => {}),
         inRangeProvider.overrideWith(
           (ref) async => [
             for (final response in entries)
@@ -520,25 +525,24 @@ void main() {
         (widget) =>
             widget is Semantics && widget.properties.label == 'History view',
       );
-      final controls = width >= 1200
-          ? toolbar
-          : find.ancestor(of: historyView, matching: find.byType(Wrap)).first;
-      expect(find.descendant(of: controls, matching: button), findsOneWidget);
-      if (width < 1200) {
-        expect(find.descendant(of: toolbar, matching: button), findsNothing);
-        final timeRange = find.byWidgetPredicate(
-          (widget) =>
-              widget is Semantics && widget.properties.label == 'Time range',
-        );
-        expect(
-          find.descendant(of: controls, matching: timeRange),
-          findsOneWidget,
-        );
-        if (width >= 390) {
-          expect(tester.getCenter(button).dy, tester.getCenter(historyView).dy);
-          expect(tester.getCenter(button).dy, tester.getCenter(timeRange).dy);
-        }
-      }
+      final timeRange = find.byWidgetPredicate(
+        (widget) =>
+            widget is Semantics && widget.properties.label == 'Time range',
+      );
+      expect(tester.getCenter(button).dy, tester.getCenter(historyView).dy);
+      expect(tester.getCenter(button).dy, tester.getCenter(timeRange).dy);
+      expect(
+        tester.getRect(button).right,
+        lessThan(tester.getRect(timeRange).left),
+      );
+      expect(
+        tester.getRect(timeRange).right,
+        lessThan(tester.getRect(historyView).left),
+      );
+      expect(
+        find.descendant(of: toolbar, matching: button),
+        width >= 1200 ? findsOneWidget : findsNothing,
+      );
       await tester.tap(button);
       await tester.pumpAndSettle();
       expect(find.byType(FilterSheet), findsOneWidget);
@@ -584,6 +588,106 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+
+  testWidgets(
+    'history dropdown labels collapse together and restore without resetting selections',
+    (tester) async {
+      final textScale = ValueNotifier(1.0);
+      addTearDown(textScale.dispose);
+      final container = await _pumpHistory(
+        tester,
+        width: 390,
+        liveTextScale: textScale,
+      );
+      expect(find.byType(SegmentedButton<TimeCycle>), findsNothing);
+      expect(find.text('Month'), findsOneWidget);
+      expect(find.text('List'), findsOneWidget);
+
+      textScale.value = 3;
+      await tester.pumpAndSettle();
+      final timeRange = find.byTooltip('Time range: Month');
+      final historyView = find.byTooltip('History view: List');
+      final filter = find.byTooltip('Filters');
+      expect(timeRange.hitTestable(), findsOneWidget);
+      expect(historyView.hitTestable(), findsOneWidget);
+      expect(find.text('Month'), findsNothing);
+      expect(find.text('List'), findsNothing);
+      expect(tester.getCenter(filter).dy, tester.getCenter(timeRange).dy);
+      expect(tester.getCenter(filter).dy, tester.getCenter(historyView).dy);
+      for (final control in [filter, timeRange, historyView]) {
+        expect(tester.getSize(control).width, greaterThanOrEqualTo(48));
+        expect(tester.getSize(control).height, greaterThanOrEqualTo(48));
+      }
+      final semantics = tester.ensureSemantics();
+      await tester.pump();
+      final timeRangeSemantics = tester.getSemantics(
+        find.bySemanticsLabel('Time range'),
+      );
+      expect(timeRangeSemantics.value, 'Month');
+      semantics.dispose();
+
+      await tester.tap(timeRange);
+      await tester.pumpAndSettle();
+      final week = find.widgetWithText(ListTile, 'Week');
+      await tester.ensureVisible(week);
+      await tester.tap(week);
+      await tester.pumpAndSettle();
+      expect(container.read(displayDataProvider).cycle, TimeCycle.week);
+      expect(find.byTooltip('Time range: Week'), findsOneWidget);
+      expect(find.byIcon(Icons.calendar_view_week), findsOneWidget);
+
+      await tester.tap(historyView);
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(ListTile, 'Graph'));
+      await tester.pumpAndSettle();
+      expect(container.read(viewModeProvider), ViewMode.graph);
+      expect(find.byTooltip('History view: Graph'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byTooltip('History view: Graph'),
+          matching: find.byIcon(Icons.bar_chart),
+        ),
+        findsOneWidget,
+      );
+
+      // Widening the available space restores labels even at larger text.
+      tester.view.physicalSize = const Size(1200, 844);
+      await tester.pumpAndSettle();
+      expect(find.text('Week'), findsOneWidget);
+      expect(find.text('Graph'), findsOneWidget);
+      expect(container.read(displayDataProvider).cycle, TimeCycle.week);
+      expect(container.read(viewModeProvider), ViewMode.graph);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  for (final width in [700.0, 1500.0]) {
+    testWidgets(
+      'desktop history uses dropdowns for range, view, and graph measure at $width',
+      (tester) async {
+        final container = await _pumpHistory(tester, width: width);
+        expect(find.byType(SegmentedButton<TimeCycle>), findsNothing);
+        expect(find.byTooltip('Time range: Month'), findsOneWidget);
+        await tester.tap(find.byTooltip('History view: List'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.widgetWithText(ListTile, 'Graph'));
+        await tester.pumpAndSettle();
+        expect(find.byType(SegmentedButton<GraphYAxis>), findsNothing);
+        final measure = find.byTooltip(
+          'Graph measure: ${GraphYAxis.number.label}',
+        );
+        expect(measure, findsOneWidget);
+        await tester.tap(measure);
+        await tester.pumpAndSettle();
+        await tester.tap(
+          find.widgetWithText(ListTile, GraphYAxis.average.label),
+        );
+        await tester.pumpAndSettle();
+        expect(container.read(displayDataProvider).axis, GraphYAxis.average);
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
 
   testWidgets('narrow screen with large text fits history controls', (
     tester,
