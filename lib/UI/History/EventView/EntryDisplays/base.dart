@@ -25,6 +25,7 @@ import 'package:stripes_ui/Providers/History/stamps_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/confirmation_popup.dart';
 import 'package:stripes_ui/UI/CommonWidgets/detail_field.dart';
 import 'package:stripes_ui/UI/History/EventView/EntryDisplays/blue_dye.dart';
+import 'package:stripes_ui/UI/History/EventView/EntryDisplays/blue_dye_badge.dart';
 import 'package:stripes_ui/UI/History/EventView/EntryDisplays/entry_preview.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/pain_area.dart';
 import 'package:stripes_ui/Util/Design/breakpoint.dart';
@@ -335,8 +336,6 @@ class EntryDisplay extends ConsumerStatefulWidget {
 class EntryDisplayState extends ConsumerState<EntryDisplay> {
   bool isLoading = false;
 
-  bool? isBlue;
-
   final ExpansibleController controller = ExpansibleController();
 
   @override
@@ -368,9 +367,10 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
             descriptionLabel: context.translate.descriptionLabel,
             notSureLabel: context.translate.painIntensityNotSure,
             translateQuestion: localizations?.translateQuestion,
+            translateShortPrompt: localizations?.translateShortPrompt,
             locale: Localizations.localeOf(context).toLanguageTag(),
           )
-        : const <String>[];
+        : const <EntryPreviewDetail>[];
 
     final bool themed = config.betaUi.useCategoryTheme;
     final bool colored = config.betaUi.categoryColorsEnabled;
@@ -381,13 +381,15 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
         ? appearance.color
         : Theme.of(context).dividerColor;
 
+    final bool? isBlue = widget.event is DetailResponse
+        ? recordedBlueDyeResult(widget.event as DetailResponse)
+        : null;
     Widget? content;
     final DisplayBuilder? mainOverride = overrides[widget.event.question.id];
     if (mainOverride != null) return mainOverride(context, widget.event);
     if (widget.event case BlueDyeResp resp) {
       content = BlueDyeVisualDisplay(resp: resp);
     } else if (widget.event case DetailResponse detail) {
-      isBlue = _isBlueFromDetail(detail);
       content = DetailDisplay(
         detail: detail,
         accentColor: colored ? appearance.color : null,
@@ -504,7 +506,7 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
                           MediaQuery.textScalerOf(context)
                               .scale(previewFontSize) >=
                           previewFontSize * 1.3;
-                      final title = Text.rich(
+                      final categoryTitle = Text.rich(
                         TextSpan(
                           text:
                               localizations?.value(widget.event.type) ??
@@ -512,7 +514,8 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
                           style: Theme.of(context).textTheme.bodyLarge
                               ?.copyWith(fontWeight: FontWeight.w600),
                           children: [
-                            if (isBlue != null)
+                            if (isBlue != null &&
+                                !config.betaUi.historyOverview)
                               WidgetSpan(
                                 alignment: PlaceholderAlignment.middle,
                                 child: Padding(
@@ -520,7 +523,7 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
                                     left: AppPadding.tiny,
                                   ),
                                   child: Image.asset(
-                                    isBlue!
+                                    isBlue
                                         ? 'packages/stripes_ui/assets/images/Blue_Poop.png'
                                         : 'packages/stripes_ui/assets/images/Brown_Poop.png',
                                     width: readingIconSize(context, 18),
@@ -531,6 +534,18 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
                           ],
                         ),
                       );
+                      final title =
+                          config.betaUi.historyOverview && isBlue != null
+                          ? Wrap(
+                              spacing: AppPadding.small,
+                              runSpacing: AppPadding.tiny,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: [
+                                categoryTitle,
+                                HistoryBlueDyeBadge(isBlue: isBlue),
+                              ],
+                            )
+                          : categoryTitle;
                       final timestamp = Text(
                         widget.dateLabel ??
                             (widget.includeFullDate
@@ -588,7 +603,8 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
                                             sizeFactor: ReverseAnimation(
                                               animation,
                                             ),
-                                            alignment: Alignment.topCenter,
+                                            alignment:
+                                                AlignmentDirectional.topStart,
                                             child: FadeTransition(
                                               opacity: ReverseAnimation(
                                                 animation,
@@ -599,7 +615,18 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
                                                       vertical: AppPadding.tiny,
                                                     ),
                                                 child: Text(
-                                                  previewDetails.join(' · '),
+                                                  previewDetails
+                                                      .map(
+                                                        (detail) =>
+                                                            detail.label,
+                                                      )
+                                                      .join(' · '),
+                                                  semanticsLabel: previewDetails
+                                                      .map(
+                                                        (detail) => detail
+                                                            .semanticsLabel,
+                                                      )
+                                                      .join('. '),
                                                   key: const ValueKey(
                                                     'entry-preview',
                                                   ),
@@ -675,16 +702,6 @@ class EntryDisplayState extends ConsumerState<EntryDisplay> {
         );
       },
     );
-  }
-
-  bool? _isBlueFromDetail(DetailResponse res) {
-    final blueRes = res.responses
-        .whereType<MultiResponse>()
-        .where((val) => val.question.id == "BlueDyeQuestion")
-        .toList();
-    if (blueRes.isEmpty) return null;
-    final MultiResponse multi = blueRes.first;
-    return multi.index == 0;
   }
 
   void _edit(DetailResponse event, BuildContext context, DateTime date) {

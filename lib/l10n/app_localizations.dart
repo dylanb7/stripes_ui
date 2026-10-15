@@ -3609,6 +3609,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Graph'**
   String get historyGraphView;
+
+  /// No description provided for @historyActiveFilterCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 filter} other{{count} filters}}'**
+  String historyActiveFilterCount(int count);
+
+  /// No description provided for @historyMoreFilterCount.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count, plural, =1{1 filter} other{{count} filters}}'**
+  String historyMoreFilterCount(int count);
+
+  /// No description provided for @historyRemoveFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove filter: {label}'**
+  String historyRemoveFilter(String label);
+
+  /// No description provided for @historyTestBlue.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue'**
+  String get historyTestBlue;
+
+  /// No description provided for @historyTestNoBlue.
+  ///
+  /// In en, this message translates to:
+  /// **'No blue'**
+  String get historyTestNoBlue;
+
+  /// No description provided for @historyTestBlueDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue color recorded'**
+  String get historyTestBlueDescription;
+
+  /// No description provided for @historyTestNoBlueDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'No blue color recorded'**
+  String get historyTestNoBlueDescription;
 }
 
 class _AppLocalizationsDelegate

@@ -84,10 +84,7 @@ void main() {
     final title = find.text('Pain', findRichText: true);
     final preview = find.byKey(const ValueKey('entry-preview'));
     final timestamp = find.text('7:25 AM');
-    expect(
-      find.text('Intensity: 6 · Description: After dinner'),
-      findsOneWidget,
-    );
+    expect(find.text('Intensity: 6 · “After dinner”'), findsOneWidget);
     expect(tester.widget<Text>(preview).maxLines, 2);
     expect(
       tester.getBottomLeft(title).dy,

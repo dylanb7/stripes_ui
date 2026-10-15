@@ -799,5 +799,12 @@
   "historySummaryDays": "{entries} en {days, plural, =1{1 día} other{{days} días}}",
   "historyMoreCategories": "+{count} categorías más",
   "historyListView": "Lista",
-  "historyGraphView": "Gráfico"
+  "historyGraphView": "Gráfico",
+  "historyActiveFilterCount": "{count, plural, =1{1 filtro} other{{count} filtros}}",
+  "historyMoreFilterCount": "+{count, plural, =1{1 filtro} other{{count} filtros}}",
+  "historyRemoveFilter": "Quitar filtro: {label}",
+  "historyTestBlue": "Azul",
+  "historyTestNoBlue": "Sin azul",
+  "historyTestBlueDescription": "Se registró color azul",
+  "historyTestNoBlueDescription": "No se registró color azul"
 }

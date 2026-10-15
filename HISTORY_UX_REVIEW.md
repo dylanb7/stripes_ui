@@ -24,7 +24,34 @@ Implementation decisions for this iteration:
 - Request the supported history range before offering a nearest-entry result. The repository interface does not certify remote completeness, so describe the **closest available entry**, including when offline.
 - Keep the existing List/Graph names and chart behavior for now. Do not expose the unvalidated advanced filters as part of this iteration.
 
-Implementation verification for this iteration: 121 History widget/provider and timing/filter regression tests pass. Rendered checks cover normal phone/tablet layouts and 320px screens at 3× text, including export and closest-entry details. Preview tests cover ordering, expansion, reduced motion, and semantics; recovery tests cover filter preservation, review periods, approximate dates, and edited/deleted entries. Broad analysis reports existing warnings/information in the surrounding History code, with no new diagnostics from these features. Device screen-reader and one-handed interaction testing remain to be done.
+Visual refinement: the content-level List/Graph control now uses a shared rounded track with a sliding selection in the theme's primary blue, rounded icons, and visible keyboard focus. Export remains alongside it when space permits; enlarged labels stack without truncation. Selection motion respects reduced-motion settings.
+
+Test-linked bowel-movement entries keep the standard category illustration and replace the appended second poop image with a small **Blue** or **No blue** badge. Category identity stays consistent with the design system, while a text-only badge communicates the recorded color. Following the user’s journal-first direction, the badge, tooltip, and accessibility label omit “Test” and the flask icon. “No blue” reflects the recorded answer without assuming a brown stool color. The result comes from the saved blue-dye answer or legacy result metadata, never from a generic recording-session ID. Both visual changes remain behind `historyOverview`.
+
+Verification after these visual refinements: 181 selected History, category styling, localization, filter, and timing tests pass. Targeted analysis of the updated switch, entry header, badge, and their tests is clean. Rendered checks cover light/dark themes and small screens at 3× text; tests cover keyboard selection, reduced motion, badge semantics, beta gating, and entry updates. Device screen-reader and one-handed interaction testing remain outstanding.
+
+Preview refinement: choose defining recorded answers before form-order checkboxes: pain intensity and location, stool type and pain, or meal choice. Then use concise selected symptoms, short custom answers, notes, and verbose custom questions. This is a recognition aid, not a medical severity ranking. Question definitions own their localized shorthand and optional preview order; the UI has no question-ID label or priority map. Questions without shorthand retain their wording, with separate prompt/answer text budgets. Screen-reader labels preserve the full question context. Keep the category → preview → timestamp order and the existing collapse/fade animation.
+
+Active-filter refinement: show a single compact row between date controls and the summary, only when filters are active. Fit up to two complete removable labels and use **+N filters** to open the full editor. When enlarged text cannot accommodate labels, use a labeled filter-count action with the active restrictions in its accessibility label. Do not silently drop existing filters when opening or applying the editor, including filter types not currently available to add.
+
+Preview configuration now lives in `stripes_prod/lib/assets/questions.yaml` and `lib/assets/translations/en.json`. For example:
+
+```yaml
+- id: q4
+  promptKey: bm.q4.average_bm_type
+  shortPromptKey: bm.q4.average_bm_type.short
+  previewPriority: 0
+  type: category.BM
+  kind: Numeric
+```
+
+The full translation remains “Average BM type (1-7)”; the shorthand translation is “Stool type”. Both new fields are optional. Lower `previewPriority` values come first, and ties retain saved answer order. Missing/blank shorthand or a missing shorthand translation falls back to the full translated prompt. The full prompt remains available in expanded entries and screen-reader text. Choice previews retain their short context (for example, “Meal: Dinner” and “Location: Lower right”). Existing pain-control “Not sure” decoding remains an answer-formatting rule, independent of preview labeling/ranking.
+
+`stripes_backend_helper` carries metadata through YAML parsing, every question type, copies, JSON, and generated definitions. Generated questions with changed wording require their own shorthand; old embedded questions retain their historical definition. Shorthand translation keys remain intact through recording and serialization and are resolved only for display. Production's additive database v17 migration stores the metadata, and catalog refresh gives existing history the new labels without rewriting saved responses. Refresh preserves disabled/deleted questions and user-created definitions.
+
+Local development across the three repositories uses ignored `pubspec_overrides.yaml` files pointing at the sibling backend/UI packages. The backend parser/model change must ship with the UI update; a checkout using the old Git backend revision cannot compile the new metadata access. Production currently has English question translations only; shorthand lives with those translations rather than UI ARB strings.
+
+Implementation verification after the YAML preview refinement: 155 History/localization widget/provider and timing/filter tests, 99 backend tests, and 24 production migration/history tests pass. Rendered checks cover normal phone/tablet layouts and 320px screens at 3× text, including compact filters, export, and closest-entry details. Preview tests cover answer prioritization, custom-question safeguards, expansion, reduced motion, alignment, and semantics; recovery tests cover filter preservation, review periods, approximate dates, and edited/deleted entries. Analysis reports existing warnings/information in surrounding code, with no new diagnostics from these features. Device screen-reader and one-handed interaction testing remain to be done.
 
 ## Recommendation
 

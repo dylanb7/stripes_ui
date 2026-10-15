@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide TimeOfDay;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/Providers/History/display_data_provider.dart';
+import 'package:stripes_ui/Providers/base_providers.dart';
 import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/History/Filters/filter_logic.dart';
@@ -68,6 +69,7 @@ class FilterSheet extends ConsumerStatefulWidget {
 class _FilterSheetState extends ConsumerState<FilterSheet> {
   final Map<FilterType, FilterState> filterStates = {};
   final Set<FilterType> initiallyActiveFilters = {};
+  final List<LabeledFilter> preservedFilters = [];
 
   @override
   void initState() {
@@ -81,6 +83,16 @@ class _FilterSheetState extends ConsumerState<FilterSheet> {
       }
 
       final DisplayDataSettings filters = ref.read(displayDataProvider);
+      if (ref.read(configProvider).betaUi.historyOverview) {
+        // Existing selections may come from a feature that is currently
+        // disabled. Editing the available filters must not silently remove
+        // them or expose a way to create more unvalidated selections.
+        preservedFilters.addAll(
+          filters.filters.where(
+            (filter) => !contexts.containsKey(filter.filterType),
+          ),
+        );
+      }
       for (final filter in filters.filters) {
         final FilterType type = filter.filterType;
         final FilterContext? context = contexts[type];
@@ -223,6 +235,51 @@ class _FilterSheetState extends ConsumerState<FilterSheet> {
                     ),
                     const Divider(height: 1),
                     const SizedBox(height: AppPadding.medium),
+                    if (preservedFilters.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppPadding.medium,
+                        ),
+                        child: Wrap(
+                          spacing: AppPadding.small,
+                          runSpacing: AppPadding.small,
+                          children: [
+                            for (final filter in preservedFilters)
+                              TextButton(
+                                style: TextButton.styleFrom(
+                                  minimumSize: const Size(48, 48),
+                                  backgroundColor: Theme.of(context)
+                                      .colorScheme
+                                      .secondaryContainer,
+                                  foregroundColor: Theme.of(context)
+                                      .colorScheme
+                                      .onSecondaryContainer,
+                                ),
+                                onPressed: () => setState(
+                                  () => preservedFilters.remove(filter),
+                                ),
+                                child: Semantics(
+                                  label: context.translate.historyRemoveFilter(
+                                    '${filter.filterType.name}: ${filter.filterType == FilterType.numericRange ? filter.name.split('|').first : filter.name}',
+                                  ),
+                                  excludeSemantics: true,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          '${filter.filterType.name}: ${filter.filterType == FilterType.numericRange ? filter.name.split('|').first : filter.name}',
+                                        ),
+                                      ),
+                                      const SizedBox(width: AppPadding.small),
+                                      const Icon(Icons.close, size: 24),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
                     ...visibleFilters.separated(by: const Divider()),
                     if (advancedFilters.isNotEmpty)
                       ExpansionTile(
@@ -263,6 +320,7 @@ class _FilterSheetState extends ConsumerState<FilterSheet> {
                     TextButton(
                       onPressed: () {
                         setState(() {
+                          preservedFilters.clear();
                           for (final entry in contexts.entries) {
                             filterStates[entry.key] = entry.value
                                 .createInitialState();
@@ -286,7 +344,7 @@ class _FilterSheetState extends ConsumerState<FilterSheet> {
   }
 
   void apply(Map<FilterType, FilterContext> contexts) {
-    final List<LabeledFilter> allFilters = [];
+    final List<LabeledFilter> allFilters = [...preservedFilters];
 
     for (final type in FilterType.values) {
       final context = contexts[type];

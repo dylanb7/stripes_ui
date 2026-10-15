@@ -29,6 +29,7 @@ import 'package:stripes_ui/UI/History/Timeline/bottom_sheet_calendar.dart';
 import 'package:stripes_ui/UI/History/Timeline/history_empty_state.dart';
 import 'package:stripes_ui/UI/History/Timeline/history_period_summary.dart';
 import 'package:stripes_ui/UI/History/Filters/filter_sheet.dart';
+import 'package:stripes_ui/UI/History/Filters/history_active_filters.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/Util/Design/breakpoint.dart';
 import 'package:stripes_ui/Util/constants.dart';
@@ -237,6 +238,9 @@ class _EventsViewState extends ConsumerState<EventsView> {
                           ),
                         ),
                         if (historyOverview) ...[
+                          const SliverToBoxAdapter(
+                            child: HistoryActiveFilters(),
+                          ),
                           const SliverToBoxAdapter(
                             child: HistoryPeriodSummary(),
                           ),

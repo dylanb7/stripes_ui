@@ -839,5 +839,33 @@
   "historyMoreCategories": "+{count} more categories",
   "@historyMoreCategories": {"placeholders": {"count": {"type": "int"}}},
   "historyListView": "List",
-  "historyGraphView": "Graph"
+  "historyGraphView": "Graph",
+  "historyActiveFilterCount": "{count, plural, =1{1 filter} other{{count} filters}}",
+  "@historyActiveFilterCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "historyMoreFilterCount": "+{count, plural, =1{1 filter} other{{count} filters}}",
+  "@historyMoreFilterCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "historyRemoveFilter": "Remove filter: {label}",
+  "@historyRemoveFilter": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "historyTestBlue": "Blue",
+  "historyTestNoBlue": "No blue",
+  "historyTestBlueDescription": "Blue color recorded",
+  "historyTestNoBlueDescription": "No blue color recorded"
 }

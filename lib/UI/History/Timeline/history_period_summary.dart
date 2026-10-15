@@ -98,36 +98,235 @@ class HistoryPresentationControls extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => Padding(
-    key: const ValueKey('history-presentation-controls'),
-    padding: const EdgeInsets.symmetric(
-      horizontal: AppPadding.xl,
-      vertical: AppPadding.small,
-    ),
-    child: Wrap(
-      spacing: AppPadding.small,
-      runSpacing: AppPadding.tiny,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      children: [
-        if (hasGraphing)
-          for (final view in ViewMode.values)
-            ChoiceChip(
-              avatar: Icon(
-                view == ViewMode.events ? Icons.list : Icons.bar_chart,
-                size: 20,
+  Widget build(BuildContext context) {
+    final textStyle = Theme.of(context).textTheme.labelLarge!
+        .copyWith(fontWeight: FontWeight.w600);
+    final labels = [
+      context.translate.historyListView,
+      context.translate.historyGraphView,
+    ];
+    double textWidth(String text, TextStyle style) {
+      final painter = TextPainter(
+        text: TextSpan(text: text, style: style),
+        textDirection: Directionality.of(context),
+        textScaler: MediaQuery.textScalerOf(context),
+      )..layout();
+      final width = painter.width;
+      painter.dispose();
+      return width;
+    }
+
+    // Reserve the full translated label, icon, and padding before choosing a
+    // layout. Enlarged text gets more room instead of shrinking or truncating.
+    final widestLabel = labels
+        .map((label) => textWidth(label, textStyle))
+        .reduce((a, b) => a > b ? a : b);
+    final switchWidth = 2 * (widestLabel + 20 + 8 + 24) + 8;
+    final exportWidth =
+        textWidth(
+          context.translate.exportName,
+          Theme.of(context).textTheme.labelLarge!,
+        ) +
+        20 +
+        8 +
+        32;
+
+    return Padding(
+      key: const ValueKey('history-presentation-controls'),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppPadding.xl,
+        vertical: AppPadding.small,
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          if (!hasGraphing) {
+            return const Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: Export(showLabel: true),
+            );
+          }
+          final vertical = switchWidth > constraints.maxWidth;
+          final switcher = _HistoryPresentationSwitch(
+            mode: mode,
+            onChanged: onModeChanged,
+            labels: labels,
+            textStyle: textStyle,
+            vertical: vertical,
+          );
+          if (switchWidth + AppPadding.small + exportWidth <=
+              constraints.maxWidth) {
+            return Row(
+              children: [
+                SizedBox(width: switchWidth, child: switcher),
+                const Spacer(),
+                const Export(showLabel: true),
+              ],
+            );
+          }
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              switcher,
+              const SizedBox(height: AppPadding.tiny),
+              const Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: Export(showLabel: true),
               ),
-              label: Text(
-                view == ViewMode.events
-                    ? context.translate.historyListView
-                    : context.translate.historyGraphView,
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _HistoryPresentationSwitch extends StatelessWidget {
+  const _HistoryPresentationSwitch({
+    required this.mode,
+    required this.onChanged,
+    required this.labels,
+    required this.textStyle,
+    required this.vertical,
+  });
+
+  final ViewMode mode;
+  final ValueChanged<ViewMode> onChanged;
+  final List<String> labels;
+  final TextStyle textStyle;
+  final bool vertical;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final reducedMotion =
+        MediaQuery.disableAnimationsOf(context) ||
+        MediaQuery.accessibleNavigationOf(context);
+    final duration = reducedMotion
+        ? Duration.zero
+        : const Duration(milliseconds: 180);
+    final selectedAlignment = vertical
+        ? (mode == ViewMode.events
+              ? Alignment.topCenter
+              : Alignment.bottomCenter)
+        : (mode == ViewMode.events
+              ? AlignmentDirectional.centerStart
+              : AlignmentDirectional.centerEnd);
+    final buttons = [
+      for (var index = 0; index < ViewMode.values.length; index++)
+        _segment(context, ViewMode.values[index], labels[index], duration),
+    ];
+
+    return DecoratedBox(
+      key: const ValueKey('history-presentation-switch'),
+      decoration: BoxDecoration(
+        color: Color.alphaBlend(
+          colors.primary.withValues(alpha: 0.07),
+          colors.surface,
+        ),
+        borderRadius: BorderRadius.circular(AppRounding.large),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppPadding.tiny),
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: AnimatedAlign(
+                key: const ValueKey('history-presentation-indicator'),
+                alignment: selectedAlignment,
+                duration: duration,
+                curve: Curves.easeOutCubic,
+                child: FractionallySizedBox(
+                  widthFactor: vertical ? 1 : 0.5,
+                  heightFactor: vertical ? 0.5 : 1,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: colors.primary,
+                      borderRadius: BorderRadius.circular(AppRounding.medium),
+                      boxShadow: [
+                        BoxShadow(
+                          color: colors.shadow.withValues(alpha: 0.10),
+                          blurRadius: 3,
+                          offset: const Offset(0, 1),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-              selected: mode == view,
-              showCheckmark: false,
-              materialTapTargetSize: MaterialTapTargetSize.padded,
-              onSelected: (_) => onModeChanged(view),
             ),
-        const Export(showLabel: true),
-      ],
-    ),
-  );
+            if (vertical)
+              IntrinsicHeight(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (final button in buttons) Expanded(child: button),
+                  ],
+                ),
+              )
+            else
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (final button in buttons) Expanded(child: button),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _segment(
+    BuildContext context,
+    ViewMode view,
+    String label,
+    Duration duration,
+  ) {
+    final colors = Theme.of(context).colorScheme;
+    final selected = mode == view;
+    final foreground = selected ? colors.onPrimary : colors.onSurfaceVariant;
+    return Semantics(
+      key: ValueKey('history-presentation-${view.name}'),
+      selected: selected,
+      inMutuallyExclusiveGroup: true,
+      child: TextButton(
+        onPressed: () => onChanged(view),
+        style:
+            TextButton.styleFrom(
+              foregroundColor: foreground,
+              minimumSize: const Size(48, 48),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              visualDensity: VisualDensity.standard,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppRounding.medium),
+              ),
+              textStyle: textStyle,
+              animationDuration: duration,
+            ).copyWith(
+              side: WidgetStateProperty.resolveWith(
+                (states) => states.contains(WidgetState.focused)
+                    ? BorderSide(color: foreground, width: 2)
+                    : BorderSide.none,
+              ),
+            ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              view == ViewMode.events
+                  ? Icons.view_list_rounded
+                  : Icons.bar_chart_rounded,
+              size: 20,
+            ),
+            const SizedBox(width: AppPadding.small),
+            Flexible(child: Text(label, textAlign: TextAlign.center)),
+          ],
+        ),
+      ),
+    );
+  }
 }

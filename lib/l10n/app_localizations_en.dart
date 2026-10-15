@@ -2072,4 +2072,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get historyGraphView => 'Graph';
+
+  @override
+  String historyActiveFilterCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count filters',
+      one: '1 filter',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String historyMoreFilterCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count filters',
+      one: '1 filter',
+    );
+    return '+$_temp0';
+  }
+
+  @override
+  String historyRemoveFilter(String label) {
+    return 'Remove filter: $label';
+  }
+
+  @override
+  String get historyTestBlue => 'Blue';
+
+  @override
+  String get historyTestNoBlue => 'No blue';
+
+  @override
+  String get historyTestBlueDescription => 'Blue color recorded';
+
+  @override
+  String get historyTestNoBlueDescription => 'No blue color recorded';
 }

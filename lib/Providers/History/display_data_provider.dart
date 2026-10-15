@@ -59,12 +59,14 @@ class DisplayDataSettings extends Equatable {
     List<LabeledFilter>? filters,
     GraphYAxis? axis,
     bool? groupSymptoms,
+    bool? groupBars,
   }) {
     return DisplayDataSettings(
       window: window ?? this.window.copyWith(range: range, cycle: cycle),
       filters: filters ?? this.filters,
       axis: axis ?? this.axis,
       groupSymptoms: groupSymptoms ?? this.groupSymptoms,
+      groupBars: groupBars ?? this.groupBars,
     );
   }
 

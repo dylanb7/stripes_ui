@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -118,6 +119,8 @@ Future<ProviderContainer> _pumpOverview(
   bool exportEnabled = true,
   double width = 390,
   double textScale = 1,
+  bool reducedMotion = false,
+  bool darkMode = false,
   ValueNotifier<bool>? visible,
 }) async {
   tester.view.physicalSize = Size(width, 844);
@@ -157,12 +160,21 @@ Future<ProviderContainer> _pumpOverview(
         hasAvailableFiltersProvider.overrideWith((ref) async => true),
       ],
       child: MaterialApp(
-        theme: light.copyWith(platform: TargetPlatform.iOS),
+        theme: (darkMode ? dark : light).copyWith(
+          platform: TargetPlatform.iOS,
+          // Use the bundled audit font in both themes; the widget-test default
+          // for an unloaded system font is Ahem, which changes label widths.
+          textTheme: (darkMode ? dark : light).textTheme.apply(
+            fontFamily: 'Inter',
+          ),
+        ),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         builder: (context, child) => MediaQuery(
-          data: MediaQuery.of(context)
-              .copyWith(textScaler: TextScaler.linear(textScale)),
+          data: MediaQuery.of(context).copyWith(
+            textScaler: TextScaler.linear(textScale),
+            disableAnimations: reducedMotion,
+          ),
           child: RepaintBoundary(key: _captureKey, child: child!),
         ),
         home: Scaffold(
@@ -208,7 +220,9 @@ Future<void> _capture(WidgetTester tester, String name) async {
   });
 }
 
-Finder _viewChoice(String label) => find.widgetWithText(ChoiceChip, label);
+Finder _viewChoice(String label) => find.byKey(
+  ValueKey('history-presentation-${label == 'List' ? 'events' : 'graph'}'),
+);
 
 Finder _exportButton() => find.descendant(
   of: find.byKey(_controlsKey),
@@ -309,13 +323,19 @@ void main() {
     expect(container.read(viewModeProvider), ViewMode.graph);
     expect(container.read(displayDataProvider), initialSettings);
     expect(find.text('2 entries across 1 day'), findsOneWidget);
-    expect(tester.widget<ChoiceChip>(_viewChoice('Graph')).selected, isTrue);
+    expect(
+      tester.widget<Semantics>(_viewChoice('Graph')).properties.selected,
+      isTrue,
+    );
     expect(_exportButton(), findsOneWidget);
     await tester.tap(_viewChoice('List'));
     await tester.pumpAndSettle();
     expect(container.read(viewModeProvider), ViewMode.events);
     expect(container.read(displayDataProvider), initialSettings);
-    expect(tester.widget<ChoiceChip>(_viewChoice('List')).selected, isTrue);
+    expect(
+      tester.widget<Semantics>(_viewChoice('List')).properties.selected,
+      isTrue,
+    );
     expect(tester.takeException(), isNull);
   });
 
@@ -430,7 +450,7 @@ void main() {
       expect(find.byKey(_controlsKey), findsNothing);
       expect(find.byTooltip('History view: List'), findsOneWidget);
       expect(find.byType(EventGridHeader), findsOneWidget);
-      expect(find.byType(ChoiceChip), findsNothing);
+      expect(_viewChoice('List'), findsNothing);
       expect(tester.takeException(), isNull);
     });
   }
@@ -507,6 +527,7 @@ void main() {
         final bounds = tester.getRect(choice);
         expect(bounds.left, greaterThanOrEqualTo(0));
         expect(bounds.right, lessThanOrEqualTo(320));
+        expect(bounds.height, greaterThanOrEqualTo(48));
       }
       expect(_exportButton(), findsOneWidget);
       expect(tester.takeException(), isNull);
@@ -518,4 +539,72 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets(
+    'presentation switch exposes selection and supports the keyboard',
+    (tester) async {
+      final handle = tester.ensureSemantics();
+      final container = await _pumpOverview(tester);
+      expect(
+        tester.getSemantics(_viewChoice('List')).flagsCollection.isSelected,
+        ui.Tristate.isTrue,
+      );
+      final graphButton = find.descendant(
+        of: _viewChoice('Graph'),
+        matching: find.byType(TextButton),
+      );
+      final focus = Focus.of(
+        tester.element(
+          find.descendant(of: graphButton, matching: find.text('Graph')),
+        ),
+      );
+      focus.requestFocus();
+      await tester.pump();
+      expect(focus.hasFocus, isTrue);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      expect(container.read(viewModeProvider), ViewMode.graph);
+      expect(
+        tester.getSemantics(_viewChoice('Graph')).flagsCollection.isSelected,
+        ui.Tristate.isTrue,
+      );
+      expect(
+        tester.getSemantics(_viewChoice('List')).flagsCollection.isSelected,
+        ui.Tristate.isFalse,
+      );
+      expect(tester.takeException(), isNull);
+      handle.dispose();
+    },
+  );
+
+  testWidgets('presentation switch respects reduced motion', (tester) async {
+    final container = await _pumpOverview(tester, reducedMotion: true);
+    final indicator = find.byKey(
+      const ValueKey('history-presentation-indicator'),
+    );
+    expect(tester.widget<AnimatedAlign>(indicator).duration, Duration.zero);
+    await tester.tap(_viewChoice('Graph'));
+    await tester.pump();
+    expect(container.read(viewModeProvider), ViewMode.graph);
+    expect(
+      tester.widget<AnimatedAlign>(indicator).alignment,
+      AlignmentDirectional.centerEnd,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('presentation switch and export remain distinct in dark mode', (
+    tester,
+  ) async {
+    await _pumpOverview(tester, darkMode: true);
+    final switcher = find.byKey(const ValueKey('history-presentation-switch'));
+    final bounds = tester.getRect(switcher);
+    final exportBounds = tester.getRect(_exportButton());
+    expect(
+      bounds.right < exportBounds.left || bounds.bottom <= exportBounds.top,
+      isTrue,
+    );
+    await _capture(tester, 'overview-dark-390px');
+    expect(tester.takeException(), isNull);
+  });
 }

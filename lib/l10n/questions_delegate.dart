@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:stripes_backend_helper/QuestionModel/question.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_repo_base.dart';
-import 'package:stripes_ui/Providers/Questions/questions_provider.dart';
 
 class QuestionsLocalizations {
   Map<String, dynamic> questionTranslations = {};
@@ -20,13 +19,10 @@ class QuestionsLocalizations {
   }) : assetBundle = bundle ?? rootBundle;
 
   Future<Map<String, dynamic>> loadFile(Locale locale) async {
-    if (currentLocale != locale.languageCode) {
-      currentLocale = locale.languageCode;
-    }
-
+    final languageCode = locale.languageCode;
     try {
       final text = await assetBundle.loadString(
-        '$questionTranslationPath/$currentLocale.json',
+        '$questionTranslationPath/$languageCode.json',
       );
       return json.decode(text);
     } catch (e) {
@@ -37,7 +33,7 @@ class QuestionsLocalizations {
   }
 
   Future<QuestionsLocalizations> load(Locale locale) async {
-    currentLocale = locale.toLanguageTag();
+    currentLocale = locale.languageCode;
     if (questionTranslations.containsKey(currentLocale)) {
       return this;
     }
@@ -48,7 +44,7 @@ class QuestionsLocalizations {
   static QuestionsLocalizations? of(BuildContext context) =>
       Localizations.of<QuestionsLocalizations>(context, QuestionsLocalizations);
 
-  dynamic value(String key) => questionTranslations[currentLocale]![key];
+  dynamic value(String key) => questionTranslations[currentLocale]?[key];
 }
 
 class QuestionsLocalizationsDelegate
@@ -107,22 +103,36 @@ extension QuestionsLocalizationsExtensions on QuestionsLocalizations {
     );
   }
 
-  Question translateQuestion(Question question) {
-    // 1. Translate the prompt key
-    String translatedPrompt = value(question.prompt) ?? question.prompt;
-
-    // 2. If interpolations exist, resolve each value through translations
-    if (question.interpolations != null) {
-      for (final entry in question.interpolations!.entries) {
-        final translatedValue = (value(entry.value) as String?) ?? entry.value;
-        translatedPrompt = translatedPrompt.replaceAll(
-          '{${entry.key}}',
-          translatedValue,
-        );
-      }
+  String _interpolatePrompt(Question question, String text) {
+    for (final entry
+        in (question.interpolations ?? <String, String>{}).entries) {
+      final translatedValue = (value(entry.value) as String?) ?? entry.value;
+      text = text.replaceAll('{${entry.key}}', translatedValue);
     }
+    return text;
+  }
 
-    // 3. Translate choices and build the result
+  /// Resolve compact wording only at display time. The question retains its
+  /// shorthand key while being recorded, translated, or serialized, including
+  /// generated questions whose definitions are embedded in saved responses.
+  String translateShortPrompt(Question question) {
+    final key = question.shortPrompt?.trim();
+    final translated = key == null || key.isEmpty
+        ? null
+        : value(key) as String?;
+    final text = translated == null || translated.trim().isEmpty
+        ? (value(question.prompt) as String?) ?? question.prompt
+        : translated;
+    return _interpolatePrompt(question, text);
+  }
+
+  Question translateQuestion(Question question) {
+    final translatedPrompt = _interpolatePrompt(
+      question,
+      value(question.prompt) ?? question.prompt,
+    );
+
+    // Preserve shorthand keys while translating the full question/choices.
     switch (question) {
       case FreeResponse():
         return question.copyWith(prompt: translatedPrompt);
