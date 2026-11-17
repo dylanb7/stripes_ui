@@ -35,7 +35,9 @@ class PatientScreen extends ConsumerWidget {
           ),
           data: (subState) {
             final current = subState.selected;
-            final showDetails = config.profileType == ProfileType.name;
+            final showDetails =
+                config.betaUi.profileDetails &&
+                config.profileType == ProfileType.name;
             final condition = current != null && showDetails
                 ? ref.watch(profileConditionProvider(current.uid)).value
                 : null;

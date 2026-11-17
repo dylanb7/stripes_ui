@@ -50,12 +50,12 @@ class QuestionUIRegistry {
     'Pain-Rating': QuestionEntry(
       isSeparateScreen: true,
       entryBuilder: (listener, context, question) =>
-          PainIntensityWidget(graph: listener, question: question as Numeric),
+          PainFacesWidget(graph: listener, question: question as Numeric),
     ),
     'q6': QuestionEntry(
       isSeparateScreen: true,
       entryBuilder: (listener, context, question) =>
-          PainIntensityWidget(graph: listener, question: question as Numeric),
+          PainFacesWidget(graph: listener, question: question as Numeric),
     ),
     'BlueDyeQuestion': QuestionEntry(
       isSeparateScreen: true,

@@ -42,9 +42,11 @@ class PatientChanger extends ConsumerWidget {
                 ? context.translate.testTab
                 : context.translate.historyTab;
           }
-          final String firstName = config.profileType == ProfileType.username
-              ? current?.name ?? ''
-              : (current?.name.split(' ')[0]) ?? '';
+          final String firstName =
+              config.betaUi.profileDetails &&
+                  config.profileType == ProfileType.name
+              ? (current?.name.split(' ')[0]) ?? ''
+              : current?.name ?? '';
           return tab == TabOption.record
               ? (config.betaUi.dashboard
                     ? firstName

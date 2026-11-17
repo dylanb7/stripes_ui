@@ -110,7 +110,10 @@ void main() {
       );
       expect(container.read(onboardingCompleteProvider).value, isFalse);
       expect(repo.createCalls, 1);
-      expect(find.text('Help and resources'), findsOneWidget);
+      expect(
+        find.text('Help and resources'),
+        beta ? findsOneWidget : findsNothing,
+      );
       expect(find.text('Menu'), findsOneWidget);
       final overviewProgress = tester.widget<OnboardingProgressBar>(
         find.byType(OnboardingProgressBar),

@@ -405,7 +405,11 @@ class ReportGenerator {
           return pw.TableRow(
             children: [
               _tableCell(dateFormat.format(result.testDate.toLocal())),
-              _tableCell(_formatDuration(result.mealDuration)),
+              _tableCell(
+                result.mealDuration == Duration.zero
+                    ? ''
+                    : _formatDuration(result.mealDuration),
+              ),
               _tableCell(_formatDuration(result.transitTime)),
               _tableCell(_formatDuration(result.lagPhase)),
             ],
@@ -633,7 +637,7 @@ class ReportGenerator {
 
           // Add transit time as a numeric breakdown
           final transitTime = response.firstBlue.difference(
-            response.startEating.add(response.eatingDuration),
+            response.startEating,
           );
           breakdown[category]!.questions.putIfAbsent(
             'transit_time',
@@ -739,9 +743,7 @@ class ReportGenerator {
           _BlueDyeResult(
             testDate: response.startEating,
             mealDuration: response.eatingDuration,
-            transitTime: response.firstBlue.difference(
-              response.startEating.add(response.eatingDuration),
-            ),
+            transitTime: response.firstBlue.difference(response.startEating),
             lagPhase: response.lastBlue.difference(response.firstBlue),
           ),
         );

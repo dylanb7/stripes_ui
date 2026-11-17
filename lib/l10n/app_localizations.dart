@@ -3651,6 +3651,354 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No blue color recorded'**
   String get historyTestNoBlueDescription;
+
+  /// No description provided for @historyChartEntries.
+  ///
+  /// In en, this message translates to:
+  /// **'Entries behind this chart'**
+  String get historyChartEntries;
+
+  /// No description provided for @historyChartSelectedEntries.
+  ///
+  /// In en, this message translates to:
+  /// **'Entries in this selection'**
+  String get historyChartSelectedEntries;
+
+  /// No description provided for @historyChartViewAll.
+  ///
+  /// In en, this message translates to:
+  /// **'View all {count}'**
+  String historyChartViewAll(int count);
+
+  /// No description provided for @historyNotesFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get historyNotesFilter;
+
+  /// No description provided for @historyHasNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Has a note'**
+  String get historyHasNote;
+
+  /// No description provided for @historyNoteContains.
+  ///
+  /// In en, this message translates to:
+  /// **'Note contains…'**
+  String get historyNoteContains;
+
+  /// No description provided for @baselineComparisonReference.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare with your baseline'**
+  String get baselineComparisonReference;
+
+  /// No description provided for @baselineViewAllAnswers.
+  ///
+  /// In en, this message translates to:
+  /// **'View all baseline answers'**
+  String get baselineViewAllAnswers;
+
+  /// No description provided for @viewStudySteps.
+  ///
+  /// In en, this message translates to:
+  /// **'View Steps'**
+  String get viewStudySteps;
+
+  /// No description provided for @blueMealStudySteps.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue Meal Study Steps'**
+  String get blueMealStudySteps;
+
+  /// No description provided for @blueMealWaitTimeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Wait Time'**
+  String get blueMealWaitTimeLabel;
+
+  /// No description provided for @blueMealStepLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {number}'**
+  String blueMealStepLabel(int number);
+
+  /// No description provided for @blueMealStepCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Current step'**
+  String get blueMealStepCurrent;
+
+  /// No description provided for @blueMealStepUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get blueMealStepUpcoming;
+
+  /// No description provided for @blueMealStepCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get blueMealStepCompleted;
+
+  /// No description provided for @blueMealStudyCompleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Study complete'**
+  String get blueMealStudyCompleteTitle;
+
+  /// No description provided for @blueMealStudyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue Meal Study'**
+  String get blueMealStudyTitle;
+
+  /// No description provided for @blueMealStudyInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Study information'**
+  String get blueMealStudyInformation;
+
+  /// No description provided for @blueMealInvitationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue Meal Study Invitation'**
+  String get blueMealInvitationTitle;
+
+  /// No description provided for @blueMealInvitationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You are invited to participate in the Blue Meal Study. If you are on this page, it\'s because you indicated that you were willing to participate in the Blue Meal Study (BMS).'**
+  String get blueMealInvitationBody;
+
+  /// No description provided for @blueMealInvitationCorrection.
+  ///
+  /// In en, this message translates to:
+  /// **'If you feel this is incorrect, please let us know at'**
+  String get blueMealInvitationCorrection;
+
+  /// No description provided for @blueMealAboutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'About the Blue Meal Study'**
+  String get blueMealAboutTitle;
+
+  /// No description provided for @blueMealAboutBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This study measures gut motility (the movement of food through the digestive system) in people with neurodevelopmental disorders using a novel blue meal study. It involves eating blue meals and tracking bowel movements to determine transit time, which is the duration it takes for food to move through the digestive system, from consumption to excretion. The study will measure transit time twice using the blue meals and this mobile app.'**
+  String get blueMealAboutBody;
+
+  /// No description provided for @blueMealGiSymptoms.
+  ///
+  /// In en, this message translates to:
+  /// **'Gastrointestinal symptoms'**
+  String get blueMealGiSymptoms;
+
+  /// No description provided for @blueMealSleepMood.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep and mood'**
+  String get blueMealSleepMood;
+
+  /// No description provided for @blueMealEligibilityDisorder.
+  ///
+  /// In en, this message translates to:
+  /// **'Have a neurodevelopmental disorder'**
+  String get blueMealEligibilityDisorder;
+
+  /// No description provided for @blueMealTermsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms to know'**
+  String get blueMealTermsTitle;
+
+  /// No description provided for @blueMealTermsIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Here are a few definitions of terms that we use throughout the study:'**
+  String get blueMealTermsIntro;
+
+  /// No description provided for @blueMealTermsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'BMS: Acronym we use for the Blue Meal Study.\n\nBM: Acronym we use for Bowel Movement.\n\nGI: Acronym we use for Gastrointestinal.\n\nBlue Meal: The blue meal can be a muffin or a meal that is consumed by the participant before beginning the study. Recipe can be found in the resources page.\n\nTransit Time: The Blue Meal Study (BMS) consists of two phases which we refer to as transit times. In each, the caregiver must feed the participant the blue meal and record bowel movements and symptoms. Each phase ends once a participant’s stool has been blue and returns to brown.\n\nWait Time: Once you complete Transit Time 1, there is a 7 day wait time before you can begin Transit Time 2.\n\nBlue Poop/Stool: Stool that is colored blue following the consumption of the blue meal.\n\nMotility: contractions and nerve activity that move food and waste through the digestive tract.'**
+  String get blueMealTermsBody;
+
+  /// No description provided for @blueMealWaitInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Wait 7 days after completing steps 1 and 2 before starting Step 3.'**
+  String get blueMealWaitInstruction;
+
+  /// No description provided for @blueMealConsent.
+  ///
+  /// In en, this message translates to:
+  /// **'I have read and understand the Blue Meal study process. I agree to start the study.'**
+  String get blueMealConsent;
+
+  /// No description provided for @blueMealStartStudy.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Study'**
+  String get blueMealStartStudy;
+
+  /// No description provided for @blueMealGettingStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting Started'**
+  String get blueMealGettingStarted;
+
+  /// No description provided for @blueMealBeforeBegin.
+  ///
+  /// In en, this message translates to:
+  /// **'Before you begin'**
+  String get blueMealBeforeBegin;
+
+  /// No description provided for @blueMealBeforeBeginBody.
+  ///
+  /// In en, this message translates to:
+  /// **'• Ensure the participant has completed a 6–8 hour overnight fast.\n• You will track how long it takes to eat the blue meal.\n• More detailed instructions are on the next screen.'**
+  String get blueMealBeforeBeginBody;
+
+  /// No description provided for @blueMealContinueStudy.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue to Study'**
+  String get blueMealContinueStudy;
+
+  /// No description provided for @blueMealFeedingMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'What type of blue meal is being used?'**
+  String get blueMealFeedingMethod;
+
+  /// No description provided for @blueMealFastTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'6–8 Hour Fast'**
+  String get blueMealFastTitle;
+
+  /// No description provided for @blueMealFastRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'The participant must complete the fast before moving on to the next step.'**
+  String get blueMealFastRequired;
+
+  /// No description provided for @blueMealFeedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Feed Blue Meal'**
+  String get blueMealFeedTitle;
+
+  /// No description provided for @blueMealAmountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Meal Amount'**
+  String get blueMealAmountTitle;
+
+  /// No description provided for @blueMealTimeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Time Taken'**
+  String get blueMealTimeTitle;
+
+  /// No description provided for @blueMealNextStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Next: Step {number}'**
+  String blueMealNextStep(int number);
+
+  /// No description provided for @blueMealNoBms.
+  ///
+  /// In en, this message translates to:
+  /// **'No bowel movements recorded since eating the blue meal.'**
+  String get blueMealNoBms;
+
+  /// No description provided for @blueMealBmScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Only bowel movement entries can be recorded on this page.'**
+  String get blueMealBmScope;
+
+  /// No description provided for @blueMealOtherSymptoms.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Record for other symptoms'**
+  String get blueMealOtherSymptoms;
+
+  /// No description provided for @blueMealAddBm.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Bowel Movement'**
+  String get blueMealAddBm;
+
+  /// No description provided for @blueMealUntilTransitTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'Time Until Transit Time 2'**
+  String get blueMealUntilTransitTwo;
+
+  /// No description provided for @blueMealBeginNow.
+  ///
+  /// In en, this message translates to:
+  /// **'You can begin now'**
+  String get blueMealBeginNow;
+
+  /// No description provided for @blueMealDaysHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days and {hours} hours'**
+  String blueMealDaysHours(int days, int hours);
+
+  /// No description provided for @blueMealHoursMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} hours and {minutes} minutes'**
+  String blueMealHoursMinutes(int hours, int minutes);
+
+  /// No description provided for @blueMealSaveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to save your meal details. Please try again.'**
+  String get blueMealSaveError;
+
+  /// No description provided for @blueMealRecordedMeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorded meal'**
+  String get blueMealRecordedMeal;
+
+  /// No description provided for @blueMealRecordedBms.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} recorded bowel movements'**
+  String blueMealRecordedBms(int count);
+
+  /// No description provided for @blueMealRecordedFinish.
+  ///
+  /// In en, this message translates to:
+  /// **'Meal finished'**
+  String get blueMealRecordedFinish;
+
+  /// No description provided for @blueMealRecordsLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading saved recordings…'**
+  String get blueMealRecordsLoading;
+
+  /// No description provided for @blueMealRecordsError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load saved recordings.'**
+  String get blueMealRecordsError;
+
+  /// No description provided for @blueMealStepInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Instructions'**
+  String get blueMealStepInstructions;
 }
 
 class _AppLocalizationsDelegate

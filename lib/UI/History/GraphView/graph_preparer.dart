@@ -618,7 +618,9 @@ class GraphPreparer {
         );
       }
     } else if (values.isNotEmpty) {
-      final String label = comparison == GraphComparison.stacked
+      final String label = values.length == 1
+          ? values.single.label
+          : comparison == GraphComparison.stacked
           ? 'Stacked reports'
           : 'Overlaid comparison';
       lanes.add(

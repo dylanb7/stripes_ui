@@ -1,13 +1,11 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Transform;
+import 'package:stripes_ui/UI/Record/QuestionEntries/baseline_question_reference.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/baseline_id.dart';
 import 'package:stripes_backend_helper/RepositoryBase/QuestionBase/question_resolver.dart';
-import 'package:stripes_ui/Providers/Questions/baseline_version_provider.dart';
 import 'package:stripes_ui/Providers/Questions/question_ui_registry.dart';
 import 'package:stripes_ui/Providers/base_providers.dart';
-import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/base.dart';
-import 'package:stripes_ui/Util/Design/category_theme.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
@@ -19,7 +17,10 @@ class QuestionScreen extends StatelessWidget {
 
   final SessionGraph questionsListener;
 
+  /// Retained for source compatibility. References use the session snapshot;
+  /// supply baselines when constructing the SessionGraph.
   final DetailResponse? baseline;
+  final BaselineReferenceBuilder? baselineReferenceBuilder;
   final bool compact;
 
   const QuestionScreen({
@@ -27,6 +28,7 @@ class QuestionScreen extends StatelessWidget {
     required this.questions,
     required this.questionsListener,
     this.baseline,
+    this.baselineReferenceBuilder,
     this.compact = false,
     super.key,
   });
@@ -63,162 +65,14 @@ class QuestionScreen extends StatelessWidget {
           ),
           const SizedBox(height: AppPadding.small),
         ],
-        if (baseline != null) _BaselineReferencePanel(baseline: baseline!),
         RenderQuestions(
           questions: questions,
           questionsListener: questionsListener,
           baseline: baseline,
+          baselineReferenceBuilder: baselineReferenceBuilder,
         ),
         const SizedBox(height: AppPadding.xl),
       ],
-    );
-  }
-}
-
-/// A collapsible panel that shows the user's baseline answers for reference
-/// while filling out an interim check-in. This gives context to questions like
-/// "Has your child's seizure control changed?" by showing what was originally
-/// reported.
-class _BaselineReferencePanel extends StatefulWidget {
-  final DetailResponse baseline;
-
-  const _BaselineReferencePanel({required this.baseline});
-
-  @override
-  State<_BaselineReferencePanel> createState() =>
-      _BaselineReferencePanelState();
-}
-
-class _BaselineReferencePanelState extends State<_BaselineReferencePanel>
-    with SingleTickerProviderStateMixin {
-  bool _expanded = false;
-  late final AnimationController _controller;
-  late final Animation<double> _expandAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 250),
-      vsync: this,
-    );
-    _expandAnimation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _toggle() {
-    setState(() {
-      _expanded = !_expanded;
-      if (_expanded) {
-        _controller.forward();
-      } else {
-        _controller.reverse();
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    final baselineColor = CategoryTheme.resolve(widget.baseline.type).color;
-
-    return Padding(
-      padding: const EdgeInsets.only(
-        left: AppPadding.small,
-        right: AppPadding.small,
-        bottom: AppPadding.medium,
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          color: baselineColor.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(AppRounding.small),
-          border: Border.all(color: baselineColor.withValues(alpha: 0.2)),
-        ),
-        child: Column(
-          children: [
-            // Tap header
-            InkWell(
-              onTap: _toggle,
-              borderRadius: BorderRadius.circular(AppRounding.small),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppPadding.medium,
-                  vertical: AppPadding.small,
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.assignment_outlined,
-                      size: 18,
-                      color: baselineColor,
-                    ),
-                    const SizedBox(width: AppPadding.small),
-                    Expanded(
-                      child: Text(
-                        'Your Baseline',
-                        style: textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: baselineColor,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      _expanded ? 'Hide' : 'Show',
-                      style: textTheme.labelSmall?.copyWith(
-                        color: colors.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    AnimatedRotation(
-                      turns: _expanded ? 0.5 : 0,
-                      duration: const Duration(milliseconds: 250),
-                      child: Icon(
-                        Icons.keyboard_arrow_down,
-                        size: 20,
-                        color: colors.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            // Expandable content
-            SizeTransition(
-              sizeFactor: _expandAnimation,
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  left: AppPadding.medium,
-                  right: AppPadding.medium,
-                  bottom: AppPadding.medium,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Divider(
-                      height: 1,
-                      color: baselineColor.withValues(alpha: 0.15),
-                    ),
-                    const SizedBox(height: AppPadding.small),
-                    DetailDisplay(
-                      detail: widget.baseline,
-                      accentColor: baselineColor,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -228,12 +82,16 @@ class RenderQuestions extends ConsumerWidget {
 
   final SessionGraph questionsListener;
 
+  /// Retained for source compatibility. References use the session snapshot;
+  /// supply baselines when constructing the SessionGraph.
   final DetailResponse? baseline;
+  final BaselineReferenceBuilder? baselineReferenceBuilder;
 
   const RenderQuestions({
     required this.questions,
     required this.questionsListener,
     this.baseline,
+    this.baselineReferenceBuilder,
     super.key,
   });
 
@@ -250,7 +108,7 @@ class RenderQuestions extends ConsumerWidget {
       children: questions.map((question) {
         final Question displayQuestion =
             localizations?.translateQuestion(question) ?? question;
-        return _buildRecursive(
+        return _buildQuestion(
           context,
           displayQuestion,
           questionsListener,
@@ -260,7 +118,7 @@ class RenderQuestions extends ConsumerWidget {
     );
   }
 
-  Widget _buildRecursive(
+  Widget _buildQuestion(
     BuildContext context,
     Question question,
     SessionGraph listener,
@@ -270,11 +128,9 @@ class RenderQuestions extends ConsumerWidget {
       question: question,
       questionsListener: listener,
       baseline: baseline,
+      baselineReferenceBuilder: baselineReferenceBuilder,
       builder: (resolved) {
-        if (resolved.id == question.id) {
-          return _buildEntry(context, resolved, listener, registry);
-        }
-        return _buildRecursive(context, resolved, listener, registry);
+        return _buildEntry(context, resolved, listener, registry);
       },
     );
   }
@@ -310,13 +166,18 @@ class QuestionResolverWrapper extends ConsumerWidget {
   final Question question;
   final SessionGraph questionsListener;
   final Widget Function(Question) builder;
+
+  /// Retained for source compatibility. References use the session snapshot;
+  /// supply baselines when constructing the SessionGraph.
   final DetailResponse? baseline;
+  final BaselineReferenceBuilder? baselineReferenceBuilder;
 
   const QuestionResolverWrapper({
     required this.question,
     required this.questionsListener,
     required this.builder,
     this.baseline,
+    this.baselineReferenceBuilder,
     super.key,
   });
 
@@ -326,7 +187,10 @@ class QuestionResolverWrapper extends ConsumerWidget {
       context,
     );
 
-    if (question.fromBaseline != null) {
+    final templateId = parseGeneratedId(question.id)?.templateId;
+    if (question.fromBaseline != null ||
+        (templateId != null &&
+            questionsListener.baselineForQuestion(templateId) != null)) {
       return _buildBaselineResolved(context, ref, localizations);
     }
 
@@ -342,48 +206,43 @@ class QuestionResolverWrapper extends ConsumerWidget {
     WidgetRef ref,
     QuestionsLocalizations? localizations,
   ) {
-    // If baseline is provided explicitly, use it without watching provider
-    if (baseline != null) {
-      if (baseline!.type != question.fromBaseline) {
-        // Should match, but if not, fallback or validation?
-        // Assuming the passed baseline is the correct one for the path.
-      }
-      return _resolveAndBuild(baseline, localizations);
-    }
-
-    final AsyncValue<DetailResponse?> baselineResponse = ref.watch(
-      baselineResponseProvider((
-        baselineType: question.fromBaseline!,
-        version: null,
-      )),
+    // Resolve and display the same snapshot used by session validation. A
+    // provider lookup here could choose a newer (or preferred) version.
+    final generated = parseGeneratedId(question.id);
+    final selected = questionsListener.baselineForQuestion(
+      generated?.templateId ?? question.id,
     );
+    final expectedType = question.fromBaseline;
+    final DetailResponse? reference =
+        selected is DetailResponse &&
+            (expectedType == null || selected.type == expectedType)
+        ? selected
+        : null;
+    if (reference == null) return builder(question);
 
-    return baselineResponse.when(
-      data: (latest) => _resolveAndBuild(latest, localizations),
-      error: (_, _) => builder(question),
-      loading: () => builder(question),
-    );
-  }
-
-  Widget _resolveAndBuild(
-    DetailResponse? latest,
-    QuestionsLocalizations? localizations,
-  ) {
-    if (latest == null) return builder(question);
-
-    final int baselineVersion = _extractVersion(latest);
-
-    final List<Question> resolvedQuestions = question.resolveFromBaseline(
-      baseline: latest,
-      baselineVersion: baselineVersion,
-    );
-
-    // Translate the resolved questions using template-aware translation
-    final translatedQuestions = resolvedQuestions
+    // A single generated question can already have been resolved by the graph.
+    final resolved = generated != null
+        ? [question]
+        : question.resolveFromBaseline(
+            baseline: reference,
+            baselineVersion: _extractVersion(reference),
+          );
+    final translated = resolved
         .map((q) => localizations?.translateQuestion(q) ?? q)
         .toList();
-
-    return _buildResolvedQuestions(translatedQuestions);
+    final sourceId = Transform.parse(question.transform)?.sourceId;
+    final sourceResponses = sourceId == null
+        ? <Response>[]
+        : getSourceResponses(reference, sourceId, null);
+    final referenceContext = BaselineQuestionContext(
+      baseline: reference,
+      question: question,
+      resolvedQuestions: translated,
+      sourceResponses: sourceResponses,
+    );
+    final child = _buildResolvedQuestions(translated);
+    return baselineReferenceBuilder?.call(context, referenceContext, child) ??
+        BaselineQuestionReference(reference: referenceContext, child: child);
   }
 
   Widget _buildMidRecordingResolved(
@@ -454,10 +313,10 @@ class QuestionResolverWrapper extends ConsumerWidget {
       return builder(resolvedQuestions.first);
     }
 
-    return _GeneratedQuestionsGroup(
-      sourceQuestion: question,
-      resolvedQuestions: resolvedQuestions,
-      builder: builder,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: resolvedQuestions.map(builder).toList(),
     );
   }
 

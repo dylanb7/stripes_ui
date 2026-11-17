@@ -1,6 +1,5 @@
 import 'dart:io' if (dart.library.html) 'dart:io';
 
-import 'package:csv/csv.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,6 +10,8 @@ import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/History/display_data_provider.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
+
+import 'csv_export_data.dart';
 
 // Web-specific import for downloads
 import 'package:stripes_ui/Services/web_download_stub.dart'
@@ -158,15 +159,7 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
                       csvStats.detailCount,
                       csvStats.totalDetailRows,
                     ),
-                    columns: const [
-                      'id',
-                      'date',
-                      'group',
-                      'type',
-                      'prompt',
-                      'response',
-                      'description',
-                    ],
+                    columns: CsvExportData.detailColumns,
                   ),
 
                 if (csvStats.blueDyeCount > 0) ...[
@@ -177,15 +170,7 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
                     description: l10n.csvBlueDyeTestResults(
                       csvStats.blueDyeCount,
                     ),
-                    columns: const [
-                      'ID',
-                      'Transit Start',
-                      'Transit Duration',
-                      'Lag Phase',
-                      'BM Date',
-                      'Is Blue',
-                      '...',
-                    ],
+                    columns: CsvExportData.transitColumns,
                   ),
                 ],
 
@@ -354,7 +339,7 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
                             Expanded(
                               flex: 3,
                               child: Text(
-                                _formatResponse(r, questionsL10n),
+                                CsvExportData.formatResponse(r, questionsL10n),
                                 style: textTheme.bodySmall,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -368,33 +353,6 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
         ],
       ),
     );
-  }
-
-  String _formatResponse(
-    Response response, [
-    QuestionsLocalizations? questionsL10n,
-  ]) {
-    if (response is UnresolvedResponse) {
-      return 'Unresolved: ${response.raw}';
-    }
-    String localize(String key) => questionsL10n?.value(key) ?? key;
-
-    if (response is NumericResponse) {
-      return '${response.response}';
-    }
-    if (response is OpenResponse) {
-      return response.response;
-    }
-    if (response is MultiResponse) {
-      if (response.index < response.question.choices.length) {
-        return localize(response.question.choices[response.index]);
-      }
-      return 'Unknown';
-    }
-    if (response is AllResponse) {
-      return response.choices.map((c) => localize(c)).join(', ');
-    }
-    return 'Selected';
   }
 
   _CsvStats _calculateStats() {
@@ -427,7 +385,10 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
           .toList();
       String? detailCsv;
       if (detailResponses.isNotEmpty) {
-        detailCsv = _generateDetailCsv(detailResponses, questionsL10n);
+        detailCsv = CsvExportData.generateDetailCsv(
+          detailResponses,
+          questionsL10n,
+        );
       }
 
       final blueDyeResponses = widget.responses
@@ -435,7 +396,7 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
           .toList();
       String? blueDyeCsv;
       if (blueDyeResponses.isNotEmpty) {
-        blueDyeCsv = _generateBlueDyeCsv(
+        blueDyeCsv = CsvExportData.generateBlueDyeCsv(
           blueDyeResponses,
           questionsL10n: questionsL10n,
         );
@@ -502,122 +463,6 @@ class _CsvPreviewSheetState extends ConsumerState<CsvPreviewSheet> {
         setState(() => _isExporting = false);
       }
     }
-  }
-
-  String _generateDetailCsv(
-    List<DetailResponse> responses,
-    QuestionsLocalizations? questionsL10n,
-  ) {
-    const headers = [
-      'id',
-      'date',
-      'group',
-      'category',
-      'prompt',
-      'response',
-      'description',
-    ];
-    final rows = <List<dynamic>>[headers];
-
-    String localize(String key) => questionsL10n?.value(key) ?? key;
-
-    for (final detail in responses) {
-      final date = dateFromStamp(detail.stamp);
-      final dateStr = date.toUtc().toIso8601String();
-      for (final r in detail.responses) {
-        rows.add([
-          detail.id ?? '',
-          dateStr,
-          detail.group != null ? localize(detail.group!) : '',
-          localize(r.type),
-          localize(r.question.prompt),
-          _formatResponse(r, questionsL10n),
-          detail.description ?? '',
-        ]);
-      }
-    }
-
-    return const ListToCsvConverter().convert(rows);
-  }
-
-  String _generateBlueDyeCsv(
-    List<BlueDyeResp> responses, {
-    QuestionsLocalizations? questionsL10n,
-  }) {
-    const headers = [
-      'ID',
-      'Amount Consumed',
-      'Test Start',
-      'Eating Duration',
-      'Finished Eating',
-      'Transit Duration',
-      'Lag Phase',
-      'BM Date',
-      'BMID',
-      'Description',
-      'Is Blue',
-      'Prompt',
-      'Response',
-    ];
-    final rows = <List<dynamic>>[headers];
-
-    String localize(String key) => questionsL10n?.value(key) ?? key;
-
-    for (final resp in responses) {
-      // Correct calculations:
-      // Transit Duration = time from START of eating to first blue BM
-      final transitDuration = resp.firstBlue.difference(resp.startEating);
-      // Lag Phase = time from first blue BM to last blue BM
-      final lagPhase = resp.lastBlue.difference(resp.firstBlue);
-
-      final finishedEatingTime =
-          resp.finishedEatingTime ?? resp.startEating.add(resp.eatingDuration);
-
-      // One row per response within each BM log (nested: Test -> Log -> Response)
-      for (final log in resp.logs) {
-        final bmDate = dateFromStamp(log.stamp);
-
-        for (final logResponse in log.response.responses) {
-          String prompt = localize(logResponse.question.prompt);
-          String responseValue = '';
-
-          if (logResponse is UnresolvedResponse) {
-            responseValue = 'Unresolved: ${logResponse.raw}';
-          } else if (logResponse is NumericResponse) {
-            responseValue = '${logResponse.response}';
-          } else if (logResponse is OpenResponse) {
-            responseValue = logResponse.response;
-          } else if (logResponse is MultiResponse &&
-              logResponse.index < logResponse.question.choices.length) {
-            responseValue = localize(
-              logResponse.question.choices[logResponse.index],
-            );
-          } else if (logResponse is AllResponse) {
-            responseValue = logResponse.choices
-                .map((c) => localize(c))
-                .join(', ');
-          }
-
-          rows.add([
-            resp.id ?? '',
-            resp.amountConsumed.name,
-            resp.startEating.toUtc().toIso8601String(),
-            resp.eatingDuration.inMinutes,
-            finishedEatingTime.toUtc().toIso8601String(),
-            transitDuration.inMinutes,
-            lagPhase.inMinutes,
-            bmDate.toUtc().toIso8601String(),
-            log.id ?? '',
-            log.response.description ?? '',
-            log.isBlue ? 'true' : 'false',
-            prompt,
-            responseValue,
-          ]);
-        }
-      }
-    }
-
-    return const ListToCsvConverter().convert(rows);
   }
 }
 

@@ -180,8 +180,9 @@ class _ProfileOnboardingWizardState
   // ── Profile submit ────────────────────────────────────────────────────────
   Future<void> _submitProfile() async {
     if (_loading) return;
+    final config = ref.read(configProvider);
     final bool isName =
-        ref.read(configProvider).profileType == ProfileType.name;
+        config.betaUi.profileDetails && config.profileType == ProfileType.name;
     if (_createdProfile == null) {
       _formKey.currentState?.save();
       if (!(_formKey.currentState?.validate() ?? false)) return;
@@ -338,7 +339,11 @@ class _ProfileOnboardingWizardState
     }
 
     if (_isTourStep && !showLoading) {
-      return AppTourStep(header: header, onDone: _finish);
+      return AppTourStep(
+        header: header,
+        onDone: _finish,
+        showResources: ref.watch(configProvider).betaUi.helpAndResources,
+      );
     }
 
     return Column(
@@ -383,8 +388,14 @@ class _ProfileOnboardingWizardState
 class AppTourStep extends StatefulWidget {
   final VoidCallback onDone;
   final Widget? header;
+  final bool showResources;
 
-  const AppTourStep({super.key, required this.onDone, this.header});
+  const AppTourStep({
+    super.key,
+    required this.onDone,
+    this.header,
+    this.showResources = false,
+  });
 
   @override
   State<AppTourStep> createState() => _AppTourStepState();
@@ -421,14 +432,15 @@ class _AppTourStepState extends State<AppTourStep> {
           'Manage profiles and adjust settings. '
           'Open Menu using the icon in the top-right.',
     ),
-    _TourSection(
-      icon: Icons.menu_book_outlined,
-      label: 'Help and resources',
-      description:
-          'Find STRiPES guides, study instructions, and tracking tips in '
-          'Menu → Help and resources. You can review the Terms of Service there too.',
-    ),
   ];
+
+  static const _resourcesSection = _TourSection(
+    icon: Icons.menu_book_outlined,
+    label: 'Help and resources',
+    description:
+        'Find STRiPES guides, study instructions, and tracking tips in '
+        'Menu → Help and resources. You can review the Terms of Service there too.',
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -492,6 +504,11 @@ class _AppTourStepState extends State<AppTourStep> {
                           ..._sections.map(
                             (s) => _TourCard(section: s, colors: colors),
                           ),
+                          if (widget.showResources)
+                            _TourCard(
+                              section: _resourcesSection,
+                              colors: colors,
+                            ),
                         ],
                       ),
                     ),
@@ -665,8 +682,9 @@ class _ProfileStep extends ConsumerWidget {
                                   crossAxisAlignment:
                                       CrossAxisAlignment.stretch,
                                   children: [
-                                    if (config.profileType ==
-                                        ProfileType.name) ...[
+                                    if (config.betaUi.profileDetails &&
+                                        config.profileType ==
+                                            ProfileType.name) ...[
                                       TextFormField(
                                         validator: (name) =>
                                             _requiredName(name, 'first name'),

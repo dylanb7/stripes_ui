@@ -2130,4 +2130,210 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get historyTestNoBlueDescription => 'Keine blaue Farbe erfasst';
+
+  @override
+  String get historyChartEntries => 'Einträge hinter diesem Diagramm';
+
+  @override
+  String get historyChartSelectedEntries => 'Einträge in dieser Auswahl';
+
+  @override
+  String historyChartViewAll(int count) {
+    return 'Alle $count anzeigen';
+  }
+
+  @override
+  String get historyNotesFilter => 'Notizen';
+
+  @override
+  String get historyHasNote => 'Mit Notiz';
+
+  @override
+  String get historyNoteContains => 'Notiz enthält…';
+
+  @override
+  String get baselineComparisonReference =>
+      'Mit deinen Ausgangswerten vergleichen';
+
+  @override
+  String get baselineViewAllAnswers =>
+      'Alle Antworten der Ausgangswerte anzeigen';
+
+  @override
+  String get viewStudySteps => 'Schritte ansehen';
+
+  @override
+  String get blueMealStudySteps => 'Schritte der Studie zur blauen Mahlzeit';
+
+  @override
+  String get blueMealWaitTimeLabel => 'Wartezeit';
+
+  @override
+  String blueMealStepLabel(int number) {
+    return 'Schritt $number';
+  }
+
+  @override
+  String get blueMealStepCurrent => 'Aktueller Schritt';
+
+  @override
+  String get blueMealStepUpcoming => 'Bevorstehend';
+
+  @override
+  String get blueMealStepCompleted => 'Abgeschlossen';
+
+  @override
+  String get blueMealStudyCompleteTitle => 'Studie abgeschlossen';
+
+  @override
+  String get blueMealStudyTitle => 'Studie zur blauen Mahlzeit';
+
+  @override
+  String get blueMealStudyInformation => 'Studieninformationen';
+
+  @override
+  String get blueMealInvitationTitle =>
+      'Einladung zur Studie zur blauen Mahlzeit';
+
+  @override
+  String get blueMealInvitationBody =>
+      'Sie sind eingeladen, an der Studie zur blauen Mahlzeit teilzunehmen. Sie sehen diese Seite, weil Sie angegeben haben, dass Sie bereit sind, an der Studie zur blauen Mahlzeit (BMS) teilzunehmen.';
+
+  @override
+  String get blueMealInvitationCorrection =>
+      'Falls dies nicht zutrifft, informieren Sie uns bitte unter';
+
+  @override
+  String get blueMealAboutTitle => 'Über die Studie zur blauen Mahlzeit';
+
+  @override
+  String get blueMealAboutBody =>
+      'Diese Studie misst die Darmmotilität (die Bewegung von Nahrung durch das Verdauungssystem) bei Menschen mit neurologischen Entwicklungsstörungen mithilfe einer neuartigen Studie mit blauen Mahlzeiten. Dabei werden blaue Mahlzeiten gegessen und Stuhlgänge aufgezeichnet, um die Transitzeit zu bestimmen – die Zeit, die Nahrung vom Verzehr bis zur Ausscheidung durch das Verdauungssystem benötigt. Die Studie misst die Transitzeit zweimal mithilfe der blauen Mahlzeiten und dieser mobilen App.';
+
+  @override
+  String get blueMealGiSymptoms => 'Magen-Darm-Symptome';
+
+  @override
+  String get blueMealSleepMood => 'Schlaf und Stimmung';
+
+  @override
+  String get blueMealEligibilityDisorder =>
+      'Eine neurologische Entwicklungsstörung haben';
+
+  @override
+  String get blueMealTermsTitle => 'Wichtige Begriffe';
+
+  @override
+  String get blueMealTermsIntro =>
+      'Hier sind einige Definitionen von Begriffen, die wir im Verlauf der Studie verwenden:';
+
+  @override
+  String get blueMealTermsBody =>
+      'BMS: Abkürzung für die Studie zur blauen Mahlzeit.\n\nBM: Abkürzung für Stuhlgang.\n\nGI: Abkürzung für gastrointestinal (Magen-Darm).\n\nBlaue Mahlzeit: Die blaue Mahlzeit kann ein Muffin oder eine Mahlzeit sein, die vor Beginn der Studie verzehrt wird. Das Rezept finden Sie auf der Ressourcenseite.\n\nTransitzeit: Die Studie zur blauen Mahlzeit (BMS) besteht aus zwei Phasen, die wir als Transitzeiten bezeichnen. In jeder Phase muss die Betreuungsperson dem Teilnehmenden die blaue Mahlzeit geben und Stuhlgänge sowie Symptome aufzeichnen. Jede Phase endet, sobald der Stuhl blau gewesen und wieder braun geworden ist.\n\nWartezeit: Nach Abschluss von Transitzeit 1 müssen Sie 7 Tage warten, bevor Sie Transitzeit 2 beginnen können.\n\nBlauer Stuhl: Stuhl, der nach dem Verzehr der blauen Mahlzeit blau gefärbt ist.\n\nMotilität: Kontraktionen und Nervenaktivität, die Nahrung und Abfallstoffe durch den Verdauungstrakt bewegen.';
+
+  @override
+  String get blueMealWaitInstruction =>
+      'Warten Sie nach Abschluss der Schritte 1 und 2 sieben Tage, bevor Sie mit Schritt 3 beginnen.';
+
+  @override
+  String get blueMealConsent =>
+      'Ich habe den Ablauf der Studie zur blauen Mahlzeit gelesen und verstanden. Ich stimme zu, die Studie zu beginnen.';
+
+  @override
+  String get blueMealStartStudy => 'Studie beginnen';
+
+  @override
+  String get blueMealGettingStarted => 'Erste Schritte';
+
+  @override
+  String get blueMealBeforeBegin => 'Bevor Sie beginnen';
+
+  @override
+  String get blueMealBeforeBeginBody =>
+      '• Stellen Sie sicher, dass die teilnehmende Person über Nacht 6–8 Stunden gefastet hat.\n• Sie erfassen, wie lange das Essen der blauen Mahlzeit dauert.\n• Weitere Anweisungen finden Sie auf dem nächsten Bildschirm.';
+
+  @override
+  String get blueMealContinueStudy => 'Weiter zur Studie';
+
+  @override
+  String get blueMealFeedingMethod =>
+      'Welche Art von blauer Mahlzeit wird verwendet?';
+
+  @override
+  String get blueMealFastTitle => '6–8 Stunden Fasten';
+
+  @override
+  String get blueMealFastRequired =>
+      'Die teilnehmende Person muss die Fastenzeit abschließen, bevor es weitergeht.';
+
+  @override
+  String get blueMealFeedTitle => 'Blaue Mahlzeit geben';
+
+  @override
+  String get blueMealAmountTitle => 'Menge der Mahlzeit';
+
+  @override
+  String get blueMealTimeTitle => 'Benötigte Zeit';
+
+  @override
+  String blueMealNextStep(int number) {
+    return 'Weiter: Schritt $number';
+  }
+
+  @override
+  String get blueMealNoBms =>
+      'Seit dem Verzehr der blauen Mahlzeit wurden keine Stuhlgänge aufgezeichnet.';
+
+  @override
+  String get blueMealBmScope =>
+      'Auf dieser Seite können nur Stuhlgänge aufgezeichnet werden.';
+
+  @override
+  String get blueMealOtherSymptoms =>
+      'Andere Symptome unter Aufzeichnen erfassen';
+
+  @override
+  String get blueMealAddBm => 'Stuhlgang hinzufügen';
+
+  @override
+  String get blueMealUntilTransitTwo => 'Zeit bis Transitzeit 2';
+
+  @override
+  String get blueMealBeginNow => 'Sie können jetzt beginnen';
+
+  @override
+  String blueMealDaysHours(int days, int hours) {
+    return '$days Tage und $hours Stunden';
+  }
+
+  @override
+  String blueMealHoursMinutes(int hours, int minutes) {
+    return '$hours Stunden und $minutes Minuten';
+  }
+
+  @override
+  String get blueMealSaveError =>
+      'Die Mahlzeit konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.';
+
+  @override
+  String get blueMealRecordedMeal => 'Aufgezeichnete Mahlzeit';
+
+  @override
+  String blueMealRecordedBms(int count) {
+    return '$count aufgezeichnete Stuhlgänge';
+  }
+
+  @override
+  String get blueMealRecordedFinish => 'Mahlzeit beendet';
+
+  @override
+  String get blueMealRecordsLoading =>
+      'Gespeicherte Aufzeichnungen werden geladen…';
+
+  @override
+  String get blueMealRecordsError =>
+      'Gespeicherte Aufzeichnungen konnten nicht geladen werden.';
+
+  @override
+  String get blueMealStepInstructions => 'Anweisungen';
 }

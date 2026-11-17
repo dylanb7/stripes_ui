@@ -3,12 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/Test/test_progress_provider.dart';
+import 'package:stripes_ui/Providers/base_providers.dart';
+import 'package:stripes_ui/UI/Record/TestScreen/blue_dye_study_style.dart';
 import 'package:stripes_ui/Providers/Test/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/card_layout_helper.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_async_error.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/timer_widget.dart';
+import 'package:stripes_ui/UI/Record/TestScreen/tube_feeding_start_field.dart';
 import 'package:stripes_ui/Util/Design/breakpoint.dart';
 import 'package:stripes_ui/Util/Widgets/easy_snack.dart';
 import 'package:stripes_ui/Util/extensions.dart';
@@ -151,7 +154,9 @@ class MealFinishedDisplay extends ConsumerWidget {
                   children: [
                     if (!cardLayout) ...[transitLabel, const Divider()],
                     Text(
-                      context.translate.mealCompleteTitle,
+                      mealStats.duration == Duration.zero
+                          ? 'Tube feeding'
+                          : context.translate.mealCompleteTitle,
                       style: Theme.of(context).textTheme.bodyMedium
                           ?.copyWith(fontWeight: FontWeight.bold),
                     ),
@@ -296,7 +301,7 @@ enum FeedingMethod {
 class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
   AmountConsumed? value;
   FeedingMethod? feedingMethod;
-  DateTime? tubeFeedEndTime;
+  DateTime? tubeFeedStartTime;
 
   bool isLoading = false;
 
@@ -356,11 +361,9 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
         Center(
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: Breakpoint.tiny.value),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(AppRounding.small),
-                color: cardColor,
-              ),
+            child: Material(
+              borderRadius: BorderRadius.circular(AppRounding.small),
+              color: cardColor,
               child: Padding(
                 padding: const EdgeInsets.all(AppPadding.small),
                 child: Column(
@@ -382,7 +385,7 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
                               : newValue;
                           // Reset other values when switching
                           value = null;
-                          tubeFeedEndTime = null;
+                          tubeFeedStartTime = null;
                         });
                       },
                       child: Column(
@@ -411,7 +414,7 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
     );
   }
 
-  /// Simplified tube-fed flow - just capture end time
+  /// Tube-fed flow records the start without waiting for feeding to finish.
   Widget _buildTubeFedFlow(
     BuildContext context,
     BlueDyeMealState? testsState,
@@ -424,88 +427,26 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
           opacity: isLoading ? 0.6 : 1,
           child: IgnorePointer(
             ignoring: isLoading,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(AppRounding.small),
-                color: cardColor,
-              ),
+            child: Material(
+              borderRadius: BorderRadius.circular(AppRounding.small),
+              color: cardColor,
               child: Padding(
                 padding: const EdgeInsets.all(AppPadding.small),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "Tube Feeding Complete",
-                      style: Theme.of(context).textTheme.titleMedium
-                          ?.copyWith(color: Theme.of(context).primaryColor),
-                    ),
-                    const SizedBox(height: AppPadding.small),
-                    Text(
-                      "Confirm that the feeding with blue dye has finished.",
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    const SizedBox(height: AppPadding.medium),
-                    // End time picker
-                    Row(
-                      children: [
-                        const Icon(Icons.access_time),
-                        const SizedBox(width: AppPadding.small),
-                        Expanded(
-                          child: Text(
-                            "Feeding ended at:",
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                        ),
-                        TextButton.icon(
-                          onPressed: () async {
-                            final now = DateTime.now();
-                            final TimeOfDay? picked = await showTimePicker(
-                              context: context,
-                              initialTime: TimeOfDay.fromDateTime(
-                                tubeFeedEndTime?.toLocal() ?? now,
-                              ),
-                            );
-                            if (picked != null) {
-                              setState(() {
-                                tubeFeedEndTime = DateTime(
-                                  now.year,
-                                  now.month,
-                                  now.day,
-                                  picked.hour,
-                                  picked.minute,
-                                );
-                              });
-                            }
-                          },
-                          icon: const Icon(Icons.edit),
-                          label: Text(
-                            tubeFeedEndTime != null
-                                ? TimeOfDay.fromDateTime(
-                                    tubeFeedEndTime!.toLocal(),
-                                  ).format(context)
-                                : "Select time",
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: AppPadding.small),
-                    // Use current time button
-                    Center(
-                      child: OutlinedButton.icon(
-                        onPressed: () {
-                          setState(() {
-                            tubeFeedEndTime = DateTime.now();
-                          });
-                        },
-                        icon: const Icon(Icons.schedule),
-                        label: const Text("Use current time"),
-                      ),
+                    TubeFeedingStartField(
+                      start: tubeFeedStartTime,
+                      enabled: !isLoading,
+                      onChanged: (start) => setState(() {
+                        tubeFeedStartTime = start;
+                      }),
                     ),
                     const SizedBox(height: AppPadding.medium),
                     // Submit button
                     Center(
                       child: FilledButton(
-                        onPressed: tubeFeedEndTime != null && !isLoading
+                        onPressed: tubeFeedStartTime != null && !isLoading
                             ? () => _nextTubeFed(testsState)
                             : null,
                         child: Text(context.translate.nextButton),
@@ -535,11 +476,9 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
           opacity: isLoading ? 0.6 : 1,
           child: IgnorePointer(
             ignoring: isLoading,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(AppRounding.small),
-                color: cardColor,
-              ),
+            child: Material(
+              borderRadius: BorderRadius.circular(AppRounding.small),
+              color: cardColor,
               child: Padding(
                 padding: const EdgeInsets.all(AppPadding.small),
                 child: Column(
@@ -613,9 +552,9 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
     );
   }
 
-  /// Handle tube-fed submission - set finishedEating to zero, amountConsumed to all
+  /// Start tracking from the recorded feeding start, with no assumed end.
   Future<void> _nextTubeFed(BlueDyeMealState? state) async {
-    if (state == null || tubeFeedEndTime == null) {
+    if (state == null || tubeFeedStartTime == null) {
       showSnack(context, "Could not go next");
       return;
     }
@@ -625,11 +564,7 @@ class _AmountConsumedEntryState extends ConsumerState<AmountConsumedEntry> {
     final protocol = await ref.read(activeProtocolProvider.future);
     final repo = await ref.read(testProvider.future);
     if (protocol != null && repo != null) {
-      final newMealState = state.copyWith(
-        amountConsumed: AmountConsumed.all,
-        finishedEating: Duration.zero,
-        finishedEatingTime: tubeFeedEndTime,
-      );
+      final newMealState = state.withTubeFeedingStart(tubeFeedStartTime!);
       final updated = protocol.copyWith(
         testContext: newMealState.replaceInContext(protocol.testContext),
       );
@@ -690,6 +625,27 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
   final mealTimeQuestionKey = GlobalKey();
   final mealAmountConsumedKey = GlobalKey();
 
+  final feedInstructionsKey = GlobalKey();
+  final tubeFeedingQuestionKey = GlobalKey();
+  final nextActionKey = GlobalKey();
+
+  void _scrollToQuestion(GlobalKey key) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final target = key.currentContext;
+      if (target == null) return;
+      final media = MediaQuery.of(context);
+      Scrollable.ensureVisible(
+        target,
+        alignment: 0.05,
+        duration: media.disableAnimations || media.accessibleNavigation
+            ? Duration.zero
+            : Durations.medium1,
+        curve: Curves.easeInOut,
+      );
+    });
+  }
+
   bool isLoading = false;
 
   final RestorableEnumN<AmountConsumed> amountConsumed = RestorableEnumN(
@@ -710,7 +666,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
   );
 
   // Storing as ISO string because RestorableDateTimeN is not standard
-  final RestorableStringN tubeFeedEndTime = RestorableStringN(null);
+  final RestorableStringN tubeFeedStartTime = RestorableStringN(null);
 
   @override
   Widget build(BuildContext context) {
@@ -724,6 +680,10 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
   }
 
   Widget _buildLoaded(BuildContext context, BlueDyeMealState mealState) {
+    if (ref.watch(configProvider).betaUi.blueDyeTest) {
+      return _buildRedesigned(context, mealState);
+    }
+
     final Widget transitLabel = Text(
       widget.clicked.value < 2
           ? context.translate.transitOneLabel
@@ -792,7 +752,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
                         amountConsumed.value = null;
                         mealTime.value = null;
                         completedFast.value = null;
-                        tubeFeedEndTime.value = null;
+                        tubeFeedStartTime.value = null;
                       } else {
                         feedingMethod.value = null;
                       }
@@ -819,91 +779,21 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
             cardColor: activeCard,
             child: Padding(
               padding: const EdgeInsets.all(AppPadding.medium),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Tube Feeding Complete",
-                    style: Theme.of(context).textTheme.bodyMedium
-                        ?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: AppPadding.small),
-                  Text(
-                    "Confirm that the feeding with blue dye has finished.",
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: AppPadding.medium),
-                  Row(
-                    children: [
-                      const Icon(Icons.access_time),
-                      const SizedBox(width: AppPadding.small),
-                      Expanded(
-                        child: Text(
-                          "Feeding ended at:",
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      ),
-                      TextButton.icon(
-                        onPressed: () async {
-                          final now = DateTime.now();
-                          DateTime initial = now;
-                          if (tubeFeedEndTime.value != null) {
-                            initial = DateTime.parse(tubeFeedEndTime.value!)
-                                .toLocal();
-                          }
-                          final TimeOfDay? picked = await showTimePicker(
-                            context: context,
-                            initialTime: TimeOfDay.fromDateTime(initial),
-                          );
-                          if (picked != null) {
-                            setState(() {
-                              final newDate = DateTime(
-                                now.year,
-                                now.month,
-                                now.day,
-                                picked.hour,
-                                picked.minute,
-                              );
-                              tubeFeedEndTime.value = newDate
-                                  .toUtc()
-                                  .toIso8601String();
-                            });
-                          }
-                        },
-                        icon: const Icon(Icons.edit),
-                        label: Text(
-                          tubeFeedEndTime.value != null
-                              ? TimeOfDay.fromDateTime(
-                                  DateTime.parse(tubeFeedEndTime.value!)
-                                      .toLocal(),
-                                ).format(context)
-                              : "Select time",
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: AppPadding.small),
-                  Center(
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        setState(() {
-                          tubeFeedEndTime.value = DateTime.now()
-                              .toUtc()
-                              .toIso8601String();
-                        });
-                      },
-                      icon: const Icon(Icons.schedule),
-                      label: const Text("Use current time"),
-                    ),
-                  ),
-                ],
+              child: TubeFeedingStartField(
+                start: tubeFeedStartTime.value == null
+                    ? null
+                    : DateTime.parse(tubeFeedStartTime.value!),
+                enabled: !isLoading,
+                onChanged: (start) => setState(() {
+                  tubeFeedStartTime.value = start.toUtc().toIso8601String();
+                }),
               ),
             ),
           ),
           const SizedBox(height: AppPadding.medium),
           Center(
             child: FilledButton(
-              onPressed: tubeFeedEndTime.value != null && !isLoading
+              onPressed: tubeFeedStartTime.value != null && !isLoading
                   ? () => _nextTubeFed(mealState)
                   : null,
               child: Text(context.translate.nextButton),
@@ -1156,8 +1046,251 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
     );
   }
 
+  Widget _buildRedesigned(BuildContext context, BlueDyeMealState state) {
+    final s = context.translate;
+    final oral = feedingMethod.value == FeedingMethod.oral;
+    final tube = feedingMethod.value == FeedingMethod.tubeFed;
+    final canAnswer = oral && completedFast.value == true && !isLoading;
+    final valid = tube
+        ? tubeFeedStartTime.value != null
+        : canAnswer && amountConsumed.value != null && mealTime.value != null;
+    final amountLabels = {
+      AmountConsumed.halfOrLess: s.amountConsumedHalfOrLess,
+      AmountConsumed.half: s.amountConsumedHalf,
+      AmountConsumed.moreThanHalf: s.amountConsumedHalfOrMore,
+      AmountConsumed.all: s.amountConsumedAll,
+      AmountConsumed.undetermined: s.amountConsumedUnable,
+    };
+    final durationLabels = [
+      s.blueMealDurationAnswerOne,
+      s.blueMealDurationAnswerTwo,
+      s.blueMealDurationAnswerThree,
+      s.blueMealDurationAnswerFour,
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        BlueDyeStudyCard(
+          title: s.blueMealFeedingMethod,
+          child: Column(
+            children: [
+              for (final method in FeedingMethod.values)
+                BlueDyeStudyChoice<FeedingMethod>(
+                  value: method,
+                  selected: feedingMethod.value,
+                  label: method.toDisplayString(context),
+                  onChanged: isLoading
+                      ? null
+                      : (value) {
+                          if (feedingMethod.value == value) return;
+                          setState(() {
+                            feedingMethod.value = value;
+                            amountConsumed.value = null;
+                            mealTime.value = null;
+                            completedFast.value = null;
+                            tubeFeedStartTime.value = null;
+                          });
+                          _scrollToQuestion(
+                            value == FeedingMethod.tubeFed
+                                ? tubeFeedingQuestionKey
+                                : fastQuestionKey,
+                          );
+                        },
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        if (tube)
+          BlueDyeStudyCard(
+            key: tubeFeedingQuestionKey,
+            child: TubeFeedingStartField(
+              start: tubeFeedStartTime.value == null
+                  ? null
+                  : DateTime.parse(tubeFeedStartTime.value!),
+              enabled: !isLoading,
+              onChanged: (value) {
+                setState(
+                  () =>
+                      tubeFeedStartTime.value = value.toUtc().toIso8601String(),
+                );
+                _scrollToQuestion(nextActionKey);
+              },
+            ),
+          )
+        else ...[
+          BlueDyeStudyCard(
+            key: fastQuestionKey,
+            title: s.blueMealFastTitle,
+            description: s.blueMealFastQuestion,
+            enabled: oral,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final answer in [true, false])
+                      Semantics(
+                        selected: completedFast.value == answer,
+                        child: OutlinedButton(
+                          onPressed: !oral || isLoading
+                              ? null
+                              : () {
+                                  setState(() => completedFast.value = answer);
+                                  if (answer) {
+                                    _scrollToQuestion(feedInstructionsKey);
+                                  }
+                                },
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size(100, 52),
+                            foregroundColor: completedFast.value == answer
+                                ? BlueDyeStudyStyle.surface(context)
+                                : BlueDyeStudyStyle.ink(context),
+                            backgroundColor: completedFast.value == answer
+                                ? BlueDyeStudyStyle.ink(context)
+                                : null,
+                            side: BorderSide(
+                              color: BlueDyeStudyStyle.outline(context),
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: Text(
+                            answer ? s.blueQuestionYes : s.blueQuestionNo,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                if (completedFast.value == false)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: Text(
+                      s.blueMealFastRequired,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          BlueDyeStudyCard(
+            key: feedInstructionsKey,
+            title: s.blueMealFeedTitle,
+            enabled: canAnswer,
+            child: Text(
+              '1. ${s.blueMealFastInstructionLineOne}\n2. ${s.blueMealFastInstructionLineTwo}\n3. ${s.blueMealFastInstructionLineThree}',
+            ),
+          ),
+          const SizedBox(height: 16),
+          BlueDyeStudyCard(
+            key: mealAmountConsumedKey,
+            title: s.blueMealAmountTitle,
+            description: s.amountConsumedQuestion,
+            enabled: canAnswer,
+            child: Column(
+              children: [
+                for (final amount in amountLabels.entries)
+                  BlueDyeStudyChoice<AmountConsumed>(
+                    value: amount.key,
+                    selected: amountConsumed.value,
+                    label: amount.value,
+                    onChanged: canAnswer
+                        ? (value) {
+                            setState(() => amountConsumed.value = value);
+                            _scrollToQuestion(
+                              mealTime.value == null
+                                  ? mealTimeQuestionKey
+                                  : nextActionKey,
+                            );
+                          }
+                        : null,
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          BlueDyeStudyCard(
+            key: mealTimeQuestionKey,
+            title: s.blueMealTimeTitle,
+            description: s.blueMealDurationQuestion,
+            enabled: canAnswer,
+            child: Column(
+              children: [
+                for (var i = 0; i < MealTime.mealTimes.length; i++)
+                  BlueDyeStudyChoice<MealTime>(
+                    value: MealTime.mealTimes[i],
+                    selected: mealTime.value,
+                    label: durationLabels[i],
+                    onChanged: canAnswer
+                        ? (value) {
+                            setState(() => mealTime.value = value);
+                            _scrollToQuestion(
+                              amountConsumed.value == null
+                                  ? mealAmountConsumedKey
+                                  : nextActionKey,
+                            );
+                          }
+                        : null,
+                  ),
+              ],
+            ),
+          ),
+        ],
+        const SizedBox(height: 24),
+        BlueDyeStudyAction(
+          key: nextActionKey,
+          label: s.blueMealNextStep(
+            widget.clicked == BlueDyeProgression.stepOne ? 2 : 4,
+          ),
+          loading: isLoading,
+          onPressed: valid ? () => _saveRedesigned(state, tube: tube) : null,
+        ),
+      ],
+    );
+  }
+
+  Future<void> _saveRedesigned(
+    BlueDyeMealState state, {
+    required bool tube,
+  }) async {
+    if (isLoading) return;
+    setState(() => isLoading = true);
+    try {
+      final protocol = await ref.read(activeProtocolProvider.future);
+      final repo = await ref.read(testProvider.future);
+      if (protocol == null || repo == null) {
+        throw StateError('Study unavailable');
+      }
+      final updatedState = tube
+          ? state.withTubeFeedingStart(DateTime.parse(tubeFeedStartTime.value!))
+          : state.copyWith(
+              amountConsumed: amountConsumed.value,
+              finishedEatingTime: DateTime.now(),
+              finishedEating: mealTime.value!.toDuration(),
+            );
+      await repo.updateProtocol(
+        protocol.copyWith(
+          testContext: updatedState.replaceInContext(protocol.testContext),
+        ),
+      );
+      if (isBlueDyeMealStageId(protocol.currentStageId)) {
+        await repo.advanceStage(activeTestId: protocol.id);
+      }
+    } catch (_) {
+      if (mounted) showSnack(context, context.translate.blueMealSaveError);
+    } finally {
+      if (mounted) setState(() => isLoading = false);
+    }
+  }
+
   Future<void> _nextTubeFed(BlueDyeMealState? state) async {
-    if (state == null || tubeFeedEndTime.value == null) {
+    if (state == null || tubeFeedStartTime.value == null) {
       showSnack(context, "Could not go next");
       return;
     }
@@ -1167,10 +1300,8 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
     final protocol = await ref.read(activeProtocolProvider.future);
     final repo = await ref.read(testProvider.future);
     if (protocol != null && repo != null) {
-      final newMealState = state.copyWith(
-        amountConsumed: AmountConsumed.all,
-        finishedEating: Duration.zero,
-        finishedEatingTime: DateTime.parse(tubeFeedEndTime.value!).toLocal(),
+      final newMealState = state.withTubeFeedingStart(
+        DateTime.parse(tubeFeedStartTime.value!),
       );
       final updated = protocol.copyWith(
         testContext: newMealState.replaceInContext(protocol.testContext),
@@ -1227,7 +1358,7 @@ class _MealStatsEntryState extends ConsumerState<MealStatsEntry>
     registerForRestoration(mealTime, "meal-time-entry");
     registerForRestoration(completedFast, "fasted-entry");
     registerForRestoration(feedingMethod, "feeding-method-entry");
-    registerForRestoration(tubeFeedEndTime, "tube-feed-end-time-entry");
+    registerForRestoration(tubeFeedStartTime, "tube-feed-start-time-entry");
   }
 }
 

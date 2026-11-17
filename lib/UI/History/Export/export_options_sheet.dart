@@ -93,7 +93,7 @@ class ExportOptionsSheet extends ConsumerWidget {
             description: l10n.exportOptionCsvDesc,
             onTap: () => _handleExport(context, ref, _ExportFormat.csv),
           ),
-          config.allowsSummaryReport
+          config.allowsSummaryReport && config.betaUi.summaryReports
               ? _ExportOptionTile(
                   icon: Icons.assessment_outlined,
                   title: l10n.exportOptionReport,

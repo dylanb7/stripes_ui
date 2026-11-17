@@ -11,6 +11,7 @@ class RecordStudyProcessor {
     required List<Entry> entries,
     required List<Entry> history,
   }) async {
+    await tests.ready;
     final exactEntries = entries.where(_isExact).toList(growable: false);
     if (exactEntries.any((entry) => entry.id == null || entry.id!.isEmpty)) {
       throw ArgumentError('Study processing requires persisted entry IDs.');

@@ -867,5 +867,105 @@
   "historyTestBlue": "Blue",
   "historyTestNoBlue": "No blue",
   "historyTestBlueDescription": "Blue color recorded",
-  "historyTestNoBlueDescription": "No blue color recorded"
+  "historyTestNoBlueDescription": "No blue color recorded",
+  "historyChartEntries": "Entries behind this chart",
+  "historyChartSelectedEntries": "Entries in this selection",
+  "historyChartViewAll": "View all {count}",
+  "@historyChartViewAll": {"placeholders": {"count": {"type": "int"}}},
+  "historyNotesFilter": "Notes",
+  "historyHasNote": "Has a note",
+  "historyNoteContains": "Note contains…",
+  "baselineComparisonReference": "Compare with your baseline",
+  "baselineViewAllAnswers": "View all baseline answers",
+  "viewStudySteps": "View Steps",
+  "blueMealStudySteps": "Blue Meal Study Steps",
+  "blueMealWaitTimeLabel": "Wait Time",
+  "blueMealStepLabel": "Step {number}",
+  "blueMealStepCurrent": "Current step",
+  "blueMealStepUpcoming": "Upcoming",
+  "blueMealStepCompleted": "Completed",
+  "blueMealStudyCompleteTitle": "Study complete",
+  "@blueMealStepLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "blueMealStudyTitle": "Blue Meal Study",
+  "blueMealStudyInformation": "Study information",
+  "blueMealInvitationTitle": "Blue Meal Study Invitation",
+  "blueMealInvitationBody": "You are invited to participate in the Blue Meal Study. If you are on this page, it's because you indicated that you were willing to participate in the Blue Meal Study (BMS).",
+  "blueMealInvitationCorrection": "If you feel this is incorrect, please let us know at",
+  "blueMealAboutTitle": "About the Blue Meal Study",
+  "blueMealAboutBody": "This study measures gut motility (the movement of food through the digestive system) in people with neurodevelopmental disorders using a novel blue meal study. It involves eating blue meals and tracking bowel movements to determine transit time, which is the duration it takes for food to move through the digestive system, from consumption to excretion. The study will measure transit time twice using the blue meals and this mobile app.",
+  "blueMealGiSymptoms": "Gastrointestinal symptoms",
+  "blueMealSleepMood": "Sleep and mood",
+  "blueMealEligibilityDisorder": "Have a neurodevelopmental disorder",
+  "blueMealTermsTitle": "Terms to know",
+  "blueMealTermsIntro": "Here are a few definitions of terms that we use throughout the study:",
+  "blueMealTermsBody": "BMS: Acronym we use for the Blue Meal Study.\n\nBM: Acronym we use for Bowel Movement.\n\nGI: Acronym we use for Gastrointestinal.\n\nBlue Meal: The blue meal can be a muffin or a meal that is consumed by the participant before beginning the study. Recipe can be found in the resources page.\n\nTransit Time: The Blue Meal Study (BMS) consists of two phases which we refer to as transit times. In each, the caregiver must feed the participant the blue meal and record bowel movements and symptoms. Each phase ends once a participant’s stool has been blue and returns to brown.\n\nWait Time: Once you complete Transit Time 1, there is a 7 day wait time before you can begin Transit Time 2.\n\nBlue Poop/Stool: Stool that is colored blue following the consumption of the blue meal.\n\nMotility: contractions and nerve activity that move food and waste through the digestive tract.",
+  "blueMealWaitInstruction": "Wait 7 days after completing steps 1 and 2 before starting Step 3.",
+  "blueMealConsent": "I have read and understand the Blue Meal study process. I agree to start the study.",
+  "blueMealStartStudy": "Start Study",
+  "blueMealGettingStarted": "Getting Started",
+  "blueMealBeforeBegin": "Before you begin",
+  "blueMealBeforeBeginBody": "• Ensure the participant has completed a 6–8 hour overnight fast.\n• You will track how long it takes to eat the blue meal.\n• More detailed instructions are on the next screen.",
+  "blueMealContinueStudy": "Continue to Study",
+  "blueMealFeedingMethod": "What type of blue meal is being used?",
+  "blueMealFastTitle": "6–8 Hour Fast",
+  "blueMealFastRequired": "The participant must complete the fast before moving on to the next step.",
+  "blueMealFeedTitle": "Feed Blue Meal",
+  "blueMealAmountTitle": "Meal Amount",
+  "blueMealTimeTitle": "Time Taken",
+  "blueMealNextStep": "Next: Step {number}",
+  "@blueMealNextStep": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "blueMealNoBms": "No bowel movements recorded since eating the blue meal.",
+  "blueMealBmScope": "Only bowel movement entries can be recorded on this page.",
+  "blueMealOtherSymptoms": "Go to Record for other symptoms",
+  "blueMealAddBm": "Add Bowel Movement",
+  "blueMealUntilTransitTwo": "Time Until Transit Time 2",
+  "blueMealBeginNow": "You can begin now",
+  "blueMealDaysHours": "{days} days and {hours} hours",
+  "@blueMealDaysHours": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "blueMealHoursMinutes": "{hours} hours and {minutes} minutes",
+  "@blueMealHoursMinutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "blueMealSaveError": "Unable to save your meal details. Please try again.",
+  "blueMealRecordedMeal": "Recorded meal",
+  "blueMealRecordedBms": "{count} recorded bowel movements",
+  "blueMealRecordedFinish": "Meal finished",
+  "blueMealRecordsLoading": "Loading saved recordings…",
+  "blueMealRecordsError": "Unable to load saved recordings.",
+  "blueMealStepInstructions": "Instructions",
+  "@blueMealRecordedBms": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

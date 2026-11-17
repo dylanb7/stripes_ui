@@ -104,17 +104,32 @@ class BlueDyeMealState with Equatable {
     List<BlueDyeBmLog>? logs,
     bool clearTimerStart = false,
     bool clearPauseTime = false,
+    bool clearFinishedEatingTime = false,
   }) {
     return BlueDyeMealState(
       startTime: startTime ?? this.startTime,
       finishedEating: finishedEating ?? this.finishedEating,
-      finishedEatingTime: finishedEatingTime ?? this.finishedEatingTime,
+      finishedEatingTime: clearFinishedEatingTime
+          ? null
+          : finishedEatingTime ?? this.finishedEatingTime,
       timerStart: clearTimerStart ? null : timerStart ?? this.timerStart,
       pauseTime: clearPauseTime ? null : pauseTime ?? this.pauseTime,
       amountConsumed: amountConsumed ?? this.amountConsumed,
       logs: logs ?? this.logs,
     );
   }
+
+  /// Starts tracking without asserting that a potentially ongoing feed ended.
+  /// Zero duration is the existing persisted tube-feeding marker, not a
+  /// measured duration. Keep the finish time absent and amount undetermined.
+  BlueDyeMealState withTubeFeedingStart(DateTime start) => copyWith(
+    startTime: start,
+    finishedEating: Duration.zero,
+    amountConsumed: AmountConsumed.undetermined,
+    clearFinishedEatingTime: true,
+    clearTimerStart: true,
+    clearPauseTime: true,
+  );
 
   BlueDyeTestStage get stage {
     if (startTime == null) return BlueDyeTestStage.initial;

@@ -5,6 +5,7 @@ import 'package:stripes_ui/Providers/base_providers.dart';
 import 'package:stripes_ui/Providers/terms_acceptance_provider.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/AccountManagement/onboarding_header.dart';
+import 'package:stripes_ui/UI/AccountManagement/auth_load_error.dart';
 import 'package:stripes_ui/UI/Resources/resource_markdown.dart';
 import 'package:stripes_ui/UI/Resources/terms_of_service.dart';
 import 'package:stripes_ui/Util/Design/breakpoint.dart';
@@ -20,12 +21,12 @@ class TermsOnboardingGate extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (!ref.watch(configProvider).betaUi.onboardingTerms) return child;
     final account = ref.watch(authStream);
+    // Unknown account metadata cannot select a safe storage mode, regardless
+    // of whether this embedding application enables the terms screen.
+    if (account.hasError) return const AuthLoadError();
+    if (!ref.watch(configProvider).betaUi.onboardingTerms) return child;
     if (account.isLoading) return const _TermsLoading();
-    if (account.hasError) {
-      return _TermsLoadError(onRetry: () => ref.invalidate(authStream));
-    }
     final accountId = account.value?.uid;
     // Authentication remains owned by the embedding app.
     if (accountId == null || accountId.isEmpty) return const _TermsLoading();

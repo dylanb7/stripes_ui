@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stripes_ui/Models/record_time.dart';
 import 'package:stripes_ui/Util/Helpers/history_reducer.dart';
 import 'package:stripes_ui/Providers/History/display_data_provider.dart';
 import 'package:stripes_ui/UI/History/Filters/filter_components.dart';
@@ -22,22 +23,14 @@ enum FilterType {
       case FilterType.timeOfDay:
         return "Time of Day";
       case FilterType.description:
-        return "Description";
+        return "Notes";
       case FilterType.numericRange:
         return "Numeric Range";
     }
   }
 
-  bool isAdvanced() {
-    switch (this) {
-      /*case FilterType.timeOfDay:
-      //case FilterType.numericRange:
-      case FilterType.group:
-        return true;*/
-      default:
-        return false;
-    }
-  }
+  bool isAdvanced() =>
+      this == FilterType.description || this == FilterType.timeOfDay;
 
   FilterContext createContext() {
     switch (this) {
@@ -54,8 +47,10 @@ enum FilterType {
     }
   }
 
-  static List<FilterType> getValues() =>
-      [FilterType.category, FilterType.group];
+  static List<FilterType> getValues() => [
+    FilterType.category,
+    FilterType.group,
+  ];
 }
 
 sealed class FilterContext<T extends FilterState> {
@@ -130,12 +125,10 @@ class CategoryState extends FilterState {
   final Set<String> selectedItems;
 
   CategoryState({Set<String>? selectedItems})
-      : selectedItems = selectedItems ?? {};
+    : selectedItems = selectedItems ?? {};
 
   CategoryState copyWith({Set<String>? selectedItems}) {
-    return CategoryState(
-      selectedItems: selectedItems ?? this.selectedItems,
-    );
+    return CategoryState(selectedItems: selectedItems ?? this.selectedItems);
   }
 }
 
@@ -143,12 +136,10 @@ class GroupState extends FilterState {
   final Set<String> selectedItems;
 
   GroupState({Set<String>? selectedItems})
-      : selectedItems = selectedItems ?? {};
+    : selectedItems = selectedItems ?? {};
 
   GroupState copyWith({Set<String>? selectedItems}) {
-    return GroupState(
-      selectedItems: selectedItems ?? this.selectedItems,
-    );
+    return GroupState(selectedItems: selectedItems ?? this.selectedItems);
   }
 }
 
@@ -156,12 +147,10 @@ class TimeOfDayState extends FilterState {
   final Set<String> selectedItems;
 
   TimeOfDayState({Set<String>? selectedItems})
-      : selectedItems = selectedItems ?? {};
+    : selectedItems = selectedItems ?? {};
 
   TimeOfDayState copyWith({Set<String>? selectedItems}) {
-    return TimeOfDayState(
-      selectedItems: selectedItems ?? this.selectedItems,
-    );
+    return TimeOfDayState(selectedItems: selectedItems ?? this.selectedItems);
   }
 }
 
@@ -169,15 +158,9 @@ class DescriptionState extends FilterState {
   final bool toggleValue;
   final String searchText;
 
-  DescriptionState({
-    this.toggleValue = false,
-    this.searchText = '',
-  });
+  DescriptionState({this.toggleValue = false, this.searchText = ''});
 
-  DescriptionState copyWith({
-    bool? toggleValue,
-    String? searchText,
-  }) {
+  DescriptionState copyWith({bool? toggleValue, String? searchText}) {
     return DescriptionState(
       toggleValue: toggleValue ?? this.toggleValue,
       searchText: searchText ?? this.searchText,
@@ -189,10 +172,8 @@ class NumericRangeState extends FilterState {
   final String? selectedCategory;
   final Map<String, (num, num)> ranges;
 
-  NumericRangeState({
-    this.selectedCategory,
-    Map<String, (num, num)>? ranges,
-  }) : ranges = ranges ?? {};
+  NumericRangeState({this.selectedCategory, Map<String, (num, num)>? ranges})
+    : ranges = ranges ?? {};
 
   NumericRangeState copyWith({
     String? selectedCategory,
@@ -222,8 +203,9 @@ class CategoryContext extends FilterContext<CategoryState> {
     required CategoryState state,
     required Function(CategoryState) onStateChanged,
   }) {
-    final QuestionsLocalizations? localizations =
-        QuestionsLocalizations.of(context);
+    final QuestionsLocalizations? localizations = QuestionsLocalizations.of(
+      context,
+    );
 
     final categories = historyContext.use(const AllCategoriesFeature());
     final Map<String, String> localizedToRaw = {};
@@ -235,11 +217,13 @@ class CategoryContext extends FilterContext<CategoryState> {
       rawToLocalized[type] = localized;
     }
 
-    final List<String> displayItems =
-        categories.map((type) => rawToLocalized[type] ?? type).toList();
+    final List<String> displayItems = categories
+        .map((type) => rawToLocalized[type] ?? type)
+        .toList();
 
-    final Set<String> selectedDisplayItems =
-        state.selectedItems.map((type) => rawToLocalized[type] ?? type).toSet();
+    final Set<String> selectedDisplayItems = state.selectedItems
+        .map((type) => rawToLocalized[type] ?? type)
+        .toSet();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppPadding.medium),
@@ -367,9 +351,21 @@ class TimeOfDayContext extends FilterContext<TimeOfDayState> {
       return LabeledFilter(
         name: timeLabel,
         filter: (stamp) {
-          final DateTime date = dateFromStamp(stamp.stamp);
-          final int hour = date.hour;
-          return time.matchesHour(hour);
+          final recorded = stamp is Response
+              ? recordTimeForResponse(stamp)
+              : null;
+          if (recorded?.precision == RecordTimePrecision.unknown) return false;
+          if (recorded?.precision == RecordTimePrecision.dayPart) {
+            return switch (recorded?.dayPart) {
+              RecordDayPart.morning => time == TimeOfDayFilter.morning,
+              RecordDayPart.afternoon => time == TimeOfDayFilter.afternoon,
+              RecordDayPart.evening => time == TimeOfDayFilter.evening,
+              RecordDayPart.earlyMorning ||
+              RecordDayPart.night => time == TimeOfDayFilter.night,
+              null => false,
+            };
+          }
+          return time.matchesHour(dateFromStamp(stamp.stamp).hour);
         },
         filterType: FilterType.timeOfDay,
       );
@@ -399,16 +395,20 @@ class DescriptionContext extends FilterContext<DescriptionState> {
         hasDescriptionToggle: state.toggleValue,
         notesSearchText: state.searchText,
         onToggleChanged: (value) {
-          onStateChanged(state.copyWith(
-            toggleValue: value,
-            searchText: value ? state.searchText : '',
-          ));
+          onStateChanged(
+            state.copyWith(
+              toggleValue: value,
+              searchText: value ? state.searchText : '',
+            ),
+          );
         },
         onTextChanged: (value) {
-          onStateChanged(state.copyWith(
-            searchText: value,
-            toggleValue: value.isNotEmpty || state.toggleValue,
-          ));
+          onStateChanged(
+            state.copyWith(
+              searchText: value,
+              toggleValue: value.isNotEmpty || state.toggleValue,
+            ),
+          );
         },
       ),
     );
@@ -418,21 +418,22 @@ class DescriptionContext extends FilterContext<DescriptionState> {
   List<LabeledFilter> createFilters(DescriptionState state) {
     if (!state.toggleValue) return [];
 
-    if (state.searchText.isNotEmpty) {
+    final query = state.searchText.trim();
+    if (query.isNotEmpty) {
       return [
         LabeledFilter(
-          name: state.searchText,
+          name: query,
           filter: (stamp) {
             if (stamp case DetailResponse detail) {
               return detail.description != null &&
-                  detail.description!
-                      .toLowerCase()
-                      .contains(state.searchText.toLowerCase());
+                  detail.description!.toLowerCase().contains(
+                    query.toLowerCase(),
+                  );
             }
             return false;
           },
           filterType: FilterType.description,
-        )
+        ),
       ];
     } else {
       return [
@@ -441,12 +442,12 @@ class DescriptionContext extends FilterContext<DescriptionState> {
           filter: (stamp) {
             if (stamp case DetailResponse detail) {
               return detail.description != null &&
-                  detail.description!.isNotEmpty;
+                  detail.description!.trim().isNotEmpty;
             }
             return false;
           },
           filterType: FilterType.description,
-        )
+        ),
       ];
     }
   }
@@ -469,8 +470,9 @@ class NumericRangeContext extends FilterContext<NumericRangeState> {
     required NumericRangeState state,
     required Function(NumericRangeState) onStateChanged,
   }) {
-    final numericResponses =
-        historyContext.use(const NumericResponsesFeature());
+    final numericResponses = historyContext.use(
+      const NumericResponsesFeature(),
+    );
     final Map<String, Question> questionMap = {};
     final Map<String, (num, num)> numericRanges = {};
 
@@ -478,8 +480,10 @@ class NumericRangeContext extends FilterContext<NumericRangeState> {
       final q = resp.question;
       if (!questionMap.containsKey(q.id)) {
         questionMap[q.id] = q;
-        numericRanges[q.id] =
-            (q.min?.toDouble() ?? 1.0, q.max?.toDouble() ?? 5.0);
+        numericRanges[q.id] = (
+          q.min?.toDouble() ?? 1.0,
+          q.max?.toDouble() ?? 5.0,
+        );
       }
     }
 
@@ -489,8 +493,9 @@ class NumericRangeContext extends FilterContext<NumericRangeState> {
       selectedNumericCategory: state.selectedCategory,
       selectedRanges: state.ranges,
       onCategorySelected: (question) {
-        onStateChanged(NumericRangeState(
-            selectedCategory: question, ranges: state.ranges));
+        onStateChanged(
+          NumericRangeState(selectedCategory: question, ranges: state.ranges),
+        );
       },
       onRangeChanged: (question, min, max) {
         final newRanges = Map<String, (num, num)>.from(state.ranges);
@@ -510,24 +515,23 @@ class NumericRangeContext extends FilterContext<NumericRangeState> {
     final (min, max) = state.ranges[state.selectedCategory]!;
     return [
       LabeledFilter(
-          name:
-              "Range: ${min.toInt()}-${max.toInt()}|${state.selectedCategory}",
-          filter: (stamp) {
-            if (stamp case DetailResponse detail) {
-              for (final response in detail.responses) {
-                if (response case NumericResponse numResp) {
-                  if (numResp.question.id == state.selectedCategory) {
-                    if (numResp.response >= min && numResp.response <= max) {
-                      return true;
-                    }
+        name: "Range: ${min.toInt()}-${max.toInt()}|${state.selectedCategory}",
+        filter: (stamp) {
+          if (stamp case DetailResponse detail) {
+            for (final response in detail.responses) {
+              if (response case NumericResponse numResp) {
+                if (numResp.question.id == state.selectedCategory) {
+                  if (numResp.response >= min && numResp.response <= max) {
+                    return true;
                   }
                 }
               }
             }
-            return false;
-          },
-          filterType: FilterType.category // FilterType.numericRange,
-          )
+          }
+          return false;
+        },
+        filterType: FilterType.category, // FilterType.numericRange,
+      ),
     ];
   }
 }
@@ -556,7 +560,7 @@ enum TimeOfDayFilter {
       return TimeOfDayFilter.morning;
     } else if (hour >= 12 && hour < 18) {
       return TimeOfDayFilter.afternoon;
-    } else if (hour >= 18 && hour < 24) {
+    } else if (hour >= 18 && hour < 21) {
       return TimeOfDayFilter.evening;
     } else {
       return TimeOfDayFilter.night;

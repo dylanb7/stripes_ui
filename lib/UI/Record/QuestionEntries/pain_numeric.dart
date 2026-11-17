@@ -86,13 +86,111 @@ class PainIntensityWidget extends StatelessWidget {
   );
 }
 
-/// Retained for callers using the old widget name; renders the range selector.
-class PainFacesWidget extends PainIntensityWidget {
+class PainFacesWidget extends StatefulWidget {
+  final SessionGraph graph;
+  final Numeric question;
+
   const PainFacesWidget({
-    required super.graph,
-    required super.question,
+    required this.graph,
+    required this.question,
     super.key,
   });
+
+  @override
+  State<PainFacesWidget> createState() => _PainFacesWidgetState();
+}
+
+class _PainFacesWidgetState extends State<PainFacesWidget> {
+  final SliderListener _sliderListener = SliderListener();
+
+  @override
+  void dispose() {
+    _sliderListener.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => QuestionEntryScope(
+    question: widget.question,
+    listener: widget.graph,
+    child: Builder(
+      builder: (context) {
+        final controller = QuestionEntryScope.of(context);
+        final response = controller.response;
+        final score = response is NumericResponse ? response.response : null;
+        _sliderListener.hasInteracted = score != null && score >= 0;
+
+        void save(num value) {
+          if (score == value) return;
+          controller.addResponse(
+            NumericResponse(
+              question: widget.question,
+              stamp: response?.stamp ?? controller.stamp,
+              id: response?.id,
+              group: response?.group,
+              response: value,
+            ),
+          );
+        }
+
+        final control = Center(
+          child: ConstrainedBox(
+            key: const ValueKey('compact-pain-level-control'),
+            constraints: const BoxConstraints(maxWidth: 520),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                PainSlider(
+                  initial: (score ?? 0).clamp(0, 10).toInt(),
+                  listener: _sliderListener,
+                  onChange: save,
+                  onSlide: save,
+                ),
+                const SizedBox(height: AppPadding.small),
+                Semantics(
+                  selected: score == -1,
+                  child: OutlinedButton(
+                    key: const ValueKey('pain-intensity-not-sure'),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(48),
+                      backgroundColor: score == -1
+                          ? Theme.of(context).colorScheme.primaryContainer
+                          : null,
+                    ),
+                    onPressed: () {
+                      if (score == -1) {
+                        controller.removeResponse();
+                      } else {
+                        save(-1);
+                      }
+                    },
+                    child: Text(context.translate.painIntensityNotSure),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+        if (CompactRecordQuestions.maybeOf(context) != null) {
+          final translated =
+              QuestionsLocalizations.of(context)
+                  ?.translateQuestion(widget.question) ??
+              widget.question;
+          return CompactRecordQuestion(
+            prompt: translated.prompt,
+            child: control,
+          );
+        }
+        return QuestionEntryCard(
+          styled: false,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppPadding.small),
+            child: control,
+          ),
+        );
+      },
+    ),
+  );
 }
 
 class PainNumericWidget extends ConsumerStatefulWidget {

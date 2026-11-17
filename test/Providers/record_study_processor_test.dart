@@ -1,8 +1,57 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/Record/record_study_processor.dart';
 
 void main() {
+  test(
+    'record processing waits for persisted protocols before evaluating a stage',
+    () async {
+      final source = _HeldProtocolSource();
+      final engine = _CountingEngine();
+      final tests = _repo(source, engine);
+      addTearDown(tests.dispose);
+      var completed = false;
+      final processing = RecordStudyProcessor()
+          .process(tests: tests, entries: [_entry('entry')], history: const [])
+          .then((_) {
+            completed = true;
+          });
+      await Future<void>.delayed(Duration.zero);
+      expect(completed, isFalse);
+      expect(engine.evaluations, isEmpty);
+      expect(source.updates, isEmpty);
+
+      source.loaded.complete([
+        _protocol('study').copyWith(currentStageId: 'second-stage'),
+      ]);
+      await processing;
+      expect(engine.evaluations, {'entry:study': 1});
+      expect(source.protocols['study']!.currentStageId, 'third-stage');
+    },
+  );
+
+  test('a failed protocol load refuses record processing instead of using the seed', () async {
+    final source = _HeldProtocolSource();
+    final engine = _CountingEngine();
+    final tests = _repo(source, engine);
+    addTearDown(tests.dispose);
+    final error = StateError('Protocol lookup failed');
+    final processing = expectLater(
+      RecordStudyProcessor().process(
+        tests: tests,
+        entries: [_entry('entry')],
+        history: const [],
+      ),
+      throwsA(same(error)),
+    );
+    source.loaded.completeError(error);
+    await processing;
+    expect(engine.evaluations, isEmpty);
+    expect(source.updates, isEmpty);
+  });
+
   for (final commitsBeforeFailure in [false, true]) {
     test('retry updates each protocol once after partial processing '
         '(commit before failure: $commitsBeforeFailure)', () async {
@@ -162,6 +211,14 @@ class _ProtocolSource implements ActiveTestProtocolSource {
     }
     protocols[protocol.id] = protocol;
   }
+}
+
+class _HeldProtocolSource extends _ProtocolSource {
+  final loaded = Completer<List<ActiveTestProtocol>>();
+  _HeldProtocolSource() : super([_protocol('study')]);
+
+  @override
+  Future<List<ActiveTestProtocol>> loadAllActiveProtocols() => loaded.future;
 }
 
 class _CountingEngine extends TestEngine {

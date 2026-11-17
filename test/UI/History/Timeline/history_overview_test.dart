@@ -445,12 +445,28 @@ void main() {
     testWidgets('overview off retains legacy History controls; beta $betaUi', (
       tester,
     ) async {
-      await _pumpOverview(tester, betaUi: betaUi, overviewEnabled: false);
+      final container = await _pumpOverview(
+        tester,
+        betaUi: betaUi,
+        overviewEnabled: false,
+        filters: [_categoryFilter('Pain')],
+      );
       expect(find.byKey(_summaryKey), findsNothing);
       expect(find.byKey(_controlsKey), findsNothing);
       expect(find.byTooltip('History view: List'), findsOneWidget);
       expect(find.byType(EventGridHeader), findsOneWidget);
       expect(_viewChoice('List'), findsNothing);
+      expect(
+        find.byKey(const ValueKey('history-active-filters')),
+        findsOneWidget,
+      );
+      await tester.tap(find.byKey(const ValueKey('history-remove-filter-0')));
+      await tester.pumpAndSettle();
+      expect(container.read(displayDataProvider).filters, isEmpty);
+      expect(
+        find.byKey(const ValueKey('history-active-filters')),
+        findsNothing,
+      );
       expect(tester.takeException(), isNull);
     });
   }

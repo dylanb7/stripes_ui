@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_backend_helper/QuestionModel/question.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
@@ -74,7 +75,7 @@ class FilterChipSection extends StatelessWidget {
   }
 }
 
-class DescriptionFilterSection extends StatelessWidget {
+class DescriptionFilterSection extends StatefulWidget {
   final bool hasDescriptionToggle;
   final String notesSearchText;
   final Function(bool) onToggleChanged;
@@ -89,26 +90,55 @@ class DescriptionFilterSection extends StatelessWidget {
   });
 
   @override
+  State<DescriptionFilterSection> createState() =>
+      _DescriptionFilterSectionState();
+}
+
+class _DescriptionFilterSectionState extends State<DescriptionFilterSection> {
+  late final TextEditingController _controller = TextEditingController(
+    text: widget.notesSearchText,
+  );
+
+  @override
+  void didUpdateWidget(DescriptionFilterSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (_controller.text != widget.notesSearchText) {
+      _controller.value = TextEditingValue(
+        text: widget.notesSearchText,
+        selection: TextSelection.collapsed(
+          offset: widget.notesSearchText.length,
+        ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Description",
+          context.translate.historyNotesFilter,
           style: Theme.of(context).textTheme.bodyLarge,
           textAlign: TextAlign.left,
         ),
         const SizedBox(height: AppPadding.tiny),
         FilterChip(
-          label: const Text("Has Description"),
-          selected: hasDescriptionToggle,
-          onSelected: onToggleChanged,
+          label: Text(context.translate.historyHasNote),
+          selected: widget.hasDescriptionToggle,
+          onSelected: widget.onToggleChanged,
         ),
-        if (hasDescriptionToggle) ...[
+        if (widget.hasDescriptionToggle) ...[
           const SizedBox(height: AppPadding.tiny),
           TextField(
             decoration: InputDecoration(
-              hintText: "Search in descriptions...",
+              hintText: context.translate.historyNoteContains,
               prefixIcon: const Icon(Icons.search, size: 20),
               border: const OutlineInputBorder(),
               contentPadding: const EdgeInsets.symmetric(
@@ -120,11 +150,8 @@ class DescriptionFilterSection extends StatelessWidget {
               fillColor: Theme.of(context).colorScheme.surfaceContainerHighest
                   .withValues(alpha: 0.3),
             ),
-            onChanged: onTextChanged,
-            controller: TextEditingController(text: notesSearchText)
-              ..selection = TextSelection.collapsed(
-                offset: notesSearchText.length,
-              ),
+            onChanged: widget.onTextChanged,
+            controller: _controller,
           ),
         ],
       ],

@@ -96,13 +96,7 @@ class BlueDyeVisualDisplay extends StatelessWidget {
         const SizedBox(height: AppPadding.tiny),
         buildRow(
           "Transit time",
-          from(
-            resp.firstBlue.difference(
-              resp.finishedEatingTime ??
-                  resp.startEating.add(resp.eatingDuration),
-            ),
-            context,
-          ),
+          from(resp.firstBlue.difference(resp.startEating), context),
         ),
         const SizedBox(height: AppPadding.tiny),
         buildRow(

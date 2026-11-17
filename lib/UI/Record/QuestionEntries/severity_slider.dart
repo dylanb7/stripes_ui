@@ -551,6 +551,14 @@ class _PainSliderState extends State<PainSlider> {
   }
 
   @override
+  void didUpdateWidget(PainSlider oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initial != oldWidget.initial && widget.initial != null) {
+      value = widget.initial!.toDouble();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final Color primary = Theme.of(context).primaryColor;
     final Color disabled = Theme.of(context).disabledColor;
@@ -663,7 +671,7 @@ class _PainSliderState extends State<PainSlider> {
                       onChangeStart: (val) {
                         if (!listener.hasInteracted) {
                           widget.onChange(val);
-                          if (widget.onSlide != null) widget.onSlide!(value);
+                          if (widget.onSlide != null) widget.onSlide!(val);
                           setState(() {
                             listener.interacted();
                             value = val;

@@ -7,7 +7,6 @@ import 'package:stripes_ui/UI/Record/QuestionEntries/severity_slider.dart';
 import 'package:stripes_ui/Util/extensions.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/question_entry_scope.dart';
-import 'package:stripes_ui/UI/Resources/resources.dart';
 
 class BMSlider extends ConsumerStatefulWidget {
   final SessionGraph listener;
@@ -106,11 +105,6 @@ class _BMSliderState extends ConsumerState<BMSlider> {
                             'Bristol Stool Scale',
                             style: Theme.of(context).textTheme.titleSmall,
                           ),
-                        ),
-                        const ResourceInfoButton(
-                          topic: ResourceTopic.bristolScale,
-                          sectionId: 'stool-types',
-                          tooltip: 'About the Bristol Stool Scale',
                         ),
                       ],
                     ),

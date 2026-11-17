@@ -11,6 +11,9 @@ import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/Test/test_progress_provider.dart';
 import 'package:stripes_ui/Providers/Test/test_provider.dart';
+import 'package:stripes_ui/Providers/base_providers.dart';
+import 'package:stripes_ui/UI/Record/TestScreen/blue_dye_study_style.dart';
+import 'package:stripes_ui/Util/constants.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/History/EventView/EntryDisplays/base.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
@@ -50,6 +53,35 @@ class RecordingsView extends ConsumerWidget {
             final List<BMTestLog> logs = savedLogs.isNotEmpty
                 ? savedLogs
                 : currentLogs;
+
+            if (ref.watch(configProvider).betaUi.blueDyeTest) {
+              final s = context.translate;
+              final runs = progress.orderedTests;
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  BlueDyeStudyCard(
+                    title: s.blueMealStudyCompleteTitle,
+                    child: Text(s.studyStepFourExplanationCompletedNotice),
+                  ),
+                  const SizedBox(height: 16),
+                  if (runs.isNotEmpty)
+                    for (var i = 0; i < runs.length; i++)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: BlueDyeStudyCard(
+                          title: i == 0 ? s.transitOneLabel : s.transitTwoLabel,
+                          child: BMDisplay(logs: runs[i].test.logs),
+                        ),
+                      )
+                  else
+                    BlueDyeStudyCard(
+                      title: s.recordingStateTitle,
+                      child: BMDisplay(logs: logs),
+                    ),
+                ],
+              );
+            }
             final Widget transitLabel = Text(
               clicked.value < 2
                   ? context.translate.transitOneLabel
@@ -205,6 +237,47 @@ class _WaitingTimeState extends ConsumerState<WaitingTime> {
             final Color cardColor = Theme.of(context).primaryColor
                 .withValues(alpha: 0.2);
             if (canProgress) timer?.cancel();
+            if (ref.watch(configProvider).betaUi.blueDyeTest) {
+              final s = context.translate;
+              final countdown = timeLeft.inDays > 0
+                  ? s.blueMealDaysHours(timeLeft.inDays, timeLeft.inHours % 24)
+                  : s.blueMealHoursMinutes(
+                      (timeLeft.inSeconds / 60).ceil() ~/ 60,
+                      (timeLeft.inSeconds / 60).ceil() % 60,
+                    );
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  BlueDyeStudyCard(
+                    title: s.blueMealWaitTimeLabel,
+                    child: Text(s.blueMealWaitInstruction),
+                  ),
+                  const SizedBox(height: 16),
+                  BlueDyeStudyCard(
+                    title: s.blueMealUntilTransitTwo,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      child: Text(
+                        canProgress ? s.blueMealBeginNow : countdown,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(
+                              color: BlueDyeStudyStyle.ink(context),
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  BlueDyeStudyAction(
+                    label: s.blueMealNextStep(3),
+                    loading: isLoading,
+                    onPressed: canProgress ? _next : null,
+                  ),
+                ],
+              );
+            }
+
             return Column(
               children: [
                 const SizedBox(height: AppPadding.small),
@@ -844,6 +917,70 @@ class _RecordingsInProgressState extends ConsumerState<RecordingsInProgress> {
         ? detailedLogs
         : blueDyeState.logs;
     final bool emptyLogs = displayLogs.isEmpty;
+    if (ref.watch(configProvider).betaUi.blueDyeTest) {
+      final s = context.translate;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          BlueDyeStudyCard(
+            title: stage == BlueDyeProgression.stepTwo
+                ? s.studyStepTwoExplanationTitle
+                : s.studyStepFourExplanationTitle,
+            child: Text(
+              s.blueMealRecordDescription(
+                s.blueMealStepLabel(
+                  stage == BlueDyeProgression.stepTwo ? 2 : 4,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          BlueDyeStudyCard(
+            title: s.recordingStateTitle,
+            description: s.blueMealBmScope,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton(
+                    onPressed: () => context.go(Routes.HOME),
+                    child: Text(s.blueMealOtherSymptoms),
+                  ),
+                ),
+                if (emptyLogs)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 48,
+                      horizontal: 16,
+                    ),
+                    child: Text(s.blueMealNoBms, textAlign: TextAlign.center),
+                  )
+                else
+                  BMDisplay(logs: displayLogs),
+                const SizedBox(height: 16),
+                OutlinedButton.icon(
+                  onPressed: () => context.pushNamed(
+                    'recordType',
+                    pathParameters: {'type': 'category.BM'},
+                  ),
+                  icon: const Icon(Icons.add),
+                  label: Text(s.blueMealAddBm),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: BlueDyeStudyStyle.ink(context),
+                    side: BorderSide(color: BlueDyeStudyStyle.outline(context)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.all(16),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
 
     final Widget transitLabel = Text(
       stage.value < 2
@@ -985,36 +1122,38 @@ class BMDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: logs.map((log) {
-        if (log is BMTestLog) {
-          return EntryDisplay(
-            event: log.response,
-            hasControls: false,
-            hasConstraints: false,
-            includeFullDate: true,
-          );
-        }
-        if (log is BlueDyeBmLog) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4.0),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.circle,
-                  color: log.isBlue ? Colors.blue : Colors.brown,
-                  size: 16,
+      children: logs
+          .map((log) {
+            if (log is BMTestLog) {
+              return EntryDisplay(
+                event: log.response,
+                hasControls: false,
+                hasConstraints: false,
+                includeFullDate: true,
+              );
+            }
+            if (log is BlueDyeBmLog) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.circle,
+                      color: log.isBlue ? Colors.blue : Colors.brown,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      dateFromStamp(log.stamp).toString(),
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  dateFromStamp(log.stamp).toString(),
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ],
-            ),
-          );
-        }
-        return const SizedBox.shrink();
-      }).separated(by: const SizedBox(height: AppPadding.small)),
+              );
+            }
+            return const SizedBox.shrink();
+          })
+          .separated(by: const SizedBox(height: AppPadding.small)),
     );
   }
 }

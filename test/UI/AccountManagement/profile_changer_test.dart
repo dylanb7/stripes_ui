@@ -5,6 +5,7 @@ import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/base_providers.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/AccountManagement/profile_changer.dart';
+import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/config.dart';
 import 'package:stripes_ui/Util/Design/palette.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
@@ -41,6 +42,52 @@ class _Profiles extends SubNotifier {
 
 void main() {
   setUpAll(loadAuditFonts);
+
+  for (final beta in [false, true]) {
+    testWidgets(
+      'name profile heading uses ${beta ? 'first name in beta' : 'whole username in base'}',
+      (tester) async {
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              subHolderProvider.overrideWith(_Profiles.new),
+              configProvider.overrideWith(
+                (ref) => StripesConfig(
+                  hasLogging: true,
+                  allowsSummaryReport: true,
+                  profileType: ProfileType.name,
+                  betaUi: beta
+                      ? const BetaUiConfig.enabled()
+                      : const BetaUiConfig.disabled(),
+                ),
+              ),
+            ],
+            child: MaterialApp(
+              theme: light,
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              home: const Scaffold(
+                body: PatientChanger(tab: TabOption.history),
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        final localizations = AppLocalizations.of(
+          tester.element(find.byType(PatientChanger)),
+        )!;
+        expect(
+          find.text(
+            localizations.historyTitle(
+              beta ? 'Alexandratheodora' : _profiles.first.name,
+            ),
+          ),
+          findsOneWidget,
+        );
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
 
   for (final scale in [1.0, 3.0]) {
     testWidgets('profile name opens full-row choices at ${scale}x', (

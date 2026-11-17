@@ -17,6 +17,7 @@ import 'package:stripes_ui/Providers/Navigation/sheet_provider.dart';
 import 'package:stripes_ui/Providers/Questions/questions_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/async_value_defaults.dart';
 import 'package:stripes_ui/UI/History/GraphView/graph_symptom.dart';
+import 'package:stripes_ui/UI/History/GraphView/chart_entries.dart';
 import 'package:stripes_ui/UI/History/GraphView/graph_context_caption.dart';
 import 'package:stripes_ui/UI/History/GraphView/graph_preparer.dart';
 import 'package:stripes_ui/UI/History/GraphView/graph_hero.dart';
@@ -82,7 +83,7 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
   final Map<GraphKey, String> customLabels = {};
   final GraphSelectionController _selectionController =
       GraphSelectionController();
-  GraphComparison _overviewMode = GraphComparison.stacked;
+  GraphComparison? _overviewMode;
 
   @override
   void initState() {
@@ -109,7 +110,11 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
         if (loadedData.containsKey(key)) key: loadedData[key]!,
     };
     final GraphComparison effectiveComparison = _resolveComparison(
-      requested: _overviewMode,
+      requested:
+          _overviewMode ??
+          (ref.watch(configProvider).betaUi.historyOverview
+              ? GraphComparison.separate
+              : GraphComparison.stacked),
       axis: settings.axis,
       responses: forGraph,
     );
@@ -227,6 +232,14 @@ class _GraphViewScreenState extends ConsumerState<GraphViewScreen> {
               },
             ),
           ),
+          if (ref.watch(configProvider).betaUi.historyOverview)
+            Padding(
+              padding: const EdgeInsets.all(AppPadding.large),
+              child: ChartEntries(
+                keysForGraph: [widget.graphKey, ...additions],
+                selectionController: _selectionController,
+              ),
+            ),
           const SizedBox(height: AppPadding.small),
           if (additions.isEmpty) ...[
             // Single layer: compact action bar + hint to compare

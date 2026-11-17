@@ -159,13 +159,13 @@ Future<void> fileShare(
     blueDyeRows.add([
       blueDyeResponse.id,
       dateToStamp(blueDyeResponse.startEating).toString(),
-      blueDyeResponse.eatingDuration.toString(),
+      blueDyeResponse.eatingDuration == Duration.zero
+          ? ''
+          : blueDyeResponse.eatingDuration.toString(),
       blueDyeResponse.normalBowelMovements,
       blueDyeResponse.blueBowelMovements,
       blueDyeResponse.firstBlue
-          .difference(
-            blueDyeResponse.startEating.add(blueDyeResponse.eatingDuration),
-          )
+          .difference(blueDyeResponse.startEating)
           .toString(),
       blueDyeResponse.lastBlue.difference(blueDyeResponse.firstBlue).toString(),
     ]);

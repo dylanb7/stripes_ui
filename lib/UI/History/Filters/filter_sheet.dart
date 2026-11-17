@@ -27,12 +27,22 @@ final historyContextProvider = FutureProvider.autoDispose<HistoryContext>((
   return HistoryContext.build(responses: stamps, features: features);
 });
 
+final availableFilterTypesProvider = Provider<List<FilterType>>(
+  (ref) => [
+    ...FilterType.getValues(),
+    if (ref.watch(configProvider).betaUi.advancedHistoryFilters) ...[
+      FilterType.description,
+      FilterType.timeOfDay,
+    ],
+  ],
+);
+
 final setsProvider = Provider.autoDispose<Map<FilterType, FilterContext>>((
   ref,
 ) {
   final Map<FilterType, FilterContext> contexts = {};
 
-  for (final type in FilterType.getValues()) {
+  for (final type in ref.watch(availableFilterTypesProvider)) {
     contexts[type] = type.createContext();
   }
 
@@ -47,7 +57,7 @@ final hasAvailableFiltersProvider = FutureProvider.autoDispose<bool>((
   );
   final Map<FilterType, FilterContext> contexts = ref.watch(setsProvider);
 
-  for (final type in FilterType.getValues()) {
+  for (final type in ref.watch(availableFilterTypesProvider)) {
     final FilterContext? filterContext = contexts[type];
     if (filterContext != null && filterContext.hasData(historyCtx)) {
       return true;
@@ -184,7 +194,7 @@ class _FilterSheetState extends ConsumerState<FilterSheet> {
         List<Widget> visibleFilters = [];
         List<Widget> advancedFilters = [];
 
-        for (final type in FilterType.getValues()) {
+        for (final type in ref.watch(availableFilterTypesProvider)) {
           final FilterContext? filterContext = contexts[type];
           if (filterContext == null || !filterContext.hasData(hCtx)) continue;
           final FilterState? filterState = filterStates[type];

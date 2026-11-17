@@ -178,6 +178,43 @@ void main() {
   setUpAll(loadAuditFonts);
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
+  for (final firstProfile in [true, false]) {
+    testWidgets(
+      'base name configuration creates ${firstProfile ? 'first' : 'additional'} profile from one username',
+      (tester) async {
+        final repo = _ProfileRepo();
+        final container = await _pumpWizard(
+          tester,
+          repo: repo,
+          profileType: ProfileType.name,
+          firstProfile: firstProfile,
+        );
+        expect(find.byType(TextFormField), findsOneWidget);
+        expect(find.text('Username'), findsWidgets);
+        expect(find.byType(BirthYearSelector), findsNothing);
+        expect(find.byType(DropdownButtonFormField<String>), findsNothing);
+        expect(find.text('First name'), findsNothing);
+        expect(find.text('Last name'), findsNothing);
+
+        await tester.enterText(find.byType(TextFormField), '  John Doe  ');
+        await _submit(tester);
+
+        expect(repo.createCalls, 1);
+        expect(repo.created!.name, 'John Doe');
+        expect(repo.created!.birthYear, 0);
+        expect(repo.created!.gender, '');
+        expect(
+          await container.read(
+            profileConditionProvider(repo.created!.uid).future,
+          ),
+          isNull,
+        );
+        expect(find.text("You're all set!"), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
+
   for (final type in ProfileType.values) {
     for (final scale in [1.0, 3.0]) {
       testWidgets('$type setup is readable on a small phone at ${scale}x', (
@@ -280,7 +317,12 @@ void main() {
     tester,
   ) async {
     final repo = _ProfileRepo()..fail = true;
-    await _pumpWizard(tester, repo: repo, profileType: ProfileType.name);
+    await _pumpWizard(
+      tester,
+      repo: repo,
+      profileType: ProfileType.name,
+      beta: true,
+    );
     await tester.enterText(find.byType(TextFormField).first, ' Mary Ann ');
     await tester.enterText(find.byType(TextFormField).last, ' van der Berg ');
     await tester.tap(find.byType(BirthYearSelector));

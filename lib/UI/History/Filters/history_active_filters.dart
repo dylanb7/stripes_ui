@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_ui/Providers/History/display_data_provider.dart';
 import 'package:stripes_ui/Providers/Navigation/sheet_provider.dart';
-import 'package:stripes_ui/Providers/base_providers.dart';
 import 'package:stripes_ui/UI/History/Filters/filter_logic.dart';
 import 'package:stripes_ui/UI/History/Filters/filter_sheet.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
@@ -18,11 +17,6 @@ class HistoryActiveFilters extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (!ref.watch(
-      configProvider.select((config) => config.betaUi.historyOverview),
-    )) {
-      return const SizedBox.shrink();
-    }
     final filters = ref.watch(
       displayDataProvider.select((settings) => settings.filters),
     );
@@ -33,7 +27,11 @@ class HistoryActiveFilters extends ConsumerWidget {
       for (final filter in filters)
         filter.filterType == FilterType.category
             ? localizations?.value(filter.name) ?? filter.name
-            : '${filter.filterType.name}: ${filter.filterType == FilterType.numericRange ? filter.name.split('|').first : filter.name}',
+            : '${filter.filterType.name}: ${filter.filterType == FilterType.numericRange
+                  ? filter.name.split('|').first
+                  : filter.filterType == FilterType.description && filter.name == 'Has Description'
+                  ? context.translate.historyHasNote
+                  : filter.name}',
     ];
     final theme = Theme.of(context);
     final style = theme.textTheme.labelLarge!;
@@ -110,7 +108,9 @@ class HistoryActiveFilters extends ConsumerWidget {
                       textStyle: style,
                       backgroundColor: theme.colorScheme.secondaryContainer,
                       foregroundColor: theme.colorScheme.onSecondaryContainer,
-                      shape: const StadiumBorder(),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppRounding.small),
+                      ),
                     ),
                     onPressed: () {
                       final current = ref.read(displayDataProvider).filters;

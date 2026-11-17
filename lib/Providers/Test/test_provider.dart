@@ -2,7 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/Auth/auth_provider.dart';
-import 'package:stripes_ui/Providers/History/stamps_provider.dart';
+import 'package:stripes_ui/Providers/Questions/questions_provider.dart';
+import 'package:stripes_ui/Providers/Record/record_session_writer.dart';
 import 'package:stripes_ui/Providers/Test/blue_dye_meal_state.dart';
 import 'package:stripes_ui/Providers/base_providers.dart';
 import 'package:stripes_ui/Providers/sub_provider.dart';
@@ -106,8 +107,10 @@ final testProvider = FutureProvider<ModularTestsRepo?>((ref) async {
   final bool subEmpty = sub == null || SubUser.isEmpty(sub);
 
   if (subEmpty) return null;
-  return ref.watch(reposProvider).test(user: auth, subUser: sub);
-});
+  final repo = ref.watch(reposProvider).test(user: auth, subUser: sub);
+  await repo?.ensureReady();
+  return repo;
+}, retry: (_, _) => null);
 
 final testStreamProvider = StreamProvider<List<ActiveTestProtocol>>((
   ref,
@@ -150,17 +153,42 @@ final _protocolBlueDyeMealStateProvider = FutureProvider<BlueDyeMealState>((
   return BlueDyeMealState.fromContext(protocol.testContext);
 });
 
-/// Bowel movements explicitly linked to the active test session.
-///
-/// Repositories preserve the durable Entry.sessionId relationship through
-/// DetailResponse.linkingId, so this does not infer membership from dates.
+// Protocol history is independent of the timeline's selected date range. Keep
+// one subtype subscription so local changes update logs without reopening a
+// remote lookup whenever the timeline emits.
+final _blueDyeBmEntriesProvider = StreamProvider<List<Entry>>((ref) async* {
+  final repository = await ref.watch(entryRepoProvider.future);
+  if (repository == null) {
+    yield const [];
+    return;
+  }
+  yield* repository.entriesBySubtype('category.BM');
+});
+
+/// Bowel movements explicitly linked to the active test session, across dates.
 final blueDyeBmTestLogsProvider = FutureProvider<List<BMTestLog>>((ref) async {
   final protocol = await ref.watch(activeProtocolProvider.future);
   if (protocol == null) return const [];
-  final stamps = await ref.watch(
-    stampsStreamProvider.selectAsync((stamps) => stamps),
+  return ref.watch(
+    blueDyeRunLogsProvider(blueDyeActiveRunSessionId(protocol)).future,
   );
-  return blueDyeBmTestLogs(stamps, blueDyeActiveRunSessionId(protocol));
+});
+
+/// Saved entries for one transit run, independent of History's visible range.
+final blueDyeRunLogsProvider = FutureProvider.family<List<BMTestLog>, String>((
+  ref,
+  sessionId,
+) async {
+  final homeFuture = ref.watch(questionHomeProvider.future);
+  final entriesFuture = ref.watch(_blueDyeBmEntriesProvider.future);
+  final home = await homeFuture;
+  final entries = await entriesFuture;
+  return blueDyeBmTestLogs(
+    entries
+        .where((entry) => entry.sessionId == sessionId)
+        .map((entry) => entry.toDetailResponse(home)),
+    sessionId,
+  );
 });
 
 final blueDyeMealStateProvider = FutureProvider<BlueDyeMealState>((ref) async {

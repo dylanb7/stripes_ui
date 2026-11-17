@@ -5,6 +5,45 @@ import 'package:stripes_ui/Providers/Test/test_provider.dart';
 
 void main() {
   group('BlueDyeMealState protocol context', () {
+    test('tube feeding retains its start without inventing a finish', () {
+      final originalStart = DateTime.utc(2026, 10, 22, 8);
+      final feedingStart = DateTime.utc(2026, 10, 21, 22, 30);
+      final state = BlueDyeMealState(
+        startTime: originalStart,
+        finishedEating: const Duration(minutes: 45),
+        finishedEatingTime: originalStart.add(const Duration(minutes: 45)),
+        timerStart: originalStart,
+        pauseTime: originalStart,
+        amountConsumed: AmountConsumed.all,
+      );
+      final context = state.withTubeFeedingStart(feedingStart).replaceInContext(
+        {...state.toContext(), blueDyeActiveRunSessionKey: 'protocol:1'},
+      );
+      final restored = BlueDyeMealState.fromContext(context);
+
+      expect(restored.startTime, feedingStart);
+      expect(restored.finishedEating, Duration.zero);
+      expect(restored.finishedEatingTime, isNull);
+      expect(restored.amountConsumed, AmountConsumed.undetermined);
+      expect(restored.stage, BlueDyeTestStage.logs);
+      expect(restored.timerStart, isNull);
+      expect(restored.pauseTime, isNull);
+      expect(context, isNot(contains(BlueDyeContextKeys.finishedEatingTime)));
+      expect(context[blueDyeActiveRunSessionKey], 'protocol:1');
+    });
+
+    test('existing feeding completion times survive loading unchanged', () {
+      final start = DateTime.utc(2026, 10, 21, 20);
+      final finish = DateTime.utc(2026, 10, 22, 6);
+      final existing = BlueDyeMealState(
+        startTime: start,
+        finishedEating: Duration.zero,
+        finishedEatingTime: finish,
+        amountConsumed: AmountConsumed.all,
+      );
+      expect(BlueDyeMealState.fromContext(existing.toContext()), existing);
+    });
+
     test('clears nullable timer fields without dropping unrelated context', () {
       final start = DateTime.utc(2026, 8, 8, 12);
       final paused = DateTime.utc(2026, 8, 8, 12, 5);

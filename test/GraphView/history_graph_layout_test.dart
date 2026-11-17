@@ -168,7 +168,10 @@ void main() {
       expect(find.text('Graph measure'), findsOneWidget);
       expect(find.text('Time of Day'), findsOneWidget);
       expect(tester.takeException(), isNull);
+      await tester.ensureVisible(find.text('Time of Day'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Time of Day'));
+
       await tester.pumpAndSettle();
       expect(find.widgetWithText(TextButton, 'Time of Day'), findsOneWidget);
       expect(tester.takeException(), isNull);

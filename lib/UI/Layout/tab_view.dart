@@ -158,15 +158,17 @@ class RefreshWidgetState extends ConsumerState<RefreshWidget> {
     return RefreshIndicator.adaptive(
       onRefresh: () async {
         navBarHeaderKey.currentState?.setLoading(isLoading: true);
-        const String timeout = "Time Out";
-        final Object? completed = await Future.any([
-          _refresh(),
-          Future.delayed(const Duration(seconds: 5), () => timeout),
-        ]);
-        if (completed == timeout && context.mounted) {
-          showSnack(context, "Timed out");
+        try {
+          await _refresh().timeout(const Duration(seconds: 5));
+        } on TimeoutException {
+          if (context.mounted) showSnack(context, 'Timed out');
+        } catch (_) {
+          if (context.mounted) {
+            showSnack(context, 'Unable to refresh. Please try again.');
+          }
+        } finally {
+          navBarHeaderKey.currentState?.setLoading(isLoading: false);
         }
-        navBarHeaderKey.currentState?.setLoading(isLoading: false);
       },
       child: widget.scrollable,
     );
@@ -175,12 +177,10 @@ class RefreshWidgetState extends ConsumerState<RefreshWidget> {
   Future<void> _refresh() async {
     switch (widget.depth) {
       case RefreshDepth.authuser:
-        await Future.wait([
-          authFuture(),
-          subFuture(),
-          stampFuture(),
-          testFuture(),
-        ]);
+        // Account metadata decides which repositories the following reads use.
+        await authFuture();
+        if (!mounted) return;
+        await Future.wait([subFuture(), stampFuture(), testFuture()]);
         break;
       case RefreshDepth.subuser:
         await Future.wait([subFuture(), stampFuture(), testFuture()]);
@@ -191,15 +191,7 @@ class RefreshWidgetState extends ConsumerState<RefreshWidget> {
     }
   }
 
-  Future<AuthUser> authFuture() {
-    ref.invalidate(authProvider);
-    Completer<AuthUser> completer = Completer();
-    ref.read(authProvider).user.listen((data) {
-      if (completer.isCompleted) return;
-      completer.complete(data);
-    });
-    return completer.future;
-  }
+  Future<void> authFuture() => ref.read(authProvider).refresh();
 
   Future<SubUserRepo?> subFuture() async {
     final SubUserRepo? repo = await ref.read(subProvider.future);

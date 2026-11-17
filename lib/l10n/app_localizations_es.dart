@@ -2124,4 +2124,205 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get historyTestNoBlueDescription => 'No se registró color azul';
+
+  @override
+  String get historyChartEntries => 'Entradas de este gráfico';
+
+  @override
+  String get historyChartSelectedEntries => 'Entradas de esta selección';
+
+  @override
+  String historyChartViewAll(int count) {
+    return 'Ver las $count entradas';
+  }
+
+  @override
+  String get historyNotesFilter => 'Notas';
+
+  @override
+  String get historyHasNote => 'Tiene una nota';
+
+  @override
+  String get historyNoteContains => 'La nota contiene…';
+
+  @override
+  String get baselineComparisonReference => 'Compara con tu referencia inicial';
+
+  @override
+  String get baselineViewAllAnswers => 'Ver todas las respuestas de referencia';
+
+  @override
+  String get viewStudySteps => 'Ver pasos';
+
+  @override
+  String get blueMealStudySteps => 'Pasos del estudio de la comida azul';
+
+  @override
+  String get blueMealWaitTimeLabel => 'Tiempo de espera';
+
+  @override
+  String blueMealStepLabel(int number) {
+    return 'Paso $number';
+  }
+
+  @override
+  String get blueMealStepCurrent => 'Paso actual';
+
+  @override
+  String get blueMealStepUpcoming => 'Próximo';
+
+  @override
+  String get blueMealStepCompleted => 'Completado';
+
+  @override
+  String get blueMealStudyCompleteTitle => 'Estudio completado';
+
+  @override
+  String get blueMealStudyTitle => 'Estudio de la comida azul';
+
+  @override
+  String get blueMealStudyInformation => 'Información del estudio';
+
+  @override
+  String get blueMealInvitationTitle =>
+      'Invitación al estudio de la comida azul';
+
+  @override
+  String get blueMealInvitationBody =>
+      'Le invitamos a participar en el estudio de la comida azul. Si está en esta página, es porque indicó que estaba dispuesto a participar en el estudio de la comida azul (BMS).';
+
+  @override
+  String get blueMealInvitationCorrection =>
+      'Si cree que esto es incorrecto, háganoslo saber en';
+
+  @override
+  String get blueMealAboutTitle => 'Acerca del estudio de la comida azul';
+
+  @override
+  String get blueMealAboutBody =>
+      'Este estudio mide la motilidad intestinal (el movimiento de los alimentos por el sistema digestivo) en personas con trastornos del neurodesarrollo mediante un novedoso estudio de comida azul. Consiste en comer comidas azules y registrar las deposiciones para determinar el tiempo de tránsito, que es lo que tardan los alimentos en pasar por el sistema digestivo, desde su consumo hasta su excreción. El estudio medirá el tiempo de tránsito dos veces utilizando las comidas azules y esta aplicación móvil.';
+
+  @override
+  String get blueMealGiSymptoms => 'Síntomas gastrointestinales';
+
+  @override
+  String get blueMealSleepMood => 'Sueño y estado de ánimo';
+
+  @override
+  String get blueMealEligibilityDisorder =>
+      'Tener un trastorno del neurodesarrollo';
+
+  @override
+  String get blueMealTermsTitle => 'Términos que debe conocer';
+
+  @override
+  String get blueMealTermsIntro =>
+      'Estas son algunas definiciones de términos que usamos durante el estudio:';
+
+  @override
+  String get blueMealTermsBody =>
+      'BMS: Siglas que usamos para el estudio de la comida azul.\n\nBM: Siglas que usamos para deposición.\n\nGI: Siglas que usamos para gastrointestinal.\n\nComida azul: Puede ser una magdalena o una comida que el participante consume antes de comenzar el estudio. La receta se encuentra en la página de recursos.\n\nTiempo de tránsito: El estudio de la comida azul (BMS) consta de dos fases que denominamos tiempos de tránsito. En cada una, el cuidador debe dar la comida azul al participante y registrar las deposiciones y los síntomas. Cada fase termina cuando las heces del participante han sido azules y vuelven a ser marrones.\n\nTiempo de espera: Tras completar el tiempo de tránsito 1, hay que esperar 7 días antes de comenzar el tiempo de tránsito 2.\n\nHeces azules: Heces de color azul después de consumir la comida azul.\n\nMotilidad: Contracciones y actividad nerviosa que desplazan los alimentos y los desechos por el tubo digestivo.';
+
+  @override
+  String get blueMealWaitInstruction =>
+      'Espere 7 días después de completar los pasos 1 y 2 antes de comenzar el paso 3.';
+
+  @override
+  String get blueMealConsent =>
+      'He leído y comprendo el proceso del estudio de la comida azul. Acepto comenzar el estudio.';
+
+  @override
+  String get blueMealStartStudy => 'Comenzar estudio';
+
+  @override
+  String get blueMealGettingStarted => 'Primeros pasos';
+
+  @override
+  String get blueMealBeforeBegin => 'Antes de comenzar';
+
+  @override
+  String get blueMealBeforeBeginBody =>
+      '• Asegúrese de que el participante haya completado un ayuno nocturno de 6–8 horas.\n• Registrará cuánto tarda en comer la comida azul.\n• Encontrará instrucciones más detalladas en la siguiente pantalla.';
+
+  @override
+  String get blueMealContinueStudy => 'Continuar al estudio';
+
+  @override
+  String get blueMealFeedingMethod => '¿Qué tipo de comida azul se utiliza?';
+
+  @override
+  String get blueMealFastTitle => 'Ayuno de 6–8 horas';
+
+  @override
+  String get blueMealFastRequired =>
+      'El participante debe completar el ayuno antes de pasar al siguiente paso.';
+
+  @override
+  String get blueMealFeedTitle => 'Dar la comida azul';
+
+  @override
+  String get blueMealAmountTitle => 'Cantidad de comida';
+
+  @override
+  String get blueMealTimeTitle => 'Tiempo empleado';
+
+  @override
+  String blueMealNextStep(int number) {
+    return 'Siguiente: Paso $number';
+  }
+
+  @override
+  String get blueMealNoBms =>
+      'No se han registrado deposiciones desde que se comió la comida azul.';
+
+  @override
+  String get blueMealBmScope =>
+      'En esta página solo se pueden registrar deposiciones.';
+
+  @override
+  String get blueMealOtherSymptoms => 'Ir a Registrar para otros síntomas';
+
+  @override
+  String get blueMealAddBm => 'Añadir deposición';
+
+  @override
+  String get blueMealUntilTransitTwo => 'Tiempo hasta el tiempo de tránsito 2';
+
+  @override
+  String get blueMealBeginNow => 'Ya puede comenzar';
+
+  @override
+  String blueMealDaysHours(int days, int hours) {
+    return '$days días y $hours horas';
+  }
+
+  @override
+  String blueMealHoursMinutes(int hours, int minutes) {
+    return '$hours horas y $minutes minutos';
+  }
+
+  @override
+  String get blueMealSaveError =>
+      'No se han podido guardar los datos de la comida. Inténtelo de nuevo.';
+
+  @override
+  String get blueMealRecordedMeal => 'Comida registrada';
+
+  @override
+  String blueMealRecordedBms(int count) {
+    return '$count deposiciones registradas';
+  }
+
+  @override
+  String get blueMealRecordedFinish => 'Fin de la comida';
+
+  @override
+  String get blueMealRecordsLoading => 'Cargando registros guardados…';
+
+  @override
+  String get blueMealRecordsError =>
+      'No se pudieron cargar los registros guardados.';
+
+  @override
+  String get blueMealStepInstructions => 'Instrucciones';
 }

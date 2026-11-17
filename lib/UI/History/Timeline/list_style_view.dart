@@ -237,10 +237,8 @@ class _EventsViewState extends ConsumerState<EventsView> {
                             ),
                           ),
                         ),
+                        const SliverToBoxAdapter(child: HistoryActiveFilters()),
                         if (historyOverview) ...[
-                          const SliverToBoxAdapter(
-                            child: HistoryActiveFilters(),
-                          ),
                           const SliverToBoxAdapter(
                             child: HistoryPeriodSummary(),
                           ),
@@ -465,8 +463,10 @@ class GraphHeader extends ConsumerWidget {
     final DisplayDataSettings settings = ref.watch(displayDataProvider);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppPadding.large,
+      padding: EdgeInsets.symmetric(
+        horizontal: ref.watch(configProvider).betaUi.historyOverview
+            ? AppPadding.xl
+            : AppPadding.large,
         vertical: AppPadding.small,
       ),
       child: Wrap(

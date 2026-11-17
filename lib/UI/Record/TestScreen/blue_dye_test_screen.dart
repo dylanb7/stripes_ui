@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
+import 'package:stripes_ui/Providers/base_providers.dart';
 import 'package:stripes_ui/Providers/Test/test_progress_provider.dart';
 import 'package:stripes_ui/Providers/Test/test_provider.dart';
 import 'package:stripes_ui/UI/CommonWidgets/loading.dart';
 import 'package:stripes_ui/UI/CommonWidgets/scroll_assisted_list.dart';
 import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/amount_consumed.dart';
+import 'package:stripes_ui/UI/Record/TestScreen/blue_dye_study_layout.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/recordings_state.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_async_error.dart';
@@ -101,33 +103,6 @@ class _BlueDyeTestScreenState extends ConsumerState<BlueDyeTestScreen> {
       }
     }
   }
-
-  void toggleBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      useSafeArea: true,
-      isScrollControlled: true,
-      showDragHandle: false,
-      shape: RoundedRectangleBorder(
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(AppRounding.large),
-          topRight: Radius.circular(AppRounding.large),
-        ),
-        side: BorderSide(color: Theme.of(context).colorScheme.outline),
-      ),
-      builder: (context) {
-        return DraggableScrollableSheet(
-          initialChildSize: 1.0,
-          minChildSize: 1.0,
-          builder: (context, controller) {
-            return SafeArea(
-              child: BlueMealInfoSheet(scrollController: controller),
-            );
-          },
-        );
-      },
-    );
-  }
 }
 
 class StudyOngoing extends ConsumerStatefulWidget {
@@ -172,6 +147,7 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
   Widget build(BuildContext context) {
     final bool shouldWrap = getBreakpoint(context)
         .isLessThan(Breakpoint.medium);
+    final bool useNewStudyUi = ref.watch(configProvider).betaUi.blueDyeTest;
     return ref
         .watch(blueDyeTestProgressProvider)
         .when(
@@ -184,8 +160,8 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
             _syncToProgression(currentProgression);
 
             final BlueDyeProgression activeStage =
-                BlueDyeProgression.values[currentIndex];
-            final bool isPrevious = currentIndex < index;
+                BlueDyeProgression.values[useNewStudyUi ? index : currentIndex];
+            final bool isPrevious = !useNewStudyUi && currentIndex < index;
 
             Widget getDisplayedWidget() {
               // Handle activeStage being 'completed' (shouldn't happen with filtered carousel)
@@ -258,6 +234,13 @@ class _StudyOngoingState extends ConsumerState<StudyOngoing> {
               }
 
               return const RecordingsInProgress();
+            }
+
+            if (useNewStudyUi) {
+              return BlueDyeStudyLayout(
+                progression: currentProgression ?? BlueDyeProgression.stepOne,
+                child: getDisplayedWidget(),
+              );
             }
 
             // Filter out 'completed' since it's a terminal state, not a selectable step

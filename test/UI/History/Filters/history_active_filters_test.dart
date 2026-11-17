@@ -77,7 +77,7 @@ Future<ProviderContainer> _pump(
             hasLogging: true,
             allowsSummaryReport: true,
             betaUi: beta
-                ? const BetaUiConfig.enabled()
+                ? const BetaUiConfig.enabled(advancedHistoryFilters: false)
                 : const BetaUiConfig.disabled(),
           ),
         ),
@@ -129,15 +129,18 @@ Future<ProviderContainer> _pump(
 void main() {
   setUpAll(loadAuditFonts);
 
-  testWidgets('no active filters and beta off add no header space', (
-    tester,
-  ) async {
-    await _pump(tester);
-    expect(find.byKey(const ValueKey('history-active-filters')), findsNothing);
-    await _pump(tester, filters: [_filter('Pain')], beta: false);
-    expect(find.byKey(const ValueKey('history-active-filters')), findsNothing);
-    expect(find.byType(TextButton), findsNothing);
-  });
+  for (final beta in [false, true]) {
+    testWidgets('no active filters add no header space; beta $beta', (
+      tester,
+    ) async {
+      await _pump(tester, beta: beta);
+      expect(
+        find.byKey(const ValueKey('history-active-filters')),
+        findsNothing,
+      );
+      expect(find.byType(TextButton), findsNothing);
+    });
+  }
 
   testWidgets('a narrow row fits whole labels with an overflow count', (
     tester,
@@ -270,10 +273,7 @@ void main() {
     );
     await tester.tap(find.byKey(const ValueKey('history-more-filters')));
     await tester.pumpAndSettle();
-    expect(
-      find.text('Description: after lunch | before dinner'),
-      findsOneWidget,
-    );
+    expect(find.text('Notes: after lunch | before dinner'), findsOneWidget);
     expect(find.byType(TextField), findsNothing);
     await tester.tap(find.text('Apply'));
     await tester.pumpAndSettle();

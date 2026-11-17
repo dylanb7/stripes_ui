@@ -2,6 +2,16 @@
 
 Reviewed: October 14, 2026
 
+## October 15 implementation follow-up
+
+The user approved the first three chart/filter improvements below; this supersedes the earlier deferral for these items only. Other full-chart ideas remain exploratory.
+
+- Under `historyOverview`, full-chart comparisons now start with separate charts aligned by date. Single-series chart lanes retain the measure's name even when a stacked mode is requested.
+- **Entries behind this chart** appears below the chart and its context caption. It resolves actual chart evidence back to original recordings, deduplicates entries across answers/series, and shows three expandable previews. **View all** opens a scrollable sheet with a reachable Close action. Selecting chart data narrows the entry section; clearing selection restores the contributing collection without changing History's dates or filters.
+- The independent `advancedHistoryFilters` flag enables **Has a note**, **Note contains…**, and **Time of day** under Advanced Filters. It defaults on in the beta-enabled preset and off in the disabled preset. Note search trims the query and preserves the cursor while typing. Time filtering uses saved day parts, excludes unknown times, and treats late-night and early-morning observations as Night. Numeric and recorded-answer filters remain unexposed.
+
+Validation: 85 chart, filter, overview, and collection/timing tests pass, including source-entry identity, deduplication, selection, beta defaults, filter application, and 3× text. Targeted analysis is clean. Device screen-reader and one-handed testing are still needed.
+
 This review is based on the supplied mobile and tablet screenshots and the history implementation inspected on that date. Code observations are distinguished from accessibility behavior that still requires device testing. Source links refer to the implementation as reviewed and may change as development continues.
 
 ## Follow-up direction from the user

@@ -2111,4 +2111,203 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get historyTestNoBlueDescription => 'No blue color recorded';
+
+  @override
+  String get historyChartEntries => 'Entries behind this chart';
+
+  @override
+  String get historyChartSelectedEntries => 'Entries in this selection';
+
+  @override
+  String historyChartViewAll(int count) {
+    return 'View all $count';
+  }
+
+  @override
+  String get historyNotesFilter => 'Notes';
+
+  @override
+  String get historyHasNote => 'Has a note';
+
+  @override
+  String get historyNoteContains => 'Note contains…';
+
+  @override
+  String get baselineComparisonReference => 'Compare with your baseline';
+
+  @override
+  String get baselineViewAllAnswers => 'View all baseline answers';
+
+  @override
+  String get viewStudySteps => 'View Steps';
+
+  @override
+  String get blueMealStudySteps => 'Blue Meal Study Steps';
+
+  @override
+  String get blueMealWaitTimeLabel => 'Wait Time';
+
+  @override
+  String blueMealStepLabel(int number) {
+    return 'Step $number';
+  }
+
+  @override
+  String get blueMealStepCurrent => 'Current step';
+
+  @override
+  String get blueMealStepUpcoming => 'Upcoming';
+
+  @override
+  String get blueMealStepCompleted => 'Completed';
+
+  @override
+  String get blueMealStudyCompleteTitle => 'Study complete';
+
+  @override
+  String get blueMealStudyTitle => 'Blue Meal Study';
+
+  @override
+  String get blueMealStudyInformation => 'Study information';
+
+  @override
+  String get blueMealInvitationTitle => 'Blue Meal Study Invitation';
+
+  @override
+  String get blueMealInvitationBody =>
+      'You are invited to participate in the Blue Meal Study. If you are on this page, it\'s because you indicated that you were willing to participate in the Blue Meal Study (BMS).';
+
+  @override
+  String get blueMealInvitationCorrection =>
+      'If you feel this is incorrect, please let us know at';
+
+  @override
+  String get blueMealAboutTitle => 'About the Blue Meal Study';
+
+  @override
+  String get blueMealAboutBody =>
+      'This study measures gut motility (the movement of food through the digestive system) in people with neurodevelopmental disorders using a novel blue meal study. It involves eating blue meals and tracking bowel movements to determine transit time, which is the duration it takes for food to move through the digestive system, from consumption to excretion. The study will measure transit time twice using the blue meals and this mobile app.';
+
+  @override
+  String get blueMealGiSymptoms => 'Gastrointestinal symptoms';
+
+  @override
+  String get blueMealSleepMood => 'Sleep and mood';
+
+  @override
+  String get blueMealEligibilityDisorder =>
+      'Have a neurodevelopmental disorder';
+
+  @override
+  String get blueMealTermsTitle => 'Terms to know';
+
+  @override
+  String get blueMealTermsIntro =>
+      'Here are a few definitions of terms that we use throughout the study:';
+
+  @override
+  String get blueMealTermsBody =>
+      'BMS: Acronym we use for the Blue Meal Study.\n\nBM: Acronym we use for Bowel Movement.\n\nGI: Acronym we use for Gastrointestinal.\n\nBlue Meal: The blue meal can be a muffin or a meal that is consumed by the participant before beginning the study. Recipe can be found in the resources page.\n\nTransit Time: The Blue Meal Study (BMS) consists of two phases which we refer to as transit times. In each, the caregiver must feed the participant the blue meal and record bowel movements and symptoms. Each phase ends once a participant’s stool has been blue and returns to brown.\n\nWait Time: Once you complete Transit Time 1, there is a 7 day wait time before you can begin Transit Time 2.\n\nBlue Poop/Stool: Stool that is colored blue following the consumption of the blue meal.\n\nMotility: contractions and nerve activity that move food and waste through the digestive tract.';
+
+  @override
+  String get blueMealWaitInstruction =>
+      'Wait 7 days after completing steps 1 and 2 before starting Step 3.';
+
+  @override
+  String get blueMealConsent =>
+      'I have read and understand the Blue Meal study process. I agree to start the study.';
+
+  @override
+  String get blueMealStartStudy => 'Start Study';
+
+  @override
+  String get blueMealGettingStarted => 'Getting Started';
+
+  @override
+  String get blueMealBeforeBegin => 'Before you begin';
+
+  @override
+  String get blueMealBeforeBeginBody =>
+      '• Ensure the participant has completed a 6–8 hour overnight fast.\n• You will track how long it takes to eat the blue meal.\n• More detailed instructions are on the next screen.';
+
+  @override
+  String get blueMealContinueStudy => 'Continue to Study';
+
+  @override
+  String get blueMealFeedingMethod => 'What type of blue meal is being used?';
+
+  @override
+  String get blueMealFastTitle => '6–8 Hour Fast';
+
+  @override
+  String get blueMealFastRequired =>
+      'The participant must complete the fast before moving on to the next step.';
+
+  @override
+  String get blueMealFeedTitle => 'Feed Blue Meal';
+
+  @override
+  String get blueMealAmountTitle => 'Meal Amount';
+
+  @override
+  String get blueMealTimeTitle => 'Time Taken';
+
+  @override
+  String blueMealNextStep(int number) {
+    return 'Next: Step $number';
+  }
+
+  @override
+  String get blueMealNoBms =>
+      'No bowel movements recorded since eating the blue meal.';
+
+  @override
+  String get blueMealBmScope =>
+      'Only bowel movement entries can be recorded on this page.';
+
+  @override
+  String get blueMealOtherSymptoms => 'Go to Record for other symptoms';
+
+  @override
+  String get blueMealAddBm => 'Add Bowel Movement';
+
+  @override
+  String get blueMealUntilTransitTwo => 'Time Until Transit Time 2';
+
+  @override
+  String get blueMealBeginNow => 'You can begin now';
+
+  @override
+  String blueMealDaysHours(int days, int hours) {
+    return '$days days and $hours hours';
+  }
+
+  @override
+  String blueMealHoursMinutes(int hours, int minutes) {
+    return '$hours hours and $minutes minutes';
+  }
+
+  @override
+  String get blueMealSaveError =>
+      'Unable to save your meal details. Please try again.';
+
+  @override
+  String get blueMealRecordedMeal => 'Recorded meal';
+
+  @override
+  String blueMealRecordedBms(int count) {
+    return '$count recorded bowel movements';
+  }
+
+  @override
+  String get blueMealRecordedFinish => 'Meal finished';
+
+  @override
+  String get blueMealRecordsLoading => 'Loading saved recordings…';
+
+  @override
+  String get blueMealRecordsError => 'Unable to load saved recordings.';
+
+  @override
+  String get blueMealStepInstructions => 'Instructions';
 }

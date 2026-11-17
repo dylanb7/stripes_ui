@@ -16,6 +16,7 @@ import 'package:stripes_ui/Providers/sub_provider.dart';
 import 'package:stripes_ui/UI/AccountManagement/ProfileScreen/edit_profile.dart';
 import 'package:stripes_ui/UI/AccountManagement/ProfileScreen/profile_avatar.dart';
 import 'package:stripes_ui/UI/AccountManagement/ProfileScreen/profile_screen.dart';
+import 'package:stripes_ui/UI/AccountManagement/birth_year_selector.dart';
 import 'package:stripes_ui/Util/Design/palette.dart';
 import 'package:stripes_ui/config.dart';
 
@@ -94,6 +95,7 @@ Future<ProviderContainer> _pump(
   double scale = 1,
   double keyboard = 0,
   SharedService? service,
+  bool beta = false,
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -108,6 +110,9 @@ Future<ProviderContainer> _pump(
             profileType: type,
             hasLogging: true,
             allowsSummaryReport: true,
+            betaUi: beta
+                ? const BetaUiConfig.enabled()
+                : const BetaUiConfig.disabled(),
           ),
         ),
         subHolderProvider.overrideWith(
@@ -153,11 +158,58 @@ Future<void> _tapEditorText(WidgetTester tester, String text) async {
 void main() {
   setUpAll(loadAuditFonts);
   setUp(() => SharedPreferences.setMockInitialValues({}));
+
+  testWidgets('base name profiles hide and preserve stored details on edit', (
+    tester,
+  ) async {
+    const condition = ProfileCondition('Other', details: 'Stored condition');
+    final service = SharedService();
+    await service.setProfileCondition(
+      accountId: 'account',
+      profileId: _first.uid,
+      condition: condition,
+    );
+    final repo = _Repo();
+    await _pump(tester, repo, type: ProfileType.name, service: service);
+    expect(find.textContaining('Born'), findsNothing);
+    expect(find.textContaining('Stored condition'), findsNothing);
+
+    await _edit(tester, 'first');
+    expect(find.byType(TextFormField), findsOneWidget);
+    expect(find.byType(BirthYearSelector), findsNothing);
+    expect(find.byType(DropdownButtonFormField<String>), findsNothing);
+    expect(find.text('First name'), findsNothing);
+    expect(find.text('Last name'), findsNothing);
+    final input = find.byKey(const ValueKey('profile-first-name'));
+    expect(tester.widget<TextFormField>(input).controller!.text, _first.name);
+    await tester.enterText(input, '  New profile name  ');
+    await _tapEditorText(tester, 'Save');
+
+    final updated = repo.updates.single;
+    expect(updated.name, 'New profile name');
+    expect(updated.birthYear, _first.birthYear);
+    expect(updated.gender, _first.gender);
+    expect(updated.isControl, _first.isControl);
+    expect(
+      await service.getProfileCondition(
+        accountId: 'account',
+        profileId: _first.uid,
+      ),
+      condition,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('condition-only edits persist locally and replace gender', (
     tester,
   ) async {
     final repo = _Repo();
-    final container = await _pump(tester, repo, type: ProfileType.name);
+    final container = await _pump(
+      tester,
+      repo,
+      type: ProfileType.name,
+      beta: true,
+    );
     expect(find.textContaining('Male'), findsNothing);
     expect(find.textContaining('Female'), findsNothing);
     await _edit(tester, 'first');
@@ -194,7 +246,12 @@ void main() {
     tester,
   ) async {
     final repo = _Repo();
-    final container = await _pump(tester, repo, type: ProfileType.name);
+    final container = await _pump(
+      tester,
+      repo,
+      type: ProfileType.name,
+      beta: true,
+    );
     await _edit(tester, 'first');
     final field = find.byType(DropdownButtonFormField<String>);
     await tester.ensureVisible(field);
@@ -228,6 +285,7 @@ void main() {
       tester,
       repo,
       type: ProfileType.name,
+      beta: true,
       service: service,
     );
     await _edit(tester, 'first');
@@ -372,7 +430,7 @@ void main() {
     tester,
   ) async {
     final repo = _Repo();
-    await _pump(tester, repo, type: ProfileType.name);
+    await _pump(tester, repo, type: ProfileType.name, beta: true);
     await _edit(tester, 'second');
     final family = tester.widget<TextFormField>(
       find.byKey(const ValueKey('profile-last-name')),
@@ -405,7 +463,13 @@ void main() {
       gender: 'Other',
       isControl: true,
     );
-    await _pump(tester, repo, type: ProfileType.name, profiles: [user]);
+    await _pump(
+      tester,
+      repo,
+      type: ProfileType.name,
+      beta: true,
+      profiles: [user],
+    );
     await _edit(tester, 'single');
     await tester.enterText(
       find.byKey(const ValueKey('profile-first-name')),
@@ -462,7 +526,13 @@ void main() {
     tester,
   ) async {
     final repo = _Repo();
-    await _pump(tester, repo, type: ProfileType.name, keyboard: 300);
+    await _pump(
+      tester,
+      repo,
+      type: ProfileType.name,
+      beta: true,
+      keyboard: 300,
+    );
     await _edit(tester, 'first');
     final family = find.byKey(const ValueKey('profile-last-name'));
     await tester.ensureVisible(family);
@@ -479,7 +549,14 @@ void main() {
       'adaptive profile editor fits ${size.width} wide at large text',
       (tester) async {
         final repo = _Repo();
-        await _pump(tester, repo, size: size, scale: 3, type: ProfileType.name);
+        await _pump(
+          tester,
+          repo,
+          size: size,
+          scale: 3,
+          type: ProfileType.name,
+          beta: true,
+        );
         expect(tester.takeException(), isNull);
         await _edit(tester, 'first');
         expect(find.byType(Dialog), findsOneWidget);

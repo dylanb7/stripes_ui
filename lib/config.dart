@@ -45,10 +45,25 @@ class BetaUiConfig {
 
   /// Adds period summaries, entry previews, and helpful empty History states.
   final bool historyOverview;
+
+  /// Enables note search and time-of-day filters for beta evaluation.
+  final bool advancedHistoryFilters;
   final bool multiSessionFlow;
+
+  /// Enables redesigned Blue Meal study screens, information, and step sheets.
+  final bool blueDyeTest;
 
   /// Collect app terms once per account on this device, before profile setup.
   final bool onboardingTerms;
+
+  /// Shows the Help and Resources section in Account and enables its routes.
+  final bool helpAndResources;
+
+  /// Enables expanded profile names, birth year, and condition fields.
+  final bool profileDetails;
+
+  /// Enables PDF summary reports when the embedding app also allows them.
+  final bool summaryReports;
 
   /// Shows category illustrations. Color accents can be disabled separately.
   final bool useCategoryTheme;
@@ -62,8 +77,13 @@ class BetaUiConfig {
     this.dashboard = false,
     this.compactHistory = false,
     this.historyOverview = false,
+    this.advancedHistoryFilters = false,
     this.multiSessionFlow = false,
+    this.blueDyeTest = false,
     this.onboardingTerms = false,
+    this.helpAndResources = false,
+    this.profileDetails = false,
+    this.summaryReports = false,
     this.useCategoryTheme = false,
     this.useCategoryColors = true,
     this.hasGraphing = false,
@@ -74,8 +94,13 @@ class BetaUiConfig {
     this.dashboard = true,
     this.compactHistory = true,
     this.historyOverview = true,
+    this.advancedHistoryFilters = true,
     this.multiSessionFlow = true,
+    this.blueDyeTest = true,
     this.onboardingTerms = true,
+    this.helpAndResources = true,
+    this.profileDetails = true,
+    this.summaryReports = true,
     this.useCategoryTheme = true,
     this.useCategoryColors = true,
     this.hasGraphing = true,

@@ -80,7 +80,7 @@ void main() {
     final group = find.byKey(const ValueKey('follow-ups-pain-details'));
     for (final key in [
       'compact-pain-location-unknown',
-      'compact-pain-level-unknown',
+      'pain-intensity-not-sure',
     ]) {
       expect(
         find.descendant(of: group, matching: find.byKey(ValueKey(key))),
@@ -90,7 +90,7 @@ void main() {
     await _next(tester);
     expect(_review, findsNothing);
     await _tapKey(tester, 'compact-pain-location-unknown');
-    await _tapKey(tester, 'compact-pain-level-unknown');
+    await _tapKey(tester, 'pain-intensity-not-sure');
     await _next(tester);
     expect(_review, findsOneWidget);
     expect(tester.takeException(), isNull);

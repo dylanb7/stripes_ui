@@ -153,16 +153,18 @@ class AccountManagementScreen extends ConsumerWidget {
                     indent: AppPadding.small,
                   ),
                 ],
-                ListTile(
-                  title: const Text('Help and resources'),
-                  subtitle: const Text('Study guides and tracking tips'),
-                  trailing: const Icon(Icons.keyboard_arrow_right),
-                  onTap: () => context.pushNamed(RouteName.RESOURCES),
-                ),
-                const Divider(
-                  endIndent: AppPadding.small,
-                  indent: AppPadding.small,
-                ),
+                if (config.betaUi.helpAndResources) ...[
+                  ListTile(
+                    title: const Text('Help and resources'),
+                    subtitle: const Text('Study guides and tracking tips'),
+                    trailing: const Icon(Icons.keyboard_arrow_right),
+                    onTap: () => context.pushNamed(RouteName.RESOURCES),
+                  ),
+                  const Divider(
+                    endIndent: AppPadding.small,
+                    indent: AppPadding.small,
+                  ),
+                ],
                 const SizedBox(height: AppPadding.medium),
                 Center(
                   child: TextButton(
@@ -254,7 +256,7 @@ class _DeleteAccountPopupState extends ConsumerState<DeleteAccountPopup> {
                   ),
                   const SizedBox(height: AppPadding.small),
                   const Text(
-                    "Are you sure you want to delete your account?\nThis action is irreversable and will remove all data associated with the account.\nTo confirm this action type \"Delete\"",
+                    "Deleting your account is permanent.\nYour cloud records will be scheduled for deletion, and data stored on this device will be removed. Previously generated study exports are retained under the study\'s retention policy.\nTo confirm, type \"Delete\"",
                   ),
                   const SizedBox(height: AppPadding.small),
                   TextFormField(

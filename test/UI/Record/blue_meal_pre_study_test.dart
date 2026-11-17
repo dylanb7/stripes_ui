@@ -6,6 +6,7 @@ import 'package:stripes_ui/Providers/Auth/auth_provider.dart';
 import 'package:stripes_ui/Providers/base_providers.dart';
 import 'package:stripes_ui/Providers/Test/test_provider.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/blue_meal_info.dart';
+import 'package:stripes_ui/UI/Record/TestScreen/blue_dye_study_info.dart';
 import 'package:stripes_ui/config.dart';
 import 'package:stripes_ui/l10n/app_localizations.dart';
 
@@ -65,14 +66,24 @@ void main() {
         }
 
         expect(find.byType(AppTos), findsNothing);
-        expect(find.byType(PreStudyInfo), findsOneWidget);
+        expect(
+          find.byType(
+            onboardingTerms ? BlueDyeStudyIntroduction : PreStudyInfo,
+          ),
+          findsOneWidget,
+        );
         expect(starts, 0);
-        final startButton = find.widgetWithText(FilledButton, 'Start step one');
+        final startButton = find.widgetWithText(
+          FilledButton,
+          onboardingTerms ? 'Start Study' : 'Start step one',
+        );
         expect(tester.widget<FilledButton>(startButton).onPressed, isNull);
         expect(tester.widget<Checkbox>(find.byType(Checkbox)).value, isFalse);
         expect(
           find.text(
-            'I have read and understand the Blue Meal study process. I agree to start the test',
+            onboardingTerms
+                ? 'I have read and understand the Blue Meal study process. I agree to start the study.'
+                : 'I have read and understand the Blue Meal study process. I agree to start the test',
           ),
           findsOneWidget,
         );
@@ -84,6 +95,12 @@ void main() {
         expect(tester.widget<FilledButton>(startButton).onPressed, isNotNull);
         await tester.tap(startButton);
         await tester.pumpAndSettle();
+        if (onboardingTerms) {
+          expect(starts, 0);
+          expect(find.text('Before you begin'), findsOneWidget);
+          await tester.tap(find.text('Continue to Study'));
+          await tester.pumpAndSettle();
+        }
         expect(starts, 1);
         expect(tester.takeException(), isNull);
       },

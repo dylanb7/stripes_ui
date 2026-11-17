@@ -14,6 +14,7 @@ import 'package:stripes_ui/UI/Layout/tab_view.dart';
 import 'package:stripes_ui/UI/Resources/terms_of_service.dart';
 import 'package:stripes_ui/UI/Resources/resource_markdown.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/card_layout_helper.dart';
+import 'package:stripes_ui/UI/Record/TestScreen/blue_dye_study_info.dart';
 import 'package:stripes_ui/UI/Record/TestScreen/test_screen.dart';
 import 'package:stripes_ui/Util/Design/breakpoint.dart';
 import 'package:stripes_ui/Util/Widgets/easy_snack.dart';
@@ -44,8 +45,10 @@ class _BlueMealPreStudyState extends ConsumerState<BlueMealPreStudy> {
 
   @override
   Widget build(BuildContext context) {
-    final termsAcceptedDuringOnboarding =
-        ref.watch(configProvider).betaUi.onboardingTerms;
+    final termsAcceptedDuringOnboarding = ref
+        .watch(configProvider)
+        .betaUi
+        .onboardingTerms;
     return !termsAcceptedDuringOnboarding && !appTosRead
         ? AppTos(
             onContinue: () {
@@ -53,6 +56,11 @@ class _BlueMealPreStudyState extends ConsumerState<BlueMealPreStudy> {
                 appTosRead = true;
               });
             },
+          )
+        : ref.watch(configProvider).betaUi.blueDyeTest
+        ? BlueDyeStudyIntroduction(
+            onStart: widget.onClick,
+            isLoading: widget.isLoading,
           )
         : PreStudyInfo(
             isLoading: widget.isLoading,

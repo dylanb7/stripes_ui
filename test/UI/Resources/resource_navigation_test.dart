@@ -5,10 +5,41 @@ import 'package:go_router/go_router.dart';
 import 'package:stripes_backend_helper/RepositoryBase/AuthBase/auth_user.dart';
 import 'package:stripes_ui/Providers/Auth/auth_provider.dart';
 import 'package:stripes_ui/Providers/Navigation/route_provider.dart';
+import 'package:stripes_ui/Providers/base_providers.dart';
 import 'package:stripes_ui/UI/Resources/resources.dart';
 import 'package:stripes_ui/Util/constants.dart';
+import 'package:stripes_ui/config.dart';
 
 void main() {
+  for (final location in [
+    '/account/resources',
+    '/account/resources/bristol-scale',
+    '/account/resources/missing-guide',
+  ]) {
+    testWidgets('base UI redirects $location to Account', (tester) async {
+      final router = await _pumpResourceRoutes(
+        tester,
+        initialLocation: location,
+        betaUi: const BetaUiConfig.disabled(),
+      );
+      expect(router.state.uri.path, '/account');
+      expect(find.text('Account'), findsOneWidget);
+      expect(find.byType(ResourcesScreen), findsNothing);
+      expect(find.byType(ResourceScreen), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('resources can be enabled independently of other beta features', (
+    tester,
+  ) async {
+    await _pumpResourceRoutes(
+      tester,
+      betaUi: const BetaUiConfig.disabled(helpAndResources: true),
+    );
+    expect(find.byType(ResourcesScreen), findsOneWidget);
+  });
+
   testWidgets('every guide has a stable route beneath Account resources', (
     tester,
   ) async {
@@ -82,9 +113,14 @@ void main() {
   });
 }
 
-GoRouter _productionRouter() {
+GoRouter _productionRouter({
+  BetaUiConfig betaUi = const BetaUiConfig.enabled(),
+}) {
   final container = ProviderContainer(
     overrides: [
+      configProvider.overrideWith(
+        (ref) => StripesConfig.sandbox(betaUi: betaUi),
+      ),
       authStream.overrideWith((ref) => const Stream<AuthUser>.empty()),
     ],
   );
@@ -99,8 +135,9 @@ GoRouter _productionRouter() {
 Future<GoRouter> _pumpResourceRoutes(
   WidgetTester tester, {
   String initialLocation = '/account/resources',
+  BetaUiConfig betaUi = const BetaUiConfig.enabled(),
 }) async {
-  final production = _productionRouter();
+  final production = _productionRouter(betaUi: betaUi);
   final account = _allRoutes(production.configuration.routes)
       .singleWhere((route) => route.name == RouteName.ACCOUNT);
   final resources = account.routes.whereType<GoRoute>().singleWhere(
@@ -112,6 +149,7 @@ Future<GoRouter> _pumpResourceRoutes(
     path: route.path,
     name: route.name,
     pageBuilder: route.pageBuilder,
+    redirect: route.redirect,
     routes: route.routes.whereType<GoRoute>().map(withoutShellKey).toList(),
   );
   final router = GoRouter(

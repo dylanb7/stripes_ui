@@ -3,8 +3,12 @@ import 'package:stripes_backend_helper/RepositoryBase/AuthBase/auth_user.dart';
 import 'package:stripes_backend_helper/RepositoryBase/AuthBase/base_auth_repo.dart';
 import 'package:stripes_ui/Providers/base_providers.dart';
 
-final authProvider =
-    Provider<AuthRepo>((ref) => ref.watch(reposProvider).auth());
+final authProvider = Provider<AuthRepo>(
+  (ref) => ref.watch(reposProvider).auth(),
+);
 
-final authStream =
-    StreamProvider<AuthUser>((ref) => ref.watch(authProvider).user);
+final authStream = StreamProvider<AuthUser>(
+  (ref) => ref.watch(authProvider).user,
+  // The repository keeps this stream open for explicit refresh recovery.
+  retry: (_, _) => null,
+);

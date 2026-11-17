@@ -223,7 +223,7 @@ class _HistoryPresentationSwitch extends StatelessWidget {
           colors.primary.withValues(alpha: 0.07),
           colors.surface,
         ),
-        borderRadius: BorderRadius.circular(AppRounding.large),
+        borderRadius: BorderRadius.circular(AppRounding.medium),
       ),
       child: Padding(
         padding: const EdgeInsets.all(AppPadding.tiny),
@@ -241,7 +241,7 @@ class _HistoryPresentationSwitch extends StatelessWidget {
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       color: colors.primary,
-                      borderRadius: BorderRadius.circular(AppRounding.medium),
+                      borderRadius: BorderRadius.circular(AppRounding.small),
                       boxShadow: [
                         BoxShadow(
                           color: colors.shadow.withValues(alpha: 0.10),
@@ -301,7 +301,7 @@ class _HistoryPresentationSwitch extends StatelessWidget {
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               visualDensity: VisualDensity.standard,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppRounding.medium),
+                borderRadius: BorderRadius.circular(AppRounding.small),
               ),
               textStyle: textStyle,
               animationDuration: duration,

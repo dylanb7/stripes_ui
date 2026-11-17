@@ -4,13 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:stripes_backend_helper/stripes_backend_helper.dart';
 import 'package:stripes_ui/Providers/Questions/question_ui_registry.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/compact_record_questions.dart';
+import 'package:stripes_ui/UI/Record/QuestionEntries/pain_numeric.dart';
 import 'package:stripes_ui/UI/Record/QuestionEntries/question_entry_scope.dart';
-import 'package:stripes_ui/UI/Resources/resources.dart';
 import 'package:stripes_ui/Util/Design/paddings.dart';
 import 'package:stripes_ui/l10n/questions_delegate.dart';
 
-/// The Bristol stool question is the one intentional ID-level escape hatch in
-/// this preset. Every other entry is selected by [QuestionType].
+/// The Bristol stool question uses a dedicated full-view entry in this preset.
 const String bowelMovementStoolTypeQuestionId = 'q4';
 
 const Color _navy = Color(0xFF17245E);
@@ -29,6 +28,12 @@ QuestionUIRegistry bowelMovementFullViewRegistry() => QuestionUIRegistry(
       isSeparateScreen: false,
       entryBuilder: _buildBristolEntry,
     ),
+    for (final id in ['Pain-Rating', 'q6'])
+      id: QuestionEntry(
+        isSeparateScreen: true,
+        entryBuilder: (graph, context, question) =>
+            PainIntensityWidget(graph: graph, question: question as Numeric),
+      ),
   },
   entryTypeOverrides: const {
     QuestionType.check: QuestionEntry(
@@ -514,11 +519,6 @@ class BowelMovementBristolEntry extends StatelessWidget {
                           'Bristol Stool Scale',
                           style: Theme.of(context).textTheme.titleSmall,
                         ),
-                      ),
-                      const ResourceInfoButton(
-                        topic: ResourceTopic.bristolScale,
-                        sectionId: 'stool-types',
-                        tooltip: 'About the Bristol Stool Scale',
                       ),
                     ],
                   ),

@@ -1222,7 +1222,7 @@ class BlueDyeDisplay extends StatelessWidget {
         const SizedBox(height: AppPadding.tiny),
         Text(
           prettyDuration(
-            resp.lastBlue.difference(resp.startEating.add(resp.eatingDuration)),
+            resp.firstBlue.difference(resp.startEating),
             delimiter: ' ',
             locale:
                 DurationLocale.fromLanguageCode(current.languageCode) ??

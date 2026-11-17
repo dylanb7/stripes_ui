@@ -114,6 +114,10 @@ class RouteNotifier extends ChangeNotifier {
               parentNavigatorKey: _shellNavigatorKey,
               name: RouteName.RESOURCES,
               path: Routes.RESOURCES,
+              redirect: (context, state) =>
+                  _ref.read(configProvider).betaUi.helpAndResources
+                  ? null
+                  : Routes.ACCOUNT,
               pageBuilder: (context, state) =>
                   FadeIn(child: _resourcesScreen(context), state: state),
               routes: [
